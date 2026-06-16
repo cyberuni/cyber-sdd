@@ -41,6 +41,14 @@ Section content to write:
 
 **Two modes, one gate.** Before `spec.md → Approved` (exploration mode): code, plan, tasks, and scenarios may all evolve freely. After Approved (implementation mode): `.feature` is frozen; all scenarios must pass before marking the spec `Implemented`.
 
+**Open questions.** When a contributor's input is still missing, mark the gap:
+`<!-- open: needs designer input on empty-state behavior -->`. Resolve all open
+questions before advancing to Approved. Do not write TBD or leave sections empty.
+
+**Author responsibility.** The spec author drives the spec forward — initiating
+conversations, incorporating inputs, resolving contradictions. They are not
+required to supply all answers alone.
+
 ### References
 
 - **`validate-spec` skill** — check spec completeness and readiness for status transition

@@ -15,58 +15,29 @@ If no domain was named, list domains under `src/` (or the project's source root)
 
 ## Determine mode
 
-- **New feature** — no implementation exists yet. Ask the user for What, Why, and command surface before proceeding.
-- **Backfill** — implementation already exists. `sdd-spec-designer` will infer content from source and tests; user reviews before writing.
+- **New feature** — no implementation exists yet.
+- **Backfill** — implementation already exists; `sdd-author` will infer content from source and tests.
 
 If unclear, ask the user which mode applies.
 
-## For the selected domain
-
-### Iteration 0 — draft
-
-Invoke `sdd-spec-designer` with:
+## Invoke sdd-author
 
 ```
 DOMAIN: <domain name>
 DOMAIN_PATH: specs/<domain>/
-BACKFILL: <true | false>
-PRIOR_VALIDATOR_FEEDBACK: null
-USER_ANSWERS: null
+GOAL: exploration
 USER_INPUT: <user-provided What, Why, command surface — or null for backfill>
+BACKFILL: <true | false>
 ```
 
-Wait for `sdd-spec-designer` to complete (including any user review of inferred content) before continuing.
-
-### Quality loop (max 3 iterations)
-
-1. Invoke `sdd-spec-validator` with:
-   ```
-   DOMAIN: <domain>
-   DOMAIN_PATH: specs/<domain>/
-   TARGET_STATUS: any
-   ```
-2. If `overall == "pass"` → exit loop.
-3. If `user_questions` is non-empty → ask the user those questions and collect answers.
-4. Invoke `sdd-spec-designer` with:
-   ```
-   DOMAIN: <same>
-   DOMAIN_PATH: <same>
-   BACKFILL: <same>
-   PRIOR_VALIDATOR_FEEDBACK: <validator output JSON>
-   USER_ANSWERS: <collected answers, or null>
-   USER_INPUT: null
-   ```
-5. Repeat from step 1.
-
-If the loop completes 3 iterations without `overall == "pass"`, continue with status `accepted-pending-review`.
+Wait for `sdd-author` to complete (including any grill-me conversation with the user and its internal quality loop) before continuing.
 
 ## Report
 
 - Domain specced
 - Files written (spec.md, .feature, README.md changes)
-- Quality gate outcome: `pass` or `accepted-pending-review`
-- Unresolved check failures (if `accepted-pending-review`)
-- Number of quality-loop iterations taken
+- Quality gate outcome: `pass` or `accepted-pending-review` (from QUALITY_GATE in author summary)
+- Open questions remaining (from OPEN_QUESTIONS in author summary)
 - Next step: run `validate-spec` before changing Status from Draft → Approved
 
 ## Commit

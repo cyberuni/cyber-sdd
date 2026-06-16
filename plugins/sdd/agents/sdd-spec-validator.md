@@ -37,7 +37,8 @@ If either file is missing, return immediately with `overall: "fail"` and a `prio
 - [ ] `What` describes observable behavior, not implementation internals
 - [ ] `Why` explains the problem — does not merely restate the What
 - [ ] `Design decisions` section present if any non-obvious choices were made
-- [ ] No placeholder text (`TBD`, `TODO`, `...`, empty sections)
+- [ ] No placeholder text (`TBD`, `TODO`, `...`, empty sections) — these are never valid
+- [ ] `<!-- open: ... -->` comments are valid in `Draft` status only; treated as blockers for `Draft → Approved`
 - [ ] No contradictions between sections
 
 #### .feature quality
@@ -51,6 +52,7 @@ If either file is missing, return immediately with `overall: "fail"` and a `prio
 #### Status consistency (apply only when TARGET_STATUS is set)
 
 - [ ] `Draft → Approved`: no placeholder text; Why section substantive
+- [ ] `Draft → Approved`: no `<!-- open: ... -->` comments remain in any section
 - [ ] `Approved → Implemented`: confirm passing tests exist that correspond to the scenarios
 - [ ] `Implemented`: tests must map to every scenario in the `.feature` file
 
@@ -61,6 +63,7 @@ If any check fails, generate questions that only a human can answer — not deri
 Examples:
 - Required sections: "The spec has no `Why` section — what problem does this feature solve?"
 - Content quality: "The What section says 'handle the edge case' — which edge case specifically?"
+- Open questions: "This spec has unresolved open questions (`<!-- open: -->`). Have they been resolved? If so, fill in the answers before advancing to Approved."
 - Feature quality: "The command surface lists `--force` but there is no scenario for it — should `--force` be specced?"
 - Status consistency: "The status is Implemented but I found no test file for `<domain>` — where do the passing tests live?"
 

@@ -21,23 +21,31 @@ Ask or infer which status transition is being validated:
 - **Approved → Implemented** — checking that tests cover all scenarios
 - **General review** — no specific transition; check completeness only
 
-## Invoke sdd-spec-validator
+Map to GOAL:
+
+| Context | GOAL |
+|---|---|
+| Draft → Approved | `approval` |
+| Approved → Implemented | `implementation` |
+| General review | `exploration` |
+
+## Invoke sdd-author
 
 ```
 DOMAIN: <domain>
 DOMAIN_PATH: specs/<domain>/
-TARGET_STATUS: <Draft→Approved | Approved→Implemented | any>
+GOAL: <derived from context>
+USER_INPUT: null
+BACKFILL: false
 ```
 
 ## Report
 
 Present results clearly:
 
-- PASS / FAIL per check (group by category: Required sections, Content quality, .feature quality, Status consistency)
-- Summary: total checks passed / total checks
-- If any checks failed:
-  - List of `priority_issues` to fix
-  - User questions from the validator (if any)
-- If all passed: confirm the spec is ready to advance to the next status
+- PASS / FAIL per check (relay from sdd-author → sdd-spec-validator output)
+- If any checks failed: list of issues to fix and OPEN_QUESTIONS from author summary
+- If GOAL_ACHIEVED is false: surface BLOCKER from author summary
+- If GOAL_ACHIEVED is true: confirm the spec has advanced to the next status
 
 Do not fix issues automatically — report them for the user to address or confirm intent.

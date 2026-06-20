@@ -16,6 +16,7 @@ BACKFILL: <true if implementation already exists, false for new feature>
 PRIOR_VALIDATOR_FEEDBACK: <sdd-spec-validator output JSON, or null on first run>
 USER_ANSWERS: <answers to validator's user_questions, or null>
 USER_INPUT: <user-provided What, Why, and command surface for new features, or null>
+ADVISOR_CONSTRAINTS: <scenario-advisor contract output, or null if no advisor declared>
 ```
 
 ## Steps
@@ -86,6 +87,8 @@ Create or update `<DOMAIN_PATH>/<domain>.feature`. Scenarios must cover:
 - `--json` output scenarios if the command supports `--json`
 
 Use BDD language (Given/When/Then). Describe only observable behavior — exit codes, stdout, return values, side effects. Do not reference internal state, function names, or implementation details.
+
+If `ADVISOR_CONSTRAINTS` is non-null: apply `REQUIRED_FIELDS` to every scenario, avoid `FORBIDDEN_PATTERNS`, and use `EXAMPLE_SCENARIOS` as structural templates. Domain-specific constraints take precedence over generic Gherkin defaults.
 
 ### 4. Update specs/README.md
 

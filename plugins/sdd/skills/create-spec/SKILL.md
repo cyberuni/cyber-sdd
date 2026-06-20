@@ -35,14 +35,17 @@ Wait for `sdd-author` to complete (including any grill-me conversation with the 
 ## Report
 
 - Domain specced
-- Files written (spec.md, .feature, README.md changes)
+- Files written (spec.md, .feature, README.md changes, Artifacts section)
 - Quality gate outcome: `pass` or `accepted-pending-review` (from QUALITY_GATE in author summary)
+- Aligned: `true` or `false` (from ALIGNED in author summary)
 - Open questions remaining (from OPEN_QUESTIONS in author summary)
 - Next step: run `validate-spec` before changing Status from Draft → Approved
 
 ## Commit
 
-After a successful quality gate, commit with:
+Only commit when ALIGNED is `true`. If ALIGNED is `false`, report which artifacts still need updating before committing.
+
+When ALIGNED is `true`, commit with:
 
 ```
 docs(specs): add <domain> spec

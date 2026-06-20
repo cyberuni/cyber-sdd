@@ -91,6 +91,23 @@ Use BDD language (Given/When/Then). Describe only observable behavior — exit c
 
 Add the domain to the command surface table and domain index. If `specs/README.md` does not exist, create it with a table listing all domains under `specs/`.
 
+### 5. Maintain ## Artifacts section
+
+In `<DOMAIN_PATH>/spec.md`, ensure an `## Artifacts` section exists. If not, create it with at minimum:
+
+```markdown
+## Artifacts
+
+| Label | Path |
+|---|---|
+| Spec | `<DOMAIN_PATH>/spec.md` |
+| Scenarios | `<DOMAIN_PATH>/<domain>.feature` |
+```
+
+If any new artifact was created during this run (plan.md, tasks.md, exploratory code), add a row for it. Paths are project-root-relative; folder paths are acceptable for packages or directories.
+
+After writing any artifact, set `aligned: false` in `spec.md` frontmatter. Alignment is confirmed by `sdd-author` after all artifacts are updated — never set `aligned: true` here.
+
 ## Output
 
 Return a summary to `create-spec`:
@@ -101,5 +118,6 @@ DOMAIN_PATH: <path>
 SPEC_STATUS: created | updated
 FEATURE_STATUS: created | updated
 README_STATUS: updated | created | unchanged
+ARTIFACTS_STATUS: updated | created | unchanged
 OPEN_QUESTIONS: <list of unresolved items, or "none">
 ```

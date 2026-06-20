@@ -23,6 +23,8 @@ BACKFILL: <true if implementation already exists, false for new feature>
 
 Read `<DOMAIN_PATH>/spec.md` if it exists. Determine the current status field (`draft`, `approved`, `implemented`, `deprecated`) or `none` if no spec exists yet.
 
+Set `aligned: false` in `spec.md` frontmatter before making any changes. This marks the unit of work as in-progress and must not be reverted to `true` until all listed artifacts are updated.
+
 If `GOAL` is `auto`, derive the phase:
 - `none` or `draft` with incomplete sections → `exploration`
 - `draft` with all required sections substantively filled → `approval`
@@ -66,6 +68,7 @@ Run only when phase is `exploration`.
 5. If `user_questions` is non-empty → ask the user only those questions; collect answers.
 6. Invoke `sdd-spec-designer` again with the validator feedback and user answers to revise only affected sections.
 7. Repeat from step 2. Stop after 3 iterations regardless of outcome; set QUALITY_GATE to `accepted-pending-review` if not resolved.
+8. Before exiting exploration: read all paths in `## Artifacts`. For each folder, verify the folder exists; for each file, verify the file exists. If any listed artifact is missing or the `## Artifacts` section does not exist, do not set `aligned: true`. Report the missing artifacts. If all artifacts are present and the quality gate passed, set `aligned: true` in `spec.md` frontmatter.
 
 ### 4. Approval gate
 
@@ -78,7 +81,8 @@ Run only when phase is `approval`.
    - A PR approval from the reviewer
    - A recorded comment (e.g., "LGTM from design perspective")
    - An explicit in-person or async acknowledgment noted in the spec or PR
-5. Only after the user confirms all required voices heard: update `status: approved` in `spec.md` frontmatter. Set GOAL_ACHIEVED: true.
+5. Only after the user confirms all required voices heard: update `status: approved` in `spec.md` frontmatter.
+6. Verify all paths in `## Artifacts` exist. If all present: set `aligned: true`. Set GOAL_ACHIEVED: true only when `aligned: true`.
 
 ### 5. Implementation loop
 
@@ -89,7 +93,7 @@ Run only when phase is `implementation`.
 3. If tests are missing for any scenario: report the uncovered scenarios as a gap list. Do not advance. Set GOAL_ACHIEVED: false with BLOCKER naming the uncovered scenarios.
 4. If a gap is discovered that is clearly implied by the existing spec but was not scenarioed: note it as a minor gap. The calling skill may add the implied scenario with a quick review — spec status stays `approved`.
 5. If the gap requires changing specified behavior: the spec must revert to `draft`. Report this requirement to the user; do not make the change autonomously.
-6. When all scenarios have passing tests: update `status: implemented` in `spec.md` frontmatter. Set GOAL_ACHIEVED: true.
+6. When all scenarios have passing tests: update `status: implemented` in `spec.md` frontmatter. Verify all paths in `## Artifacts` exist. Set `aligned: true`. Set GOAL_ACHIEVED: true only when `aligned: true`.
 
 ## Output
 
@@ -101,6 +105,7 @@ DOMAIN_PATH: <path>
 PHASE: <exploration | approval | implementation>
 GOAL_ACHIEVED: <true | false>
 STATUS: <current spec.md status after any updates>
+ALIGNED: <true | false>
 QUALITY_GATE: <pass | accepted-pending-review | blocked>
 OPEN_QUESTIONS: <list of <!-- open: --> items remaining, or "none">
 BLOCKER: <reason if GOAL_ACHIEVED is false, else null>

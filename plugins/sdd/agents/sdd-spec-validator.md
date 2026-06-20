@@ -30,12 +30,15 @@ If either file is missing, return immediately with `overall: "fail"` and a `prio
 
 #### Required sections
 
-- [ ] `Status` field present and valid (`Draft` / `Approved` / `Implemented` / `Deprecated`)
+- [ ] `status` field present and valid (`draft` / `approved` / `implemented` / `deprecated`)
+- [ ] `aligned` field present (`true` or `false`)
 - [ ] `What` section present and non-empty
 - [ ] `Why` section present and non-empty
 - [ ] `Command surface / API` section present (or explicitly noted as N/A with justification)
 - [ ] Link to `.feature` file present
 - [ ] `.feature` file exists at the linked path
+- [ ] `## Artifacts` section present (warning-only for first-draft specs with no implementation artifacts yet; required once any implementation artifact exists)
+- [ ] All paths in `## Artifacts` table resolve to existing files or folders (project-root-relative)
 
 #### Content quality
 
@@ -58,7 +61,9 @@ If either file is missing, return immediately with `overall: "fail"` and a `prio
 
 - [ ] `Draft → Approved`: no placeholder text; Why section substantive
 - [ ] `Draft → Approved`: no `<!-- open: ... -->` comments remain in any section
+- [ ] `Draft → Approved`: `aligned: true` (all artifacts in sync)
 - [ ] `Approved → Implemented`: confirm passing tests exist that correspond to the scenarios
+- [ ] `Approved → Implemented`: `aligned: true`
 - [ ] `Implemented`: tests must map to every scenario in the `.feature` file
 
 ### 3. Generate user_questions (only when checks fail)
@@ -79,8 +84,10 @@ Return a JSON object to the calling skill:
 ```json
 {
   "overall": "pass",
+  "aligned": true,
   "checks": [
     { "name": "status-field-present", "pass": true, "evidence": "Status: Draft found." },
+    { "name": "aligned-field-present", "pass": true, "evidence": "aligned: false found." },
     { "name": "why-section-present", "pass": false, "evidence": "No ## Why section found in spec.md." }
   ],
   "priority_issues": [
@@ -92,4 +99,4 @@ Return a JSON object to the calling skill:
 }
 ```
 
-`overall` is `"pass"` only when all checks pass. Otherwise `"fail"`.
+`overall` is `"pass"` only when all checks pass. Otherwise `"fail"`. `aligned` mirrors the `aligned` field read from the spec frontmatter.

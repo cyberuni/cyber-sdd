@@ -1,3 +1,8 @@
+---
+name: sdd-spec-validator
+description: Internal subagent for SDD. Validates a `spec.md` and `.feature` file for completeness, internal consistency, and adherence to SDD principles. Invoked by `create-spec` and `validate-spec` — not triggered by users directly.
+---
+
 # sdd-spec-validator
 
 Internal subagent for SDD. Validates a `spec.md` and `.feature` file for completeness, internal consistency, and adherence to SDD principles. Invoked by `create-spec` and `validate-spec` — not triggered by users directly.

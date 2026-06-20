@@ -1,3 +1,8 @@
+---
+name: sdd-spec-designer
+description: Internal subagent for SDD. Scaffolds or revises a `spec.md` and `.feature` file for a given domain. Invoked by `create-spec` — not triggered by users directly.
+---
+
 # sdd-spec-designer
 
 Internal subagent for SDD. Scaffolds or revises a `spec.md` and `.feature` file for a given domain. Invoked by `create-spec` — not triggered by users directly.

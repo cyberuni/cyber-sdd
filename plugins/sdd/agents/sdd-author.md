@@ -1,3 +1,8 @@
+---
+name: sdd-author
+description: Internal subagent for SDD. Owns the full spec lifecycle for a domain — from exploration through approval to implementation. Invoked by `create-spec`, `validate-spec`, and related skills — not triggered by users directly.
+---
+
 # sdd-author
 
 Internal subagent for SDD. Owns the full spec lifecycle for a domain — from exploration through approval to implementation. Invoked by `create-spec`, `validate-spec`, and related skills — not triggered by users directly.

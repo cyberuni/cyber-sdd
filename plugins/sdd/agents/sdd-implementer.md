@@ -1,80 +1,41 @@
 ---
 name: sdd-implementer
-description: "Internal skill: SDD dispatcher. Routes the implementer contract invocation to the declared domain plugin for a given sub-domain. Invoked by sdd-orchestrator during the implementation phase — not triggered by users directly."
+description: "Internal skill: the default SDD impl-judge. Produces the verification from the frozen .feature and runs it, reporting pass/fail per scenario for deterministic code. Invoked by sdd-orchestrator at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # sdd-implementer
 
-Dispatcher agent for the SDD implementer contract. Reads the Plugin assignments table, invokes the declared implementer for each sub-domain, and returns aggregated results to `sdd-orchestrator`. Keeps `sdd-orchestrator` unaware of routing logic.
+The default **impl-judge**. Produces the test result for a domain that no plugin covers and runs it against the **frozen** `.feature`. For deterministic code, a scenario passes when a passing test exists for it. Invoked by `sdd-orchestrator`; the orchestrator does the dispatch — this agent only judges.
 
 ## Input
 
 ```
-SPEC_PATH             — project-root-relative path to spec.md
-FEATURE_PATH          — project-root-relative path to the .feature file
-DOMAIN_PATH           — project-root-relative path to the spec folder
-PLAN_PATH             — project-root-relative path to plan.md (or null)
-TASKS_PATH            — project-root-relative path to tasks.md (or null)
-IMPLEMENTATION_PATHS  — list of project-root-relative paths from ## Artifacts table where layer=impl
-PLUGIN_ASSIGNMENTS    — text of the ## Plugin assignments section from plan.md (or null)
-REGISTRY_PATH         — project-root-relative path to .agents/universal-plugin.json (or null)
+DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, PLAN_PATH, TASKS_PATH
+IMPLEMENTATION_PATHS:  list of impl-layer paths from the ## Artifacts table
 ```
 
 ## Steps
 
-### 1. Identify sub-domains and implementers
+1. **Derive checks from the frozen `.feature`.** Read the `.feature` and produce **one functional check per scenario** — anchored to the scenario, never free-authored from your own sense of done. The frozen `.feature` is the bar; you did not set it.
 
-If `PLUGIN_ASSIGNMENTS` is non-null: parse the table. For each row, extract `Sub-domain` and `Implementer` columns. Use these as the authoritative assignments.
+2. **Run the test result.** For each scenario, confirm a passing test exercises the observable behavior it asserts (map scenario titles to test names/results across `IMPLEMENTATION_PATHS`). A scenario with no test, or a failing test, is `failing`. The test result also folds in the structural reading (fit, no dup/conflict) — orthogonal to the builder's lens.
 
-If `PLUGIN_ASSIGNMENTS` is null and `REGISTRY_PATH` is non-null: read `.agents/universal-plugin.json`. For each entry in `sdd-plugins`, collect the domain types listed under `implementer`. Map sub-domains from the spec to the first matching registry entry.
+3. **Report per scenario.** `IMPLEMENTATION_PASS: true` only when **every** scenario has a passing check.
 
-If neither source provides an implementer for a sub-domain: use fallback (step 3).
-
-### 2. Invoke declared implementers
-
-For each sub-domain with a declared implementer:
-
-Invoke the named implementer agent with:
-
-```
-DOMAIN:               <sub-domain name>
-DOMAIN_PATH:          <DOMAIN_PATH>
-SPEC_PATH:            <SPEC_PATH>
-FEATURE_PATH:         <FEATURE_PATH>
-PLAN_PATH:            <PLAN_PATH>
-TASKS_PATH:           <TASKS_PATH>
-IMPLEMENTATION_PATHS: <IMPLEMENTATION_PATHS filtered to this sub-domain, or full list if undifferentiated>
-```
-
-Collect the implementer's output: `IMPLEMENTATION_PASS`, `SCENARIOS_PASSING`, `SCENARIOS_FAILING`, `CHANGES_MADE`, `BLOCKER`.
-
-### 3. Fallback for undeclared sub-domains
-
-For sub-domains with no declared implementer: check that every scenario title in the `.feature` file has at least one passing test (grep test file names and results). Report:
-
-```
-IMPLEMENTATION_PASS: true   — if all scenarios have passing test coverage
-IMPLEMENTATION_PASS: false  — if any scenario has no test coverage or failing tests
-```
-
-### 4. Aggregate and return
-
-Collect results from all sub-domains (declared + fallback).
-
-Overall `ALL_PASS` is `true` only when every sub-domain returns `IMPLEMENTATION_PASS: true`.
+4. **Never modify `spec.md` or the `.feature`.** A discovered gap that requires changing specified behavior is a `BLOCKER` (the spec must revert to Draft — the orchestrator/skill decides), not an edit you make.
 
 ## Output
 
 ```
-ALL_PASS              — true | false (true only when all sub-domain implementers pass)
-SUB_DOMAIN_RESULTS    — list of per-sub-domain objects:
-  - sub_domain:         <name>
-  - implementer:        <agent name or "fallback">
-  - pass:               true | false
-  - scenarios_passing:  [list]
-  - scenarios_failing:  [list]
-  - changes_made:       <summary or "none">
-  - blocker:            <reason or null>
+STATUS:             complete | needs-input | blocked
+IMPLEMENTATION_PASS: true | false
+SCENARIOS_PASSING:  [ titles ]
+SCENARIOS_FAILING:  [ titles ]
+CHANGES_MADE:       <verification produced / run, or "none">
+BLOCKER:            <reason when IMPLEMENTATION_PASS is false, else null>
+QUESTIONS:          [ batched, when needs-input ]
+CONTENT_GAPS:       [ { artifact, location, gap } ]
+OBSERVATIONS:       [ { owner: architect | curator, note, evidence } ]
 ```

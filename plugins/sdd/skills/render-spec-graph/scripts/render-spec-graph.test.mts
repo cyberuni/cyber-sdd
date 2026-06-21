@@ -111,3 +111,21 @@ test('collectSpecs skips folders without spec.md and sorts by slug', () => {
 		rmSync(root, { recursive: true, force: true })
 	}
 })
+
+test('collectSpecs includes nested specs with root-relative slugs', () => {
+	const root = mkdtempSync(join(tmpdir(), 'specgraph-'))
+	try {
+		mkdirSync(join(root, 'alpha'))
+		writeFileSync(join(root, 'alpha', 'spec.md'), fm('draft', 'blocked-by: []'))
+		mkdirSync(join(root, 'sdd', 'sdd-skill'), { recursive: true })
+		writeFileSync(join(root, 'sdd', 'sdd-skill', 'spec.md'), fm('draft', 'blocked-by: [alpha]'))
+		const nodes = collectSpecs(root)
+		assert.deepEqual(
+			nodes.map((n) => n.slug),
+			['alpha', 'sdd/sdd-skill'],
+		)
+		assert.deepEqual(nodes[1].blockedBy, ['alpha'])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})

@@ -2,7 +2,7 @@
 
 Non-user-invocable SDD skill that renders the **spec DAG** to `artifacts/specs/graph.md`.
 
-The set of specs under `artifacts/specs/` forms a directed acyclic graph: each folder is a node (the slug is its ID) and each `blocked-by` frontmatter entry is a dependency edge. `graph.md` is a **derived view** of that graph (a Mermaid diagram + a node table). `blocked-by` is the source of truth — never hand-edit `graph.md`.
+The set of specs under `artifacts/specs/` forms a directed acyclic graph: each folder containing a `spec.md` is a node (the slug is its root-relative path) and each `blocked-by` frontmatter entry is a dependency edge. `graph.md` is a **derived view** of that graph (a Mermaid diagram + a node table). `blocked-by` is the source of truth — never hand-edit `graph.md`.
 
 ## Run
 

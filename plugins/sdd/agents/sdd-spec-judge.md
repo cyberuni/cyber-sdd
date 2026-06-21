@@ -11,11 +11,16 @@ The default **spec-judge** — Builder-backward at the spec gate. Judges the `.f
 
 Splits the work to optimize speed and tokens:
 
-- **Optional deterministic step** — a NodeJS static-analysis CLI for the mechanical checks (state-machine legality, Gherkin validity, boolean form, scenario ordering):
-  ```bash
-  node "<validate-spec skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
-  ```
-  This is **only an accelerator**. If `node`/`npx` is unavailable, perform the equivalent checks yourself by reading the files — the gate never hard-depends on NodeJS.
+- **Optional deterministic step** — two NodeJS static-analysis CLIs for the mechanical checks:
+  - State-machine legality of the `(status, aligned, markers, .feature, approved-by)` tuple:
+    ```bash
+    node "<validate-spec skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
+    ```
+  - Gherkin validity, boolean form, and scenario ordering/sectioning:
+    ```bash
+    node "<validate-spec skill>/scripts/check-feature.mts" [--root <specs-dir>]
+    ```
+  Both are **only accelerators**. If `node`/`npx` is unavailable, perform the equivalent checks yourself by reading the files — the gate never hard-depends on NodeJS.
 - **Non-deterministic agent reasoning** — coverage, testability, and contradiction checks that need judgment.
 
 ## Input

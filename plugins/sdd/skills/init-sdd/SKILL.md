@@ -55,7 +55,7 @@ required to supply all answers alone.
 
 - **`validate-spec` skill** — check spec completeness and readiness for status transition
 - **`create-spec` skill** — scaffold spec.md and .feature for a new or existing domain
-- Full SDD principles: `npx cyber-skills@<version> governance show sdd-principles`
+- The universal `.feature` format bar and spec-authoring rules live in the harness-loaded `sdd:spec-governance` skill (loaded by the spec-producers), not here.
 ```
 
 ### 2. Register SessionStart hook
@@ -84,7 +84,7 @@ Next step: run `create-spec` to scaffold a spec for a domain.
 
 ## What gets applied
 
-**AGENTS.md** (all agents): `## Spec-Driven Development` with the three core governance rules (spec-owns-behavior, `.feature` freeze, two-mode model) and `### References` pointing to `validate-spec`, `create-spec`, and `governance show sdd-principles`.
+**AGENTS.md** (all agents): `## Spec-Driven Development` with the three core governance rules (spec-owns-behavior, `.feature` freeze, two-mode model) and `### References` pointing to `validate-spec`, `create-spec`, and the harness-loaded `sdd:spec-governance` skill. No `governance show` (NodeJS) call.
 
 **Runtime hook** (Claude Code, Cursor, Codex): SessionStart injection of the Spec-Driven Development section so agents are reminded of the rules at the start of every session.
 

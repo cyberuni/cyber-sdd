@@ -1,13 +1,13 @@
 ---
 name: quill-implementer
-description: "Internal skill: SDD implementer contract implementation for documentation domain types. Verifies that documentation exists and meets structural requirements per .feature scenarios. Invoked by sdd-implementer dispatcher — not triggered by users directly."
+description: "Internal skill: the Quill impl-judge for documentation domains. Derives a static-inspection check per frozen .feature scenario and runs it, reporting pass/fail per scenario. Invoked by sdd-orchestrator at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # quill-implementer
 
-Implements the SDD implementer contract for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). Reads `.feature` scenarios, verifies or authors documentation to satisfy them, and reports pass/fail per scenario.
+The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). Derives one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — runs it, and reports pass/fail per scenario. It only judges: authoring documents is `quill-doc-writer`'s job (the impl-producer), kept independent (four-eyes). Invoked by `sdd-orchestrator`.
 
 ## Input
 
@@ -48,24 +48,22 @@ For each scenario:
 
 If any reader-path condition cannot be verified by static inspection, mark it SKIP and note in `CHANGES_MADE`.
 
-### 4. Author missing documentation (if needed)
+### 4. Aggregate results
 
-If a scenario fails existence or structure checks and `IMPLEMENTATION_PATHS` declares a target path for this domain: create or update the document to satisfy the failing conditions. Apply the spec's What, Why, and command surface as the content source.
+Collect per-scenario: PASS, FAIL, or SKIP. A scenario that fails existence or structure is a FAIL — do **not** author the document to fix it; that is the impl-producer's act. Report the FAIL as a `BLOCKER` so the orchestrator re-runs `quill-doc-writer`.
 
-After authoring: re-run the verification for the affected scenarios.
-
-### 5. Aggregate results
-
-Collect per-scenario: PASS, FAIL, or SKIP.
-
-`IMPLEMENTATION_PASS` is `true` only when every scenario is PASS or SKIP (no FAILs remain after authoring).
+`IMPLEMENTATION_PASS` is `true` only when every scenario is PASS or SKIP.
 
 ## Output
 
 ```
+STATUS                — complete | needs-input | blocked
 IMPLEMENTATION_PASS   — true | false
 SCENARIOS_PASSING     — list of scenario titles with result PASS
-SCENARIOS_FAILING     — list of scenario titles with result FAIL (after authoring attempt)
-CHANGES_MADE          — summary of documents created or updated (or "none")
+SCENARIOS_FAILING     — list of scenario titles with result FAIL
+CHANGES_MADE          — verification produced / run (or "none")
 BLOCKER               — first unresolved FAIL reason (or null when PASS is true)
+QUESTIONS             — [ batched, when needs-input ]
+CONTENT_GAPS          — [ { artifact, location, gap } ]
+OBSERVATIONS          — [ { owner: architect | curator, note, evidence } ]
 ```

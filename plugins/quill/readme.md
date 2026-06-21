@@ -19,14 +19,17 @@ Verification checks:
 
 Quill handles: `documentation`, `guide`, `tutorial`, `article`, `reference`
 
-## SDD contracts
+## Production-chain roles
 
-Quill implements both SDD contracts for its domain types:
+Quill fills these `sdd-orchestrator` production-chain roles for its domain types:
 
-| Contract | Agent |
+| Role | Agent |
 |---|---|
-| Scenario advisor | `quill-scenario-advisor` |
-| Implementer | `quill-implementer` |
+| spec-producer | `quill-writer` |
+| impl-producer | `quill-doc-writer` |
+| impl-judge | `quill-implementer` |
+| spec-judge | static doc criteria via `validate-spec` (no agent) |
+| plan-producer | SDD default (`sdd-planner`) |
 
 Register by running `init-quill` in a project that uses `sdd-orchestrator`.
 
@@ -40,8 +43,9 @@ Register by running `init-quill` in a project that uses `sdd-orchestrator`.
 
 | Agent | Role |
 |---|---|
-| `quill-scenario-advisor` | Provides documentation-specific Gherkin constraints to `sdd-spec-designer` |
-| `quill-implementer` | Verifies documentation exists and meets structural requirements per `.feature` scenarios |
+| `quill-writer` | spec-producer — writes the spec.md body and the boolean `.feature` for doc domains |
+| `quill-doc-writer` | impl-producer — writes the documentation against the frozen `.feature` |
+| `quill-implementer` | impl-judge — verifies documentation meets each frozen scenario by static inspection |
 
 ## Installation
 

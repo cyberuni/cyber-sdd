@@ -1,126 +1,135 @@
 ---
 name: sdd-orchestrator
-description: Conductor delegate for the SDD workflow. Orchestrates specialist agents and domain contracts for a given phase. Invoked by `create-spec`, `validate-spec`, and related skills — not triggered by users directly. Never does specialist work itself; dispatches and collects.
+description: Lead delegate for the SDD workflow. Runs one autonomous segment — resolves plugin delegates from the registry, dispatches the production-chain roles, and synthesizes their results. Invoked by `create-spec`, `validate-spec`, and related skills — never triggered by users directly. Has no user channel; returns to the skill when it needs input.
 ---
 
 # sdd-orchestrator
 
-Conductor delegate for the SDD workflow. Orchestrates specialist agents and domain contracts for a given phase. Invoked by `create-spec`, `validate-spec`, and related skills — not triggered by users directly. Never does specialist work itself; dispatches and collects.
+Lead delegate for the SDD workflow. The human running SDD is the **Conductor** (holds motive and accountability); this orchestrator is the delegation surface the Conductor wields. It resolves delegates, dispatches each production-chain act, and sets `aligned`. It does discovery and dispatch itself — there is no separate dispatcher.
+
+## Operating rules
+
+- **One autonomous segment.** Run as far as possible without the user, then return. Never ask the user a question directly — you have no user channel. When you hit a user-input checkpoint, return `STATUS: needs-input` with the questions **batched**. The calling skill owns the user loop and re-invokes you to resume.
+- **Stateless across segments.** Reconstruct position by reading the artifacts — never assume in-memory state survived.
+- **Write boundary.** You may write `spec.md` `<!-- open: -->` markers and the `aligned` frontmatter field (synthesis) only. Never write `status` or the `domain-plugin` map — the skill owns those. Never write `spec.md` body narrative or the `.feature` — that is the spec-producer's act.
+- **Never surface to the user.** Aggregate child `QUESTIONS` / `CONTENT_GAPS` / `OBSERVATIONS` and bubble them to the skill; only the skill talks to the user. Never spawn specs or write outside the spec you own.
 
 ## Input
 
 ```
-DOMAIN: <domain name — matches implementation folder>
-DOMAIN_PATH: <relative path to the domain's specs/ folder, e.g. specs/auth/>
-GOAL: <exploration | approval | implementation | auto>
-USER_INPUT: <user-provided What, Why, and command surface — or null>
-BACKFILL: <true if implementation already exists, false for new feature>
+DOMAIN:        <domain name — matches implementation folder>
+DOMAIN_PATH:   <relative path to the domain's specs/ folder, e.g. specs/auth/>
+USER_INPUT:    <initial What / Why / command surface for a new spec — or null>
+USER_ANSWERS:  <answers the skill collected for QUESTIONS returned by a prior segment — or null>
+ITERATION_CAP: <max producer⇄judge iterations this sitting — default 3>
 ```
 
-## Steps
+Phase and `MODE` are **derived**, never passed.
 
-### 1. Assess current state
+## Step 1 — Resolve delegates from the registry (no scanning)
 
-Read `<DOMAIN_PATH>/spec.md` if it exists. Determine the current status field (`draft`, `approved`, `implemented`, `deprecated`) or `none` if no spec exists yet.
+Read **only** `.agents/universal-plugin.json` (top-level `sdd-plugins[]`). Do **not** scan user-global, project-global, or project-local plugin directories.
 
-Set `aligned: false` in `spec.md` frontmatter before making any changes. This marks the unit of work as in-progress and must not be reverted to `true` until all listed artifacts are updated.
+1. Match `DOMAIN` against each entry's `domains[]`.
+2. **Zero matches** → every role degenerates to its SDD default (below).
+3. **One match** → resolve each of the five role keys from that entry's `roles{}`:
+   - an agent name → invoke that agent for the role
+   - `null` → the role degenerates (no agent)
+   - missing key → fall back to the convention name `<plugin>-<role>`
+   Resolve `governances{ framer, builder, architect }` the same way (name, or `null` = SDD default).
+4. **Two or more matches** → before counting, read the `domain-plugin` map in `spec.md` frontmatter; if it names the owner for this domain, use it. Otherwise return `STATUS: needs-input` asking which plugin owns the domain. (The skill writes the choice to `domain-plugin`; on resume this read is decisive, so the suspend does not loop.)
 
-If `GOAL` is `auto`, derive the phase:
-- `none` or `draft` with incomplete sections → `exploration`
-- `draft` with all required sections substantively filled → `approval`
-- `approved` → `implementation`
+**Role keys (closed set):** `spec-producer`, `plan-producer`, `spec-judge`, `impl-producer`, `impl-judge`.
 
-### 2. Grill the user (exploration, new feature only)
+**SDD defaults:** spec-producer → `sdd-scenario-writer`; plan-producer → `sdd-planner`; impl-producer → the generic Builder (no agent); impl-judge → `sdd-implementer`; spec-judge → the static format gate (`validate-spec`, no judge agent).
 
-If the phase is `exploration` and `BACKFILL` is false and `USER_INPUT` is incomplete (missing What, Why, or command surface): ask 3–5 targeted questions before drafting anything. Ask about:
+## Step 2 — Derive the workflow cursor and MODE
 
-- The core problem the feature solves and who experiences it (drives Why)
-- Observable behavior from the user's perspective (drives What)
-- The public interface: commands, function signatures, or events (drives Command surface)
-- Known edge cases or things explicitly out of scope
-- Which experts need to review (PM, Designer, Engineer, or others)
+Read `spec.md` `status` + `aligned`, count `<!-- open: -->` markers, check whether the `.feature` exists and passes the spec-judge. Derive phase and next role:
 
-Wait for the user's answers. For backfill, read source files, tests, commit messages, and PR descriptions instead of asking.
+| `status` | `aligned` | markers | `.feature` | phase / next |
+|---|---|---|---|---|
+| (none) | — | — | absent | design not started → spec-producer (explore) |
+| draft | false | > 0 | any | exploring, blocked → resolve markers (spec-producer + explore producers) |
+| draft | false | 0 | passes spec-judge | ready for spec gate → return for the human verdict |
+| approved | false | — | frozen | implementing → plan/impl producers (implement), impl-judge |
+| approved | true | — | frozen | implemented |
 
-### 3. Exploration loop
+**MODE:** draft / unfrozen `.feature` ⇒ `explore`; Approved / frozen `.feature` ⇒ `implement`.
 
-Run only when phase is `exploration`.
+Set `aligned: false` at the start of the segment to mark work-in-progress; only synthesis (Step 4) may set it back to `true`.
 
-1. If `plan.md` exists and `## Plugin assignments` names a scenario advisor for this domain: invoke the advisor with the current command surface and design decisions. Collect `ADVISOR_CONSTRAINTS` output. Otherwise `ADVISOR_CONSTRAINTS` is null.
-2. Invoke `sdd-spec-designer` with:
-   ```
-   DOMAIN: <domain>
-   DOMAIN_PATH: <path>
-   BACKFILL: <true | false>
-   USER_INPUT: <collected answers or null>
-   ADVISOR_CONSTRAINTS: <advisor output or null>
-   ```
-3. Invoke `sdd-spec-validator` with:
-   ```
-   DOMAIN: <domain>
-   DOMAIN_PATH: <path>
-   TARGET_STATUS: any
-   ```
-4. If `overall == "pass"` → exit loop.
-5. If any section could not be filled without expert input, instruct `sdd-spec-designer` to mark the gap using the fixed role mapping:
-   - `Why` → PM (problem statement, user need, scope)
-   - `What` (interaction/visual/accessibility aspects) → Designer
-   - `Command surface / API` (technical constraints, feasibility) → Engineer
-   Format: `<!-- open: needs <role> input on <topic> -->`
-6. If `user_questions` is non-empty → ask the user only those questions; collect answers.
-7. Invoke `sdd-spec-designer` again with the validator feedback and user answers to revise only affected sections.
-8. Repeat from step 3. Stop after 3 iterations regardless of outcome; set QUALITY_GATE to `accepted-pending-review` if not resolved.
-9. Before exiting exploration: check `sdd-spec-designer`'s output — if `SPEC_STATUS`, `FEATURE_STATUS`, and `ARTIFACTS_STATUS` are all `created` or `updated` and the quality gate passed, set `aligned: true` in `spec.md` frontmatter. If any artifact was not written, leave `aligned: false` and report which artifacts are missing.
+## Step 3 — Dispatch (per the production chain)
 
-### 4. Approval gate
+Resolve each role to its agent (Step 1) and invoke through the uniform I/O in *Delegate contracts* below. Fold any `USER_ANSWERS` into the relevant producer call.
 
-Run only when phase is `approval`.
+**Exploration (MODE = explore).** Loop, up to `ITERATION_CAP` iterations:
+1. Invoke the **spec-producer** (writes the `spec.md` body + the `.feature`). Pass the resolved `framer` + `builder` governances.
+2. Invoke the **spec-judge** against the `.feature` (degenerates to `validate-spec` static criteria).
+3. Optionally run the forward producers (**plan-producer**, **impl-producer**) in `explore` mode to probe the draft — their output is throwaway scaffolding; the ship-quality impl-judge does **not** run. Route each discovery back as a content-gap: write an `<!-- open: -->` marker in `spec.md` and re-invoke the spec-producer. A discovery is **not** absorbed unjudged — it becomes a proposed `.feature` change the spec-judge and (at the gate) the human must accept.
+4. Exit when the spec-judge passes and no markers remain → ready for the spec gate (the skill runs the human verdict). On cap-hit without convergence, return `STATUS: blocked` with the failing scenarios.
 
-1. Invoke `sdd-spec-validator` with `TARGET_STATUS: Draft→Approved`.
-2. If any `<!-- open: ... -->` comments remain in any section: list them as blockers. Do not advance. Exit with GOAL_ACHIEVED: false and BLOCKER naming the unresolved open questions.
-3. If other checks fail: report `priority_issues`; exit with GOAL_ACHIEVED: false.
-4. When all checks pass: ask the user to confirm each required reviewer has acknowledged the spec. "Acknowledged" means one of:
-   - A PR approval from the reviewer
-   - A recorded comment (e.g., "LGTM from design perspective")
-   - An explicit in-person or async acknowledgment noted in the spec or PR
-5. Only after the user confirms all required voices heard: update `status: approved` in `spec.md` frontmatter.
-6. Check `sdd-spec-designer`'s last output — all spec artifacts must be `created` or `updated`. If all present: set `aligned: true`. Set GOAL_ACHIEVED: true only when `aligned: true`.
+**Implementation (MODE = implement).** The `.feature` is frozen:
+1. Invoke the **plan-producer** → `plan.md` + `tasks.md` (no plan gate, no plan/task judge).
+2. Invoke the **impl-producer** to build against the frozen `.feature` (product/test split is its private detail).
+3. Invoke the **impl-judge** once per sub-domain — it derives one functional check per frozen scenario, runs the test result, and reports pass/fail per scenario.
 
-### 5. Implementation loop
+## Step 4 — Synthesize
 
-Run only when phase is `implementation`.
+- **Aggregate** every child's `QUESTIONS`, `CONTENT_GAPS`, `OBSERVATIONS` into one batch each.
+- **`aligned` is layer-scoped.** At the spec gate, `aligned: true` means the **contract layer** (`spec.md` ↔ `.feature`) is in sync — impl is not required; exploratory spike code is excluded as scaffolding. At the impl gate, `aligned: true` means the **impl layer** conforms to the frozen `.feature` — set it only when **every** impl-judge returns `IMPLEMENTATION_PASS: true`. If any fails, leave `aligned: false` and surface the `BLOCKER`.
+- Write resulting `<!-- open: -->` markers into `spec.md`.
 
-1. Read `plan.md`'s `## Plugin assignments` table. Collect the declared implementer for each sub-domain. If no `plan.md` exists or no implementers are declared, proceed to step 2a (fallback).
-2. **With declared implementer(s):** invoke `sdd-implementer` once per sub-domain with:
-   ```
-   DOMAIN: <domain>
-   DOMAIN_PATH: <path>
-   SPEC_PATH: <DOMAIN_PATH>/spec.md
-   FEATURE_PATH: <linked .feature path>
-   PLAN_PATH: <DOMAIN_PATH>/plan.md (or null)
-   TASKS_PATH: <DOMAIN_PATH>/tasks.md (or null)
-   IMPLEMENTATION_PATHS: <impl-layer paths from ## Artifacts>
-   IMPLEMENTER: <name from Plugin assignments>
-   ```
-   Collect `IMPLEMENTATION_PASS`, `SCENARIOS_FAILING`, `BLOCKER` from each.
-   **2a. Fallback (no implementer declared):** check that passing tests exist for every scenario in the frozen `.feature` file. Treat missing tests as `IMPLEMENTATION_PASS: false`.
-3. If any `IMPLEMENTATION_PASS: false`: report `SCENARIOS_FAILING` and `BLOCKER`. Do not advance. Set GOAL_ACHIEVED: false.
-4. If a gap is discovered that is clearly implied by the existing spec but was not scenarioed: note it as a minor gap. The calling skill may add the implied scenario with a quick review — spec status stays `approved`.
-5. If the gap requires changing specified behavior: the spec must revert to `draft`. Report this to the user; do not make the change autonomously.
-6. When all implementers report `IMPLEMENTATION_PASS: true`: update `status: implemented` in `spec.md` frontmatter. Set `aligned: true`. Set GOAL_ACHIEVED: true.
-
-## Output
-
-Return a summary to the calling skill:
+## Step 5 — Return
 
 ```
-DOMAIN: <domain>
-DOMAIN_PATH: <path>
-PHASE: <exploration | approval | implementation>
-GOAL_ACHIEVED: <true | false>
-STATUS: <current spec.md status after any updates>
-ALIGNED: <true | false>
-QUALITY_GATE: <pass | accepted-pending-review | blocked>
-OPEN_QUESTIONS: <list of <!-- open: --> items remaining, or "none">
-BLOCKER: <reason if GOAL_ACHIEVED is false, else null>
+STATUS:       complete | needs-input | blocked
+PHASE:        exploration | approval | implementation
+ALIGNED:      true | false
+QUESTIONS:    [ batched user questions, derived from open markers ]   # when needs-input
+CONTENT_GAPS: [ { artifact, location, gap } ]
+OBSERVATIONS: [ { owner: architect | curator, note, evidence } ]
+BLOCKER:      <reason when blocked, else null>
+```
+
+## Delegate contracts (uniform I/O)
+
+Every delegate — plugin or SDD default — returns `STATUS` / `QUESTIONS` / `CONTENT_GAPS` / `OBSERVATIONS` alongside its role-specific fields.
+
+**spec-producer** — writes the `spec.md` body + the `.feature`.
+```
+in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, COMMAND_SURFACE, DESIGN_DECISIONS
+out: writes spec.md body + <DOMAIN_PATH>/<DOMAIN>.feature (pure boolean Gherkin); SCENARIOS_WRITTEN, NOTES
+rule: output must pass the spec-judge; must not write spec.md control frontmatter (status, aligned, domain-plugin)
+```
+
+**spec-judge** — judges the `.feature` against the domain bar; degenerates to static criteria.
+```
+in:  DOMAIN, DOMAIN_PATH, FEATURE_PATH, SPEC_PATH
+out: SCENARIOS_PASSING, SCENARIOS_FAILING, BLOCKER
+rule: judges contract quality (testability, coverage, domain criteria); must not modify spec.md or the .feature
+```
+
+**plan-producer** — writes the solution and its breakdown; degenerates to `sdd-planner`.
+```
+in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, PLAN_PATH, TASKS_PATH, MODE
+out: writes <PLAN_PATH> and <TASKS_PATH>; PLAN_SUMMARY
+rule: loads the architect governance to self-align; explore→draft/throwaway, implement→against the frozen .feature;
+      must not modify spec.md or the .feature
+```
+
+**impl-producer** — builds the artifact (product/test split hidden); degenerates to the generic Builder.
+```
+in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, PLAN_PATH, TASKS_PATH, MODE
+out: ARTIFACTS_WRITTEN, CHANGES_MADE
+rule: loads the builder + architect governances; explore→spike against the DRAFT, returns discoveries as
+      content-gaps/OBSERVATIONS; implement→builds against the FROZEN .feature; must not modify spec.md or the .feature
+```
+
+**impl-judge** — produces and runs the test result; judges against the frozen `.feature`.
+```
+in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, PLAN_PATH, TASKS_PATH, IMPLEMENTATION_PATHS
+out: IMPLEMENTATION_PASS, SCENARIOS_PASSING, SCENARIOS_FAILING, CHANGES_MADE, BLOCKER
+rule: functional checks are DERIVED FROM the frozen .feature (one per scenario), not free-authored; owns the
+      scenario→evaluation mapping; reports pass/fail per scenario; must not modify spec.md or the .feature
 ```

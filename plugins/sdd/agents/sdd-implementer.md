@@ -1,13 +1,13 @@
 ---
 name: sdd-implementer
-description: "Internal skill: SDD dispatcher. Routes the implementer contract invocation to the declared domain plugin for a given sub-domain. Invoked by sdd-author during the implementation phase — not triggered by users directly."
+description: "Internal skill: SDD dispatcher. Routes the implementer contract invocation to the declared domain plugin for a given sub-domain. Invoked by sdd-orchestrator during the implementation phase — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # sdd-implementer
 
-Dispatcher agent for the SDD implementer contract. Reads the Plugin assignments table, invokes the declared implementer for each sub-domain, and returns aggregated results to `sdd-author`. Keeps `sdd-author` unaware of routing logic.
+Dispatcher agent for the SDD implementer contract. Reads the Plugin assignments table, invokes the declared implementer for each sub-domain, and returns aggregated results to `sdd-orchestrator`. Keeps `sdd-orchestrator` unaware of routing logic.
 
 ## Input
 

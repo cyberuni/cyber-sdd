@@ -1,11 +1,11 @@
 ---
 name: init-quill
-description: Use this skill to register quill as the SDD documentation plugin for this project — writes a quill entry to .agents/universal-plugin.json so sdd-author resolves quill-implementer and quill-scenario-advisor for documentation domain types.
+description: Use this skill to register quill as the SDD documentation plugin for this project — writes a quill entry to .agents/universal-plugin.json so sdd-orchestrator resolves quill-implementer and quill-scenario-advisor for documentation domain types.
 ---
 
 # Init Quill
 
-Register quill in the project's SDD plugin registry so `sdd-author` can resolve quill contracts without per-spec `plan.md` declarations.
+Register quill in the project's SDD plugin registry so `sdd-orchestrator` can resolve quill contracts without per-spec `plan.md` declarations.
 
 ## Workflow
 

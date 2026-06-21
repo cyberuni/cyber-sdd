@@ -1,6 +1,6 @@
 # SDD Scenario Advisor Contract
 
-Contract for domain plugins that provide `.feature`-writing constraints to `sdd-spec-designer`. Invoked by `sdd-author` before the `.feature` file is written or revised.
+Contract for domain plugins that provide `.feature`-writing constraints to `sdd-spec-designer`. Invoked by `sdd-orchestrator` before the `.feature` file is written or revised.
 
 ## Who implements this contract
 
@@ -23,9 +23,9 @@ EXAMPLE_SCENARIOS    — 1–3 well-formed Gherkin scenarios the designer should
 NOTES                — additional domain constraints not captured by the fields above (or null)
 ```
 
-## How sdd-author uses the output
+## How sdd-orchestrator uses the output
 
-`sdd-author` passes the advisor output to `sdd-spec-designer` verbatim as `ADVISOR_CONSTRAINTS`. `sdd-spec-designer` applies `REQUIRED_FIELDS` to every scenario, avoids `FORBIDDEN_PATTERNS`, and uses `EXAMPLE_SCENARIOS` as structural templates. If no advisor is declared for a sub-domain, `ADVISOR_CONSTRAINTS` is `null` and `sdd-spec-designer` proceeds without constraints.
+`sdd-orchestrator` passes the advisor output to `sdd-spec-designer` verbatim as `ADVISOR_CONSTRAINTS`. `sdd-spec-designer` applies `REQUIRED_FIELDS` to every scenario, avoids `FORBIDDEN_PATTERNS`, and uses `EXAMPLE_SCENARIOS` as structural templates. If no advisor is declared for a sub-domain, `ADVISOR_CONSTRAINTS` is `null` and `sdd-spec-designer` proceeds without constraints.
 
 ## Constraints
 

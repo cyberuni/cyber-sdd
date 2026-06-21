@@ -1,9 +1,9 @@
 ---
-name: sdd-author
+name: sdd-orchestrator
 description: Conductor delegate for the SDD workflow. Orchestrates specialist agents and domain contracts for a given phase. Invoked by `create-spec`, `validate-spec`, and related skills — not triggered by users directly. Never does specialist work itself; dispatches and collects.
 ---
 
-# sdd-author
+# sdd-orchestrator
 
 Conductor delegate for the SDD workflow. Orchestrates specialist agents and domain contracts for a given phase. Invoked by `create-spec`, `validate-spec`, and related skills — not triggered by users directly. Never does specialist work itself; dispatches and collects.
 

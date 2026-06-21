@@ -41,7 +41,7 @@ Section content to write:
 
 **Two modes, one gate.** Before `spec.md → Approved` (exploration mode): code, plan, tasks, and scenarios may all evolve freely. After Approved (implementation mode): `.feature` is frozen; all scenarios must pass before marking the spec `Implemented`.
 
-**Artifact alignment.** Every spec has an `aligned` field in its frontmatter (`false` while any artifact is being updated; `true` only when all artifacts in `## Artifacts` reflect the same state). Never commit while `aligned: false`. `sdd-author` sets alignment — never set it manually.
+**Artifact alignment.** Every spec has an `aligned` field in its frontmatter (`false` while any artifact is being updated; `true` only when all artifacts in `## Artifacts` reflect the same state). Never commit while `aligned: false`. `sdd-orchestrator` sets alignment — never set it manually.
 
 **Open questions.** When a contributor's input is still missing, mark the gap:
 `<!-- open: needs designer input on empty-state behavior -->`. Resolve all open

@@ -109,7 +109,7 @@ In `<DOMAIN_PATH>/spec.md`, ensure an `## Artifacts` section exists. If not, cre
 
 If any new artifact was created during this run (plan.md, tasks.md, exploratory code), add a row for it. Paths are project-root-relative; folder paths are acceptable for packages or directories.
 
-After writing any artifact, set `aligned: false` in `spec.md` frontmatter. Alignment is confirmed by `sdd-author` after all artifacts are updated — never set `aligned: true` here.
+After writing any artifact, set `aligned: false` in `spec.md` frontmatter. Alignment is confirmed by `sdd-orchestrator` after all artifacts are updated — never set `aligned: true` here.
 
 ## Output
 

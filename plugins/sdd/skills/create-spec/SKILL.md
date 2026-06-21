@@ -16,11 +16,11 @@ If no domain was named, list domains under `src/` (or the project's source root)
 ## Determine mode
 
 - **New feature** — no implementation exists yet.
-- **Backfill** — implementation already exists; `sdd-author` will infer content from source and tests.
+- **Backfill** — implementation already exists; `sdd-orchestrator` will infer content from source and tests.
 
 If unclear, ask the user which mode applies.
 
-## Invoke sdd-author
+## Invoke sdd-orchestrator
 
 ```
 DOMAIN: <domain name>
@@ -30,7 +30,7 @@ USER_INPUT: <user-provided What, Why, command surface — or null for backfill>
 BACKFILL: <true | false>
 ```
 
-Wait for `sdd-author` to complete (including any grill-me conversation with the user and its internal quality loop) before continuing.
+Wait for `sdd-orchestrator` to complete (including any grill-me conversation with the user and its internal quality loop) before continuing.
 
 ## Report
 

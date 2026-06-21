@@ -39,7 +39,7 @@ Map to GOAL:
 | Approved → Implemented | `implementation` |
 | General review | `exploration` |
 
-## Invoke sdd-author
+## Invoke sdd-orchestrator
 
 ```
 DOMAIN: <domain>
@@ -53,7 +53,7 @@ BACKFILL: false
 
 Present results clearly:
 
-- PASS / FAIL per check (relay from sdd-author → sdd-spec-validator output)
+- PASS / FAIL per check (relay from sdd-orchestrator → sdd-spec-validator output)
 - Aligned: `true` or `false` (from ALIGNED in author summary); if `false`, list which artifacts in `## Artifacts` are missing or out of sync
 - If any checks failed: list of issues to fix and OPEN_QUESTIONS from author summary
 - If GOAL_ACHIEVED is false: surface BLOCKER from author summary

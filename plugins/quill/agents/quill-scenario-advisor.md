@@ -1,13 +1,13 @@
 ---
 name: quill-scenario-advisor
-description: "Internal skill: SDD scenario-advisor contract implementation for documentation domain types. Provides Gherkin writing constraints for guides, tutorials, articles, and reference docs. Invoked by sdd-author before sdd-spec-designer writes the .feature file — not triggered by users directly."
+description: "Internal skill: SDD scenario-advisor contract implementation for documentation domain types. Provides Gherkin writing constraints for guides, tutorials, articles, and reference docs. Invoked by sdd-orchestrator before sdd-spec-designer writes the .feature file — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # quill-scenario-advisor
 
-Implements the SDD scenario-advisor contract for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). Returns Gherkin writing constraints to `sdd-author` for forwarding to `sdd-spec-designer`.
+Implements the SDD scenario-advisor contract for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). Returns Gherkin writing constraints to `sdd-orchestrator` for forwarding to `sdd-spec-designer`.
 
 ## Input
 

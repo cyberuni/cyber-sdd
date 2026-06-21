@@ -28,7 +28,7 @@ Quill implements both SDD contracts for its domain types:
 | Scenario advisor | `quill-scenario-advisor` |
 | Implementer | `quill-implementer` |
 
-Register by running `init-quill` in a project that uses `sdd-author`.
+Register by running `init-quill` in a project that uses `sdd-orchestrator`.
 
 ## Skills
 

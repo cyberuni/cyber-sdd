@@ -1,6 +1,6 @@
 # SDD Implementer Contract
 
-Contract for domain plugins that own implementation verification for a given domain type. Invoked by `sdd-author` (via `sdd-implementer` dispatcher) during the implementation phase.
+Contract for domain plugins that own implementation verification for a given domain type. Invoked by `sdd-orchestrator` (via `sdd-implementer` dispatcher) during the implementation phase.
 
 ## Who implements this contract
 
@@ -28,9 +28,9 @@ CHANGES_MADE          — summary of implementation changes made during this run
 BLOCKER               — human-readable reason why PASS is false (or null when PASS is true)
 ```
 
-## How sdd-author uses the output
+## How sdd-orchestrator uses the output
 
-`sdd-author` sets `aligned: true` in `spec.md` frontmatter only when every declared implementer returns `IMPLEMENTATION_PASS: true`. If any implementer returns `false`, `aligned` stays `false` and `sdd-author` surfaces `BLOCKER` to the user.
+`sdd-orchestrator` sets `aligned: true` in `spec.md` frontmatter only when every declared implementer returns `IMPLEMENTATION_PASS: true`. If any implementer returns `false`, `aligned` stays `false` and `sdd-orchestrator` surfaces `BLOCKER` to the user.
 
 ## Fallback behavior (no implementer declared)
 

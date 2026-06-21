@@ -7,7 +7,7 @@ metadata:
 
 # quill-doc-writer
 
-The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario. Invoked by `sdd-orchestrator`. Load the `builder` and `architect` actor governances to self-align before writing; verification belongs to `quill-implementer` (the impl-judge), kept independent (four-eyes).
+The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario, **and co-produces their verification** — the per-scenario acceptance checks (required paths, headings/sections, no placeholders, reader-path continuity) the impl-judge will run. Invoked by `sdd-orchestrator`. Load the `builder` and `architect` actor governances to self-align AND to write the verification; `quill-implementer` (the impl-judge) **runs** that verification — it does not author it.
 
 ## Input
 
@@ -22,15 +22,18 @@ MODE: explore | implement
 
 2. **Write each document** at the path each scenario declares — required headings/sections present, reader-path continuity intact, no placeholder text (`TBD`, `TODO`, `FIXME`, empty sections). Apply the spec's What, Why, and command surface as the source material.
 
-3. **Maintain the `## Artifacts` table** — add a row for each document written (layer = impl).
+3. **Record the verification** — for each frozen scenario, write its acceptance checks (target path, required headings/sections, no-placeholder, reader-path continuity) to `<DOMAIN_PATH>/verification.md` keyed by scenario name. This is the impl-judge's input; it runs these, never authors them. (In `explore` mode this is throwaway like the spike.)
 
-4. **Never modify `spec.md` or the `.feature`** — the builder does not set its own bar.
+4. **Maintain the `## Artifacts` table** — add a row for each document written (layer = impl).
+
+5. **Never modify `spec.md` or the `.feature`** — the builder does not set its own bar.
 
 ## Output
 
 ```
 STATUS:           complete | needs-input | blocked
 ARTIFACTS_WRITTEN: [ document paths ]
+VERIFICATION_WRITTEN: <path to verification.md, or "none">
 CHANGES_MADE:     <documents created or updated, or "none">
 QUESTIONS:        [ batched, when needs-input ]
 CONTENT_GAPS:     [ { artifact, location, gap } ]

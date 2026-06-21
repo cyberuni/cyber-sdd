@@ -44,8 +44,8 @@ Register by running `init-quill` in a project that uses `sdd-orchestrator`.
 | Agent | Role |
 |---|---|
 | `quill-writer` | spec-producer — writes the spec.md body and the boolean `.feature` for doc domains |
-| `quill-doc-writer` | impl-producer — writes the documentation against the frozen `.feature` |
-| `quill-implementer` | impl-judge — verifies documentation meets each frozen scenario by static inspection |
+| `quill-doc-writer` | impl-producer — writes the documentation **and its per-scenario acceptance checks** against the frozen `.feature` |
+| `quill-implementer` | impl-judge — **runs** the producer's acceptance checks (static inspection) per frozen scenario |
 
 ## Installation
 

@@ -71,8 +71,8 @@ Resolve each role to its agent (Step 1) and invoke through the uniform I/O in *D
 
 **Implementation (MODE = implement).** The `.feature` is frozen:
 1. Invoke the **plan-producer** → `plan.md` + `tasks.md` (no plan gate, no plan/task judge).
-2. Invoke the **impl-producer** to build against the frozen `.feature` (product/test split is its private detail).
-3. Invoke the **impl-judge** once per sub-domain — it derives one functional check per frozen scenario, runs the test result, and reports pass/fail per scenario.
+2. Invoke the **impl-producer** to build against the frozen `.feature` (product/test split is its private detail) — it co-produces the implementation **and** its verification (one test/eval per frozen scenario).
+3. Invoke the **impl-judge** once per sub-domain — it **runs** the impl-producer's verification (one per frozen scenario), adds its own structural reading, and reports pass/fail per scenario.
 
 ## Step 4 — Synthesize
 
@@ -118,18 +118,21 @@ rule: loads the architect governance to self-align; explore→draft/throwaway, i
       must not modify spec.md or the .feature
 ```
 
-**impl-producer** — builds the artifact (product/test split hidden); degenerates to the generic Builder.
+**impl-producer** — builds the artifact AND its verification (product/test split hidden); degenerates to the generic Builder.
 ```
 in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, PLAN_PATH, TASKS_PATH, MODE
-out: ARTIFACTS_WRITTEN, CHANGES_MADE
-rule: loads the builder + architect governances; explore→spike against the DRAFT, returns discoveries as
-      content-gaps/OBSERVATIONS; implement→builds against the FROZEN .feature; must not modify spec.md or the .feature
+out: ARTIFACTS_WRITTEN, VERIFICATION_WRITTEN, CHANGES_MADE
+rule: loads the builder + architect governances to self-align AND to WRITE the verification; co-produces the
+      implementation AND its tests/evals (one per frozen scenario), both derived from the frozen .feature —
+      the impl-judge runs them; explore→spike against the DRAFT, returns discoveries as content-gaps/OBSERVATIONS;
+      implement→builds against the FROZEN .feature; must not modify spec.md or the .feature
 ```
 
-**impl-judge** — produces and runs the test result; judges against the frozen `.feature`.
+**impl-judge** — runs the test result; judges against the frozen `.feature`.
 ```
-in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, PLAN_PATH, TASKS_PATH, IMPLEMENTATION_PATHS
+in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, PLAN_PATH, TASKS_PATH, IMPLEMENTATION_PATHS, VERIFICATION_PATHS
 out: IMPLEMENTATION_PASS, SCENARIOS_PASSING, SCENARIOS_FAILING, CHANGES_MADE, BLOCKER
-rule: functional checks are DERIVED FROM the frozen .feature (one per scenario), not free-authored; owns the
-      scenario→evaluation mapping; reports pass/fail per scenario; must not modify spec.md or the .feature
+rule: RUNS the functional verification authored by the impl-producer (one per frozen scenario) and adds its own
+      orthogonal structural/scope reading; does NOT author the functional tests/evals; reports pass/fail per
+      scenario; must not modify spec.md or the .feature
 ```

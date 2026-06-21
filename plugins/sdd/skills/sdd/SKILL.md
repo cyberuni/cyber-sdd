@@ -1,11 +1,26 @@
 ---
 name: sdd
-description: Use this skill when the user wants to work on a software feature with Spec-Driven Development - load the SDD governance and workflow, then route creation, validation, implementation, or deprecation through the SDD lifecycle.
+description: Use this skill when the user explicitly invokes SDD or wants Spec-Driven Development for feature work.
 ---
 
 # SDD
 
-Load the Spec-Driven Development context before feature work. This is a context skill: it does not edit project files, register hooks, install packages, or require a CLI command. It brings the SDD workflow rules into the active conversation so the agent follows the lifecycle for the user's next feature task.
+Activate Spec-Driven Development for the current feature work. This is a gateway skill: it is explicitly invoked by the user, gathers missing workflow intent, loads SDD rules into the active conversation, and routes the request to the right SDD path. It does not edit project files, register hooks, install packages, or require a CLI command.
+
+## Gateway Intake
+
+Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activation for the current workflow.
+
+If the user invokes SDD without a feature, artifact, or action, ask what SDD work they want to do. Offer these routes:
+
+- Create a new feature spec
+- Backfill a spec for existing code
+- Revise or validate an existing spec
+- Implement an approved spec
+- Manage or deprecate existing specs
+- Refresh the spec graph
+
+Do not begin implementation until the route is known.
 
 ## Load Context
 
@@ -21,7 +36,7 @@ Treat these skills, agents, and governance skills as the active SDD surface:
 
 Load `sdd:spec-governance` before writing or judging `spec.md` and `.feature` content. Runtime SDD work does not call `governance show`.
 
-Do not route user questions to `sdd-orchestrator`. It has no user channel. User questions belong to `create-spec`, `validate-spec`, or this skill's brief routing report.
+Do not route user questions to `sdd-orchestrator`. It has no user channel. User questions belong to this skill's gateway intake, `create-spec`, `validate-spec`, or this skill's brief routing report.
 
 ## Core Rules
 
@@ -37,7 +52,9 @@ Do not route user questions to `sdd-orchestrator`. It has no user channel. User 
 
 ## Route The Work
 
-First identify the feature domain or spec folder from the user's request. If a spec folder exists, read these files before choosing the route:
+First identify the feature domain, spec folder, or requested SDD action from the user's request. If the request does not contain enough information, use gateway intake before choosing the route.
+
+If a spec folder exists, read these files before choosing the route:
 
 - `spec.md`
 - `<domain>.feature` or another `.feature` file in the same folder
@@ -95,15 +112,17 @@ Backfill infers What, Why, decisions, and surface from source, tests, and histor
 
 ## Workflow
 
-1. Identify the spec folder or feature domain from the user's request.
-2. Read `spec.md`, `.feature`, `plan.md`, and `tasks.md` when they already exist.
-3. Apply the lifecycle routing table above.
-4. Route to the matching skill above.
-5. Keep user questions batched at skill boundaries; do not let `sdd-orchestrator` ask the user directly.
+1. Activate SDD from explicit `$sdd`, "use SDD", or Spec-Driven Development feature-work requests.
+2. Conduct gateway intake if the request has no feature, artifact, or action.
+3. Identify the spec folder or feature domain from the user's request.
+4. Read `spec.md`, `.feature`, `plan.md`, and `tasks.md` when they already exist.
+5. Apply the lifecycle routing table above.
+6. Route to the matching skill above.
+7. Keep user questions batched at skill boundaries; do not let `sdd-orchestrator` ask the user directly.
 
 ## Report
 
-When context loading changes the next action, state the route briefly:
+When gateway activation changes the next action, state the route briefly:
 
 - `create-spec` for draft/backfill work
 - `validate-spec --target spec` for contract approval

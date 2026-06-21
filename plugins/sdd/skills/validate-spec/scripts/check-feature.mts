@@ -20,10 +20,19 @@ export interface ParsedScenario {
 	steps: string[]
 }
 
-// ─── hedge words that signal rubric / probabilistic assertions ────────────────
+// ─── hedge words that signal probabilistic / rubric assertions ────────────────
 
-const HEDGE_WORDS = ['sometimes', 'usually', 'often', 'occasionally', 'score', 'threshold', 'rubric']
-const HEDGE_PATTERNS = [...HEDGE_WORDS.map((w) => new RegExp(`\\b${w}\\b`, 'i')), /\b1[-–]5\b/]
+// Probabilistic adverbs make any step non-boolean — flag them on every step.
+const ADVERB_PATTERNS = ['sometimes', 'usually', 'often', 'occasionally'].map((w) => new RegExp(`\\b${w}\\b`, 'i'))
+
+// Rubric nouns (a graded scale leaking into the contract) are only a violation
+// when they form a positive Then/And/But assertion. A negated/absence assertion
+// ("no rubric appears") or one expressing a boolean verdict ("reports failing
+// when the score is below the threshold") is fine — and a meta-spec mentioning
+// the rule in a Given/When setup is not the contract embedding a rubric.
+const RUBRIC_PATTERNS = [...['score', 'threshold', 'rubric'].map((w) => new RegExp(`\\b${w}\\b`, 'i')), /\b1[-–]5\b/]
+const ASSERTION_RE = /^(Then|And|But)\b/i
+const RUBRIC_EXEMPT_RE = /\b(no|not|never|without|nor|passing|failing|pass|fail|boolean|true|false)\b/i
 
 // ─── parse ────────────────────────────────────────────────────────────────────
 
@@ -99,13 +108,21 @@ export function checkFeature(slug: string, file: string, text: string): string[]
 			v.push(tag(`${label}: missing Then step — scenario has no assertion`))
 		}
 
-		// Boolean form: no hedge words in any step
+		// Boolean form
 		for (const step of steps) {
-			for (const pattern of HEDGE_PATTERNS) {
-				if (pattern.test(step)) {
-					v.push(tag(`${label}: step contains non-boolean hedge — "${step.trim()}" (matched ${pattern.source})`))
-					break // one violation per step is enough
-				}
+			// Probabilistic adverbs are never boolean — flag on any step.
+			const adverb = ADVERB_PATTERNS.find((p) => p.test(step))
+			if (adverb) {
+				v.push(tag(`${label}: step contains non-boolean hedge — "${step.trim()}" (matched ${adverb.source})`))
+				continue
+			}
+			// Rubric nouns only count as a leaked grade in a positive Then/And/But assertion.
+			if (!ASSERTION_RE.test(step) || RUBRIC_EXEMPT_RE.test(step)) continue
+			const rubric = RUBRIC_PATTERNS.find((p) => p.test(step))
+			if (rubric) {
+				v.push(
+					tag(`${label}: step embeds a rubric/score in its assertion — "${step.trim()}" (matched ${rubric.source})`),
+				)
 			}
 		}
 	}

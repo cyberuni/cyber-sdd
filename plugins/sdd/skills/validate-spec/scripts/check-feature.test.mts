@@ -101,7 +101,7 @@ test('scenario missing Given and When is a violation', () => {
 
 // ─── checkFeature — boolean form failures ────────────────────────────────────
 
-test('step containing "score 1-5" fails boolean form', () => {
+test('a positive Then asserting "score 1-5" embeds a rubric', () => {
 	const text = [
 		'Feature: foo',
 		'',
@@ -111,23 +111,36 @@ test('step containing "score 1-5" fails boolean form', () => {
 		'    Then the score 1-5 reflects quality',
 	].join('\n')
 	const v = checkFeature('slug', 'x.feature', text)
-	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+	assert.ok(v.some((m) => /embeds a rubric/.test(m)))
 })
 
-test('step containing "rubric" fails boolean form', () => {
+test('a positive Then asserting a rubric grade embeds a rubric', () => {
 	const text = [
 		'Feature: foo',
 		'',
 		'  Scenario: rubric check',
 		'    Given the agent produces output',
 		'    When the output is evaluated',
-		'    Then the rubric score is above passing',
+		'    Then the rubric awards three points',
 	].join('\n')
 	const v = checkFeature('slug', 'x.feature', text)
-	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+	assert.ok(v.some((m) => /embeds a rubric/.test(m)))
 })
 
-test('step containing "sometimes" fails boolean form', () => {
+test('a Then asserting a threshold embeds a rubric', () => {
+	const text = [
+		'Feature: foo',
+		'',
+		'  Scenario: threshold check',
+		'    Given some input',
+		'    When processed',
+		'    Then it meets the threshold for acceptance',
+	].join('\n')
+	const v = checkFeature('slug', 'x.feature', text)
+	assert.ok(v.some((m) => /embeds a rubric/.test(m)))
+})
+
+test('step containing "sometimes" fails boolean form on any step', () => {
 	const text = [
 		'Feature: foo',
 		'',
@@ -140,32 +153,44 @@ test('step containing "sometimes" fails boolean form', () => {
 	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
 })
 
-test('step containing "threshold" fails boolean form', () => {
+// ─── checkFeature — meta-spec exemptions (a spec about rubrics is not a rubric) ──
+
+test('a Given mentioning a rubric is not a violation (setup, not assertion)', () => {
 	const text = [
-		'Feature: foo',
+		'Feature: orchestrator',
 		'',
-		'  Scenario: threshold check',
-		'    Given some input',
-		'    When processed',
-		'    Then it meets the threshold for acceptance',
+		'  Scenario: the feature carries no rubric',
+		'    Given aces-implementer owns a 1-5 rubric for a scenario',
+		'    When the .feature file is inspected',
+		'    Then it contains only boolean Given/When/Then scenarios',
 	].join('\n')
-	const v = checkFeature('slug', 'x.feature', text)
-	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+	assert.deepEqual(checkFeature('slug', 'x.feature', text), [])
 })
 
-test('non-boolean hedge word "score" used in a non-step context does not fire', () => {
-	// Only step lines are checked; Feature/Scenario name lines are not
+test('a negated Then asserting the absence of a rubric is not a violation', () => {
 	const text = [
-		'Feature: score reporting',
+		'Feature: orchestrator',
 		'',
-		'  Scenario: score is available',
-		'    Given the game ends',
-		'    When the user checks results',
-		'    Then the final score is displayed',
+		'  Scenario: the feature carries no rubric',
+		'    Given a frozen contract',
+		'    When the .feature file is inspected',
+		'    Then it contains only boolean scenarios',
+		'    And no rubric, threshold, or score appears in the .feature',
 	].join('\n')
-	const v = checkFeature('slug', 'x.feature', text)
-	// "score" appears in both the Feature title and a Then step — the step fires
-	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+	assert.deepEqual(checkFeature('slug', 'x.feature', text), [])
+})
+
+test('a Then expressing a boolean verdict over a score is not a violation', () => {
+	const text = [
+		'Feature: orchestrator',
+		'',
+		'  Scenario: a graded subject still yields a boolean per scenario',
+		'    Given aces-implementer evaluates with a threshold over N runs',
+		'    When the aggregate score meets or exceeds the threshold',
+		'    Then the impl-judge reports that scenario as passing',
+		'    And reports failing when the aggregate score is below the threshold',
+	].join('\n')
+	assert.deepEqual(checkFeature('slug', 'x.feature', text), [])
 })
 
 // ─── checkFeature — scenario ordering / sectioning ───────────────────────────

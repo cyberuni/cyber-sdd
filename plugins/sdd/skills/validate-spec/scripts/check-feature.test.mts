@@ -160,7 +160,7 @@ test('a Given mentioning a rubric is not a violation (setup, not assertion)', ()
 		'Feature: orchestrator',
 		'',
 		'  Scenario: the feature carries no rubric',
-		'    Given aces-implementer owns a 1-5 rubric for a scenario',
+		'    Given the impl-producer authored a 1-5 rubric for a scenario',
 		'    When the .feature file is inspected',
 		'    Then it contains only boolean Given/When/Then scenarios',
 	].join('\n')

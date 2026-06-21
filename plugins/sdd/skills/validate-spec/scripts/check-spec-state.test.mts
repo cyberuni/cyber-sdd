@@ -13,6 +13,23 @@ test('parseSpecState reads status, aligned, and marker count', () => {
 	assert.equal(s.markerCount, 2)
 })
 
+test('parseSpecState ignores marker syntax inside code spans and fences', () => {
+	const text = [
+		'---',
+		'status: approved',
+		'aligned: true',
+		'---',
+		'',
+		'A content gap leaves an inline `<!-- open: ... -->` marker.',
+		'',
+		'```',
+		'CONTENT_GAPS become <!-- open: --> markers',
+		'```',
+		'',
+	].join('\n')
+	assert.equal(parseSpecState(text).markerCount, 0)
+})
+
 test('parseSpecState reads a nested approved-by map with why', () => {
 	const text = [
 		'---',

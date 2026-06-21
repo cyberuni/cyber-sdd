@@ -65,7 +65,11 @@ export function parseSpecState(text: string): SpecState {
 		}
 	}
 
-	const markerCount = (text.match(/<!--\s*open:/g) ?? []).length
+	// Count only real open markers — raw HTML comments in prose. A spec that
+	// documents the marker syntax wraps it in backticks or a fenced block, so
+	// strip code spans and fences before counting (else the spec trips its own gate).
+	const prose = text.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
+	const markerCount = (prose.match(/<!--\s*open:/g) ?? []).length
 	return { status, aligned, markerCount, approvedBy }
 }
 

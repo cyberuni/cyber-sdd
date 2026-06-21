@@ -7,6 +7,16 @@ description: Use this skill when the user wants to check a spec for completeness
 
 Validate a spec before approving it or marking it Implemented.
 
+## State check (deterministic, run first)
+
+Run the static state-machine check — it rejects illegal `(status, aligned, markers, .feature)` tuples and malformed `approved-by` attribution (e.g. `draft + aligned:true`, an approved spec with no `.feature` or no recorded approver, a `by: agent` self-assertion with no `why`):
+
+```bash
+node "<skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
+```
+
+Exit `0` = states legal; exit `1` = it prints each violation as `✗ <slug>: <reason>`. A violation blocks the transition — fix the frontmatter before continuing. If `node` is unavailable, perform the same checks by reading each `spec.md` frontmatter yourself.
+
 ## Identify the target
 
 If the user named a domain or path, resolve it directly to `specs/<domain>/spec.md`.

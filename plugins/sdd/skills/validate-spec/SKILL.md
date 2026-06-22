@@ -28,6 +28,16 @@ Resolve the spec: a named domain/path → `specs/<domain>/spec.md`; otherwise as
 | draft | spec gate (Draft → Approved) | `spec.md` + the `.feature` |
 | approved | impl gate (Approved → Implemented) | the implementation vs the frozen `.feature` |
 
+**Force-spec-gate override.** When the caller explicitly requests a spec gate review regardless of current status (e.g. routed from the `sdd` gateway as **Re-review at the spec gate**), run the spec gate even if status is `approved` or `implemented`:
+
+1. Temporarily set `status: draft` and `aligned: false` so the state check passes.
+2. Run the spec gate (judge `spec.md` + the `.feature`).
+3. After the human verdict:
+   - **Approved** → restore `status: approved` (re-affirm) and `approved-by.spec.by: <approver>`. For `implemented` specs, restore `status: implemented` — the spec re-affirmed at the gate does not regress the impl status.
+   - **Blocked** → leave in `draft` so blockers can be fixed through the normal path.
+
+The state check (step 1) must re-run after the write to confirm the restored tuple is legal.
+
 ## 3. Judge via the orchestrator
 
 Invoke `sdd-orchestrator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge (or impl-judge) for the domain — a plugin agent or the SDD default (`sdd-spec-judge` / `sdd-implementer`) — runs it, and synthesizes `aligned` for the gate's layer. Relay its `STATUS`, `ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, and `OBSERVATIONS`.

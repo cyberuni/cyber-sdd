@@ -19,6 +19,7 @@ If the user invokes SDD without a work item, artifact, or action, ask what SDD w
 - Backfill a spec for an existing artifact
 - Revise or validate an existing spec
 - Implement an approved spec
+- Re-review a spec at the spec gate (regardless of current status)
 - Manage or deprecate existing specs
 - Refresh the spec graph
 
@@ -61,6 +62,7 @@ Name the route to the user as a **workflow action**, not the skill or CLI that r
 | **Backfill spec** (existing artifact) | Run `create-spec` in backfill mode |
 | **Revise spec** (draft) | Run `create-spec` for the existing spec folder |
 | **Review at the spec gate** | Run `validate-spec` targeting the spec gate |
+| **Re-review at the spec gate** | Run `validate-spec` in force-spec-gate mode (overrides current status) |
 | **Review at the impl gate** | Keep `.feature` frozen, implement through the SDD workflow, then run `validate-spec` targeting the impl gate |
 | Change behavior after approval | Revert to `draft` through the gate path before changing scenarios |
 | Deprecate an artifact | Treat deprecation as a Framer decision and retain the spec for graph history |
@@ -81,6 +83,8 @@ Load `sdd:lifecycle-governance` for the status enum, meanings, and freeze transi
 | `deprecated` | Do not treat as implementable work |
 
 If lifecycle frontmatter is missing, malformed, or contradictory, route to **Review at the spec gate** for state validation before implementation.
+
+**Override: Re-review at the spec gate.** When the user explicitly asks to re-review the spec (e.g. "review the spec again", "force spec gate", "redo the spec review") regardless of current status, route to **Re-review at the spec gate** — even for `approved` or `implemented` specs. Do not require the user to first revert to `draft` manually. Name the override explicitly: "Forcing spec gate review — current status is `<status>`."
 
 ### Draft tiebreaker
 

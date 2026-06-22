@@ -142,22 +142,38 @@ export function checkFeature(slug: string, file: string, text: string): string[]
 
 // ─── CLI entry ────────────────────────────────────────────────────────────────
 
+// Discovery walks the tree recursively so nested spec folders (sdd/sdd-skill)
+// are analyzed too — a .feature is a real contract wherever it lives. Returns
+// each dir (root-relative slug) paired with its .feature files.
+export function discoverFeatureDirs(root: string): { slug: string; files: string[] }[] {
+	const out: { slug: string; files: string[] }[] = []
+	const walk = (dir: string, rel: string) => {
+		let entries: ReturnType<typeof readdirSync>
+		try {
+			entries = readdirSync(dir, { withFileTypes: true })
+		} catch {
+			return
+		}
+		const files = entries.filter((e) => e.isFile() && e.name.endsWith('.feature')).map((e) => e.name)
+		if (files.length) out.push({ slug: rel, files })
+		for (const e of entries) {
+			if (!e.isDirectory() || e.name === 'node_modules' || e.name.startsWith('.')) continue
+			walk(join(dir, e.name), rel ? join(rel, e.name) : e.name)
+		}
+	}
+	walk(root, '')
+	return out
+}
+
 export function main(argv: string[]): number {
 	const root = argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : 'artifacts/specs'
 	let violations: string[] = []
 
-	for (const entry of readdirSync(root, { withFileTypes: true })) {
-		if (!entry.isDirectory()) continue
-		const slugDir = join(root, entry.name)
-		let files: string[]
-		try {
-			files = readdirSync(slugDir).filter((f) => f.endsWith('.feature'))
-		} catch {
-			continue
-		}
+	for (const { slug, files } of discoverFeatureDirs(root)) {
+		const slugDir = join(root, slug)
 		for (const file of files) {
 			const text = readFileSync(join(slugDir, file), 'utf8')
-			violations = violations.concat(checkFeature(entry.name, file, text))
+			violations = violations.concat(checkFeature(slug, file, text))
 		}
 	}
 

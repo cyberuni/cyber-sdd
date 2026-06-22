@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { test } from 'node:test'
-import { checkSpec, parseSpecState, type SpecState } from './check-spec-state.mts'
+import { checkSpec, discoverSpecDirs, parseSpecState, type SpecState } from './check-spec-state.mts'
 
 function state(over: Partial<SpecState> = {}): SpecState {
 	return { status: 'draft', aligned: false, markerCount: 0, approvedBy: null, ...over }
@@ -121,4 +124,33 @@ test('a fully approved-and-implemented spec passes', () => {
 		true,
 	)
 	assert.deepEqual(v, [])
+})
+
+test('discoverSpecDirs finds both top-level and nested specs', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-specs-'))
+	try {
+		mkdirSync(join(root, 'auth'), { recursive: true })
+		writeFileSync(join(root, 'auth', 'spec.md'), '---\nstatus: draft\n---\n')
+		mkdirSync(join(root, 'sdd', 'sdd-skill'), { recursive: true })
+		writeFileSync(join(root, 'sdd', 'sdd-skill', 'spec.md'), '---\nstatus: draft\n---\n')
+		mkdirSync(join(root, 'sdd', 'no-spec'), { recursive: true })
+
+		const found = discoverSpecDirs(root).sort()
+		assert.deepEqual(found, ['auth', join('sdd', 'sdd-skill')].sort())
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('discoverSpecDirs skips node_modules and dot dirs', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-specs-'))
+	try {
+		mkdirSync(join(root, 'node_modules', 'pkg'), { recursive: true })
+		writeFileSync(join(root, 'node_modules', 'pkg', 'spec.md'), '---\nstatus: draft\n---\n')
+		mkdirSync(join(root, '.cache'), { recursive: true })
+		writeFileSync(join(root, '.cache', 'spec.md'), '---\nstatus: draft\n---\n')
+		assert.deepEqual(discoverSpecDirs(root), [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
 })

@@ -104,15 +104,37 @@ function hasFeatureFile(dir: string): boolean {
 	return readdirSync(dir).some((f) => f.endsWith('.feature'))
 }
 
+// A spec is defined by its shape, not its location, so discovery walks the tree
+// recursively and returns every dir holding a spec.md — nested specs (sdd/sdd-skill)
+// are real specs and must be enforced too. The slug is the root-relative dir path.
+export function discoverSpecDirs(root: string): string[] {
+	const out: string[] = []
+	const walk = (dir: string, rel: string) => {
+		let entries: ReturnType<typeof readdirSync>
+		try {
+			entries = readdirSync(dir, { withFileTypes: true })
+		} catch {
+			return
+		}
+		if (entries.some((e) => e.isFile() && e.name === 'spec.md')) out.push(rel)
+		for (const e of entries) {
+			if (!e.isDirectory() || e.name === 'node_modules' || e.name.startsWith('.')) continue
+			walk(join(dir, e.name), rel ? join(rel, e.name) : e.name)
+		}
+	}
+	walk(root, '')
+	return out
+}
+
 export function main(argv: string[]): number {
 	const root = argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : 'artifacts/specs'
 	let violations: string[] = []
-	for (const entry of readdirSync(root, { withFileTypes: true })) {
-		if (!entry.isDirectory()) continue
-		const specPath = join(root, entry.name, 'spec.md')
+	for (const slug of discoverSpecDirs(root)) {
+		const dir = join(root, slug)
+		const specPath = join(dir, 'spec.md')
 		if (!existsSync(specPath)) continue
 		const state = parseSpecState(readFileSync(specPath, 'utf8'))
-		violations = violations.concat(checkSpec(entry.name, state, hasFeatureFile(join(root, entry.name))))
+		violations = violations.concat(checkSpec(slug, state, hasFeatureFile(dir)))
 	}
 	if (violations.length) {
 		for (const line of violations) console.error(`✗ ${line}`)

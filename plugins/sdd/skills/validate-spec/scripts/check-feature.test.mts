@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { test } from 'node:test'
-import { checkFeature, parseFeature } from './check-feature.mts'
+import { checkFeature, discoverFeatureDirs, parseFeature } from './check-feature.mts'
 
 // ─── parseFeature ─────────────────────────────────────────────────────────────
 
@@ -229,4 +232,37 @@ test('a feature with <=6 scenarios needs no section comments', () => {
 	const text = ['Feature: small feature', '', ...scenarios].join('\n')
 	const v = checkFeature('slug', 'x.feature', text)
 	assert.ok(!v.some((m) => /section comments/.test(m)))
+})
+
+// ─── discovery — recurses into nested spec folders ───────────────────────────
+
+test('discoverFeatureDirs finds both top-level and nested .feature files', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-feat-'))
+	try {
+		mkdirSync(join(root, 'auth'), { recursive: true })
+		writeFileSync(join(root, 'auth', 'auth.feature'), 'Feature: auth\n')
+		mkdirSync(join(root, 'sdd', 'sdd-skill'), { recursive: true })
+		writeFileSync(join(root, 'sdd', 'sdd-skill', 'sdd-skill.feature'), 'Feature: sdd-skill\n')
+		mkdirSync(join(root, 'sdd', 'no-feature'), { recursive: true })
+
+		const found = discoverFeatureDirs(root)
+			.map((d) => d.slug)
+			.sort()
+		assert.deepEqual(found, ['auth', join('sdd', 'sdd-skill')].sort())
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('discoverFeatureDirs skips node_modules and dot dirs', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-feat-'))
+	try {
+		mkdirSync(join(root, 'node_modules', 'pkg'), { recursive: true })
+		writeFileSync(join(root, 'node_modules', 'pkg', 'x.feature'), 'Feature: x\n')
+		mkdirSync(join(root, '.cache'), { recursive: true })
+		writeFileSync(join(root, '.cache', 'x.feature'), 'Feature: x\n')
+		assert.deepEqual(discoverFeatureDirs(root), [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
 })

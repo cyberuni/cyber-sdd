@@ -13,8 +13,9 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 
 | Field / artifact | Written by | Never written by |
 |---|---|---|
-| `status` | the gate skill (`validate-spec`) | orchestrator, any producer |
-| `approved-by` | the gate skill (`validate-spec`) | orchestrator, any producer |
+| `status` | the gate skill (`validate-spec`) — on a human verdict, or to match an orchestrator self-assertion within leash | orchestrator, any producer |
+| `approved-by` **self-assertion** (`by: agent` + `leash` + `why`) | `sdd-orchestrator` (synthesis only) | producers, gate skill |
+| `approved-by` **human ratification** (`by: <name>`) | the gate skill (`validate-spec`) | orchestrator, any producer |
 | `aligned` | `sdd-orchestrator` (synthesis only) | producers, gate skill |
 | `<!-- open: -->` markers | `sdd-orchestrator` | producers (they *emit gaps*, not markers) |
 | `domain-plugin` map | `create-spec` (on the user's choice) | orchestrator, producers |
@@ -27,7 +28,7 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 
 A **spec-producer** writes the `spec.md` body and the `.feature` only. It must **not** write the control frontmatter (`status`, `aligned`, `domain-plugin`). A required input it cannot supply or infer is returned as a `CONTENT_GAP` — the orchestrator turns it into an `<!-- open: -->` marker. Producers do not write markers directly.
 
-The **orchestrator** writes only `<!-- open: -->` markers and `aligned`. The **gate skill** writes `status` and `approved-by`. No role writes outside the spec it owns or spawns specs on its own.
+The **orchestrator** writes `<!-- open: -->` markers, `aligned`, and — when it self-asserts a gate within the effective leash — the provisional `approved-by.<gate>` entry (`by: agent` with the `leash` and the four-dimension `why` derivation). The **gate skill** writes `status` (on a human verdict or to match the orchestrator's in-leash self-assertion) and the human ratification of `approved-by` (rewriting `by: agent` → `by: <name>`). A self-assertion is **provisional**: the act is delegable, the accountability is not — the human ratifies the trail. The leash, its derivation, and the review queue are defined in `gate-validation-governance`. No role writes outside the spec it owns or spawns specs on its own.
 
 ## Freeze (write constraint)
 

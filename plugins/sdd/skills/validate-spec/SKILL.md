@@ -38,30 +38,48 @@ Resolve the spec: a named domain/path → `specs/<domain>/spec.md`; otherwise as
 
 The state check (step 1) must re-run after the write to confirm the restored tuple is legal.
 
-## 3. Judge via the orchestrator
+## 3. Judge and derive the leash via the orchestrator
 
-Invoke `sdd-orchestrator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge (or impl-judge) for the domain — a plugin agent or the SDD default (`sdd-spec-judge` / `sdd-implementer`) — runs it, and synthesizes `aligned` for the gate's layer. Relay its `STATUS`, `ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, and `OBSERVATIONS`.
+Invoke `sdd-orchestrator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge (or impl-judge) for the domain — a plugin agent or the SDD default (`sdd-spec-judge` / `sdd-implementer`) — runs it, synthesizes `aligned` for the gate's layer, and **derives the leash** for this gate (the four-dimension assessment in `sdd:gate-validation-governance`). It returns a **gate report**: verdict per backward face, the leash derivation, open markers as questions with proposed answers, contestable defaults, and a decision menu. Relay its `STATUS`, `ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, `OBSERVATIONS`, and the gate report.
 
-**Do not advance** if: the judge reports failures, any open markers remain, or `ALIGNED` is false. Report the blockers for the user to fix; surface `OBSERVATIONS` (on accept, spawn a new spec — never edit this spec's markers).
+**Never advance** — neither by self-assertion nor by human verdict — if the judge reports failures, any open markers remain, or `ALIGNED` is false. These fail the **confidence** dimension, so they also forbid self-assertion. Report the blockers for the user to fix; surface `OBSERVATIONS` (on accept, spawn a new spec — never edit this spec's markers).
 
-## 4. Confirm the voices, then take the verdict
+## 4. Take the verdict — self-assertion within leash, else the human
 
-When the judge passes and `ALIGNED` is true, call `spec-digest` on the resolved spec and present its digest (What, Status, Scenarios, Key decisions, Open items) above the **gate report** so the human sees what they are approving. Then present the gate report (verdict per backward face + open items) and confirm the required reviewers have acknowledged the spec — a PR approval, a recorded comment, or an explicit async ack. The decision is the human's; never advance on your own.
+The clean gate splits two ways on the **effective leash** the orchestrator derived for this gate:
 
-## 5. Write the transition (only after the human approves)
+- **In leash** (the leash reaches this gate, all four dimensions read *safe*): the orchestrator has **self-asserted** — it wrote `approved-by.<gate>: { by: agent, leash, why }` and `aligned` in synthesis. This skill writes the matching `status` (step 5). The advance is **provisional**: the spec lands in the review queue (any `by: agent`) for asynchronous ratification. Still emit the `spec-digest` + gate report flagged **"agent-asserted — ratify or kick back."**
+- **Gated** (the leash stops before this gate): **do not advance.** Call `spec-digest` and present it above the gate report so the human sees what they are deciding, then take the human verdict (`approve` / `change` / `reject`). On `approve`, proceed to step 5 with `by: <name>`.
 
-The skill owns `status` and `approved-by`; the orchestrator already owns `aligned`. On approval:
+The leash is the agent's, derived per gate; the **ceiling** is the human's (`effective = min(ceiling, derived)`). A self-assertion never makes a decision final — it only chooses async review over a synchronous stop.
 
-- **Spec gate** → set `status: approved` and `approved-by.spec.by: <approver>`.
-- **Impl gate** → set `status: implemented` and `approved-by.impl.by: <approver>`.
+## 5. Write the transition
 
-If the agent self-asserted within its leash, the entry is `by: agent` with a `why` derivation (the orchestrator wrote it) — provisional, awaiting human ratification. Re-run the state check to confirm the new tuple is legal.
+The skill owns `status` and human ratifications of `approved-by`; the orchestrator owns `aligned` and agent self-assertions of `approved-by`. Write the gate's transition:
+
+- **Spec gate** → `status: approved`; **freeze** the `.feature`.
+- **Impl gate** → `status: implemented`.
+
+For a **human verdict**, also write `approved-by.<gate>.by: <name>` (no `why`). For a **self-assertion**, the orchestrator already wrote `approved-by.<gate>: { by: agent, leash, why }`; this skill only writes the matching `status`. **Ratifying** a queued self-assertion rewrites `by: agent` → `by: <name>` and drops it from the queue. Re-run the state check to confirm the new tuple is legal (a `by: agent` entry with no `why` is rejected).
+
+## 6. The three gate actions
+
+Both gates take the same three verbs; what each does differs by gate, because the gates judge different objects:
+
+| Action | Spec gate (judges the contract) | Impl gate (judges code vs the frozen contract) |
+|---|---|---|
+| **approve** | → `approved`; **freeze** the `.feature`; set `approved-by.spec` | → `implemented`; set `approved-by.impl` |
+| **change** | revise the contract (`spec.md` / `.feature`); stays `draft` | fix the **code** against the frozen `.feature`; the `.feature` is **not** modified |
+| **reject** | scope-kill — drop or return to `draft` | redo the implementation — **or** a **Framer-revert**: building proved a frozen scenario fatal, so **unfreeze** the `.feature` and return to `draft` |
+
+Two asymmetries: at the spec gate **change edits the contract**; at the impl gate **change edits the code** (the frozen `.feature` is off-limits). The impl gate is the **only** place a frozen `.feature` reopens, via the Framer-revert — rare and deliberate.
 
 ## Report
 
 - PASS / FAIL per face, relayed from the judge
 - `ALIGNED: true | false`; if false, which artifacts are missing or out of sync
 - Open markers / failing scenarios still blocking, if any
-- On success: confirm the spec advanced to the next status and who approved it
+- The leash derivation and the **effective leash** for this gate
+- On success: the new status, the approver (`agent` = provisional, in the review queue; or `<name>` = ratified), and whether the `.feature` was frozen
 
 Do not fix issues automatically — report them for the user to address or confirm intent.

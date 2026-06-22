@@ -40,11 +40,50 @@ Reject illegal tuples **before** any other gate work. If `check-spec-state.mts` 
 
 The orchestrator sets `aligned: false` at the start of a segment and only synthesis sets it back to `true` (per `ownership-governance`).
 
+## The leash — how far the agent may self-assert
+
+An agent **may advance a gate on its own**, within a **leash** derived per gate. The leash names the furthest gate the agent may self-assert this run:
+
+| Level | Self-asserts | Stops at |
+|---|---|---|
+| `gated` | nothing | the **spec gate** |
+| `auto-to-spec` | the spec gate | the **impl gate** |
+| `auto` | both gates | nothing (both provisional) |
+
+**Derived, not just declared.** The agent assesses each gate on four dimensions; a gate is self-assertable only when **all four** read *safe*:
+
+| Dimension | Safe → self-assert | Risky → stop and ask |
+|---|---|---|
+| **Reversibility** | cheap revert, no external effect | irreversible / published / external side effect |
+| **Blast radius** | contained to the artifacts **this spec owns** | reaches beyond — another spec, a shared/frozen contract, an installed/public surface, prod, security |
+| **Decision novelty** | trivial / defaulted, or already human-ratified | new contestable choices the human has not seen |
+| **Confidence** | clear pass on the judge bar | marginal verdict, unresolved markers |
+
+The derived leash is the furthest gate reachable where every gate up to it reads safe: spec gate risky → `gated`; spec gate safe, impl gate risky → `auto-to-spec`; both safe → `auto`. One risky dimension makes a gate non-self-assertable.
+
+**Ceiling and scope.** The Conductor may cap the run (`effective = min(ceiling, derived)`); the agent may stop earlier, never further. The leash is **per run/sitting** (session-local, like the iteration cap), **re-derived at each gate** — a gated spec gate does not bind a later impl gate.
+
 ## `approved-by` attribution
 
-On a passing gate, the gate skill records the approver under the gate's key:
+On a passing gate, the approver is recorded under the gate's key:
 
-- **Spec gate** → `status: approved`, `approved-by.spec.by: <approver>`.
-- **Impl gate** → `status: implemented`, `approved-by.impl.by: <approver>`.
+- **Spec gate** → `status: approved`, `approved-by.spec`.
+- **Impl gate** → `status: implemented`, `approved-by.impl`.
 
-If an agent self-asserted within its leash, the entry is `by: agent` with a `why` derivation — **provisional**, awaiting human ratification. The decision to advance is always the human's; never advance on agent judgment alone. Re-run `check-spec-state.mts` after writing the transition to confirm the new tuple is legal.
+A gate within the effective leash is **self-asserted**: the **orchestrator** writes `approved-by.<gate>: { by: agent, leash, why }` (the four-dimension derivation) during synthesis, and the gate skill writes the matching `status`. A self-assertion is **provisional** — the act is done, the accountability is not yet reconciled. A gate outside the leash (or a marginal verdict) **stops at the gate** for the human; the gate skill records `by: <name>` on the human verdict (no `why` required).
+
+```yaml
+approved-by:
+  spec:
+    by: agent          # provisional — in the review queue until ratified
+    leash: auto
+    why:
+      reversibility: "safe — new files only, cheap revert"
+      blast-radius:  "safe — one skill folder, no shared surface"
+      novelty:       "safe — contract already ratified"
+      confidence:    "safe — every scenario passes"
+  impl:
+    by: unional        # ratified by the human; no why needed
+```
+
+**The review queue is derived, not stored.** The set of specs with any `approved-by.*.by: agent` **is** the human's review queue — no separate backlog file. Ratifying rewrites `by: agent` → `by: <name>`, and the spec leaves the queue. A self-assertion never makes a decision final; it chooses *self-assert-and-continue (async review)* over *stop-and-ask-now (sync)*. Re-run `check-spec-state.mts` after writing any transition to confirm the new tuple is legal — a `by: agent` entry with no `why` is rejected.

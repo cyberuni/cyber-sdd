@@ -14,7 +14,7 @@ Load `sdd:lifecycle-governance` for the status enum, transition rules, and freez
 
 - **One autonomous segment.** Run as far as possible without the user, then return. Never ask the user a question directly — you have no user channel. When you hit a user-input checkpoint, return `STATUS: needs-input` with the questions **batched**. The calling skill owns the user loop and re-invokes you to resume.
 - **Stateless across segments.** Reconstruct position by reading the artifacts — never assume in-memory state survived.
-- **Write boundary.** Per `sdd:ownership-governance`: you may write `spec.md` `<!-- open: -->` markers and the `aligned` frontmatter field (synthesis) only. Never write `status` or the `domain-plugin` map — the skill owns those. Never write `spec.md` body narrative or the `.feature` — that is the spec-producer's act.
+- **Write boundary.** Per `sdd:ownership-governance`: you may write `spec.md` `<!-- open: -->` markers, the `aligned` frontmatter field, and — when you self-assert a gate within the effective leash — the provisional `approved-by.<gate>: { by: agent, leash, why }` entry (synthesis only). Never write `status` or the `domain-plugin` map — the skill owns those. Never write a human ratification (`by: <name>`). Never write `spec.md` body narrative or the `.feature` — that is the spec-producer's act.
 - **Never surface to the user.** Aggregate child `QUESTIONS` / `CONTENT_GAPS` / `OBSERVATIONS` and bubble them to the skill; only the skill talks to the user. Never spawn specs or write outside the spec you own.
 
 ## Input
@@ -83,12 +83,24 @@ Resolve each role to its agent (Step 1) and invoke through the uniform I/O in *D
 - **`aligned` is layer-scoped** — see `sdd:gate-validation-governance` for the full rule. Set `aligned: true` only when every impl-judge returns `IMPLEMENTATION_PASS: true` (impl gate) or the contract layer is in sync (spec gate); otherwise leave `aligned: false` and surface the `BLOCKER`.
 - Write resulting `<!-- open: -->` markers into `spec.md`.
 
+## Step 4b — Derive the leash and (within it) self-assert the gate
+
+When a gate is reached clean (judge passes, `aligned: true`, no markers), assess the leash per `sdd:gate-validation-governance` and emit the gate report.
+
+1. **Assess four dimensions for this gate** — reversibility, blast radius, decision novelty, confidence. "This spec" is the unit of work: blast radius asks whether the change stays inside the artifacts this spec owns. One risky dimension makes the gate non-self-assertable.
+2. **Derive the leash** (`gated` | `auto-to-spec` | `auto`) and apply any human ceiling: `effective = min(ceiling, derived)`. The leash is per run and re-derived at each gate.
+3. **Within the effective leash** (the leash reaches this gate, all four dimensions safe): **self-assert** — write `approved-by.<gate>: { by: agent, leash: <effective>, why: { reversibility, blast-radius, novelty, confidence } }` (synthesis boundary; you do **not** write `status` — the skill does). The advance is provisional; the spec is now in the review queue.
+4. **Outside the leash** (or any risky dimension): do **not** self-assert. Return the gate report for the skill to take the human verdict.
+5. **Emit the gate report** either way: verdict per backward face (Framer / Builder / Architect), the leash derivation (four dimensions per gate, derived + effective, one-line reason each), open markers as questions with proposed answers, contestable defaults, a decision menu (approve / change / reject with consequences), and — on a self-assertion — the flag **"agent-asserted — ratify or kick back."** The report is a derived view, regenerated on demand; only the `approved-by.<gate>.why` derivation is persisted.
+
 ## Step 5 — Return
 
 ```
 STATUS:       complete | needs-input | blocked
 PHASE:        exploration | approval | implementation
 ALIGNED:      true | false
+LEASH:        { gate, derived, ceiling, effective, self_asserted: true|false }
+GATE_REPORT:  <verdict per face · leash derivation · markers-as-questions · contestable defaults · decision menu>
 QUESTIONS:    [ batched user questions, derived from open markers ]   # when needs-input
 CONTENT_GAPS: [ { artifact, location, gap } ]
 OBSERVATIONS: [ { owner: architect | curator, note, evidence } ]

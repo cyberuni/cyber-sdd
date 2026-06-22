@@ -3,10 +3,22 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { collectSpecs, detectCycle, parseFrontmatter, renderGraph, type SpecNode } from './render-spec-graph.mts'
+import {
+	checkComposition,
+	collectSpecs,
+	detectCycle,
+	parseFrontmatter,
+	renderComposition,
+	renderGraph,
+	type SpecNode,
+} from './render-spec-graph.mts'
 
 function fm(status: string, blockedBy: string): string {
 	return `---\nstatus: ${status}\n${blockedBy}\naligned: false\n---\n\n# x\n`
+}
+
+function node(slug: string, over: Partial<SpecNode> = {}): SpecNode {
+	return { slug, status: 'draft', blockedBy: [], type: null, subtasks: [], ...over }
 }
 
 test('parseFrontmatter reads inline list', () => {
@@ -30,67 +42,93 @@ test('parseFrontmatter handles a missing blocked-by field', () => {
 	assert.equal(r.status, 'draft')
 })
 
+test('parseFrontmatter reads type and subtasks', () => {
+	const r = parseFrontmatter('---\nstatus: draft\ntype: project\nsubtasks:\n  - a\n  - sdd/b\n---\n\n# x\n')
+	assert.equal(r.type, 'project')
+	assert.deepEqual(r.subtasks, ['a', 'sdd/b'])
+})
+
 test('detectCycle returns null for an acyclic graph', () => {
-	const nodes: SpecNode[] = [
-		{ slug: 'a', status: 'draft', blockedBy: [] },
-		{ slug: 'b', status: 'draft', blockedBy: ['a'] },
-	]
-	assert.equal(detectCycle(nodes), null)
+	assert.equal(detectCycle([node('a'), node('b', { blockedBy: ['a'] })]), null)
 })
 
 test('detectCycle finds a two-node cycle', () => {
-	const nodes: SpecNode[] = [
-		{ slug: 'a', status: 'draft', blockedBy: ['b'] },
-		{ slug: 'b', status: 'draft', blockedBy: ['a'] },
-	]
-	assert.deepEqual(detectCycle(nodes), ['a', 'b', 'a'])
+	assert.deepEqual(detectCycle([node('a', { blockedBy: ['b'] }), node('b', { blockedBy: ['a'] })]), ['a', 'b', 'a'])
 })
 
 test('detectCycle finds a self-loop', () => {
-	const nodes: SpecNode[] = [{ slug: 'a', status: 'draft', blockedBy: ['a'] }]
-	assert.deepEqual(detectCycle(nodes), ['a', 'a'])
+	assert.deepEqual(detectCycle([node('a', { blockedBy: ['a'] })]), ['a', 'a'])
 })
 
 test('detectCycle ignores edges to unknown specs', () => {
-	const nodes: SpecNode[] = [{ slug: 'a', status: 'draft', blockedBy: ['ghost'] }]
-	assert.equal(detectCycle(nodes), null)
+	assert.equal(detectCycle([node('a', { blockedBy: ['ghost'] })]), null)
 })
 
 test('renderGraph emits an edge for a blocker', () => {
-	const out = renderGraph([
-		{ slug: 'child', status: 'draft', blockedBy: ['parent'] },
-		{ slug: 'parent', status: 'draft', blockedBy: [] },
-	])
+	const out = renderGraph([node('child', { blockedBy: ['parent'] }), node('parent')])
 	assert.match(out, /parent --> child/)
 })
 
 test('renderGraph declares a bare node with no edges', () => {
-	const out = renderGraph([{ slug: 'lonely', status: 'draft', blockedBy: [] }])
+	const out = renderGraph([node('lonely')])
 	assert.match(out, /\n {2}lonely\n/)
 })
 
 test('renderGraph emits one edge per blocker', () => {
-	const out = renderGraph([
-		{ slug: 'c', status: 'draft', blockedBy: ['a', 'b'] },
-		{ slug: 'a', status: 'draft', blockedBy: [] },
-		{ slug: 'b', status: 'draft', blockedBy: [] },
-	])
+	const out = renderGraph([node('c', { blockedBy: ['a', 'b'] }), node('a'), node('b')])
 	assert.match(out, /a --> c/)
 	assert.match(out, /b --> c/)
 })
 
-test('renderGraph writes a node-table row with blocked-by and status', () => {
-	const out = renderGraph([{ slug: 'u', status: 'draft', blockedBy: ['p'] }])
-	assert.match(out, /\| `u` \| `p` \| draft \|/)
+test('renderGraph writes a node-table row with type, blocked-by, and status', () => {
+	const out = renderGraph([node('u', { blockedBy: ['p'], type: 'feature' })])
+	assert.match(out, /\| `u` \| feature \| `p` \| draft \|/)
 })
 
 test('renderGraph is deterministic regardless of input order', () => {
-	const a: SpecNode[] = [
-		{ slug: 'b', status: 'draft', blockedBy: ['a'] },
-		{ slug: 'a', status: 'draft', blockedBy: [] },
-	]
+	const a: SpecNode[] = [node('b', { blockedBy: ['a'] }), node('a')]
 	const b: SpecNode[] = [...a].reverse()
 	assert.equal(renderGraph(a), renderGraph(b))
+})
+
+test('renderComposition emits a project -> feature containment edge', () => {
+	const out = renderComposition([
+		node('proj', { type: 'project', subtasks: ['feat'] }),
+		node('feat', { type: 'feature' }),
+	])
+	assert.match(out, /proj --> feat/)
+})
+
+test('checkComposition passes a clean project/feature tree', () => {
+	const v = checkComposition([node('proj', { type: 'project', subtasks: ['feat'] }), node('feat', { type: 'feature' })])
+	assert.deepEqual(v, [])
+})
+
+test('checkComposition flags a feature with two parents', () => {
+	const v = checkComposition([
+		node('p1', { type: 'project', subtasks: ['feat'] }),
+		node('p2', { type: 'project', subtasks: ['feat'] }),
+		node('feat', { type: 'feature' }),
+	])
+	assert.ok(v.some((m) => /feat: claimed by 2 projects/.test(m)))
+})
+
+test('checkComposition flags an orphan feature', () => {
+	const v = checkComposition([node('feat', { type: 'feature' })])
+	assert.ok(v.some((m) => /orphan/.test(m)))
+})
+
+test('checkComposition flags a subtask that is not a feature', () => {
+	const v = checkComposition([
+		node('proj', { type: 'project', subtasks: ['other'] }),
+		node('other', { type: 'project' }),
+	])
+	assert.ok(v.some((m) => /not type:feature/.test(m)))
+})
+
+test('checkComposition flags an unresolved subtask', () => {
+	const v = checkComposition([node('proj', { type: 'project', subtasks: ['ghost'] })])
+	assert.ok(v.some((m) => /does not resolve/.test(m)))
 })
 
 test('collectSpecs skips folders without spec.md and sorts by slug', () => {

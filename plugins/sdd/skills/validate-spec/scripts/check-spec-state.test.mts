@@ -6,7 +6,7 @@ import { test } from 'node:test'
 import { checkSpec, discoverSpecDirs, parseSpecState, type SpecState } from './check-spec-state.mts'
 
 function state(over: Partial<SpecState> = {}): SpecState {
-	return { status: 'draft', aligned: false, markerCount: 0, approvedBy: null, ...over }
+	return { status: 'draft', aligned: false, markerCount: 0, approvedBy: null, type: null, subtasks: [], ...over }
 }
 
 test('parseSpecState reads status, aligned, and marker count', () => {
@@ -59,6 +59,32 @@ test('parseSpecState reads a nested approved-by map with why', () => {
 test('parseSpecState treats an empty approved-by as an empty map', () => {
 	const s = parseSpecState('---\nstatus: draft\napproved-by: {}\n---\n')
 	assert.deepEqual(s.approvedBy, {})
+})
+
+test('parseSpecState reads type and a subtasks list', () => {
+	const text = ['---', 'status: draft', 'type: project', 'subtasks:', '  - a', '  - sdd/b', '---', ''].join('\n')
+	const s = parseSpecState(text)
+	assert.equal(s.type, 'project')
+	assert.deepEqual(s.subtasks, ['a', 'sdd/b'])
+})
+
+test('parseSpecState reads an inline subtasks array', () => {
+	const s = parseSpecState('---\nstatus: draft\ntype: project\nsubtasks: [a, b]\n---\n')
+	assert.deepEqual(s.subtasks, ['a', 'b'])
+})
+
+test('an unknown type is rejected', () => {
+	const v = checkSpec('x', state({ type: 'epic' }), false)
+	assert.ok(v.some((m) => /unknown type "epic"/.test(m)))
+})
+
+test('only a project may declare subtasks', () => {
+	const v = checkSpec('x', state({ type: 'feature', subtasks: ['child'] }), false)
+	assert.ok(v.some((m) => /only a project may declare subtasks/.test(m)))
+})
+
+test('a project with subtasks passes the per-spec check', () => {
+	assert.deepEqual(checkSpec('x', state({ type: 'project', subtasks: ['child'] }), false), [])
 })
 
 test('draft + aligned:true is illegal', () => {

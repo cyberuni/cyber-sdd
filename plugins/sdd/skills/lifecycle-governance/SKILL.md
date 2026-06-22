@@ -16,9 +16,12 @@ The state machine a `spec.md` moves through, and the frontmatter that records it
 ```yaml
 ---
 status: draft           # draft | approved | implemented | deprecated
+type: feature           # project | feature; omit for an untyped legacy spec
 aligned: false          # true once the current layer's artifacts are synced
 priority: 1             # integer; 1 = highest (relative within a set)
 blocked-by:             # list of spec slugs; omit or empty if none
+  - <spec-slug>
+subtasks:               # project specs only: child feature slugs (single-parent)
   - <spec-slug>
 approved-by:            # written by the gate; see gate-validation-governance
   spec: { by: <approver>, why: <derivation if by:agent> }
@@ -30,7 +33,20 @@ domain-plugin:          # map: domain -> owning plugin, when a domain is contest
 
 Open input is recorded in the body as `<!-- open: ... -->` markers, not in frontmatter.
 
-`status`, `priority`, and `blocked-by` are the base schema; `aligned`, `approved-by`, and `domain-plugin` are the SDD-workflow additions.
+`status`, `priority`, and `blocked-by` are the base schema; `type`, `subtasks`, `aligned`, `approved-by`, and `domain-plugin` are the SDD-workflow additions.
+
+## Spec typing and composition
+
+A spec carries a `type` and projects own their features:
+
+| `type` | Meaning |
+|---|---|
+| `project` | A top-level spec: a plugin/project, or a standalone model. Has no parent. May own features via `subtasks`. |
+| `feature` | A unit of work belonging to exactly one project. Owns its detailed behavior; the project spec stays high-level and cross-references it. |
+
+- **`subtasks` lists children, parent is derived.** Only a `project` declares `subtasks` — the child feature slugs it owns. A feature does not name its parent; the parent is whichever project lists it, mirroring how `blocks` is derived from `blocked-by`. This keeps one source of truth.
+- **Single parent (tree invariant).** A slug appears in **at most one** project's `subtasks`. Each `feature` is owned by exactly one project; an unparented `feature` is an orphan. This keeps composition a tree, not a tangle.
+- **Composition is orthogonal to dependency.** `subtasks` is containment (project → feature); `blocked-by` is execution-order dependency. A feature may be `blocked-by` specs outside its parent. The two graphs are maintained and rendered separately.
 
 ## Spec discovery
 

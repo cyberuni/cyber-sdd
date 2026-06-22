@@ -18,9 +18,12 @@ export interface SpecState {
 	aligned: boolean | null
 	markerCount: number
 	approvedBy: Record<string, GateApproval> | null
+	type: string | null
+	subtasks: string[]
 }
 
 const GATES = ['spec', 'impl']
+const TYPES = ['project', 'feature']
 
 function frontmatter(text: string): string[] {
 	const m = /^---\n([\s\S]*?)\n---/.exec(text)
@@ -32,6 +35,8 @@ export function parseSpecState(text: string): SpecState {
 	let status = ''
 	let aligned: boolean | null = null
 	let approvedBy: Record<string, GateApproval> | null = null
+	let type: string | null = null
+	const subtasks: string[] = []
 
 	for (let i = 0; i < lines.length; i++) {
 		const s = /^status:\s*(.+)$/.exec(lines[i])
@@ -42,6 +47,28 @@ export function parseSpecState(text: string): SpecState {
 		const a = /^aligned:\s*(true|false)\b/.exec(lines[i])
 		if (a) {
 			aligned = a[1] === 'true'
+			continue
+		}
+		const t = /^type:\s*(.+)$/.exec(lines[i])
+		if (t) {
+			type = t[1].trim().replace(/^["']|["']$/g, '')
+			continue
+		}
+		const st = /^subtasks:\s*(.*)$/.exec(lines[i])
+		if (st) {
+			const rest = st[1].trim()
+			if (rest.startsWith('[')) {
+				for (const part of rest.replace(/^\[|\]$/g, '').split(',')) {
+					const v = part.trim().replace(/^["']|["']$/g, '')
+					if (v) subtasks.push(v)
+				}
+			} else {
+				for (let j = i + 1; j < lines.length; j++) {
+					const item = /^\s*-\s+(.+)$/.exec(lines[j])
+					if (!item) break
+					subtasks.push(item[1].trim().replace(/^["']|["']$/g, ''))
+				}
+			}
 			continue
 		}
 		const ab = /^approved-by:\s*(.*)$/.exec(lines[i])
@@ -70,7 +97,7 @@ export function parseSpecState(text: string): SpecState {
 	// strip code spans and fences before counting (else the spec trips its own gate).
 	const prose = text.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
 	const markerCount = (prose.match(/<!--\s*open:/g) ?? []).length
-	return { status, aligned, markerCount, approvedBy }
+	return { status, aligned, markerCount, approvedBy, type, subtasks }
 }
 
 export function checkSpec(slug: string, state: SpecState, hasFeature: boolean): string[] {
@@ -96,6 +123,11 @@ export function checkSpec(slug: string, state: SpecState, hasFeature: boolean): 
 		tag(`status is ${status} but approved-by.spec is missing — the spec gate has no recorded approver`)
 	if (status === 'implemented' && !approvedBy?.impl?.by)
 		tag('status is implemented but approved-by.impl is missing — the impl gate has no recorded approver')
+
+	if (state.type !== null && !TYPES.includes(state.type))
+		tag(`unknown type "${state.type}" (expected project | feature)`)
+	if (state.subtasks.length && state.type !== 'project')
+		tag(`only a project may declare subtasks (type is ${state.type ?? 'unset'})`)
 
 	return v
 }

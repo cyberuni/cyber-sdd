@@ -11,6 +11,8 @@ export interface SpecNode {
 	slug: string
 	status: string
 	blockedBy: string[]
+	type: string | null
+	subtasks: string[]
 }
 
 function stripQuotes(s: string): string {
@@ -22,37 +24,60 @@ function extractFrontmatter(text: string): string {
 	return m ? m[1] : ''
 }
 
-export function parseFrontmatter(text: string): { status: string; blockedBy: string[] } {
+function parseList(lines: string[], i: number, rest: string): string[] {
+	const out: string[] = []
+	if (rest.startsWith('[')) {
+		const inner = rest.replace(/^\[|\]$/g, '').trim()
+		if (inner)
+			for (const part of inner.split(',')) {
+				const v = stripQuotes(part.trim())
+				if (v) out.push(v)
+			}
+	} else if (rest) {
+		out.push(stripQuotes(rest))
+	} else {
+		for (let j = i + 1; j < lines.length; j++) {
+			const itemM = /^\s*-\s+(.+)$/.exec(lines[j])
+			if (!itemM) break
+			out.push(stripQuotes(itemM[1].trim()))
+		}
+	}
+	return out
+}
+
+export function parseFrontmatter(text: string): {
+	status: string
+	blockedBy: string[]
+	type: string | null
+	subtasks: string[]
+} {
 	const lines = extractFrontmatter(text).split('\n')
 	let status = ''
-	const blockedBy: string[] = []
+	let type: string | null = null
+	let blockedBy: string[] = []
+	let subtasks: string[] = []
 	for (let i = 0; i < lines.length; i++) {
 		const statusM = /^status:\s*(.*)$/.exec(lines[i])
 		if (statusM) {
 			status = stripQuotes(statusM[1].trim())
 			continue
 		}
+		const typeM = /^type:\s*(.*)$/.exec(lines[i])
+		if (typeM) {
+			type = stripQuotes(typeM[1].trim()) || null
+			continue
+		}
 		const blockedM = /^blocked-by:\s*(.*)$/.exec(lines[i])
-		if (!blockedM) continue
-		const rest = blockedM[1].trim()
-		if (rest.startsWith('[')) {
-			const inner = rest.replace(/^\[|\]$/g, '').trim()
-			if (inner)
-				for (const part of inner.split(',')) {
-					const v = stripQuotes(part.trim())
-					if (v) blockedBy.push(v)
-				}
-		} else if (rest) {
-			blockedBy.push(stripQuotes(rest))
-		} else {
-			for (let j = i + 1; j < lines.length; j++) {
-				const itemM = /^\s*-\s+(.+)$/.exec(lines[j])
-				if (!itemM) break
-				blockedBy.push(stripQuotes(itemM[1].trim()))
-			}
+		if (blockedM) {
+			blockedBy = parseList(lines, i, blockedM[1].trim())
+			continue
+		}
+		const subM = /^subtasks:\s*(.*)$/.exec(lines[i])
+		if (subM) {
+			subtasks = parseList(lines, i, subM[1].trim())
 		}
 	}
-	return { status, blockedBy }
+	return { status, blockedBy, type, subtasks }
 }
 
 export function collectSpecs(root: string): SpecNode[] {
@@ -62,8 +87,8 @@ export function collectSpecs(root: string): SpecNode[] {
 		const specPath = join(dir, 'spec.md')
 		if (existsSync(specPath)) {
 			const slug = relative(root, dir).split(sep).join('/')
-			const { status, blockedBy } = parseFrontmatter(readFileSync(specPath, 'utf8'))
-			nodes.push({ slug, status, blockedBy })
+			const { status, blockedBy, type, subtasks } = parseFrontmatter(readFileSync(specPath, 'utf8'))
+			nodes.push({ slug, status, blockedBy, type, subtasks })
 		}
 
 		for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -105,6 +130,39 @@ export function detectCycle(nodes: SpecNode[]): string[] | null {
 	return null
 }
 
+// Global tree invariants for the composition (project -> feature via subtasks):
+// every subtask resolves to a known feature, no feature has two parents, and no
+// feature is orphaned. Run over the full spec set.
+export function checkComposition(nodes: SpecNode[]): string[] {
+	const v: string[] = []
+	const bySlug = new Map(nodes.map((n) => [n.slug, n]))
+	const parents = new Map<string, string[]>()
+	for (const n of nodes)
+		for (const child of n.subtasks) {
+			const target = bySlug.get(child)
+			if (!target) v.push(`${n.slug}: subtask "${child}" does not resolve to a known spec`)
+			else if (target.type !== 'feature') v.push(`${n.slug}: subtask "${child}" is not type:feature`)
+			parents.set(child, [...(parents.get(child) ?? []), n.slug])
+		}
+	for (const [child, owners] of parents)
+		if (owners.length > 1)
+			v.push(`${child}: claimed by ${owners.length} projects (${owners.join(', ')}) — a feature has one parent`)
+	for (const n of nodes)
+		if (n.type === 'feature' && !parents.has(n.slug)) v.push(`${n.slug}: type:feature but no project lists it (orphan)`)
+	return v.sort()
+}
+
+export function renderComposition(nodes: SpecNode[]): string {
+	const projects = nodes.filter((n) => n.type === 'project').sort((a, b) => a.slug.localeCompare(b.slug))
+	const edges = projects.flatMap((p) => [...p.subtasks].sort().map((c) => `  ${p.slug} --> ${c}`))
+	const standalone = projects.filter((p) => p.subtasks.length === 0).map((p) => `  ${p.slug}`)
+	const body = [...standalone, ...edges].join('\n') || '  %% no typed projects yet'
+	return `\`\`\`mermaid
+graph TD
+${body}
+\`\`\``
+}
+
 export function renderGraph(nodes: SpecNode[]): string {
 	const edges: string[] = []
 	const touched = new Set<string>()
@@ -125,24 +183,30 @@ export function renderGraph(nodes: SpecNode[]): string {
 		.sort((a, b) => a.slug.localeCompare(b.slug))
 		.map((n) => {
 			const blocked = n.blockedBy.length ? n.blockedBy.map((b) => `\`${b}\``).join(', ') : '—'
-			return `| \`${n.slug}\` | ${blocked} | ${n.status || '—'} |`
+			return `| \`${n.slug}\` | ${n.type ?? '—'} | ${blocked} | ${n.status || '—'} |`
 		})
 
 	return `# Spec DAG
 
 The dependency graph across all specs in \`artifacts/specs/\`. Each node is a spec folder (the slug is its root-relative path); each edge \`A --> B\` means **A blocks B** (B declares \`blocked-by: [A]\`).
 
-This is a **derived view** generated by the \`render-spec-graph\` skill — \`blocked-by\` in each \`spec.md\` is the source of truth. Do not hand-edit; regenerate when edges change. Execution order is the topological sort of this graph; there is no authored \`priority\`.
+This is a **derived view** generated by the \`render-spec-graph\` skill — \`blocked-by\` and \`subtasks\` in each \`spec.md\` are the source of truth. Do not hand-edit; regenerate when edges change. Execution order is the topological sort of this graph; there is no authored \`priority\`.
 
 \`\`\`mermaid
 graph TD
 ${[...bare, ...edges].join('\n')}
 \`\`\`
 
+## Composition
+
+Containment from \`subtasks\`: each edge \`A --> B\` means **project A owns feature B**. Distinct from the dependency graph above; a feature has exactly one parent.
+
+${renderComposition(nodes)}
+
 ## Nodes
 
-| Spec | blocked-by | status |
-|---|---|---|
+| Spec | type | blocked-by | status |
+|---|---|---|---|
 ${rows.join('\n')}
 `
 }
@@ -176,6 +240,11 @@ export function main(argv: string[]): number {
 	const cycle = detectCycle(nodes)
 	if (cycle) {
 		console.error(`cycle detected in blocked-by: ${cycle.join(' -> ')}`)
+		return 1
+	}
+	const composition = checkComposition(nodes)
+	if (composition.length) {
+		for (const line of composition) console.error(`✗ ${line}`)
 		return 1
 	}
 	const content = renderGraph(nodes)

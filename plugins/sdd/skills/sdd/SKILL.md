@@ -13,17 +13,33 @@ Gateway skill for Spec-Driven Development. Activates SDD, gathers missing intent
 
 Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activation.
 
-If invoked without a work item, artifact, or action, ask what SDD work the user wants to do:
+### Fast path — skip the menu
 
-- Create a new artifact spec
-- Backfill a spec for an existing artifact
-- Revise or validate an existing spec
-- Implement an approved spec
-- Re-review a spec at the spec gate (regardless of current status)
-- Manage or deprecate existing specs
-- Refresh the spec graph
+When the invocation already names **both** an artifact and an action — "implement the auth spec", "review X again", "deprecate the auth spec", "refresh the SDD graph" — skip the menu entirely and route directly through the Routing Table. A partially-specified request (artifact named but action ambiguous, or vice versa) resolves what it can and asks only for the missing piece, still within the four-option rule below.
+
+### Two-level menu — bare invocation
+
+When `$sdd` is invoked with no work item, artifact, or action, do not guess. Conduct intake as a **two-level menu**, never a flat list. The top-level question presents **exactly four** options:
+
+| # | Top-level option | Covers |
+|---|---|---|
+| 1 | **Create or backfill a spec** | Start a new spec; detect new-vs-backfill by whether an implementation already exists for the named work |
+| 2 | **Work on an existing spec** | List specs (folder slug + status); user picks one; route by that spec's status via the Routing Table. Single-spec deprecation lives here |
+| 3 | **Manage specs & graph** | Cross-spec operations: dedupe overlapping specs, split a large spec, cross-spec deprecate, refresh the graph |
+| 4 | **Help me choose** | Scan specs and statuses, suggest the most-actionable few, then let the user pick |
+
+Resolve the second level by branch:
+
+- **Option 1** — collect the target work, detect mode, route to **Draft spec** (no implementation) or **Backfill spec** (implementation exists).
+- **Option 2** — enumerate specs with folder slug + status; the user picks one; route by its status via the Routing Table. A deprecation request routes to spec management.
+- **Option 3** — present the cross-spec operation set; route per Manage specs & graph below.
+- **Option 4** — present the suggested specs (≤ 4), let the user pick one, then route by its status.
 
 Do not begin implementation until the route is known.
+
+### Never ask more than four options (hard rule)
+
+A single `AskUserQuestion` carries **at most four** options — the intake tool rejects more than four (`too_big, maximum 4`). The top-level menu is fixed at exactly four. When a derived list exceeds four — the spec list under option 2, or the suggestions under option 4 — apply the **list-overflow fallback**: present only the most-actionable few (≤ 4) **or** ask the user to name the domain directly. Never enumerate every spec into an over-four question, and never truncate silently.
 
 ## Reading Files
 
@@ -63,6 +79,19 @@ If lifecycle frontmatter is missing or malformed, route to **Review at the spec 
 | All tasks checked and no open markers | **Review at the spec gate** — do not offer revise as an alternative |
 | Any unchecked task or open marker | **Revise spec** — name the open items |
 | No tasks.md and no markers (inconclusive) | Present both **Revise spec** and **Review at the spec gate** |
+
+## Manage Specs & Graph (option 3)
+
+Route each cross-spec operation by whether a downstream skill exists for it:
+
+| Operation | Routing |
+|---|---|
+| Refresh graph | **Refresh spec graph** → `render-spec-graph` (delegate exists today) |
+| Split a spec | Authoring half → **Draft spec** + deprecate/revise the old via `create-spec` |
+| Dedupe specs | Authoring half → `create-spec` (collapse overlap into the surviving spec + deprecate the rest) |
+| Cross-spec deprecate | Spec management / deprecation path |
+
+The cross-spec **analysis** — finding which specs overlap, choosing split boundaries — has no downstream skill yet. Until the `split-spec` and `dedupe-specs` skills exist, perform the authoring half via `create-spec` and **surface to the user that the analysis step is manual**. When those skills exist, route the analysis to them instead and do not surface it as manual.
 
 ## Delegate Downstream Work
 

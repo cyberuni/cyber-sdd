@@ -36,7 +36,7 @@ Open input is recorded in the body as `<!-- open: ... -->` markers, not in front
 
 A spec is defined by its **shape, not its location**: an SDD spec is any git-tracked `spec.md` whose frontmatter `status` is one of the lifecycle enum values below. This is the single source of truth — there is no spec registry or enumerated index to keep in sync.
 
-To locate specs, glob `**/spec.md` (repo-wide, standard ignores) and keep those whose `status` is in the enum. A `spec.md` without a lifecycle `status` is not an SDD spec and is excluded (for example, doc-only spec folders that live outside the workflow).
+To locate specs, glob `**/spec.md` repo-wide, filter to git-tracked files (e.g., cross-reference with `git ls-files`), and keep those whose `status` is in the enum. A `spec.md` without a lifecycle `status` is not an SDD spec and is excluded (for example, doc-only spec folders that live outside the workflow).
 
 To resolve a **domain name** to its spec folder, match the name against each discovered spec's folder slug — the root-relative path of the folder containing `spec.md`. A spec may be flat (`sdd-orchestrator`) or nested (`sdd/spec-digest`); match the leaf segment or the full slug. If a name matches more than one folder, disambiguate with the user.
 

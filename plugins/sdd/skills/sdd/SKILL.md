@@ -70,6 +70,8 @@ Route by status read from spec.md frontmatter:
 
 If lifecycle frontmatter is missing or malformed, route to **Review at the spec gate** for state validation before implementation.
 
+If a nonempty request names neither a routable artifact nor a known SDD action, report that the request is unroutable and invoke no SDD action.
+
 **Override — Re-review at the spec gate:** When the user explicitly asks to re-review (e.g. "review the spec again", "force spec gate", "redo the spec review"), route to **Re-review at the spec gate** regardless of current status. State: "Forcing spec gate review — current status is `<status>`."
 
 ### Draft tiebreaker

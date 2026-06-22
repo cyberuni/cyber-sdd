@@ -44,6 +44,8 @@ Do not route user questions to `sdd-orchestrator`. It has no user channel. User 
 
 First identify the artifact domain, spec folder, or requested SDD action from the user's request. If the request does not contain enough information, use gateway intake before choosing the route.
 
+To find an existing spec for a named domain, use the discovery rule in `sdd:lifecycle-governance` ("Spec discovery"): glob `**/spec.md`, keep those with a lifecycle `status`, and match the domain to a spec folder slug. Do not assume a fixed path like `specs/<domain>/` — specs may be flat or nested, and the spec folder is distinct from the implementation folder. If no discovered spec matches, treat it as "no spec" in the lifecycle routing table.
+
 If a spec folder exists, read these files before choosing the route:
 
 - `spec.md`

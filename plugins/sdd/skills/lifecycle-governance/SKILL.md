@@ -32,6 +32,16 @@ Open input is recorded in the body as `<!-- open: ... -->` markers, not in front
 
 `status`, `priority`, and `blocked-by` are the base schema; `aligned`, `approved-by`, and `domain-plugin` are the SDD-workflow additions.
 
+## Spec discovery
+
+A spec is defined by its **shape, not its location**: an SDD spec is any git-tracked `spec.md` whose frontmatter `status` is one of the lifecycle enum values below. This is the single source of truth — there is no spec registry or enumerated index to keep in sync.
+
+To locate specs, glob `**/spec.md` (repo-wide, standard ignores) and keep those whose `status` is in the enum. A `spec.md` without a lifecycle `status` is not an SDD spec and is excluded (for example, doc-only spec folders that live outside the workflow).
+
+To resolve a **domain name** to its spec folder, match the name against each discovered spec's folder slug — the root-relative path of the folder containing `spec.md`. A spec may be flat (`sdd-orchestrator`) or nested (`sdd/spec-digest`); match the leaf segment or the full slug. If a name matches more than one folder, disambiguate with the user.
+
+Derived views (such as `graph.md`) are rendered from the discovered set and never hand-maintained — see `render-spec-graph`.
+
 **`aligned` and commit timing.** `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced (which layer depends on the gate — see `gate-validation-governance`). Do not commit SDD artifacts while their spec is `aligned: false`.
 
 ## Status enum

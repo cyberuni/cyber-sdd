@@ -51,18 +51,20 @@ If a spec folder exists, read these files before choosing the route:
 - `plan.md`
 - `tasks.md`
 
-Use the lifecycle state and the user's intent to choose the next SDD workflow:
+Name the route to the user as a **workflow action**, not the skill or CLI that runs it. Use the action names in the left column below; the right column is how the gateway carries it out internally.
 
-| User intent | Route |
+| Workflow action | Carried out by |
 |---|---|
-| Start a new artifact | Run `create-spec` before implementation |
-| Backfill a spec for an existing artifact | Run `create-spec` in backfill mode |
-| Revise a draft spec | Run `create-spec` for the existing spec folder |
-| Approve a draft contract | Run `validate-spec` targeting the spec gate |
-| Implement an approved artifact | Keep `.feature` frozen, implement through the SDD workflow, then run `validate-spec` targeting the impl gate |
+| **Draft spec** (new artifact) | Run `create-spec` before implementation |
+| **Backfill spec** (existing artifact) | Run `create-spec` in backfill mode |
+| **Revise spec** (draft) | Run `create-spec` for the existing spec folder |
+| **Review at the spec gate** | Run `validate-spec` targeting the spec gate |
+| **Review at the impl gate** | Keep `.feature` frozen, implement through the SDD workflow, then run `validate-spec` targeting the impl gate |
 | Change behavior after approval | Revert to `draft` through the gate path before changing scenarios |
 | Deprecate an artifact | Treat deprecation as a Framer decision and retain the spec for graph history |
-| Refresh dependency view | Run `render-spec-graph` |
+| **Refresh spec graph** | Run `render-spec-graph` |
+
+Never surface `create-spec`, `validate-spec --target spec`, or `--target impl` to the user — those are how, not what.
 
 ## Lifecycle Routing
 
@@ -70,13 +72,25 @@ Load `sdd:lifecycle-governance` for the status enum, meanings, and freeze transi
 
 | Status | Required action |
 |---|---|
-| no spec | Run `create-spec`; if implementation exists, use backfill mode |
-| `draft` | Use `create-spec` for revisions or `validate-spec --target spec` for approval |
-| `approved` | Implement against the `.feature`; use `validate-spec --target impl` for completion |
+| no spec | **Draft spec**; if implementation exists, use **Backfill spec** |
+| `draft` | Apply the draft tiebreaker below |
+| `approved` | Implement against the `.feature`, then **Review at the impl gate** |
 | `implemented` | Behavior changes require returning to `draft` through the gate path |
 | `deprecated` | Do not treat as implementable work |
 
-If lifecycle frontmatter is missing, malformed, or contradictory, route to `validate-spec` for state validation before implementation.
+If lifecycle frontmatter is missing, malformed, or contradictory, route to **Review at the spec gate** for state validation before implementation.
+
+### Draft tiebreaker
+
+When `spec.md` is `draft`, inspect completion signals before offering routes:
+
+| Signals | Default route |
+|---|---|
+| `tasks.md` all items checked **and** no `<!-- open: ... -->` markers in `spec.md` or the `.feature` | **Review at the spec gate** — route there directly; do not offer revise as an alternative |
+| Any unchecked task **or** any open marker | **Revise spec** — name the open items that must be resolved first |
+| No `tasks.md` and no markers (inconclusive) | Present both **Revise spec** and **Review at the spec gate** |
+
+Routing to the spec gate is safe to automate: the gate still takes the human verdict, so routing only submits the draft for review. Do not generate the review summary yourself — `validate-spec` surfaces the spec digest at the gate.
 
 ## Freeze Handling
 
@@ -110,12 +124,12 @@ Backfill infers What, Why, decisions, and surface from source, tests, and histor
 
 ## Report
 
-When gateway activation changes the next action, state the route briefly:
+When gateway activation changes the next action, state the route briefly by its workflow-action name:
 
-- `create-spec` for draft/backfill work
-- `validate-spec --target spec` for contract approval
-- `validate-spec --target impl` for implementation approval
-- `render-spec-graph` for dependency graph refresh
+- **Draft spec** / **Backfill spec** / **Revise spec** for contract authoring
+- **Review at the spec gate** for draft approval
+- **Review at the impl gate** for implementation approval
+- **Refresh spec graph** for dependency graph refresh
 
 Also name the active constraint when it matters:
 

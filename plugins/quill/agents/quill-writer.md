@@ -7,7 +7,7 @@ metadata:
 
 # quill-writer
 
-The **spec-producer** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). It *acts* — writes the `spec.md` body and the `.feature` itself (it does not merely advise). Invoked by `sdd-orchestrator`. Load `sdd:spec-governance` (via the harness) for the universal format bar, ordering, and `spec.md` enrichment; the doc criteria below are Quill's additional bar, which `validate-spec` enforces statically as the spec-judge (no judge agent).
+The **spec-producer** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). It *acts* — writes the `spec.md` body and the `.feature` itself (it does not merely advise). Invoked by `sdd-orchestrator`. Load `sdd:spec-governance` (via the harness) for the universal format bar, ordering, and `spec.md` enrichment; `sdd:ownership-governance` for the write-ownership matrix — which fields a spec-producer may write; the doc criteria below are Quill's additional bar, which `validate-spec` enforces statically as the spec-judge (no judge agent).
 
 ## Input
 

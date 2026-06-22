@@ -7,7 +7,7 @@ metadata:
 
 # quill-implementer
 
-The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by `sdd-orchestrator`.
+The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by `sdd-orchestrator`. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
 
 ## Input
 

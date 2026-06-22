@@ -36,7 +36,7 @@ Invoke `sdd-orchestrator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge 
 
 ## 4. Confirm the voices, then take the verdict
 
-When the judge passes and `ALIGNED` is true, present the **gate report** (verdict per backward face + open items) and confirm the required reviewers have acknowledged the spec — a PR approval, a recorded comment, or an explicit async ack. The decision is the human's; never advance on your own.
+When the judge passes and `ALIGNED` is true, call `spec-digest` on the resolved spec and present its digest (What, Status, Scenarios, Key decisions, Open items) above the **gate report** so the human sees what they are approving. Then present the gate report (verdict per backward face + open items) and confirm the required reviewers have acknowledged the spec — a PR approval, a recorded comment, or an explicit async ack. The decision is the human's; never advance on your own.
 
 ## 5. Write the transition (only after the human approves)
 

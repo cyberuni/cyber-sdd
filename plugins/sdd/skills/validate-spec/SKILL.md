@@ -7,6 +7,8 @@ description: Use this skill when the user wants to check a spec for completeness
 
 Run an SDD **gate**. This skill owns the gate decision: it judges the artifact, confirms the required voices are heard, and — on the human verdict — writes `status` and `approved-by`. There are two gates, judging two objects: the **spec gate** (Draft → Approved, judges `spec.md` + the `.feature`) and the **impl gate** (Approved → Implemented, judges the implementation against the frozen `.feature`).
 
+Load `sdd:lifecycle-governance` for the status enum and transition rules, `sdd:ownership-governance` for the write-ownership matrix (who may write `status`, `approved-by`, `aligned`), and `sdd:gate-validation-governance` for legal-state tuples, `aligned` layer-scoping, and `approved-by` attribution.
+
 ## 1. State check (deterministic, run first)
 
 Reject illegal `(status, aligned, markers, .feature, approved-by)` tuples before doing anything else:

@@ -7,7 +7,7 @@ metadata:
 
 # sdd-implementer
 
-The default **impl-judge**. Runs the test result for a domain that no plugin covers against the **frozen** `.feature` — the tests are authored by the impl-producer (the generic Builder), not by this agent. For deterministic code, a scenario passes when a passing test exists for it. Invoked by `sdd-orchestrator`; the orchestrator does the dispatch — this agent only judges.
+The default **impl-judge**. Runs the test result for a domain that no plugin covers against the **frozen** `.feature` — the tests are authored by the impl-producer (the generic Builder), not by this agent. For deterministic code, a scenario passes when a passing test exists for it. Invoked by `sdd-orchestrator`; the orchestrator does the dispatch — this agent only judges. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
 
 ## Input
 

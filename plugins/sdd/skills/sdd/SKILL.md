@@ -29,26 +29,15 @@ Treat these skills, agents, and governance skills as the active SDD surface:
 | Surface | Use |
 |---|---|
 | `sdd:spec-governance` | Universal `.feature` format bar, scenario ordering, and human-readable `spec.md` enrichment |
+| `sdd:lifecycle-governance` | Frontmatter schema, status enum, status transitions, open-marker gating, and the freeze state-transition |
 | `create-spec` | Draft or revise a feature contract during exploration |
 | `validate-spec` | Run the spec gate or impl gate and record approved status transitions |
 | `render-spec-graph` | Regenerate the derived spec dependency graph |
 | `sdd-orchestrator` | Run one autonomous segment for create/validate workflows |
 
-Load `sdd:spec-governance` before writing or judging `spec.md` and `.feature` content. Runtime SDD work does not call `governance show`.
+Load `sdd:spec-governance` before writing or judging `spec.md` and `.feature` content. Load `sdd:lifecycle-governance` for all lifecycle rules (schema, status enum, transitions, freeze). Runtime SDD work does not call `governance show`.
 
 Do not route user questions to `sdd-orchestrator`. It has no user channel. User questions belong to this skill's gateway intake, `create-spec`, `validate-spec`, or this skill's brief routing report.
-
-## Core Rules
-
-**Spec owns behavior.** If implementation disagrees with `spec.md`, the implementation is wrong. Fix implementation, or revert the spec to `draft` and complete a new review cycle.
-
-**`.feature` freeze.** Once `spec.md` reaches `approved`, do not modify the `.feature` file. Adding, removing, or changing scenarios requires reverting the spec to `draft` and passing the spec gate again.
-
-**Two modes, two gates.** Before `approved`, exploration may update `spec.md`, `.feature`, `plan.md`, `tasks.md`, and implementation spikes. After `approved`, implementation proceeds against the frozen `.feature`; every frozen scenario must pass before `implemented`.
-
-**Artifact alignment.** Every spec has an `aligned` field. `aligned: false` means artifacts are being updated or contain unresolved markers. `aligned: true` means the current layer is synced. Do not commit SDD artifacts while their spec is `aligned: false`.
-
-**Open questions are explicit.** Missing contributor input is recorded as `<!-- open: ... -->` in the owning artifact. Resolve open markers before advancing to `approved`.
 
 ## Route The Work
 
@@ -76,25 +65,23 @@ Use the lifecycle state and the user's intent to choose the next SDD workflow:
 
 ## Lifecycle Routing
 
-Use the frontmatter in `spec.md` when it exists:
+Load `sdd:lifecycle-governance` for the status enum, meanings, and freeze transition rules. Use the frontmatter in `spec.md` to choose the route:
 
-| Status | Meaning | Required action |
-|---|---|---|
-| no spec | No contract exists | Run `create-spec`; if implementation exists, use backfill mode |
-| `draft` | Contract can evolve | Use `create-spec` for revisions or `validate-spec --target spec` for approval |
-| `approved` | Contract is frozen | Implement against the `.feature`; use `validate-spec --target impl` for completion |
-| `implemented` | Implementation passed the impl gate | Behavior changes require returning to `draft` through the gate path |
-| `deprecated` | Historical spec only | Do not treat as implementable work |
+| Status | Required action |
+|---|---|
+| no spec | Run `create-spec`; if implementation exists, use backfill mode |
+| `draft` | Use `create-spec` for revisions or `validate-spec --target spec` for approval |
+| `approved` | Implement against the `.feature`; use `validate-spec --target impl` for completion |
+| `implemented` | Behavior changes require returning to `draft` through the gate path |
+| `deprecated` | Do not treat as implementable work |
 
 If lifecycle frontmatter is missing, malformed, or contradictory, route to `validate-spec` for state validation before implementation.
 
 ## Freeze Handling
 
-When `spec.md` is `approved`, do not add, remove, or rewrite scenarios in the `.feature` file.
+Freeze rules are in `sdd:lifecycle-governance`. When `spec.md` is `approved`:
 
-If the user asks for a behavior change after approval:
-
-1. Refuse the direct `.feature` edit.
+1. Refuse any direct `.feature` edit.
 2. Explain that approved scenarios are frozen.
 3. Route the work through the draft re-open path.
 

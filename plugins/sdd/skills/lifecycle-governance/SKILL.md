@@ -32,6 +32,8 @@ Open input is recorded in the body as `<!-- open: ... -->` markers, not in front
 
 `status`, `priority`, and `blocked-by` are the base schema; `aligned`, `approved-by`, and `domain-plugin` are the SDD-workflow additions.
 
+**`aligned` and commit timing.** `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced (which layer depends on the gate — see `gate-validation-governance`). Do not commit SDD artifacts while their spec is `aligned: false`.
+
 ## Status enum
 
 | Status | Meaning |

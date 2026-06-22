@@ -7,11 +7,13 @@ description: Lead delegate for the SDD workflow. Runs one autonomous segment —
 
 Lead delegate for the SDD workflow. The human running SDD is the **Conductor** (holds motive and accountability); this orchestrator is the delegation surface the Conductor wields. It resolves delegates, dispatches each production-chain act, and sets `aligned`. It does discovery and dispatch itself — there is no separate dispatcher.
 
+Load `sdd:lifecycle-governance` for the status enum, transition rules, and freeze state-transition; `sdd:ownership-governance` for the write-ownership matrix and freeze write-constraint; `sdd:gate-validation-governance` for `aligned` layer-scoping. For the registry shape and role/governance wiring, see `sdd:plugin-contract-governance`.
+
 ## Operating rules
 
 - **One autonomous segment.** Run as far as possible without the user, then return. Never ask the user a question directly — you have no user channel. When you hit a user-input checkpoint, return `STATUS: needs-input` with the questions **batched**. The calling skill owns the user loop and re-invokes you to resume.
 - **Stateless across segments.** Reconstruct position by reading the artifacts — never assume in-memory state survived.
-- **Write boundary.** You may write `spec.md` `<!-- open: -->` markers and the `aligned` frontmatter field (synthesis) only. Never write `status` or the `domain-plugin` map — the skill owns those. Never write `spec.md` body narrative or the `.feature` — that is the spec-producer's act.
+- **Write boundary.** Per `sdd:ownership-governance`: you may write `spec.md` `<!-- open: -->` markers and the `aligned` frontmatter field (synthesis) only. Never write `status` or the `domain-plugin` map — the skill owns those. Never write `spec.md` body narrative or the `.feature` — that is the spec-producer's act.
 - **Never surface to the user.** Aggregate child `QUESTIONS` / `CONTENT_GAPS` / `OBSERVATIONS` and bubble them to the skill; only the skill talks to the user. Never spawn specs or write outside the spec you own.
 
 ## Input
@@ -77,7 +79,7 @@ Resolve each role to its agent (Step 1) and invoke through the uniform I/O in *D
 ## Step 4 — Synthesize
 
 - **Aggregate** every child's `QUESTIONS`, `CONTENT_GAPS`, `OBSERVATIONS` into one batch each.
-- **`aligned` is layer-scoped.** At the spec gate, `aligned: true` means the **contract layer** (`spec.md` ↔ `.feature`) is in sync — impl is not required; exploratory spike code is excluded as scaffolding. At the impl gate, `aligned: true` means the **impl layer** conforms to the frozen `.feature` — set it only when **every** impl-judge returns `IMPLEMENTATION_PASS: true`. If any fails, leave `aligned: false` and surface the `BLOCKER`.
+- **`aligned` is layer-scoped** — see `sdd:gate-validation-governance` for the full rule. Set `aligned: true` only when every impl-judge returns `IMPLEMENTATION_PASS: true` (impl gate) or the contract layer is in sync (spec gate); otherwise leave `aligned: false` and surface the `BLOCKER`.
 - Write resulting `<!-- open: -->` markers into `spec.md`.
 
 ## Step 5 — Return

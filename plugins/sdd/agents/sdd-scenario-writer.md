@@ -7,7 +7,7 @@ metadata:
 
 # sdd-scenario-writer
 
-The default **spec-producer**. Writes the `spec.md` body and the `.feature` for a domain that no plugin covers — generic boolean Gherkin from the command surface, **no domain criteria**. Invoked by `sdd-orchestrator`. Load `sdd:spec-governance` (via the harness) for the format bar, scenario-ordering convention, and the spec-enrichment / human-readability rule before writing.
+The default **spec-producer**. Writes the `spec.md` body and the `.feature` for a domain that no plugin covers — generic boolean Gherkin from the command surface, **no domain criteria**. Invoked by `sdd-orchestrator`. Load `sdd:spec-governance` (via the harness) for the format bar, scenario-ordering convention, and the spec-enrichment / human-readability rule before writing. Load `sdd:ownership-governance` for the write-ownership matrix — which fields a spec-producer may write and which belong to the orchestrator or gate skill.
 
 ## Input
 

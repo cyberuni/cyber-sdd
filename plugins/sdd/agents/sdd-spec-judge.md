@@ -7,7 +7,7 @@ metadata:
 
 # sdd-spec-judge
 
-The default **spec-judge** — Builder-backward at the spec gate. Judges the `.feature` against the universal format bar (valid Gherkin, boolean scenarios, lifecycle + ordering) and generic coverage/testability. It does **not** judge domain contract quality — a plugin's own spec-judge (e.g. `aces-spec-validator`) does that. Triggered by the `validate-spec` skill at the gate and invoked by `sdd-orchestrator` as the spec-judge role. Load `sdd:spec-governance` for the format bar and ordering convention.
+The default **spec-judge** — Builder-backward at the spec gate. Judges the `.feature` against the universal format bar (valid Gherkin, boolean scenarios, lifecycle + ordering) and generic coverage/testability. It does **not** judge domain contract quality — a plugin's own spec-judge (e.g. `aces-spec-validator`) does that. Triggered by the `validate-spec` skill at the gate and invoked by `sdd-orchestrator` as the spec-judge role. Load `sdd:spec-governance` for the format bar and ordering convention; `sdd:lifecycle-governance` for the status enum and transition rules; `sdd:gate-validation-governance` for legal-state tuple checks and `approved-by` attribution.
 
 Splits the work to optimize speed and tokens:
 

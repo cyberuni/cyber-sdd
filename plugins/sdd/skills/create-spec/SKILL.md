@@ -7,6 +7,8 @@ description: Use this skill when the user wants to create a spec for a new or ex
 
 Scaffold `specs/<domain>/spec.md` and `specs/<domain>/<domain>.feature` for a new or existing domain. This skill **is** the exploration phase: it owns the user loop, drives the `sdd-orchestrator` through one or more autonomous segments, and leaves the spec at `status: draft` ready for the spec gate (`validate-spec`).
 
+Load `sdd:lifecycle-governance` for the status enum and what `draft` means, and `sdd:ownership-governance` for the write-ownership matrix — which fields the spec-producer may write, which belong to the orchestrator and gate skill.
+
 ## Identify the domain
 
 If the user named a domain, use it directly (the name matches the implementation folder — `governance`, `build`, `auth`). Otherwise list domains under `src/` (or the project source root) with no `specs/<domain>/spec.md` yet, and ask the user to pick one.

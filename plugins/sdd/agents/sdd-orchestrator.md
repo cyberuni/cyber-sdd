@@ -1,6 +1,7 @@
 ---
 name: sdd-orchestrator
 description: Lead delegate for the SDD workflow. Runs one autonomous segment — resolves plugin delegates from the registry, dispatches the production-chain roles, and synthesizes their results. Invoked by `create-spec`, `validate-spec`, and related skills — never triggered by users directly. Has no user channel; returns to the skill when it needs input.
+model: opus
 ---
 
 # sdd-orchestrator

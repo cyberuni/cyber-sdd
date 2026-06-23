@@ -46,9 +46,11 @@ An agent **may advance a gate on its own**, within a **leash** derived per gate.
 
 | Level | Self-asserts | Stops at |
 |---|---|---|
-| `gated` | nothing | the **spec gate** |
-| `auto-to-spec` | the spec gate | the **impl gate** |
-| `auto` | both gates | nothing (both provisional) |
+| `auto-none` | nothing | the **spec gate** |
+| `auto-spec` | the spec gate | the **impl gate** |
+| `auto-all` | both gates | nothing (both provisional) |
+
+The names follow an `auto-<reach>` scheme — they name **how far autonomy reaches**, not where it stops: `auto-none` self-asserts nothing, `auto-spec` self-asserts through the spec gate, `auto-all` self-asserts every gate.
 
 **Derived, not just declared.** The agent assesses each gate on four dimensions; a gate is self-assertable only when **all four** read *safe*:
 
@@ -59,9 +61,9 @@ An agent **may advance a gate on its own**, within a **leash** derived per gate.
 | **Decision novelty** | trivial / defaulted, or already human-ratified | new contestable choices the human has not seen |
 | **Confidence** | clear pass on the judge bar | marginal verdict, unresolved markers |
 
-The derived leash is the furthest gate reachable where every gate up to it reads safe: spec gate risky → `gated`; spec gate safe, impl gate risky → `auto-to-spec`; both safe → `auto`. One risky dimension makes a gate non-self-assertable.
+The derived leash is the furthest gate reachable where every gate up to it reads safe: spec gate risky → `auto-none`; spec gate safe, impl gate risky → `auto-spec`; both safe → `auto-all`. One risky dimension makes a gate non-self-assertable.
 
-**Ceiling and scope.** The Conductor may cap the run (`effective = min(ceiling, derived)`); the agent may stop earlier, never further. The leash is **per run/sitting** (session-local, like the iteration cap), **re-derived at each gate** — a gated spec gate does not bind a later impl gate.
+**Ceiling and scope.** The Conductor may cap the run (`effective = min(ceiling, derived)`); the agent may stop earlier, never further. The leash is **per run/sitting** (session-local, like the iteration cap), **re-derived at each gate** — an `auto-none` spec gate does not bind a later impl gate.
 
 ## `approved-by` attribution
 
@@ -72,11 +74,17 @@ On a passing gate, the approver is recorded under the gate's key:
 
 A gate within the effective leash is **self-asserted**: the **orchestrator** writes `approved-by.<gate>: { by: agent, leash, why }` (the four-dimension derivation) during synthesis, and the gate skill writes the matching `status`. A self-assertion is **provisional** — the act is done, the accountability is not yet reconciled. A gate outside the leash (or a marginal verdict) **stops at the gate** for the human; the gate skill records `by: <name>` on the human verdict (no `why` required).
 
+### A self-assertion is an ASYNC review marker — NOT a synchronous stop
+
+Read this before treating a `by: agent` gate as blocking. **It is not.** A `by: agent` self-assertion is a **provisional, asynchronous review marker, not a synchronous human-ratification stop.** The moment the orchestrator self-asserts a gate within the effective leash, **the run advances and continues immediately** — it does **not** pause, wait, or hand control back to a human at that gate. The spec simply lands in the **derived review queue** (the set of specs with any `by: agent`) for the human to **ratify or kick back later, asynchronously**.
+
+A synchronous stop happens **only** when the gate is *outside* the effective leash — a risky/marginal dimension or a human ceiling. Within leash, self-assert and keep going. Misreading a self-assertion as a blocking stop defeats the entire leash mechanism: the leash exists precisely to convert a synchronous wait into an asynchronous review marker without surrendering accountability (the human still ratifies the trail).
+
 ```yaml
 approved-by:
   spec:
     by: agent          # provisional — in the review queue until ratified
-    leash: auto
+    leash: auto-all
     why:
       reversibility: "safe — new files only, cheap revert"
       blast-radius:  "safe — one skill folder, no shared surface"

@@ -26,7 +26,7 @@ subtasks:               # project specs only: child feature slugs (single-parent
 approved-by:            # per-gate approver; see gate-validation-governance
   spec:                 # by: agent (self-asserted, provisional) | <human name> (ratified)
     by: agent
-    leash: auto         # effective leash at this gate (agent self-assertion only)
+    leash: auto-all     # effective leash at this gate (agent self-assertion only)
     why:                # four-dimension derivation (agent self-assertion only)
       reversibility: <safe|risky — reason>
       blast-radius:  <safe|risky — reason>

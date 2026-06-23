@@ -43,7 +43,7 @@ test('parseSpecState reads a nested approved-by map with why', () => {
 		'    by: unional',
 		'  impl:',
 		'    by: agent',
-		'    leash: auto',
+		'    leash: auto-all',
 		'    why:',
 		'      reversibility: safe',
 		'---',

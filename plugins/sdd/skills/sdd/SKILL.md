@@ -7,7 +7,7 @@ effort: low
 
 # SDD
 
-Gateway skill for Spec-Driven Development. Activates SDD, gathers missing intent, reads the minimum context to classify the requested action, and delegates downstream work to a subagent. Does not edit project files, register hooks, install packages, or require a CLI command.
+Gateway skill for Spec-Driven Development. Activates SDD, gathers missing intent, reads the minimum context to classify the requested action, and hands the resolved work to the **Operator** (`sdd-orchestrator`). This skill is a **thin relay**: it holds **no production logic**, spawns only the Operator, and carries the Council's answers down and the Operator's escalations up. It does not edit project files, register hooks, install packages, or require a CLI command.
 
 ## Gateway Intake
 
@@ -84,31 +84,50 @@ If a nonempty request names neither a routable artifact nor a known SDD action, 
 
 ## Manage Specs & Graph (option 3)
 
-Route each cross-spec operation by whether a downstream skill exists for it:
+Route each cross-spec operation to the workflow action the Operator carries out. The named skills (`render-spec-graph`, `create-spec`) are **stations the Operator runs in-session** — never agent types the gateway spawns:
 
 | Operation | Routing |
 |---|---|
-| Refresh graph | **Refresh spec graph** → `render-spec-graph` (delegate exists today) |
-| Split a spec | Authoring half → **Draft spec** + deprecate/revise the old via `create-spec` |
-| Dedupe specs | Authoring half → `create-spec` (collapse overlap into the surviving spec + deprecate the rest) |
+| Refresh graph | **Refresh spec graph** — the Operator runs the `render-spec-graph` station |
+| Split a spec | Authoring half → **Draft spec** + deprecate/revise the old (the Operator runs the `create-spec` station) |
+| Dedupe specs | Authoring half → **Draft spec** (the Operator runs the `create-spec` station to collapse overlap into the surviving spec + deprecate the rest) |
 | Cross-spec deprecate | Spec management / deprecation path |
 
-The cross-spec **analysis** — finding which specs overlap, choosing split boundaries — has no downstream skill yet. Until the `split-spec` and `dedupe-specs` skills exist, perform the authoring half via `create-spec` and **surface to the user that the analysis step is manual**. When those skills exist, route the analysis to them instead and do not surface it as manual.
+The cross-spec **analysis** — finding which specs overlap, choosing split boundaries — has no station yet. Until the `split-spec` and `dedupe-specs` stations exist, the Operator carries out the authoring half via the `create-spec` station and **surfaces to the user (through the relay) that the analysis step is manual**. When those stations exist, route the analysis to them instead and do not surface it as manual.
 
-## Delegate Downstream Work
+## Hand the Work to the Operator
 
-When the route is resolved, spawn a subagent to carry out the downstream work. Do not load `create-spec`, `validate-spec`, or `render-spec-graph` into the current session.
+When the route is resolved, **spawn the Operator** (`subagent_type: sdd-orchestrator`) once for this segment to carry out the downstream work. The Operator is the **only** agent this gateway ever spawns.
 
-Pass to the subagent: the resolved workflow action, the artifact domain or spec folder path, and any relevant file paths identified during routing.
+The downstream workflow skills — `create-spec`, `validate-spec`, `render-spec-graph` — are **stations the Operator runs in-session**, not agent types. **Never** spawn one as a `subagent_type` (e.g. `subagent_type: validate-spec` is illegal and fails with "Agent type not found"). The resolved workflow action tells the Operator which station to run:
 
-| Workflow action | Subagent skill |
+| Workflow action | Station the Operator runs |
 |---|---|
 | **Draft spec** / **Backfill spec** / **Revise spec** | `create-spec` |
 | **Review at the spec gate** / **Re-review at the spec gate** | `validate-spec` (spec gate) |
 | **Review at the impl gate** | `validate-spec` (impl gate) |
 | **Refresh spec graph** | `render-spec-graph` |
 
-`sdd-orchestrator` has no user channel — user questions belong to this skill's intake or the downstream skill, not the orchestrator.
+Pass to the Operator: the resolved workflow action, the artifact domain or spec folder path, and any relevant file paths identified during routing.
+
+### The relay carries the user channel
+
+The Operator has **no user channel**. The user channel lives at the **relay ↔ Operator** boundary — this gateway *is* the relay:
+
+1. Spawn the Operator for the segment.
+2. When the Operator returns `STATUS: needs-input` with batched `QUESTIONS`, **ask the Council** (the human) those questions.
+3. **Resume the Operator** by re-spawning it with the Council's answers, so it continues the mission loop.
+4. Repeat across segments until `STATUS: complete` or `blocked`.
+
+The Operator drives **every segment** of the mission loop; the gateway holds **no production logic** of its own — it only routes, relays answers down, and carries escalations up.
+
+### Escalation boundary
+
+The Operator escalates to the Council **only at gates** (a go/no-go verdict to advance status) and at **scrub** (a kill decision). Outside a gate or scrub it does **not** escalate — it runs autonomously to the next checkpoint. The Operator **never asks the Council directly**; every escalation is carried to the Council by this relay.
+
+### Write-ownership is preserved
+
+This relay model changes *who is invoked how*, not *who writes what*. The **gate station** (`validate-spec`) still owns the `status` write and the human ratification of `approved-by`. The **Operator** still owns `aligned` and any provisional agent self-assertion of `approved-by`. The relay writes neither.
 
 ## Freeze Handling
 
@@ -122,7 +141,7 @@ Only after the spec returns to `draft` may scenarios be revised.
 
 ## Report
 
-State the resolved route by its workflow-action name before spawning the subagent:
+State the resolved route by its workflow-action name before spawning the Operator:
 
 - **Draft spec** / **Backfill spec** / **Revise spec** — contract authoring
 - **Review at the spec gate** — draft approval

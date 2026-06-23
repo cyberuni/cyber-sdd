@@ -56,5 +56,5 @@ SCENARIOS_FAILING: [ { scenario, failed_check, evidence } ]
 BLOCKER:           <reason when any check fails, else null>
 QUESTIONS:         [ batched, when needs-input ]
 CONTENT_GAPS:      [ { artifact, location, gap } ]
-OBSERVATIONS:      [ { owner: architect | curator, note, evidence } ]
+OBSERVATIONS:      [ { owner: architect | strategist, note, evidence } ]
 ```

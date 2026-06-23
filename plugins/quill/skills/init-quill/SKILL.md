@@ -41,7 +41,7 @@ Do not reorder or reformat other entries.
     "impl-producer": "quill-doc-writer",
     "impl-judge": "quill-implementer"
   },
-  "governances": { "framer": null, "builder": null, "architect": null }
+  "governances": { "director": null, "builder": null, "architect": null }
 }
 ```
 

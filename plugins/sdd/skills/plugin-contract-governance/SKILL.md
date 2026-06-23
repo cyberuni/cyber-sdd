@@ -27,7 +27,7 @@ Every role loads the universal authoring/lifecycle governances below in addition
 
 | Role | Loads |
 |---|---|
-| spec-producer | `spec-governance` (format bar), `ownership-governance`, the resolved `framer` governance |
+| spec-producer | `spec-governance` (format bar), `ownership-governance`, the resolved `director` governance |
 | plan-producer | `ownership-governance`, the resolved `architect` governance |
 | spec-judge | `spec-governance`, `lifecycle-governance`, `gate-validation-governance` |
 | impl-producer | `ownership-governance`, the resolved `builder` + `architect` governances |
@@ -51,7 +51,7 @@ The orchestrator reads **only** `.agents/universal-plugin.json` (top-level `sdd-
     "impl-producer": "<agent | null>",
     "impl-judge":    "<agent | null>"
   },
-  "governances": { "framer": "<name | null>", "builder": "<name | null>", "architect": "<name | null>" }
+  "governances": { "director": "<name | null>", "builder": "<name | null>", "architect": "<name | null>" }
 }
 ```
 

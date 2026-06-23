@@ -37,5 +37,5 @@ VERIFICATION_WRITTEN: <path to verification.md, or "none">
 CHANGES_MADE:     <documents created or updated, or "none">
 QUESTIONS:        [ batched, when needs-input ]
 CONTENT_GAPS:     [ { artifact, location, gap } ]
-OBSERVATIONS:     [ { owner: architect | curator, note, evidence } ]
+OBSERVATIONS:     [ { owner: architect | strategist, note, evidence } ]
 ```

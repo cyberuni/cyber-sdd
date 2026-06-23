@@ -50,7 +50,7 @@ Set an **iteration cap** for this sitting — default **3**, overridable if the 
 
 ## Route observations
 
-The orchestrator bubbles `OBSERVATIONS` (typed `architect` | `curator`) but never acts on them. Surface them to the user. On **accept**, spawn a **new spec** for the deferred work (with `blocked-by` edges; a curator lesson may target a sibling project; an optional `route:` flag syncs it externally) — never record the concern in this spec's markers. Decline = drop it.
+The orchestrator bubbles `OBSERVATIONS` (typed `architect` | `strategist`) but never acts on them. Surface them to the user. On **accept**, spawn a **new spec** for the deferred work (with `blocked-by` edges; a strategist lesson may target a sibling project; an optional `route:` flag syncs it externally) — never record the concern in this spec's markers. Decline = drop it.
 
 ## Report
 

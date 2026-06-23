@@ -66,5 +66,5 @@ CHANGES_MADE          — verification produced / run (or "none")
 BLOCKER               — first unresolved FAIL reason (or null when PASS is true)
 QUESTIONS             — [ batched, when needs-input ]
 CONTENT_GAPS          — [ { artifact, location, gap } ]
-OBSERVATIONS          — [ { owner: architect | curator, note, evidence } ]
+OBSERVATIONS          — [ { owner: architect | strategist, note, evidence } ]
 ```

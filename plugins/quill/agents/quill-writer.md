@@ -44,5 +44,5 @@ SCENARIOS_WRITTEN: <count>
 NOTES:             <what was written / revised>
 QUESTIONS:         [ batched, when needs-input ]
 CONTENT_GAPS:      [ { artifact, location, gap } ]
-OBSERVATIONS:      [ { owner: architect | curator, note, evidence } ]
+OBSERVATIONS:      [ { owner: architect | strategist, note, evidence } ]
 ```

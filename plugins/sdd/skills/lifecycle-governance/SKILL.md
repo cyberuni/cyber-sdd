@@ -87,7 +87,7 @@ stateDiagram-v2
     approved --> implemented: impl gate (validate-spec --target impl)
     approved --> draft: behavior change (re-open)
     implemented --> draft: behavior change (re-open)
-    draft --> deprecated: Framer kill decision
+    draft --> deprecated: Director kill decision
     approved --> deprecated
     implemented --> deprecated
 ```

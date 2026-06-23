@@ -39,7 +39,7 @@ Read **only** `.agents/universal-plugin.json` (top-level `sdd-plugins[]`). Do **
    - an agent name → invoke that agent for the role
    - `null` → the role degenerates (no agent)
    - missing key → fall back to the convention name `<plugin>-<role>`
-   Resolve `governances{ framer, builder, architect }` the same way (name, or `null` = SDD default).
+   Resolve `governances{ director, builder, architect }` the same way (name, or `null` = SDD default).
 4. **Two or more matches** → before counting, read the `domain-plugin` map in `spec.md` frontmatter; if it names the owner for this domain, use it. Otherwise return `STATUS: needs-input` asking which plugin owns the domain. (The skill writes the choice to `domain-plugin`; on resume this read is decisive, so the suspend does not loop.)
 
 **Role keys (closed set):** `spec-producer`, `plan-producer`, `spec-judge`, `impl-producer`, `impl-judge`.
@@ -67,7 +67,7 @@ Set `aligned: false` at the start of the segment to mark work-in-progress; only 
 Resolve each role to its agent (Step 1) and invoke through the uniform I/O in *Delegate contracts* below. Fold any `USER_ANSWERS` into the relevant producer call.
 
 **Exploration (MODE = explore).** Loop, up to `ITERATION_CAP` iterations:
-1. Invoke the **spec-producer** (writes the `spec.md` body + the `.feature`). Pass the resolved `framer` + `builder` governances.
+1. Invoke the **spec-producer** (writes the `spec.md` body + the `.feature`). Pass the resolved `director` + `builder` governances.
 2. Invoke the **spec-judge** against the `.feature` (degenerates to `validate-spec` static criteria).
 3. Optionally run the forward producers (**plan-producer**, **impl-producer**) in `explore` mode to probe the draft — their output is throwaway scaffolding; the ship-quality impl-judge does **not** run. Route each discovery back as a content-gap: write an `<!-- open: -->` marker in `spec.md` and re-invoke the spec-producer. A discovery is **not** absorbed unjudged — it becomes a proposed `.feature` change the spec-judge and (at the gate) the human must accept.
 4. Exit when the spec-judge passes and no markers remain → ready for the spec gate (the skill runs the human verdict). On cap-hit without convergence, return `STATUS: blocked` with the failing scenarios.
@@ -91,7 +91,7 @@ When a gate is reached clean (judge passes, `aligned: true`, no markers), assess
 2. **Derive the leash** (`gated` | `auto-to-spec` | `auto`) and apply any human ceiling: `effective = min(ceiling, derived)`. The leash is per run and re-derived at each gate.
 3. **Within the effective leash** (the leash reaches this gate, all four dimensions safe): **self-assert** — write `approved-by.<gate>: { by: agent, leash: <effective>, why: { reversibility, blast-radius, novelty, confidence } }` (synthesis boundary; you do **not** write `status` — the skill does). The advance is provisional; the spec is now in the review queue.
 4. **Outside the leash** (or any risky dimension): do **not** self-assert. Return the gate report for the skill to take the human verdict.
-5. **Emit the gate report** either way: verdict per backward face (Framer / Builder / Architect), the leash derivation (four dimensions per gate, derived + effective, one-line reason each), open markers as questions with proposed answers, contestable defaults, a decision menu (approve / change / reject with consequences), and — on a self-assertion — the flag **"agent-asserted — ratify or kick back."** The report is a derived view, regenerated on demand; only the `approved-by.<gate>.why` derivation is persisted.
+5. **Emit the gate report** either way: verdict per backward face (Director / Builder / Architect), the leash derivation (four dimensions per gate, derived + effective, one-line reason each), open markers as questions with proposed answers, contestable defaults, a decision menu (approve / change / reject with consequences), and — on a self-assertion — the flag **"agent-asserted — ratify or kick back."** The report is a derived view, regenerated on demand; only the `approved-by.<gate>.why` derivation is persisted.
 
 ## Step 5 — Return
 
@@ -103,7 +103,7 @@ LEASH:        { gate, derived, ceiling, effective, self_asserted: true|false }
 GATE_REPORT:  <verdict per face · leash derivation · markers-as-questions · contestable defaults · decision menu>
 QUESTIONS:    [ batched user questions, derived from open markers ]   # when needs-input
 CONTENT_GAPS: [ { artifact, location, gap } ]
-OBSERVATIONS: [ { owner: architect | curator, note, evidence } ]
+OBSERVATIONS: [ { owner: architect | strategist, note, evidence } ]
 BLOCKER:      <reason when blocked, else null>
 ```
 

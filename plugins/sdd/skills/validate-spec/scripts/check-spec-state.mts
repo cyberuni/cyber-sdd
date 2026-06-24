@@ -148,8 +148,8 @@ export function checkSpec(slug: string, state: SpecState, hasFeature: boolean): 
 
 	if (state.type !== null && !TYPES.includes(state.type))
 		tag(`unknown type "${state.type}" (expected project | feature)`)
-	if (state.subtasks.length && state.type !== 'project')
-		tag(`only a project may declare subtasks (type is ${state.type ?? 'unset'})`)
+	if (state.subtasks.length && state.type !== 'project' && state.type !== 'feature')
+		tag(`only a project or feature may declare subtasks (type is ${state.type ?? 'unset'}); features nest`)
 
 	return v
 }

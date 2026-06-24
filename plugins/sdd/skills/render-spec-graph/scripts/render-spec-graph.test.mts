@@ -118,6 +118,28 @@ test('checkComposition flags an orphan feature', () => {
 	assert.ok(v.some((m) => /orphan/.test(m)))
 })
 
+test('checkComposition does not flag a deprecated feature as orphan', () => {
+	const v = checkComposition([node('old', { type: 'feature', status: 'deprecated' })])
+	assert.deepEqual(v, [])
+})
+
+test('checkComposition passes a feature nested under a feature', () => {
+	const v = checkComposition([
+		node('proj', { type: 'project', subtasks: ['parent'] }),
+		node('parent', { type: 'feature', subtasks: ['child'] }),
+		node('child', { type: 'feature' }),
+	])
+	assert.deepEqual(v, [])
+})
+
+test('renderComposition emits a feature -> feature containment edge', () => {
+	const out = renderComposition([
+		node('parent', { type: 'feature', subtasks: ['child'] }),
+		node('child', { type: 'feature' }),
+	])
+	assert.match(out, /parent --> child/)
+})
+
 test('checkComposition flags a subtask that is not a feature', () => {
 	const v = checkComposition([
 		node('proj', { type: 'project', subtasks: ['other'] }),

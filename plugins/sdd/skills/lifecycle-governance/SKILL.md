@@ -21,7 +21,7 @@ aligned: false          # true once the current layer's artifacts are synced
 priority: 1             # optional integer; 1 = highest (relative within a set); omit = unprioritized
 blocked-by:             # list of spec slugs; omit or empty if none
   - <spec-slug>
-subtasks:               # project specs only: child feature slugs (single-parent)
+subtasks:               # child feature slugs a project or feature owns (single-parent; features nest)
   - <spec-slug>
 strategy:               # run-level initial evaluation (leash + approach); see sdd-stop-provenance
   leash: auto-all       # first-evaluated reach: auto-none | auto-spec | auto-all
@@ -54,12 +54,12 @@ A spec carries a `type` and projects own their features:
 
 | `type` | Meaning |
 |---|---|
-| `project` | A top-level spec: a plugin/project, or a standalone model. Has no parent. May own features via `subtasks`. |
-| `feature` | A unit of work belonging to exactly one project. Owns its detailed behavior; the project spec stays high-level and cross-references it. |
+| `project` | A top-level spec: a plugin/project, or a standalone model. Has no parent. Owns features via `subtasks`. |
+| `feature` | A unit of work belonging to exactly one parent (a project or another feature). Owns its detailed behavior; may itself own child features via `subtasks` (features nest). |
 
-- **`subtasks` lists children, parent is derived.** Only a `project` declares `subtasks` — the child feature slugs it owns. A feature does not name its parent; the parent is whichever project lists it, mirroring how `blocks` is derived from `blocked-by`. This keeps one source of truth.
-- **Single parent (tree invariant).** A slug appears in **at most one** project's `subtasks`. Each `feature` is owned by exactly one project; an unparented `feature` is an orphan. This keeps composition a tree, not a tangle.
-- **Composition is orthogonal to dependency.** `subtasks` is containment (project → feature); `blocked-by` is execution-order dependency. A feature may be `blocked-by` specs outside its parent. The two graphs are maintained and rendered separately.
+- **`subtasks` lists children, parent is derived.** A `project` **or** a `feature` declares `subtasks` — the child feature slugs it owns (features nest under features). A child does not name its parent; the parent is whichever spec lists it, mirroring how `blocks` is derived from `blocked-by`. This keeps one source of truth.
+- **Single parent (tree invariant).** A slug appears in **at most one** spec's `subtasks`. Each `feature` is owned by exactly one parent (a project or a feature); an unparented non-`deprecated` `feature` is an orphan. This keeps composition a tree, not a tangle.
+- **Composition is orthogonal to dependency.** `subtasks` is containment (parent → feature); `blocked-by` is execution-order dependency. A feature may be `blocked-by` specs outside its parent. The two graphs are maintained and rendered separately.
 
 ## Spec discovery
 

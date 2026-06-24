@@ -148,13 +148,15 @@ export function checkComposition(nodes: SpecNode[]): string[] {
 		if (owners.length > 1)
 			v.push(`${child}: claimed by ${owners.length} projects (${owners.join(', ')}) — a feature has one parent`)
 	for (const n of nodes)
-		if (n.type === 'feature' && !parents.has(n.slug)) v.push(`${n.slug}: type:feature but no project lists it (orphan)`)
+		if (n.type === 'feature' && n.status !== 'deprecated' && !parents.has(n.slug))
+			v.push(`${n.slug}: type:feature but no parent lists it (orphan)`)
 	return v.sort()
 }
 
 export function renderComposition(nodes: SpecNode[]): string {
+	const owners = nodes.filter((n) => n.subtasks.length > 0).sort((a, b) => a.slug.localeCompare(b.slug))
+	const edges = owners.flatMap((p) => [...p.subtasks].sort().map((c) => `  ${p.slug} --> ${c}`))
 	const projects = nodes.filter((n) => n.type === 'project').sort((a, b) => a.slug.localeCompare(b.slug))
-	const edges = projects.flatMap((p) => [...p.subtasks].sort().map((c) => `  ${p.slug} --> ${c}`))
 	const standalone = projects.filter((p) => p.subtasks.length === 0).map((p) => `  ${p.slug}`)
 	const body = [...standalone, ...edges].join('\n') || '  %% no typed projects yet'
 	return `\`\`\`mermaid
@@ -199,7 +201,7 @@ ${[...bare, ...edges].join('\n')}
 
 ## Composition
 
-Containment from \`subtasks\`: each edge \`A --> B\` means **project A owns feature B**. Distinct from the dependency graph above; a feature has exactly one parent.
+Containment from \`subtasks\`: each edge \`A --> B\` means **parent A owns feature B** (a parent is a project or a feature — features nest). Distinct from the dependency graph above; a feature has exactly one parent.
 
 ${renderComposition(nodes)}
 

@@ -99,9 +99,14 @@ test('an unknown type is rejected', () => {
 	assert.ok(v.some((m) => /unknown type "epic"/.test(m)))
 })
 
-test('only a project may declare subtasks', () => {
+test('a feature may declare subtasks (features nest)', () => {
 	const v = checkSpec('x', state({ type: 'feature', subtasks: ['child'] }), false)
-	assert.ok(v.some((m) => /only a project may declare subtasks/.test(m)))
+	assert.ok(!v.some((m) => /may declare subtasks/.test(m)))
+})
+
+test('a typeless spec may not declare subtasks', () => {
+	const v = checkSpec('x', state({ type: null, subtasks: ['child'] }), false)
+	assert.ok(v.some((m) => /may declare subtasks/.test(m)))
 })
 
 test('a project with subtasks passes the per-spec check', () => {

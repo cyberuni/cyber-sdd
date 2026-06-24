@@ -3,7 +3,7 @@ title: SDD Control Flow
 description: How control moves through a Spec-Driven Development run — gateway intake, the relay model, the Operator's segment loop, station dispatch, and gate escalation.
 ---
 
-This traces one Spec-Driven Development run end to end. For the cast of players, see the [Overview](/sdd/overview/).
+This traces one run of the **Build loop (Mission)** — the Operator advancing a single spec — end to end. For the cast of players and the full five-loop model, see the [Overview](/sdd/overview/).
 
 ## The relay model
 

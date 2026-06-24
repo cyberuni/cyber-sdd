@@ -51,19 +51,20 @@ The hard requirement. One appended for every correction: a gate rejection, a pro
   detail: spec gate rejected — no negative scenario for the malformed-entry path
 ```
 
-- **`correction-kind`** — the closed set `gate-reject | judge-iteration | council-kickback`.
-- **`cause`** — a **closed, extensible enum**. The matchable category, not free text. Seed values:
+- **`correction-kind`** — the closed set `gate-reject | judge-iteration | council-kickback`. This names the *occasion* of a correction, not its cause; do not conflate the two.
+- **`cause`** — a **minimal, discovered enum**. The matchable category of *why* a correction happened, not free text. It **starts minimal** — only values grounded in corrections this project actually observed. Two are grounded so far:
 
-  | Cause | Means |
-  |---|---|
-  | `scope-creep` | the work drifted beyond the spec's declared boundary |
-  | `untestable-scenario` | a scenario could not be expressed as an observable boolean |
-  | `coverage-gap` | a use case or operation lacked a covering scenario |
-  | `structural-misfit` | the artifact did not fit the architecture / wrong shape |
-  | `wrong-producer` | the dispatched producer was the wrong delegate for the domain |
-  | `premature-advance` | a gate was approached before the work was ready |
+  | Cause | Means | Grounded in |
+  |---|---|---|
+  | `coverage-gap` | a use case or operation lacked a covering scenario | a gate rejection for a missing scenario was observed |
+  | `design-overreach` | the design added a mechanism the architecture did not need (e.g. an unnecessary sentinel / path) | a Council rejection of a design that introduced a superfluous sentinel |
 
-  The enum is **extensible**: a new cause may be added here when a recurring correction has no existing category — but a `cause` value **not** in the enum is a **structural error** (it breaks matchability), not valid provenance. `validate-spec` fails a correction entry whose `cause` is absent or off-enum.
+  **Growth principle.** The enum is **closed at any point in time**, but it is **discovered from usage, not designed up front**: a new `cause` value is **added** only when a real, recurring correction has no existing category. Fewer is better — speculative categories are not seeded. The two growers of the enum:
+
+  1. the **doctrine-loop Scanner's** recurring-pattern detection (in-repo, already specced) — it surfaces a recurring `cause` across the corpus and proposes adding it.
+  2. a **usage-feedback loop** — a separate, **opt-in**, lower-priority spec being drafted independently. It would collect real corrections from actual plugin usage between the plugin's users and the SDD system, privacy/security-gated and optional. It does not exist yet and imposes no dependency here; it is named only as a prospective second source of grounded causes.
+
+  The mechanics are unchanged regardless of how the enum grows: `cause` is a **closed enum at any point in time**, the matchable field recurrence detection groups by; a `cause` value that is **absent or off-enum** is a **structural error** (it breaks matchability), not valid provenance, and **fails closed**. `validate-spec` fails a correction entry whose `cause` is absent or off-enum.
 
 ### Strategy log-entry slot
 

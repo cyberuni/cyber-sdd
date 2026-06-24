@@ -44,6 +44,8 @@ Every `spec.md` carries a dedicated **`## Use Cases`** section. A **use case** i
 | **Inputs** | what the behavior receives when triggered |
 | **Outcome** | what it produces |
 
+No single notation is mandated — the required *content* is the trigger, inputs, and outcome; the *form* is whatever communicates best (a table, prose, or a diagram). **EARS** templates are an encouraged tool where they fit: the event-driven *"When `<trigger>`, the `<system>` shall `<response>`"* and unwanted-behavior *"If `<condition>`, then the `<system>` shall `<response>`"* forms map cleanly onto a use case's trigger and outcome (EARS has no dedicated slot for inputs — carry those in the precondition or a column). Use the right tool for the use case; do not force one syntax on all of them.
+
 This is distinct from a **scenario** — a *boolean assertion* (`Given`/`When`/`Then`, pass or fail) that lives in the **`.feature`**, asserting one observable behavior. Two altitudes:
 
 - A use case answers *"when, and with what, is this invoked?"* — and lives in `spec.md`.

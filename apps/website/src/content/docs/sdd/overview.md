@@ -13,7 +13,7 @@ The workflow separates **who decides** from **who is invoked how**. Four kinds o
 |---|---|---|
 | **Council** (human) | The Conductor who holds motive and accountability. | Owns ratification and kill decisions — reached only through the relay. |
 | **Gateway** (`sdd`) | The entry skill. Intake, routing, and the **relay** that holds the user channel. | Holds *no* production logic; spawns only the Operator. |
-| **Operator** (`sdd-orchestrator`) | The lead delegate. Runs one autonomous segment: resolves delegates, runs stations, dispatches roles, synthesizes. | Has **no user channel** — escalates to the relay at gates/scrub. |
+| **Operator** (`sdd-operator`) | The lead delegate. Runs one autonomous segment: resolves delegates, runs stations, dispatches roles, synthesizes. | Has **no user channel** — escalates to the relay at gates/scrub. |
 | **Stations** | Skills the Operator **runs in-session**: `create-spec`, `revise-spec`, `validate-spec`, `split-spec`, `render-spec-graph`. | A station is **never** spawned as a subagent. |
 | **Production-chain roles** | Agents the Operator **spawns**: spec-producer, plan-producer, spec-judge, impl-producer, impl-judge. | `producer ≠ judge`. Resolved from the registry or SDD defaults. |
 | **Governances** | Loadable contracts the players read to stay aligned. | The single source of truth for each rule. |
@@ -25,7 +25,7 @@ A **station** is a *skill the Operator executes itself*, in its own context. A *
 ```mermaid
 flowchart TD
   Council([Council · human]) <-->|user channel| GW[Gateway · sdd]
-  GW -->|spawns once per segment| OP[Operator · sdd-orchestrator]
+  GW -->|spawns once per segment| OP[Operator · sdd-operator]
   OP -->|runs in-session| ST[Stations]
   OP -->|spawns as subagents| RO[Production-chain roles]
   ST -.->|create-spec · revise-spec · validate-spec · split-spec · render-spec-graph| ST

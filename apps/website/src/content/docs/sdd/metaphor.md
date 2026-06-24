@@ -28,7 +28,7 @@ Every role has two faces: **forward** (produce — press the attack) and **backw
 
 Command sets intent; **delegates** carry it out. The two named delegates:
 
-- **Operator** (`sdd-orchestrator`) — the line officer of a mission. Runs one autonomous **segment**, resolves which units to commit, dispatches the production chain, and reports back. Has **no channel to fleet command** — it escalates through the relay only at a gate or a scrub.
+- **Operator** (`sdd-operator`) — the line officer of a mission. Runs one autonomous **segment**, resolves which units to commit, dispatches the production chain, and reports back. Has **no channel to fleet command** — it escalates through the relay only at a gate or a scrub.
 - **Scanner in the Bunker** (the doctrine delegate) — watches every mission reach a terminal state, drafts strategy from the combat logs, and surfaces it to command. It watches and drafts; it never fires (never writes lifecycle state).
 
 The **relay** (the `sdd` gateway) is the signal line: it is the *only* place a delegate reaches fleet command. The Operator runs dark between checkpoints and transmits up the relay when it needs a decision.

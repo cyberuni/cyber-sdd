@@ -64,6 +64,8 @@ The hard requirement. One appended for every correction: a gate rejection, a pro
   1. the **doctrine-loop Scanner's** recurring-pattern detection (in-repo, already specced) — it surfaces a recurring `cause` across the corpus and proposes adding it.
   2. a **usage-feedback loop** — a separate, **opt-in**, lower-priority spec being drafted independently. It would collect real corrections from actual plugin usage between the plugin's users and the SDD system, privacy/security-gated and optional. It does not exist yet and imposes no dependency here; it is named only as a prospective second source of grounded causes.
 
+  **Who edits the enum.** A grower *proposes* a value; **adding it is an edit to this governance, ratified by the Council** (the same positional authority that ratifies any contract change — a producer/judge/orchestrator never edits the enum on its own). Until the value is ratified into this governance, an off-enum `cause` still fails closed.
+
   The mechanics are unchanged regardless of how the enum grows: `cause` is a **closed enum at any point in time**, the matchable field recurrence detection groups by; a `cause` value that is **absent or off-enum** is a **structural error** (it breaks matchability), not valid provenance, and **fails closed**. `validate-spec` fails a correction entry whose `cause` is absent or off-enum.
 
 ### Strategy log-entry slot

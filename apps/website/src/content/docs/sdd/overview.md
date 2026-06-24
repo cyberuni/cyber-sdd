@@ -67,18 +67,17 @@ Loadable contracts — each owns one rule set so no player restates it:
 SDD nests three loops at different altitudes. Each is owned by an actor and run by a delegate.
 
 ```mermaid
-flowchart LR
-  subgraph field[Field loop · cross-installation · opt-in]
+flowchart TB
+  subgraph field[Field loop · opt-in]
     subgraph doctrine[Doctrine loop · in-repo]
       subgraph mission[Mission loop · one spec]
-        m[Operator drives draft → approved → implemented]
+        m[Operator drives<br/>draft → approved → implemented]
       end
     end
   end
-  mission -->|combat logs| doctrine
-  doctrine -->|recurring corrections| field
-  field -->|grow the corpus| doctrine
 ```
+
+The nesting is by altitude: each loop contains the one below it. The flows between them: every mission emits **combat logs** the doctrine loop reads; **recurring corrections** surface to the field loop; **ratified strategy** flows back down to tune the corpus every mission draws on.
 
 | Loop | Spec | Delegate | Scope |
 |---|---|---|---|

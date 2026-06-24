@@ -52,3 +52,15 @@ This is distinct from a **scenario** — a *boolean assertion* (`Given`/`When`/`
 - A scenario answers *"given this exact situation, does it do that — yes/no?"* — and lives in the `.feature`.
 
 The relationship is **one-to-many**: one use case is verified by one-or-more scenarios (happy path, negative mirror, boundary). A scenario with no use case is an orphan test; a use case with no scenarios is unverified intent. The spec-producer writes the `## Use Cases` section and covers each use case with scenarios; the spec-judge checks the section exists and the mapping holds.
+
+## Spec granularity — keep a spec narrow enough to re-judge cheaply
+
+A spec is re-judged **as a whole**: coverage, consistency, and ordering are global checks, so a one-line change to a frozen spec costs the same judging as the whole `.feature`. Re-judge cost scales with spec size, not change size. So a large spec makes every later revision expensive — keep each spec **narrow**.
+
+A spec covers **one behavior with one set of use cases**. Split it when any of these holds:
+
+- the `.feature` exceeds **~15–20 scenarios**, or
+- the `## Use Cases` table spans **more than one distinct behavior** (e.g. "resolution" *and* "dispatch" *and* "gate assessment"), or
+- different parts of the spec change on **independent cadences** (one area churns while the rest is stable).
+
+Decompose using the composition primitives in `lifecycle-governance`: a **project spec** with **feature children** (`subtasks`), or sibling specs linked by `blocked-by`. Each child owns one behavior, one `.feature`, and is judged independently — so a change touches one small spec, not a monolith. Prefer **narrow and composable** over one large spec, the same principle skills follow. (The `split-spec` operation is the gateway station that performs this; until it exists, splitting is manual — see the gateway's *Manage specs & graph*.)

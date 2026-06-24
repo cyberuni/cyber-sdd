@@ -45,7 +45,7 @@ Set an **iteration cap** for this sitting — default **3**, overridable if the 
    ITERATION_CAP: <cap>
    ```
 2. On `STATUS: complete` → exit the loop.
-3. On `STATUS: needs-input` → ask the user the **batched** `QUESTIONS` (expect waves across segments). If the question is which plugin owns a contested domain, write the choice to the `domain-plugin` map in `spec.md` frontmatter. Re-invoke with the answers as `USER_ANSWERS`. Count the iteration.
+3. On `STATUS: needs-input` → ask the user the **batched** `QUESTIONS` (expect waves across segments). If the question is which plugin owns a contested domain, record the chosen plugin-qualified producer into the `produced-by` map in `spec.md` frontmatter (the retired `domain-plugin` map is not written) — on resume the orchestrator's cache hits, so the question never recurs. Re-invoke with the answers as `USER_ANSWERS`. Count the iteration.
 4. On `STATUS: blocked`, or when the cap is hit without converging → **do not auto-accept**. Present the failing scenarios and ask the user to **accept as-is**, **keep looping** (reset the count), or **change the spec**. Act on the choice.
 
 ## Route observations

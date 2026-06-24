@@ -19,7 +19,10 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 | `approval` **human ratification** (`verdict: approve`/`reject` + `by: <name>`) | the gate skill (`validate-spec`), **in-session position only** | orchestrator, any producer, any spawned delegate |
 | `aligned` | `sdd-orchestrator` (synthesis only) | producers, gate skill |
 | `<!-- open: -->` markers | `sdd-orchestrator` | producers (they *emit gaps*, not markers) |
-| `domain-plugin` map | `create-spec` (on the user's choice) | orchestrator, producers |
+| `produced-by` map | `sdd-orchestrator` (records the resolved producer per role at dispatch); `create-spec` (records the user's choice for a contested domain) | producers, judges, the gate skill |
+| `log` ledger (`report` / `correction` entries) | `sdd-orchestrator` (append-only, per dispatch and per correction) | producers, judges, the gate skill |
+| `log` ledger (`strategy` entries) | the doctrine-loop Scanner (append-only) | orchestrator, producers, judges |
+| `domain-plugin` map | **retired** — never written; migrated into `produced-by` on encounter | everyone (subsumed by `produced-by`) |
 | `priority`, `blocked-by` | the authoring skill / spec author | producers as a side effect |
 | `spec.md` body + the `.feature` | the spec-producer | orchestrator, judges, plan/impl producers |
 | `plan.md`, `tasks.md` | the plan-producer | spec-producer, judges |

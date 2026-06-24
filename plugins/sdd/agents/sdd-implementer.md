@@ -1,13 +1,13 @@
 ---
 name: sdd-implementer
-description: "Internal skill: the default SDD impl-judge. Runs the verification authored by the impl-producer (the generic Builder) against the frozen .feature, reporting pass/fail per scenario for deterministic code. Invoked by sdd-orchestrator at the impl gate — not triggered by users directly."
+description: "Internal skill: the default SDD impl-judge. Runs the verification authored by the impl-producer (the generic Builder) against the frozen .feature, reporting pass/fail per scenario for deterministic code. Invoked by sdd-operator at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # sdd-implementer
 
-The default **impl-judge**. Runs the test result for a domain that no plugin covers against the **frozen** `.feature` — the tests are authored by the impl-producer (the generic Builder), not by this agent. For deterministic code, a scenario passes when a passing test exists for it. Invoked by `sdd-orchestrator`; the orchestrator does the dispatch — this agent only judges. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
+The default **impl-judge**. Runs the test result for a domain that no plugin covers against the **frozen** `.feature` — the tests are authored by the impl-producer (the generic Builder), not by this agent. For deterministic code, a scenario passes when a passing test exists for it. Invoked by `sdd-operator`; the operator does the dispatch — this agent only judges. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
 
 ## Input
 
@@ -25,7 +25,7 @@ VERIFICATION_PATHS:    the tests the impl-producer authored (or discoverable acr
 
 3. **Report per scenario.** `IMPLEMENTATION_PASS: true` only when **every** scenario has a passing check.
 
-4. **Never modify `spec.md` or the `.feature`.** A discovered gap that requires changing specified behavior is a `BLOCKER` (the spec must revert to Draft — the orchestrator/skill decides), not an edit you make.
+4. **Never modify `spec.md` or the `.feature`.** A discovered gap that requires changing specified behavior is a `BLOCKER` (the spec must revert to Draft — the operator/skill decides), not an edit you make.
 
 ## Output
 

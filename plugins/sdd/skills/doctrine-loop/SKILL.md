@@ -19,7 +19,7 @@ Load `sdd:combat-log-governance` for the **shape** of a `strategy` log entry and
 | **Detect and draft** | the Scanner delegate | cheap, continuous, non-blocking | appends an **unratified** `strategy` entry to the combat log |
 | **Keep or cut** | the human Council | accountable, high-blast-radius | ratify → re-tune doctrine + grow corpus; cut → strategy stays out |
 
-No strategy enters the corpus without the Council's ratification. The Scanner is the **sole writer** of `strategy` entries; the orchestrator (`report` / `correction`) and the producers (nothing) never write them.
+No strategy enters the corpus without the Council's ratification. The Scanner is the **sole writer** of `strategy` entries; the operator (`report` / `correction`) and the producers (nothing) never write them.
 
 ## The six use cases
 

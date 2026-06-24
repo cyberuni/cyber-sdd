@@ -1,6 +1,6 @@
 ---
 name: gate-validation-governance
-description: "Internal skill: the SDD gate-legality contract — legal frontmatter-state tuples, aligned layer-scoping, and approval attribution. Loaded by validate-spec, sdd-orchestrator, and sdd-spec-judge — not triggered by users directly."
+description: "Internal skill: the SDD gate-legality contract — legal frontmatter-state tuples, aligned layer-scoping, and approval attribution. Loaded by validate-spec, sdd-operator, and sdd-spec-judge — not triggered by users directly."
 metadata:
   user-invocable: false
 ---
@@ -31,7 +31,7 @@ Reject illegal tuples **before** any other gate work. If `check-spec-state.mts` 
 
 ### No-resolvable-producer is a fail-closed gate check
 
-Symmetric to the orchestrator's terminal resolution rule: a required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role. When a gate runs and a required role has **no resolvable producer** — not a plugin agent and not even an SDD default — the gate **fails closed** with a blocker; it advances nothing. This is a **structural** error and joins the same fail-closed class as a malformed `produced-by` entry or an off-enum `cause` — owned and defined in `sdd-provenance` / `combat-log-governance`; this skill references that class, it does not restate the `produced-by` schema. (Distinct from availability: a recorded producer whose plugin is merely uninstalled is flagged, not blocked.)
+Symmetric to the operator's terminal resolution rule: a required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role. When a gate runs and a required role has **no resolvable producer** — not a plugin agent and not even an SDD default — the gate **fails closed** with a blocker; it advances nothing. This is a **structural** error and joins the same fail-closed class as a malformed `produced-by` entry or an off-enum `cause` — owned and defined in `sdd-provenance` / `combat-log-governance`; this skill references that class, it does not restate the `produced-by` schema. (Distinct from availability: a recorded producer whose plugin is merely uninstalled is flagged, not blocked.)
 
 ## The two gates
 
@@ -47,7 +47,7 @@ Symmetric to the orchestrator's terminal resolution rule: a required production 
 - **At the spec gate**, `aligned: true` means the **contract layer** (`spec.md` ↔ `.feature`) is in sync. Implementation is **not** required; exploratory spike code is excluded as scaffolding.
 - **At the impl gate**, `aligned: true` means the **impl layer** conforms to the frozen `.feature`. Set it only when **every** impl-judge returns `IMPLEMENTATION_PASS: true`; if any fails, leave `aligned: false` and surface the `BLOCKER`.
 
-The orchestrator sets `aligned: false` at the start of a segment and only synthesis sets it back to `true` (per `ownership-governance`).
+The operator sets `aligned: false` at the start of a segment and only synthesis sets it back to `true` (per `ownership-governance`).
 
 ## The leash — how far the agent may self-assert
 
@@ -81,13 +81,13 @@ Each gate records its verdict under the gate's key — `verdict: approve | pause
 - **Spec gate** → on approve, `status: approved`, `approval.spec: { verdict: approve, by }`.
 - **Impl gate** → on approve, `status: implemented`, `approval.impl: { verdict: approve, by }`.
 
-A gate within the effective leash is **self-asserted**: the **orchestrator** writes `approval.<gate>: { verdict: approve, by: agent, why }` (the four-dimension derivation) during synthesis, and the gate skill writes the matching `status`. There is **no `leash` field in the entry** — the leash is run-level (the `strategy` block), not per-gate. A self-assertion is **provisional** — the act is done, the accountability is not yet reconciled. A gate outside the leash (or a marginal verdict) **stops at the gate**: the orchestrator records `verdict: pause` (with its `why`, and **no `by`** — a pause is always the agent's act) and emits a verdict packet.
+A gate within the effective leash is **self-asserted**: the **operator** writes `approval.<gate>: { verdict: approve, by: agent, why }` (the four-dimension derivation) during synthesis, and the gate skill writes the matching `status`. There is **no `leash` field in the entry** — the leash is run-level (the `strategy` block), not per-gate. A self-assertion is **provisional** — the act is done, the accountability is not yet reconciled. A gate outside the leash (or a marginal verdict) **stops at the gate**: the operator records `verdict: pause` (with its `why`, and **no `by`** — a pause is always the agent's act) and emits a verdict packet.
 
 **Ratification authority is positional.** A human ratification (`verdict: approve | reject` carrying `by: <name>`) and the `status`/freeze write are reserved to the **in-session position** that holds the real user channel. A spawned delegate may write only `by: agent` self-assertions and `pause` halts — it never writes a human-attributed verdict, even on a relayed claim of user approval. See `ownership-governance`.
 
 ### A self-assertion is an ASYNC review marker — NOT a synchronous stop
 
-Read this before treating a `by: agent` gate as blocking. **It is not.** A `by: agent` self-assertion is a **provisional, asynchronous review marker, not a synchronous human-ratification stop.** The moment the orchestrator self-asserts a gate within the effective leash, **the run advances and continues immediately** — it does **not** pause, wait, or hand control back to a human at that gate. The spec simply lands in the **derived review queue** (the set of specs with any `by: agent`) for the human to **ratify or kick back later, asynchronously**.
+Read this before treating a `by: agent` gate as blocking. **It is not.** A `by: agent` self-assertion is a **provisional, asynchronous review marker, not a synchronous human-ratification stop.** The moment the operator self-asserts a gate within the effective leash, **the run advances and continues immediately** — it does **not** pause, wait, or hand control back to a human at that gate. The spec simply lands in the **derived review queue** (the set of specs with any `by: agent`) for the human to **ratify or kick back later, asynchronously**.
 
 A synchronous stop happens **only** when the gate is *outside* the effective leash — a risky/marginal dimension or a human ceiling. Within leash, self-assert and keep going. Misreading a self-assertion as a blocking stop defeats the entire leash mechanism: the leash exists precisely to convert a synchronous wait into an asynchronous review marker without surrendering accountability (the human still ratifies the trail).
 

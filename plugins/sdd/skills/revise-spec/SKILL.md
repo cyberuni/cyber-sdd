@@ -39,18 +39,18 @@ Once `spec.md` is settled, bring the boolean layer into line:
 - Each scenario is still a pure boolean `Given`/`When`/`Then`; tighten any that drifted.
 - Step-down ordering and `# ── stage ──` grouping still hold after the edits.
 
-## Drive the orchestrator (the user loop)
+## Drive the operator (the user loop)
 
 Set an **iteration cap** (default **3**; override if the user named one). Then loop:
 
-1. Invoke `sdd-orchestrator` with the resolved domain, `DOMAIN_PATH`, the user's revision intent, and any `USER_ANSWERS` from the previous wave; signal that this is a **revision** (grill, not scaffold).
+1. Invoke `sdd-operator` with the resolved domain, `DOMAIN_PATH`, the user's revision intent, and any `USER_ANSWERS` from the previous wave; signal that this is a **revision** (grill, not scaffold).
 2. On `STATUS: complete` → exit.
 3. On `STATUS: needs-input` → ask the **batched** `QUESTIONS`, re-invoke with the answers, count the iteration.
 4. On `STATUS: blocked` or cap hit without converging → **do not auto-accept**. Present the failing scenarios / open items and ask the user to **accept as-is**, **keep grilling** (reset the count), or **change direction**.
 
 ## Route observations
 
-The orchestrator bubbles typed `OBSERVATIONS` (`architect` | `strategist`) but never acts on them. Surface them. A granularity/split observation becomes a **new spec** (or a `split-spec` operation) — never a marker in this spec. Decline = drop it.
+The operator bubbles typed `OBSERVATIONS` (`architect` | `strategist`) but never acts on them. Surface them. A granularity/split observation becomes a **new spec** (or a `split-spec` operation) — never a marker in this spec. Decline = drop it.
 
 ## Report
 

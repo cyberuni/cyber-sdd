@@ -5,9 +5,9 @@ description: Use this skill when the user wants to create a spec for a new or ex
 
 # create-spec
 
-Scaffold `specs/<domain>/spec.md` and `specs/<domain>/<domain>.feature` for a new or existing domain. This skill **is** the exploration phase: it owns the user loop, drives the `sdd-orchestrator` through one or more autonomous segments, and leaves the spec at `status: draft` ready for the spec gate (`validate-spec`).
+Scaffold `specs/<domain>/spec.md` and `specs/<domain>/<domain>.feature` for a new or existing domain. This skill **is** the exploration phase: it owns the user loop, drives the `sdd-operator` through one or more autonomous segments, and leaves the spec at `status: draft` ready for the spec gate (`validate-spec`).
 
-Load `sdd:lifecycle-governance` for the status enum and what `draft` means, and `sdd:ownership-governance` for the write-ownership matrix — which fields the spec-producer may write, which belong to the orchestrator and gate skill.
+Load `sdd:lifecycle-governance` for the status enum and what `draft` means, and `sdd:ownership-governance` for the write-ownership matrix — which fields the spec-producer may write, which belong to the operator and gate skill.
 
 ## Identify the domain
 
@@ -22,7 +22,7 @@ If unclear, ask which applies.
 
 ## Grill the user (new feature only)
 
-The orchestrator has no user channel, so collect intent here **before** the first invocation. For a new feature with missing What / Why / command surface, ask 3–5 targeted questions:
+The operator has no user channel, so collect intent here **before** the first invocation. For a new feature with missing What / Why / command surface, ask 3–5 targeted questions:
 
 - The core problem and who experiences it (drives Why)
 - Observable behavior from the user's perspective (drives What)
@@ -32,11 +32,11 @@ The orchestrator has no user channel, so collect intent here **before** the firs
 
 For backfill, skip the grill — the producer reads source, tests, and history instead.
 
-## Drive the orchestrator (the user loop)
+## Drive the operator (the user loop)
 
 Set an **iteration cap** for this sitting — default **3**, overridable if the user named one in the prompt. Then loop:
 
-1. Invoke `sdd-orchestrator`:
+1. Invoke `sdd-operator`:
    ```
    DOMAIN:        <domain>
    DOMAIN_PATH:   specs/<domain>/
@@ -45,12 +45,12 @@ Set an **iteration cap** for this sitting — default **3**, overridable if the 
    ITERATION_CAP: <cap>
    ```
 2. On `STATUS: complete` → exit the loop.
-3. On `STATUS: needs-input` → ask the user the **batched** `QUESTIONS` (expect waves across segments). If the question is which plugin owns a contested domain, record the chosen plugin-qualified producer into the `produced-by` map in `spec.md` frontmatter (the retired `domain-plugin` map is not written) — on resume the orchestrator's cache hits, so the question never recurs. Re-invoke with the answers as `USER_ANSWERS`. Count the iteration.
+3. On `STATUS: needs-input` → ask the user the **batched** `QUESTIONS` (expect waves across segments). If the question is which plugin owns a contested domain, record the chosen plugin-qualified producer into the `produced-by` map in `spec.md` frontmatter (the retired `domain-plugin` map is not written) — on resume the operator's cache hits, so the question never recurs. Re-invoke with the answers as `USER_ANSWERS`. Count the iteration.
 4. On `STATUS: blocked`, or when the cap is hit without converging → **do not auto-accept**. Present the failing scenarios and ask the user to **accept as-is**, **keep looping** (reset the count), or **change the spec**. Act on the choice.
 
 ## Route observations
 
-The orchestrator bubbles `OBSERVATIONS` (typed `architect` | `strategist`) but never acts on them. Surface them to the user. On **accept**, spawn a **new spec** for the deferred work (with `blocked-by` edges; a strategist lesson may target a sibling project; an optional `route:` flag syncs it externally) — never record the concern in this spec's markers. Decline = drop it.
+The operator bubbles `OBSERVATIONS` (typed `architect` | `strategist`) but never acts on them. Surface them to the user. On **accept**, spawn a **new spec** for the deferred work (with `blocked-by` edges; a strategist lesson may target a sibling project; an optional `route:` flag syncs it externally) — never record the concern in this spec's markers. Decline = drop it.
 
 ## Report
 

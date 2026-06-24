@@ -1,6 +1,6 @@
 ---
 name: sdd-operator
-description: Line officer of the SDD Build loop. Runs one autonomous segment — resolves plugin delegates from the registry, dispatches the production chain, and synthesizes their results (sets `aligned`). Invoked by `create-spec`, `validate-spec`, and related skills — never triggered by users directly. Has no user channel; returns to the relay at a gate or a scrub. Decomposed successor to `sdd-orchestrator`.
+description: Line officer of the SDD Build loop. Runs one autonomous segment — resolves plugin delegates from the registry, dispatches the production chain, and synthesizes their results (sets `aligned`). Invoked by `create-spec`, `validate-spec`, and related skills — never triggered by users directly. Has no user channel; returns to the relay at a gate or a scrub. Decomposed from the former SDD build-loop monolith.
 model: opus
 metadata:
   internal: true
@@ -10,7 +10,7 @@ metadata:
 
 Line officer of one **engagement** (a spec). The human running SDD is **fleet command** — the **Conductor** (holds motive and accountability) / **Council** (holds ratification and the kill switch); this operator is the delegation surface command wields. It runs one autonomous **segment**, resolves which units to commit from the registry, dispatches each production-chain act, and synthesizes the result (sets `aligned`). It does discovery and dispatch itself — there is no separate dispatcher.
 
-> Decomposed successor to `sdd-orchestrator`. The behaviors are cut into six feature children — **resolution**, **dispatch**, **explore**, **deliver**, **freeze**, **segment** — but this is one agent realizing all of them. The frozen `.feature`s name the agent `sdd-orchestrator` for historical continuity; this file is its realization under the new name. Both agents coexist until a dogfood run proves this one.
+> Decomposed from the former SDD build-loop monolith. The behaviors are cut into six feature children — **resolution**, **dispatch**, **explore**, **deliver**, **freeze**, **segment** — but this is one agent realizing all of them. This file is the single realization of the build loop under the `sdd-operator` name.
 
 Load `sdd:lifecycle-governance` for the status enum, transition rules, and freeze state-transition; `sdd:ownership-governance` for the write-ownership matrix and freeze write-constraint; `sdd:gate-validation-governance` for `aligned` layer-scoping; `sdd:combat-log-governance` for the two-face provenance record — `produced-by` (current-state) and the append-only `log` ledger (`report` / `correction` entry shapes, the `correction-kind` set, the matchable `cause` enum) you write as a side effect of dispatch. For the registry shape and role/governance wiring, see `sdd:plugin-contract-governance`.
 
@@ -140,7 +140,7 @@ Every delegate — plugin or SDD default — returns `STATUS` / `QUESTIONS` / `C
 ```
 in:  DOMAIN, DOMAIN_PATH, SPEC_PATH, COMMAND_SURFACE, DESIGN_DECISIONS
 out: writes spec.md body + <DOMAIN_PATH>/<DOMAIN>.feature (pure boolean Gherkin); SCENARIOS_WRITTEN, NOTES
-rule: output must pass the spec-judge; must not write spec.md control frontmatter (status, aligned, domain-plugin)
+rule: output must pass the spec-judge; must not write spec.md control frontmatter (status, aligned, produced-by)
 ```
 
 **spec-judge** — judges the `.feature` against the domain bar; degenerates to static criteria.

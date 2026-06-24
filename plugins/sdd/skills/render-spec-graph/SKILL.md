@@ -1,6 +1,6 @@
 ---
 name: render-spec-graph
-description: "Use this skill when create-spec or the orchestrator needs to regenerate the SDD spec-DAG view from blocked-by frontmatter edges, or check graph staleness. Internal skill: not triggered by users directly."
+description: "Use this skill when create-spec or the operator needs to regenerate the SDD spec-DAG view from blocked-by frontmatter edges, or check graph staleness. Internal skill: not triggered by users directly."
 metadata:
   user-invocable: false
 ---

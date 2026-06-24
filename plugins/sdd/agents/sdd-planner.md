@@ -1,13 +1,13 @@
 ---
 name: sdd-planner
-description: "Internal skill: the default SDD plan-producer. Writes plan.md (the solution) and tasks.md (a dependency DAG) for a domain with no plugin planner. Invoked by sdd-orchestrator — not triggered by users directly."
+description: "Internal skill: the default SDD plan-producer. Writes plan.md (the solution) and tasks.md (a dependency DAG) for a domain with no plugin planner. Invoked by sdd-operator — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # sdd-planner
 
-The default **plan-producer**. Writes `plan.md` (the solution) and `tasks.md` (the breakdown, a dependency DAG) for a domain that no plugin covers. Invoked by `sdd-orchestrator`. Load the `architect` actor governance to self-align on structural fit before writing. Load `sdd:ownership-governance` for the write-ownership matrix — the planner must not modify `spec.md` or the `.feature`; a behavior gap discovered during planning is a `CONTENT_GAP` / `OBSERVATIONS`, never an in-place edit.
+The default **plan-producer**. Writes `plan.md` (the solution) and `tasks.md` (the breakdown, a dependency DAG) for a domain that no plugin covers. Invoked by `sdd-operator`. Load the `architect` actor governance to self-align on structural fit before writing. Load `sdd:ownership-governance` for the write-ownership matrix — the planner must not modify `spec.md` or the `.feature`; a behavior gap discovered during planning is a `CONTENT_GAP` / `OBSERVATIONS`, never an in-place edit.
 
 ## Input
 

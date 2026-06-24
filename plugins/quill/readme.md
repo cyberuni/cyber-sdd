@@ -21,7 +21,7 @@ Quill handles: `documentation`, `guide`, `tutorial`, `article`, `reference`
 
 ## Production-chain roles
 
-Quill fills these `sdd-orchestrator` production-chain roles for its domain types:
+Quill fills these `sdd-operator` production-chain roles for its domain types:
 
 | Role | Agent |
 |---|---|
@@ -31,7 +31,7 @@ Quill fills these `sdd-orchestrator` production-chain roles for its domain types
 | spec-judge | static doc criteria via `validate-spec` (no agent) |
 | plan-producer | SDD default (`sdd-planner`) |
 
-Register by running `init-quill` in a project that uses `sdd-orchestrator`.
+Register by running `init-quill` in a project that uses `sdd-operator`.
 
 ## Skills
 

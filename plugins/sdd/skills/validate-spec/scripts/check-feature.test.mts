@@ -160,7 +160,7 @@ test('step containing "sometimes" fails boolean form on any step', () => {
 
 test('a Given mentioning a rubric is not a violation (setup, not assertion)', () => {
 	const text = [
-		'Feature: orchestrator',
+		'Feature: operator',
 		'',
 		'  Scenario: the feature carries no rubric',
 		'    Given the impl-producer authored a 1-5 rubric for a scenario',
@@ -172,7 +172,7 @@ test('a Given mentioning a rubric is not a violation (setup, not assertion)', ()
 
 test('a negated Then asserting the absence of a rubric is not a violation', () => {
 	const text = [
-		'Feature: orchestrator',
+		'Feature: operator',
 		'',
 		'  Scenario: the feature carries no rubric',
 		'    Given a frozen contract',
@@ -185,7 +185,7 @@ test('a negated Then asserting the absence of a rubric is not a violation', () =
 
 test('a Then expressing a boolean verdict over a score is not a violation', () => {
 	const text = [
-		'Feature: orchestrator',
+		'Feature: operator',
 		'',
 		'  Scenario: a graded subject still yields a boolean per scenario',
 		'    Given aces-implementer evaluates with a threshold over N runs',

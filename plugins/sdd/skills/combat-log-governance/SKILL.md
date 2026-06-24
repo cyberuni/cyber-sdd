@@ -1,6 +1,6 @@
 ---
 name: combat-log-governance
-description: "Internal skill: the SDD combat-log contract — the two-face provenance record (frontmatter current-state plus an append-only log ledger), the per-subagent report and correction-with-cause entry shapes, the matchable cause enum, the strategy log-entry slot, and log write-ownership. Loaded by sdd-orchestrator, validate-spec, and the doctrine-loop Scanner — not triggered by users directly."
+description: "Internal skill: the SDD combat-log contract — the two-face provenance record (frontmatter current-state plus an append-only log ledger), the per-subagent report and correction-with-cause entry shapes, the matchable cause enum, the strategy log-entry slot, and log write-ownership. Loaded by sdd-operator, validate-spec, and the doctrine-loop Scanner — not triggered by users directly."
 metadata:
   user-invocable: false
 ---
@@ -20,7 +20,7 @@ The combat log has two complementary faces, both in `spec.md` frontmatter.
 
 The current-state face answers *"who produced this, and what is the verdict now?"* The ledger answers *"what happened to get here?"* They do not duplicate: a gate rejection overwrites nothing in `approval` (the eventual `approve` stands there), but the rejection is preserved forever as a correction entry in `log`. This is the load-bearing reason the log exists — current-state alone loses every correction.
 
-Write flow: the orchestrator dispatch **overwrites** the current-state face and **appends** to the ledger; the doctrine-loop Scanner reads the ledger post-hoc and **appends** strategy entries.
+Write flow: the operator dispatch **overwrites** the current-state face and **appends** to the ledger; the doctrine-loop Scanner reads the ledger post-hoc and **appends** strategy entries.
 
 ## The `log` ledger
 
@@ -64,7 +64,7 @@ The hard requirement. One appended for every correction: a gate rejection, a pro
   1. the **doctrine-loop Scanner's** recurring-pattern detection (in-repo, already specced) — it surfaces a recurring `cause` across the corpus and proposes adding it.
   2. the **Forge loop** (`sdd-forge-loop`) — a separate, **opt-in**, lower-priority spec. It collects real corrections from actual plugin usage across installations, privacy/security-gated and optional, and routes them to the maintainers. It imposes no dependency here; it is named only as a prospective second source of grounded causes.
 
-  **Who edits the enum.** A grower *proposes* a value; **adding it is an edit to this governance, ratified by the Council** (the same positional authority that ratifies any contract change — a producer/judge/orchestrator never edits the enum on its own). Until the value is ratified into this governance, an off-enum `cause` still fails closed.
+  **Who edits the enum.** A grower *proposes* a value; **adding it is an edit to this governance, ratified by the Council** (the same positional authority that ratifies any contract change — a producer/judge/operator never edits the enum on its own). Until the value is ratified into this governance, an off-enum `cause` still fails closed.
 
   The mechanics are unchanged regardless of how the enum grows: `cause` is a **closed enum at any point in time**, the matchable field recurrence detection groups by; a `cause` value that is **absent or off-enum** is a **structural error** (it breaks matchability), not valid provenance, and **fails closed**. `validate-spec` fails a correction entry whose `cause` is absent or off-enum.
 
@@ -84,7 +84,7 @@ The Scanner records drafted strategy to the combat log. This governance defines 
 
 | Writer | May append | Never writes |
 |---|---|---|
-| **orchestrator** | `report` and `correction` entries (same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | strategy entries |
+| **operator** | `report` and `correction` entries (same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | strategy entries |
 | **doctrine-loop Scanner** | `strategy` entries | report / correction entries |
 | **producers / judges** | nothing | the entire `log` — they do not know their own registry identity authoritatively |
 

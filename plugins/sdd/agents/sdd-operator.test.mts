@@ -83,7 +83,7 @@ test('dispatch: the loop runs without a governance-show call', () => {
 	assert.ok(has('no `governance show` call') || has('makes no governance show'))
 })
 
-test('dispatch: orchestrator dispatches to the plugin that covers the domain', () => {
+test('dispatch: operator dispatches to the plugin that covers the domain', () => {
 	assert.ok(has('match `DOMAIN` against') || has('match DOMAIN against'))
 	assert.ok(has('an agent name → invoke it') || has('agent name'))
 })
@@ -135,7 +135,7 @@ test('dispatch: product and test separation stays inside the impl-producer', () 
 	assert.ok(has('you do not learn whether a split happened') || has('whether a split happened'))
 })
 
-test('dispatch: the orchestrator resolves every production-chain role', () => {
+test('dispatch: the operator resolves every production-chain role', () => {
 	for (const role of ['spec-producer', 'plan-producer', 'spec-judge', 'impl-producer', 'impl-judge']) {
 		assert.ok(has(role), `missing role ${role}`)
 	}
@@ -214,7 +214,7 @@ test('explore: validate-spec enforces domain criteria against a plugin-written .
 })
 
 test('explore: a spec-producer that writes frontmatter control fields is rejected', () => {
-	assert.ok(has('must not write spec.md control frontmatter (status, aligned, domain-plugin)'))
+	assert.ok(has('must not write spec.md control frontmatter (status, aligned, produced-by)'))
 })
 
 test('explore: the spec-gate judge is a domain delegate, not SDD', () => {
@@ -393,8 +393,8 @@ test('structural: the operator agent file exists and is spawnable as sdd:sdd-ope
 	assert.ok(/^name:\s*sdd-operator\s*$/m.test(op), 'frontmatter name must be sdd-operator')
 })
 
-test('structural: the legacy sdd-orchestrator agent is preserved (not removed)', () => {
-	assert.ok(existsSync(join(here, 'sdd-orchestrator.md')), 'sdd-orchestrator.md must still exist until cutover')
+test('structural: the legacy sdd-orchestrator agent is retired (removed after cutover)', () => {
+	assert.ok(!existsSync(join(here, 'sdd-orchestrator.md')), 'sdd-orchestrator.md must be removed after cutover')
 })
 
 test('structural: the registry is well-formed and lists sdd-plugins', () => {

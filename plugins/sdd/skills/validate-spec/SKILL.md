@@ -47,9 +47,9 @@ Resolve the spec: a named domain/path → `specs/<domain>/spec.md`; otherwise as
 
 The state check (step 1) must re-run after the write to confirm the restored tuple is legal.
 
-## 3. Judge and derive the leash via the orchestrator
+## 3. Judge and derive the leash via the operator
 
-Invoke `sdd-orchestrator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge (or impl-judge) for the domain — a plugin agent or the SDD default (`sdd-spec-judge` / `sdd-implementer`) — runs it, synthesizes `aligned` for the gate's layer, and **derives the leash** for this gate (the four-dimension assessment in `sdd:gate-validation-governance`). It returns a **gate report**: verdict per backward face, the leash derivation, open markers as questions with proposed answers, contestable defaults, and a decision menu. Relay its `STATUS`, `ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, `OBSERVATIONS`, and the gate report.
+Invoke `sdd-operator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge (or impl-judge) for the domain — a plugin agent or the SDD default (`sdd-spec-judge` / `sdd-implementer`) — runs it, synthesizes `aligned` for the gate's layer, and **derives the leash** for this gate (the four-dimension assessment in `sdd:gate-validation-governance`). It returns a **gate report**: verdict per backward face, the leash derivation, open markers as questions with proposed answers, contestable defaults, and a decision menu. Relay its `STATUS`, `ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, `OBSERVATIONS`, and the gate report.
 
 **Never advance** — neither by self-assertion nor by human verdict — if the judge reports failures, any open markers remain, or `ALIGNED` is false. These fail the **confidence** dimension, so they also forbid self-assertion. Report the blockers for the user to fix; surface `OBSERVATIONS` (on accept, spawn a new spec — never edit this spec's markers).
 
@@ -57,21 +57,21 @@ Invoke `sdd-orchestrator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge 
 
 ## 4. Take the verdict — self-assertion within leash, else the human
 
-The clean gate splits two ways on the **effective leash** the orchestrator derived for this gate:
+The clean gate splits two ways on the **effective leash** the operator derived for this gate:
 
-- **In leash** (the leash reaches this gate, all four dimensions read *safe*): the orchestrator has **self-asserted** — it wrote `approval.<gate>: { verdict: approve, by: agent, why }` and `aligned` in synthesis. This skill writes the matching `status` (step 5). The advance is **provisional**: the spec lands in the review queue (any `by: agent`) for asynchronous ratification. Still emit the `spec-digest` + gate report flagged **"agent-asserted — ratify or kick back."**
+- **In leash** (the leash reaches this gate, all four dimensions read *safe*): the operator has **self-asserted** — it wrote `approval.<gate>: { verdict: approve, by: agent, why }` and `aligned` in synthesis. This skill writes the matching `status` (step 5). The advance is **provisional**: the spec lands in the review queue (any `by: agent`) for asynchronous ratification. Still emit the `spec-digest` + gate report flagged **"agent-asserted — ratify or kick back."**
 - **Gated** (the leash stops before this gate): **do not advance.** Call `spec-digest` and present it above the gate report so the human sees what they are deciding, then take the human verdict (`approve` / `change` / `reject`). On `approve`, proceed to step 5 with `by: <name>`.
 
 The leash is the agent's, derived per gate; the **ceiling** is the human's (`effective = min(ceiling, derived)`). A self-assertion never makes a decision final — it only chooses async review over a synchronous stop.
 
 ## 5. Write the transition
 
-The skill owns `status` and human ratifications of `approval`; the orchestrator owns `aligned` and agent self-assertions of `approval`. Write the gate's transition:
+The skill owns `status` and human ratifications of `approval`; the operator owns `aligned` and agent self-assertions of `approval`. Write the gate's transition:
 
 - **Spec gate** → `status: approved`; **freeze** the `.feature`.
 - **Impl gate** → `status: implemented`.
 
-For a **human verdict**, also write `approval.<gate>: { verdict: approve, by: <name> }` (no `why`) — only the **in-session position** may write this human attribution; a spawned delegate emits a verdict packet and stops. For a **self-assertion**, the orchestrator already wrote `approval.<gate>: { verdict: approve, by: agent, why }`; this skill only writes the matching `status`. **Ratifying** a queued self-assertion rewrites `by: agent` → `by: <name>` and drops it from the queue. Re-run the state check to confirm the new tuple is legal (a `by: agent` entry with no `why` is rejected).
+For a **human verdict**, also write `approval.<gate>: { verdict: approve, by: <name> }` (no `why`) — only the **in-session position** may write this human attribution; a spawned delegate emits a verdict packet and stops. For a **self-assertion**, the operator already wrote `approval.<gate>: { verdict: approve, by: agent, why }`; this skill only writes the matching `status`. **Ratifying** a queued self-assertion rewrites `by: agent` → `by: <name>` and drops it from the queue. Re-run the state check to confirm the new tuple is legal (a `by: agent` entry with no `why` is rejected).
 
 ## 6. The three gate actions
 

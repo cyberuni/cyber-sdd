@@ -1,6 +1,6 @@
 ---
 name: lifecycle-governance
-description: "Internal skill: the SDD spec lifecycle contract — frontmatter schema, status enum, status transitions, open-marker gating, and the freeze state-transition. Loaded by sdd, validate-spec, create-spec, sdd-orchestrator, and sdd-spec-judge — not triggered by users directly."
+description: "Internal skill: the SDD spec lifecycle contract — frontmatter schema, status enum, status transitions, open-marker gating, and the freeze state-transition. Loaded by sdd, validate-spec, create-spec, sdd-operator, and sdd-spec-judge — not triggered by users directly."
 metadata:
   user-invocable: false
 ---
@@ -67,7 +67,7 @@ A spec is defined by its **shape, not its location**: an SDD spec is any git-tra
 
 To locate specs, glob `**/spec.md` repo-wide, filter to git-tracked files (e.g., cross-reference with `git ls-files`), and keep those whose `status` is in the enum. A `spec.md` without a lifecycle `status` is not an SDD spec and is excluded (for example, doc-only spec folders that live outside the workflow).
 
-To resolve a **domain name** to its spec folder, match the name against each discovered spec's folder slug — the root-relative path of the folder containing `spec.md`. A spec may be flat (`sdd-orchestrator`) or nested (`sdd/spec-digest`); match the leaf segment or the full slug. If a name matches more than one folder, disambiguate with the user.
+To resolve a **domain name** to its spec folder, match the name against each discovered spec's folder slug — the root-relative path of the folder containing `spec.md`. A spec may be flat (`sdd-operator`) or nested (`sdd/spec-digest`); match the leaf segment or the full slug. If a name matches more than one folder, disambiguate with the user.
 
 Derived views (such as `graph.md`) are rendered from the discovered set and never hand-maintained — see `render-spec-graph`.
 

@@ -1,13 +1,13 @@
 ---
 name: plugin-contract-governance
-description: "Internal skill: the SDD plugin contract — the five delegate roles a plugin implements, which governances each role loads, and the universal-plugin.json registry shape. Loaded by sdd-orchestrator and by plugin authors building an SDD plugin — not triggered by users directly."
+description: "Internal skill: the SDD plugin contract — the five delegate roles a plugin implements, which governances each role loads, and the universal-plugin.json registry shape. Loaded by sdd-operator and by plugin authors building an SDD plugin — not triggered by users directly."
 metadata:
   user-invocable: false
 ---
 
 # SDD Plugin Contract Governance
 
-What an SDD plugin must implement and what each part loads. The orchestrator resolves delegates against this contract; a plugin author builds to it. The universal-plugin format itself is `plugin-design` (`governance show universal-plugin`); this skill is the SDD-role layer on top.
+What an SDD plugin must implement and what each part loads. The operator resolves delegates against this contract; a plugin author builds to it. The universal-plugin format itself is `plugin-design` (`governance show universal-plugin`); this skill is the SDD-role layer on top.
 
 ## The five delegate roles (closed set)
 
@@ -33,11 +33,11 @@ Every role loads the universal authoring/lifecycle governances below in addition
 | impl-producer | `ownership-governance`, the resolved `builder` + `architect` governances |
 | impl-judge | `ownership-governance` |
 
-The `sdd` gateway loads `lifecycle-governance`; the gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; `sdd-orchestrator` loads all three. A plugin's agents inherit these loads — e.g. `aces`/`quill` spec-producers load `sdd:spec-governance` + `sdd:ownership-governance`, and their judges load `sdd:gate-validation-governance`.
+The `sdd` gateway loads `lifecycle-governance`; the gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; `sdd-operator` loads all three. A plugin's agents inherit these loads — e.g. `aces`/`quill` spec-producers load `sdd:spec-governance` + `sdd:ownership-governance`, and their judges load `sdd:gate-validation-governance`.
 
 ## Registry shape
 
-The orchestrator reads **only** `.agents/universal-plugin.json` (top-level `sdd-plugins[]`) — it does not scan plugin directories. Each entry:
+The operator reads **only** `.agents/universal-plugin.json` (top-level `sdd-plugins[]`) — it does not scan plugin directories. Each entry:
 
 ```json
 {

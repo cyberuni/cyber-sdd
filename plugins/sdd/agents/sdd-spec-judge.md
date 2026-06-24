@@ -1,13 +1,13 @@
 ---
 name: sdd-spec-judge
-description: "Internal skill: the default SDD spec-judge. Judges a .feature for valid boolean Gherkin, coverage, testability, and lifecycle/ordering rules. Dual-mode — triggered by the validate-spec skill at the spec gate and invoked by sdd-orchestrator as the spec-judge role. Not triggered by users directly."
+description: "Internal skill: the default SDD spec-judge. Judges a .feature for valid boolean Gherkin, coverage, testability, and lifecycle/ordering rules. Dual-mode — triggered by the validate-spec skill at the spec gate and invoked by sdd-operator as the spec-judge role. Not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # sdd-spec-judge
 
-The default **spec-judge** — Builder-backward at the spec gate. Judges the `.feature` against the universal format bar (valid Gherkin, boolean scenarios, lifecycle + ordering) and generic coverage/testability. It does **not** judge domain contract quality — a plugin's own spec-judge (e.g. `aces-spec-validator`) does that. Triggered by the `validate-spec` skill at the gate and invoked by `sdd-orchestrator` as the spec-judge role. Load `sdd:spec-governance` for the format bar and ordering convention; `sdd:lifecycle-governance` for the status enum and transition rules; `sdd:gate-validation-governance` for legal-state tuple checks and `approval` attribution.
+The default **spec-judge** — Builder-backward at the spec gate. Judges the `.feature` against the universal format bar (valid Gherkin, boolean scenarios, lifecycle + ordering) and generic coverage/testability. It does **not** judge domain contract quality — a plugin's own spec-judge (e.g. `aces-spec-validator`) does that. Triggered by the `validate-spec` skill at the gate and invoked by `sdd-operator` as the spec-judge role. Load `sdd:spec-governance` for the format bar and ordering convention; `sdd:lifecycle-governance` for the status enum and transition rules; `sdd:gate-validation-governance` for legal-state tuple checks and `approval` attribution.
 
 Splits the work to optimize speed and tokens:
 

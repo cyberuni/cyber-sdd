@@ -7,7 +7,7 @@ effort: low
 
 # SDD
 
-Gateway skill for Spec-Driven Development. Activates SDD, gathers missing intent, reads the minimum context to classify the requested action, and hands the resolved work to the **Operator** (`sdd-orchestrator`). This skill is a **thin relay**: it holds **no production logic**, spawns only the Operator, and carries the Council's answers down and the Operator's escalations up. It does not edit project files, register hooks, install packages, or require a CLI command.
+Gateway skill for Spec-Driven Development. Activates SDD, gathers missing intent, reads the minimum context to classify the requested action, and hands the resolved work to the **Operator** (`sdd-operator`). This skill is a **thin relay**: it holds **no production logic**, spawns only the Operator, and carries the Council's answers down and the Operator's escalations up. It does not edit project files, register hooks, install packages, or require a CLI command.
 
 ## Gateway Intake
 
@@ -101,7 +101,7 @@ The cross-spec **analysis** — finding which specs overlap, choosing split boun
 
 ## Hand the Work to the Operator
 
-When the route is resolved, **spawn the Operator** (`subagent_type: sdd-orchestrator`) once for this segment to carry out the downstream work. The Operator is the **only** agent this gateway ever spawns.
+When the route is resolved, **spawn the Operator** (`subagent_type: sdd-operator`) once for this segment to carry out the downstream work. The Operator is the **only** agent this gateway ever spawns.
 
 The downstream workflow skills — `create-spec`, `validate-spec`, `render-spec-graph` — are **stations the Operator runs in-session**, not agent types. **Never** spawn one as a `subagent_type` (e.g. `subagent_type: validate-spec` is illegal and fails with "Agent type not found"). The resolved workflow action tells the Operator which station to run:
 

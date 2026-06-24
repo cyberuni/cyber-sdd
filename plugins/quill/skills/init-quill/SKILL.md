@@ -1,11 +1,11 @@
 ---
 name: init-quill
-description: Use this skill to register quill as the SDD documentation plugin for this project — writes a quill role-map entry to .agents/universal-plugin.json so sdd-orchestrator resolves the quill production-chain roles for documentation domain types.
+description: Use this skill to register quill as the SDD documentation plugin for this project — writes a quill role-map entry to .agents/universal-plugin.json so sdd-operator resolves the quill production-chain roles for documentation domain types.
 ---
 
 # Init Quill
 
-Register quill in the project's SDD plugin registry so `sdd-orchestrator` can resolve quill's production-chain roles by reading **only** `.agents/universal-plugin.json` — no plugin-directory scanning at runtime. This is the lockfile pattern: resolution happens here, at setup.
+Register quill in the project's SDD plugin registry so `sdd-operator` can resolve quill's production-chain roles by reading **only** `.agents/universal-plugin.json` — no plugin-directory scanning at runtime. This is the lockfile pattern: resolution happens here, at setup.
 
 ## Workflow
 
@@ -22,8 +22,8 @@ Read quill's own version from its plugin manifest (it ships inside the plugin, s
 Find the entry where `"name": "quill"` in the `sdd-plugins` array:
 
 - **Not found** → append the canonical entry (create the array if absent).
-- **Found, old shape** (the pre-orchestrator `scenario-advisor` / `implementer` keys) → **rewrite** it to the role-map shape below. The orchestrator never reads the old shape — migration is rewrite-on-init, not a dual-reader.
-- **Found, role-map shape, stale `version`** → rewrite when the recorded version differs from quill's own (install / upgrade / manual re-run reconciles drift here; the orchestrator never compares versions at runtime).
+- **Found, old shape** (the pre-operator `scenario-advisor` / `implementer` keys) → **rewrite** it to the role-map shape below. The operator never reads the old shape — migration is rewrite-on-init, not a dual-reader.
+- **Found, role-map shape, stale `version`** → rewrite when the recorded version differs from quill's own (install / upgrade / manual re-run reconciles drift here; the operator never compares versions at runtime).
 
 Do not reorder or reformat other entries.
 
@@ -58,4 +58,4 @@ Confirm:
 - quill role-map entry present under `sdd-plugins`, stamped with quill's version
 - Domains registered: `documentation`, `guide`, `tutorial`, `article`, `reference`
 
-Next step: use `create-spec` (sdd plugin) to scaffold a documentation spec; the orchestrator resolves the quill roles automatically.
+Next step: use `create-spec` (sdd plugin) to scaffold a documentation spec; the operator resolves the quill roles automatically.

@@ -12,7 +12,7 @@ But a second body of reference content — the **spec lifecycle and frontmatter 
 
 - `sdd/SKILL.md` — full Lifecycle Routing table, Freeze Handling, Core Rules
 - `validate-spec/SKILL.md` — gate transition table, `approved-by` write rules
-- `sdd-orchestrator.md` — phase-derivation table, write boundary, `aligned` layer semantics
+- `sdd-operator.md` — phase-derivation table, write boundary, `aligned` layer semantics
 - `sdd-spec-judge.md` — legal-tuple legality checks
 - `sdd-scenario-writer.md` and plugin producers — "write no control frontmatter"
 - `create-spec.md` — leaves `status: draft`, writes `domain-plugin`
@@ -30,7 +30,7 @@ A change to the contract (e.g. adding `approved-by` attribution) meant editing e
 
 The scope is a spectrum. We evaluated which consumer needs which atomic fact:
 
-| Fact | sdd | validate-spec | orchestrator | spec-judge | producers | planner/impl |
+| Fact | sdd | validate-spec | operator | spec-judge | producers | planner/impl |
 |---|:-:|:-:|:-:|:-:|:-:|:-:|
 | A schema | recognize | r/w | r/w | read | field names | — |
 | B status enum | ✓ | ✓ | ✓ | ✓ | — | — |
@@ -59,7 +59,7 @@ Split the contract into three named `-governance` skills, plus a fourth that doc
 
 **Freeze (F) splits across two skills by face:** the *state transition* ("`approved` freezes the `.feature`; revert to `draft` to change it") lives in `lifecycle-governance`; the *write constraint* ("never write a frozen `.feature`; producers write no control frontmatter") lives in `ownership-governance`. This lets the light consumers (producers, planner, impl-judge) load **only** `ownership-governance`.
 
-**"Responsibility" is not a new skill.** The production-chain role duties already live in the `framer/architect/builder` governances and the orchestrator's write boundary; `ownership-governance` is the frontmatter-field slice of that, and `plugin-contract-governance` is the role-registry slice.
+**"Responsibility" is not a new skill.** The production-chain role duties already live in the `framer/architect/builder` governances and the operator's write boundary; `ownership-governance` is the frontmatter-field slice of that, and `plugin-contract-governance` is the role-registry slice.
 
 Loader wiring:
 
@@ -68,7 +68,7 @@ Loader wiring:
 | `sdd` gateway | lifecycle-governance |
 | `validate-spec` | lifecycle, ownership, gate-validation |
 | `create-spec` | lifecycle, ownership |
-| `sdd-orchestrator` | lifecycle, ownership, gate-validation |
+| `sdd-operator` | lifecycle, ownership, gate-validation |
 | `sdd-spec-judge` | lifecycle, gate-validation |
 | spec-producers (`sdd-scenario-writer`, `aces-scenario-writer`, `quill-writer`) | ownership |
 | `sdd-planner`, impl-judges (`sdd-implementer`, `aces-implementer`, `quill-implementer`), `quill-doc-writer` | ownership |
@@ -100,4 +100,4 @@ The three-way cut is the point on the spectrum where every bundle is **both** in
 - [ADR-0013](0013-governance-skills.md) — governance skills as the loading mechanism; this ADR adds four under it
 - [ADR-0012](0012-spec-frontmatter-schema.md) — the `status`/`priority`/`blocked-by` schema that `lifecycle-governance` documents (extended here with `aligned`, `approved-by`, `domain-plugin`, open markers)
 - [ADR-0003](0003-agent-first-authoring.md) — agent-first bodies; rationale stays in this ADR, not the skill bodies
-- `artifacts/specs/sdd-orchestrator/spec.md` — the redesign that introduced `aligned` and the orchestrator write boundary
+- `artifacts/specs/sdd-orchestrator/spec.md` — the redesign that introduced `aligned` and the operator write boundary

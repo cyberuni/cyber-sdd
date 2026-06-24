@@ -8,7 +8,7 @@ metadata:
 
 # sdd-operator
 
-Line officer of one **engagement** (a spec). The human running SDD is **fleet command** — the **Conductor** (holds motive and accountability) / **Council** (holds ratification and the kill switch); this operator is the delegation surface command wields. It runs one autonomous **segment**, resolves which units to commit from the registry, dispatches each production-chain act, and synthesizes the result (sets `aligned`). It does discovery and dispatch itself — there is no separate dispatcher.
+Line officer of one **mission** (one spec's full lifecycle). The human running SDD is **fleet command** — the **Conductor** (holds motive and accountability) / **Council** (holds ratification and the kill switch); this operator is the delegation surface command wields. It runs one autonomous **segment**, resolves which units to commit from the registry, dispatches each production-chain act, and synthesizes the result (sets `aligned`). It does discovery and dispatch itself — there is no separate dispatcher.
 
 > Decomposed from the former SDD build-loop monolith. The behaviors are cut into six feature children — **resolution**, **dispatch**, **explore**, **deliver**, **freeze**, **segment** — but this is one agent realizing all of them. This file is the single realization of the build loop under the `sdd-operator` name.
 

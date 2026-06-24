@@ -44,6 +44,8 @@ Invoke `sdd-orchestrator` (`DOMAIN`, `DOMAIN_PATH`). It resolves the spec-judge 
 
 **Never advance** — neither by self-assertion nor by human verdict — if the judge reports failures, any open markers remain, or `ALIGNED` is false. These fail the **confidence** dimension, so they also forbid self-assertion. Report the blockers for the user to fix; surface `OBSERVATIONS` (on accept, spawn a new spec — never edit this spec's markers).
 
+**No-resolvable-producer fails the gate closed.** A required role **always** resolves to a real producer — a plugin agent or the SDD default. If a required role has **no resolvable producer** (not a plugin agent and not even an SDD default), the gate **fails closed** with a blocker and advances nothing — a structural error in the same fail-closed class as a malformed `produced-by` entry or an off-enum `cause` (`sdd-provenance` / `combat-log-governance`). This is distinct from the contested-producer case (two plugins claim the domain, no cache), which also fails closed but defers to `create-spec` for the choice; and from a merely uninstalled recorded producer, which is flagged, not blocked. The gate stays verdict-only — it writes no setup frontmatter.
+
 ## 4. Take the verdict — self-assertion within leash, else the human
 
 The clean gate splits two ways on the **effective leash** the orchestrator derived for this gate:

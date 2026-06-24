@@ -29,6 +29,10 @@ The mechanical authority is `validate-spec/scripts/check-spec-state.mts` — run
 
 Reject illegal tuples **before** any other gate work. If `check-spec-state.mts` changes, this list follows it — the script is the source of truth, this prose is the readable mirror.
 
+### No-resolvable-producer is a fail-closed gate check
+
+Symmetric to the orchestrator's terminal resolution rule: a required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role. When a gate runs and a required role has **no resolvable producer** — not a plugin agent and not even an SDD default — the gate **fails closed** with a blocker; it advances nothing. This is a **structural** error and joins the same fail-closed class as a malformed `produced-by` entry or an off-enum `cause` — owned and defined in `sdd-provenance` / `combat-log-governance`; this skill references that class, it does not restate the `produced-by` schema. (Distinct from availability: a recorded producer whose plugin is merely uninstalled is flagged, not blocked.)
+
 ## The two gates
 
 | Gate | Transition | Object judged |

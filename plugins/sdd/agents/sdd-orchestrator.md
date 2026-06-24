@@ -43,10 +43,11 @@ Read **only** `.agents/universal-plugin.json` (top-level `sdd-plugins[]`). Do **
    - missing key → fall back to the convention name `<plugin>-<role>`
    Resolve `governances{ director, builder, architect }` the same way (name, or `null` = SDD default).
 4. **Two or more matches** → before counting, read the `domain-plugin` map in `spec.md` frontmatter; if it names the owner for this domain, use it. Otherwise return `STATUS: needs-input` asking which plugin owns the domain. (The skill writes the choice to `domain-plugin`; on resume this read is decisive, so the suspend does not loop.)
+5. **No resolvable producer (terminal)** → a required role **always** resolves to a real producer: a plugin agent, or the SDD default for that role. If a required role resolves to **neither** a plugin agent **nor** an SDD default — genuinely unresolvable — **hard-fail**: return `STATUS: blocked` with the blocker and **record nothing** (no `produced-by` entry, no inline sentinel). This is fail-closed and joins the same structural-error class as a malformed `produced-by` entry or an off-enum `cause` — see `sdd-provenance` / `combat-log-governance` for that class; do not restate its schema.
 
 **Role keys (closed set):** `spec-producer`, `plan-producer`, `spec-judge`, `impl-producer`, `impl-judge`.
 
-**SDD defaults:** spec-producer → `sdd-scenario-writer`; plan-producer → `sdd-planner`; impl-producer → the generic Builder (no agent); impl-judge → `sdd-implementer`; spec-judge → the static format gate (`validate-spec`, no judge agent).
+**SDD defaults:** spec-producer → `sdd-scenario-writer`; plan-producer → `sdd-planner`; impl-producer → the generic Builder (no agent); impl-judge → `sdd-implementer`; spec-judge → the static format gate (`validate-spec`, no judge agent). A default **is** a real producer — it satisfies the always-resolves rule; the terminal hard-fail fires only when even the default for a required role is unavailable.
 
 ## Step 2 — Derive the workflow cursor and MODE
 

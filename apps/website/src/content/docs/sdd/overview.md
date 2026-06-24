@@ -11,12 +11,12 @@ The workflow separates **who decides** from **who is invoked how**. Four kinds o
 
 | Player | What it is | Key rule |
 |---|---|---|
+| **Council** (human) | The Conductor who holds motive and accountability. | Owns ratification and kill decisions — reached only through the relay. |
 | **Gateway** (`sdd`) | The entry skill. Intake, routing, and the **relay** that holds the user channel. | Holds *no* production logic; spawns only the Operator. |
 | **Operator** (`sdd-orchestrator`) | The lead delegate. Runs one autonomous segment: resolves delegates, runs stations, dispatches roles, synthesizes. | Has **no user channel** — escalates to the relay at gates/scrub. |
 | **Stations** | Skills the Operator **runs in-session**: `create-spec`, `revise-spec`, `validate-spec`, `split-spec`, `render-spec-graph`. | A station is **never** spawned as a subagent. |
 | **Production-chain roles** | Agents the Operator **spawns**: spec-producer, plan-producer, spec-judge, impl-producer, impl-judge. | `producer ≠ judge`. Resolved from the registry or SDD defaults. |
 | **Governances** | Loadable contracts the players read to stay aligned. | The single source of truth for each rule. |
-| **Council** (human) | The Conductor who holds motive and accountability. | Owns ratification and kill decisions — reached only through the relay. |
 
 ### Station vs role — the load-bearing distinction
 
@@ -86,4 +86,4 @@ flowchart LR
 | **Doctrine** | `sdd-doctrine-loop` | Scanner | reads this repo's combat logs, drafts strategy to improve the corpus |
 | **Field** | `sdd-usage-feedback` | (opt-in) | collects real corrections across installations to grow the shared taxonomy |
 
-The mission loop is the everyday path; the doctrine and field loops are how the system learns from what missions reveal. See [Control Flow](/sdd/control-flow/) for the mission loop in detail.
+The mission loop is the everyday path; the doctrine and field loops are how the system learns from what missions reveal. See [Control Flow](/sdd/control-flow/) for how the Operator runs it — segments, the relay, and the gates — and how a mission is composed of segments.

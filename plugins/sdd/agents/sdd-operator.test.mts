@@ -147,9 +147,12 @@ test('dispatch: ACES evals authored by impl-producer and run by impl-judge', () 
 	assert.ok(has('impl-judge runs them') || has('the impl-judge runs them') || has('it **runs** the impl-producer'))
 })
 
-test('dispatch: degenerate roles fall back without a plugin agent', () => {
+test('dispatch: degenerate impl roles fall back without a plugin agent', () => {
 	assert.ok(has('the generic Builder (no agent)'))
-	assert.ok(has('the static format gate (`validate-spec`, no judge agent)') || has('no judge agent'))
+	// the spec-judge role no longer degenerates inline — the default is the PROJECTED sdd:sdd-spec-judge agent
+	assert.ok(has('always projected') || has('spec-judge role is **always projected**'))
+	assert.ok(has('`sdd:sdd-spec-judge`') || has('sdd:sdd-spec-judge'))
+	assert.ok(!has('no judge agent'), 'the inline "no judge agent" spec-judge concept must be removed entirely')
 })
 
 test('dispatch: a plugin author reads the interface from operator and default delegates', () => {
@@ -218,11 +221,14 @@ test('explore: a spec-producer that writes frontmatter control fields is rejecte
 })
 
 test('explore: the spec-gate judge is a domain delegate, not SDD', () => {
-	assert.ok(has('a plugin domain delegate when declared') || has('plugin domain delegate'))
+	assert.ok(has('a plugin domain judge when declared') || has('plugin domain judge') || has('plugin domain delegate'))
 })
 
-test('explore: a static-bar domain needs no spec-gate judge agent', () => {
-	assert.ok(has('degenerates to `validate-spec` static criteria — no judge agent') || has('no judge agent'))
+test('explore: a static-bar domain projects the default spec-judge delegate', () => {
+	// the default spec-judge is PROJECTED (sdd:sdd-spec-judge), applying the validate-spec static criteria as its bar
+	assert.ok(has('`sdd:sdd-spec-judge` default agent') || has('sdd:sdd-spec-judge'))
+	assert.ok(has('static criteria as its bar') || has('applying the `validate-spec` static criteria'))
+	assert.ok(has('always projected') || has('never run inline'))
 })
 
 test('explore: aligned at the spec gate checks only the contract layer', () => {

@@ -104,6 +104,6 @@ Because it carries data across the installation (and company) boundary, the Harn
 
 ### The metaphor
 
-The fleet vocabulary, which also surfaces in the prompts: a **Mission** is one engagement; the **Campaign** is which theaters to fight and which to abandon; the **Formation** keeps the order of battle coherent; **Doctrine** is codified operating principle distilled from combat; the **Forge** refits the ships themselves from fleet-wide reports.
+The loop names are a fleet metaphor that also surfaces in the prompts: a **Mission** is one engagement; the **Campaign** is which theaters to fight and which to abandon; the **Formation** keeps the order of battle coherent; **Doctrine** is codified operating principle distilled from combat; the **Forge** refits the ships themselves from fleet-wide reports. The full translation table — command roles, delegates, sealed orders, project vs inject — is in [The Fleet Metaphor](/sdd/metaphor/).
 
 See [Control Flow](/sdd/control-flow/) for how the Operator runs the Build loop — segments, the relay, and the gates — and how a mission is composed of segments.

@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 // Static state-machine check for SDD specs (the sdd-gate-autonomy enforcement
 // slice). Rejects illegal (status, aligned, markers, .feature) tuples and
-// malformed approved-by attribution — the safety net that makes an illegal
+// malformed approval attribution — the safety net that makes an illegal
 // state uncommittable. Pure functions are exported for node:test; running the
 // file directly drives the CLI. No dependencies — plain node strips the types.
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-export interface GateApproval {
+export interface GateVerdict {
+	verdict?: string
 	by?: string
 	hasWhy: boolean
 }
@@ -17,12 +18,13 @@ export interface SpecState {
 	status: string
 	aligned: boolean | null
 	markerCount: number
-	approvedBy: Record<string, GateApproval> | null
+	approval: Record<string, GateVerdict> | null
 	type: string | null
 	subtasks: string[]
 }
 
 const GATES = ['spec', 'impl']
+const VERDICTS = ['approve', 'pause', 'reject']
 const TYPES = ['project', 'feature']
 
 function frontmatter(text: string): string[] {
@@ -34,7 +36,7 @@ export function parseSpecState(text: string): SpecState {
 	const lines = frontmatter(text)
 	let status = ''
 	let aligned: boolean | null = null
-	let approvedBy: Record<string, GateApproval> | null = null
+	let approval: Record<string, GateVerdict> | null = null
 	let type: string | null = null
 	const subtasks: string[] = []
 
@@ -71,23 +73,25 @@ export function parseSpecState(text: string): SpecState {
 			}
 			continue
 		}
-		const ab = /^approved-by:\s*(.*)$/.exec(lines[i])
-		if (ab) {
-			approvedBy = {}
-			if (ab[1].trim() && ab[1].trim() !== '{}') continue // inline non-empty unsupported; treat as empty map
+		const ap = /^approval:\s*(.*)$/.exec(lines[i])
+		if (ap) {
+			approval = {}
+			if (ap[1].trim() && ap[1].trim() !== '{}') continue // inline non-empty unsupported; treat as empty map
 			let gate: string | null = null
 			for (let j = i + 1; j < lines.length; j++) {
 				if (!/^\s/.test(lines[j])) break // dedent to top level ends the block
 				const g = /^ {2}(\w+):\s*$/.exec(lines[j])
 				if (g) {
 					gate = g[1]
-					approvedBy[gate] = { hasWhy: false }
+					approval[gate] = { hasWhy: false }
 					continue
 				}
 				if (!gate) continue
+				const verdict = /^ {4}verdict:\s*(.+)$/.exec(lines[j])
+				if (verdict) approval[gate].verdict = verdict[1].trim().replace(/^["']|["']$/g, '')
 				const by = /^ {4}by:\s*(.+)$/.exec(lines[j])
-				if (by) approvedBy[gate].by = by[1].trim().replace(/^["']|["']$/g, '')
-				if (/^ {4}why:/.test(lines[j])) approvedBy[gate].hasWhy = true
+				if (by) approval[gate].by = by[1].trim().replace(/^["']|["']$/g, '')
+				if (/^ {4}why:/.test(lines[j])) approval[gate].hasWhy = true
 			}
 		}
 	}
@@ -97,32 +101,50 @@ export function parseSpecState(text: string): SpecState {
 	// strip code spans and fences before counting (else the spec trips its own gate).
 	const prose = text.replace(/```[\s\S]*?```/g, '').replace(/`[^`\n]*`/g, '')
 	const markerCount = (prose.match(/<!--\s*open:/g) ?? []).length
-	return { status, aligned, markerCount, approvedBy, type, subtasks }
+	return { status, aligned, markerCount, approval, type, subtasks }
 }
 
 export function checkSpec(slug: string, state: SpecState, hasFeature: boolean): string[] {
-	const { status, aligned, markerCount, approvedBy } = state
+	const { status, aligned, markerCount, approval } = state
 	const v: string[] = []
 	const tag = (msg: string) => v.push(`${slug}: ${msg}`)
 
-	if (status === 'draft' && aligned === true)
-		tag('illegal state — draft must have aligned:false (draft never means implemented)')
+	// draft + aligned:true is LEGAL ("contract synced, ready for the spec gate") —
+	// aligned is layer-scoped, so it may hold at draft. No rejection here.
 	if (status === 'approved' && !hasFeature) tag('illegal state — approved requires a frozen .feature')
 	if (status === 'implemented' && aligned !== true) tag('illegal state — implemented requires aligned:true')
 	if ((status === 'approved' || status === 'implemented') && markerCount > 0)
 		tag(`illegal state — ${markerCount} open marker(s) but status is ${status} (markers block the gate)`)
 
-	if (approvedBy) {
-		for (const [gate, entry] of Object.entries(approvedBy)) {
-			if (!GATES.includes(gate)) tag(`approved-by has unknown gate "${gate}" (expected spec | impl)`)
+	if (approval) {
+		for (const [gate, entry] of Object.entries(approval)) {
+			if (!GATES.includes(gate)) tag(`approval has unknown gate "${gate}" (expected spec | impl)`)
+			if (entry.verdict && !VERDICTS.includes(entry.verdict))
+				tag(`approval.${gate} has unknown verdict "${entry.verdict}" (expected approve | pause | reject)`)
+			if (entry.verdict === 'pause' && entry.by)
+				tag(`approval.${gate} is a pause but carries by — a pause is always the agent's act and omits by`)
+			if (entry.verdict === 'approve' && !entry.by)
+				tag(`approval.${gate} is an approve with no by — an approve must record its approver`)
 			if (entry.by === 'agent' && !entry.hasWhy)
-				tag(`approved-by.${gate} is by:agent but has no why block (a self-assertion must record its derivation)`)
+				tag(`approval.${gate} is by:agent but has no why block (a self-assertion must record its derivation)`)
+			const passed =
+				(gate === 'spec' && (status === 'approved' || status === 'implemented')) ||
+				(gate === 'impl' && status === 'implemented')
+			if (entry.verdict === 'pause' && passed)
+				tag(`approval.${gate} is a pause but the ${gate} gate is already passed (status ${status})`)
 		}
 	}
-	if ((status === 'approved' || status === 'implemented') && !approvedBy?.spec?.by)
-		tag(`status is ${status} but approved-by.spec is missing — the spec gate has no recorded approver`)
-	if (status === 'implemented' && !approvedBy?.impl?.by)
-		tag('status is implemented but approved-by.impl is missing — the impl gate has no recorded approver')
+	if (
+		(status === 'approved' || status === 'implemented') &&
+		!(approval?.spec?.verdict === 'approve' && approval?.spec?.by)
+	)
+		tag(
+			`status is ${status} but approval.spec has no approve verdict with an approver — the spec gate has no recorded ratification`,
+		)
+	if (status === 'implemented' && !(approval?.impl?.verdict === 'approve' && approval?.impl?.by))
+		tag(
+			'status is implemented but approval.impl has no approve verdict with an approver — the impl gate has no recorded ratification',
+		)
 
 	if (state.type !== null && !TYPES.includes(state.type))
 		tag(`unknown type "${state.type}" (expected project | feature)`)

@@ -7,12 +7,12 @@ metadata:
 
 # sdd-spec-judge
 
-The default **spec-judge** — Builder-backward at the spec gate. Judges the `.feature` against the universal format bar (valid Gherkin, boolean scenarios, lifecycle + ordering) and generic coverage/testability. It does **not** judge domain contract quality — a plugin's own spec-judge (e.g. `aces-spec-validator`) does that. Triggered by the `validate-spec` skill at the gate and invoked by `sdd-orchestrator` as the spec-judge role. Load `sdd:spec-governance` for the format bar and ordering convention; `sdd:lifecycle-governance` for the status enum and transition rules; `sdd:gate-validation-governance` for legal-state tuple checks and `approved-by` attribution.
+The default **spec-judge** — Builder-backward at the spec gate. Judges the `.feature` against the universal format bar (valid Gherkin, boolean scenarios, lifecycle + ordering) and generic coverage/testability. It does **not** judge domain contract quality — a plugin's own spec-judge (e.g. `aces-spec-validator`) does that. Triggered by the `validate-spec` skill at the gate and invoked by `sdd-orchestrator` as the spec-judge role. Load `sdd:spec-governance` for the format bar and ordering convention; `sdd:lifecycle-governance` for the status enum and transition rules; `sdd:gate-validation-governance` for legal-state tuple checks and `approval` attribution.
 
 Splits the work to optimize speed and tokens:
 
 - **Optional deterministic step** — two NodeJS static-analysis CLIs for the mechanical checks:
-  - State-machine legality of the `(status, aligned, markers, .feature, approved-by)` tuple:
+  - State-machine legality of the `(status, aligned, markers, .feature, approval)` tuple:
     ```bash
     node "<validate-spec skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
     ```
@@ -32,7 +32,7 @@ DOMAIN, DOMAIN_PATH, FEATURE_PATH, SPEC_PATH
 ## Checks
 
 **Deterministic (CLI or equivalent self-check):**
-- State-machine legality of the `(status, aligned, markers, .feature, approved-by)` tuple.
+- State-machine legality of the `(status, aligned, markers, .feature, approval)` tuple.
 - `.feature` is valid Gherkin; every scenario `Then` is a boolean assertion (no "sometimes", no rubric/threshold/score).
 - Scenarios are ordered top-to-bottom by lifecycle stage, grouped under a section comment per stage.
 

@@ -127,7 +127,7 @@ The Operator escalates to the Council **only at gates** (a go/no-go verdict to a
 
 ### Write-ownership is preserved
 
-This relay model changes *who is invoked how*, not *who writes what*. The **gate station** (`validate-spec`) still owns the `status` write and the human ratification of `approved-by`. The **Operator** still owns `aligned` and any provisional agent self-assertion of `approved-by`. The relay writes neither.
+This relay model changes *who is invoked how*, not *who writes what*. The **gate station** (`validate-spec`) still owns the `status` write and the human ratification of `approval`. The **Operator** still owns `aligned` and any provisional agent self-assertion of `approval`. The relay writes neither.
 
 ## Freeze Handling
 

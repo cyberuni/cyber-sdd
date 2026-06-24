@@ -45,6 +45,6 @@ Spec digest — specs/<domain>
 ## Boundaries
 
 - **Read-only** — do not edit `spec.md`, the `.feature`, or any other file.
-- **No status write** — never set `status`, `aligned`, or `approved-by`.
+- **No status write** — never set `status`, `aligned`, or `approval`.
 - **No verdict** — the digest states facts only; it contains no approval decision and no advance-or-block recommendation. `validate-spec` decides at the gate.
 - **No domain interpretation** — emit the structural sections above; do not add domain-specific analysis.

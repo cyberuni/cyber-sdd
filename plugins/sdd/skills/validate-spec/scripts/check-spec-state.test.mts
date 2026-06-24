@@ -6,7 +6,7 @@ import { test } from 'node:test'
 import { checkSpec, discoverSpecDirs, parseSpecState, type SpecState } from './check-spec-state.mts'
 
 function state(over: Partial<SpecState> = {}): SpecState {
-	return { status: 'draft', aligned: false, markerCount: 0, approvedBy: null, type: null, subtasks: [], ...over }
+	return { status: 'draft', aligned: false, markerCount: 0, approval: null, type: null, subtasks: [], ...over }
 }
 
 test('parseSpecState reads status, aligned, and marker count', () => {
@@ -33,32 +33,53 @@ test('parseSpecState ignores marker syntax inside code spans and fences', () => 
 	assert.equal(parseSpecState(text).markerCount, 0)
 })
 
-test('parseSpecState reads a nested approved-by map with why', () => {
+test('parseSpecState reads a nested approval map with verdict and why', () => {
 	const text = [
 		'---',
 		'status: approved',
-		'aligned: false',
-		'approved-by:',
+		'aligned: true',
+		'approval:',
 		'  spec:',
+		'    verdict: approve',
 		'    by: unional',
 		'  impl:',
+		'    verdict: approve',
 		'    by: agent',
-		'    leash: auto-all',
 		'    why:',
 		'      reversibility: safe',
 		'---',
 		'',
 	].join('\n')
 	const s = parseSpecState(text)
-	assert.equal(s.approvedBy?.spec.by, 'unional')
-	assert.equal(s.approvedBy?.spec.hasWhy, false)
-	assert.equal(s.approvedBy?.impl.by, 'agent')
-	assert.equal(s.approvedBy?.impl.hasWhy, true)
+	assert.equal(s.approval?.spec.verdict, 'approve')
+	assert.equal(s.approval?.spec.by, 'unional')
+	assert.equal(s.approval?.spec.hasWhy, false)
+	assert.equal(s.approval?.impl.verdict, 'approve')
+	assert.equal(s.approval?.impl.by, 'agent')
+	assert.equal(s.approval?.impl.hasWhy, true)
 })
 
-test('parseSpecState treats an empty approved-by as an empty map', () => {
-	const s = parseSpecState('---\nstatus: draft\napproved-by: {}\n---\n')
-	assert.deepEqual(s.approvedBy, {})
+test('parseSpecState reads a pause verdict that omits by', () => {
+	const text = [
+		'---',
+		'status: draft',
+		'approval:',
+		'  spec:',
+		'    verdict: pause',
+		'    why:',
+		'      blast-radius: risky',
+		'---',
+		'',
+	].join('\n')
+	const s = parseSpecState(text)
+	assert.equal(s.approval?.spec.verdict, 'pause')
+	assert.equal(s.approval?.spec.by, undefined)
+	assert.equal(s.approval?.spec.hasWhy, true)
+})
+
+test('parseSpecState treats an empty approval as an empty map', () => {
+	const s = parseSpecState('---\nstatus: draft\napproval: {}\n---\n')
+	assert.deepEqual(s.approval, {})
 })
 
 test('parseSpecState reads type and a subtasks list', () => {
@@ -87,10 +108,8 @@ test('a project with subtasks passes the per-spec check', () => {
 	assert.deepEqual(checkSpec('x', state({ type: 'project', subtasks: ['child'] }), false), [])
 })
 
-test('draft + aligned:true is illegal', () => {
-	const v = checkSpec('x', state({ status: 'draft', aligned: true }), true)
-	assert.equal(v.length, 1)
-	assert.match(v[0], /draft must have aligned:false/)
+test('draft + aligned:true is legal (contract synced, ready for the spec gate)', () => {
+	assert.deepEqual(checkSpec('x', state({ status: 'draft', aligned: true }), true), [])
 })
 
 test('a clean draft passes', () => {
@@ -98,7 +117,11 @@ test('a clean draft passes', () => {
 })
 
 test('approved without a .feature is illegal', () => {
-	const v = checkSpec('x', state({ status: 'approved', approvedBy: { spec: { by: 'u', hasWhy: false } } }), false)
+	const v = checkSpec(
+		'x',
+		state({ status: 'approved', approval: { spec: { verdict: 'approve', by: 'u', hasWhy: false } } }),
+		false,
+	)
 	assert.ok(v.some((m) => /requires a frozen .feature/.test(m)))
 })
 
@@ -108,7 +131,10 @@ test('implemented requires aligned:true', () => {
 		state({
 			status: 'implemented',
 			aligned: false,
-			approvedBy: { spec: { by: 'u', hasWhy: false }, impl: { by: 'u', hasWhy: false } },
+			approval: {
+				spec: { verdict: 'approve', by: 'u', hasWhy: false },
+				impl: { verdict: 'approve', by: 'u', hasWhy: false },
+			},
 		}),
 		true,
 	)
@@ -118,24 +144,71 @@ test('implemented requires aligned:true', () => {
 test('open markers block the gate once approved', () => {
 	const v = checkSpec(
 		'x',
-		state({ status: 'approved', markerCount: 1, approvedBy: { spec: { by: 'u', hasWhy: false } } }),
+		state({ status: 'approved', markerCount: 1, approval: { spec: { verdict: 'approve', by: 'u', hasWhy: false } } }),
 		true,
 	)
 	assert.ok(v.some((m) => /open marker/.test(m)))
 })
 
 test('a by:agent entry without a why is illegal', () => {
-	const v = checkSpec('x', state({ status: 'draft', approvedBy: { spec: { by: 'agent', hasWhy: false } } }), true)
+	const v = checkSpec(
+		'x',
+		state({ status: 'draft', approval: { spec: { verdict: 'approve', by: 'agent', hasWhy: false } } }),
+		true,
+	)
 	assert.ok(v.some((m) => /by:agent but has no why/.test(m)))
 })
 
-test('approved without approved-by.spec is illegal', () => {
+test('a pause carrying by is illegal', () => {
+	const v = checkSpec(
+		'x',
+		state({ status: 'draft', approval: { spec: { verdict: 'pause', by: 'agent', hasWhy: true } } }),
+		true,
+	)
+	assert.ok(v.some((m) => /pause but carries by/.test(m)))
+})
+
+test('an approve with no by is illegal', () => {
+	const v = checkSpec('x', state({ status: 'draft', approval: { spec: { verdict: 'approve', hasWhy: false } } }), true)
+	assert.ok(v.some((m) => /approve with no by/.test(m)))
+})
+
+test('an unknown verdict is rejected', () => {
+	const v = checkSpec(
+		'x',
+		state({ status: 'draft', approval: { spec: { verdict: 'maybe', by: 'u', hasWhy: false } } }),
+		true,
+	)
+	assert.ok(v.some((m) => /unknown verdict "maybe"/.test(m)))
+})
+
+test('a pause is legal on a gate the spec has not passed', () => {
+	assert.deepEqual(
+		checkSpec('x', state({ status: 'draft', approval: { spec: { verdict: 'pause', hasWhy: true } } }), false),
+		[],
+	)
+})
+
+test('a pause on an already-passed gate is illegal', () => {
+	const v = checkSpec(
+		'x',
+		state({
+			status: 'implemented',
+			aligned: true,
+			approval: { spec: { verdict: 'pause', hasWhy: true }, impl: { verdict: 'approve', by: 'u', hasWhy: false } },
+		}),
+		true,
+	)
+	assert.ok(v.some((m) => /spec gate is already passed/.test(m)))
+})
+
+test('approved without an approve verdict on the spec gate is illegal', () => {
 	const v = checkSpec('x', state({ status: 'approved' }), true)
-	assert.ok(v.some((m) => /approved-by.spec is missing/.test(m)))
+	assert.ok(v.some((m) => /approval.spec has no approve verdict/.test(m)))
 })
 
 test('an unknown gate key is rejected', () => {
-	const v = checkSpec('x', state({ approvedBy: { release: { by: 'u', hasWhy: false } } }), true)
+	const v = checkSpec('x', state({ approval: { release: { verdict: 'approve', by: 'u', hasWhy: false } } }), true)
 	assert.ok(v.some((m) => /unknown gate "release"/.test(m)))
 })
 
@@ -145,7 +218,10 @@ test('a fully approved-and-implemented spec passes', () => {
 		state({
 			status: 'implemented',
 			aligned: true,
-			approvedBy: { spec: { by: 'u', hasWhy: false }, impl: { by: 'u', hasWhy: false } },
+			approval: {
+				spec: { verdict: 'approve', by: 'u', hasWhy: false },
+				impl: { verdict: 'approve', by: 'u', hasWhy: false },
+			},
 		}),
 		true,
 	)

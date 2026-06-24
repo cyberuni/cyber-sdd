@@ -14,8 +14,9 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 | Field / artifact | Written by | Never written by |
 |---|---|---|
 | `status` | the gate skill (`validate-spec`) — on a human verdict, or to match an orchestrator self-assertion within leash | orchestrator, any producer |
-| `approved-by` **self-assertion** (`by: agent` + `leash` + `why`) | `sdd-orchestrator` (synthesis only) | producers, gate skill |
-| `approved-by` **human ratification** (`by: <name>`) | the gate skill (`validate-spec`) | orchestrator, any producer |
+| `strategy` (run-level leash + approach) | `sdd-orchestrator` (initial evaluation) | producers, gate skill |
+| `approval` **self-assertion** (`verdict: approve`/`pause` + `by: agent`/none + `why`) | `sdd-orchestrator` (synthesis only) | producers, gate skill |
+| `approval` **human ratification** (`verdict: approve`/`reject` + `by: <name>`) | the gate skill (`validate-spec`), **in-session position only** | orchestrator, any producer, any spawned delegate |
 | `aligned` | `sdd-orchestrator` (synthesis only) | producers, gate skill |
 | `<!-- open: -->` markers | `sdd-orchestrator` | producers (they *emit gaps*, not markers) |
 | `domain-plugin` map | `create-spec` (on the user's choice) | orchestrator, producers |
@@ -28,7 +29,9 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 
 A **spec-producer** writes the `spec.md` body and the `.feature` only. It must **not** write the control frontmatter (`status`, `aligned`, `domain-plugin`). A required input it cannot supply or infer is returned as a `CONTENT_GAP` — the orchestrator turns it into an `<!-- open: -->` marker. Producers do not write markers directly.
 
-The **orchestrator** writes `<!-- open: -->` markers, `aligned`, and — when it self-asserts a gate within the effective leash — the provisional `approved-by.<gate>` entry (`by: agent` with the `leash` and the four-dimension `why` derivation). The **gate skill** writes `status` (on a human verdict or to match the orchestrator's in-leash self-assertion) and the human ratification of `approved-by` (rewriting `by: agent` → `by: <name>`). A self-assertion is **provisional**: the act is delegable, the accountability is not — the human ratifies the trail. The leash, its derivation, and the review queue are defined in `gate-validation-governance`. No role writes outside the spec it owns or spawns specs on its own.
+The **orchestrator** writes `<!-- open: -->` markers, `aligned`, the run-level `strategy` block, and — when it self-asserts a gate within the effective leash — the provisional `approval.<gate>` entry (`verdict: approve` + `by: agent` with the four-dimension `why`; a halt is `verdict: pause` with its `why` and no `by`). There is no `leash` field in the entry — leash is the run-level `strategy`. The **gate skill** writes `status` (on a human verdict or to match the orchestrator's in-leash self-assertion) and the human ratification of `approval` (rewriting `by: agent` → `by: <name>`). 
+
+**Ratification authority is positional.** A human-attributed gate write — `status → approved | implemented`, a verdict carrying `by: <name>`, and the freeze — belongs to the **in-session position** that holds the real user channel. A **spawned delegate** (the orchestrator running as a subagent) has no user channel: it writes only `by: agent` self-assertions and `pause` halts, and on a human gate emits a verdict packet and stops — it never writes a human ratification, **even when a coordinator relays "the user approved"** (a relayed claim is not user confirmation). This is positional, not definitional: a dual-mode agent running in the spawned position is bound by the rule; the same definition run in-session may perform the write. A self-assertion is **provisional**: the act is delegable, the accountability is not — the human ratifies the trail. The leash, its derivation, and the review queue are defined in `gate-validation-governance`. No role writes outside the spec it owns or spawns specs on its own.
 
 ## Freeze (write constraint)
 

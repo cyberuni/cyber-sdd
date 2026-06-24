@@ -23,16 +23,20 @@ blocked-by:             # list of spec slugs; omit or empty if none
   - <spec-slug>
 subtasks:               # project specs only: child feature slugs (single-parent)
   - <spec-slug>
-approved-by:            # per-gate approver; see gate-validation-governance
-  spec:                 # by: agent (self-asserted, provisional) | <human name> (ratified)
-    by: agent
-    leash: auto-all     # effective leash at this gate (agent self-assertion only)
-    why:                # four-dimension derivation (agent self-assertion only)
+strategy:               # run-level initial evaluation (leash + approach); see sdd-stop-provenance
+  leash: auto-all       # first-evaluated reach: auto-none | auto-spec | auto-all
+  by: derived           # derived | user
+  approach: [no-spike, mocks, worktree]   # blast-radius-containment choices
+approval:               # per-gate verdict; see gate-validation-governance
+  spec:                 # verdict: approve | pause | reject
+    verdict: approve
+    by: agent           # by: agent (self-asserted, provisional) | <human name> (ratified); omitted on pause
+    why:                # four-dimension derivation (agent self-assertion or pause)
       reversibility: <safe|risky — reason>
       blast-radius:  <safe|risky — reason>
       novelty:       <safe|risky — reason>
       confidence:    <safe|risky — reason>
-  impl: { by: <human name> }   # ratified — no leash/why needed
+  impl: { verdict: approve, by: <human name> }   # ratified — no why needed
 domain-plugin:          # map: domain -> owning plugin, when a domain is contested
   <domain>: <plugin>
 ---
@@ -40,9 +44,9 @@ domain-plugin:          # map: domain -> owning plugin, when a domain is contest
 
 Open input is recorded in the body as `<!-- open: ... -->` markers, not in frontmatter.
 
-`status`, `priority`, and `blocked-by` are the base schema; `type`, `subtasks`, `aligned`, `approved-by`, and `domain-plugin` are the SDD-workflow additions.
+`status`, `priority`, and `blocked-by` are the base schema; `type`, `subtasks`, `aligned`, `strategy`, `approval`, and `domain-plugin` are the SDD-workflow additions.
 
-An `approved-by.<gate>` of `by: agent` is a **provisional self-assertion** carrying its `leash` and four-dimension `why`; `by: <human name>` is a **ratification**. The set of specs with any `by: agent` is the human review queue. The leash, its derivation, and who writes each are defined in `gate-validation-governance`.
+An `approval.<gate>` with `verdict: approve` and `by: agent` is a **provisional self-assertion** carrying its four-dimension `why`; `by: <human name>` is a **ratification**. A `verdict: pause` records why the agent halted (its `why`, no `by`); a `verdict: reject` is a scope-kill or Director-revert. The set of specs with any `verdict: approve` + `by: agent` is the human review queue; specs with a `verdict: pause` form the awaiting-input queue. The leash is run-level (the `strategy` block), not per-gate; its derivation and who writes each are defined in `gate-validation-governance`.
 
 ## Spec typing and composition
 

@@ -62,27 +62,48 @@ Loadable contracts — each owns one rule set so no player restates it:
 | `plugin-contract-governance` | the five delegate roles and the registry shape |
 | `director` / `builder` / `architect` governance | each actor's bar (scope, testability, structural fit) |
 
-## The three loops
+## The loops
 
-SDD nests three loops at different altitudes. Each is owned by an actor and run by a delegate.
+SDD runs as a set of feedback loops. **Four** operate within one *adoption* of SDD — a team using it on their own work — and map one-to-one to the four actors. A **fifth** sits above them and improves SDD *itself*. Each loop carries two names: a **descriptive** one (what it acts on) and a **metaphor** one (the fleet vocabulary that also appears in the prompts).
 
 ```mermaid
 flowchart TB
-  subgraph field[Field loop · opt-in]
-    subgraph doctrine[Doctrine loop · in-repo]
-      subgraph mission[Mission loop · one spec]
-        m[Operator drives<br/>draft → approved → implemented]
-      end
-    end
+  subgraph adoption[One adoption of SDD]
+    build[Build · Mission — Builder]
+    product[Product · Campaign — Director]
+    structure[Structure · Formation — Architect]
+    process[Process · Doctrine — Strategist]
   end
+  harness[Harness · Forge — improves SDD itself]
+  adoption ==>|opt-in cross-installation usage| harness
+  harness ==>|better governances · defaults · plugins| adoption
 ```
 
-The nesting is by altitude: each loop contains the one below it. The flows between them: every mission emits **combat logs** the doctrine loop reads; **recurring corrections** surface to the field loop; **ratified strategy** flows back down to tune the corpus every mission draws on.
-
-| Loop | Spec | Delegate | Scope |
+| Loop (descriptive · metaphor) | Actor | Altitude | Improves |
 |---|---|---|---|
-| **Mission** | (every spec) | Operator | one spec's journey draft → approved → implemented |
-| **Doctrine** | `sdd-doctrine-loop` | Scanner | reads this repo's combat logs, drafts strategy to improve the corpus |
-| **Field** | `sdd-usage-feedback` | (opt-in) | collects real corrections across installations to grow the shared taxonomy |
+| **Build · Mission** | Builder | inner — one spec | builds a single spec, `draft → implemented` |
+| **Product · Campaign** | Director | outer — across missions | the product: which features to add, which to deprecate |
+| **Structure · Formation** | Architect | outer — across missions | the corpus's organization: dedupe, split, keep the graph coherent |
+| **Process · Doctrine** | Strategist | outer — across missions | how we work: codify lessons from missions into the corpus |
+| **Harness · Forge** | maintainers | meta — across installations | SDD itself: the `cause` enum, performance, token cost, the plugin roadmap |
 
-The mission loop is the everyday path; the doctrine and field loops are how the system learns from what missions reveal. See [Control Flow](/sdd/control-flow/) for how the Operator runs it — segments, the relay, and the gates — and how a mission is composed of segments.
+### Inner and outer — the double loop
+
+The **Build loop (Mission)** is the inner loop: execute one spec, the Builder's home. The other three actor loops run **across missions**, each asking a different *"are we doing the right thing?"* — **Product** (the right features?), **Structure** (organized right?), **Process** (working right?). That is double-loop learning: *do it right* (Build) versus *do the right thing* along three axes. A mission emits **combat logs**; the three outer loops read them and steer what gets built next.
+
+### The Harness loop (Forge) — SDD improving itself
+
+The four actor loops improve **one team's work**. The **Harness loop** sits one level up and improves **SDD the framework**, fed by opt-in usage across every installation: which `cause` values to add, where SDD is slow or token-hungry, which domain plugins to build next.
+
+This is **recursion**. The Harness loop hands the SDD maintainers the field signal to run their *own* Build / Product / Structure / Process loops — on SDD. Two levels of self-improvement, and the analogies pin them:
+
+- **Process (Doctrine)** = the *instance* improving itself — an agent getting better at its job within a project.
+- **Harness (Forge)** = the *platform* improving itself from every instance — Claude Code collecting usage to improve Claude Code.
+
+Because it carries data across the installation (and company) boundary, the Harness loop is **opt-in and privacy-gated** — see `sdd-usage-feedback`.
+
+### The metaphor
+
+The fleet vocabulary, which also surfaces in the prompts: a **Mission** is one engagement; the **Campaign** is which theaters to fight and which to abandon; the **Formation** keeps the order of battle coherent; **Doctrine** is codified operating principle distilled from combat; the **Forge** refits the ships themselves from fleet-wide reports.
+
+See [Control Flow](/sdd/control-flow/) for how the Operator runs the Build loop — segments, the relay, and the gates — and how a mission is composed of segments.

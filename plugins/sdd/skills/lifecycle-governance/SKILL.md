@@ -18,7 +18,7 @@ The state machine a `spec.md` moves through, and the frontmatter that records it
 status: draft           # draft | approved | implemented | deprecated
 type: feature           # project | feature; omit for an untyped legacy spec
 aligned: false          # true once the current layer's artifacts are synced
-priority: 1             # integer; 1 = highest (relative within a set)
+priority: 1             # optional integer; 1 = highest (relative within a set); omit = unprioritized
 blocked-by:             # list of spec slugs; omit or empty if none
   - <spec-slug>
 subtasks:               # project specs only: child feature slugs (single-parent)
@@ -44,7 +44,7 @@ domain-plugin:          # map: domain -> owning plugin, when a domain is contest
 
 Open input is recorded in the body as `<!-- open: ... -->` markers, not in frontmatter.
 
-`status`, `priority`, and `blocked-by` are the base schema; `type`, `subtasks`, `aligned`, `strategy`, `approval`, and `domain-plugin` are the SDD-workflow additions.
+`status` and `blocked-by` are the base schema; `priority` is an optional ranking hint (an integer, `1` = highest, relative within a set; omit to leave a spec unprioritized). `type`, `subtasks`, `aligned`, `strategy`, `approval`, and `domain-plugin` are the SDD-workflow additions.
 
 An `approval.<gate>` with `verdict: approve` and `by: agent` is a **provisional self-assertion** carrying its four-dimension `why`; `by: <human name>` is a **ratification**. A `verdict: pause` records why the agent halted (its `why`, no `by`); a `verdict: reject` is a scope-kill or Director-revert. The set of specs with any `verdict: approve` + `by: agent` is the human review queue; specs with a `verdict: pause` form the awaiting-input queue. The leash is run-level (the `strategy` block), not per-gate; its derivation and who writes each are defined in `gate-validation-governance`.
 

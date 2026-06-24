@@ -63,7 +63,7 @@ A **segment** is one autonomous Operator run — spawned, runs to a checkpoint, 
 - A **mission** is one spec's full journey (`draft → approved → implemented`). A mission is a **sequence of segments** with relay round-trips between them (explore → spec gate → implement → impl gate) — not a single run.
 - **Not every segment is a mission step.** The Operator also runs **management segments** that aren't any one spec's journey: `render-spec-graph` (refresh the derived graph) and `split-spec` (decompose one spec into many).
 
-So a segment carries out *either* a mission step (`create-spec` / `revise-spec` / `validate-spec` on one spec) *or* a cross-spec management operation. And segments are the **Operator's** unit — the mission-loop delegate. The **doctrine** loop (Scanner) and **field** loop (usage-feedback) are driven by *other* delegates; their autonomous runs are analogous but are neither segments nor missions in this vocabulary.
+So a segment carries out *either* a mission step (`create-spec` / `revise-spec` / `validate-spec` on one spec) *or* a cross-spec management operation. And segments are the **Operator's** unit — the Build-loop (Mission) delegate. The **Doctrine** loop (Scanner) and **Forge** loop (`sdd-forge-loop`) are driven by *other* delegates; their autonomous runs are analogous but are neither segments nor missions in this vocabulary.
 
 ## A segment, in detail
 

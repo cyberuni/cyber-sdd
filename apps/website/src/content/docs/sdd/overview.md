@@ -100,7 +100,7 @@ This is **recursion**. The Harness loop hands the SDD maintainers the field sign
 - **Process (Doctrine)** = the *instance* improving itself — an agent getting better at its job within a project.
 - **Harness (Forge)** = the *platform* improving itself from every instance — Claude Code collecting usage to improve Claude Code.
 
-Because it carries data across the installation (and company) boundary, the Harness loop is **opt-in and privacy-gated** — see `sdd-usage-feedback`.
+Because it carries data across the installation (and company) boundary, the Harness loop is **opt-in and privacy-gated** — see `sdd-forge-loop`.
 
 ### The metaphor
 

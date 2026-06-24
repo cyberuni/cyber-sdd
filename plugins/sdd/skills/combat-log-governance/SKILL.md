@@ -62,7 +62,7 @@ The hard requirement. One appended for every correction: a gate rejection, a pro
   **Growth principle.** The enum is **closed at any point in time**, but it is **discovered from usage, not designed up front**: a new `cause` value is **added** only when a real, recurring correction has no existing category. Fewer is better — speculative categories are not seeded. The two growers of the enum:
 
   1. the **doctrine-loop Scanner's** recurring-pattern detection (in-repo, already specced) — it surfaces a recurring `cause` across the corpus and proposes adding it.
-  2. a **usage-feedback loop** — a separate, **opt-in**, lower-priority spec being drafted independently. It would collect real corrections from actual plugin usage between the plugin's users and the SDD system, privacy/security-gated and optional. It does not exist yet and imposes no dependency here; it is named only as a prospective second source of grounded causes.
+  2. the **Forge loop** (`sdd-forge-loop`) — a separate, **opt-in**, lower-priority spec. It collects real corrections from actual plugin usage across installations, privacy/security-gated and optional, and routes them to the maintainers. It imposes no dependency here; it is named only as a prospective second source of grounded causes.
 
   **Who edits the enum.** A grower *proposes* a value; **adding it is an edit to this governance, ratified by the Council** (the same positional authority that ratifies any contract change — a producer/judge/orchestrator never edits the enum on its own). Until the value is ratified into this governance, an off-enum `cause` still fails closed.
 

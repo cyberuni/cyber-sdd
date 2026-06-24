@@ -33,3 +33,20 @@ The `spec.md` is a document a person reviews at the gate, so its legibility is p
 - **Draw the picture.** Where a diagram carries the idea better than words (architecture, sequence, state, data flow, decision tree), include a fenced Mermaid (or equivalent) diagram.
 - **Format for humans.** Clear heading hierarchy, tables for structured comparisons, short paragraphs, callouts for the load-bearing decisions.
 - Enrichment applies to `spec.md` only — the `.feature` stays plain boolean Gherkin.
+
+## The `## Use Cases` section (required in `spec.md`)
+
+Every `spec.md` carries a dedicated **`## Use Cases`** section. A **use case** is an *entry-point*: who or what triggers the behavior, with what **inputs**, toward what outcome. Coarse-grained — one per distinct way the subject is invoked. List them as a table or per-use-case prose, each naming:
+
+| Column | Content |
+|---|---|
+| **Trigger** | the event or situation that sets the behavior off |
+| **Inputs** | what the behavior receives when triggered |
+| **Outcome** | what it produces |
+
+This is distinct from a **scenario** — a *boolean assertion* (`Given`/`When`/`Then`, pass or fail) that lives in the **`.feature`**, asserting one observable behavior. Two altitudes:
+
+- A use case answers *"when, and with what, is this invoked?"* — and lives in `spec.md`.
+- A scenario answers *"given this exact situation, does it do that — yes/no?"* — and lives in the `.feature`.
+
+The relationship is **one-to-many**: one use case is verified by one-or-more scenarios (happy path, negative mirror, boundary). A scenario with no use case is an orphan test; a use case with no scenarios is unverified intent. The spec-producer writes the `## Use Cases` section and covers each use case with scenarios; the spec-judge checks the section exists and the mapping holds.

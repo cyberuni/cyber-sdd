@@ -13,6 +13,10 @@ Gateway skill for Spec-Driven Development. Activates SDD, gathers missing intent
 
 Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activation.
 
+### Surface pending strategy
+
+When the Council re-enters through the gateway, **surface the count of pending (unratified) strategy** as an entry point — the doctrine loop's keep-or-cut. Count the unratified `strategy` log entries (`ratified: false`) across the specs' combat logs and state "N pending strategy" alongside the intake; if the Council picks it, route them to review those entries. The gateway is a **thin relay**: it only *surfaces* the count — it never drafts strategy (that is the Scanner's, `sdd-scanner`) nor ratifies it (that is the Council's positional act). A zero count is not surfaced.
+
 ### Fast path — skip the menu
 
 When the invocation already names **both** an artifact and an action — "implement the auth spec", "review X again", "deprecate the auth spec", "refresh the SDD graph" — skip the menu entirely and route directly through the Routing Table. A partially-specified request (artifact named but action ambiguous, or vice versa) resolves what it can and asks only for the missing piece, still within the four-option rule below.

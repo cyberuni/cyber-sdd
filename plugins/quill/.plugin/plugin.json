@@ -1,0 +1,10 @@
+{
+	"$schema": "https://raw.githubusercontent.com/cyberuni/marketplace/main/schema/claude/plugin.json",
+	"name": "quill",
+	"description": "Documentation SDD plugin. Spec, write, and verify documentation — guides, tutorials, articles, reference pages, and READMEs — as implementation artifacts with verifiable structure.",
+	"author": { "name": "unional" },
+	"homepage": "https://github.com/cyberuni/cyber-skills",
+	"repository": "https://github.com/cyberuni/cyber-skills",
+	"skills": "./skills",
+	"agents": "./agents"
+}

@@ -60,6 +60,7 @@ A spec carries a `type` and projects own their features:
 - **`subtasks` lists children, parent is derived.** A `project` **or** a `feature` declares `subtasks` — the child feature slugs it owns (features nest under features). A child does not name its parent; the parent is whichever spec lists it, mirroring how `blocks` is derived from `blocked-by`. This keeps one source of truth.
 - **Single parent (tree invariant).** A slug appears in **at most one** spec's `subtasks`. Each `feature` is owned by exactly one parent (a project or a feature); an unparented non-`deprecated` `feature` is an orphan. This keeps composition a tree, not a tangle.
 - **Composition is orthogonal to dependency.** `subtasks` is containment (parent → feature); `blocked-by` is execution-order dependency. A feature may be `blocked-by` specs outside its parent. The two graphs are maintained and rendered separately.
+- **A composition node advances by rollup.** A spec that declares `subtasks` and owns **no `.feature` of its own** carries no behavior contract to judge — it is **exempt from the `.feature` requirement** at the gates. Its spec gate judges the composition (children present and correctly wired); it may reach `implemented` only once **every non-`deprecated` child is `implemented`** (`approved` is **not** rolled up). Enforced by `gate-validation-governance` / `check-spec-state.mts`.
 
 ## Spec discovery
 

@@ -111,7 +111,11 @@ export function checkSpec(slug: string, state: SpecState, hasFeature: boolean): 
 
 	// draft + aligned:true is LEGAL ("contract synced, ready for the spec gate") —
 	// aligned is layer-scoped, so it may hold at draft. No rejection here.
-	if (status === 'approved' && !hasFeature) tag('illegal state — approved requires a frozen .feature')
+	// A composition node (declares subtasks, owns no .feature of its own) is exempt
+	// from the .feature requirement — its behavior lives in its children and its gate
+	// rolls up their states (see checkComposition). A leaf (no subtasks) still needs one.
+	if (status === 'approved' && !hasFeature && state.subtasks.length === 0)
+		tag('illegal state — approved requires a frozen .feature (a composition node with subtasks is exempt)')
 	if (status === 'implemented' && aligned !== true) tag('illegal state — implemented requires aligned:true')
 	if ((status === 'approved' || status === 'implemented') && markerCount > 0)
 		tag(`illegal state — ${markerCount} open marker(s) but status is ${status} (markers block the gate)`)
@@ -154,6 +158,26 @@ export function checkSpec(slug: string, state: SpecState, hasFeature: boolean): 
 	return v
 }
 
+// A composition node's status must not outrun its children: a parent that declares
+// subtasks may be `implemented` only once every non-deprecated child is implemented.
+// `approved` is deliberately NOT rolled up — a parent's composition contract is
+// approved first, then its children get built (a project sits at approved over
+// draft children). A child slug absent from the set is left to render-spec-graph's
+// edge-integrity check, not flagged here.
+export function checkComposition(slug: string, state: SpecState, statusBySlug: Map<string, string>): string[] {
+	const v: string[] = []
+	if (state.status !== 'implemented' || state.subtasks.length === 0) return v
+	for (const child of state.subtasks) {
+		const childStatus = statusBySlug.get(child)
+		if (childStatus === undefined || childStatus === 'deprecated') continue
+		if (childStatus !== 'implemented')
+			v.push(
+				`${slug}: composition parent is implemented but child "${child}" is ${childStatus} (children must be implemented first)`,
+			)
+	}
+	return v
+}
+
 function hasFeatureFile(dir: string): boolean {
 	return readdirSync(dir).some((f) => f.endsWith('.feature'))
 }
@@ -182,13 +206,20 @@ export function discoverSpecDirs(root: string): string[] {
 
 export function main(argv: string[]): number {
 	const root = argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : 'artifacts/specs'
-	let violations: string[] = []
+	const states = new Map<string, SpecState>()
+	const features = new Map<string, boolean>()
 	for (const slug of discoverSpecDirs(root)) {
 		const dir = join(root, slug)
 		const specPath = join(dir, 'spec.md')
 		if (!existsSync(specPath)) continue
-		const state = parseSpecState(readFileSync(specPath, 'utf8'))
-		violations = violations.concat(checkSpec(slug, state, hasFeatureFile(dir)))
+		states.set(slug, parseSpecState(readFileSync(specPath, 'utf8')))
+		features.set(slug, hasFeatureFile(dir))
+	}
+	const statusBySlug = new Map([...states].map(([slug, s]) => [slug, s.status]))
+	let violations: string[] = []
+	for (const [slug, s] of states) {
+		violations = violations.concat(checkSpec(slug, s, features.get(slug) ?? false))
+		violations = violations.concat(checkComposition(slug, s, statusBySlug))
 	}
 	if (violations.length) {
 		for (const line of violations) console.error(`✗ ${line}`)

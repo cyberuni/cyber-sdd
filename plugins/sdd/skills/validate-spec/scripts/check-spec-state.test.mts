@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { checkSpec, discoverSpecDirs, parseSpecState, type SpecState } from './check-spec-state.mts'
+import { checkComposition, checkSpec, discoverSpecDirs, parseSpecState, type SpecState } from './check-spec-state.mts'
 
 function state(over: Partial<SpecState> = {}): SpecState {
 	return { status: 'draft', aligned: false, markerCount: 0, approval: null, type: null, subtasks: [], ...over }
@@ -128,6 +128,70 @@ test('approved without a .feature is illegal', () => {
 		false,
 	)
 	assert.ok(v.some((m) => /requires a frozen .feature/.test(m)))
+})
+
+test('a composition node (subtasks, no .feature) may be approved', () => {
+	const v = checkSpec(
+		'parent',
+		state({
+			status: 'approved',
+			type: 'feature',
+			subtasks: ['child'],
+			approval: { spec: { verdict: 'approve', by: 'u', hasWhy: false } },
+		}),
+		false,
+	)
+	assert.ok(!v.some((m) => /requires a frozen .feature/.test(m)))
+})
+
+test('a leaf (no subtasks, no .feature) is still illegal at approved', () => {
+	const v = checkSpec(
+		'leaf',
+		state({ status: 'approved', subtasks: [], approval: { spec: { verdict: 'approve', by: 'u', hasWhy: false } } }),
+		false,
+	)
+	assert.ok(v.some((m) => /requires a frozen .feature/.test(m)))
+})
+
+test('checkComposition: implemented parent with a non-implemented child is illegal', () => {
+	const v = checkComposition(
+		'parent',
+		state({ status: 'implemented', subtasks: ['a', 'b'] }),
+		new Map([
+			['a', 'implemented'],
+			['b', 'draft'],
+		]),
+	)
+	assert.ok(v.some((m) => /child "b" is draft/.test(m)))
+})
+
+test('checkComposition: implemented parent with all children implemented passes', () => {
+	const v = checkComposition(
+		'parent',
+		state({ status: 'implemented', subtasks: ['a', 'b'] }),
+		new Map([
+			['a', 'implemented'],
+			['b', 'implemented'],
+		]),
+	)
+	assert.deepEqual(v, [])
+})
+
+test('checkComposition: a deprecated child does not block an implemented parent', () => {
+	const v = checkComposition(
+		'parent',
+		state({ status: 'implemented', subtasks: ['a', 'b'] }),
+		new Map([
+			['a', 'implemented'],
+			['b', 'deprecated'],
+		]),
+	)
+	assert.deepEqual(v, [])
+})
+
+test('checkComposition: an approved parent is not rolled up (children may be draft)', () => {
+	const v = checkComposition('parent', state({ status: 'approved', subtasks: ['a'] }), new Map([['a', 'draft']]))
+	assert.deepEqual(v, [])
 })
 
 test('implemented requires aligned:true', () => {

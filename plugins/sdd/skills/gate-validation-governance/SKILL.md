@@ -13,7 +13,8 @@ What makes a spec's state legal, and how a gate records its verdict. The field s
 
 The mechanical authority is `validate-spec/scripts/check-spec-state.mts` — run it (`node <skill>/scripts/check-spec-state.mts`) to enforce; if `node` is unavailable, apply the same rules by reading frontmatter. The `(status, aligned, markers, .feature, approval)` tuple is **illegal** when:
 
-- `status: approved` with no `.feature` — approved requires a frozen `.feature`.
+- `status: approved` with no `.feature` **and no `subtasks`** — a leaf requires a frozen `.feature`. A **composition node** (declares `subtasks`, owns no `.feature` of its own) is **exempt**: its behavior lives in its children and its gate rolls up their states.
+- a **composition parent** (declares `subtasks`) is `status: implemented` while any non-`deprecated` child is not yet `implemented` — a parent's status may not outrun its children. (`approved` is **not** rolled up: a composition contract is approved first, then its children are built — which is why a project sits at `approved` over draft children.)
 - `status: implemented` with `aligned` not `true` — implemented requires `aligned: true`.
 - `status: approved` or `implemented` with any `<!-- open: -->` markers — markers block the gate.
 - `approval` names a gate other than `spec` or `impl`.

@@ -86,7 +86,7 @@ Set `aligned: false` at the start of a segment that **does production work** (ru
 
 ## Step 3 — Run the production chain
 
-Resolve each role to its execution (Step 1) and run it through the uniform I/O in *Delegate contracts* below — an SDD-default producer **inline** (load its producer-governance and author), a named producer agent or any judge **spawned**. Fold any `USER_ANSWERS` into the relevant producer call. Every role applies `sdd:spec-governance` and the actor governances it embodies; for an inline producer you **load** the producer-governance and the bars it references via the harness (`Skill`), never a `governance show` CLI call — the loop runs with no `governances/` directory.
+Resolve each role to its execution (Step 1) and run it through the uniform I/O in *Delegate contracts* below — an SDD-default producer **inline** (load its producer-governance and author), a named producer agent or any judge **spawned**. Fold any `USER_ANSWERS` into the relevant producer call. Every role applies `sdd:spec-governance` and the actor governances it embodies; for an inline producer you **load** the producer-governance and the bars it references via the harness (`Skill`), never a `governance show` CLI call — the loop runs with no `governances/` directory and makes no `governance show` call.
 
 **Provenance is a side effect of dispatch (per `sdd:combat-log-governance`).** Every production-chain act writes both faces of the combat log — the **current-state** face in `spec.md` frontmatter, the **ledger** in the sibling `combat-log.jsonl` (one JSON object per line, never in frontmatter):
 

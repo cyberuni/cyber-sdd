@@ -4,4 +4,4 @@ SDD Formation-loop station that resolves **overlap** between specs and **contrad
 
 It produces a **dedupe-or-reconciliation proposal naming the artifacts**, paired with two human confirmation checkpoints (plan, then result) mirroring `split-spec`'s confirm-plan-and-result discipline — the Council owns where each behavior lives and which claim wins.
 
-Run by the Warden (`sdd-warden`) as the home for the Formation loop's dedupe and reconcile acts. Named as a gap in `artifacts/specs/sdd-formation-loop/spec.md`.
+Run by the Warden (`sdd-warden`) as the home for the Formation loop's dedupe and reconcile acts, the realized station for what `artifacts/specs/sdd-formation-loop/spec.md` once named as a gap.

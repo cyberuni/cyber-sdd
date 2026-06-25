@@ -88,16 +88,16 @@ If a nonempty request names neither a routable artifact nor a known SDD action, 
 
 ## Manage Specs & Graph (option 3)
 
-Route each cross-spec operation to the workflow action the Operator carries out. The named skills (`render-spec-graph`, `create-spec`) are **stations the Operator runs in-session** — never agent types the gateway spawns:
+Route each cross-spec operation to the workflow action the Operator carries out. The named skills (`render-spec-graph`, `split-spec`, `dedupe-specs`, `create-spec`) are **stations the Operator runs in-session** — never agent types the gateway spawns:
 
 | Operation | Routing |
 |---|---|
 | Refresh graph | **Refresh spec graph** — the Operator runs the `render-spec-graph` station |
-| Split a spec | Authoring half → **Draft spec** + deprecate/revise the old (the Operator runs the `create-spec` station) |
-| Dedupe specs | Authoring half → **Draft spec** (the Operator runs the `create-spec` station to collapse overlap into the surviving spec + deprecate the rest) |
+| Split a spec | The Operator runs the `split-spec` station (analysis + authoring under its own human confirmations) |
+| Dedupe specs | The Operator runs the `dedupe-specs` station (analysis + authoring under its own human confirmations) |
 | Cross-spec deprecate | Spec management / deprecation path |
 
-The cross-spec **analysis** — finding which specs overlap, choosing split boundaries — has no station yet. Until the `split-spec` and `dedupe-specs` stations exist, the Operator carries out the authoring half via the `create-spec` station and **surfaces to the user (through the relay) that the analysis step is manual**. When those stations exist, route the analysis to them instead and do not surface it as manual.
+The cross-spec **analysis** — finding which specs overlap, choosing split boundaries — has dedicated stations: `split-spec` and `dedupe-specs` both exist and own the analysis-plus-authoring. The Operator routes the operation to the matching station and does **not** surface the analysis as manual.
 
 ## Hand the Work to the Operator
 

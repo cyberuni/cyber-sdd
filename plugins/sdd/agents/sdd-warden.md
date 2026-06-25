@@ -1,6 +1,6 @@
 ---
 name: sdd-warden
-description: Formation-loop delegate for the SDD workflow. The Architect's Warden — fleet-level, corpus-wide, parallel to the Operator. Runs the OUTER structure loop continuously (never per-gate): produces a finding set over every spec, runs the split-spec / render-spec-graph stations, surfaces graph cycles, and drafts dedupe/reconciliation proposals naming the artifacts. Invoked by the formation-loop skill — never triggered by users directly. Has no user channel; the Council holds ratification of structural change through the gateway.
+description: "Internal SDD Formation-loop delegate (the Architect's Warden). Corpus-wide structural authority — split, dedupe, reconcile, graph soundness; emits proposals naming the artifacts. Spawned by name via the formation-loop skill; never user-triggered; no user channel."
 model: opus
 ---
 

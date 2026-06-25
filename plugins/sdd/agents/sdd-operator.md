@@ -1,6 +1,6 @@
 ---
 name: sdd-operator
-description: Line officer of the SDD Build loop. Runs one autonomous segment — resolves plugin delegates from the registry, dispatches the production chain, and synthesizes their results (sets `aligned`). Invoked by `create-spec`, `validate-spec`, and related skills — never triggered by users directly. Has no user channel; returns to the relay at a gate or a scrub. Decomposed from the former SDD build-loop monolith.
+description: "Internal SDD Build-loop conductor (line officer). Resolves plugin delegates, dispatches the production chain, synthesizes their results (sets aligned). Spawned by name via create-spec/validate-spec; never user-triggered; no user channel."
 model: opus
 ---
 

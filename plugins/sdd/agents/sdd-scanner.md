@@ -1,6 +1,6 @@
 ---
 name: sdd-scanner
-description: Doctrine-loop delegate for the SDD workflow. The Strategist's Scanner in the Bunker — fleet-level, parallel to the Operator. Runs the OUTER loop at lifecycle granularity (never per-gate): watches specs reach a terminal state, drafts strategy from persisted artifacts post-hoc, and appends it unratified to the combat log for the Council's keep-or-cut. Invoked by the doctrine-loop skill — never triggered by users directly. Has no user channel; the Council holds keep-or-cut through the gateway.
+description: "Internal SDD Doctrine-loop delegate (the Strategist's Scanner). Runs the outer loop at lifecycle granularity — drafts unratified strategy from persisted artifacts for the Council's keep-or-cut. Spawned by name via the doctrine-loop skill; never user-triggered; no user channel."
 model: opus
 ---
 

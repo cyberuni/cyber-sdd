@@ -1,6 +1,6 @@
 ---
 name: sdd-scenario-writer
-description: "Internal skill: the default SDD spec-producer. Writes the spec.md body and a pure boolean Gherkin .feature for a domain with no plugin coverage. Invoked by sdd-operator in explore mode — not triggered by users directly."
+description: "Internal SDD spec-producer (default). Writes spec.md and a boolean Gherkin .feature for a domain with no plugin coverage. Spawned by name via sdd-operator in explore mode; never user-triggered."
 ---
 
 # sdd-scenario-writer

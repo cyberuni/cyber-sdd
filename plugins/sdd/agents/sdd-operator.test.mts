@@ -30,9 +30,6 @@ const registry = readFileSync(registryPath, 'utf8')
 const has = (...needles: string[]) => needles.every((n) => op.toLowerCase().includes(n.toLowerCase()))
 // At least one of the alternatives is present.
 const hasAny = (...needles: string[]) => needles.some((n) => op.toLowerCase().includes(n.toLowerCase()))
-// All of a set must appear within the same logical line (one assertion co-located).
-const onSameLine = (...needles: string[]) =>
-	op.split('\n').some((line) => needles.every((n) => line.toLowerCase().includes(n.toLowerCase())))
 
 // ── sdd-operator-resolution (8) ─────────────────────────────────────────────
 
@@ -58,7 +55,9 @@ test('resolution: A producer role assigned a named agent is spawned, not run inl
 	// a named agent — plugin delegate or model-tuned producer — is spawned at its own model, not run inline
 	assert.ok(hasAny('names an agent', 'name a model-tuned agent', 'model-tuned'))
 	assert.ok(hasAny('escape valve', 'model-tuning escape valve', 'model-tuned producer'))
-	assert.ok(hasAny('spawn** it at its own model', 'spawn it at its own model', 'spawn** at its own model', 'at its own model'))
+	assert.ok(
+		hasAny('spawn** it at its own model', 'spawn it at its own model', 'spawn** at its own model', 'at its own model'),
+	)
 })
 
 test('resolution: An SDD-default judge role is spawned as a cold agent', () => {
@@ -82,7 +81,10 @@ test('resolution: An actor governance is resolved from the registry with an SDD 
 test('resolution: A domain claimed by two plugins is disambiguated without looping', () => {
 	assert.ok(has('two or more plugins') && has('STATUS: needs-input') && has('which plugin owns the domain'))
 	assert.ok(hasAny('the suspend does not loop', 'does not loop'))
-	assert.ok(hasAny('before** counting candidates', 'before counting candidates') || (has('before') && has('counting candidates')))
+	assert.ok(
+		hasAny('before** counting candidates', 'before counting candidates') ||
+			(has('before') && has('counting candidates')),
+	)
 })
 
 // ── sdd-operator-dispatch (16) ──────────────────────────────────────────────
@@ -102,7 +104,13 @@ test('dispatch: An unnamed spec-producer is authored inline in the operator warm
 	// no named agent → load spec-producer-governance, author inline, record sdd:sdd-operator
 	assert.ok(hasAny('load `sdd:spec-producer-governance`', 'sdd:spec-producer-governance'))
 	assert.ok(hasAny('author inline', 'authors the artifact inline', 'run inline'))
-	assert.ok(hasAny('records `produced-by.<role>: sdd:sdd-operator`', 'produced-by.<role>: sdd:sdd-operator', 'recorded `produced-by'))
+	assert.ok(
+		hasAny(
+			'records `produced-by.<role>: sdd:sdd-operator`',
+			'produced-by.<role>: sdd:sdd-operator',
+			'recorded `produced-by',
+		),
+	)
 })
 
 test('dispatch: A named spec-producer agent is spawned at its own model', () => {
@@ -130,7 +138,14 @@ test('dispatch: Forward producers load the actor governances they embody', () =>
 
 test('dispatch: An unnamed impl-producer is authored inline in the operator warm context', () => {
 	assert.ok(hasAny('load `sdd:impl-producer-governance`', 'sdd:impl-producer-governance'))
-	assert.ok(hasAny('build inline', 'builds the implementation', 'build it against', 'inline via `sdd:impl-producer-governance`'))
+	assert.ok(
+		hasAny(
+			'build inline',
+			'builds the implementation',
+			'build it against',
+			'inline via `sdd:impl-producer-governance`',
+		),
+	)
 	assert.ok(hasAny('sdd:sdd-operator', '`sdd:sdd-operator`'))
 })
 
@@ -155,14 +170,21 @@ test('dispatch: Operator spawns the plugin impl-judge cold when one covers the d
 
 test('dispatch: The operator receives one impl-producer result regardless of any product-test split', () => {
 	assert.ok(hasAny('product/test split is its private detail', 'product/test split'))
-	assert.ok(hasAny('you do not surface whether a split happened', 'whether a split happened', 'you do not learn whether'))
+	assert.ok(
+		hasAny('you do not surface whether a split happened', 'whether a split happened', 'you do not learn whether'),
+	)
 })
 
 test('dispatch: A missing verification for a frozen scenario is reported failing by the cold impl-judge', () => {
 	// one verification per frozen scenario; impl-judge reports pass/fail per scenario; aligned gated on every pass
 	assert.ok(hasAny('one per frozen scenario', 'one functional test/eval per frozen scenario'))
 	assert.ok(has('reports pass/fail per scenario') || has('pass/fail per scenario'))
-	assert.ok(hasAny('every impl-judge returns `IMPLEMENTATION_PASS: true`', 'every impl-judge returns IMPLEMENTATION_PASS: true'))
+	assert.ok(
+		hasAny(
+			'every impl-judge returns `IMPLEMENTATION_PASS: true`',
+			'every impl-judge returns IMPLEMENTATION_PASS: true',
+		),
+	)
 })
 
 test('dispatch: The operator resolves every production-chain role', () => {
@@ -174,7 +196,14 @@ test('dispatch: The operator resolves every production-chain role', () => {
 
 test('dispatch: ACES evals are authored by the impl-producer and run by the cold impl-judge', () => {
 	assert.ok(hasAny('co-produces the implementation **and** its verification', 'co-produces the implementation'))
-	assert.ok(hasAny('runs** the impl-producer', 'runs the impl-producer', 'the cold impl-judge runs them', 'impl-judge runs them'))
+	assert.ok(
+		hasAny(
+			'runs** the impl-producer',
+			'runs the impl-producer',
+			'the cold impl-judge runs them',
+			'impl-judge runs them',
+		),
+	)
 	assert.ok(hasAny('does **not** author the functional tests', 'does not author the functional tests'))
 })
 
@@ -241,7 +270,13 @@ test('explore: The planner runs in explore alongside the spec, not after a gate'
 })
 
 test('explore: Scenarios are ordered to trace the workflow', () => {
-	assert.ok(hasAny('order scenarios top-to-bottom by workflow stage', 'orders scenarios top-to-bottom by workflow stage', 'top-to-bottom by workflow stage'))
+	assert.ok(
+		hasAny(
+			'order scenarios top-to-bottom by workflow stage',
+			'orders scenarios top-to-bottom by workflow stage',
+			'top-to-bottom by workflow stage',
+		),
+	)
 	assert.ok(has('section comment'))
 })
 
@@ -252,7 +287,9 @@ test('explore: The spec-producer enriches spec.md for human consumption', () => 
 })
 
 test('explore: A plugin-written .feature must pass validate-spec', () => {
-	assert.ok(hasAny('regardless of who wrote the `.feature`', 'regardless of who wrote', 'regardless of which delegate wrote'))
+	assert.ok(
+		hasAny('regardless of who wrote the `.feature`', 'regardless of who wrote', 'regardless of which delegate wrote'),
+	)
 })
 
 test('explore: validate-spec runs without NodeJS when npx is unavailable', () => {
@@ -265,7 +302,12 @@ test('explore: validate-spec enforces domain criteria against a plugin-written .
 })
 
 test('explore: A spec-producer that writes frontmatter control fields is rejected', () => {
-	assert.ok(hasAny('must not write spec.md control frontmatter', 'must not write spec.md control frontmatter (status, aligned, approval, produced-by)'))
+	assert.ok(
+		hasAny(
+			'must not write spec.md control frontmatter',
+			'must not write spec.md control frontmatter (status, aligned, approval, produced-by)',
+		),
+	)
 })
 
 test('explore: The spec-gate judge is a spawned domain delegate, not SDD', () => {
@@ -281,7 +323,12 @@ test('explore: A default-judge domain spawns the cold SDD spec-judge', () => {
 
 test('explore: aligned at the spec gate checks only the contract layer', () => {
 	assert.ok(hasAny('considers only `spec.md` and the `.feature`', 'considers only spec.md and the .feature'))
-	assert.ok(hasAny('spike code does not block the spec from reaching Approved', 'does not block the spec from reaching Approved'))
+	assert.ok(
+		hasAny(
+			'spike code does not block the spec from reaching Approved',
+			'does not block the spec from reaching Approved',
+		),
+	)
 })
 
 test('explore: The spec gate blocks when the cold spec-judge returns a failing verdict', () => {
@@ -342,7 +389,12 @@ test('deliver: aligned at the impl gate checks the impl layer', () => {
 })
 
 test('deliver: aligned is true only when every impl-judge passes', () => {
-	assert.ok(hasAny('every impl-judge returns `IMPLEMENTATION_PASS: true`', 'every impl-judge returns IMPLEMENTATION_PASS: true'))
+	assert.ok(
+		hasAny(
+			'every impl-judge returns `IMPLEMENTATION_PASS: true`',
+			'every impl-judge returns IMPLEMENTATION_PASS: true',
+		),
+	)
 })
 
 test('deliver: aligned stays false when any impl-judge fails', () => {
@@ -379,14 +431,25 @@ test('freeze: tasks.md is a dependency DAG, not a flat todo', () => {
 })
 
 test('freeze: The .feature is the object at the spec gate and the bar at the impl gate', () => {
-	assert.ok(hasAny('the object judged at the spec gate becomes the bar at the impl gate', 'the object judged at the spec gate', 'frozen `.feature` is the bar'))
+	assert.ok(
+		hasAny(
+			'the object judged at the spec gate becomes the bar at the impl gate',
+			'the object judged at the spec gate',
+			'frozen `.feature` is the bar',
+		),
+	)
 	assert.ok(has('the frozen `.feature`') && has('impl gate'))
 })
 
 // ── sdd-operator-segment (12) ───────────────────────────────────────────────
 
 test('segment: Operator suspends at a user-input checkpoint instead of asking', () => {
-	assert.ok(hasAny('return `STATUS: needs-input` with the questions **batched**', 'STATUS: needs-input with the questions batched'))
+	assert.ok(
+		hasAny(
+			'return `STATUS: needs-input` with the questions **batched**',
+			'STATUS: needs-input with the questions batched',
+		),
+	)
 	assert.ok(has('you have no user channel'))
 })
 

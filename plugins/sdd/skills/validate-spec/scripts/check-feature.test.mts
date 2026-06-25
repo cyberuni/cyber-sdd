@@ -102,6 +102,20 @@ test('scenario missing Given and When is a violation', () => {
 	assert.ok(v.some((m) => /missing Given or When/.test(m)))
 })
 
+// ─── parseFeature — tags ──────────────────────────────────────────────────────
+
+test('parseFeature attaches a @tag line to the scenario below it', () => {
+	const text = ['Feature: foo', '', '  @rubric', '  Scenario: a', '    Given x', '    Then y'].join('\n')
+	const f = parseFeature(text)
+	assert.deepEqual(f.scenarios[0].tags, ['@rubric'])
+})
+
+test('parseFeature leaves an untagged scenario with empty tags', () => {
+	const text = ['Feature: foo', '', '  Scenario: a', '    Given x', '    Then y'].join('\n')
+	const f = parseFeature(text)
+	assert.deepEqual(f.scenarios[0].tags, [])
+})
+
 // ─── checkFeature — boolean form failures ────────────────────────────────────
 
 test('a positive Then asserting "score 1-5" embeds a rubric', () => {
@@ -151,6 +165,49 @@ test('step containing "sometimes" fails boolean form on any step', () => {
 		'    Given a condition',
 		'    When an event happens',
 		'    Then the system sometimes responds correctly',
+	].join('\n')
+	const v = checkFeature('slug', 'x.feature', text)
+	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+})
+
+// ─── checkFeature — @rubric carve-out (the sanctioned rubric form) ───────────
+
+test('a @rubric-tagged scenario may assert score and threshold', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: spec-judge scores a rubric scenario above threshold and passes it',
+		'    Given a @rubric-tagged scenario that passes structural validation',
+		'    When the judge scores each dimension',
+		'    Then the total score is at or above the threshold',
+		'    And the judge emits pass',
+	].join('\n')
+	assert.deepEqual(checkFeature('slug', 'x.feature', text), [])
+})
+
+test('an untagged scenario asserting a score still embeds a rubric', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  Scenario: no tag',
+		'    Given output',
+		'    When evaluated',
+		'    Then the total score is at or above the threshold',
+	].join('\n')
+	const v = checkFeature('slug', 'x.feature', text)
+	assert.ok(v.some((m) => /embeds a rubric/.test(m)))
+})
+
+test('a @rubric tag does not excuse a probabilistic hedge', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: hedged rubric',
+		'    Given a rubric scenario',
+		'    When scored',
+		'    Then the judge sometimes passes it',
 	].join('\n')
 	const v = checkFeature('slug', 'x.feature', text)
 	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))

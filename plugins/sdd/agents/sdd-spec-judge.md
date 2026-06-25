@@ -33,8 +33,13 @@ DOMAIN, DOMAIN_PATH, FEATURE_PATH, SPEC_PATH
 
 **Deterministic (CLI or equivalent self-check):**
 - State-machine legality of the `(status, aligned, markers, .feature, approval)` tuple.
-- `.feature` is valid Gherkin; every scenario `Then` is a boolean assertion (no "sometimes", no rubric/threshold/score).
+- `.feature` is valid Gherkin; in an **untagged** scenario every `Then` is a boolean assertion (no "sometimes", no rubric/threshold/score). Rubric lingo in an untagged scenario is a failure — the rejection names the untagged scenario as the cause.
 - Scenarios are ordered top-to-bottom by lifecycle stage, grouped under a section comment per stage.
+
+**Rubric branch (`@rubric`-tagged scenarios):** A `@rubric` scenario is the sanctioned home for rubric form, so scoring lingo inside it is **not** rejected. Two parts:
+
+- **Structure (universal — every resolved judge enforces it identically):** the rubric block is present with named dimensions, a per-dimension `max`, and exactly one `threshold`; a boolean-collapsing `Then` is present (`the rubric score is at least the threshold`). A missing threshold, missing named dimensions, or absent collapsing `Then` is a structural failure — the judge names the missing element as the cause and **scoring does not begin**.
+- **Scoring (per-resolved-judge — capability varies by the domain's resolved spec-judge):** the judge reads the rubric, scores each dimension, sums, applies the threshold, and emits a single pass/fail (`total ≥ threshold ⇒ pass`) — never a raw score. This default `sdd-spec-judge` performs baseline by-hand scoring and is the **reference implementation** of the bar; a domain whose registry resolves a more capable spec-judge (e.g. `aces-spec-validator`) may score with more rigor. The structural check above is identical across all resolved judges; only scoring capability differs. Scoring is keyed to *the domain's resolved spec-judge*, never pinned to this default tier.
 
 **Agent-level:**
 - At least one happy-path and one error-case scenario per operation in the command surface.

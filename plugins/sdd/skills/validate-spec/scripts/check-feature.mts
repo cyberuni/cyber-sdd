@@ -18,6 +18,7 @@ export interface ParsedFeature {
 export interface ParsedScenario {
 	name: string
 	steps: string[]
+	tags: string[]
 }
 
 // ─── hedge words that signal probabilistic / rubric assertions ────────────────
@@ -42,6 +43,8 @@ export function parseFeature(text: string): ParsedFeature {
 	let sectionCommentCount = 0
 	const scenarios: ParsedScenario[] = []
 	let current: ParsedScenario | null = null
+	// Tags on the line(s) above a Scenario apply to the scenario that follows.
+	let pendingTags: string[] = []
 
 	for (const raw of lines) {
 		const line = raw.trimStart()
@@ -57,10 +60,17 @@ export function parseFeature(text: string): ParsedFeature {
 			continue
 		}
 
+		// Tag line: one or more @tags preceding a Scenario.
+		if (/^@/.test(line)) {
+			pendingTags.push(...line.split(/\s+/).filter((t) => t.startsWith('@')))
+			continue
+		}
+
 		if (/^Scenario:/i.test(line) || /^Scenario Outline:/i.test(line)) {
 			if (current) scenarios.push(current)
 			const name = line.replace(/^Scenario(?: Outline)?:/i, '').trim()
-			current = { name, steps: [] }
+			current = { name, steps: [], tags: pendingTags }
+			pendingTags = []
 			continue
 		}
 
@@ -89,6 +99,10 @@ export function checkFeature(slug: string, file: string, text: string): string[]
 	for (const scenario of ref.scenarios) {
 		const steps = scenario.steps
 		const label = scenario.name ? `Scenario "${scenario.name}"` : 'unnamed scenario'
+		// A @rubric-tagged scenario is the sanctioned rubric form: its rubric/score/
+		// threshold lingo is the contract, not a leaked grade. Skip the rubric-noun
+		// ban for it (adverb hedges still apply — a rubric is not an excuse to hedge).
+		const isRubric = scenario.tags.includes('@rubric')
 
 		// Must have at least one step
 		if (steps.length === 0) {
@@ -116,8 +130,9 @@ export function checkFeature(slug: string, file: string, text: string): string[]
 				v.push(tag(`${label}: step contains non-boolean hedge — "${step.trim()}" (matched ${adverb.source})`))
 				continue
 			}
-			// Rubric nouns only count as a leaked grade in a positive Then/And/But assertion.
-			if (!ASSERTION_RE.test(step) || RUBRIC_EXEMPT_RE.test(step)) continue
+			// Rubric nouns only count as a leaked grade in a positive Then/And/But
+			// assertion of an untagged scenario; a @rubric scenario admits them.
+			if (isRubric || !ASSERTION_RE.test(step) || RUBRIC_EXEMPT_RE.test(step)) continue
 			const rubric = RUBRIC_PATTERNS.find((p) => p.test(step))
 			if (rubric) {
 				v.push(

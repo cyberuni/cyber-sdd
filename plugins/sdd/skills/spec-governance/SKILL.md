@@ -14,8 +14,37 @@ Reference for writing SDD specs. Every spec-producer (the SDD default `sdd-scena
 - **Valid Gherkin.** `Feature:` with `Scenario:` blocks in `Given` / `When` / `Then` / `And` form.
 - **Boolean scenarios.** Every `Then` is a boolean assertion of observable behavior — the subject *does* X, not *does X sometimes*. No probabilities, no "usually".
 - **Observable behavior only.** Assert outputs, exit codes, side effects, emitted events. Never internal state, function names, or implementation steps.
-- **No rubric in the `.feature`.** Threshold, score, and rubric are the impl-judge's private evaluation detail — never written into a scenario. A non-deterministic subject still yields one boolean per scenario (`score ≥ threshold` collapses to pass/fail).
+- **No rubric in an untagged scenario.** Rubric form — threshold, score, named dimensions — is legal only inside a `@rubric`-tagged scenario (see *Rubric scenarios* below). An untagged scenario's every `Then` remains a plain boolean assertion: no scores, no probabilities, no threshold lines.
 - **Coverage.** At least one happy-path and one error-case scenario per operation in the command surface; a `--json` scenario where the command supports `--json`.
+
+## Rubric scenarios (`@rubric`)
+
+Most scenarios are pure boolean. A **gradient judgment** — where the honest verdict is "good enough across several dimensions", not a single observable yes/no — is admitted as a `@rubric`-tagged scenario. The rubric is internal evaluation detail; the scenario still delivers exactly **one boolean** to the gate, so the boolean gate contract is unchanged.
+
+A rubric scenario is valid Gherkin. The convention:
+
+1. **Tag** the scenario `@rubric`.
+2. **Embed the rubric** in a `Then` step as a docstring (`"""..."""`) — named dimensions, each with a `max:` value, plus exactly one `threshold:` line.
+3. **Close** with a boolean-collapsing `Then`: `Then the rubric score is at least the threshold`.
+
+```gherkin
+@rubric
+Scenario: <name>
+  Given ...
+  When  ...
+  Then the judge evaluates the scenario against the rubric
+    """
+    dimensions:
+      - name: correctness
+        max: 3
+      - name: completeness
+        max: 2
+    threshold: 4
+    """
+  And the rubric score is at least the threshold
+```
+
+The final `Then` yields exactly one boolean — the gate sees pass/fail, not a score. The threshold, dimensions, and scoring are the resolved spec-judge's evaluation detail; the gate contract (one pass/fail per scenario) is identical to the untagged path. A subject whose verdict cannot be reduced to a single observable assertion belongs in `@rubric` form, not forced into a brittle boolean.
 
 ## Scenario ordering (step-down)
 

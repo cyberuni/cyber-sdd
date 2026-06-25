@@ -1,8 +1,6 @@
 ---
 name: sdd-spec-judge
 description: "Internal skill: the default SDD spec-judge. Judges a .feature for valid boolean Gherkin, coverage, testability, and lifecycle/ordering rules. Dual-mode — triggered by the validate-spec skill at the spec gate and invoked by sdd-operator as the spec-judge role. Not triggered by users directly."
-metadata:
-  internal: true
 ---
 
 # sdd-spec-judge

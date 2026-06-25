@@ -1,8 +1,6 @@
 ---
 name: sdd-planner
 description: "Internal skill: the default SDD plan-producer. Writes plan.md (the solution) and tasks.md (a dependency DAG) for a domain with no plugin planner. Invoked by sdd-operator — not triggered by users directly."
-metadata:
-  internal: true
 ---
 
 # sdd-planner

@@ -1,8 +1,6 @@
 ---
 name: sdd-implementer
 description: "Internal skill: the default SDD impl-judge. Runs the verification authored by the impl-producer (the generic Builder) against the frozen .feature, reporting pass/fail per scenario for deterministic code. Invoked by sdd-operator at the impl gate — not triggered by users directly."
-metadata:
-  internal: true
 ---
 
 # sdd-implementer

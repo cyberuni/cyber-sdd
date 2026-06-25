@@ -1,6 +1,8 @@
 ---
 name: sdd-spec-judge
 description: "Internal SDD spec-judge (default). Judges a .feature for boolean Gherkin, coverage, testability, and lifecycle/ordering. Spawned by name via validate-spec at the spec gate and sdd-operator; never user-triggered."
+model: sonnet
+effort: high
 ---
 
 # sdd-spec-judge

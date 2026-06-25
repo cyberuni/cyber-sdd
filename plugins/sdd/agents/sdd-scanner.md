@@ -1,7 +1,8 @@
 ---
 name: sdd-scanner
 description: "Internal SDD Doctrine-loop delegate (the Strategist's Scanner). Runs the outer loop at lifecycle granularity — drafts unratified strategy from persisted artifacts for the Council's keep-or-cut. Spawned by name via the doctrine-loop skill; never user-triggered; no user channel."
-model: opus
+model: sonnet
+effort: high
 ---
 
 # sdd-scanner

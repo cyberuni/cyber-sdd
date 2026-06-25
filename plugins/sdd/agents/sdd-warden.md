@@ -1,7 +1,8 @@
 ---
 name: sdd-warden
 description: "Internal SDD Formation-loop delegate (the Architect's Warden). Corpus-wide structural authority — split, dedupe, reconcile, graph soundness; emits proposals naming the artifacts. Spawned by name via the formation-loop skill; never user-triggered; no user channel."
-model: opus
+model: sonnet
+effort: high
 ---
 
 # sdd-warden

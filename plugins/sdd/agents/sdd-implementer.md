@@ -1,6 +1,8 @@
 ---
 name: sdd-implementer
 description: "Internal SDD impl-judge (default). Runs the impl-producer's verification against the frozen .feature, pass/fail per scenario. Spawned by name via sdd-operator at the impl gate; never user-triggered."
+model: sonnet
+effort: low
 ---
 
 # sdd-implementer

@@ -1,6 +1,8 @@
 ---
 name: sdd-planner
 description: "Internal SDD plan-producer (default). Writes plan.md and tasks.md (dependency DAG) for a domain with no plugin planner. Spawned by name via sdd-operator; never user-triggered."
+model: sonnet
+effort: medium
 ---
 
 # sdd-planner

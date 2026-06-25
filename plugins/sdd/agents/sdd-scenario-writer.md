@@ -1,6 +1,8 @@
 ---
 name: sdd-scenario-writer
 description: "Internal SDD spec-producer (default). Writes spec.md and a boolean Gherkin .feature for a domain with no plugin coverage. Spawned by name via sdd-operator in explore mode; never user-triggered."
+model: sonnet
+effort: high
 ---
 
 # sdd-scenario-writer

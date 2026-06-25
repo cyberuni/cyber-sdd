@@ -20,7 +20,7 @@ The workflow separates **who decides** from **who is invoked how**. Four kinds o
 
 ### Station vs role — the load-bearing distinction
 
-A **station** is a *skill the Operator executes itself*, in its own context. A **role** is a *subagent the Operator spawns*. They are not interchangeable: spawning a station as a subagent (`subagent_type: validate-spec`) is illegal and fails. The Operator **runs** `create-spec`; it **spawns** `sdd-scenario-writer`.
+A **station** is a *skill the Operator executes itself*, in its own context. A **role** is a *subagent the Operator spawns*. They are not interchangeable: spawning a station as a subagent (`subagent_type: validate-spec`) is illegal and fails. The Operator **runs** `create-spec` and **runs** the SDD-default producers inline (loading their producer-governance); it **spawns** the cold judges, e.g. `sdd-spec-judge`.
 
 ```mermaid
 flowchart TD
@@ -40,11 +40,11 @@ Each role resolves to a **plugin agent** (when a plugin covers the domain) or an
 
 | Role | SDD default | Loads (actor bar) |
 |---|---|---|
-| spec-producer | `sdd-scenario-writer` | director + builder governance |
-| plan-producer | `sdd-planner` | architect governance |
-| spec-judge | `sdd-spec-judge` | director + builder + architect |
-| impl-producer | generic Builder (no agent) | builder + architect |
-| impl-judge | `sdd-implementer` | builder governance |
+| spec-producer | `spec-producer-governance` (Operator runs inline, `sdd:sdd-operator`) | director + builder governance |
+| plan-producer | `plan-producer-governance` (Operator runs inline) | architect governance |
+| spec-judge | `sdd-spec-judge` (spawned cold) | director + builder + architect |
+| impl-producer | `impl-producer-governance` (Operator runs inline) | builder + architect |
+| impl-judge | `sdd-implementer` (spawned cold) | builder governance |
 
 Plugins supply domain-aware roles: **ACES** for agent-configuration artifacts, **Quill** for documentation. The registry (`.agents/universal-plugin.json`) maps domain → plugin → role agents; the [plugin contract](#governances) defines the shape.
 

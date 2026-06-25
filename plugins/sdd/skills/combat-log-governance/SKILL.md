@@ -33,7 +33,7 @@ The ledger is a sibling file next to `spec.md` and the `.feature`, holding **one
 One line appended per production-chain dispatch, so a later reader reconstructs what each delegate did without the transcript.
 
 ```jsonl
-{"seq": 3, "kind": "report", "role": "spec-producer", "agent": "sdd:sdd-scenario-writer", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
+{"seq": 3, "kind": "report", "role": "spec-producer", "agent": "sdd:sdd-operator", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
 ```
 
 `role` is the production role dispatched; `agent` is the plugin-qualified agent name; `outcome` is `pass | fail`.

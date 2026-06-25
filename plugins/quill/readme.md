@@ -28,8 +28,8 @@ Quill fills these `sdd-operator` production-chain roles for its domain types:
 | spec-producer | `quill-writer` |
 | impl-producer | `quill-doc-writer` |
 | impl-judge | `quill-implementer` |
-| spec-judge | static doc criteria via `validate-spec` (no agent) |
-| plan-producer | SDD default (`sdd-planner`) |
+| spec-judge | SDD default `sdd-spec-judge` (spawned cold) |
+| plan-producer | SDD default (`plan-producer-governance`, run inline) |
 
 Register by running `init-quill` in a project that uses `sdd-operator`.
 

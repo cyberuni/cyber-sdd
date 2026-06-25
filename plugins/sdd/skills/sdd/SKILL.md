@@ -15,7 +15,7 @@ Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activatio
 
 ### Surface pending strategy
 
-When the Council re-enters through the gateway, **surface the count of pending (unratified) strategy** as an entry point — the doctrine loop's keep-or-cut. Count the unratified `strategy` log entries (`ratified: false`) across the specs' combat logs and state "N pending strategy" alongside the intake; if the Council picks it, route them to review those entries. The gateway is a **thin relay**: it only *surfaces* the count — it never drafts strategy (that is the Scanner's, `sdd-scanner`) nor ratifies it (that is the Council's positional act). A zero count is not surfaced.
+When the Council re-enters through the gateway, **surface the count of pending (unratified) strategy** as an entry point — the doctrine loop's keep-or-cut. Count the unratified `strategy` lines (`"ratified": false`) across the specs' sibling `combat-log.jsonl` ledgers and state "N pending strategy" alongside the intake; if the Council picks it, route them to review those entries. The gateway is a **thin relay**: it only *surfaces* the count — it never drafts strategy (that is the Scanner's, `sdd-scanner`) nor ratifies it (that is the Council's positional act). A zero count is not surfaced.
 
 ### Fast path — skip the menu
 
@@ -49,7 +49,7 @@ A single `AskUserQuestion` carries **at most four** options — the intake tool 
 
 Read files in this order — stop as soon as you have enough to route:
 
-1. Read spec.md frontmatter only to get `status`.
+1. Read spec.md frontmatter only to get `status`. The combat-log ledger is **not** in frontmatter — it lives in the sibling `combat-log.jsonl` — so reading `status` stays cheap regardless of mission history; **never** read the ledger for routing.
 2. If status is `draft`, read tasks.md to check for unchecked items.
 3. If all tasks are checked, scan spec.md and the `.feature` for `<!-- open: ... -->` markers.
 

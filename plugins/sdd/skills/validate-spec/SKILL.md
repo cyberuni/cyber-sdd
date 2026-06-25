@@ -7,7 +7,7 @@ description: Use this skill when the user wants to check a spec for completeness
 
 Run an SDD **gate**. This skill owns the gate decision: it judges the artifact, confirms the required voices are heard, and — on the human verdict — writes `status` and `approval`. There are two gates, judging two objects: the **spec gate** (Draft → Approved, judges `spec.md` + the `.feature`) and the **impl gate** (Approved → Implemented, judges the implementation against the frozen `.feature`).
 
-Load `sdd:lifecycle-governance` for the status enum and transition rules, `sdd:ownership-governance` for the write-ownership matrix (who may write `status`, `approval`, `aligned`), `sdd:gate-validation-governance` for legal-state tuples, `aligned` layer-scoping, and `approval` attribution, and `sdd:combat-log-governance` for the `produced-by` / `log` schema you check (well-formed plugin-qualified names, the `correction` `cause` enum).
+Load `sdd:lifecycle-governance` for the status enum and transition rules, `sdd:ownership-governance` for the write-ownership matrix (who may write `status`, `approval`, `aligned`), `sdd:gate-validation-governance` for legal-state tuples, `aligned` layer-scoping, and `approval` attribution, and `sdd:combat-log-governance` for the `produced-by` (frontmatter) and `combat-log.jsonl` (sibling ledger) schema you check (well-formed plugin-qualified names, the `correction` `cause` enum).
 
 ## 1. State check (deterministic, run first)
 
@@ -19,11 +19,11 @@ node "<skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
 
 Exit `0` = legal; exit `1` = it prints each violation as `✗ <slug>: <reason>` — fix the frontmatter before continuing. If `node` is unavailable, perform the same checks by reading each `spec.md` frontmatter yourself.
 
-**Provenance structural checks (per `sdd:combat-log-governance` / `sdd-provenance`).** After the state check and before any verdict work, read the spec's `produced-by` and `log` frontmatter and apply these — structural validity **fails closed**, availability only **flags**:
+**Provenance structural checks (per `sdd:combat-log-governance` / `sdd-provenance`).** After the state check and before any verdict work, read the spec's `produced-by` frontmatter and its sibling `combat-log.jsonl` ledger and apply these — structural validity **fails closed**, availability only **flags**:
 
 - **Malformed `produced-by` entry** → a value that is **not** a well-formed plugin-qualified name (`<plugin>:<agent>`) is not valid provenance: **flag it and fail the spec.** An unavailable-but-valid entry in the same spec does **not** fail the spec (see next).
 - **Unavailable recorded producer** → an entry whose plugin is **not installed** is valid history: **flag it, do not fail** (annotate `[unavailable]`).
-- **Off-enum `correction` cause** → a `log` `correction` entry whose `cause` is **absent or off-enum** (not in the `combat-log-governance` enum) breaks cross-mission matchability — a structural error: **flag it and fail the spec.** A `log` carrying only well-formed `report` / `correction` entries with valid causes **passes** — do not flag a well-formed log.
+- **Off-enum `correction` cause** → a `combat-log.jsonl` `correction` line whose `cause` is **absent or off-enum** (not in the `combat-log-governance` enum) breaks cross-mission matchability — a structural error: **flag it and fail the spec.** A ledger carrying only well-formed `report` / `correction` lines with valid causes **passes** — do not flag a well-formed ledger.
 - **Legacy `domain-plugin` map** → if present, it is **retired**: migrate the choice into `produced-by` (rewrite-on-encounter), then drop the map. (Migration is a producing-path act; the gate only ensures it does not silently advance with the retired map standing.)
 
 These are the same fail-closed class as the no-resolvable-producer check below; the gate writes **no setup frontmatter** to resolve any of them.

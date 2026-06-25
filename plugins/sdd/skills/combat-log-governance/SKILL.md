@@ -9,46 +9,41 @@ metadata:
 
 The combat log is the durable, harness-agnostic record of a spec's mission — what was produced, what was judged, what was corrected, and the strategy drafted from it. It is the **primary input** for the doctrine-loop Scanner, which drafts strategy from the combat log **alone**, without raw session transcripts. This skill defines its shape. `sdd-provenance` owns the contract and references this governance as the schema owner; it does not duplicate the schema.
 
-## Two faces
+## Two faces, two homes
 
-The combat log has two complementary faces, both in `spec.md` frontmatter.
+The combat log has two complementary faces. They live in **two different files**: current-state in `spec.md` frontmatter (contract), the ledger in a sibling `combat-log.jsonl` (operational provenance).
 
-| Face | Shape | Mutability | Holds |
-|---|---|---|---|
-| **Current-state** | `produced-by` (map by role) + `approval` (map by gate: `verdict` + `why`) | **overwritten** — last write wins | the authoritative *present*: who produced each artifact, and the standing verdict per gate |
-| **Ledger** | `log` — an append-only list of entries | **immutable** — entries are appended, never edited or removed | the *history*: what happened across the mission, in order |
+| Face | Home | Shape | Mutability | Holds |
+|---|---|---|---|---|
+| **Current-state** | `spec.md` frontmatter | `produced-by` (map by role) + `approval` (map by gate: `verdict` + `why`) | **overwritten** — last write wins | the authoritative *present*: who produced each artifact, and the standing verdict per gate |
+| **Ledger** | sibling `combat-log.jsonl` | one JSON object per line, appended in order | **immutable** — lines are appended, never edited or removed | the *history*: what happened across the mission, in order |
 
-The current-state face answers *"who produced this, and what is the verdict now?"* The ledger answers *"what happened to get here?"* They do not duplicate: a gate rejection overwrites nothing in `approval` (the eventual `approve` stands there), but the rejection is preserved forever as a correction entry in `log`. This is the load-bearing reason the log exists — current-state alone loses every correction.
+The current-state face answers *"who produced this, and what is the verdict now?"* The ledger answers *"what happened to get here?"* They do not duplicate: a gate rejection overwrites nothing in `approval` (the eventual `approve` stands there), but the rejection is preserved forever as a correction line in the ledger. This is the load-bearing reason the ledger exists — current-state alone loses every correction.
 
-Write flow: the operator dispatch **overwrites** the current-state face and **appends** to the ledger; the doctrine-loop Scanner reads the ledger post-hoc and **appends** strategy entries.
+**The ledger is operational provenance, not contract.** `combat-log.jsonl` is **never frozen and never gated**: it keeps appending across the whole lifecycle, including while `spec.md` and the `.feature` are frozen at `approved`. The freeze and the gates govern the contract (`spec.md` + the `.feature`) only — never the sibling ledger.
 
-## The `log` ledger
+Write flow: the operator dispatch **overwrites** the current-state face in `spec.md` and **appends** lines to `combat-log.jsonl`; the doctrine-loop Scanner reads the ledger post-hoc and **appends** strategy lines.
 
-`log` is a frontmatter list. Every entry carries a monotonically increasing `seq` (append order within the spec) and a `kind`. Three kinds:
+## The `combat-log.jsonl` ledger
+
+The ledger is a sibling file next to `spec.md` and the `.feature`, holding **one JSON object per line** (JSON Lines). Every line carries a monotonically increasing `seq` (append order within the spec) and a `kind`. Three kinds:
 
 ### Per-subagent report entry
 
-One appended per production-chain dispatch, so a later reader reconstructs what each delegate did without the transcript.
+One line appended per production-chain dispatch, so a later reader reconstructs what each delegate did without the transcript.
 
-```yaml
-- seq: 3
-  kind: report
-  role: spec-producer            # the production role dispatched
-  agent: sdd:sdd-scenario-writer # plugin-qualified agent name
-  outcome: pass                  # pass | fail
-  summary: wrote 14 scenarios covering the ledger expansion
+```jsonl
+{"seq": 3, "kind": "report", "role": "spec-producer", "agent": "sdd:sdd-scenario-writer", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
 ```
+
+`role` is the production role dispatched; `agent` is the plugin-qualified agent name; `outcome` is `pass | fail`.
 
 ### Correction-with-cause entry
 
-The hard requirement. One appended for every correction: a gate rejection, a producer⇄judge iteration, or a Council kick-back. The matchable `cause` is the **load-bearing field** — cross-mission recurrence detection groups and counts corrections by `cause` across N specs' logs.
+The hard requirement. One line appended for every correction: a gate rejection, a producer⇄judge iteration, or a Council kick-back. The matchable `cause` is the **load-bearing field** — cross-mission recurrence detection groups and counts corrections by `cause` across N specs' ledgers.
 
-```yaml
-- seq: 7
-  kind: correction
-  correction-kind: gate-reject   # gate-reject | judge-iteration | council-kickback
-  cause: coverage-gap            # from the cause enum below
-  detail: spec gate rejected — no negative scenario for the malformed-entry path
+```jsonl
+{"seq": 7, "kind": "correction", "correction-kind": "gate-reject", "cause": "coverage-gap", "detail": "spec gate rejected — no negative scenario for the malformed-entry path"}
 ```
 
 - **`correction-kind`** — the closed set `gate-reject | judge-iteration | council-kickback`. This names the *occasion* of a correction, not its cause; do not conflate the two.
@@ -70,22 +65,22 @@ The hard requirement. One appended for every correction: a gate rejection, a pro
 
 ### Strategy log-entry slot
 
-The Scanner records drafted strategy to the combat log. This governance defines the **shape** of that entry; the **write** is owned by the doctrine-loop Scanner, **not** by provenance writers.
+The Scanner records drafted strategy to the ledger. This governance defines the **shape** of that line; the **write** is owned by the doctrine-loop Scanner, **not** by provenance writers.
 
-```yaml
-- seq: 12
-  kind: strategy
-  recommendation: codify the coverage-gap pattern as a spec-governance check
-  evidence: [coverage-gap x3 across sdd-foo, sdd-bar, sdd-baz]  # the corrections that drove it
-  ratified: false   # the Council holds keep-or-cut; unratified strategy never enters the corpus
+```jsonl
+{"seq": 12, "kind": "strategy", "recommendation": "codify the coverage-gap pattern as a spec-governance check", "evidence": ["coverage-gap x3 across sdd-foo, sdd-bar, sdd-baz"], "ratified": false}
 ```
+
+`evidence` lists the corrections that drove the recommendation; `ratified: false` means the Council holds keep-or-cut — unratified strategy never enters the corpus.
 
 ## Write ownership
 
+All writers append lines to the sibling `combat-log.jsonl` — no writer touches the ledger through `spec.md` frontmatter.
+
 | Writer | May append | Never writes |
 |---|---|---|
-| **operator** | `report` and `correction` entries (same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | strategy entries |
-| **doctrine-loop Scanner** | `strategy` entries | report / correction entries |
-| **producers / judges** | nothing | the entire `log` — they do not know their own registry identity authoritatively |
+| **operator** | `report` and `correction` lines (same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | strategy lines |
+| **doctrine-loop Scanner** | `strategy` lines | report / correction lines |
+| **producers / judges** | nothing | the entire ledger — they do not know their own registry identity authoritatively |
 
-The ledger is append-only for every writer: entries are added with the next `seq`, never edited or deleted. History is a fact about the past; it is never rewritten on the basis of the present.
+The ledger is append-only for every writer: lines are added with the next `seq`, never edited or deleted. History is a fact about the past; it is never rewritten on the basis of the present.

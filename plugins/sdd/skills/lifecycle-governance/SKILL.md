@@ -106,6 +106,8 @@ stateDiagram-v2
 
 Reaching `approved` **freezes the `.feature`**. Adding, removing, or rewriting scenarios requires reverting the spec to `draft` and passing the spec gate again. The matching write constraint ("never write a frozen `.feature`") is in `ownership-governance`.
 
+**Freeze scope is the contract only.** The freeze and the gates govern `spec.md` + the `.feature` — the contract. The sibling **`combat-log.jsonl` ledger is operational provenance, not contract: it is never frozen and never gated**, and keeps appending across the whole lifecycle, including while the spec sits at `approved`. Its shape and write-ownership live in `combat-log-governance`.
+
 **Spec owns behavior.** If the implementation disagrees with `spec.md`, the implementation is wrong — fix it, or revert the spec to `draft` for a new review cycle.
 
 **Two modes.** Before `approved`, exploration may update `spec.md`, the `.feature`, `plan.md`, `tasks.md`, and spikes. After `approved`, implementation proceeds against the frozen `.feature`; every frozen scenario must pass before `implemented`.

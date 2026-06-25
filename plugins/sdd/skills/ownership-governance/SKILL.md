@@ -20,8 +20,8 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 | `aligned` | `sdd-operator` (synthesis only) | producers, gate skill |
 | `<!-- open: -->` markers | `sdd-operator` | producers (they *emit gaps*, not markers) |
 | `produced-by` map | `sdd-operator` (records the resolved producer per role at dispatch); `create-spec` (records the user's choice for a contested domain) | producers, judges, the gate skill |
-| `log` ledger (`report` / `correction` entries) | `sdd-operator` (append-only, per dispatch and per correction) | producers, judges, the gate skill |
-| `log` ledger (`strategy` entries) | the doctrine-loop Scanner (append-only) | operator, producers, judges |
+| `combat-log.jsonl` ledger (`report` / `correction` lines) | `sdd-operator` (append-only, per dispatch and per correction) | producers, judges, the gate skill |
+| `combat-log.jsonl` ledger (`strategy` lines) | the doctrine-loop Scanner (append-only) | operator, producers, judges |
 | `domain-plugin` map | **retired** — never written; migrated into `produced-by` on encounter | everyone (subsumed by `produced-by`) |
 | `priority`, `blocked-by` | the authoring skill / spec author | producers as a side effect |
 | `spec.md` body + the `.feature` | the spec-producer | operator, judges, plan/impl producers |
@@ -39,5 +39,7 @@ The **operator** writes `<!-- open: -->` markers, `aligned`, the run-level `stra
 ## Freeze (write constraint)
 
 **Never write a frozen `.feature`.** Once `spec.md` is `approved`, the `.feature` is frozen: no role — producer, judge, planner, or operator — may add, remove, or rewrite its scenarios. A discovered gap that requires changing specified behavior is a `BLOCKER` returned upward (the spec must revert to `draft` — the gate/skill decides), never an in-place edit. The matching lifecycle rule (what freezing *means* as a state) is in `lifecycle-governance`.
+
+The freeze binds the **contract only** (`spec.md` + the `.feature`). The sibling **`combat-log.jsonl` ledger is exempt**: it is operational provenance, never frozen, and the operator and Scanner keep appending to it within their boundaries above even while the spec sits at `approved`.
 
 The same applies to judges: a spec-judge or impl-judge must not modify `spec.md` or the `.feature`; it reports, it does not patch.

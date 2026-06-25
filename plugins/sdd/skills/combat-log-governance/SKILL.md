@@ -47,12 +47,13 @@ The hard requirement. One line appended for every correction: a gate rejection, 
 ```
 
 - **`correction-kind`** — the closed set `gate-reject | judge-iteration | council-kickback`. This names the *occasion* of a correction, not its cause; do not conflate the two.
-- **`cause`** — a **minimal, discovered enum**. The matchable category of *why* a correction happened, not free text. It **starts minimal** — only values grounded in corrections this project actually observed. Two are grounded so far:
+- **`cause`** — a **minimal, discovered enum**. The matchable category of *why* a correction happened, not free text. It **starts minimal** — only values grounded in corrections this project actually observed. Three are grounded so far:
 
   | Cause | Means | Grounded in |
   |---|---|---|
   | `coverage-gap` | a use case or operation lacked a covering scenario | a gate rejection for a missing scenario was observed |
   | `design-overreach` | the design added a mechanism the architecture did not need (e.g. an unnecessary sentinel / path) | a Council rejection of a design that introduced a superfluous sentinel |
+  | `spec-feature-contradiction` | the `spec.md` body and the `.feature` asserted contradictory behavior | a judge-iteration where the spec narrative and a scenario disagreed (sdd-warden) |
 
   **Growth principle.** The enum is **closed at any point in time**, but it is **discovered from usage, not designed up front**: a new `cause` value is **added** only when a real, recurring correction has no existing category. Fewer is better — speculative categories are not seeded. The two growers of the enum:
 

@@ -38,25 +38,27 @@ Each is assessed **low → high**. Low pushes toward self-clear; high toward esc
 
 | Dimension | Low risk (toward self-clear) | High risk (toward escalate) |
 |---|---|---|
-| **Reversibility** | cheap to undo — draft prose, a derived artifact, a tracked file with a cheap revert, no external effect | destructive, or carries an external side effect |
-| **Blast radius** | narrow **user-facing** impact — no `blocked-by` dependents, no published/installed surface touched | many `blocked-by` dependents, or touches a published/installed surface |
+| **Reversibility** | cheap to undo — draft prose, a derived artifact, a git-tracked file in a publishable/installable directory with a cheap revert and **no actual publish/release act** and no external side effect | destructive, or carries an external side effect — an **irreversible publish/release act** or data egress |
+| **Blast radius** | narrow **user-facing** impact — no `blocked-by` dependents, no breaking change, **no publish/release act** (mere surface location is not a publish act) | many `blocked-by` dependents, a breaking user-facing change, or an **actual publish/release act** |
 | **Contract impact** | **additive / non-breaking** — a new scenario, a new optional path, a clarification that leaves every existing scenario's truth intact | **breaking** — alters or removes an established behavior |
 | **Decision novelty** | trivial / defaulted, or already human-ratified | a new contestable choice the human has not seen |
 | **Confidence** | evidence converges; a clean judge pass; no unresolved `<!-- open: -->` markers | a marginal verdict; unresolved open markers |
 
 ### Reversibility
 
-A decision that edits draft prose with a cheap revert and no external effect reads **low** → if every other dimension is also low, `self-clear`. A decision that is **destructive** or carries an **external side effect** reads **high** → `escalate · reversibility`.
+A decision that edits draft prose with a cheap revert and no external effect reads **low** → if every other dimension is also low, `self-clear`. A **git-tracked source file that lives in a publishable or installable directory** also reads **low** when the change has a **cheap revert, performs no actual publish or release act, and carries no external side effect** — surface *location* is not a publish *act*. A decision that is **destructive** or carries an **external side effect** — an **irreversible publish/release act** or data egress — reads **high** → `escalate · reversibility`.
 
-### Blast radius — measured by user-facing impact, not artifact count
+### Blast radius — measured by user-facing impact, not artifact count and not surface location
 
-Blast radius is measured by **user-facing impact**: `blocked-by` dependents **plus** published/installed surface — **never artifact count**.
+Blast radius is measured by **user-facing impact**: `blocked-by` dependents, a breaking user-facing change, or an **actual publish/release act** — **never artifact count** and **never surface location**. A file's *location* in a shipped package is not, by itself, blast radius; only an actual **publish/release act** is.
 
-- No `blocked-by` dependents **and** no published surface touched → **low** → self-clears (with the rest low).
-- Touches a **published or installed surface** → **high** → `escalate · blast radius`.
-- Edits **many artifacts** but has **no `blocked-by` dependents and touches no published surface** → still **low** → self-clears. Volume of files is not blast radius.
+- No `blocked-by` dependents **and** no breaking change **and** no publish/release act → **low** → self-clears (with the rest low).
+- A **git-tracked source file that merely lives in a publishable or installable directory**, with a cheap revert, no breaking change, no `blocked-by` dependents, and **no publish/release act performed** → **low** → self-clears. Surface location is not a publish act.
+- An **actual publish or release act** (e.g. `npm publish`) → **high** → `escalate · blast radius`.
+- **Many `blocked-by` dependents** (even with no publish act and no breaking change) → **high** → `escalate · blast radius`.
+- Edits **many artifacts** but has **no `blocked-by` dependents, no breaking change, and performs no publish/release act** → still **low** → self-clears. Volume of files is not blast radius, and neither is surface location.
 
-> **Weighting — user-facing blast radius carries the most weight.** A **high** user-facing-blast-radius reading **dominates the aggregate** and forces `escalate` **even when every other dimension reads low risk**, naming blast radius as the dominant dimension. (Artifact count never triggers this — only user-facing impact does.)
+> **Weighting — user-facing blast radius carries the most weight.** A **high** user-facing-blast-radius reading **dominates the aggregate** and forces `escalate` **even when every other dimension reads low risk**, naming blast radius as the dominant dimension. (Artifact count and surface location never trigger this — only user-facing impact does: dependents, a breaking change, or an actual publish/release act.)
 
 ### Contract impact — the semver model
 

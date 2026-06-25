@@ -11,7 +11,9 @@ Register quill in the project's SDD plugin registry so `sdd-operator` can resolv
 
 ### 1. Locate the registry file
 
-Look for `.agents/universal-plugin.json` at the project root. If it exists, read it; otherwise create it with `{}`.
+Look for `.agents/universal-plugin.json` at the project root. If it exists, read and parse it; otherwise create it with `{}`.
+
+**Fail closed on a corrupt file.** If the file exists but contains malformed JSON, **fail with an error and stop — do not overwrite it**. Silently rewriting a corrupt file could destroy valid entries from other plugins; leave the file untouched and let a human repair it.
 
 ### 2. Determine quill's version
 
@@ -46,6 +48,8 @@ Do not reorder or reformat other entries.
 ```
 
 `spec-judge: null` degenerates to static doc criteria that `validate-spec` runs — no judge agent. `plan-producer: null` uses the SDD default planner. Each `null` governance uses the SDD default actor governance.
+
+**The `governances` block is required.** Every entry must carry a `governances` map (each binding may be `null`, but the block itself must be present). Reject a payload with no `governances` block — fail with an error and **do not write** the file.
 
 ### 4. Write the updated file
 

@@ -1,6 +1,6 @@
 ---
 name: autonomy-governance
-description: "Internal skill: the SDD autonomy-risk rubric — the per-decision self-clear-vs-escalate bar over five gradient dimensions plus a hard floor. The risk-assessment side of every escalation point; cooperates with gate-validation-governance (legality) and generalizes the sdd-gate-autonomy leash. Consumed by the capable conductor at runtime and by the eval tool at design time — not triggered by users directly."
+description: "Internal skill: the SDD autonomy-risk rubric — the per-decision self-clear-vs-escalate bar over five gradient dimensions plus a hard floor. The risk-assessment side of every escalation point; cooperates with gate-validation-governance (legality) and generalizes the sdd-gate-autonomy leash. A design/eval-time bar consumed by the eval tool (ACES) to set an agent config's autonomy posture; the runtime verdict is made by the capable conductor from its own baked-in logic — not triggered by users directly."
 metadata:
   user-invocable: false
 ---
@@ -106,14 +106,15 @@ A survey of the SDD surface placed every escalation point in one of four buckets
 
 > **C and D both always escalate, for different reasons.** C is escalate-**by-intent** (the decision is the human's; there is no risk score to compute). D is escalate-**by-invariant** (the hard floor). The rubric encodes both as non-self-clearing without conflating them.
 
-## The two consumers
+## How the rubric is consumed
 
-The rubric has **exactly two consumers**. It explicitly **rejects** the "one governance loaded everywhere on every decision" pattern — it is **not** loaded by every runtime actor.
+The rubric is a **design/eval-time bar**, like `skill-design` is for skills — it has a **single consumer** and is **not loaded at runtime by any agent**. It explicitly **rejects** the "one governance loaded everywhere on every decision" pattern.
 
 | Consumer | When | What it does |
 |---|---|---|
-| **The most capable conductor agent in the system** (in SDD, the opus operator) | runtime | makes the per-decision `self-clear`-vs-`escalate` **verdict** |
 | **The eval tool / ACES** | design time | sets and verifies each agent config's escalation **posture** against the rubric as the bar |
+
+At **runtime** the self-clear-vs-escalate verdict is **made by** the most capable conductor agent — but from that agent's **own baked-in determination logic**, authored to conform to this rubric. The conductor does not *consume the rubric document* at runtime; **no runtime actor does**. An agent's baked-in logic carries only the rubric dimensions its own decisions touch (the operator's gates touch contract impact but never the hard floor).
 
 ### Who makes the runtime verdict — the capable conductor
 

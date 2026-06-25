@@ -18,6 +18,7 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 | `approval` **self-assertion** (`verdict: approve`/`pause` + `by: agent`/none + `why`) | `sdd-operator` (synthesis only) | producers, gate skill |
 | `approval` **human ratification** (`verdict: approve`/`reject` + `by: <name>`) | the gate skill (`validate-spec`), **in-session position only** | operator, any producer, any spawned delegate |
 | `aligned` | `sdd-operator` (synthesis only) | producers, gate skill |
+| `domain-type` | `create-spec` (classifies the artifact-type at scaffold; the resolution axis for plugin delegates) | producers, judges, operator, the gate skill |
 | `<!-- open: -->` markers | `sdd-operator` | producers (they *emit gaps*, not markers) |
 | `produced-by` map | `sdd-operator` (records the resolved producer per role at dispatch); `create-spec` (records the user's choice for a contested domain) | producers, judges, the gate skill |
 | `combat-log.jsonl` ledger (`report` / `correction` lines) | `sdd-operator` (append-only, per dispatch and per correction) | producers, judges, the gate skill |
@@ -30,7 +31,7 @@ Who may write what. Every act in the SDD workflow has a write leash; this skill 
 
 ## Producer write boundary
 
-A **spec-producer** writes the `spec.md` body and the `.feature` only. It must **not** write the control frontmatter (`status`, `aligned`, `domain-plugin`). A required input it cannot supply or infer is returned as a `CONTENT_GAP` — the operator turns it into an `<!-- open: -->` marker. Producers do not write markers directly.
+A **spec-producer** writes the `spec.md` body and the `.feature` only. It must **not** write the control frontmatter (`status`, `aligned`, `domain-type`, `domain-plugin`). A required input it cannot supply or infer is returned as a `CONTENT_GAP` — the operator turns it into an `<!-- open: -->` marker. Producers do not write markers directly.
 
 The **operator** writes `<!-- open: -->` markers, `aligned`, the run-level `strategy` block, and — when it self-asserts a gate within the effective leash — the provisional `approval.<gate>` entry (`verdict: approve` + `by: agent` with the four-dimension `why`; a halt is `verdict: pause` with its `why` and no `by`). There is no `leash` field in the entry — leash is the run-level `strategy`. The **gate skill** writes `status` (on a human verdict or to match the operator's in-leash self-assertion) and the human ratification of `approval` (rewriting `by: agent` → `by: <name>`). 
 

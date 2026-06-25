@@ -84,7 +84,7 @@ test('dispatch: the loop runs without a governance-show call', () => {
 })
 
 test('dispatch: operator dispatches to the plugin that covers the domain', () => {
-	assert.ok(has('match `DOMAIN` against') || has('match DOMAIN against'))
+	assert.ok(has('match `DOMAIN_TYPE`') || has('match DOMAIN_TYPE'))
 	assert.ok(has('an agent name → invoke it') || has('agent name'))
 })
 

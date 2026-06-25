@@ -13,6 +13,15 @@ Load `sdd:lifecycle-governance` for the status enum and what `draft` means, and 
 
 If the user named a domain, use it directly (the name matches the implementation folder — `governance`, `build`, `auth`). Otherwise list domains under `src/` (or the project source root) with no `specs/<domain>/spec.md` yet, and ask the user to pick one.
 
+## Classify the domain-type
+
+Classify what **kind of artifact** the spec produces and write it to `spec.md` frontmatter as `domain-type`. This is the **resolution axis** the operator matches against each registered plugin's `domains[]` (see `plugin-contract-governance`) — distinct from the domain/folder name and from `type` (`project | feature`). It is the only reason a plugin's production chain (e.g. ACES) gets resolved instead of the SDD defaults.
+
+- The artifact is an **agent configuration** → set the matching type: a skill (`SKILL.md`) → `skill`; a subagent definition → `subagent`; a slash command → `command`; an `AGENTS.md`/`CLAUDE.md` section → `agents-section`.
+- The artifact is **plain product code** with no plugin covering it → **omit** `domain-type` (the operator resolves SDD defaults).
+
+When ambiguous, infer from the implementation path (`*/skills/*/SKILL.md` → `skill`, `*/agents/*.md` → `subagent`, `*/commands/*` → `command`) and confirm with the user. Write the chosen value into the scaffolded frontmatter; it is set once here and never rewritten by a producer.
+
 ## Determine mode
 
 - **New feature** — no implementation exists yet.
@@ -39,6 +48,7 @@ Set an **iteration cap** for this sitting — default **3**, overridable if the 
 1. Invoke `sdd-operator`:
    ```
    DOMAIN:        <domain>
+   DOMAIN_TYPE:   <classified domain-type, or null for a plain-code domain>
    DOMAIN_PATH:   specs/<domain>/
    USER_INPUT:    <grill answers, or null for backfill>
    USER_ANSWERS:  <answers collected for the previous QUESTIONS, or null>

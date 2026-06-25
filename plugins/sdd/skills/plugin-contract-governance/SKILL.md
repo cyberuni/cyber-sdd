@@ -43,7 +43,7 @@ The operator reads **only** `.agents/universal-plugin.json` (top-level `sdd-plug
 {
   "name": "<plugin>",
   "version": "<semver>",
-  "domains": ["<domain>", "..."],
+  "domains": ["<domain-type>", "..."],
   "roles": {
     "spec-producer": "<agent | null>",
     "plan-producer": "<agent | null>",
@@ -55,4 +55,4 @@ The operator reads **only** `.agents/universal-plugin.json` (top-level `sdd-plug
 }
 ```
 
-Resolution: match `DOMAIN` against each entry's `domains[]`. Zero matches → all roles degenerate to SDD defaults. One match → resolve each role and governance key (name = use it; `null` = SDD default; missing role key = `<plugin>-<role>`). Two or more matches → read the `domain-plugin` map in `spec.md` frontmatter; if it names the owner, use it, else return `STATUS: needs-input` for the skill to ask which plugin owns the domain (written to `domain-plugin`, decisive on resume).
+Resolution: match the spec's **`domain-type`** frontmatter field (the artifact-type axis, **not** the domain/folder name) against each entry's `domains[]`. `domains[]` enumerates artifact *types* a plugin covers (e.g. ACES covers `skill`, `subagent`, `command`, `agents-section`), never folder names. An absent or unmatched `domain-type` → zero matches → all roles degenerate to SDD defaults. One match → resolve each role and governance key (name = use it; `null` = SDD default; missing role key = `<plugin>-<role>`). Two or more matches → read the `domain-plugin` map in `spec.md` frontmatter; if it names the owner, use it, else return `STATUS: needs-input` for the skill to ask which plugin owns the domain (written to `domain-plugin`, decisive on resume).

@@ -1,21 +1,26 @@
 ---
 name: spec-governance
-description: "Internal skill: the universal SDD .feature format bar, scenario-ordering convention, and spec.md enrichment rule. Loaded by every spec-producer (SDD default and plugin) and by validate-spec — not triggered by users directly."
+description: "Internal skill: SDD spec governance"
 metadata:
   user-invocable: false
 ---
 
 # SDD Spec Governance
 
-Reference for writing SDD specs. Every spec-producer (the SDD default `sdd-scenario-writer` and plugin producers such as `aces-scenario-writer`, `quill-writer`) and the spec-judge load this. It holds the **universal** format rules; a domain's own criteria are additional, enforced by that domain's spec-judge.
+These are the **universal** rules for writing an SDD spec; a domain's own criteria are additional, enforced by that domain's spec-judge.
 
-A spec is two files: a human-reviewed **`spec.md`** and a boolean **`.feature`**. This governance covers `spec.md` first, then the `.feature`, then how large either may grow.
+A spec is two files: **`spec.md`** and a sibling **`.feature`**.
 
 ## `spec.md`
 
 ### Use Cases (required section)
 
-Every `spec.md` carries a dedicated **`## Use Cases`** section. A **use case** is an *entry-point* — coarse-grained, one per distinct way the subject is invoked:
+Every `spec.md` carries a dedicated **`## Use Cases`** section. Open it with the frame the table cannot hold, then list the use cases:
+
+- **Subject** — one line naming the territory being specified: the single subject these use cases all exercise.
+- **Non-goals** — one line on what the spec deliberately excludes, wherever the boundary isn't self-evident (the table can only enumerate what the subject *does*).
+
+A **use case** is an *entry-point* — coarse-grained, one per distinct way the subject is invoked:
 
 | Column | Content |
 |---|---|
@@ -78,7 +83,7 @@ Scenario: <name>
   And the rubric score is at least the threshold
 ```
 
-The final `Then` yields exactly one boolean — the gate sees pass/fail, not a score. A subject whose verdict cannot be reduced to a single observable assertion belongs in `@rubric` form, not forced into a brittle boolean.
+A subject whose verdict cannot be reduced to a single observable assertion belongs in `@rubric` form, not forced into a brittle boolean.
 
 ### Scenario ordering (step-down)
 
@@ -87,16 +92,14 @@ Order scenarios to trace the workflow top-to-bottom:
 - Each lifecycle stage in sequence; within a stage, happy path first, then its branches and errors.
 - Group each stage under a `# ── <stage> ──` section comment, so a human reading top-to-bottom can see every stage is covered — completeness becomes auditable.
 
-This is enforced by the spec-judge; it is universal, not a per-domain criterion.
-
 ## Spec granularity — keep a spec narrow enough to re-judge cheaply
 
-A spec is re-judged **as a whole**: coverage, consistency, and ordering are global checks, so a one-line change to a frozen spec costs the same judging as the whole `.feature`. Re-judge cost scales with spec size, not change size. So a large spec makes every later revision expensive — keep each spec **narrow**.
+A spec is re-judged **as a whole**: coverage, consistency, and ordering are global checks, so any change that re-opens a frozen spec — an altered scenario, a shifted use case — re-judges the entire `.feature`, not just the touched part. (A cosmetic prose fix that doesn't touch behavior never re-opens the spec, so it stays free at any size.) Re-judge cost therefore scales with spec size, not change size — a large spec makes every *behavioral* revision expensive. Keep each spec **narrow**.
 
-A spec covers **one behavior with one set of use cases**. Split it when any of these holds:
+A spec is about one **subject** — a coherent territory that persists — surfaced by one set of use cases. Keep that territory narrow; split it when any of these holds:
 
 - the `.feature` exceeds **~15–20 scenarios**, or
-- the `## Use Cases` table spans **more than one distinct behavior** (e.g. "resolution" *and* "dispatch" *and* "gate assessment"), or
+- the `## Use Cases` table spans **more than one distinct concern** (e.g. "resolution" *and* "dispatch" *and* "gate assessment"), or
 - different parts of the spec change on **independent cadences** (one area churns while the rest is stable).
 
 Decompose using the composition primitives in `lifecycle-governance`: a **project spec** with **feature children** (`subtasks`), or sibling specs linked by `blocked-by`. Each child owns one behavior, one `.feature`, and is judged independently — so a change touches one small spec, not a monolith. Prefer **narrow and composable** over one large spec, the same principle skills follow. (The `split-spec` operation is the gateway station that performs this; until it exists, splitting is manual — see the gateway's *Manage specs & graph*.)

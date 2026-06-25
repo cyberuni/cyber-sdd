@@ -33,7 +33,7 @@ const ADVERB_PATTERNS = ['sometimes', 'usually', 'often', 'occasionally'].map((w
 // the rule in a Given/When setup is not the contract embedding a rubric.
 const RUBRIC_PATTERNS = [...['score', 'threshold', 'rubric'].map((w) => new RegExp(`\\b${w}\\b`, 'i')), /\b1[-–]5\b/]
 const ASSERTION_RE = /^(Then|And|But)\b/i
-const RUBRIC_EXEMPT_RE = /\b(no|not|never|without|nor|passing|failing|pass|fail|boolean|true|false)\b/i
+const RUBRIC_EXEMPT_RE = /\b(no|not|never|without|nor|passing|failing|pass|fail|boolean|true|false|verdict)\b/i
 
 // ─── parse ────────────────────────────────────────────────────────────────────
 

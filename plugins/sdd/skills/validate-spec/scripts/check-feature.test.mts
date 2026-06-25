@@ -253,6 +253,19 @@ test('a Then expressing a boolean verdict over a score is not a violation', () =
 	assert.deepEqual(checkFeature('slug', 'x.feature', text), [])
 })
 
+test('a Then naming a rubric verdict is a boolean outcome, not a leaked grade', () => {
+	const text = [
+		'Feature: autonomy',
+		'',
+		'  Scenario: an eval flags a posture mismatch',
+		'    Given an agent config is evaluated against the rubric',
+		'    And an escalation point whose posture mismatches the rubric verdict',
+		'    When the eval runs',
+		'    Then the escalation point is flagged',
+	].join('\n')
+	assert.deepEqual(checkFeature('slug', 'x.feature', text), [])
+})
+
 // ─── checkFeature — scenario ordering / sectioning ───────────────────────────
 
 test('a feature with >6 scenarios and no section comments fails ordering', () => {

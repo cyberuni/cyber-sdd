@@ -18,7 +18,7 @@ does not evolve it.
 | **forge** | **end-user corrections across installations (external, opt-in)** | **SDD itself** |
 
 Because forge moves data *out of an installation*, it carries the **Consent** hard floor (one
-of the three C's; see `../design/autonomy-rubric.md`).
+of the four C's; see `../design/autonomy-rubric.md`).
 
 ## Output — emits new CRs
 

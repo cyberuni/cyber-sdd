@@ -86,8 +86,8 @@ There is no fixed approval station between phases. Every write to spec/suite —
 diff or a deliver in-flight adjustment — passes **one arbiter**: the autonomy
 self-clear-vs-escalate rubric (see `autonomy-rubric.md`). The human decides *what to build*
 by raising the CR and reading the outcome/retro, not by gating each transition. The only
-mandatory human escalations are the three-C hard floor (Clearance, Conflict resolution,
-Consent); the spec and impl verifications survive as the judge's backward face — the
+mandatory human escalations are the four-C hard floor (Clearance, Conflict resolution,
+Compatibility, Consent); the spec and impl verifications survive as the judge's backward face — the
 spec-judge and impl-judge applying the Director/Builder/Architect **lenses** — folded into
 `../authoring/` and `../mission/`, not as human checkpoints.
 

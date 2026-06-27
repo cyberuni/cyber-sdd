@@ -194,12 +194,13 @@ The mission serves its own minor work rather than bouncing to the human:
   operator makes in-flight — clarifying a detail, an obvious stale-mistake correction — are
   recorded as combat-log entries in the plan (see `../design/provenance-model.md`), surfaced as
   a detail-adjustment view, not escalated.
-- **Hard-floor escalation (the only mandatory human stops).** Two kinds inside the mission,
-  per `../design/autonomy-rubric.md`: **Clearance** of a breaking change (narrowing/deleting
-  an acceptance scenario or breaking a published contract) — overridable and pre-authorizable
-  in the CR; and **Conflict resolution** of a logical contradiction in the suite (Scenario A
-  says yes while Scenario B says no) — *not* pre-authorizable, a defect not a choice, the only
-  thing that truly halts implementation unexpectedly. An obvious stale-mistake contradiction
+- **Hard-floor escalation (the only mandatory human stops).** Three can fire inside the mission,
+  per `../design/autonomy-rubric.md`: **Clearance** of a **narrowing** (weakening/deleting an
+  acceptance scenario) — overridable and pre-authorizable in the CR; **Compatibility** when the
+  change's **semver class** (patch/minor/major) exceeds the CR/run-mode change-class ceiling —
+  likewise pre-authorizable; and **Conflict resolution** of a logical contradiction in the suite
+  (Scenario A says yes while Scenario B says no) — *not* pre-authorizable, a defect not a choice,
+  the only thing that truly halts implementation unexpectedly. An obvious stale-mistake contradiction
   is an operator-served minor fix; escalate only when both sides are plausibly intended.
   (Consent, the third floor, is a `../forge/` concern, not a mission floor.)
 

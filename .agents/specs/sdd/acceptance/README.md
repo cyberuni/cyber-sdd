@@ -28,8 +28,8 @@ Sources: `sdd-change-request`, `sdd-skill`, `sdd-mission-loop`.
 Sources: `sdd-gate-autonomy`, `sdd-escape-hatch`, `sdd-stop-provenance`, `../design/autonomy-rubric.md`.
 
 - B1. Additive / internal / minor change self-clears both gates with no human stop.
-- B2. Narrowing or deleting an e2e scenario (a breaking change) escalates for human acknowledgment — unless the CR pre-authorized it.
-- B3. A pre-authorized breaking change proceeds without halting mid-flight.
+- B2. Narrowing or deleting an e2e scenario (**Clearance**) escalates for human acknowledgment — unless the CR pre-authorized it.
+- B3. A change whose **semver class** (patch/minor/major) exceeds the authorized change-class ceiling (**Compatibility**) escalates; a class within the CR / run-mode ceiling proceeds without halting.
 - B4. A logical contradiction inside the suite (Scenario A says yes, Scenario B says no) halts implementation and escalates for human resolution.
 - B5. An obvious stale-mistake contradiction is served as an operator minor fix, not escalated.
 - B6. A self-asserted gate advances the run asynchronously and enqueues the spec for ratify-or-kick-back review.
@@ -80,9 +80,9 @@ Feature: SDD acceptance — change request to delivered outcome
       implements against the frozen .feature, and passes the impl gate
     Then the verified result is landed in the project-declared delivery shape
 
-  Scenario: A breaking change escalates unless the CR pre-authorized it
+  Scenario: A narrowing escalates unless the CR pre-authorized it
     Given a change request whose diff narrows an e2e acceptance scenario
-    And the change request did not pre-authorize the breaking change
+    And the change request did not pre-authorize the narrowing
     When the autonomy bar assesses the write
     Then it escalates for human acknowledgment before the write lands
 

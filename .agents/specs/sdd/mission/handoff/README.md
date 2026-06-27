@@ -41,13 +41,13 @@ revertable at the same grain the work was reasoned about.
 
 Handoff introduces **no new mandatory human escalation**. The only hard-floor escalations are
 the ones raised earlier in the loop (see `../../design/autonomy-rubric.md`): **Clearance** (a
-breaking change — narrowing or deleting an e2e scenario, or breaking a published contract) and
-**Conflict resolution** (a logical contradiction inside the suite). A separate handoff-layer
-floor for irreversible execution acts (force-push, data loss, history rewrite) was
-**considered and rejected** — those are not a gate: SDD work is git-reversible, and genuinely
-irreversible acts are out of scope (externally guarded) or pre-authorized
-(`../../design/autonomy-rubric.md`). If a breaking change is in scope it was already cleared in
-step 2/3 before any code was written, so handoff never has to halt mid-flight.
+**narrowing** — weakening or deleting an e2e scenario), **Compatibility** (the change's **semver
+class** over the authorized ceiling), and **Conflict resolution** (a logical contradiction inside
+the suite). A separate handoff-layer floor for irreversible execution acts (force-push, data loss,
+history rewrite) was **considered and rejected** — those are not a gate: SDD work is git-reversible,
+and genuinely irreversible acts are out of scope (externally guarded) or pre-authorized
+(`../../design/autonomy-rubric.md`). If a narrowing or a breaking change-class is in scope it was
+already cleared in step 2/3 before any code was written, so handoff never has to halt mid-flight.
 
 ## Provenance
 

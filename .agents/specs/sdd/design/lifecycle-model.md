@@ -26,7 +26,7 @@ approval:               # per-gate verdict
     by: agent           # by: agent (self-asserted, provisional) | <human name> (ratified); omitted on pause
     cause: dimension    # dimension | ceiling — what drove the verdict (a gradient dimension, or the human ceiling cap)
     why:                # verdict derivation (agent self-assertion or pause)
-      floor:        <none | clearance | conflict | consent>
+      floor:        <none | clearance | conflict | compatibility | consent>
       blast:        <low|high — reason>
       novelty:      <low|high — reason>
       confidence:   <low|high — reason>

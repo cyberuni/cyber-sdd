@@ -19,23 +19,31 @@ decisions touch.
 ## The hard floor — the only mandatory human escalations
 
 The hard floor is checked **first** and is **not score-based**. A high computed confidence never
-unlocks it; the floor sits above the gradient entirely. **Three kinds** (the mnemonic: three
+unlocks it; the floor sits above the gradient entirely. **Four kinds** (the mnemonic: four
 **C**'s):
 
 | Floor | Fires at | Trigger | Human decision | Pre-grantable? |
 |---|---|---|---|---|
-| **Clearance** | spec gate (authoring) / impl gate | the diff **narrows or deletes** an existing (frozen / e2e) scenario — the suite now guarantees **less** | grant clearance to narrow | **Yes** — pre-authorizable in the CR (stated, or acknowledged during grilling), so it need never halt mid-flight |
-| **Conflict resolution** | impl gate (3) | the suite **contradicts itself** — two scenarios at odds with **no intended winner** | pick which scenario is intended | **No** — a discovered defect, not a grantable permission |
-| **Consent** | **forge loop** (5) | the cross-installation field loop wants to **run or report** — **data egress** of correction records | opt in (explicit, default-off, revocable) | **Yes** — granted up front |
+| **Clearance** | spec gate / impl gate | the diff **narrows or deletes** an existing (frozen / e2e) scenario — the suite now guarantees **less** | grant clearance to narrow | **Yes** — pre-authorizable in the CR (stated, or acknowledged during grilling), so it need never halt mid-flight |
+| **Conflict resolution** | impl gate | the suite **contradicts itself** — two scenarios at odds with **no intended winner** | pick which scenario is intended | **No** — a discovered defect, not a grantable permission |
+| **Compatibility** | spec gate / impl gate | the change's **semver class** — **patch** (fix) / **minor** (feature) / **major** (breaking) — **exceeds the authorized ceiling** | authorize the class (or defer) | **Yes** — the CR / run-mode change-class sets the ceiling up front |
+| **Consent** | **forge loop** | the cross-installation field loop wants to **run or report** — **data egress** of correction records | opt in (explicit, default-off, revocable) | **Yes** — granted up front |
 
 - **Clearance — the narrowing case.** The gate finds the diff **weakens or deletes** an existing
   (frozen / e2e) scenario, so the suite guarantees less than before; the human grants clearance to
   narrow. A **new** scenario that contradicts an old frozen one is also Clearance (a clear intended
   winner — the new replaces the old), not Conflict. (Whether a change is *also* a breaking change in
-  product / semver terms is a **separate concern**, assessed apart from this floor — not Clearance.)
+  product / semver terms is the **Compatibility** floor below, not Clearance — the two can co-fire.)
 - **Conflict resolution** is the only thing that truly halts work **unexpectedly** — reduce it by
   grilling harder at authoring. An obvious stale-mistake contradiction is an operator-served minor
   fix; escalate only when both sides are plausibly intended.
+- **Compatibility — the semver class.** The change is classified **patch** (fix) / **minor**
+  (feature) / **major** (breaking) — mechanically from the scenario / API-diff, and **judged** by
+  the resolved **Builder** governance for un-contracted user-facing change (a UI restyle's class is
+  the designer-as-Builder's call), **domain-relative** (a design-system library is stricter than an
+  app). The floor fires when the class **exceeds the authorized ceiling** (below); at or under it,
+  the change self-clears. Clearance (narrowing) and Compatibility (class) are distinct and can
+  co-fire — removing a published guarantee is both.
 - **Consent** is the **only execution-side floor** — opt-in egress to `../forge/`. SDD does **not**
   publish / release / deploy (those are downstream SDLC, externally guarded — e.g. a marketplace
   publish is a PR behind auth and review); **the rubric does not re-gate what already has its own
@@ -46,12 +54,21 @@ unlocks it; the floor sits above the gradient entirely. **Three kinds** (the mne
 
 ### Pre-authorization (payable in advance)
 
-**Clearance** and **Consent** are **payable in advance** — pre-authorized in the CR (a planned
-scenario narrowing; an opt-in to egress) — so they never halt mid-flight. A declared **destructive
+**Clearance**, **Compatibility**, and **Consent** are **payable in advance** — pre-authorized in
+the CR — so they never halt mid-flight: a planned scenario narrowing (Clearance), the authorized
+change-class ceiling (Compatibility), an opt-in to egress (Consent). A declared **destructive
 operational act** (e.g. resetting external test data) is likewise pre-authorizable, else it
 escalates; the inner loop has no other irreversibility concern (everything SDD writes is
 git-reversible). **Conflict resolution** cannot be pre-granted — it is a discovered defect, not a
 permission.
+
+The **change-class ceiling** (Compatibility) is set by the CR or a **run-mode** in the `strategy`
+block — the highest semver class the run may self-clear:
+
+- `bug-fix-only` → ceiling **patch** (minor / major escalate);
+- **default** → ceiling **minor** (additive / non-breaking self-clears);
+- `expected-breaking` → ceiling **major**;
+- `analyze-and-defer-breaking` → a detected **major** is deferred as a **new CR**, not done this run.
 
 ## The gradient — three dimensions, two modulate and one decides
 
@@ -72,8 +89,9 @@ are out of scope.
 
 ## The aggregate verdict
 
-1. **Hard floor first.** A clearance (mechanical | judged, unless pre-authorized),
-   conflict-resolution, or consent case → `escalate`, reason `hard floor`. Stop.
+1. **Hard floor first.** A clearance (narrowing), conflict-resolution, compatibility
+   (class over the authorized ceiling), or consent case — unless pre-authorized — → `escalate`,
+   reason `hard floor`. Stop.
 2. **Else, confidence decides — blast and novelty raise the bar.** A larger blast or a more novel
    choice demands stronger evidence (a clean judge pass, no open markers, converging analysis).
    They **never independently escalate**.
@@ -145,10 +163,13 @@ The rubric's verdicts are made testable (vs by-hand vibing) in three layers:
    inputs for a proposed act:
    - **Clearance detection** — **scenario-diff** (a scenario preserved verbatim → no narrowing;
      a scenario altered / removed / narrowed → fires Clearance);
+   - **Compatibility class** — the **semver class** from the scenario / API-diff (mechanical);
+     un-contracted user-facing change is left for the **Builder** judged read;
    - **blast radius (magnitude)** — **artifact count × centrality/sensitivity** (dependency
      fan-in, marked-sensitive paths) — **not** surface location.
 
-   Output: which floor cases fire + the blast magnitude. The agent judges **novelty** and
+   Output: which floor cases fire (and the detected class vs the ceiling) + the blast magnitude.
+   The agent judges the **Builder** class read (un-contracted change), **novelty**, and
    **confidence** — the helper shrinks the judgment surface to those.
 2. **Baked-in logic** (Warden / operator) = helper output + the judged inputs, run at the relevant
    cadence (Warden per formation act).

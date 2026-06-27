@@ -55,8 +55,9 @@ in the corpus**; a run scoped to one spec is **not** a Formation run.
 ## The Warden's per-act self-clear-vs-escalate verdict
 
 The Warden is **rubric-subject**, exactly as the Operator is at a gate. For **each structural
-act** it applies the full floor + gradient (`../design/autonomy-rubric.md`) — the **Clearance**
-floor (a breaking structural act, mechanical or judged) plus the gradient (**blast** magnitude,
+act** it applies the full floor + gradient (`../design/autonomy-rubric.md`) — the floor
+(**Clearance** for a narrowing act; **Compatibility** when the act's semver class exceeds the
+ceiling; **Conflict** for a contested reconciliation) plus the gradient (**blast** magnitude,
 **novelty**, **confidence**) — and renders its own **self-clear vs escalate** verdict —
 it has **no direct user channel**:
 
@@ -64,23 +65,24 @@ it has **no direct user channel**:
   refactor or consistency fix. The Warden acts **in-session** and
   leaves a **provisional, agent-attributed marker** that is never final until the Council
   ratifies the trail; a Council reject unwinds it.
-- **Escalate** the destructive, contested, or breaking acts — deprecating a spec in a dedupe,
-  picking the winning claim in a reconciliation, or any change **breaking** under the
-  contract-impact semver class. The escalated finding re-enters as a **new CR**
+- **Escalate** the narrowing, contested, or class-exceeding acts — deprecating a spec or dropping
+  scenarios in a dedupe (**Clearance**), picking the winning claim in a reconciliation
+  (**Conflict**), or a structural change whose **semver class** exceeds the ceiling
+  (**Compatibility**). The escalated finding re-enters as a **new CR**
   (`intake/README.md`) naming the artifacts; it does not land until the Council
   ratifies.
 
 It is **not** true that every act is proposed-and-ratified: the reversible/derivable acts
-self-clear under the provisional marker; the destructive/contested/breaking ones emit a CR.
+self-clear under the provisional marker; the narrowing/contested/class-exceeding ones emit a CR.
 
 ## Stations, not status — and the frozen-contract guard
 
 The Warden runs stations in-session and **never** writes a spec's `status`. The frozen-contract
 guard is keyed on **contract impact**, not the bare fact that the `.feature` is frozen:
 
-- a split that **preserves every scenario verbatim is non-breaking** — it self-clears **even on
+- a split that **preserves every scenario verbatim narrows nothing** — it self-clears **even on
   a frozen `.feature`**, leaving the provisional marker; no freeze re-open needed;
-- a split that **alters or drops scenario truth is breaking** — it shards a frozen contract only
+- a split that **alters or drops scenario truth is a narrowing** — it shards a frozen contract only
   with a Council-ratified freeze re-open;
 - **dedupe is destructive** (it deprecates a spec) — it **escalates regardless** of
   contract-impact class.

@@ -2,13 +2,30 @@ Feature: The create-spec entry skill — scaffold a new spec node and dispatch t
   Unit suite for the create-spec entry skill (the user-facing create unit). Entry-skill
   behaviors only — no grilling/authoring (those are ../spec-producer/spec-producer.feature's)
   and no gate verdict, freeze, or digest (those are ../validate-spec/validate-spec.feature's).
+  Grouped by the three invocation modes (UC1 new feature, UC2 backfill, UC3 redirect) then the
+  cross-cutting guarantees UC1/UC2 share.
 
-  # ---- Classify + locate ----
+  # ---- UC1 — spec a new feature (no code yet) ----
 
   Scenario: a CR for new capability content is located to a node under the project tree
-    Given a CR for capability content that does not exist yet
+    Given a CR for capability content that has no spec node and no implementation
     When create-spec runs
     Then it determines the target capability folder under the project spec tree
+
+  Scenario: a new feature collects the up-front grill before the first dispatch
+    Given a new-feature CR with missing what, why, or interface
+    When create-spec prepares to dispatch the operator
+    Then it collects the up-front grill from the user first
+
+  # ---- UC2 — backfill from existing code ----
+
+  Scenario: a backfill skips the up-front grill
+    Given a CR whose behavior already exists in code but has no spec node
+    When create-spec prepares to dispatch the operator
+    Then it skips the up-front grill
+    And it signals backfill to the operator
+
+  # ---- UC3 — redirect when the node already exists ----
 
   Scenario: an existing node routes to revise-spec
     Given a CR whose target spec node already exists
@@ -16,13 +33,13 @@ Feature: The create-spec entry skill — scaffold a new spec node and dispatch t
     Then it routes the work to revise-spec
     And it scaffolds no new node
 
+  # ---- Cross-cutting — classify + scaffold ----
+
   Scenario: an ambiguous classification is asked, not guessed
     Given the spec-type or artifact-types of the node cannot be determined
     When create-spec must classify the node
     Then it asks the user to disambiguate
     And it does not guess a classification
-
-  # ---- Scaffold the skeleton ----
 
   Scenario: a behavioral node is scaffolded with a Use Cases section and an empty feature
     Given the node is classified as behavioral
@@ -46,18 +63,7 @@ Feature: The create-spec entry skill — scaffold a new spec node and dispatch t
     When it writes the skeleton
     Then it writes no status, aligned, approval, or produced-by frontmatter
 
-  # ---- Grill + dispatch ----
-
-  Scenario: a new feature collects the up-front grill before the first dispatch
-    Given a new-feature CR with missing what, why, or interface
-    When create-spec prepares to dispatch the operator
-    Then it collects the up-front grill from the user first
-
-  Scenario: a backfill skips the up-front grill
-    Given a CR whose behavior already exists in code
-    When create-spec prepares to dispatch the operator
-    Then it skips the up-front grill
-    And it signals backfill to the operator
+  # ---- Cross-cutting — drive the operator, then leave at draft ----
 
   Scenario: a needs-input wave is batched back to the user
     Given the operator returns needs-input during explore
@@ -70,8 +76,6 @@ Feature: The create-spec entry skill — scaffold a new spec node and dispatch t
     When create-spec must decide how to proceed
     Then it presents the failing scenarios to the user
     And it does not auto-accept the spec
-
-  # ---- Leave at draft ----
 
   Scenario: a converged node is left at draft for the spec gate
     Given explore converges on a spec and suite diff

@@ -24,16 +24,32 @@ frontmatter (`status` / `aligned` / `approval` / `produced-by` — those are the
 owned by the operator and the gate, `../../design/provenance-model.md`). An **existing** node is
 `../revise-spec/`, not here.
 
-| Trigger | Inputs | Outcome |
-|---|---|---|
-| **classify + locate** — a CR for capability content that does not exist yet | the CR + the project tree (`.agents/specs/<project>/`) | the target capability folder + the node's **spec-type** (descriptive / reference / behavioral) and `artifact-types`; ambiguity is asked, never guessed; an **existing** node routes to `../revise-spec/` |
-| **scaffold the skeleton** — a type + location are chosen | the chosen `spec-type` + `artifact-types` | a node README matching its type (descriptive index → no marker, no `## Use Cases`; reference → `spec-type: reference` + `## Subject`; behavioral → `spec-type: behavioral` + `## Use Cases` + an empty `<unit>.feature`); control frontmatter is **not** written here |
-| **grill + dispatch** — the skeleton exists | new-feature intent, or `backfill` | the up-front grill is collected (new feature) or skipped (backfill); the operator runs explore under an iteration cap; `needs-input` waves are batched to the user; the cap is **never** silently auto-accepted |
-| **leave at draft** — explore converges | the producer's diff | the node sits at `status: draft`; create-spec advances no status past draft — the spec gate does that |
+**How it is entered.** create-spec is invoked two ways, and the user names only *what* capability to
+spec — create-spec decides the rest by grilling, never guessing:
 
-Every scenario in [`create-spec.feature`](./create-spec.feature) maps to one of these four use
-cases. The scaffolding, status, and freeze *rules* live in `../../design/lifecycle-model.md`; the
-node-skeleton shape per type is the spec-types taxonomy in
+- **directly by a person** — `/create-spec`, "create a spec for `<X>`", or the gateway
+  (`../../gateway/`) routing a new-content request to authoring; interactive.
+- **by the mission** — as the interactive face of the **explore** phase (`../../design/loops.md`)
+  for content that does not exist yet.
+
+The intent splits into three **invocation modes** — the distinct reasons create-spec runs. Each is
+written as a user story with the concrete condition that triggers it:
+
+| # | Use case (user story) | Triggered when | Outcome |
+|---|---|---|---|
+| **UC1 — spec a new feature** | *As a developer, I want to spec a capability that has no code yet, so that the contract is settled before anyone builds it.* | the named target has **no spec node** and **no implementation** | up-front grill → scaffolded node (type-matched) → producer-authored prose + an initial suite, left at `status: draft` |
+| **UC2 — backfill from existing code** | *As a developer, I want to capture a spec for behavior that already exists in code, so that the running system gains a contract to gate against.* | the named target has **no spec node** but an **implementation exists** | grill **skipped**; the producer infers what / why / decisions from source, tests, and history; node left at `status: draft` |
+| **UC3 — redirect when it already exists (boundary)** | *As a developer who asked to "create" a spec that turns out to already exist, I want to be redirected, so that I revise rather than clobber it.* | the named target **already has** a spec node | hand off to `../revise-spec/`; **scaffold nothing** |
+
+UC1 and UC2 then run the same procedure — **classify → scaffold → grill → drive the operator →
+leave at draft** (the sections below) — under cross-cutting guarantees the suite also pins: an
+ambiguous classification is **asked, not guessed**; scaffolding writes **no control frontmatter**;
+a `needs-input` wave is **batched** back to the user; the iteration cap is **never** silently
+auto-accepted; create-spec **advances no status past draft**.
+
+Every scenario in [`create-spec.feature`](./create-spec.feature) maps to one of these three modes
+or to a cross-cutting guarantee. The scaffolding, status, and freeze *rules* live in
+`../../design/lifecycle-model.md`; the node-skeleton shape per type is the spec-types taxonomy in
 `../../design/unit-and-organization.md` and the section bars in `../spec-format/README.md` +
 `../suite-format/README.md`. This unit is the *behavior* that enacts them.
 

@@ -112,3 +112,25 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Given a required production role that resolves to no producer and no SDD default
     When the gate runs
     Then the gate fails closed and advances nothing
+
+  # ---- Spec-type reconcile ----
+
+  Scenario: a reference node carrying a .feature fails the gate closed
+    Given a node README marked spec-type reference with a sibling .feature file
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+
+  Scenario: a reference node with no Subject section fails the gate closed
+    Given a node README marked spec-type reference with no Subject section
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+
+  Scenario: a behavioral node with no Use Cases section fails the gate closed
+    Given a node README marked spec-type behavioral with no Use Cases section
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+
+  Scenario: a descriptive node raises no spec-type violation
+    Given a node README with no spec-type marker
+    When the gate applies its structural checks
+    Then the gate raises no spec-type violation for that node

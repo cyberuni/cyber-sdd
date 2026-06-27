@@ -1,6 +1,7 @@
 Feature: The spec-producer procedure — grill a CR into spec prose + a boolean suite
   Unit suite for the spec-producer-governance procedure (the producer unit). Producer
-  behaviors only — no gate verdict, freeze, or digest scenarios (those are validate-spec's).
+  behaviors only — no gate verdict, freeze, or digest scenarios (those are
+  ../validate-spec/validate-spec.feature's).
 
   # ---- Modes — create / revise / backfill ----
 

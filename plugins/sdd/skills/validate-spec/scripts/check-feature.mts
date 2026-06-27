@@ -4,7 +4,7 @@
 // running the file directly drives the CLI. No dependencies — plain node strips
 // the types.
 
-import { readdirSync, readFileSync } from 'node:fs'
+import { type Dirent, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -163,7 +163,7 @@ export function checkFeature(slug: string, file: string, text: string): string[]
 export function discoverFeatureDirs(root: string): { slug: string; files: string[] }[] {
 	const out: { slug: string; files: string[] }[] = []
 	const walk = (dir: string, rel: string) => {
-		let entries: ReturnType<typeof readdirSync>
+		let entries: Dirent[]
 		try {
 			entries = readdirSync(dir, { withFileTypes: true })
 		} catch {

@@ -43,10 +43,12 @@ into smaller specs to approve separately.
 Step 1 produces two things, not one: the **routed CR** and a **scaffolded mission plan**.
 When a CR is claimed, intake creates `.agents/plans/<cr-ref>.plan.md` from a **basic template**
 — Cursor-compatible frontmatter with an empty `todos` list (`../design/provenance-model.md`)
-plus a `## NEXT` anchor — so the plan exists **from step 1**. The plan-producer then **fills**
-it during explore (grill analysis, the task DAG flattened to `todos`, the working method); it
-does **not** invent the plan from nothing later. A plan that already exists (a resumed mission)
-is opened, not re-scaffolded.
+plus a `## NEXT` anchor — so the plan exists **from step 1**. The **operator** then **fills**
+it during explore (the task DAG flattened to `todos`, the working method, progress); it does
+**not** invent the plan from nothing later. The plan holds **execution state only** — the
+durable per-unit **solution** (chosen approach + rejected alternatives) lives beside each
+unit's spec + suite, not here (`../design/unit-and-organization.md`). A plan that already
+exists (a resumed mission) is opened, not re-scaffolded.
 
 ## Sources — the only work-intake
 

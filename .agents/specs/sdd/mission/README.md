@@ -104,7 +104,7 @@ spawned cold context** the author cannot reach.
 |---|---|---|---|---|
 | **spec-producer** | writes the contract | intent prose + boolean Gherkin | `spec.md` body, `.feature` | operator loads governance, authors inline (warm) |
 | **spec-judge** | judges the contract | runs the domain bar on the `.feature` | nothing — advises | `sdd-spec-judge` — spawned cold |
-| **plan-producer** | plans the solution | the solution + its ordered task list | **fills** the intake-scaffolded plan brief + `todos` (one `.plan.md`) | operator loads governance, authors inline (warm) |
+| **solution-producer** | records the solution | the per-unit decision record (chosen approach + rejected alternatives), **only when** the unit has durable rationale | `<unit>.solution.md` (beside the unit's spec + suite) | operator loads governance, authors inline (warm) |
 | **impl-producer** | builds artifact + verification | the implementation **and** one verification per frozen scenario | code/docs/config **+** tests/evals | operator loads governance, builds inline (warm) |
 | **impl-judge** | runs the verification | runs the producer's tests/evals + an orthogonal structural/scope read | nothing — advises | `sdd-implementer` — spawned cold |
 
@@ -122,8 +122,8 @@ cold judges grade."** The constraint that forces it is `producer ≠ judge`, enf
 context separation: the hand that writes an artifact never signs off on it.
 
 The five artifacts **co-deliver** — produced together, not in sequential gated phases. There
-is **no plan gate**: plan and tasks get no judge of their own; the implementation's test
-result validates them transitively. Only two objects are gated — the `.feature` (spec gate)
+is **no solution gate**: the solution gets no judge of its own; the implementation's test
+result validates it transitively (the operator's execution `todos` are likewise ungated). Only two objects are gated — the `.feature` (spec gate)
 and the implementation (impl gate). The impl-producer co-authors the implementation **and**
 its verification (anchored to the frozen scenarios, never free-authored); any
 rubric/threshold/score is a validation detail that **never appears in the `.feature`**.
@@ -266,7 +266,7 @@ sources are the stale side, to fix in the source sweep.
   not the design.
 - **Squad vs the five-role chain — RESOLVED (same mechanism, two granularities).** A **squad**
   is the selection unit, **one per artifact-type**; it supplies the **five role slots**
-  (`spec-producer`, `plan-producer`, `spec-judge`, `impl-producer`, `impl-judge`). The
+  (`spec-producer`, `solution-producer`, `spec-judge`, `impl-producer`, `impl-judge`). The
   five-role chain is how the operator *runs* a squad; "one producer per file" holds because the
   three producer roles write **different** files. A project-spec CR touches several
   artifact-types → summons several squads, each running its five-role chain. No contradiction —

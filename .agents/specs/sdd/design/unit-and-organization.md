@@ -109,6 +109,18 @@ The behavior suite is **part of the project spec**, carried by the **behavioral*
 This is the old project/feature behavior split surviving as *test organization within one corpus*, not as separate lifecycles to re-gate.
 (How scenarios are written and judged: `../authoring/suite-format/README.md`.)
 
+## The unit's third facet — the solution
+
+A behavioral unit may carry a third durable artifact beside its spec (`README.md` / `## Use Cases`) and its suite (`<unit>.feature`): the **solution**, `<unit>.solution.md`. A unit is then a triple — **what** (spec), **how** (solution), **verified-by** (suite) — all keyed to the same unit boundary.
+
+- **What it holds.** A **decision record**: the chosen approach, key structural decisions, and the **rejected alternatives** and *why*. Only what the implementation and its test results **cannot** say — the roads not taken leave zero trace in code. It does **not** restate how each scenario is satisfied; the code shows that and the suite proves it.
+- **Optional.** Written only when a unit has a real design fork worth preserving. A unit whose design is obvious from its impl has **no** solution file — "let the implementation do the talking."
+- **Boundary-aligned, not coverage-aligned.** It shares the unit's folder and scope but never mirrors the scenario set — coverage is the suite's job.
+- **Not frozen.** The suite freezes at the spec gate; the solution stays live, refined as the impl is built. It is **ungated** — no solution-judge; the impl gate validates it transitively (`specialists-and-squads.md`).
+- **Who writes it.** The `solution-producer` role (`specialists-and-squads.md`), in explore and refined in deliver.
+
+The solution is **per-unit and durable** — distinct from the per-CR execution `.plan.md`, which is **transient** mission state (todos + working method, deleted at retro; `provenance-model.md`). The split keys on scope and lifetime — see `../TERMINOLOGY.md` for the old `plan.md`/`tasks.md` → solution / execution-plan mapping.
+
 ## The folder skeleton maps to the loops
 
 The top-level skeleton:

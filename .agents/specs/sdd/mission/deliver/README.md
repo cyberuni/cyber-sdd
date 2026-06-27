@@ -12,7 +12,7 @@ the one whose output is kept.
 
 ## Build to keep, against the frozen suite
 
-- The plan-producer + impl-producer run (warm or spawned per the orchestrator's resolution).
+- The solution-producer + impl-producer run (warm or spawned per the orchestrator's resolution).
   The impl-producer co-authors the implementation **and** one verification per frozen
   scenario, anchored to the frozen `.feature`, never free-authored. It **never modifies**
   `spec.md` or the `.feature` (a behavior-changing gap is a `CONTENT_GAP` / `BLOCKER`, not an

@@ -42,7 +42,7 @@ A **producer** role may also name a model-tuned agent to run at its own model/ef
 | Role key | Acts | SDD default |
 |---|---|---|
 | `spec-producer` | writes the `spec.md` body + the `.feature` | Operator loads `spec-producer-governance`, authors inline (`sdd:sdd-operator`) |
-| `plan-producer` | writes the plan brief + its ordered `todos` (one `.plan.md`) | Operator loads `plan-producer-governance`, authors inline (`sdd:sdd-operator`) |
+| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md` — the decision record: chosen approach + rejected alternatives) when a unit has durable rationale | Operator loads `solution-producer-governance`, authors inline (`sdd:sdd-operator`) |
 | `spec-judge` | judges the `.feature` at the spec gate | `sdd-spec-judge` — spawned cold agent |
 | `impl-producer` | builds the artifact **and** its verification | Operator loads `impl-producer-governance`, builds inline (`sdd:sdd-operator`) |
 | `impl-judge` | runs the verification against the frozen `.feature` | `sdd-implementer` — spawned cold agent |
@@ -61,16 +61,16 @@ Each role loads two tiers (`governance-resolution.md`): **fixed-universal** bars
 | Role | Fixed-universal | Resolved-actor (face) |
 |---|---|---|
 | spec-producer | `spec-format-governance`, `suite-format`, `ownership-governance` | `director`, `builder`, `architect` — **forward** |
-| plan-producer | `ownership-governance` | `architect` — **forward** (ungated; no judge) |
+| solution-producer | `ownership-governance` | `architect` — **forward** (ungated; no judge) |
 | spec-judge | `spec-format-governance`, `suite-format`, `lifecycle-governance`, `gate-validation-governance` | `director`, `builder`, `architect` — **backward** |
 | impl-producer | `ownership-governance` | `builder`, `architect` — **forward** |
 | impl-judge | `ownership-governance` | `builder`, `architect` — **backward** |
 
-**Lens set per gate** (the sdd-default squad; a squad may override): **spec gate** `{director, builder, architect}`; **impl gate** `{builder, architect}`; **plan** `{architect}` (ungated).
+**Lens set per gate** (the sdd-default squad; a squad may override): **spec gate** `{director, builder, architect}`; **impl gate** `{builder, architect}`; **solution** `{architect}` (ungated).
 The invariant: **a producer self-aligns to exactly the bars its judge grades** — the same bars forward and backward, loaded as separate faces.
 The impl-gate Director-revert (`autonomy-rubric.md`) is an operator escalation the impl-judge surfaces, not a routine impl-judge bar.
 
-For an **SDD-default producer** role, the operator additionally loads the matching `spec-producer-governance` / `plan-producer-governance` / `impl-producer-governance` — the procedure it runs inline.
+For an **SDD-default producer** role, the operator additionally loads the matching `spec-producer-governance` / `solution-producer-governance` / `impl-producer-governance` — the procedure it runs inline.
 A plugin delegate carries its own procedure and loads these bars directly.
 The gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; `sdd-operator` loads all three.
 The `sdd` gateway loads **no** governance — it is a thin relay that only classifies and routes (`actors-and-governance.md`, `gateway/README.md`); reading a raw `status` value for routing needs no governance load.
@@ -79,7 +79,7 @@ How each resolved-actor bar is discovered, composed, and loaded: `governance-res
 ## Registry SHAPE
 
 The registry lives in `.agents/universal-plugin.json` as a top-level `sdd-plugins[]` array — a project-level map from each installed domain plugin to the SDD production-chain roles it fills.
-It is the **single resolution source** the operator reads; there is no `plan.md` assignment fallback.
+It is the **single resolution source** the operator reads; there is no out-of-band assignment fallback.
 The operator reads **only** this file — it does not scan plugin directories.
 Each entry:
 
@@ -90,7 +90,7 @@ Each entry:
   "domains": ["<artifact-type>", "..."],
   "roles": {
     "spec-producer": "<agent | null>",
-    "plan-producer": "<agent | null>",
+    "solution-producer": "<agent | null>",
     "spec-judge":    "<agent | null>",
     "impl-producer": "<agent | null>",
     "impl-judge":    "<agent | null>"
@@ -109,7 +109,7 @@ Each entry:
 
 **Degeneration of `null` / missing keys** (this file guarantees only what is a valid *stored* shape; the traversal is the operator's):
 
-- **A producer role** (`spec-producer`, `plan-producer`, `impl-producer`) that is `null` or absent → the operator **loads the producer governance and authors inline**; the recorded `produced-by.<role>` is `sdd:sdd-operator`.
+- **A producer role** (`spec-producer`, `solution-producer`, `impl-producer`) that is `null` or absent → the operator **loads the producer governance and authors inline**; the recorded `produced-by.<role>` is `sdd:sdd-operator`.
 - **A judge role** (`spec-judge`, `impl-judge`) that is `null` or absent → the operator **spawns the SDD-default cold judge agent** (`sdd-spec-judge`, `sdd-implementer`).
   A judge default is never loaded inline — grader independence requires a cold context.
 

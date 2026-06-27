@@ -41,7 +41,7 @@ name: <short plan title>                 # Cursor: the plan's display name
 overview: <one-paragraph summary>        # Cursor: quote if it contains : or other YAML-special chars
 cr: <cr-ref>                             # SDD: the source-qualified CR id (github-34, asana-<gid>, local-<slug>)
 cr-url: <web URL of the CR>              # SDD: the CR's source link, so a reader opens it in one click
-todos:                                   # Cursor: the editable task list (the "tasks.md" role — the task DAG flattened to ordered todos; dependency = order, no edge field)
+todos:                                   # Cursor: the editable task list (the execution task DAG flattened to ordered todos; dependency = order, no edge field)
   - id: <kebab-id>
     content: <task description>
     status: pending                      # pending | in_progress | completed
@@ -53,12 +53,8 @@ isProject: false                         # Cursor: always false — SDD has no C
   Always record **both**: `cr` is the matchable source-qualified id used for retirement (source-status query) and collision-free naming; `cr-url` is the human link (`github-<n>` → `https://github.com/<owner>/<repo>/issues/<n>`, `asana-<gid>` → the task URL, `local-<slug>` → omit or a local anchor).
   Anywhere the plan body or a conclusion references the CR, give the **URL** too, not just the ref.
 - **`name` / `overview` / `todos` / `isProject`** are Cursor's own fields — populate them as Cursor does so the plan stays first-class in both tools.
-- **The `todos` block is the execution task list** — the task DAG **flattened to an ordered list**, dependency expressed as **order**, not a per-todo edge field. The plan-producer **fills** it into the single `.plan.md` that **intake scaffolded** at step 1 from a basic template (frontmatter `todos` + a `## NEXT` anchor; `../intake/README.md`).
-  <!-- open: the old `plan.md` (functional spec — solution design + rejected alternatives) is
-  SEPARATED from the execution `.plan.md` (DECIDED 2026-06-27; was folded in as the "plan.md
-  role"). The functional spec's home, lifecycle, and producer are to be designed in the
-  sub-mission/sub-deliver work; `plan-producer-governance` is reworked there. See
-  `../TERMINOLOGY.md`. -->
+- **The `todos` block is the execution task DAG** — flattened to an ordered list, dependency expressed as **order**, not a per-todo edge field. The **operator** fills it during explore (execution planning) into the single `.plan.md` that **intake scaffolded** at step 1 from a basic template (frontmatter `todos` + a `## NEXT` anchor; `../intake/README.md`). The `.plan.md` carries **execution state only** — todos, working method, `## NEXT`, the combat log.
+- **The solution (the old `plan.md`) is NOT here.** The per-CR functional spec was once folded into this file; it is now a **separate, durable, per-unit artifact** — `<unit>.solution.md`, beside the unit's spec and suite (`../design/unit-and-organization.md`). Folding durable design rationale into a retro-deleted file lost it; the split keys on scope and lifetime — **solution = per-unit + durable; task DAG = per-CR + transient**.
 
 ## Two faces, two homes
 
@@ -107,7 +103,7 @@ Together with `approval` (the judging twin) it gives full per-artifact provenanc
 
 | Field | Records | Keyed by | Written by |
 |---|---|---|---|
-| `produced-by` | who **made** each artifact | production role (`spec-producer`, `plan-producer`, `impl-producer`) | operator, at dispatch |
+| `produced-by` | who **made** each artifact | production role (`spec-producer`, `solution-producer`, `impl-producer`) | operator, at dispatch |
 | `approval` | who **judged** each gate (`verdict` + `by` + `why`) | gate (`spec`, `impl`) | operator (self-assert) / skill (ratify) |
 
 Each `produced-by` value is the **plugin-qualified agent name** (`aces:aces-scenario-writer`, `quill:quill-doc-writer`, or `sdd:sdd-operator` when SDD's own inline default produced it — see `specialists-and-squads.md`).
@@ -121,7 +117,7 @@ It plays two deliberately separated roles:
 status: approved
 produced-by:
   spec-producer: aces:aces-scenario-writer
-  plan-producer: sdd:sdd-operator
+  solution-producer: sdd:sdd-operator
   impl-producer: sdd:sdd-operator
 approval:
   spec:

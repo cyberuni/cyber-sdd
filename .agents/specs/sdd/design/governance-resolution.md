@@ -8,7 +8,7 @@ Rule side only; the mechanical resolution is a deterministic helper (below).
 
 A role's governances split by whether they vary with the artifact-type:
 
-- **Fixed-universal** — invariant per role on every invocation: `ownership`, `lifecycle`, `spec-format` (`spec-governance`), `gate-validation`.
+- **Fixed-universal** — invariant per role on every invocation: `ownership`, `lifecycle`, `spec-format` (`spec-format-governance`), `suite-style`, `gate-validation`.
   Ship with sdd; eligible for build-time embedding (`actors-and-governance.md`).
 - **Resolved-actor** — the actor bars `director` / `builder` / `architect`, resolved per `(artifact-type, face)`.
   The variable tier; **never build-embedded** — resolution is dynamic per the file's artifact-type.

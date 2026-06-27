@@ -60,9 +60,9 @@ Each role loads two tiers (`governance-resolution.md`): **fixed-universal** bars
 
 | Role | Fixed-universal | Resolved-actor (face) |
 |---|---|---|
-| spec-producer | `spec-governance`, `ownership-governance` | `director`, `builder`, `architect` — **forward** |
+| spec-producer | `spec-format-governance`, `suite-style`, `ownership-governance` | `director`, `builder`, `architect` — **forward** |
 | plan-producer | `ownership-governance` | `architect` — **forward** (ungated; no judge) |
-| spec-judge | `spec-governance`, `lifecycle-governance`, `gate-validation-governance` | `director`, `builder`, `architect` — **backward** |
+| spec-judge | `spec-format-governance`, `suite-style`, `lifecycle-governance`, `gate-validation-governance` | `director`, `builder`, `architect` — **backward** |
 | impl-producer | `ownership-governance` | `builder`, `architect` — **forward** |
 | impl-judge | `ownership-governance` | `builder`, `architect` — **backward** |
 

@@ -161,5 +161,18 @@ verdict-only — it writes no setup frontmatter to resolve any of these.
 
 ## Scenarios
 
-Unit scenarios for the authoring capability **colocate here**; the e2e / cross-capability
-outcome scenarios live in `../acceptance/`.
+Unit scenarios **colocate here**, **split per unit of code** — one `.feature` per skill, not
+one per capability folder. A skill is the unit; its suite tests only that unit's behavior, so
+a capability that hosts several skills holds several suites. Authoring hosts two units → two
+suites:
+
+- [`spec-producer.feature`](./spec-producer.feature) — the `spec-producer-governance`
+  procedure (grilling + authoring the spec body and the `.feature`); **producer behaviors
+  only**.
+- [`validate-spec.feature`](./validate-spec.feature) — the `validate-spec` gate skill (the
+  verdict, the three verbs, per-file freeze, the digest, the structural provenance checks).
+
+A producer suite never tests gate behavior and a gate suite never tests grilling — mixing two
+units in one file is a category error. A unit's own suite splits further only when there is a
+unit reason to (the freeze grain is **per `.feature` file**, so two units in two files freeze
+independently). Cross-capability outcome (e2e) scenarios live in `../acceptance/`, never here.

@@ -13,14 +13,16 @@ So SDD cannot assume a flat one-level harness. On a harness that forbids nesting
 
 ## What each harness allows
 
+**Depth** counts levels of subagents below the main session. Every harness here supports **at least depth 1** — the main session can spawn subagents. The question is whether a *subagent* can spawn another (depth ≥ 2); "depth 1" means it cannot, **not** that subagents are unavailable.
+
 | Harness | Subagent → subagent? | Depth | Default |
 |---|---|---|---|
 | **Claude Code** | yes | up to 5 | on (named subagents, since ~v2.1.172) |
 | **Cursor** | shallow | ~2 (main + direct subagents spawn; grandchild can't) | on (since 2.5) |
 | **Codex CLI** | opt-in | `agents.max_depth`, default `1` | flat unless raised |
 | **GitHub Copilot CLI** | undocumented | unknown | has `/delegate`, `/fleet`; recursion is an open feature request |
-| **Gemini CLI** | no — explicitly banned | 1 | flat by design (loop/token guard) |
-| **Amp (Sourcegraph)** | no — flat by design | 1 | flat by design |
+| **Gemini CLI** | no — explicitly banned | 1 (main spawns workers; workers can't) | flat by design (loop/token guard) |
+| **Amp (Sourcegraph)** | no — flat by design | 1 (main spawns workers; workers can't) | flat by design |
 
 Notes: Claude Code's separate **fork** (Agent tool with `subagent_type` omitted) inherits the full parent conversation, runs in the background to a single result, and is held to **one level** by a Recursive Fork Guard — it cannot spawn further. Named subagents are the path to depth.
 

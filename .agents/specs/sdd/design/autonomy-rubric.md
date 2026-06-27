@@ -11,10 +11,10 @@ and reading the outcome, not by gating each transition.
 The rubric **defines** the bar; the conductor **enacts** it. It is a **design/evaluation
 artifact**, not a runtime monolith loaded on every decision. At design/eval time the consumer is
 the eval tool (ACES), which sets and verifies each agent config's escalation posture against it.
-At runtime the verdict is made by **the most capable conductor model** (in SDD, `sdd-operator`)
-from its own **baked-in** determination logic authored to conform to this rubric — never by
-loading the document per decision. An agent's baked-in logic carries only the inputs its own
-decisions touch.
+At runtime the verdict is made by the **conductor** — the capable agent that runs a loop and makes
+its self-clear/escalate verdicts from baked-in logic (in SDD `sdd-operator`; the formation Warden
+is another) — authored to conform to this rubric, never by loading the document per decision. An
+agent's baked-in logic carries only the inputs its own decisions touch.
 
 ## The hard floor — the only mandatory human escalations
 
@@ -127,33 +127,21 @@ self-assert this run, derived from the verdict and capped by an optional human c
 
 The names follow an `auto-<reach>` scheme — they name **how far autonomy reaches**, not where it
 stops. Derived: spec gate would escalate → `auto-none`; spec gate self-clears, impl gate would
-escalate → `auto-spec`; both self-clear → `auto-all`. The Conductor may cap the run (`effective =
-min(ceiling, derived)`); the agent may stop earlier, never further. The leash is **per
+escalate → `auto-spec`; both self-clear → `auto-all`. An optional **human ceiling** caps the run
+(`effective = min(ceiling, derived)`); the conductor may stop earlier, never further. The leash is **per
 run/sitting** (session-local), held in the `strategy` block, **re-derived at each gate** — an
 `auto-none` spec gate does not bind a later impl gate. There is **no per-gate `leash` field** in
 an `approval` entry. The leash governs only the **two gates**; non-gate decisions (in-flight
 adjustments, outer-loop acts) run the floor + gradient directly.
 
-## The outer-loop delegates — Scanner escalates, Warden is rubric-subject
+## Who applies the bar
 
-The two outer-loop delegates are not symmetric: they differ in *what kind of decision* each
-reaches, so they differ in whether the rubric applies at all.
-
-| Delegate | Loop | Decision class | Rubric posture |
-|---|---|---|---|
-| **Scanner** | doctrine | **intent** — a doctrine/process change alters *how we work* for every future mission | **always escalates**, makes **no self-clear verdict**; stays a less-capable model precisely because it needs no runtime verdict |
-| **Warden** | formation | **risk** — structural acts on the spec corpus, gradable per act | **rubric-subject** — a **conductor** that applies the full floor + gradient and makes its own self-clear-vs-escalate verdict per act |
-
-- The **Scanner is intent-class**: a doctrine/process change is the human's to keep or cut; it
-  surfaces and stops, drafting always-unratified strategy.
-- The **Warden is a conductor**: it self-clears git-reversible, coverage-preserving, low-blast acts
-  (consistency fixes, refactors that preserve every scenario), leaving a provisional
-  agent-attributed marker; it escalates **narrowing** acts (Clearance — a dedupe that deprecates a
-  spec or drops scenarios) and **contested** acts (Conflict — picking the winning claim in a
-  reconciliation).
-
-The rule "only the capable conductor makes the verdict" binds to the **conductor role**, not a
-loop position: the Warden making its own verdict is consistent because the Warden *is* a conductor.
+The bar is a **verdict, made only by a conductor** — never a checklist a lesser agent runs. A
+delegate that merely **surfaces** a finding for a human keep-or-cut (e.g. the doctrine-loop
+**Scanner**, which drafts unratified strategy) makes no verdict, so it can be a lesser model. A
+delegate that **acts** under the bar (e.g. the formation-loop **Warden**, self-clearing or
+escalating each structural act) **must** be a conductor. Per-loop behavior lives in `loops.md` and
+each loop's folder.
 
 ## Testability harness
 

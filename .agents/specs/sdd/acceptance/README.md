@@ -48,7 +48,7 @@ Sources: `sdd-contract-registry`, `sdd-operator-resolution`, `plugin/` init-WRIT
 ### D. Freeze (authoring spec gate → mission impl gate)
 Sources: `sdd-operator-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
 
-- D1. A spec-gate approve freezes the `.feature` files the CR touched (a per-file `@frozen` tag); `spec.md` is kept aligned but never frozen, and `plan.md`/`tasks.md` are never frozen — with no separate plan gate.
+- D1. A spec-gate approve freezes the `.feature` files the CR touched (a per-file `@frozen` tag); `spec.md` is kept aligned but never frozen, and the plan (brief + ordered `todos`) is never frozen — with no separate plan gate.
 - D2. The frozen `.feature` is the object at the spec gate and the bar at the impl gate.
 - D3. An agent refuses to edit a frozen `.feature` and directs reverting to draft.
 - D4. A fatal deal-breaker reverts an approved spec to draft (a Director-revert) and unfreezes the `.feature`.

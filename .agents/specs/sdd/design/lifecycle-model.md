@@ -194,7 +194,7 @@ grades a result, it does not run the build). The full run is the safety net that
 regression the per-file skip hid.
 
 - **Two modes.** Before a file's freeze, exploration may update `spec.md`, that `.feature`,
-  `plan.md`, `tasks.md`, and spikes. After it freezes, implementation proceeds against it;
+  the **plan** (brief + ordered `todos`), and spikes. After it freezes, implementation proceeds against it;
   every frozen scenario must pass the full impl-gate run before `implemented`.
 
 ## Gate accountability

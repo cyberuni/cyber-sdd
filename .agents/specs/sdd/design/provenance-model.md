@@ -53,7 +53,7 @@ name: <short plan title>                 # Cursor: the plan's display name
 overview: <one-paragraph summary>        # Cursor: quote if it contains : or other YAML-special chars
 cr: <cr-ref>                             # SDD: the source-qualified CR id (github-34, asana-<gid>, local-<slug>)
 cr-url: <web URL of the CR>              # SDD: the CR's source link, so a reader opens it in one click
-todos:                                   # Cursor: the editable task list (the plan's tasks.md DAG, flattened)
+todos:                                   # Cursor: the editable task list (the "tasks.md" role — the task DAG flattened to ordered todos; dependency = order, no edge field)
   - id: <kebab-id>
     content: <task description>
     status: pending                      # pending | in_progress | completed
@@ -68,6 +68,10 @@ isProject: false                         # Cursor: always false — SDD has no C
   body or a conclusion references the CR, give the **URL** too, not just the ref.
 - **`name` / `overview` / `todos` / `isProject`** are Cursor's own fields — populate them as
   Cursor does so the plan stays first-class in both tools.
+- **`plan.md` and `tasks.md` are conceptual roles inside this one file**, not separate artifacts:
+  the prose brief is the *"plan.md"* role; the `todos` block is the *"tasks.md"* role — the task
+  DAG **flattened to an ordered list**. Dependency is expressed as **order**, not as a per-todo
+  edge field; the plan-producer writes both into the single `.plan.md`.
 
 ## Two faces, two homes
 

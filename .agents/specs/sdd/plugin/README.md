@@ -59,7 +59,7 @@ role may also name a model-tuned agent; naming any agent means the operator **sp
 | Role key | Acts | SDD default |
 |---|---|---|
 | `spec-producer` | writes the `spec.md` body + the `.feature` | operator loads `spec-producer-governance`, authors inline (`sdd:sdd-operator`) |
-| `plan-producer` | writes `plan.md` + `tasks.md` | operator loads `plan-producer-governance`, authors inline (`sdd:sdd-operator`) |
+| `plan-producer` | writes the plan brief + its ordered `todos` (one `.plan.md`) | operator loads `plan-producer-governance`, authors inline (`sdd:sdd-operator`) |
 | `spec-judge` | judges the `.feature` at the spec gate | `sdd-spec-judge` — spawned cold agent |
 | `impl-producer` | builds the artifact **and** its verification | operator loads `impl-producer-governance`, builds inline (`sdd:sdd-operator`) |
 | `impl-judge` | runs the verification against the frozen `.feature` | `sdd-implementer` — spawned cold agent |

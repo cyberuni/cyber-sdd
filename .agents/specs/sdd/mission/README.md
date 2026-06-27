@@ -104,7 +104,7 @@ spawned cold context** the author cannot reach.
 |---|---|---|---|---|
 | **spec-producer** | writes the contract | intent prose + boolean Gherkin | `spec.md` body, `.feature` | operator loads governance, authors inline (warm) |
 | **spec-judge** | judges the contract | runs the domain bar on the `.feature` | nothing — advises | `sdd-spec-judge` — spawned cold |
-| **plan-producer** | plans the solution | the solution + its ordered task list | the plan brief + `todos` (one `.plan.md`) | operator loads governance, authors inline (warm) |
+| **plan-producer** | plans the solution | the solution + its ordered task list | **fills** the intake-scaffolded plan brief + `todos` (one `.plan.md`) | operator loads governance, authors inline (warm) |
 | **impl-producer** | builds artifact + verification | the implementation **and** one verification per frozen scenario | code/docs/config **+** tests/evals | operator loads governance, builds inline (warm) |
 | **impl-judge** | runs the verification | runs the producer's tests/evals + an orthogonal structural/scope read | nothing — advises | `sdd-implementer` — spawned cold |
 

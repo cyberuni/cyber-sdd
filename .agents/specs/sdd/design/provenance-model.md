@@ -54,7 +54,7 @@ isProject: false                         # Cursor: always false — SDD has no C
   Anywhere the plan body or a conclusion references the CR, give the **URL** too, not just the ref.
 - **`name` / `overview` / `todos` / `isProject`** are Cursor's own fields — populate them as Cursor does so the plan stays first-class in both tools.
 - **`plan.md` and `tasks.md` are conceptual roles inside this one file**, not separate artifacts: the prose brief is the *"plan.md"* role; the `todos` block is the *"tasks.md"* role — the task DAG **flattened to an ordered list**.
-  Dependency is expressed as **order**, not as a per-todo edge field; the plan-producer writes both into the single `.plan.md`.
+  Dependency is expressed as **order**, not as a per-todo edge field; the plan-producer **fills** both into the single `.plan.md` that **intake scaffolded** at step 1 from a basic template (frontmatter `todos` + a `## NEXT` anchor; `../intake/README.md`).
 
 ## Two faces, two homes
 

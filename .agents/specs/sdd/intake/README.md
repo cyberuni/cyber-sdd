@@ -38,6 +38,16 @@ gate/freeze baseline. A CR produces *deltas* to that single corpus — it never 
 sibling spec to gate. Size is handled by organizing into files/folders, not by splitting
 into smaller specs to approve separately.
 
+## Intake scaffolds the mission plan
+
+Step 1 produces two things, not one: the **routed CR** and a **scaffolded mission plan**.
+When a CR is claimed, intake creates `.agents/plans/<cr-ref>.plan.md` from a **basic template**
+— Cursor-compatible frontmatter with an empty `todos` list (`../design/provenance-model.md`)
+plus a `## NEXT` anchor — so the plan exists **from step 1**. The plan-producer then **fills**
+it during explore (grill analysis, the task DAG flattened to `todos`, the working method); it
+does **not** invent the plan from nothing later. A plan that already exists (a resumed mission)
+is opened, not re-scaffolded.
+
 ## Sources — the only work-intake
 
 A CR may originate from any source; the source is the carrier, never a different kind of

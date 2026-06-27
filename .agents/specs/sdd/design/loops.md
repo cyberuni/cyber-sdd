@@ -12,7 +12,7 @@ The steps are **verbs** — actions taken — each producing a noun outcome.
 
 | # | Phase | Home | Nature | Produces |
 |---|---|---|---|---|
-| 1 | **intake** | `../intake/` (feeds the loop) | the CR subsystem | a routed CR |
+| 1 | **intake** | `../intake/` (feeds the loop) | the CR subsystem | a routed CR + a scaffolded plan |
 | 2 | **explore** | `../authoring/` (invoked by the mission) | build to **learn** | a frozen spec + suite |
 | 3 | **deliver** | `../mission/deliver/` | build to **keep** | a verified result |
 | 4 | **handoff** | `../mission/handoff/` | landing | the project's delivery shape |
@@ -25,6 +25,7 @@ The `../gateway/` routes a request into the loop but is **not a step**.
 The only work-intake.
 A CR arrives from a prompt, Asana, Jira, Linear, GitHub, or the local store (`../intake/`) and is routed to the capabilities it touches.
 Nothing enters the system except as a CR.
+Intake also **scaffolds the mission plan** (`.agents/plans/<cr-ref>.plan.md`) from a basic template — frontmatter `todos` plus a `## NEXT` anchor — so the plan exists from step 1; the plan-producer **fills** it during explore (it does not invent the plan later).
 This is the abstraction layer above the suite (see `abstraction-stack.md`); intake **feeds** the mission rather than living inside it.
 
 ### 2 — explore (build to learn)

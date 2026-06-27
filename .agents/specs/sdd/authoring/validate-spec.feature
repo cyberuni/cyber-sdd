@@ -1,59 +1,9 @@
-Feature: Authoring — grill a CR into a spec + suite diff, then gate it
-  The shared authoring capability: pressure-test a CR's intent into spec prose plus
-  boolean scenarios, then take the spec-gate verdict on that diff. Unit behaviors only;
-  the cross-capability CR lifecycle lives in ../acceptance/.
+Feature: The spec gate — judge a spec + suite diff and freeze on approve
+  Unit suite for the validate-spec gate skill (the gate unit). Gate behaviors only — the
+  producer's grilling/authoring behaviors live in spec-producer.feature; the cross-capability
+  CR lifecycle lives in ../acceptance/.
 
-  # ---- Grilling — create / revise / backfill ----
-
-  Scenario: create scaffolds prose and scenarios for new capability content
-    Given a CR for capability content that does not exist yet
-    When authoring grills it in create mode
-    Then it scaffolds the spec prose and an initial set of boolean scenarios
-
-  Scenario: revise tightens existing prose without scaffolding
-    Given a CR that touches a capability whose prose and scenarios already exist
-    When authoring grills it in revise mode
-    Then it interrogates the existing content and tightens what is weak or stale
-    And it scaffolds no new capability skeleton
-
-  Scenario: backfill skips the up-front grill and reads the existing implementation
-    Given a CR whose behavior already exists in code
-    When authoring grills it in backfill mode
-    Then it infers the what, why, and decisions from source, tests, and history
-    And it does not ask the up-front grill questions
-
-  Scenario: grilling settles the prose before editing the suite
-    Given a CR under grilling
-    When the prose contract is still unsettled
-    Then no scenario edits are made until the prose is settled
-
-  Scenario: grilling takes one issue to resolution before the next
-    Given grilling has summarized several issues in the CR
-    When it works them
-    Then it resolves the single most important issue before starting another
-
-  # ---- Grilling — gaps and contradictions ----
-
-  Scenario: a missing required input becomes an open marker, not an invention
-    Given grilling needs an input that is missing and cannot be inferred
-    When it cannot recover the input
-    Then it records the gap as an open marker in the body
-    And it does not invent a value
-
-  Scenario: a contradiction is reconciled toward the corroborated side
-    Given two statements in the spec conflict
-    And one side is the canonical definition corroborated by other sources and the implementation
-    When grilling reconciles them
-    Then it edits the outlier to match the corroborated side
-    And it does not reword the corroborated rule to fit the outlier
-
-  Scenario: an unclear authority is raised rather than guessed
-    Given two statements conflict and neither side is clearly authoritative
-    When grilling cannot establish which is the source of truth
-    Then it raises the conflict as an open marker
-    And it picks no reconciliation direction
-
-  # ---- The spec gate — verdict ----
+  # ---- Verdict ----
 
   Scenario: an in-leash diff self-asserts into the review queue
     Given a spec + suite diff whose assessment reads safe within the run leash
@@ -87,7 +37,7 @@ Feature: Authoring — grill a CR into a spec + suite diff, then gate it
     Then a distinct judge actor renders the verdict
     And the judge does not edit the artifact it grades
 
-  # ---- The spec gate — the three verbs and freeze ----
+  # ---- The three verbs and freeze ----
 
   Scenario: approve lands the diff and freezes each touched feature file
     Given an approved spec + suite diff
@@ -145,7 +95,7 @@ Feature: Authoring — grill a CR into a spec + suite diff, then gate it
     When the digest is produced
     Then it writes no frontmatter and renders no verdict
 
-  # ---- Provenance and alignment at the gate ----
+  # ---- Provenance and alignment ----
 
   Scenario: a malformed produced-by entry fails the gate closed
     Given a produced-by entry that is not a well-formed plugin-qualified name

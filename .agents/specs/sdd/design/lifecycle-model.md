@@ -43,6 +43,8 @@ Open input is recorded in the body as `<!-- open: ...
 `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced.
 Do not commit SDD artifacts while their spec is `aligned: false`.
 
+**This whole frontmatter is root-`spec.md`-only.** A capability node README (a `reference` or `behavioral` spec — see `../design/unit-and-organization.md` spec types) carries **only** its `spec-type` marker, never a lifecycle field — folders are views, never lifecycle units. The project has one lifecycle, on the root.
+
 ## Status enum
 
 | Status | Meaning |
@@ -117,6 +119,14 @@ Open markers at `draft` are permitted (markers block only the *gate*, not the dr
 
 Reject illegal tuples **before** any other gate work.
 If `check-spec-state.mts` changes, this list follows it — the script is the source of truth, this prose is the readable mirror.
+
+**Per-node `spec-type` checks** (same fail-closed class; enforced by the same helper). A capability node README's `spec-type` marker must agree with its shape:
+
+- `spec-type: reference` with a sibling `.feature` — illegal (a reference artifact is suite-less by design).
+- `spec-type: reference` with no `## Subject` section — illegal (the reference descriptor is required).
+- `spec-type: behavioral` with no `## Use Cases` section — illegal (a behavioral spec maps use cases to scenarios).
+
+These run wherever the helper runs; the `sdd-new` copy of `check-spec-state.mts` carries them (the baseline at `plugins/sdd/skills/validate-spec/scripts/` predates the spec-type marker).
 
 **No-resolvable-producer fails closed.**
 A required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role.

@@ -1,8 +1,8 @@
 # Spec-Driven Development (SDD)
 
-> Root project spec — the whole-project index. Rules live in [`design/`](./design/);
-> behaviors live in the capability folders. (`DESIGN-NOTES.md` is the superseded design
-> discussion, kept for history — not the working model.)
+> Root project spec — the **descriptive** top index for the whole project. Rules live in
+> [`design/`](./design/); behaviors live in the capability folders. (`DESIGN-NOTES.md` is the
+> superseded design discussion, kept for history — not the working model.)
 
 ## What SDD is
 
@@ -77,6 +77,7 @@ system except as a CR:
 
 - **ONE spec, ONE behavior suite, ONE gate/freeze baseline.** Folders are *views*, never lifecycle units — none gets its own `status`/approval.
 - **Rule-in-design + behavior-in-capability.**
+- **Three spec types** (`design/unit-and-organization.md`): **descriptive** (no subject — rule docs + indexes; no marker), **reference artifact** (`spec-type: reference` — a suite-less shipped thing), **behavioral artifact** (`spec-type: behavioral` — a testable unit with a `.feature`). `spec-type` is per-node classification, never lifecycle.
 - **Unit scenarios colocate** with their capability; **acceptance (e2e) scenarios** live in `acceptance/`.
 
 ## TODO

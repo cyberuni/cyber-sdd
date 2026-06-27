@@ -1,3 +1,7 @@
+---
+spec-type: behavioral
+---
+
 # validate-spec — the spec gate
 
 The **spec gate**: the verdict on the spec + suite **diff** before it becomes the contract. It

@@ -1,7 +1,8 @@
 # Suite style
 
 How behavior-suite scenarios are written and judged.
-The style applies uniformly to both the e2e scenarios in `acceptance/` and the unit scenarios colocated with their capability folder (see `unit-and-organization.md`) — one corpus, one convention.
+This style governs the `.feature` of a **behavioral** spec only — `descriptive` and `reference` nodes carry no suite (see the spec types in `unit-and-organization.md`).
+It applies uniformly to both the e2e scenarios in `acceptance/` and the unit scenarios colocated with their capability folder — one corpus, one convention.
 
 ## The gate sees one boolean per scenario
 

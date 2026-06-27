@@ -1,3 +1,7 @@
+---
+spec-type: behavioral
+---
+
 # spec-producer — grill a CR into spec prose + a boolean suite
 
 The authoring **procedure**: pressure-test a CR's intent into `spec.md` prose plus boolean

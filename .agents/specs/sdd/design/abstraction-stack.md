@@ -21,6 +21,7 @@ change-request (CR)   ← intent: the deltas you grill into spec + suite
 - **spec + behavior suite** — an abstraction of code.
   What humans read to know what the project *is* and does without reading every line.
   The spec narrates the capabilities; the behavior suite pins them to checkable scenarios.
+  This layer comprises the three spec-node types — **descriptive**, **reference**, and **behavioral** (`unit-and-organization.md`); only behavioral nodes carry the suite.
   Both stay maintained alongside the code — the spec is not a one-time design doc that rots after the first commit.
 - **change-request (CR)** — an abstraction of the behavior suite.
   The intent you *grill* into concrete deltas against spec + suite (and, through them, against code and outcome).

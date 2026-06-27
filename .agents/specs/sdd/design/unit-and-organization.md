@@ -66,21 +66,45 @@ Organize top-level folders by **SDD capability** — the folder names scream wha
 - **`design/`** — the abstract idea: the rules and model.
 - **`acceptance/`** — the outcome contract: the e2e behavior suite.
 
+## Spec types
+
+Every node in the spec tree is one of **three types**, told apart on two axes — *does it have a subject?* and, if so, *does it own a `.feature`?*
+
+| Type | Subject | `.feature` | Carries | Marker | Examples |
+|---|---|---|---|---|---|
+| **Descriptive** | none | no | — | none (default) | `design/` rule docs; indexes — the root `spec.md`, a capability overview README |
+| **Reference artifact** | a non-testable thing | no (by design) | a `## Subject` descriptor | `spec-type: reference` | a shipped governance (e.g. the spec-format bar) |
+| **Behavioral artifact** | a testable unit | **yes** | `## Use Cases` (per node) | `spec-type: behavioral` | a **unit spec** (`authoring/spec-producer/`); the `acceptance/` e2e suite is the project-outcome flavor |
+
+- **Descriptive** describes the system or a rule and attaches to **no subject**. Two roles — a terminal model doc (in `design/`) and an index / table-of-contents (the root `spec.md`, a capability overview README) — but identical on every axis the taxonomy uses, so **one type, two roles**.
+- **Reference artifact** specifies a real shipped thing with **no testable surface of its own**; its conformance is checked through a *consumer's* suite, not its own. It opens with a `## Subject` section (the artifact, its contract surface, and where conformance is verified) in place of `## Use Cases`.
+- **Behavioral artifact** specifies a testable subject and owns a `.feature`. "**unit spec**" is the everyday word for one; the `acceptance/` e2e suite is the same type at project-outcome scope. **Only this type carries `## Use Cases`** (each use case → ≥1 scenario; `suite-style.md`).
+
+**Declared, not inferred.** A node's type lives in its frontmatter, never guessed:
+
+- descriptive → **no marker** (the default).
+- reference → `spec-type: reference`.
+- behavioral → `spec-type: behavioral`.
+
+Inference would break both ways: a behavioral node has no `.feature` *yet* mid-explore (the suite is still being authored), and descriptive indexes live *outside* `design/` — so neither file-presence nor location classifies reliably. The marker declares intent up front, so a behavioral node with a subject but no scenarios yet reads as **incomplete**, not as an index.
+
+**Classification, not lifecycle.** `spec-type` is the **only** frontmatter a node README carries. Every lifecycle field — `status`, `aligned`, `strategy`, `approval`, `produced-by`, freeze — stays on the **root `spec.md`** (`lifecycle-model.md`); folders remain views, never lifecycle units. It is also orthogonal to `artifact-types` (the squad key, e.g. `governance`): one says *what kind of spec node this is*, the other says *who produces and judges it*. A deterministic check (`validate-spec`'s `check-spec-state`) fail-closes on a contradiction — a `reference` node that has a `.feature` or lacks its `## Subject`; a `behavioral` node missing `## Use Cases`.
+
 ## Rule-in-design + behavior-in-capability
 
-A rule and the behavior that enacts it live in different places:
+A rule and the behavior that enacts it live in different places — the **descriptive**/**behavioral** split above, applied to the corpus:
 
-- **Rules** — the lifecycle schema, the autonomy rubric, the provenance shape, the abstraction stack, the loop, the squad model, the suite style — live in `design/` as the abstract idea.
-- **Behaviors** — the scenarios that *enact* those rules — live in the capability folders that exercise them.
+- **Rules** — the lifecycle schema, the autonomy rubric, the provenance shape, the abstraction stack, the loop, the squad model, the suite style — live in `design/` as **descriptive** model docs.
+- **Behaviors** — the scenarios that *enact* those rules — live in the capability folders as **behavioral** specs.
 
-This keeps `design/` readable as a model while the capabilities stay testable as behavior.
+This keeps `design/` readable as a model while the capabilities stay testable as behavior. (Reference artifacts are the third case — a shipped thing, suite-less, homed in the capability that owns it.)
 
 ## Behavior-suite organization
 
-The behavior suite is **part of the project spec**, organized as:
+The behavior suite is **part of the project spec**, carried by the **behavioral** specs, organized as:
 
 - an **e2e suite** in `acceptance/` — the project's outcome-level contract (the important cross-capability scenarios), consumed by step 3's verify;
-- **unit suites** — for the smaller internal pieces — that **colocate** with their capability folder.
+- **unit suites** — for the smaller internal pieces — that **colocate** with their capability folder, one `.feature` per unit.
 
 This is the old project/feature behavior split surviving as *test organization within one corpus*, not as separate lifecycles to re-gate.
 (How scenarios are written and judged: `suite-style.md`.)

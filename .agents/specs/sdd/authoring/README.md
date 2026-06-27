@@ -8,11 +8,12 @@ in `../mission/`).
 `.feature` is **part of the behavior suite, never part of the CR** — authoring *writes* the
 suite delta, it does not receive it.
 
-> **This README is the capability overview — an index, not a testable spec.** It carries no
-> `.feature` and no `## Use Cases`; each behavior lives in a **unit spec** below, where the use
-> cases map to that unit's suite. (A spec node with a `.feature` carries its own `## Use Cases`;
-> a no-`.feature` overview is an index — the same rule the gate digest applies when it reports a
-> touched area with no `.feature` as zero scenarios, not an error.)
+> **This README is a `descriptive` capability overview — an index, not a testable spec**
+> (see the spec types in `../design/unit-and-organization.md`). It carries no `spec-type` marker,
+> no `.feature`, and no `## Use Cases`; each behavior lives in a **behavioral** spec (a unit spec)
+> below, where the use cases map to that unit's suite. (Only a behavioral node carries
+> `## Use Cases`; a descriptive index carries none — the same rule the gate digest applies when it
+> reports a touched area with no `.feature` as zero scenarios, not an error.)
 
 ## Role in the system
 

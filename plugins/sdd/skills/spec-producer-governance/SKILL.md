@@ -1,8 +1,7 @@
 ---
 name: spec-producer-governance
 description: "Internal skill: the SDD default spec-producer procedure — how to author spec.md + a boolean Gherkin .feature for a domain no plugin covers. Loaded in-session by sdd-operator when it runs the spec-producer role inline (produced-by sdd:sdd-operator); not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # Spec-Producer Governance — the default authoring procedure

@@ -1,8 +1,7 @@
 ---
 name: spec-governance
 description: "Internal skill: SDD spec governance"
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # SDD Spec Governance

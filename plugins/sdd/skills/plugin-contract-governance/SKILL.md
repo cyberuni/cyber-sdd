@@ -1,8 +1,7 @@
 ---
 name: plugin-contract-governance
 description: "Internal skill: the SDD plugin contract — the five delegate roles a plugin implements, which governances each role loads, and the universal-plugin.json registry shape. Loaded by sdd-operator and by plugin authors building an SDD plugin — not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # SDD Plugin Contract Governance

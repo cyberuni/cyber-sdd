@@ -1,8 +1,8 @@
 ---
 name: formation-loop
 description: "Internal skill: the SDD formation loop — the Architect's outer loop run by the Warden. Acts corpus-wide and continuously (dedupe overlap, split monoliths, keep the spec graph sound, reconcile contradictions), distinct from the per-spec structural verdict at a gate. Invoked by the formation-loop delegate — not triggered by users directly."
+user-invocable: false
 metadata:
-  user-invocable: false
   internal: true
 ---
 

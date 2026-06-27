@@ -1,8 +1,7 @@
 ---
 name: combat-log-governance
 description: "Internal skill: the SDD combat-log contract — the two-face provenance record (frontmatter current-state plus an append-only log ledger), the per-subagent report and correction-with-cause entry shapes, the matchable cause enum, the strategy log-entry slot, and log write-ownership. Loaded by sdd-operator, validate-spec, and the doctrine-loop Scanner — not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # SDD Combat-Log Governance

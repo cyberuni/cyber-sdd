@@ -1,8 +1,8 @@
 ---
 name: spec-digest
 description: "Internal skill: read-only digest of one spec for gate review. Reads spec.md and the sibling .feature and returns a fixed-section summary. Invoked by validate-spec at the spec gate — not triggered by users directly."
+user-invocable: false
 metadata:
-  user-invocable: false
   internal: true
 ---
 

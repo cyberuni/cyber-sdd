@@ -1,8 +1,7 @@
 ---
 name: gate-validation-governance
 description: "Internal skill: the SDD gate-legality contract — legal frontmatter-state tuples, aligned layer-scoping, and approval attribution. Loaded by validate-spec, sdd-operator, and sdd-spec-judge — not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # SDD Gate-Validation Governance

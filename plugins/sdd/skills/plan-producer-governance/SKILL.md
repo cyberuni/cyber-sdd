@@ -1,8 +1,7 @@
 ---
 name: plan-producer-governance
 description: "Internal skill: the SDD default plan-producer procedure — how to author plan.md and tasks.md (a dependency DAG) for a domain no plugin covers. Loaded in-session by sdd-operator when it runs the plan-producer role inline (produced-by sdd:sdd-operator); not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # Plan-Producer Governance — the default planning procedure

@@ -1,8 +1,7 @@
 ---
 name: architect-governance
 description: "Internal skill: the Architect actor bar — structural fit. The SDD default for the architect governance, loaded by the plan-producer and impl-producer to self-align and by the gate to judge structure. Not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # Architect Governance

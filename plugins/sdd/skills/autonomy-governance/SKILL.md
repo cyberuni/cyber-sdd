@@ -1,8 +1,7 @@
 ---
 name: autonomy-governance
 description: "Internal skill: the SDD autonomy-risk rubric — the per-decision self-clear-vs-escalate bar over five gradient dimensions plus a hard floor. The risk-assessment side of every escalation point; cooperates with gate-validation-governance (legality) and generalizes the sdd-gate-autonomy leash. A design/eval-time bar consumed by the eval tool (ACES) to set an agent config's autonomy posture; the runtime verdict is made by the capable conductor from its own baked-in logic — not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # Autonomy Governance — the risk-assessment rubric

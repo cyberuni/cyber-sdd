@@ -1,8 +1,7 @@
 ---
 name: impl-producer-governance
 description: "Internal skill: the SDD default impl-producer procedure — how to build the implementation AND its verification (one per frozen scenario) against the frozen .feature for a domain no plugin covers. Loaded in-session by sdd-operator when it runs the impl-producer role inline (produced-by sdd:sdd-operator); not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # Impl-Producer Governance — the default build procedure

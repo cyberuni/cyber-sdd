@@ -1,8 +1,7 @@
 ---
 name: director-governance
 description: "Internal skill: the Director actor bar — scope and kill-or-ship criteria. The SDD default for the director governance, loaded by the spec-producer to self-align and by the gate to judge scope. Not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # Director Governance

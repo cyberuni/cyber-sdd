@@ -1,8 +1,7 @@
 ---
 name: ownership-governance
 description: "Internal skill: the SDD write-ownership contract — who may write each spec.md frontmatter field and artifact, plus the freeze write-constraint. Loaded by every SDD producer, judge, operator, and the create-spec/validate-spec skills — not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # SDD Ownership Governance

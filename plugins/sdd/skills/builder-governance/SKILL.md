@@ -1,8 +1,7 @@
 ---
 name: builder-governance
 description: "Internal skill: the Builder actor bar — testability and coverage. The SDD default for the builder governance, loaded by the spec-producer and impl-producer to self-align and by the impl-judge to verify. Not triggered by users directly."
-metadata:
-  user-invocable: false
+user-invocable: false
 ---
 
 # Builder Governance

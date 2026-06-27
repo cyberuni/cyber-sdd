@@ -51,6 +51,13 @@ Beyond actor bars, an artifact-type's squad resolves **discipline** governances
 `specialists-and-squads.md`); the governances named there are the actor + discipline bars for
 that artifact-type.
 
+Actor (and discipline) bars are the **resolved-actor** tier: each has a **forward** face (a
+producer self-aligns) and a **backward** face (a judge grades), and they are discovered,
+composed, and loaded **per `(artifact-type, face)` at runtime** — **never** build-embedded, since
+resolution is dynamic. Only the **fixed-universal** governances (`ownership`, `lifecycle`,
+`spec-format`, `gate-validation`) are embed candidates. Definition (two tiers, two faces), sources
+by addressability, precedence, composition, and the deterministic helper: `governance-resolution.md`.
+
 ## How governances compose into agent definitions
 
 A governance is delivered to an agent by one of two mechanisms (the

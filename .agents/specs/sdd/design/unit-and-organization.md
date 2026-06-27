@@ -12,6 +12,22 @@ sibling specs. The old spec-fleet — one frozen spec per feature — was the di
 cross-cutting ripple (a change touching three features needed three frozen specs re-opened)
 and repeated approvals. A project that grows large grows *more folders*, never *more specs*.
 
+**Projects nest.** A package inside a monorepo is a **nested project**; the monorepo root is the
+**outer project**. SDD names only two config scopes — **user** (`~/.agents/`) and **project**
+(`<project>/.agents/`) — and avoids "workspace"/"repo-root" (both collide with VS Code / npm /
+git). Resolution unions across nested project anchors plus user (`governance-resolution.md`).
+
+## Packaging — the spec stays out of the distributable
+
+A project may itself be a **distributable plugin**. Plugin install **copies the whole plugin
+directory** with no include/exclude mechanism, so the spec **never lives inside a distributable
+plugin dir** — it would ship to every consumer (inert but bloat, and leaking design internals).
+Place the spec at `<repo>/.agents/specs/<project>/` (or `.agents/spec/` for a single-project repo);
+the plugin dir ships only its shippable artifacts (`skills/`, `agents/`, the manifest). The
+plugin's exported governances ship **as skills** in `skills/` (`governance-resolution.md`), never
+as a non-scanned `governances/` dir. The registry and the per-CR plans are consumer/runtime-side
+under `<repo>/.agents/`, never inside a plugin.
+
 ## The one-spec invariants (what keep the fleet problem dead)
 
 - **ONE spec, ONE behavior suite, ONE gate/freeze baseline.** The project has a single

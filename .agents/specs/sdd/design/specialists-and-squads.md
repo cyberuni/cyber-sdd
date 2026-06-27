@@ -71,23 +71,32 @@ that conventional name.
 
 ## Which governances each role loads
 
-Every role loads the universal authoring/lifecycle governances below in addition to its
-own domain criteria:
+Each role loads two tiers (`governance-resolution.md`): **fixed-universal** bars (invariant per
+role) plus the **resolved-actor** bars for the gate's lens set, loaded as the role's **face** —
+producers load the **forward** face, judges the **backward** face:
 
-| Role | Loads |
-|---|---|
-| spec-producer | `spec-governance` (format bar), `ownership-governance`, the resolved `director` governance |
-| plan-producer | `ownership-governance`, the resolved `architect` governance |
-| spec-judge | `spec-governance`, `lifecycle-governance`, `gate-validation-governance` |
-| impl-producer | `ownership-governance`, the resolved `builder` + `architect` governances |
-| impl-judge | `ownership-governance` |
+| Role | Fixed-universal | Resolved-actor (face) |
+|---|---|---|
+| spec-producer | `spec-governance`, `ownership-governance` | `director`, `builder`, `architect` — **forward** |
+| plan-producer | `ownership-governance` | `architect` — **forward** (ungated; no judge) |
+| spec-judge | `spec-governance`, `lifecycle-governance`, `gate-validation-governance` | `director`, `builder`, `architect` — **backward** |
+| impl-producer | `ownership-governance` | `builder`, `architect` — **forward** |
+| impl-judge | `ownership-governance` | `builder`, `architect` — **backward** |
+
+**Lens set per gate** (the sdd-default squad; a squad may override): **spec gate**
+`{director, builder, architect}`; **impl gate** `{builder, architect}`; **plan** `{architect}`
+(ungated). The invariant: **a producer self-aligns to exactly the bars its judge grades** — the
+same bars forward and backward, loaded as separate faces. The impl-gate Director-revert
+(`autonomy-rubric.md`) is an operator escalation the impl-judge surfaces, not a routine impl-judge
+bar.
 
 For an **SDD-default producer** role, the operator additionally loads the matching
 `spec-producer-governance` / `plan-producer-governance` / `impl-producer-governance` — the
 procedure it runs inline. A plugin delegate carries its own procedure and loads these bars
 directly. The `sdd` gateway loads `lifecycle-governance`; the gate skill `validate-spec`
 loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; `sdd-operator` loads
-all three.
+all three. How each resolved-actor bar is discovered, composed, and loaded:
+`governance-resolution.md`.
 
 ## Registry SHAPE
 

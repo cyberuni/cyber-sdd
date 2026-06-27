@@ -1,7 +1,7 @@
 # intake/ — the CR subsystem
 
-The **change request (CR)** is the unit of work — step 1 of the Mission Loop and the top of
-the abstraction stack. Everything SDD **acts on** enters as a CR, and nothing re-enters
+The **change request (CR)** is the **unit of change-intent** — step 1 of the Mission Loop and
+the top of the abstraction stack. Everything SDD **acts on** enters as a CR, and nothing re-enters
 except as a CR; a **task that is not a CR escapes** (below). `intake/` is the **CR
 subsystem**: it owns the CR concept, its **sources** (prompt / Asana / Jira / Linear /
 GitHub / a local store), the **escape hatch** (the task-vs-CR boundary), and the **inject
@@ -10,7 +10,7 @@ channel** (zoom into a single inner-loop agent). It
 and runs the Mission Loop (`../mission/`) to step 4. All sources reach the project through
 the universal `../gateway/`.
 
-## The CR is the unit of work
+## The CR is the unit of change-intent
 
 In the abstraction stack each layer is an abstraction of the one below:
 
@@ -25,6 +25,13 @@ A CR is therefore not a feature, a spec, or a flag bolted onto a spec — it is 
 **intent**. It carries `what` and `why` (free text; `why` may optionally cite a combat-log
 correction as a loose pointer, never a copy). The grilling that turns a CR into spec+suite
 deltas happens in `authoring/`, which owns the spec gate; the CR itself is pre-grill intent.
+
+**"Unit of change-intent," not "unit of work."** The CR is the unit SDD *takes in* — one
+coherent intent to grill. It is **not** the commit-level *unit of work* (one co-committable
+change with a clear message and green tests); a single CR's mission lands as **many** such
+commits. The CR scopes *what to build*; the commit scopes *what lands together*. SDD never
+requires TDD ordering inside a commit — an agent may plan, build, and write several tests at
+once, then co-commit them as one unit of work.
 
 The unit is the **project**, not the feature: one durable spec, one behavior suite, one
 gate/freeze baseline. A CR produces *deltas* to that single corpus — it never spawns a new

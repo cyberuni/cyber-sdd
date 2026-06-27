@@ -50,6 +50,7 @@ A **producer** role may also name a model-tuned agent to run at its own model/ef
 **Producers run inline, judges spawn cold** ("conductor writes, cold judges grade"): an SDD-default producer is a governance the operator loads and runs in its own warm context (recorded `produced-by.<role>: sdd:sdd-operator`); an SDD-default judge is a cold agent the operator spawns, because a grader must not share the author's context.
 A plugin delegate — or a model-tuned producer agent named for the slot — is always spawned, producer or judge alike.
 The judge stays a **distinct actor** (producer/judge separation), the surviving invariant of the gate fold.
+Because the operator is itself a spawned agent, spawning a cold judge is a subagent-spawns-subagent step — a portability floor of two nesting levels (`harness-spawning.md`).
 
 There is **no "generic Builder" fallback**: an unfilled producer is the operator authoring inline; an unfilled judge is the cold SDD-default agent.
 The `<plugin>-<role>` naming convention applies only when a role **key is omitted** and the plugin ships an agent at that conventional name.

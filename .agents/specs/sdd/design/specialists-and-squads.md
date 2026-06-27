@@ -72,7 +72,8 @@ The impl-gate Director-revert (`autonomy-rubric.md`) is an operator escalation t
 
 For an **SDD-default producer** role, the operator additionally loads the matching `spec-producer-governance` / `plan-producer-governance` / `impl-producer-governance` — the procedure it runs inline.
 A plugin delegate carries its own procedure and loads these bars directly.
-The `sdd` gateway loads `lifecycle-governance`; the gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; `sdd-operator` loads all three.
+The gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; `sdd-operator` loads all three.
+The `sdd` gateway loads **no** governance — it is a thin relay that only classifies and routes (`actors-and-governance.md`, `gateway/README.md`); reading a raw `status` value for routing needs no governance load.
 How each resolved-actor bar is discovered, composed, and loaded: `governance-resolution.md`.
 
 ## Registry SHAPE

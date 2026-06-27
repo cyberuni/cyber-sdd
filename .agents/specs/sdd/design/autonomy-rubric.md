@@ -24,20 +24,15 @@ unlocks it; the floor sits above the gradient entirely. **Three kinds** (the mne
 
 | Floor | Fires at | Trigger | Human decision | Pre-grantable? |
 |---|---|---|---|---|
-| **Clearance** | authoring (2) / impl gate (3) | a **breaking change beyond the authorized class** — the contract is narrowed: a frozen / e2e scenario weakened or deleted, or a published contract broken (**mechanical arm** — scenario-diff), **or** the resolved **Builder** governance judges an un-contracted user-facing change a break (**judged arm**) | grant clearance — authorize the class | **Yes** — pre-authorizable in the CR or run-mode (stated, or acknowledged during grilling), so it need never halt mid-flight |
+| **Clearance** | spec gate (authoring) / impl gate | the diff **narrows or deletes** an existing (frozen / e2e) scenario — the suite now guarantees **less** | grant clearance to narrow | **Yes** — pre-authorizable in the CR (stated, or acknowledged during grilling), so it need never halt mid-flight |
 | **Conflict resolution** | impl gate (3) | the suite **contradicts itself** — two scenarios at odds with **no intended winner** | pick which scenario is intended | **No** — a discovered defect, not a grantable permission |
 | **Consent** | **forge loop** (5) | the cross-installation field loop wants to **run or report** — **data egress** of correction records | opt in (explicit, default-off, revocable) | **Yes** — granted up front |
 
-- **Clearance carries breaking-ness.** Breaking is **not a gradient dimension** — it is the
-  Clearance trigger, detected two ways: a **mechanical arm** (scenario-diff — preserved verbatim →
-  non-breaking; altered / removed / narrowed → breaking) and a **judged arm** (the resolved
-  **Builder** governance for the artifact-type, where the contract is silent — e.g.
-  designer-as-Builder ruling a UI restyle a break). Both are **domain-relative** (a design-system
-  library is stricter than an app — it is just a different resolved `builder` bar, per
-  `governance-resolution.md`) and **pre-authorizable**. A new scenario that contradicts an old
-  frozen one is **Clearance** (a clear intended winner — the new replaces the old), not Conflict.
-  Breaking field workarounds that **no frozen scenario protected** is a *noted risk*, not a
-  contract break.
+- **Clearance — the narrowing case.** The gate finds the diff **weakens or deletes** an existing
+  (frozen / e2e) scenario, so the suite guarantees less than before; the human grants clearance to
+  narrow. A **new** scenario that contradicts an old frozen one is also Clearance (a clear intended
+  winner — the new replaces the old), not Conflict. (Whether a change is *also* a breaking change in
+  product / semver terms is a **separate concern**, assessed apart from this floor — not Clearance.)
 - **Conflict resolution** is the only thing that truly halts work **unexpectedly** — reduce it by
   grilling harder at authoring. An obvious stale-mistake contradiction is an operator-served minor
   fix; escalate only when both sides are plausibly intended.
@@ -49,21 +44,14 @@ unlocks it; the floor sits above the gradient entirely. **Three kinds** (the mne
 
 **Everything additive / internal / minor self-clears.**
 
-### Pre-authorization — the CR / run-mode (payable in advance)
+### Pre-authorization (payable in advance)
 
-Two floor acts are **payable in advance** so they never halt mid-flight — both declared in the CR
-or a **run-mode** in the `strategy` block: a **breaking change** (Clearance) and a **destructive
-operational act** (e.g. resetting external test data). Undeclared, each escalates; the inner loop
-has no other irreversibility concern (everything SDD writes is git-reversible). **Consent** is the
-third pre-grantable, but as a standing opt-in, not a per-run class.
-
-A run-mode declares the **authorized change-class**:
-
-- `bug-fix-only` — only patch-class self-clears; minor / breaking escalate or defer;
-- `analyze-and-defer-breaking` — surface breaking work as **new CRs**, not this run;
-- `expected-breaking` — the breaking class is **pre-authorized** (Clearance granted up front).
-
-Absent a declaration the default class is **non-breaking**; a breaking change hits Clearance.
+**Clearance** and **Consent** are **payable in advance** — pre-authorized in the CR (a planned
+scenario narrowing; an opt-in to egress) — so they never halt mid-flight. A declared **destructive
+operational act** (e.g. resetting external test data) is likewise pre-authorizable, else it
+escalates; the inner loop has no other irreversibility concern (everything SDD writes is
+git-reversible). **Conflict resolution** cannot be pre-granted — it is a discovered defect, not a
+permission.
 
 ## The gradient — three dimensions, two modulate and one decides
 
@@ -72,7 +60,7 @@ self-clear needs); one **decides**.
 
 | Dimension | Role | Low | High |
 |---|---|---|---|
-| **Blast radius (magnitude)** | modulator | few, peripheral artifacts | many artifacts, or **central / sensitive** ones (high dependency fan-in, marked-sensitive paths). Measured by the **scope and sensitivity of what's touched** — **not** user-facing breakage (that is Clearance), **not** mere surface location. |
+| **Blast radius (magnitude)** | modulator | few, peripheral artifacts | many artifacts, or **central / sensitive** ones (high dependency fan-in, marked-sensitive paths). Measured by the **scope and sensitivity of what's touched** — **not** compatibility/breakage (a separate concern), **not** mere surface location. |
 | **Novelty** | modulator | trivial / defaulted, or already human-ratified | a new contestable choice the human has not seen |
 | **Confidence** | **decider** | evidence converges; a clean judge pass; no unresolved markers | a marginal verdict; unresolved `<!-- open: -->` markers |
 
@@ -94,7 +82,7 @@ are out of scope.
 
 There is **no weighting or scoring**: the floor is a hard trigger; below it, confidence is a
 single integrated judgment that blast and novelty inform. The verdict **always names its driver**
-so the consumer sees *why* — `escalate · hard floor (clearance, judged)`, `self-clear · high
+so the consumer sees *why* — `escalate · hard floor (clearance)`, `self-clear · high
 confidence (large but clean refactor)`, `escalate · low confidence (novel choice, unresolved
 markers)`.
 
@@ -142,8 +130,9 @@ reaches, so they differ in whether the rubric applies at all.
   surfaces and stops, drafting always-unratified strategy.
 - The **Warden is a conductor**: it self-clears git-reversible, coverage-preserving, low-blast acts
   (consistency fixes, refactors that preserve every scenario), leaving a provisional
-  agent-attributed marker; it escalates breaking acts (Clearance — deprecating a spec in a dedupe)
-  and contested acts (picking the winning claim in a reconciliation — Conflict).
+  agent-attributed marker; it escalates **narrowing** acts (Clearance — a dedupe that deprecates a
+  spec or drops scenarios) and **contested** acts (Conflict — picking the winning claim in a
+  reconciliation).
 
 The rule "only the capable conductor makes the verdict" binds to the **conductor role**, not a
 loop position: the Warden making its own verdict is consistent because the Warden *is* a conductor.
@@ -154,14 +143,13 @@ The rubric's verdicts are made testable (vs by-hand vibing) in three layers:
 
 1. **A deterministic helper** (sibling to `check-spec-state.mts`) computes the **mechanical**
    inputs for a proposed act:
-   - **Clearance mechanical arm** — **scenario-diff** (preserved verbatim → non-breaking;
-     altered / removed / narrowed → breaking), which feeds Clearance-floor detection;
+   - **Clearance detection** — **scenario-diff** (a scenario preserved verbatim → no narrowing;
+     a scenario altered / removed / narrowed → fires Clearance);
    - **blast radius (magnitude)** — **artifact count × centrality/sensitivity** (dependency
      fan-in, marked-sensitive paths) — **not** surface location.
 
-   Output: which floor arms fire + the blast magnitude. The agent judges the **Builder judged arm**
-   (where the contract is silent), **novelty**, and **confidence** — the helper shrinks the
-   judgment surface to those.
+   Output: which floor cases fire + the blast magnitude. The agent judges **novelty** and
+   **confidence** — the helper shrinks the judgment surface to those.
 2. **Baked-in logic** (Warden / operator) = helper output + the judged inputs, run at the relevant
    cadence (Warden per formation act).
 3. **An ACES golden suite** mapping `(act, risk profile) → expected verdict`, run at the doctrine

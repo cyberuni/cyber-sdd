@@ -44,7 +44,7 @@ unlocks it; the floor sits above the gradient entirely. **Four kinds** (the mnem
   app). The floor fires when the class **exceeds the authorized ceiling** (below); at or under it,
   the change self-clears. Clearance (narrowing) and Compatibility (class) are distinct and can
   co-fire — removing a published guarantee is both.
-- **Consent** is the **only execution-side floor** — opt-in egress to `../forge/`. SDD does **not**
+- **Consent** is the **only execution-side floor** — opt-in egress in the **Forge loop** (`../forge/`). SDD does **not**
   publish / release / deploy (those are downstream SDLC, externally guarded — e.g. a marketplace
   publish is a PR behind auth and review); **the rubric does not re-gate what already has its own
   guard.**
@@ -79,7 +79,7 @@ self-clear needs); one **decides**.
 |---|---|---|---|
 | **Blast radius (magnitude)** | modulator | few, peripheral artifacts | many artifacts, or **central / sensitive** ones (high dependency fan-in, marked-sensitive paths). Measured by the **scope and sensitivity of what's touched** — **not** compatibility/breakage (a separate concern), **not** mere surface location. |
 | **Novelty** | modulator | trivial / defaulted, or already human-ratified | a new contestable choice the human has not seen |
-| **Confidence** | **decider** | evidence converges; a clean judge pass; no unresolved markers | a marginal verdict; unresolved `<!-- open: -->` markers |
+| **Confidence** | **decider** | evidence converges; a clean judge pass (which already reflects the resolved **Builder** bar — e.g. any coverage / mutation threshold that artifact-type requires); no unresolved markers | a marginal verdict; unresolved `<!-- open: -->` markers |
 
 **Why git-reversibility is not a dimension.** SDD produces tracked artifacts, so inner-loop work
 is cheap to undo — that is the **autonomy license** (the reason self-clear can lean permissive), a

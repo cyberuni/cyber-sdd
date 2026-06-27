@@ -57,11 +57,13 @@ Phase 1 — the prose:
 - **Use cases / entry points** — is each trigger, input, and outcome still accurate? Did
   the change add, remove, or alter an entry point?
 - **Design decisions** — does any decision now contradict the change, a sibling capability,
-  or a governance? Reconcile stale terms and claims **toward the source of truth**: when two
-  statements conflict, find the authoritative side — the canonical definition, how many
-  sources corroborate each, and what the implementation does — and fix the **outlier**. Never
-  reword the corroborated rule to fit the unverified claim; if which side is authoritative is
-  unclear, raise it as a `CONTENT_GAP` rather than guessing a reconciliation direction.
+  or a governance? Reconcile stale terms and claims **toward the correct answer, not the
+  popular one**: when two statements conflict, zoom out and reason about which is actually
+  right given the design's intent and the whole model. Corroboration count, what the
+  implementation does, and which decision is most recent and authoritative are *evidence* to
+  weigh — not a vote to tally. Fix the side that is wrong; never reword a rule merely because
+  more files echo it. If the right answer is genuinely unclear, raise it as a `CONTENT_GAP`
+  rather than guessing a reconciliation direction.
 - **Open items** — resolve every `<!-- open: -->` marker the diff touches; leave none
   dangling.
 

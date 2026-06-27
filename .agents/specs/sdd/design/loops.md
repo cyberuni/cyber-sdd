@@ -13,7 +13,7 @@ The steps are **verbs** — actions taken — each producing a noun outcome.
 | # | Phase | Home | Nature | Produces |
 |---|---|---|---|---|
 | 1 | **intake** | `../intake/` (feeds the loop) | the CR subsystem | a routed CR + a scaffolded plan |
-| 2 | **explore** | `../authoring/` (invoked by the mission) | build to **learn** | a frozen spec + suite |
+| 2 | **explore** | `../authoring/` (invoked by the mission) | build to **learn** | a frozen spec + suite (+ learn-built impl) |
 | 3 | **deliver** | `../mission/deliver/` | build to **keep** | a verified result |
 | 4 | **handoff** | `../mission/handoff/` | landing | the project's delivery shape |
 
@@ -30,7 +30,8 @@ This is the abstraction layer above the suite (see `abstraction-stack.md`); inta
 
 ### 2 — explore (build to learn)
 
-Grill the CR into a concrete **spec + suite diff**, building **to learn**: spikes (thrown away), spec-producer ⇄ spec-judge **iteration**, and **showing intermediate results to the user** to steer the spec + suite.
+Grill the **plan + spec + suite** into a concrete diff, building **to learn**: spikes (thrown away), spec-producer ⇄ spec-judge **iteration**, and **showing intermediate results to the user** to steer the spec + suite.
+Explore also **builds the implementation to learn** — implementing surfaces what the contract is missing; it is **not** deferred wholesale to deliver (impl happens in **both** phases — the freeze, not "code vs no code," is the boundary; see the explore-vs-deliver note below).
 The mission runs explore by driving `../authoring/` autonomously; a human can drive the same capability interactively through the gateway.
 There is **no mandatory human approval station**: the human is an escalation target the autonomy bar invokes.
 The phase ends at the **spec gate**, where the `.feature` **freezes** — the boundary between explore and deliver.

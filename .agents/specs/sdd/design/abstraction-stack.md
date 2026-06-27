@@ -37,7 +37,7 @@ change-request (CR)   ← intent: the deltas you grill into spec + suite
   You do not edit outcome directly — you edit the abstraction that produces it.
 - **The `.feature` is part of the behavior suite, never part of the CR.**
   A CR describes a desired change to behavior; the scenarios that *encode* behavior live one layer down, in the suite.
-  (See `suite-style.md` for how scenarios are written and judged, and `unit-and-organization.md` for how the suite is organized within the one project spec.)
+  (See `../authoring/suite-format/README.md` for how scenarios are written and judged, and `unit-and-organization.md` for how the suite is organized within the one project spec.)
 - **The CR is consumed, not stored.**
   Once grilled into spec + suite deltas, the CR's job is done; it does not become a frozen artifact.
   Outer-loop retrospectives emit *new* CRs rather than reopening old ones (see `loops.md`).

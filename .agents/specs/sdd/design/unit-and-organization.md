@@ -78,7 +78,7 @@ Every node in the spec tree is one of **three types**, told apart on two axes �
 
 - **Descriptive** describes the system or a rule and attaches to **no subject**. Two roles — a terminal model doc (in `design/`) and an index / table-of-contents (the root `spec.md`, a capability overview README) — but identical on every axis the taxonomy uses, so **one type, two roles**.
 - **Reference artifact** specifies a real shipped thing with **no testable surface of its own**; its conformance is checked through a *consumer's* suite, not its own. It opens with a `## Subject` section (the artifact, its contract surface, and where conformance is verified) in place of `## Use Cases`.
-- **Behavioral artifact** specifies a testable subject and owns a `.feature`. "**unit spec**" is the everyday word for one; the `acceptance/` e2e suite is the same type at project-outcome scope. **Only this type carries `## Use Cases`** (each use case → ≥1 scenario; `suite-style.md`).
+- **Behavioral artifact** specifies a testable subject and owns a `.feature`. "**unit spec**" is the everyday word for one; the `acceptance/` e2e suite is the same type at project-outcome scope. **Only this type carries `## Use Cases`** (each use case → ≥1 scenario; `../authoring/suite-format/README.md`).
 
 **Declared, not inferred.** A node's type lives in its frontmatter, never guessed:
 
@@ -107,7 +107,7 @@ The behavior suite is **part of the project spec**, carried by the **behavioral*
 - **unit suites** — for the smaller internal pieces — that **colocate** with their capability folder, one `.feature` per unit.
 
 This is the old project/feature behavior split surviving as *test organization within one corpus*, not as separate lifecycles to re-gate.
-(How scenarios are written and judged: `suite-style.md`.)
+(How scenarios are written and judged: `../authoring/suite-format/README.md`.)
 
 ## The folder skeleton maps to the loops
 

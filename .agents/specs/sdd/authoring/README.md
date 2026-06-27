@@ -44,6 +44,7 @@ here.
 | **spec-producer** | behavioral | [`spec-producer/`](./spec-producer/README.md) | the `spec-producer-governance` procedure — grill a CR into spec prose + a boolean suite (create / revise / backfill modes); **producer behaviors only** |
 | **validate-spec** | behavioral | [`validate-spec/`](./validate-spec/README.md) | the spec gate — the verdict, the three verbs, per-file freeze, the digest, and the structural provenance checks |
 | **spec-format** | reference | [`spec-format/`](./spec-format/README.md) | the `spec-format-governance` bar — the required `## Use Cases` section + `spec.md` enrichment; a **reference artifact** (no `.feature`), loaded by the producer/judge |
+| **suite-format** | reference | [`suite-format/`](./suite-format/README.md) | the `suite-format-governance` bar — the `.feature` form (boolean Gherkin, `@rubric`, ordering, the `@frozen` marker); a **reference artifact**, loaded by the producer/judge |
 | **create-spec** | behavioral | *pending* | user-facing entry skill — scaffold a new spec node and dispatch the producer (suite + impl tracked in the mission plan) |
 | **revise-spec** | behavioral | *pending* | user-facing entry skill — re-open a draft and dispatch the producer, no scaffolding (tracked in the mission plan) |
 
@@ -51,6 +52,7 @@ here.
 
 Gate and authoring *rules* live in `../design/`: legal-state transitions and the freeze model in
 `lifecycle-model.md`, the self-clear-vs-escalate bar and the four-C hard floor in
-`autonomy-rubric.md`, the provenance shape in `provenance-model.md`, the suite convention in
-`suite-style.md`. The unit specs here are the *behavior* that enacts those rules — they reference
-the rules, they do not restate them.
+`autonomy-rubric.md`, the provenance shape in `provenance-model.md`. The `spec.md` structure and
+`.feature` form bars are the [`spec-format/`](./spec-format/README.md) and
+[`suite-format/`](./suite-format/README.md) reference nodes here. The behavioral unit specs are the
+*behavior* that enacts those rules — they reference the rules, they do not restate them.

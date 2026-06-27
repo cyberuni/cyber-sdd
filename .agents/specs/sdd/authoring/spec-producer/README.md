@@ -64,7 +64,7 @@ Phase 2 — the suite:
 - Every use case maps to one-or-more scenarios; add scenarios for new behavior, retire
   scenarios for removed behavior.
 - Each scenario stays a pure boolean `Given`/`When`/`Then` (or the rubric form per
-  `../../design/suite-style.md`); tighten any that drifted.
+  `../suite-format/README.md`); tighten any that drifted.
 - Step-down ordering and stage grouping still hold after the edits.
 
 ## The output boundary
@@ -75,7 +75,7 @@ The producer writes the **spec body and the `.feature`**, nothing else:
 - It does **not** write the `status`, `aligned`, `approval`, or `produced-by` frontmatter —
   those are the operator's and the gate's (`../../design/provenance-model.md`).
 - Scoring lingo appears **only** inside a `@rubric`-tagged scenario; every untagged scenario
-  stays a pure boolean assertion (`../../design/suite-style.md`).
+  stays a pure boolean assertion (`../suite-format/README.md`).
 
 **Producer/judge separation.** The producer authors the diff; a **distinct judge** actor
 verifies it (`../validate-spec/`). The producer self-aligns against the same governances the

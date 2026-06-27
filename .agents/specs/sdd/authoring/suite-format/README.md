@@ -1,8 +1,20 @@
-# Suite style
+---
+spec-type: reference
+---
 
-How behavior-suite scenarios are written and judged.
-This style governs the `.feature` of a **behavioral** spec only — `descriptive` and `reference` nodes carry no suite (see the spec types in `unit-and-organization.md`).
-It applies uniformly to both the e2e scenarios in `acceptance/` and the unit scenarios colocated with their capability folder — one corpus, one convention.
+# suite-format — the .feature behavior-suite bar
+
+A **reference artifact**: the `suite-format` governance — how behavior-suite scenarios are *written and judged*. Loaded by the spec-producer (self-align) and the spec-judge (verify); it owns no `.feature` of its own, and its conformance shows up in the spec-judge's verdict on real suites.
+
+## Subject
+
+- **Artifact** — the `suite-format` governance, shipped as the `suite-format-governance` skill (a fixed-universal SDD governance; `../../design/governance-resolution.md`).
+- **Contract surface** — every `.feature` in any SDD project: its Gherkin form, the `@rubric` exception, scenario ordering, and the `@frozen` marker.
+- **Conformance** — verified by the **spec-judge** at the spec gate. A reference artifact carries this `## Subject` in place of a `## Use Cases` section and a `.feature`.
+- **Boundary** — the `spec.md` structure (the required `## Use Cases` section, enrichment) belongs to `../spec-format/`; the freeze/unfreeze *model* (triggers, the gate, iteration economy) belongs to `../../design/lifecycle-model.md`. This bar owns the `.feature` form.
+
+This bar governs the `.feature` of a **behavioral** spec only — `descriptive` and `reference` nodes carry no suite (see the spec types in `../../design/unit-and-organization.md`).
+It applies uniformly to both the e2e scenarios in `../acceptance/` and the unit scenarios colocated with their capability folder — one corpus, one convention.
 
 ## The gate sees one boolean per scenario
 
@@ -72,4 +84,20 @@ A resolved judge does **not** reject scoring lingo *inside* a `@rubric` scenario
 
 The baseline rule "no rubric in the `.feature`" is relaxed to **"no rubric in an *untagged* scenario."**
 Rubric form is legal only inside a `@rubric`-tagged scenario; the tag is the guard that keeps the boolean gate contract intact for everything else.
-Scenario ordering (step-down by lifecycle stage) is unchanged — a `@rubric` scenario sorts into its stage like any other.
+
+## Scenario ordering (step-down)
+
+Order scenarios to trace the workflow top-to-bottom:
+
+- Each lifecycle stage in sequence; within a stage, happy path first, then its branches and errors.
+- Group each stage under a `# ── <stage> ──` section comment, so a human reading top-to-bottom can see every stage is covered — completeness becomes auditable.
+- A `@rubric` scenario sorts into its stage like any other.
+
+## The `@frozen` marker
+
+Freeze is **per `.feature` file**: a frozen suite file carries a feature-level **`@frozen` tag**. The tag is metadata, **excluded from the contract content** the freeze protects — toggling it is not a scenario edit. How scenario edits interact with a frozen file:
+
+- An **additive** scenario folds into a frozen file without unfreezing it — it widens the contract, cannot break existing impl, and **self-clears**.
+- A **narrowing or rewriting** edit **unfreezes** the file; at the gate that fires **Clearance**.
+
+Vocabulary is **freeze / unfreeze** — never lock/unlock (reserved for the concurrency layer). The freeze/unfreeze *model* — when freeze fires (the Draft → Approved gate), the unfreeze risk trigger, iteration economy — lives in `../../design/lifecycle-model.md`; this bar owns only the marker and the suite-edit rule above.

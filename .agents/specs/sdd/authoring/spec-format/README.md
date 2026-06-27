@@ -18,7 +18,7 @@ through a suite of its own.
 - **Conformance** — verified by the **spec-judge** at the spec gate (it applies this bar backward),
   never by this artifact itself. A reference artifact carries this `## Subject` in place of a
   `## Use Cases` section and a `.feature`.
-- **Boundary** — the `.feature` Gherkin/rubric form and scenario ordering belong to `suite-style`;
+- **Boundary** — the `.feature` Gherkin/rubric form and scenario ordering belong to `suite-format`;
   spec *granularity* (when a spec grows too big → carve it into more folders/units) belongs to
   `../../design/unit-and-organization.md`. This bar owns only `spec.md` structure.
 
@@ -53,4 +53,4 @@ producer **actively enriches** it — never a wall of prose:
 - **Format for humans** — clear heading hierarchy, tables for structured comparisons, short
   paragraphs, callouts for the load-bearing decisions.
 
-Enrichment applies to `spec.md` only; the `.feature` stays plain boolean Gherkin (`suite-style`).
+Enrichment applies to `spec.md` only; the `.feature` stays plain boolean Gherkin (`suite-format`).

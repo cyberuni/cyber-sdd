@@ -5,7 +5,7 @@ The **outcome-level (e2e) behavior suite** — the scenarios that exercise SDD e
 loop step.** Unit scenarios stay colocated with their capability folder; only
 cross-capability outcome scenarios live here.
 
-Written in boolean / rubric Gherkin per `../design/suite-style.md`: every scenario is a
+Written in boolean / rubric Gherkin per `../authoring/suite-format/README.md`: every scenario is a
 declarative Given/When/Then with a pass/fail reading, no rubric or threshold in the
 `.feature` itself. A scenario earns a place here only if it crosses two or more capability
 folders; a single-capability behavior belongs as a unit scenario.
@@ -108,4 +108,4 @@ Feature: SDD acceptance — change request to delivered outcome
 ## Source
 
 - new — e2e scenarios distilled from the in-scope specs' `.feature` files (inventory above)
-- judged per `../design/suite-style.md` (boolean / rubric Gherkin, by-hand where applicable)
+- judged per `../authoring/suite-format/README.md` (boolean / rubric Gherkin, by-hand where applicable)

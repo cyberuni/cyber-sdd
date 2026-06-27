@@ -72,7 +72,7 @@ Only **explore** and **deliver** iterate **internally** (inside a single cycle);
 There is no fixed approval station between phases.
 Every write to spec/suite — the explore diff or a deliver in-flight adjustment — passes **one arbiter**: the autonomy self-clear-vs-escalate rubric (see `autonomy-rubric.md`).
 The human decides *what to build* by raising the CR and reading the outcome/retro, not by gating each transition.
-The only mandatory human escalations are the four-C hard floor (Clearance, Conflict resolution, Compatibility, Consent); the spec and impl verifications survive as the judge's backward face — the spec-judge and impl-judge applying the Director/Builder/Architect **lenses** — folded into `../authoring/` and `../mission/`, not as human checkpoints.
+The only mandatory human escalations are the four-C hard floor (Clearance, Conflict resolution, Compatibility, Consent); the spec and impl verifications survive as the judge's backward face — the spec-judge applying the Director/Builder/Architect **lenses** and the impl-judge the Builder/Architect lenses (the spec-gate and impl-gate lens sets; see `specialists-and-squads.md`) — folded into `../authoring/` and `../mission/`, not as human checkpoints.
 
 ## Cross-cutting (not loop steps)
 

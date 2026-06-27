@@ -45,7 +45,7 @@ One cycle = one CR carried to completion, on one working tree:
 station** — every write to spec/suite passes the **autonomy rubric**
 (`design/autonomy-rubric.md`), which self-clears or escalates; the human is an escalation
 target the bar invokes, not a fixed checkpoint. The only mandatory stops are the hard floor
-(Clearance, Conflict resolution, Consent).
+(Clearance, Conflict resolution, Compatibility, Consent).
 
 ### The four post-mission outer loops (step 5)
 

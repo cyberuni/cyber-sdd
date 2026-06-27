@@ -32,7 +32,7 @@ The registry and the per-CR plans are consumer/runtime-side under `<repo>/.agent
   The fleet problem was lifecycle fragmentation, not folder count — so the cure is forbidding per-folder lifecycle, not forbidding folders.
 - **No structural `project` vs `feature` axis.**
   One project is one spec; there is no composition graph and no parent/child spec relationship.
-  `type` names the artifact / squad (see `specialists-and-squads.md`), never a structural position.
+  `artifact-type` names the artifact / squad (see `specialists-and-squads.md`), never a structural position.
   Cross-project execution ordering, when it matters, lives in the source tracker, not in spec frontmatter.
 
 ## CR concurrency — one CR per working tree

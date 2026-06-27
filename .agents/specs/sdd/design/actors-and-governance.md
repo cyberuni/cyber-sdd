@@ -73,9 +73,10 @@ When unsure, prefer a governance skill; embedding is the exception reserved for 
   Authors own the ordering.
 - **Missing governance fails the build.**
   An unresolvable reference (plugin not installed, name typo) fails `universal-plugin build` loudly — `plugin-not-installed` or `governance-not-found` — never emitting an agent definition missing its contract.
-- **Gateways carry no governance.**
+- **Gateways embed no governance.**
   Embedding targets **worker** agents and skills — the ones that perform governed work (`create-spec`, `validate-spec`, the operator delegates, the producers/judges).
-  A **gateway** skill (e.g. `sdd`) only classifies and routes; it holds no governance and must not declare `requires_governances`.
+  A **gateway** skill (e.g. `sdd`) only classifies and routes; it carries no *embedded* governance and must not declare `requires_governances`.
+  It may still harness-load a reference governance its routing needs — e.g. the `sdd` gateway loads `lifecycle-governance` for its status-only scan (`specialists-and-squads.md`) — since that is the situational reference mechanism, not the embed contract this rule governs.
 - **Build-time, not runtime injection.**
   Embedding happens at build because the tool does not control the harness (Claude Code, Cursor, Codex).
   The built output is a standard agent definition with content already inlined — no harness support required.

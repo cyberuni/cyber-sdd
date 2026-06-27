@@ -1,0 +1,80 @@
+Feature: The create-spec entry skill — scaffold a new spec node and dispatch the producer
+  Unit suite for the create-spec entry skill (the user-facing create unit). Entry-skill
+  behaviors only — no grilling/authoring (those are ../spec-producer/spec-producer.feature's)
+  and no gate verdict, freeze, or digest (those are ../validate-spec/validate-spec.feature's).
+
+  # ---- Classify + locate ----
+
+  Scenario: a CR for new capability content is located to a node under the project tree
+    Given a CR for capability content that does not exist yet
+    When create-spec runs
+    Then it determines the target capability folder under the project spec tree
+
+  Scenario: an existing node routes to revise-spec
+    Given a CR whose target spec node already exists
+    When create-spec runs
+    Then it routes the work to revise-spec
+    And it scaffolds no new node
+
+  Scenario: an ambiguous classification is asked, not guessed
+    Given the spec-type or artifact-types of the node cannot be determined
+    When create-spec must classify the node
+    Then it asks the user to disambiguate
+    And it does not guess a classification
+
+  # ---- Scaffold the skeleton ----
+
+  Scenario: a behavioral node is scaffolded with a Use Cases section and an empty feature
+    Given the node is classified as behavioral
+    When create-spec scaffolds the skeleton
+    Then the node README declares spec-type behavioral with a Use Cases section
+    And an empty unit feature file is created beside it
+
+  Scenario: a reference node is scaffolded with a Subject section and no feature
+    Given the node is classified as a reference artifact
+    When create-spec scaffolds the skeleton
+    Then the node README declares spec-type reference with a Subject section
+    And no feature file is created
+
+  Scenario: a descriptive index is scaffolded with no marker and no use cases
+    Given the node is classified as descriptive
+    When create-spec scaffolds the skeleton
+    Then the node README carries no spec-type marker and no Use Cases section
+
+  Scenario: scaffolding writes no control frontmatter
+    Given create-spec scaffolds a new node
+    When it writes the skeleton
+    Then it writes no status, aligned, approval, or produced-by frontmatter
+
+  # ---- Grill + dispatch ----
+
+  Scenario: a new feature collects the up-front grill before the first dispatch
+    Given a new-feature CR with missing what, why, or interface
+    When create-spec prepares to dispatch the operator
+    Then it collects the up-front grill from the user first
+
+  Scenario: a backfill skips the up-front grill
+    Given a CR whose behavior already exists in code
+    When create-spec prepares to dispatch the operator
+    Then it skips the up-front grill
+    And it signals backfill to the operator
+
+  Scenario: a needs-input wave is batched back to the user
+    Given the operator returns needs-input during explore
+    When create-spec handles the result
+    Then it asks the user the batched questions
+    And it re-dispatches the operator with the answers
+
+  Scenario: the iteration cap is never silently auto-accepted
+    Given the iteration cap is reached without the spec converging
+    When create-spec must decide how to proceed
+    Then it presents the failing scenarios to the user
+    And it does not auto-accept the spec
+
+  # ---- Leave at draft ----
+
+  Scenario: a converged node is left at draft for the spec gate
+    Given explore converges on a spec and suite diff
+    When create-spec finishes
+    Then the node is left at status draft
+    And create-spec advances no status past draft

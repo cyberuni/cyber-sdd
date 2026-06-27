@@ -45,7 +45,7 @@ here.
 | **validate-spec** | behavioral | [`validate-spec/`](./validate-spec/README.md) | the spec gate — the verdict, the three verbs, per-file freeze, the digest, and the structural provenance checks |
 | **spec-format** | reference | [`spec-format/`](./spec-format/README.md) | the `spec-format-governance` bar — the required `## Use Cases` section + `spec.md` enrichment; a **reference artifact** (no `.feature`), loaded by the producer/judge |
 | **suite-format** | reference | [`suite-format/`](./suite-format/README.md) | the `suite-format-governance` bar — the `.feature` form (boolean Gherkin, `@rubric`, ordering, the `@frozen` marker); a **reference artifact**, loaded by the producer/judge |
-| **create-spec** | behavioral | *pending* | user-facing entry skill — scaffold a new spec node and dispatch the producer (suite + impl tracked in the mission plan) |
+| **create-spec** | behavioral | [`create-spec/`](./create-spec/README.md) | user-facing entry skill — scaffold a new spec node and dispatch the producer (create / backfill modes); **entry-skill behaviors only** |
 | **revise-spec** | behavioral | *pending* | user-facing entry skill — re-open a draft and dispatch the producer, no scaffolding (tracked in the mission plan) |
 
 ## Where the rules live

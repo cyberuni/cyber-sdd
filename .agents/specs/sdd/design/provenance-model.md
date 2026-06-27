@@ -269,7 +269,7 @@ preserves every CR's verdict forever, keyed by `cr`.
 - **`gate`** — `spec | impl`, the gate this verdict closes.
 - **`verdict`** — `approve | pause | reject`, mirroring the `approval` enum.
 - **`by`** — the ratifier: a human name (ratified) or `agent` (self-asserted, provisional).
-  A self-assertion additionally carries the four-dimension `why` derivation, same as
+  A self-assertion additionally carries the `why` derivation, same as
   the frontmatter block; a human ratification needs none.
 - **`cause`** — `dimension | ceiling`: what drove the verdict (a gradient dimension, or the
   human ceiling cap), mirroring the `approval` entry's `cause` (`lifecycle-model.md`). This

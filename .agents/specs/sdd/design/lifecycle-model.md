@@ -25,11 +25,11 @@ approval:               # per-gate verdict
     verdict: approve
     by: agent           # by: agent (self-asserted, provisional) | <human name> (ratified); omitted on pause
     cause: dimension    # dimension | ceiling — what drove the verdict (a gradient dimension, or the human ceiling cap)
-    why:                # four-dimension derivation (agent self-assertion or pause)
-      reversibility: <safe|risky — reason>
-      blast-radius:  <safe|risky — reason>
-      novelty:       <safe|risky — reason>
-      confidence:    <safe|risky — reason>
+    why:                # verdict derivation (agent self-assertion or pause)
+      floor:        <none | clearance | conflict | consent>
+      blast:        <low|high — reason>
+      novelty:      <low|high — reason>
+      confidence:   <low|high — reason>
   impl: { verdict: approve, by: <human name> }   # ratified — no why needed
 produced-by:            # who produced each artifact; see provenance-model.md
   spec-producer: <plugin>:<agent>

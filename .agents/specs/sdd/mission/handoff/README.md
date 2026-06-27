@@ -44,9 +44,10 @@ the ones raised earlier in the loop (see `../../design/autonomy-rubric.md`): **C
 breaking change — narrowing or deleting an e2e scenario, or breaking a published contract) and
 **Conflict resolution** (a logical contradiction inside the suite). A separate handoff-layer
 floor for irreversible execution acts (force-push, data loss, history rewrite) was
-**considered and rejected** — those are not a gate (reversibility gradient). If a breaking
-change is in scope it was already cleared in step 2/3 before any code was written, so handoff
-never has to halt mid-flight.
+**considered and rejected** — those are not a gate: SDD work is git-reversible, and genuinely
+irreversible acts are out of scope (externally guarded) or pre-authorized
+(`../../design/autonomy-rubric.md`). If a breaking change is in scope it was already cleared in
+step 2/3 before any code was written, so handoff never has to halt mid-flight.
 
 ## Provenance
 

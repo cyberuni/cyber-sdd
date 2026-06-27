@@ -77,7 +77,7 @@ governances the judge checks against.
 ## The spec gate
 
 The gate decides on the spec + suite **diff** the grilling produced. It runs the distinct
-judge actor, derives the **leash** (the four-dimension assessment in
+judge actor, derives the **leash** (the verdict assessment in
 `../design/autonomy-rubric.md`), and takes the verdict accordingly:
 
 - **In leash** (every dimension reads safe): self-assert — the diff lands **provisionally**

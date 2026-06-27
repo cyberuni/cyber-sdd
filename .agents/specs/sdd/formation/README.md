@@ -55,9 +55,9 @@ in the corpus**; a run scoped to one spec is **not** a Formation run.
 ## The Warden's per-act self-clear-vs-escalate verdict
 
 The Warden is **rubric-subject**, exactly as the Operator is at a gate. For **each structural
-act** it assesses risk over the four gradient dimensions (reversibility, blast radius,
-novelty, confidence — with the contract-impact semver class feeding the Clearance floor and
-the breaking weight on blast radius) and renders its own **self-clear vs escalate** verdict —
+act** it applies the full floor + gradient (`../design/autonomy-rubric.md`) — the **Clearance**
+floor (a breaking structural act, mechanical or judged) plus the gradient (**blast** magnitude,
+**novelty**, **confidence**) — and renders its own **self-clear vs escalate** verdict —
 it has **no direct user channel**:
 
 - **Self-clear** the reversible, derivable, low-blast acts — a coverage-preserving split, a

@@ -218,7 +218,7 @@ Autonomy and gate provenance use a **three-layer model** (rules in
    entry. Effective reach = `min(ceiling, derived)`.
 3. **The per-gate verdict** — `approval`, a map keyed by gate (`spec`, `impl`). Each entry:
    `verdict: approve | pause | reject`, `by` (on approve/reject; **omitted on pause** — a
-   pause is always the agent's act), `cause: dimension | ceiling`, and a four-dimension `why`
+   pause is always the agent's act), `cause: dimension | ceiling`, and a `why`
    block that is **durable for every verdict**. `pause` is the accountability-preserving halt
    — "why I halted" is now as durable as "why I went," in the same map. The review queue
    (`approve` / `by: agent`) and awaiting-input queue (`pause`) are both **derived** from this

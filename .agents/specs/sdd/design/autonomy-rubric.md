@@ -45,13 +45,25 @@ unlocks it; the floor sits above the gradient entirely. **Three kinds** (the mne
   publish / release / deploy (those are downstream SDLC, externally guarded — e.g. a marketplace
   publish is a PR behind auth and review); **the rubric does not re-gate what already has its own
   guard.**
-- **Destructive operational acts** (e.g. resetting external test data) are **pre-authorizable like
-  Clearance** — declared in the CR / run-mode, else escalate. Everything SDD writes is
-  git-reversible, so the inner loop has no other irreversibility concern.
-- Symmetry: **Clearance** and **Consent** are **payable in advance**; **Conflict resolution**
-  cannot be.
+- Symmetry: **Conflict resolution** alone **cannot be pre-granted**; the other floor acts can.
 
 **Everything additive / internal / minor self-clears.**
+
+### Pre-authorization — the CR / run-mode (payable in advance)
+
+Two floor acts are **payable in advance** so they never halt mid-flight — both declared in the CR
+or a **run-mode** in the `strategy` block: a **breaking change** (Clearance) and a **destructive
+operational act** (e.g. resetting external test data). Undeclared, each escalates; the inner loop
+has no other irreversibility concern (everything SDD writes is git-reversible). **Consent** is the
+third pre-grantable, but as a standing opt-in, not a per-run class.
+
+A run-mode declares the **authorized change-class**:
+
+- `bug-fix-only` — only patch-class self-clears; minor / breaking escalate or defer;
+- `analyze-and-defer-breaking` — surface breaking work as **new CRs**, not this run;
+- `expected-breaking` — the breaking class is **pre-authorized** (Clearance granted up front).
+
+Absent a declaration the default class is **non-breaking**; a breaking change hits Clearance.
 
 ## The gradient — three dimensions, two modulate and one decides
 
@@ -95,18 +107,6 @@ but the human still ratifies the trail. Leaning autonomous is safe precisely bec
 work is **git-reversible** and every self-clear is **async-ratified** — the agent gains reach
 without stealing accountability, and the rubric stays a design/eval artifact (the conductor's
 runtime verdict comes from its own baked-in logic, not from loading the rubric).
-
-## The change-class posture (run-mode)
-
-The CR — or a **run-mode** in the `strategy` block — declares the **authorized change-class**,
-pre-clearing the matching Clearance up front so it never halts mid-flight:
-
-- `bug-fix-only` — only patch-class changes self-clear; minor / breaking escalate or defer;
-- `analyze-and-defer-breaking` — surface breaking work as **new CRs**, do not do it this run;
-- `expected-breaking` — the breaking class is **pre-authorized** (Clearance granted in advance).
-
-Absent a declaration the default class is **non-breaking**; a breaking change hits Clearance. The
-same posture authorizes any declared **destructive operational acts**.
 
 ## The leash — the run-level reach over the gates
 

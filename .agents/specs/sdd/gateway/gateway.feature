@@ -1,7 +1,7 @@
-Feature: The gateway — classify and route a request, hand work to the conductor
-  Unit suite for the gateway unit (the sdd skill). Classification + routing + handoff only — the
-  gateway holds no production logic and writes no contract state. Cross-capability e2e scenarios
-  live in ../acceptance/.
+Feature: The gateway — classify a request and load the handling skill in-session
+  Unit suite for the gateway unit (the sdd skill). Classification + loading the handling skill only
+  — the gateway holds no production logic and writes no contract state. Cross-capability e2e
+  scenarios live in ../acceptance/.
 
   # ---- Activation and intake ----
 
@@ -31,18 +31,23 @@ Feature: The gateway — classify and route a request, hand work to the conducto
     Then the gateway surfaces the count of pending strategy as an entry point
     And it neither drafts nor ratifies any strategy
 
-  # ---- Handoff to the conductor ----
+  # ---- Loading the handling skill ----
 
-  Scenario: a resolved route hands off to the in-session conductor by default
-    Given the gateway resolves a route and a live session hosts the conductor
+  Scenario: a resolved route loads the handling skill in-session and works directly
+    Given the gateway resolves a route and a live user session hosts the conductor
     When it carries out the downstream work
-    Then it runs the conductor in-session and spawns no agent itself
+    Then it loads the matched skill in the current session and works directly, spawning no agent itself
 
-  Scenario: the headless fallback spawns the operator and relays escalations
-    Given no live session hosts the conductor
+  Scenario: a request to change the project loads start-mission
+    Given an invocation that asks to change the project or its spec
+    When the gateway classifies it
+    Then it loads start-mission in-session to run the mission loop over the project spec
+
+  Scenario: with no user channel the gateway spawns the automaton
+    Given no user session is available to host the conductor
     When the gateway carries out the downstream work
-    Then it spawns the operator as a subagent
-    And when the operator returns needs-input with batched questions it asks the Council and resumes the operator with the answers
+    Then it spawns the automaton as the headless driver
+    And the automaton self-asserts at the autonomy bar and batches needs-input rather than asking live
 
   # ---- Classification edges — ambiguity, escape, freeze ----
 

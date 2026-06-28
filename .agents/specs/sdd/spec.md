@@ -6,14 +6,35 @@
 
 ## What SDD is
 
-SDD is a workflow that maintains a project through a stack of abstractions and carries each
-change through one autonomous loop, with humans deciding *what to build* and the agent
-deciding *how far it may go on its own*.
+SDD is a **spec-governed development process** that maintains a project through a stack of
+abstractions and carries each change through one autonomous loop, with humans deciding *what to
+build* and the agent deciding *how far it may go on its own*. Its **runtime is an agentic
+workflow** — structured orchestration of LLM work, not free-form autonomy ([SDD vs agentic
+workflows](#sdd-vs-agentic-workflows), below).
 
 SDD targets **Level 2 — Spec-Anchored** on the three-level maturity spectrum (Spec-First →
 Spec-Anchored → Spec-as-Source): the spec is authoritative and **co-delivers and co-evolves** with
 the code, never drifting (Level 1) and never replacing human-editable code (Level 3)
 ([`design/sdd-maturity.md`](./design/sdd-maturity.md)).
+
+### SDD vs agentic workflows
+
+In [Anthropic's framing](https://www.anthropic.com/research/building-effective-agents), an **agentic
+workflow** orchestrates LLMs and tools through *predefined code paths* (deterministic), distinct
+from an **agent** that *dynamically directs its own process*. SDD's runtime sits on the workflow
+side: the Mission Loop is **orchestrator-workers** (the conductor spawns cold judges + the
+impl-producer builder) plus **evaluator-optimizer** (the producer ↔ cold-judge grill), with agentic
+workers doing the dynamic work at the leaves. SDD chose structure on purpose — that is where freeze,
+provenance, and auditability come from.
+
+But SDD is **more than a workflow**. An agentic workflow is an ephemeral task automation; SDD wraps
+that runtime in a durable **spec corpus**, a **lifecycle** (draft → approved → implemented +
+freeze), **human gates**, and **governance**. That governing layer is a *methodology* — the
+**process** altitude (BPM / software-process). So the two terms are not rivals but **two altitudes**:
+**process** = the governing methodology layer (*what SDD is*); **workflow** = the runtime
+orchestration layer (*how SDD runs*). This is why "Process" names the doctrine loop and the
+per-project methodology slice, while "workflow" is reserved for the engine. Decision +
+background: [ADR-0011](../../../artifacts/adr/0011-sdd-process-vs-agentic-workflow.md).
 
 ### The SDD stack
 

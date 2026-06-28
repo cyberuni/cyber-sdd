@@ -13,6 +13,10 @@ This file is the rule side only.
 status: draft           # draft | approved | implemented | deprecated
 artifact-types:         # the artifact-types / squad keys this project touches: e.g. skill, subagent, command, agents-section, npm-package, docs; omit for a plain-code domain. Resolution is per file (each file's artifact-type -> its squad).
   - skill
+spec-layout:            # the declared organization strategy + spec location (design/spec-layout.md); read, never re-derived by scanning
+  strategy: capability-first   # capability-first | mirror-source | bounded-context | layered | doc-envelope
+  location: colocated          # colocated | hoisted | monorepo-member
+  placement-map: "#placement-map"   # anchor/path to the body placement map
 aligned: false          # true once the current layer's artifacts are synced
 strategy:               # run-level initial evaluation (leash + approach)
   leash: auto-all       # first-evaluated reach: auto-none | auto-spec | auto-all
@@ -39,7 +43,8 @@ domain-plugin:          # map: artifact-type -> owning plugin, when an artifact-
 Open input is recorded in the body as `<!-- open: ...
 -->` markers, not in frontmatter.
 
-`status` is the base schema; `artifact-types`, `aligned`, `strategy`, `approval`, `produced-by`, and `domain-plugin` are the SDD-workflow additions.
+`status` is the base schema; `artifact-types`, `spec-layout`, `aligned`, `strategy`, `approval`, `produced-by`, and `domain-plugin` are the SDD-workflow additions.
+`spec-layout` declares the organization strategy + spec location (`../design/spec-layout.md`); it is written once by `backfill-project-spec` at scaffold and rewritten only by the formation Warden during a deliberate reorganization.
 `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced.
 Do not commit SDD artifacts while their spec is `aligned: false`.
 

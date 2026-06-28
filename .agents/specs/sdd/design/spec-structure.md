@@ -46,12 +46,19 @@ The solution is **per-unit and durable** — distinct from the per-CR execution 
 > The sections below are the **layout** — *recommended convention* for arranging the nodes above,
 > not the validated contract.
 
-## Screaming architecture
+## Screaming architecture — the default layout
 
-Organize top-level folders by **SDD capability** — the folder names scream what the project *does* — with two exceptions:
+**Screaming architecture** organizes top-level folders by **capability** — the folder names scream what the
+project *does* — with two exceptions:
 
 - **`design/`** — the abstract idea: the rules and model.
 - **`acceptance/`** — the outcome contract: the e2e behavior suite.
+
+It is the **default**, not the only, layout. The full menu of organization strategies (capability-first,
+mirror-source, bounded-context, layered, doc-envelope), the selection rule, and how each reconciles with the
+node taxonomy above live in [`spec-layout.md`](./spec-layout.md). Whichever is chosen is **declared**, not
+inferred — recorded in the root `spec.md` `spec-layout` frontmatter (`lifecycle-model.md`), so it is read,
+never re-derived by scanning.
 
 ## Rule-in-design + behavior-in-capability
 

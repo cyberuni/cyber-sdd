@@ -13,7 +13,7 @@ deciding *how far it may go on its own*.
 SDD targets **Level 2 — Spec-Anchored** on the three-level maturity spectrum (Spec-First →
 Spec-Anchored → Spec-as-Source): the spec is authoritative and **co-delivers and co-evolves** with
 the code, never drifting (Level 1) and never replacing human-editable code (Level 3)
-([`design/maturity-levels.md`](./design/maturity-levels.md)).
+([`design/sdd-maturity.md`](./design/sdd-maturity.md)).
 
 ### The SDD stack
 

@@ -10,18 +10,19 @@ SDD is a workflow that maintains a project through a stack of abstractions and c
 change through one autonomous loop, with humans deciding *what to build* and the agent
 deciding *how far it may go on its own*.
 
-### The abstraction stack
+### The SDD stack
 
-Each layer abstracts the one below ([`design/abstraction-stack.md`](./design/abstraction-stack.md)).
-The lower three are durable and maintained; the upper two (CR, plan) are transient intent,
-consumed into them — never frozen:
+Five layers — intent → work → contract → artifact → behavior — getting more concrete downward; change
+enters at the top and is driven down ([`design/sdd-stack.md`](./design/sdd-stack.md)). The lower three
+are durable and maintained; the upper two (CR, plan) are transient intent, consumed into them — never
+frozen:
 
-- **change-request (CR)** — abstraction of the plan; the goal as intent, *grilled* into concrete
-  deltas to spec + suite (and from there, the implementation).
-- **plan** — abstraction of spec + suite; the change as sequenced work (per-CR execution state,
-  retired at retro), distinct from the durable contract below it.
+- **change-request (CR)** — the source of intent; the goal that *drives* a plan and is *grilled* into
+  concrete deltas to spec + suite (not an abstraction of anything below it).
+- **plan** — the CR's intent grilled into sequenced work that *produces* the spec + suite deltas;
+  transient per-CR state, retired at retro (not a view of the spec).
 - **spec + behavior suite** — abstraction of the implementation; what humans read to know what
-  the project *is* and does.
+  the project *is* and does. The hinge: top of the abstraction ladder, output of the intent above.
 - **implementation** — abstraction of outcome; the built artifact (code, docs, config, agent
   definitions…), still statically analyzable. SDD is not limited to generating code.
 - **outcome** — what actually happens.

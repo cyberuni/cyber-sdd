@@ -94,7 +94,7 @@ Inference would break both ways: a behavioral node has no `.feature` *yet* mid-e
 
 A rule and the behavior that enacts it live in different places — the **descriptive**/**behavioral** split above, applied to the corpus:
 
-- **Rules** — the lifecycle schema, the autonomy rubric, the provenance shape, the abstraction stack, the loop, the squad model, the suite style — live in `design/` as **descriptive** model docs.
+- **Rules** — the lifecycle schema, the autonomy rubric, the provenance shape, the SDD stack, the loop, the squad model, the suite style — live in `design/` as **descriptive** model docs.
 - **Behaviors** — the scenarios that *enact* those rules — live in the capability folders as **behavioral** specs.
 
 This keeps `design/` readable as a model while the capabilities stay testable as behavior. (Reference artifacts are the third case — a shipped thing, suite-less, homed in the capability that owns it.)

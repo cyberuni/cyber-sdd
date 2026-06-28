@@ -1,7 +1,7 @@
 # intake/ — the CR subsystem
 
 The **change request (CR)** is the **unit of change-intent** — step 1 of the Mission Loop and
-the top of the abstraction stack. Everything SDD **acts on** enters as a CR, and nothing re-enters
+the top of the SDD stack. Everything SDD **acts on** enters as a CR, and nothing re-enters
 except as a CR; a **task that is not a CR escapes** (below). `intake/` is the **CR
 subsystem**: it owns the CR concept, its **sources** (prompt / Asana / Jira / Linear /
 GitHub / a local store), the **escape hatch** (the task-vs-CR boundary), and the **inject
@@ -12,14 +12,9 @@ the universal `../gateway/`.
 
 ## The CR is the unit of change-intent
 
-In the abstraction stack each layer is an abstraction of the one below:
-
-- **outcome** — what actually happens.
-- **code** — abstraction of outcome.
-- **spec + behavior suite** — abstraction of code; what humans read to know what the
-  project *is* and does.
-- **change request (CR)** — abstraction of the behavior suite. The intent you *grill*
-  into concrete deltas to spec + suite (and from there, code).
+The CR sits at the **top of the SDD stack** (`../design/sdd-stack.md`) — it is **intent**, not an
+abstraction of the project below it: the source that **drives** a plan, then the spec + suite deltas,
+and from there the implementation and outcome.
 
 A CR is therefore not a feature, a spec, or a flag bolted onto a spec — it is the
 **intent**. It carries `what` and `why` (free text; `why` may optionally cite a combat-log

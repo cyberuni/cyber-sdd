@@ -91,6 +91,23 @@ The write is idempotent and self-reconciling:
 Version reconciliation is the init skill's job at install/upgrade/re-run, so the runtime
 resolver in `../mission/` only ever reads a current-shape entry and never compares versions.
 
+## Plugin & governance management — planned (deferred CR)
+
+Beyond the init-WRITE above, SDD will expose **user-facing management** of its domain plugins and
+governances, reached through the `../gateway/`: the gateway **classifies and routes** the request
+here, and the management **skill** performs the write — so the gateway's thin-relay non-goals (it
+installs nothing, edits no files) still hold; the *handler* does the work.
+
+- **Manage domain plugins** — install / list / remove a plugin's `sdd-plugins[]` registration.
+- **Author a governance** — scaffold a `metadata:{artifact-type, actor, face}` governance
+  (the `create-governance` skill).
+- **Marketplace** — register a plugin to the marketplace and discover plugins by artifact-type;
+  the **marketplace** is the global catalog, the **registry** the per-project resolution.
+
+These are **net-new capabilities, deferred to follow-up CRs** — the impl is not built. This section
+captures the shape so the `../gateway/` has a declared route; the spec + suite are authored when the
+work lands.
+
 ## Scenarios
 
 Unit scenarios for plugin behavior (manifest validity, idempotent init-write,

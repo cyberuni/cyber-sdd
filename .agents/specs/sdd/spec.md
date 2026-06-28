@@ -37,8 +37,9 @@ lifecycle units), never by splitting into a fleet of per-feature specs.
 
 Every interaction enters through the universal **`gateway/`** (the `sdd` skill): it activates SDD,
 classifies the request, and **routes** it — to a **mission** (a CR run through the loop below), a
-**`corpus/`** operation (dedupe, split, inspect), inner-loop agent-tuning (inject / project), or one
-of the four **outer loops**. A task with no suite-relevant behavior **escapes** — outside the
+**`corpus/`** operation (dedupe, split, inspect), inner-loop agent-tuning (inject / project), a
+**plugin-management** operation (install/remove a domain plugin, author a governance — *planned*), or
+one of the four **outer loops**. A task with no suite-relevant behavior **escapes** — outside the
 lifecycle, leaving no SDD record. The gateway is a **thin relay**: it classifies and dispatches,
 holding no production logic and writing no project files itself. It is not part of any loop.
 

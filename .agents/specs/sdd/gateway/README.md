@@ -83,6 +83,7 @@ flowchart TD
     CLASSIFY -->|dedupe / split / inspect| CORPUS[corpus]
     CLASSIFY -->|tune one agent| INJPROJ["inject / project"]
     CLASSIFY -->|retrospective / field| OUTER["outer loop → new CR"]
+    CLASSIFY -->|manage plugins / governances · planned| PLUGIN["plugin"]
     CLASSIFY -->|no suite-relevant behavior| ESCAPE["escape · no SDD record"]
     CLASSIFY -->|ambiguous| MISSION
     CLASSIFY -->|change a frozen .feature| AUTH
@@ -101,6 +102,7 @@ routes back through **authoring**, never edited in place.
 | Durably tune an inner-loop agent | **project** (`../intake/README.md`) |
 | A task with no suite-relevant behavior (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR |
+| Manage domain plugins (install / list / remove), author a governance, or register to the marketplace | the **plugin** capability (`../plugin/README.md`) — *planned, deferred CR* |
 
 There is no `project` vs `feature` structural axis and no spec fleet — one project is one
 spec — so routing classifies *what a user wants to do to the project*, never *which spec in

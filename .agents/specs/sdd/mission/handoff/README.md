@@ -1,10 +1,39 @@
+---
+spec-type: behavioral
+---
+
 # mission/handoff/ — the handoff phase (step 4)
 
 The **handoff phase** of the Mission Loop — step 4. Take step-3's verified result (from
 `../deliver/`) and land it in the **project-declared delivery shape**. `handoff` is a verb,
 like the other mission phases; the **outcome** is the noun this action produces (a set of
 commits, a PR, a published chapter). The orchestrator that sequences this phase is
-`../README.md`.
+`../README.md` (the [`operator`](../operator/README.md) unit).
+
+> **This is a single behavioral unit, not an overview** — handoff has no sub-skills; the behavior
+> is enacted by the conductor (the [`operator`](../operator/README.md) realization, built in
+> `core-agents`). This spec owns the **behavior + suite** ([`handoff.feature`](./handoff.feature)).
+
+## Use Cases
+
+**Subject** — the handoff phase: landing a verified result in the project's declared delivery
+shape, decomposed by unit of work, then writing the CR's public conclusion back to its source.
+
+**Non-goals** — it does **not** re-verify (it consumes the verified result), does **not** touch the
+contract or write spec/suite frontmatter, introduces **no** new hard floor, and does **not** retire
+the mission plan (the doctrine loop deletes it later). The impl-gate verdict that produced the
+verified result is the [`operator`](../operator/README.md) unit's, not this phase's.
+
+Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these behaviors:
+
+| Behavior | What it covers |
+|---|---|
+| **land in the declared shape** | detect the project's single declared shape and land accordingly (commit-to-main / branch+PR / deploy / chapter) |
+| **decompose by unit of work** | a multi-unit cycle lands as multiple commits / a unit-split PR, never one blob, never two unrelated concerns together |
+| **conditional status write-back** | a PR closes the source on merge (`Closes #N`); direct-to-`main` work transitions the source to `done` on push |
+| **distilled public summary** | append an outward-facing conclusion + follow-ups (which re-enter as new CRs) to the source — not the combat log |
+| **no new floor** | handoff raises no new mandatory escalation; earlier hard floors already fired |
+| **the plan is kept, not landed, not retired** | the `.plan.md` stays in the PR as scratch, is not landed as a delivery artifact, and is not retired early |
 
 ## Inputs
 

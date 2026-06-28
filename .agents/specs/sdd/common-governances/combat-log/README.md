@@ -1,0 +1,25 @@
+---
+spec-type: reference
+---
+
+# combat-log — the provenance record bar
+
+A **reference artifact**: the `combat-log` governance — the shape of the production provenance
+record: the tracked per-CR **combat log** (in the plan) and the durable **ledger** sibling of the
+root `spec.md`, their entry shapes, and the matchable `cause` enum. A fixed-universal SDD governance
+loaded by the conductor, validate-spec, and the doctrine-loop Scanner; invariant per role.
+
+## Subject
+
+- **Artifact** — the `combat-log` governance, shipped as
+  `plugins/sdd-new/skills/combat-log-governance/` (a fixed-universal SDD governance —
+  `../../design/governance-resolution.md`).
+- **Contract surface** — the two-face record (current-state frontmatter + append-only ledger), the
+  four entry kinds (`report` / `correction` → the combat log; `gate` / `strategy` → the ledger), the
+  CR-scoped `seq`, the matchable `cause` enum, and free-text hygiene.
+- **Conformance** — verified through consumer suites (conductor + validate-spec + Scanner), never by
+  this artifact itself. A reference artifact carries this `## Subject` in place of `## Use Cases` +
+  a `.feature`.
+- **Boundary** — the model + rationale (three tiers, plan retirement, readers-split) live in
+  `../../design/provenance-model.md`; freeze/gating semantics in `lifecycle`; write-ownership in
+  `ownership`. This bar owns the record + entry shapes and the `cause` enum.

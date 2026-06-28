@@ -27,9 +27,11 @@ frozen:
   definitions…), still statically analyzable. SDD is not limited to generating code.
 - **outcome** — what actually happens.
 
-One **project = one durable spec**, one behavior suite, one gate/freeze baseline. Size is
-solved by **organizing into files and folders** (folders are views, never lifecycle units),
-never by splitting into a fleet of per-feature specs. ([`design/unit-and-organization.md`](./design/unit-and-organization.md).)
+A **project** — a repo, an agent configuration, an npm package, a website, or a single package
+inside a monorepo (projects nest) — has **one durable spec**, one behavior suite, one gate/freeze
+baseline. Size is solved by **organizing into files and folders** (folders are views, never
+lifecycle units), never by splitting into a fleet of per-feature specs.
+([`design/unit-and-organization.md`](./design/unit-and-organization.md).)
 
 ### The Mission Loop (steps 1–4)
 

@@ -11,6 +11,18 @@ Depth 1 is the floor and the ceiling for the default path: every harness here su
 
 The depth-2 case (`caller → spawned operator → judge`) arises only in the **headless / fan-out fallback** below, where the operator runs as a spawned subagent and spawns its own judges. That requires a harness that allows a subagent to spawn another.
 
+```mermaid
+flowchart TD
+    subgraph DEFAULT["Default — conductor in-session · depth 1 · ports everywhere"]
+        M["main session = conductor"] -->|spawns| J1["cold judge"]
+        M -->|spawns| B1["impl-producer builder"]
+    end
+    subgraph HEADLESS["Headless / fan-out fallback · depth 2 · needs a nesting harness"]
+        C["caller / scheduler"] -->|spawns| OP["sdd-operator<br/>(no user channel)"]
+        OP -->|spawns| J2["cold judge"]
+    end
+```
+
 ## What each harness allows
 
 **Depth** counts levels of subagents below the main session. Every harness here supports **at least depth 1** — the main session can spawn subagents. The question is whether a *subagent* can spawn another (depth ≥ 2); "depth 1" means it cannot, **not** that subagents are unavailable.

@@ -4,6 +4,33 @@ SDD has **one inner loop** — the **Mission Loop** — fed by exactly one intak
 The vocabulary is load-bearing: a **cycle** is one full Mission-Loop pass (one CR carried to completion); **iteration** is the internal repeat *inside* a phase.
 Never call this a "5-step loop" — the Mission Loop is **steps 1–4**, and step 5 (the outer loops) is **not part of the Mission Loop**.
 
+```mermaid
+flowchart TD
+    GW[["gateway · classify + route"]] --> I
+
+    subgraph ML["Mission Loop — steps 1–4 (inner loop · one CR per cycle)"]
+        direction LR
+        I["1 · intake<br/>routed CR + scaffolded plan"] --> E["2 · explore<br/>build to learn"]
+        E -->|"spec gate · freeze"| D["3 · deliver<br/>build to keep"]
+        D -->|"impl gate"| H["4 · handoff<br/>land in delivery shape"]
+    end
+
+    H --> DONE([outcome delivered])
+    DONE -.->|"step 5 · post-mission"| OUTER
+
+    subgraph OUTER["Four outer loops — NOT part of the Mission Loop"]
+        direction LR
+        CAM[campaign · product]
+        FORM[formation · structure]
+        DOC[doctrine · process]
+        FRG[forge · field]
+    end
+
+    OUTER -.->|"emit a new CR"| I
+```
+
+The **freeze** at the spec gate is the explore→deliver boundary; the outer loops only ever re-enter as **new CRs** through the single intake (the dashed return edge).
+
 ## The Mission Loop — steps 1–4
 
 The inner loop, sequenced by the conductor — the main session running the operator role (`../mission/`; a spawned `sdd-operator` in the headless fallback, `design/harness-spawning.md`).

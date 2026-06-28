@@ -83,6 +83,24 @@ inline in the main session** (the live grill); the **impl-producer runs in a spa
 | **impl-producer** | builds artifact + verification | the implementation **and** one verification per frozen scenario | code/docs/config **+** tests/evals | conductor **spawns a builder** that loads governance |
 | **impl-judge** | runs the verification | runs the producer's tests/evals + an orthogonal structural/scope read | nothing — advises | `sdd-implementer` — spawned cold |
 
+The role-dependent surface — **the conductor writes the contract live, cold judges grade** — is the
+heart of the conductor-in-session model:
+
+```mermaid
+flowchart TD
+    subgraph SESSION["main session = the conductor (holds the user channel)"]
+        SP["spec-producer<br/>writes spec.md + .feature"]
+        SOL["solution-producer<br/>writes <unit>.solution.md"]
+    end
+    SESSION -->|"spawns a builder · depth 1"| IP["impl-producer<br/>build + one verification / scenario"]
+    SESSION -->|"spawns cold · depth 1"| SJ["spec-judge<br/>grades the .feature (spec gate)"]
+    SESSION -->|"spawns cold · depth 1"| IJ["impl-judge<br/>runs the verification (impl gate)"]
+```
+
+The two live-grill producers run **inline** (in-session); the impl-producer is **mechanical and
+spawned**; every judge is **spawned cold** in a context the author cannot reach. All spawns are
+**depth 1** from the main session — collapsing the old `caller → operator → judge` (depth 2) tree.
+
 The five roles apply three **lenses** (governances, not agents): **Director** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the
 spec-judge and impl-judge **apply** them backward. There is no "Builder judge" or "Director

@@ -72,6 +72,25 @@ Classification routes a request to the **capability** that handles it. The capab
 the SDD project's screaming-architecture folders — so the routing table doubles as the
 index of what a user can invoke. No separate `skills.md` is needed.
 
+```mermaid
+flowchart TD
+    REQ["request → $sdd"] --> BARE{"names work + action?"}
+    BARE -->|no| GATHER["gather missing intent<br/>(≤ 4 options)"] --> CLASSIFY
+    BARE -->|yes · fast path| CLASSIFY{classify}
+    CLASSIFY -->|raise/record a change| INTAKE[intake]
+    CLASSIFY -->|grill → spec + suite| AUTH[authoring]
+    CLASSIFY -->|implement + land| MISSION[mission]
+    CLASSIFY -->|dedupe / split / inspect| CORPUS[corpus]
+    CLASSIFY -->|tune one agent| INJPROJ["inject / project"]
+    CLASSIFY -->|retrospective / field| OUTER["outer loop → new CR"]
+    CLASSIFY -->|no suite-relevant behavior| ESCAPE["escape · no SDD record"]
+    CLASSIFY -->|ambiguous| MISSION
+    CLASSIFY -->|change a frozen .feature| AUTH
+```
+
+Ambiguity routes **into** the mission (the grill decides during explore); a frozen `.feature`
+routes back through **authoring**, never edited in place.
+
 | User intent | Capability (handler) |
 |---|---|
 | Raise / record a change | **intake** — open a CR through a source (`../intake/README.md`) |

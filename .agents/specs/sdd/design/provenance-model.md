@@ -111,7 +111,7 @@ Recorded **always**, on every production.
 It plays two deliberately separated roles:
 
 - a **historical record** — immutable provenance ("`X` produced this `.feature`"), the data ACES needs to measure result quality and trace a bad artifact to its producer;
-- a **resume cache** — on a later run the operator reuses the recorded producer if its plugin is still installed, so resume is decisive without re-asking.
+- a **resume cache** — on a later run the conductor reuses the recorded producer if its plugin is still installed, so resume is decisive without re-asking.
 
 ```yaml
 status: approved

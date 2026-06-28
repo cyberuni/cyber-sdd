@@ -54,14 +54,14 @@ A plugin covers a set of artifact-types by providing agents for these role keys 
 `plugins/sdd/skills/plugin-contract-governance/SKILL.md`; squad model:
 `../design/specialists-and-squads.md`). Any role may be `null` (degenerates to the SDD
 default) or omitted (falls back to the convention name `<plugin>-<role>`). A **producer**
-role may also name a model-tuned agent; naming any agent means the operator **spawns** it.
+role may also name a model-tuned agent; naming any agent means the conductor **spawns** it.
 
 | Role key | Acts | SDD default |
 |---|---|---|
-| `spec-producer` | writes the `spec.md` body + the `.feature` | operator loads `spec-producer-governance`, authors inline (`sdd:sdd-operator`) |
-| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md`) when a unit has durable rationale | operator loads `solution-producer-governance`, authors inline (`sdd:sdd-operator`) |
+| `spec-producer` | writes the `spec.md` body + the `.feature` | conductor loads `spec-producer-governance`, authors inline in-session (`sdd:sdd-operator`) |
+| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md`) when a unit has durable rationale | conductor loads `solution-producer-governance`, authors inline in-session (`sdd:sdd-operator`) |
 | `spec-judge` | judges the `.feature` at the spec gate | `sdd-spec-judge` — spawned cold agent |
-| `impl-producer` | builds the artifact **and** its verification | operator loads `impl-producer-governance`, builds inline (`sdd:sdd-operator`) |
+| `impl-producer` | builds the artifact **and** its verification | conductor spawns a generic builder that loads `impl-producer-governance` (`sdd:sdd-operator`) |
 | `impl-judge` | runs the verification against the frozen `.feature` | `sdd-implementer` — spawned cold agent |
 
 **Producers run inline, judges spawn cold** ("conductor writes, cold judges grade"). The
@@ -96,7 +96,7 @@ resolver in `../mission/` only ever reads a current-shape entry and never compar
 Unit scenarios for plugin behavior (manifest validity, idempotent init-write,
 fail-closed on a corrupt registry, version reconciliation, the `.cursor/plans` symlink +
 its no-clobber migration) **colocate** in this folder.
-Cross-capability outcomes (a plugin registers and the operator later resolves its delegates)
+Cross-capability outcomes (a plugin registers and the conductor later resolves its delegates)
 live in `../acceptance/`.
 
 ## Source

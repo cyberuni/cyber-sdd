@@ -2,7 +2,7 @@
 
 The **Formation loop** (metaphor) / **Structure loop** (descriptive) — the step-5 outer loop
 that keeps the spec **corpus** structurally coherent. Actor: the **Architect**. Run by its
-delegate the **Warden** (`sdd-warden`), parallel to the Operator that runs the inner mission
+delegate the **Warden** (`sdd-warden`), parallel to the conductor that runs the inner mission
 loop. It is **corpus-wide and continuous**, asking one question and only one — **is what we
 have organized right?**
 
@@ -54,7 +54,7 @@ in the corpus**; a run scoped to one spec is **not** a Formation run.
 
 ## The Warden's per-act self-clear-vs-escalate verdict
 
-The Warden is **rubric-subject**, exactly as the Operator is at a gate. For **each structural
+The Warden is **rubric-subject**, exactly as the conductor is at a gate. For **each structural
 act** it applies the full floor + gradient (`../design/autonomy-rubric.md`) — the floor
 (**Clearance** for a narrowing act; **Compatibility** when the act's semver class exceeds the
 ceiling; **Conflict** for a contested reconciliation) plus the gradient (**blast** magnitude,

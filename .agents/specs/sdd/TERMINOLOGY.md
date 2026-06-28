@@ -15,7 +15,7 @@ The old `plan.md` + `tasks.md` split **two ways** in new SDD — by scope and li
 | Old SDD | New SDD | Scope · lifetime |
 |---|---|---|
 | `plan.md` — the **functional spec** (domain approach, key structures, chosen design + **rejected alternatives**) | `<unit>.solution.md` — the **solution**, a per-unit decision record beside the unit's spec + suite | **per-unit · durable** (in the spec tree) |
-| `tasks.md` — the **task DAG** (build tasks traced to scenarios + file paths) | the execution `.plan.md` `todos` — the task DAG flattened to an ordered list, **operator**-filled | **per-CR · transient** (deleted at retro) |
+| `tasks.md` — the **task DAG** (build tasks traced to scenarios + file paths) | the execution `.plan.md` `todos` — the task DAG flattened to an ordered list, **conductor**-filled | **per-CR · transient** (deleted at retro) |
 
 So "plan" in **old SDD** = functional spec (analogy: spec = PRD, suite = test plan, **plan = functional spec**); "plan" in **new SDD** = `.agents/plans/<cr-ref>.plan.md`, the **execution** plan / handoff brief (`todos` + working method + `## NEXT`, the state `resume-mission` / `pause-mission` operate on) — *not* a contract layer.
 
@@ -37,6 +37,6 @@ role. Model: `design/unit-and-organization.md` (the third unit facet) + `design/
 | `spec-governance` | `spec-format` | the required `## Use Cases` + `spec.md` enrichment bar; reference artifact under `authoring/spec-format/` |
 | `design/suite-style.md` | `authoring/suite-format/` | Gherkin form + `@rubric` + scenario ordering + the `@frozen` marker, now a reference artifact |
 | `type` (single) | `artifact-types` (plural) | a project spans many artifact-types; squads resolve **per file**, not one spec-`type` |
-| `sdd-planner` (spawned agent) | `solution-producer` role (run **inline** by the operator) | same procedure, conducted warm, not spawned; was briefly `plan-producer` |
+| `sdd-planner` (spawned agent) | `solution-producer` role (run **inline** by the conductor) | same procedure, conducted warm, not spawned; was briefly `plan-producer` |
 | spec **fleet** (one frozen spec per feature) | **one project spec** (folders, not sibling specs) | one spec / one suite / one gate-freeze baseline |
 | `gate/` station | folded into `mission/` + `authoring/` | the gate dissolves into the autonomy bar; the judge stays a distinct cold actor |

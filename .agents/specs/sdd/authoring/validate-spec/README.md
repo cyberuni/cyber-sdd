@@ -80,7 +80,7 @@ they are approving without opening every artifact. Re-homed from the old standal
   tree and the gate decides a **CR**, so the digest summarizes the **files this CR touched**,
   aggregated — never a single fleet-era folder, and never the whole tree (the root `spec.md`
   capability map is the whole-project index).
-- **Folded in-session, not a spawned skill.** The operator assembles the digest inline while
+- **Folded in-session, not a spawned skill.** The conductor assembles the digest inline while
   running the gate station; it is no longer a separately-dispatched utility (the gateway never
   calls it, and a read-only summary needs no isolated actor). What survives is the
   **fixed-section contract**, so the gate report reads the same across domains.

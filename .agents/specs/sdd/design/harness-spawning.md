@@ -1,7 +1,7 @@
 # Harness spawning constraints
 
 The depth of agent nesting a harness allows is a **hard portability limit** on SDD's spawn model.
-Companion to `specialists-and-squads.md` (producers run inline, judges spawn cold) and `loops.md` (who runs the Mission Loop).
+Companion to `specialists-and-squads.md` (spec/solution-producers run inline; impl-producer and judges spawn at depth 1) and `loops.md` (who runs the Mission Loop).
 
 ## The constraint
 

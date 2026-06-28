@@ -94,7 +94,7 @@ Even though gates are no longer a fixed station, the judge stays a distinct acto
   Set it only when **every** impl-judge returns a pass; if any fails, leave `aligned: false` and surface the blocker.
 
 `aligned: true` never on its own means "implemented."
-The operator sets `aligned: false` at the start of a segment and only synthesis sets it back to `true`.
+The conductor sets `aligned: false` at the start of a segment and only synthesis sets it back to `true`.
 
 ## Legal-state tuples
 
@@ -148,7 +148,7 @@ The `@frozen` tag is metadata, excluded from the contract content the freeze pro
 
 - **The unfreeze trigger is risk, not phase.**
   A *narrowing or rewriting* of a scenario unfreezes its file — in explore or deliver alike; at the gate that is **Clearance** (`autonomy-rubric.md`), contract narrowed → escalate.
-  An *additive* scenario never unfreezes its file: it widens the contract, cannot break existing impl or contradict, and **self-clears** — it folds into the frozen file under the operator's authority, logged as a detail-adjustment (`provenance-model.md`).
+  An *additive* scenario never unfreezes its file: it widens the contract, cannot break existing impl or contradict, and **self-clears** — it folds into the frozen file under the conductor's authority, logged as a detail-adjustment (`provenance-model.md`).
   Explore is mostly narrowing/reshaping (much unfreezing); deliver is mostly additive (stays frozen).
   One rule covers both phases.
 - **`spec.md` is kept aligned, never frozen** — it is the readable abstraction of the suite, free to be reworded/restructured (prose, diagrams, pictures) as long as it does not contradict a frozen scenario.
@@ -198,8 +198,8 @@ This is positional, not definitional: the same operator definition run in-sessio
 |---|---|
 | `status` (on human verdict, or to match an in-leash self-assertion) | the gate skill (`validate-spec`), in-session |
 | `approval` human ratification (`verdict` + `by: <name>`) | the gate skill, **in-session position only** |
-| `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | `sdd-operator` (synthesis) |
-| `aligned`, `strategy`, `<!-- open: -->` markers | `sdd-operator` |
+| `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the conductor (synthesis) |
+| `aligned`, `strategy`, `<!-- open: -->` markers | the conductor |
 | `artifact-types` | `create-spec` (at scaffold) |
 | `spec.md` body + the `.feature` | the spec-producer |
 

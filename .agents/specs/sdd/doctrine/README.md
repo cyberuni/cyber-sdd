@@ -2,7 +2,7 @@
 
 The **Doctrine loop** (metaphor) / **Process loop** (descriptive) — the step-5 outer loop that
 evolves **how we work**: strategy, workflow, conventions. Actor: the **Strategist**. Run by its
-delegate the **Scanner in the Bunker** (`sdd-scanner`), parallel to the Operator that runs the
+delegate the **Scanner in the Bunker** (`sdd-scanner`), parallel to the conductor that runs the
 inner mission loop. It fires at **lifecycle granularity, never per-gate**.
 
 Standing subject: **the process — `design/`** (the methodology and its rules), and the broader
@@ -18,7 +18,7 @@ keep-or-cut.
 | **Detect and draft** | the Scanner delegate | cheap, continuous, non-blocking | drafts **unratified** strategy |
 | **Keep or cut** | the human Council | accountable, high-blast-radius | ratify → strategy re-enters as a CR; cut → it stays out |
 
-The Scanner is the **sole writer** of `strategy` entries; the operator (`report` / `correction`)
+The Scanner is the **sole writer** of `strategy` entries; the conductor (`report` / `correction`)
 and the producers (nothing) never write them. **No strategy enters the corpus without the
 Council's ratification.**
 

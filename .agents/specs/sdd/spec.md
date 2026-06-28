@@ -10,6 +10,11 @@ SDD is a workflow that maintains a project through a stack of abstractions and c
 change through one autonomous loop, with humans deciding *what to build* and the agent
 deciding *how far it may go on its own*.
 
+SDD targets **Level 2 — Spec-Anchored** on the three-level maturity spectrum (Spec-First →
+Spec-Anchored → Spec-as-Source): the spec is authoritative and **co-delivers and co-evolves** with
+the code, never drifting (Level 1) and never replacing human-editable code (Level 3)
+([`design/maturity-levels.md`](./design/maturity-levels.md)).
+
 ### The SDD stack
 
 Five layers — intent → work → contract → artifact → behavior — getting more concrete downward; change

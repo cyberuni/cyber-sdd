@@ -14,7 +14,7 @@ is arranged, not what it says.
 The Warden's **primary** input is structural: the corpus **structure** and **discovery** (`corpus/`)
 — it reads what the corpus *is*, never what a mission *did*. To stay efficient rather than
 cold-scanning the whole corpus every run, it may consult the durable **public trail** (CR-source
-conclusions + changesets + git history) **forward** via a cursor (`.agents/sdd/loop-cursors.json`)
+conclusions + changesets + git history) **forward** via a cursor over the public trail
 to learn what shipped recently and prioritize the structural pass there first. It reads **never**
 the combat log (the doctrine loop's input, retired at retro) and **never** live subagent context
 — like the other outer loops it fires strictly post-mission.

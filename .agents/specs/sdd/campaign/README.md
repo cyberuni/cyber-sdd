@@ -38,7 +38,7 @@ once the CR is ratified.
 The Commander reads the durable **public trail** **post-hoc** — the CR-source conclusions, the
 changesets, and git history (`design/provenance-model.md`), plus the product's current
 capabilities — never the combat log (the doctrine loop's input, retired at retro) and never
-live subagent context. It reads the trail **forward** via a cursor (`.agents/sdd/loop-cursors.json`) so a
+live subagent context. It reads the trail **forward** via a cursor over the public trail so a
 re-run resumes from the last-seen conclusion rather than cold-scanning the whole product.
 Parallel to the Scanner (`doctrine/`), it always fires *after* missions end, so post-hoc file
 reading is the right model.
@@ -60,7 +60,7 @@ keep-or-cut**. Nothing enters work without the Council's ruling.
 
 ## Boundaries — Campaign owns the product only
 
-Three sibling outer loops, three concerns:
+The four outer loops, by concern (Campaign + its three siblings):
 
 | Loop | Role | Owns |
 |---|---|---|

@@ -126,7 +126,7 @@ The solution is **per-unit and durable** — distinct from the per-CR execution 
 The top-level skeleton:
 
 ```
-design/ gateway/ intake/ authoring/ mission/{deliver,handoff}
+design/ gateway/ intake/ authoring/ mission/{operator,solution-producer,deliver,handoff}
 campaign/ formation/ doctrine/ forge/ corpus/ plugin/ acceptance/
 ```
 

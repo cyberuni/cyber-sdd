@@ -48,8 +48,8 @@ Feature: The impl-producer procedure — build the implementation + its verifica
   Scenario: a rubric or threshold stays out of the feature
     Given a scenario whose verification uses a rubric or threshold
     When the impl-producer authors that verification
-    Then the rubric or threshold lives in the verification only
-    And it does not appear in the feature
+    Then the rubric or threshold never appears in the feature
+    And it lives in the verification only
 
   # ---- Boundaries ----
 

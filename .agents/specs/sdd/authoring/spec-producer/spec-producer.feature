@@ -64,5 +64,5 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
   Scenario: scoring lingo is confined to a tagged rubric scenario
     Given the producer writes a gradient behavior that needs a rubric
     When it authors the scenario
-    Then the rubric form appears only inside a scenario tagged rubric
+    Then the rubric form never appears in an untagged scenario
     And every untagged scenario stays a pure boolean assertion

@@ -93,6 +93,7 @@ system except as a CR ([`design/loops.md`](./design/loops.md)):
 | [`mission/deliver/`](./mission/deliver/README.md) | build to keep against the frozen suite | deliver (step 3) |
 | [`mission/handoff/`](./mission/handoff/README.md) | land the result in the delivery shape | handoff (step 4) |
 | [`campaign/`](./campaign/README.md) [`formation/`](./formation/README.md) [`doctrine/`](./doctrine/README.md) [`forge/`](./forge/README.md) | the 4 post-mission outer loops | step 5 (not in the Mission Loop) |
+| [`common-governances/`](./common-governances/README.md) | the cross-cutting governance bar specs (actor + fixed-universal) | — |
 | [`corpus/`](./corpus/README.md) | spec-corpus tooling | — |
 | [`plugin/`](./plugin/README.md) | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
 | [`acceptance/`](./acceptance/README.md) | e2e behavior suite | — |

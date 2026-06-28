@@ -48,9 +48,9 @@ One cycle = one CR carried to completion, on one working tree ([`design/loops.md
 4. **handoff** — land the verified result in the project-declared delivery shape — commits
    to `main`, a branch + PR, or prose (`mission/handoff/`).
 
-`mission/` is the **orchestrator** — the conductor (the operator role), the main session by
-default, a spawned `sdd-operator` only in the headless fallback — sequencing steps 1–4;
-`gateway/` is the universal router/door (not a loop step). There is **no mandatory approval
+`mission/` **orchestrates** steps 1–4, run by the **conductor** — the main session by default, a
+spawned `sdd-operator` in the headless fallback. `gateway/` is the universal router/door (not a
+loop step). There is **no mandatory approval
 station** — every write to spec/suite passes the **autonomy rubric**
 ([`design/autonomy-rubric.md`](./design/autonomy-rubric.md)), which self-clears or escalates; the human is an escalation
 target the bar invokes, not a fixed checkpoint. Inside a mission, three hard-floor stops can

@@ -52,7 +52,7 @@ done?` mirror to merge or split. So each is **one skill**, not an `(actor, gate)
 |---|---|---|---|---|
 | lifecycle | `lifecycle-model.md` (schema / status / transitions / freeze) | `common-governances/lifecycle/` | `lifecycle-governance` | `validate-spec.feature` |
 | ownership | `provenance-model.md` | `common-governances/ownership/` | `ownership-governance` | validate-spec + producer/judge suites |
-| combat-log | `provenance-model.md` | `common-governances/combat-log/` | `combat-log-governance` | operator + validate-spec + Scanner suites |
+| combat-log | `provenance-model.md` | `common-governances/combat-log/` | `combat-log-governance` | conductor + validate-spec + Scanner suites |
 | gate-validation | `lifecycle-model.md` (two gates / `aligned` scoping / legal-state tuples / gate accountability) | `common-governances/gate-validation/` | `gate-validation-governance` | `validate-spec.feature` |
 
 - Each `common-governances/<name>/README.md` is a `spec-type: reference` node (`## Subject`, no
@@ -64,8 +64,8 @@ done?` mirror to merge or split. So each is **one skill**, not an `(actor, gate)
 ### Single-owner (usage = ownership → the capability folder)
 
 - **plugin-contract** → node `plugin/plugin-contract/` (under the descriptive `plugin/`), skill
-  `plugin-contract-governance`, verified through the operator-resolution + plugin-author suites. **Not**
-  in `common-governances/` — it has one consumer family (the plugin/operator surface).
+  `plugin-contract-governance`, verified through the conductor-resolution + plugin-author suites. **Not**
+  in `common-governances/` — it has one consumer family (the plugin/conductor surface).
 
 ### autonomy — the lone exception (no node, no skill)
 

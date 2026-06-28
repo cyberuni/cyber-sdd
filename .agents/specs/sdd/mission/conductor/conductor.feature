@@ -1,5 +1,5 @@
-Feature: The operator role — the conductor running one mission segment
-  Unit suite for the operator unit (the conductor / spawned sdd-operator). Covers resolution,
+Feature: The conductor — running one mission segment
+  Unit suite for the conductor unit (the conductor / spawned automaton). Covers resolution,
   the five-role production chain, explore orchestration, segment mechanics, the impl gate, and
   stop-provenance. The grilling workflow and the spec gate are ../../authoring/'s; the
   impl-producer build and impl-judge run colocate under ../deliver/; cross-capability e2e
@@ -218,10 +218,10 @@ Feature: The operator role — the conductor running one mission segment
     When the gate later passes
     Then the verdict entry is overwritten in place
 
-  Scenario: a headless operator emits a verdict packet even when approval is relayed
-    Given a spawned headless operator with no user channel
+  Scenario: a headless automaton emits a verdict packet even when approval is relayed
+    Given a spawned headless automaton with no user channel
     When a coordinator relays that the user approved
-    Then the operator emits a verdict packet and stops
+    Then the automaton emits a verdict packet and stops
     And it does not write a human ratification verdict
 
   Scenario: the in-session conductor writes the human ratification directly

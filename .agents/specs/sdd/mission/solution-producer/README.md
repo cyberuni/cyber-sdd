@@ -52,6 +52,6 @@ The procedure runs in the cases below; every scenario in
 
 Like the spec-producer, the solution-producer is a **live-grill** producer: the conductor runs it
 **in-session** (SDD default = governance loaded inline, recorded `produced-by.solution-producer:
-sdd:sdd-operator`; a plugin specialist = persona-loaded). It is **never spawned** — it keeps the
+sdd:automaton`; a plugin specialist = persona-loaded). It is **never spawned** — it keeps the
 user channel. It co-delivers with the other producers, not in a separate gated phase
-(`../operator/README.md`).
+(`../conductor/README.md`).

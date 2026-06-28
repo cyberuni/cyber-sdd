@@ -3,7 +3,7 @@
 The **deliver phase** of the Mission Loop — step 3, **build to keep**. It runs against the
 **frozen** `.feature` (the spec gate has closed) and ends at the **impl gate** (Approved →
 Implemented). The orchestrator that sequences this phase is [`../README.md`](../README.md) (the
-[`operator`](../operator/README.md) unit); this folder holds the deliver-phase production detail,
+[`conductor`](../conductor/README.md) unit); this folder holds the deliver-phase production detail,
 not the loop logic or the gate-verdict mechanics.
 
 > **This README is a `descriptive` phase overview — an index, not a testable spec**
@@ -21,7 +21,7 @@ output is kept.
 The deliver phase produces the artifacts the impl gate judges. Its two units split on the
 **producer ≠ judge** line: the impl-producer builds, the cold impl-judge grades. The unit of test
 is the skill — **one `.feature` per unit**. The gate's verdict mechanics, the leash, self-assertion
-vs stop, and positional ratification authority are the [`operator`](../operator/README.md) unit's,
+vs stop, and positional ratification authority are the [`conductor`](../conductor/README.md) unit's,
 not these. Cross-capability outcome (e2e) scenarios live in `../../acceptance/`.
 
 | Unit | Type | Spec | Role |
@@ -32,11 +32,11 @@ not these. Cross-capability outcome (e2e) scenarios live in `../../acceptance/`.
 ## Where the rules live
 
 - **The impl-gate verdict** (the three actions, layer-scoped `aligned`, verdict-not-station,
-  positional authority) → the [`operator`](../operator/README.md) unit; this phase only **produces**
+  positional authority) → the [`conductor`](../conductor/README.md) unit; this phase only **produces**
   what the gate judges.
 - **Low-risk in-flight adjustments** the conductor serves while building (clarify a detail, an
   obvious stale-mistake fix) are captured in the **detail-adjustment report**
   (`../../design/provenance-model.md`), not escalated. A change that would **narrow** a frozen
   scenario is **Clearance**, and a genuine self-contradiction is **Conflict resolution** — both
-  escalate per the operator's hard-floor logic.
+  escalate per the conductor's hard-floor logic.
 - **Lifecycle / freeze / the autonomy bar / the provenance shape** → `../../design/`.

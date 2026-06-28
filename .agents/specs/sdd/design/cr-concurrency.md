@@ -5,7 +5,7 @@ Code already does parallel-isolated work one way: **branches and working trees**
 So SDD does not build a CR-concurrency manager — git is it.
 
 - **One mission operates on one working tree, one CR at a time.**
-  A mission runs explore → deliver → handoff serially in the tree it was handed; the operator never interleaves two CRs in one tree.
+  A mission runs explore → deliver → handoff serially in the tree it was handed; the conductor never interleaves two CRs in one tree.
 - **Parallelism is separate trees.**
   Two CRs run at once by running two mission instances on two trees (e.g. git worktrees).
   SDD stays **tree-agnostic** — it does not create, track, or clean working trees; whoever invokes it supplies the tree.

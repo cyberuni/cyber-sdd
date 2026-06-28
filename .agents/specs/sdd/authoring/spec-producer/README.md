@@ -8,7 +8,7 @@ The authoring **procedure**: pressure-test a CR's intent into `spec.md` prose pl
 scenarios. This is the default `spec-producer-governance` the **conductor** runs **in-session** for
 the producer role; a plugin may resolve a more capable producer for its domain
 (`../../design/governance-resolution.md`). Run in-session (the default), it **grills the human
-live**; run **headless** (the spawned-operator fallback, `../../design/harness-spawning.md`) it has
+live**; run **headless** (the spawned-automaton fallback, `../../design/harness-spawning.md`) it has
 no user channel, so it grills up front and records an `<!-- open: -->` marker for anything it
 cannot resolve rather than prompting mid-run.
 

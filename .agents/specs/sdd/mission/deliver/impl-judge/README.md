@@ -18,7 +18,7 @@ against the frozen `.feature` to a boolean per scenario, and rolling that up to 
 implementation-pass verdict.
 
 **Non-goals** — it does **not** author the verification (the impl-producer does), does **not**
-write the gate verdict / `approval` / `status` / `aligned` (the [`../../operator/`](../../operator/README.md)
+write the gate verdict / `approval` / `status` / `aligned` (the [`../../conductor/`](../../conductor/README.md)
 does), and does **not** modify `spec.md` or the `.feature`. It only judges and advises.
 
 The procedure runs at the impl gate; every scenario in
@@ -38,7 +38,7 @@ The procedure runs at the impl gate; every scenario in
 The impl-judge runs in a **fresh cold context** the impl-producer cannot reach — the grader does not
 share the author's context. It collapses any graded subject (a rubric score, a threshold) to a
 **boolean per scenario**; scoring lingo never leaks into the contract. Its output is **advice** —
-the [`../../operator/`](../../operator/README.md) unit turns the pass/fail rollup into the gate
+the [`../../conductor/`](../../conductor/README.md) unit turns the pass/fail rollup into the gate
 verdict, the leash check, and `aligned`.
 
 > **Impl note:** the `sdd-implementer` **agent** that realizes this unit is built in the

@@ -2,21 +2,21 @@
 spec-type: behavioral
 ---
 
-# operator — the conductor / operator role
+# conductor — the inner-loop conductor role
 
-The **conductor** is the line officer of the inner loop — the **operator role** that runs one
+The **conductor** is the line officer of the inner loop — the **conductor role** that runs one
 **segment** of a Mission cycle against a frozen contract. By default it is the **main (user)
 session** (holds the user channel, grills live, ratifies in-session); in the **headless / fan-out
-fallback** it is a spawned `sdd-operator` subagent with no user channel that escalates up its
+fallback** it is a spawned `automaton` subagent with no user channel that escalates up its
 relay (`../../design/harness-spawning.md`). This unit is the **one realization** of that role —
 resolution, the production chain, explore orchestration, the impl gate, segment mechanics,
 stop-provenance, and the in-flight floor — whichever surface it runs on.
 
 ## Use Cases
 
-**Subject** — the operator role: carrying one CR through a segment by resolving delegates,
+**Subject** — the conductor role: carrying one CR through a segment by resolving delegates,
 running the five-role production chain, orchestrating explore, judging the impl gate, and
-recording provenance — on either surface (in-session conductor / headless `sdd-operator`).
+recording provenance — on either surface (in-session conductor / headless `automaton`).
 
 **Non-goals** — it does **not** own the grilling workflow or the spec gate (those are
 `../../authoring/`), the impl-producer build or the impl-judge run (those colocate under
@@ -25,8 +25,8 @@ or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
 
-The operator's behavior groups into six concerns, each a section below; every scenario in
-[`operator.feature`](./operator.feature) maps to one of them:
+The conductor's behavior groups into six concerns, each a section below; every scenario in
+[`conductor.feature`](./conductor.feature) maps to one of them:
 
 | Concern | What it covers |
 |---|---|
@@ -51,11 +51,11 @@ Resolution branches on role kind, and (for producers) on the **role-dependent su
 
 - **Spec / solution-producer** (the live grill) → runs **in-session in the conductor**, whether
   the SDD default (conductor loads the governance and authors inline, recorded
-  `produced-by.<role>: sdd:sdd-operator`) or a **named plugin specialist** (persona-loaded
+  `produced-by.<role>: sdd:automaton`) or a **named plugin specialist** (persona-loaded
   in-session). It must keep the user channel — it is never spawned.
 - **Impl-producer** (mechanical) → the conductor **spawns** a builder: the SDD default spawns a
   generic builder that loads `impl-producer-governance` (`produced-by.impl-producer:
-  sdd:sdd-operator`); a named plugin / model-tuned producer spawns that agent at its **own model
+  sdd:automaton`); a named plugin / model-tuned producer spawns that agent at its **own model
   and effort**.
 - **Judge, always** → the conductor **spawns a cold agent** in a fresh context
   (`sdd:sdd-spec-judge` / `sdd:sdd-implementer`, or the covering plugin's judge) — never inline,
@@ -99,7 +99,7 @@ flowchart TD
 
 The two live-grill producers run **inline** (in-session); the impl-producer is **mechanical and
 spawned**; every judge is **spawned cold** in a context the author cannot reach. All spawns are
-**depth 1** from the main session — collapsing the old `caller → operator → judge` (depth 2) tree.
+**depth 1** from the main session — collapsing the old `caller → automaton → judge` (depth 2) tree.
 
 The five roles apply three **lenses** (governances, not agents): **Director** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the
@@ -186,7 +186,7 @@ queue for async ratification) or **stops at the gate** with a verdict packet for
 marker remains, or `aligned` is false; those fail the **confidence** dimension. Human ratification
 (`verdict: approve, by: <name>`, advance `status`) is reserved to the **in-session position** that
 holds the real user channel — by default the conductor itself, which writes it directly; a
-**headless spawned operator** instead emits the verdict packet and stops, **even when a
+**headless spawned automaton** instead emits the verdict packet and stops, **even when a
 coordinator relays "the user approved"** — a relayed claim is not user confirmation.
 
 ## In-flight service and the hard floor

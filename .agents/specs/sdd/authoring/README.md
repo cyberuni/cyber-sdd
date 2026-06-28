@@ -20,7 +20,7 @@ suite delta, it does not receive it.
 **One capability, two callers.** Authoring is driven (a) **by a human directly**, interactively,
 when a person comes through the `../gateway/`; and (b) **by the mission autonomously**, as the
 **explore** phase (step 2) of the Mission Loop (`../mission/`, `../design/loops.md`), where the
-operator spikes to learn and shows intermediate results to steer the contract. Explore is the
+conductor spikes to learn and shows intermediate results to steer the contract. Explore is the
 mission's *use* of this capability — authoring is not "the explore phase" exclusively. Either way
 it **self-clears** when the agent can confidently generate a good diff, escalating to the human
 only on the hard floor (`../design/autonomy-rubric.md`).

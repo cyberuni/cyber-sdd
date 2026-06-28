@@ -30,7 +30,7 @@ The **freeze** at the spec gate is the explore→deliver boundary; the outer loo
 
 ## The Mission Loop — steps 1–4
 
-The inner loop, sequenced by the conductor — the main session running the operator role (`../mission/`; a spawned `sdd-operator` in the headless fallback, `design/harness-spawning.md`).
+The inner loop, sequenced by the conductor — the main session (`../mission/`; a spawned `automaton` in the headless fallback, `design/harness-spawning.md`).
 A scheduler can pull one CR and run the loop to step 4 on its own.
 The steps are **verbs** — actions taken — each producing a noun outcome.
 

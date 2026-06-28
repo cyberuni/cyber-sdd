@@ -77,12 +77,12 @@ The e2e/unit split is **test organization within the one corpus**, not separate 
 The top-level skeleton:
 
 ```
-design/ gateway/ intake/ authoring/ mission/{operator,solution-producer,deliver,handoff}
+design/ gateway/ intake/ authoring/ mission/{conductor,solution-producer,deliver,handoff}
 campaign/ formation/ doctrine/ forge/ corpus/ plugin/ acceptance/
 ```
 
 The **Mission Loop (steps 1–4)** maps to folders — `intake/` (1, the CR subsystem that **feeds** the loop) → `authoring/` (2, explore; owns the spec verification, **invoked** by the mission) → `mission/deliver/` (3, build to keep; owns the impl verification; verifies vs `acceptance/` + unit) → `mission/handoff/` (4, landing).
-`mission/` is the **orchestrator** — the conductor (the operator role) — that sequences the loop.
+`mission/` is the **orchestrator** — the conductor — that sequences the loop.
 The `gateway/` is the **universal router/door** — not a loop step.
 The four outer-loop folders (`campaign/`, `formation/`, `doctrine/`, `forge/`) fire **post-mission**, not as part of the Mission Loop (see `loops.md`).
 `design/`, `corpus/`, `plugin/`, and `acceptance/` are cross-cutting, not loop steps.

@@ -64,7 +64,7 @@ One cycle = one CR carried to completion, on one working tree ([`design/loops.md
    to `main`, a branch + PR, or prose ([`mission/handoff/`](./mission/handoff/README.md)).
 
 [`mission/`](./mission/README.md) **orchestrates** steps 1–4, run by the **conductor** — the main session by default, a
-spawned `sdd-operator` in the headless fallback. There is **no mandatory approval
+spawned `automaton` in the headless fallback. There is **no mandatory approval
 station** — every write to spec/suite passes the **autonomy rubric**
 ([`design/autonomy-rubric.md`](./design/autonomy-rubric.md)), which self-clears or escalates; the human is an escalation
 target the bar invokes, not a fixed checkpoint. Inside a mission, three hard-floor stops can

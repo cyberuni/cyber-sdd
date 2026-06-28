@@ -2,46 +2,41 @@
 
 The **deliver phase** of the Mission Loop — step 3, **build to keep**. It runs against the
 **frozen** `.feature` (the spec gate has closed) and ends at the **impl gate** (Approved →
-Implemented). The orchestrator that sequences this phase is `../README.md`; this folder
-holds the deliver-phase detail, not the loop logic.
+Implemented). The orchestrator that sequences this phase is [`../README.md`](../README.md) (the
+[`operator`](../operator/README.md) unit); this folder holds the deliver-phase production detail,
+not the loop logic or the gate-verdict mechanics.
 
-**Explore vs deliver** is the *purpose of the build*: explore (step 2, `../../authoring/`)
-builds to **learn** against the still-draft contract; deliver builds to **keep** against the
-frozen contract. The **freeze is the boundary**. Implementation happens in both — deliver is
-the one whose output is kept.
+> **This README is a `descriptive` phase overview — an index, not a testable spec**
+> (see the spec types in `../../design/unit-and-organization.md`). It carries no `spec-type`
+> marker, no `.feature`, and no `## Use Cases`; each behavior lives in a **behavioral** unit spec
+> below.
 
-## Build to keep, against the frozen suite
+**Explore vs deliver** is the *purpose of the build*: explore (step 2, `../../authoring/`) builds
+to **learn** against the still-draft contract; deliver builds to **keep** against the frozen
+contract. The **freeze is the boundary**. Implementation happens in both — deliver is the one whose
+output is kept.
 
-- The **solution-producer** runs inline in the conductor (in-session); the **impl-producer** runs
-  in a **spawned builder** (`../../design/specialists-and-squads.md`).
-  The impl-producer co-authors the implementation **and** one verification per frozen
-  scenario, anchored to the frozen `.feature`, never free-authored. It **never modifies**
-  `spec.md` or the `.feature` (a behavior-changing gap is a `CONTENT_GAP` / `BLOCKER`, not an
-  in-place edit), applying the **Builder** (coverage) and **Architect** (structure) lenses.
-- The cold **impl-judge** runs the producer's verification and adds an orthogonal
-  structural/scope read, collapsing any graded subject to a boolean per scenario.
+## Units
 
-## Low-risk in-flight suite updates
+The deliver phase produces the artifacts the impl gate judges. Its two units split on the
+**producer ≠ judge** line: the impl-producer builds, the cold impl-judge grades. The unit of test
+is the skill — **one `.feature` per unit**. The gate's verdict mechanics, the leash, self-assertion
+vs stop, and positional ratification authority are the [`operator`](../operator/README.md) unit's,
+not these. Cross-capability outcome (e2e) scenarios live in `../../acceptance/`.
 
-A frozen scenario is not edited here. But low-risk, in-flight adjustments the conductor serves
-while building — clarifying a detail, an obvious stale-mistake correction — are captured in
-the **detail-adjustment report** (a view of the plan's combat log, `../../design/provenance-model.md`),
-not escalated. A change that would **narrow** a frozen scenario is **Clearance** (hard floor,
-`../../design/autonomy-rubric.md`); a genuine self-contradiction is **Conflict resolution**.
-Both escalate per the orchestrator's hard-floor logic — see `../README.md`.
+| Unit | Type | Spec | Role |
+|---|---|---|---|
+| **impl-producer** | behavioral | [`impl-producer/`](./impl-producer/README.md) | the `impl-producer-governance` procedure — build the implementation **and** one verification per frozen scenario against the frozen `.feature`; **spawned builder**, never edits `spec.md` / `.feature`, applies the Builder + Architect lenses |
+| **impl-judge** | behavioral | [`impl-judge/`](./impl-judge/README.md) | the cold impl-judge — run the producer's verification + an orthogonal structural/scope read, collapse any graded subject to a boolean per scenario; **spawned cold** (`sdd-implementer`) |
 
-## The impl-gate verification
+## Where the rules live
 
-The deliver phase is where the **impl gate** is exercised: verify the implementation against
-the frozen contract — `../../acceptance/` (the e2e outcome suite) **plus the colocated unit
-suites** — and set impl-layer `aligned` true **only when every impl-judge passes**. A frozen
-scenario with no verification fails and blocks `aligned`. The gate's verdict mechanics, the
-leash, self-assertion vs stop, and positional ratification authority are owned by the
-orchestrator (`../README.md`); this phase produces the artifacts the gate judges.
-
-## Scenarios (colocated)
-
-Unit scenarios for the deliver phase colocate here: build-against-the-frozen-suite, the cold
-impl-judge running the producer's verification, an uncovered frozen scenario failing the
-gate, low-risk in-flight adjustment captured in the report. Cross-capability outcome (e2e)
-scenarios live in `../../acceptance/`.
+- **The impl-gate verdict** (the three actions, layer-scoped `aligned`, verdict-not-station,
+  positional authority) → the [`operator`](../operator/README.md) unit; this phase only **produces**
+  what the gate judges.
+- **Low-risk in-flight adjustments** the conductor serves while building (clarify a detail, an
+  obvious stale-mistake fix) are captured in the **detail-adjustment report**
+  (`../../design/provenance-model.md`), not escalated. A change that would **narrow** a frozen
+  scenario is **Clearance**, and a genuine self-contradiction is **Conflict resolution** — both
+  escalate per the operator's hard-floor logic.
+- **Lifecycle / freeze / the autonomy bar / the provenance shape** → `../../design/`.

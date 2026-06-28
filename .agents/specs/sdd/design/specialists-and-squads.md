@@ -81,8 +81,8 @@ How each resolved-actor bar is discovered, composed, and loaded: `governance-res
 ## Registry SHAPE
 
 The registry lives in `.agents/universal-plugin.json` as a top-level `sdd-plugins[]` array — a project-level map from each installed domain plugin to the SDD production-chain roles it fills.
-It is the **single resolution source** the operator reads; there is no out-of-band assignment fallback.
-The operator reads **only** this file — it does not scan plugin directories.
+It is the **single resolution source** the conductor reads; there is no out-of-band assignment fallback.
+The conductor reads **only** this file — it does not scan plugin directories.
 Each entry:
 
 ```json

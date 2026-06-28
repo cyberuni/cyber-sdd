@@ -1,6 +1,7 @@
-# mission/ — the autonomous orchestrator (the operator)
+# mission/ — the orchestrator (the operator role / conductor)
 
-`mission/` is the **autonomous orchestrator**: the operator / line officer that runs the
+`mission/` is the **orchestrator**: the operator role — the **conductor** (the main session by
+default; a spawned `sdd-operator` in the headless fallback) — the line officer that runs the
 **Mission Loop** over **steps 1–4** (intake → explore → deliver → handoff) against a frozen
 contract. A scheduler can pull one CR from `../intake/` and run this loop to step 4
 autonomously. **One cycle = one CR carried to completion.** It owns the loop logic
@@ -30,31 +31,40 @@ Behaviors that *enact* the loop live here (and under `deliver/` / `handoff/`) as
 unit scenarios; the *rules* they enact (lifecycle/freeze, the autonomy bar, the provenance
 shape, the squad/registry shape) live in `../design/`.
 
-## The operator — the line officer of the inner loop
+## The conductor — the line officer of the inner loop
 
-The **operator** runs one autonomous **segment** (one sitting / run) of a cycle and reports
-up. Its defining constraints:
+The **conductor** is the **main (user) session running the operator role**; it sequences one
+**segment** (one sitting / run) of a cycle. By default it is **not a spawned agent** — it is
+the in-session position that holds the user channel (`../design/specialists-and-squads.md`,
+`../design/harness-spawning.md`). Its defining traits:
 
-- **No user channel.** The operator is always spawned by a relay (the `../gateway/`, or an
-  `../authoring/` station that invoked it) and reports back up that relay. It **escalates to
-  the human only at a gate or a scrub** (kill) — never mid-segment, never directly to the
-  user.
-- **Stateless.** It reconstructs its position by reading the on-disk artifacts (`spec.md`,
-  the `.feature`, frontmatter) — the workflow cursor is **derived, never stored**. A resume
-  re-reads the artifacts and folds in any relayed answers.
-- **One segment, batched.** It runs as far as it can, then returns `complete` / `blocked` /
-  `needs-input` with questions **batched**; the relay owns the user loop and re-invokes to
-  resume. Content gaps become durable inline `<!-- open: -->` markers (block
-  Draft→Approved); workflow-procedural questions stay transient. The iteration cap
+- **Holds the user channel.** Because the conductor *is* the main session, the **explore grill
+  runs live** with the human and the conductor is the **positional ratifier** — it writes the
+  human gate verdict directly (`../design/lifecycle-model.md`). It still escalates only at the
+  bar the autonomy rubric sets, but it does so **in-session**, not by returning up a relay.
+- **Artifacts are the source of truth.** Position is derived from the on-disk artifacts
+  (`spec.md`, the `.feature`, frontmatter), never a stored cursor — so any later session (or a
+  headless run) resumes by re-reading them plus the plan. This is what makes the mission
+  portable, not a property of being respawned.
+- **Live loop, no respawn.** The conductor grills, builds, and judges across the segment
+  without terminating; `needs-input` is answered **live** by the human in-session. Content gaps
+  become durable inline `<!-- open: -->` markers (block Draft→Approved); the iteration cap
   **blocks-and-asks** rather than auto-accepting.
-- **Synthesizer.** It sets `aligned` for the gate's layer, writes its own `by: agent`
-  self-assertions and `pause` halts, and forwards non-blocking `OBSERVATIONS` (typed by
-  owning lens) up the relay without acting on them.
+- **Synthesizer.** It sets `aligned` for the gate's layer, writes `by: agent` self-assertions
+  and `pause` halts when in-leash, and surfaces non-blocking `OBSERVATIONS` (typed by owning
+  lens) without acting on them.
 
-`create-spec` / `validate-spec` are **stations the operator runs
-in-session**, never spawned as a `subagent_type`. The only thing the relay spawns is the
-operator. Attempting `subagent_type: validate-spec` is the classic misfire and fails with
-"Agent type not found."
+`create-spec` / `validate-spec` / `../authoring/` are **stations the conductor runs in-session**,
+never spawned as a `subagent_type` (attempting `subagent_type: validate-spec` fails with "Agent
+type not found"). The only things the conductor **spawns** are the **cold judges**, the
+**impl-producer builder**, and any **named specialist** producer/judge (below).
+
+**Headless / fan-out fallback.** When there is no live session to host the conductor — an
+unattended scheduler, or a multi-CR fan-out spawning one operator per CR — the operator runs as
+a **spawned `sdd-operator` subagent** with no user channel: it then escalates only by returning
+`complete` / `blocked` / `needs-input` (questions **batched**) up its relay, writes only
+`by: agent` self-assertions, and emits a verdict packet on a human gate. This is the depth-2
+path and needs a nesting-capable harness (`../design/harness-spawning.md`).
 
 **Segment vs cycle vs iteration.** A **cycle** is one full Mission-Loop pass — one CR
 carried to step 4. A **segment** is one sitting / run within a cycle (suspend-and-resume).
@@ -63,7 +73,7 @@ and deliver (build ⇄ impl-judge) — never the whole loop.
 
 ## Resolution — the registry READ
 
-At the start of a segment the operator reads **only** the project registry
+At the start of a segment the conductor reads **only** the project registry
 `.agents/universal-plugin.json` (the resolved lockfile — it never scans plugin
 directories), matches **each file's** artifact-type (resolution is per file, not one
 spec-`type`), and resolves each production-chain role to a plugin delegate or the SDD
@@ -72,40 +82,40 @@ folder owns the **READ / resolution** side only;
 the init-WRITE of the lockfile is owned by `../plugin/`, and the registry **shape** by
 `../design/specialists-and-squads.md`.
 
-Resolution branches on role kind, and for producers on whether a model-tuned agent is
-**named**:
+Resolution branches on role kind, and (for producers) on the **role-dependent surface**:
 
-- **Named agent** (a plugin delegate covers the artifact-type, *or* the slot names a
-  model-tuned producer — the model-tuning escape valve) → the operator **spawns** that agent
-  so it runs at its **own model and effort**. The spawn path keys on an agent being *named*,
-  not merely on full plugin coverage.
-- **Unnamed SDD-default producer** → the operator **loads the SDD-default producer
-  governance and authors inline (warm)** at its own model, recorded
-  `produced-by.<role>: sdd:sdd-operator`. There is no spawned default producer agent and no
-  "generic Builder".
-- **Judge, always** → the operator **spawns a cold agent** in a fresh context
+- **Spec / solution-producer** (the live grill) → runs **in-session in the conductor**,
+  whether the SDD default (conductor loads the governance and authors inline, recorded
+  `produced-by.<role>: sdd:sdd-operator`) or a **named plugin specialist** (persona-loaded
+  in-session). It must keep the user channel — it is never spawned.
+- **Impl-producer** (mechanical) → the conductor **spawns** a builder: the SDD default spawns a
+  generic builder that loads `impl-producer-governance` (`produced-by.impl-producer:
+  sdd:sdd-operator`); a named plugin / model-tuned producer spawns that agent at its **own
+  model and effort**.
+- **Judge, always** → the conductor **spawns a cold agent** in a fresh context
   (`sdd:sdd-spec-judge` / `sdd:sdd-implementer`, or the covering plugin's judge) — never
   inline, regardless of naming.
 
-A required role **always lands on a real delegate** or the operator **hard-fails closed**
+A required role **always lands on a real delegate** or the conductor **hard-fails closed**
 and records nothing (no inline sentinel) — the same fail-closed structural-error class as a
 malformed `produced-by` entry or an off-enum combat-log `cause`. A domain claimed by two
-plugins returns `needs-input`; the relay writes the choice and resume is decisive.
+plugins returns `needs-input` (answered in-session, or up the relay in the headless fallback);
+the choice is written and resume is decisive.
 
 ## The production chain
 
 Every act is one of five roles. The dividing line: **producers write artifacts; judges run
-a bar and advise** (a judge never writes `spec.md` or the `.feature`). That line fixes
-*where each role runs*: **the operator authors every producer in its own warm context**
-(from a spawned plugin agent or a loaded SDD-default governance); **judges always run in a
-spawned cold context** the author cannot reach.
+a bar and advise** (a judge never writes `spec.md` or the `.feature`). A second line fixes
+*where each role runs* (the role-dependent surface): **the conductor authors the spec /
+solution-producer inline in the main session** (the live grill); the **impl-producer runs in a
+spawned builder** and **every judge runs in a spawned cold context** the author cannot reach.
 
 | Role | Verb | Produces / runs | Writes to | SDD default |
 |---|---|---|---|---|
-| **spec-producer** | writes the contract | intent prose + boolean Gherkin | `spec.md` body, `.feature` | operator loads governance, authors inline (warm) |
+| **spec-producer** | writes the contract | intent prose + boolean Gherkin | `spec.md` body, `.feature` | conductor loads governance, authors **inline (in-session)** |
 | **spec-judge** | judges the contract | runs the domain bar on the `.feature` | nothing — advises | `sdd-spec-judge` — spawned cold |
-| **solution-producer** | records the solution | the per-unit decision record (chosen approach + rejected alternatives), **only when** the unit has durable rationale | `<unit>.solution.md` (beside the unit's spec + suite) | operator loads governance, authors inline (warm) |
-| **impl-producer** | builds artifact + verification | the implementation **and** one verification per frozen scenario | code/docs/config **+** tests/evals | operator loads governance, builds inline (warm) |
+| **solution-producer** | records the solution | the per-unit decision record (chosen approach + rejected alternatives), **only when** the unit has durable rationale | `<unit>.solution.md` (beside the unit's spec + suite) | conductor loads governance, authors **inline (in-session)** |
+| **impl-producer** | builds artifact + verification | the implementation **and** one verification per frozen scenario | code/docs/config **+** tests/evals | conductor **spawns a builder** that loads governance |
 | **impl-judge** | runs the verification | runs the producer's tests/evals + an orthogonal structural/scope read | nothing — advises | `sdd-implementer` — spawned cold |
 
 The five roles apply three **lenses** (governances, not agents): **Director** (scope),
@@ -114,35 +124,38 @@ lenses; the spec-judge and impl-judge **apply** them backward. There is no "Buil
 or "Director agent" — a verdict has a Director-lens face, a Builder-lens face, and an
 Architect-lens face.
 
-**Uniform resolution, one carve-out.** For any role the operator asks one question — does a
-plugin cover this artifact-type? Yes → spawn its agent. No → SDD default, whose shape
-depends only on kind: a **producer** default is a **governance loaded and run inline
-(warm)**; a **judge** default is a **cold agent spawned**. Tagline: **"conductor writes,
-cold judges grade."** The constraint that forces it is `producer ≠ judge`, enforced by
+**Resolution by surface + kind.** For any role the conductor asks: does a plugin cover this
+artifact-type, and what surface does the role take? A **spec / solution-producer** runs
+**in-session** (SDD default = governance loaded inline; plugin = persona-loaded); an
+**impl-producer** is **spawned** (default = generic builder; plugin = its agent); a **judge**
+default is a **cold agent spawned**. Tagline: **"the conductor writes the contract live, cold
+judges grade."** The constraint that forces the judge split is `producer ≠ judge`, enforced by
 context separation: the hand that writes an artifact never signs off on it.
 
 The five artifacts **co-deliver** — produced together, not in sequential gated phases. There
-is **no solution gate**: the solution gets no judge of its own; the implementation's test
-result validates it transitively (the operator's execution `todos` are likewise ungated). Only two objects are gated — the `.feature` (spec gate)
+is **no solution gate**: the solution gets no judge of its own and **stays out of the
+spec-judge's view**; the implementation's test result validates it transitively (the
+conductor's execution `todos` are likewise ungated). Only two objects are gated — the `.feature` (spec gate)
 and the implementation (impl gate). The impl-producer co-authors the implementation **and**
 its verification (anchored to the frozen scenarios, never free-authored); any
 rubric/threshold/score is a validation detail that **never appears in the `.feature`**.
 
 ## Explore — build to learn (step 2)
 
-The operator runs **explore** by driving `../authoring/` autonomously: it loads/spawns the
-spec-producer, iterates it against the cold spec-judge, and **spikes** forward producers in
-`explore` mode to learn what the contract needs. The purpose is to **learn**, so spikes are
-thrown away and **intermediate results are shown to the user to steer the spec + suite**. A
-discovery (the solution needs a behavior the `.feature` omits) routes back as a content-gap
-+ `OBSERVATIONS`, re-runs the spec-producer, and is **judged before** it can enter the
-contract — never absorbed unjudged. The ship-quality impl-judge does not run. The phase ends
-at the **spec gate** (Draft → Approved). Explore output is **not pure waste** — a good spike
-cleans forward into deliver at the freeze.
+The conductor runs **explore** by running `../authoring/` **in-session**: it authors the
+spec-producer inline (the live grill), iterates it against the **cold spec-judge** it spawns,
+and **spikes** the impl-producer (in a spawned builder) in `explore` mode against the
+**non-frozen** suite to learn what the contract needs. The purpose is to **learn**, so spikes
+are thrown away and their **learnings feed the live grill to steer the spec + suite**. A
+discovery (the solution needs a behavior the `.feature` omits) routes back as a content-gap +
+`OBSERVATIONS`, re-runs the spec-producer, and is **judged before** it can enter the contract —
+never absorbed unjudged. The ship-quality impl-judge does not run. The phase ends at the
+**spec gate** (Draft → Approved). Explore output is **not pure waste** — a good spike cleans
+forward into deliver at the freeze.
 
-`../authoring/` owns the grilling workflow, the spec gate, and freeze; the mission's role is
-to *invoke* that capability autonomously. The same capability is human-interactive when a
-person drives it directly through the `../gateway/`. One capability, two callers.
+`../authoring/` owns the grilling workflow, the spec gate, and freeze; the conductor *runs*
+that capability **in-session** (the default, human-interactive through the `../gateway/`) or
+autonomously in the headless fallback. One capability, two drive modes.
 
 ## Deliver and handoff — the mission-owned phases
 
@@ -175,23 +188,24 @@ frontmatter.
   reopens.
 
 **Verdict, not station.** The gate is not a fixed approval checkpoint; it dissolves into the
-autonomy bar. The operator **derives the leash** for the gate (the dimension assessment in
+autonomy bar. The conductor **derives the leash** for the gate (the dimension assessment in
 `../design/autonomy-rubric.md`) and either **self-asserts within leash** (writes
 `approval.impl: { verdict: approve, by: agent, why }` + `aligned`; the spec lands in the
 review queue for async ratification) or **stops at the gate** with a verdict packet for the
 human. **Never advance** — by self-assertion or human verdict — when any judge reports
 failures, any open marker remains, or `aligned` is false; those fail the **confidence**
 dimension. Human ratification (`verdict: approve, by: <name>`, advance `status`) is reserved
-to the **in-session position** that holds the real user channel; a spawned operator emits
-the verdict packet and stops, **even when a coordinator relays "the user approved"** — a
-relayed claim is not user confirmation.
+to the **in-session position** that holds the real user channel — by default the conductor
+itself, which writes it directly; a **headless spawned operator** instead emits the verdict
+packet and stops, **even when a coordinator relays "the user approved"** — a relayed claim is
+not user confirmation.
 
 ## In-flight service and the hard floor
 
 The mission serves its own minor work rather than bouncing to the human:
 
 - **Detail-adjustment report (a view of the plan's combat log).** Expansion and minor fixes the
-  operator makes in-flight — clarifying a detail, an obvious stale-mistake correction — are
+  conductor makes in-flight — clarifying a detail, an obvious stale-mistake correction — are
   recorded as combat-log entries in the plan (see `../design/provenance-model.md`), surfaced as
   a detail-adjustment view, not escalated.
 - **Hard-floor escalation (the only mandatory human stops).** Three can fire inside the mission,
@@ -201,7 +215,7 @@ The mission serves its own minor work rather than bouncing to the human:
   likewise pre-authorizable; and **Conflict resolution** of a logical contradiction in the suite
   (Scenario A says yes while Scenario B says no) — *not* pre-authorizable, a defect not a choice,
   the only thing that truly halts implementation unexpectedly. An obvious stale-mistake contradiction
-  is an operator-served minor fix; escalate only when both sides are plausibly intended.
+  is a conductor-served minor fix; escalate only when both sides are plausibly intended.
   (Consent, the third floor, is a `../forge/` concern, not a mission floor.)
 
 ## Stop-provenance — record why I halted, not just why I went
@@ -226,8 +240,9 @@ Autonomy and gate provenance use a **three-layer model** (rules in
    map, not stored. A paused gate later passed **overwrites in place** (current-state map; the
    superseded reasoning lives in git).
 
-The operator writes `approve`/`by: agent` and `pause` verdicts during synthesis; the gate
-station writes human ratifications. No producer writes `approval`.
+The conductor writes `approve`/`by: agent` and `pause` verdicts during synthesis; the gate
+station writes human ratifications (by default the conductor itself, in-session). No producer
+writes `approval`.
 
 ## Colocated unit scenarios
 
@@ -267,7 +282,7 @@ sources are the stale side, to fix in the source sweep.
 - **Squad vs the five-role chain — RESOLVED (same mechanism, two granularities).** A **squad**
   is the selection unit, **one per artifact-type**; it supplies the **five role slots**
   (`spec-producer`, `solution-producer`, `spec-judge`, `impl-producer`, `impl-judge`). The
-  five-role chain is how the operator *runs* a squad; "one producer per file" holds because the
+  five-role chain is how the conductor *runs* a squad; "one producer per file" holds because the
   three producer roles write **different** files. A project-spec CR touches several
   artifact-types → summons several squads, each running its five-role chain. No contradiction —
   `../design/specialists-and-squads.md` is canonical.

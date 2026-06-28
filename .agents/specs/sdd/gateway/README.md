@@ -53,34 +53,34 @@ There is no `project` vs `feature` structural axis and no spec fleet — one pro
 spec — so routing classifies *what a user wants to do to the project*, never *which spec in
 a fleet*.
 
-## Hand the work to the Operator
+## Hand the work to the conductor
 
-When the route is resolved, the gateway **spawns the Operator** (`sdd-operator`) once for
-the segment to carry out the downstream work. The Operator is the only agent this gateway
-spawns; the authoring, validation, and mission stations are stations the Operator runs
-in-session, never agent types the gateway spawns.
+When the route is resolved, the gateway hands the work to the **conductor** — the **operator
+role run in the main session** (`../mission/`, `../design/specialists-and-squads.md`). By default
+the gateway **spawns nothing**: the authoring, validation, and mission stations are stations the
+conductor runs **in-session**, and the cold judges + impl-producer builder are spawned later by
+the conductor itself (depth 1). The conductor *is* the main session, so it holds the user channel
+directly — the grill and every escalation happen in-session, with no relay between the Council and
+the work.
 
-### The relay carries the user channel
+The conductor escalates to the Council **only at the autonomy bar** (a gate go/no-go, or a scrub
+kill) — but in-session, by asking directly, not by returning up a relay.
 
-The Operator has **no user channel** — it lives at the relay ↔ Operator boundary, and this
-gateway *is* the relay:
+### Headless fallback — the gateway as relay
 
-1. Spawn the Operator for the segment.
-2. When the Operator returns `STATUS: needs-input` with batched `QUESTIONS`, ask the
-   Council those questions.
-3. Resume the Operator by re-spawning it with the Council's answers.
-4. Repeat across segments until `STATUS: complete` or `blocked`.
-
-The Operator escalates to the Council **only at gates** (a go/no-go verdict to advance
-status) and at **scrub** (a kill decision); outside those it runs autonomously to the next
-checkpoint. The Operator never asks the Council directly — every escalation is carried by
-this relay.
+When there is no live session to host the conductor (an unattended scheduler, or a multi-CR
+fan-out), the gateway **spawns the operator** (`sdd-operator`) as a subagent and acts as its
+**relay** (`../design/harness-spawning.md`): it spawns the operator for the segment, relays each
+`STATUS: needs-input` (batched `QUESTIONS`) to the Council, re-spawns with the answers, and
+repeats until `complete` / `blocked`. The spawned operator has no user channel and never asks the
+Council directly — every escalation is carried by the relay.
 
 ### Write-ownership is preserved
 
-The relay model changes *who is invoked how*, not *who writes what*. The gate station owns
-the `status` write and the human ratification of `approval`. The Operator owns `aligned`
-and any provisional self-assertion. The relay writes neither.
+Neither drive mode changes *who writes what*. The gate station owns the `status` write and the
+human ratification of `approval` — by default the in-session conductor performs it directly; in
+the headless fallback the in-session relay position performs it on a returned verdict packet. The
+conductor owns `aligned` and any provisional self-assertion. The gateway-as-relay writes neither.
 
 ## Recognize the escape and the freeze
 
@@ -123,15 +123,16 @@ Scenario: pending strategy is surfaced on re-entry
   Then the gateway surfaces the count of pending strategy as an entry point
   And it neither drafts nor ratifies any strategy
 
-Scenario: a resolved route hands off to the Operator
-  Given the gateway resolves a route
+Scenario: a resolved route hands off to the in-session conductor by default
+  Given the gateway resolves a route and a live session hosts the conductor
   When it carries out the downstream work
-  Then it spawns the Operator and spawns no other agent
+  Then it runs the conductor in-session and spawns no agent itself
 
-Scenario: the relay carries an Operator escalation to the Council
-  Given the Operator returns needs-input with batched questions
-  When the gateway receives them
-  Then it asks the Council and resumes the Operator with the answers
+Scenario: the headless fallback spawns the operator and relays escalations
+  Given no live session hosts the conductor
+  When the gateway carries out the downstream work
+  Then it spawns the operator as a subagent
+  And when the operator returns needs-input with batched questions it asks the Council and resumes the operator with the answers
 
 Scenario: an ambiguous request routes into the lifecycle
   Given a request that may touch suite-relevant behavior but names no clear capability

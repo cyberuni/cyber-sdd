@@ -43,7 +43,7 @@ into smaller specs to approve separately.
 Step 1 produces two things, not one: the **routed CR** and a **scaffolded mission plan**.
 When a CR is claimed, intake creates `.agents/plans/<cr-ref>.plan.md` from a **basic template**
 — Cursor-compatible frontmatter with an empty `todos` list (`../design/provenance-model.md`)
-plus a `## NEXT` anchor — so the plan exists **from step 1**. The **operator** then **fills**
+plus a `## NEXT` anchor — so the plan exists **from step 1**. The **conductor** then **fills**
 it during explore (the task DAG flattened to `todos`, the working method, progress); it does
 **not** invent the plan from nothing later. The plan holds **execution state only** — the
 durable per-unit **solution** (chosen approach + rejected alternatives) lives beside each
@@ -164,8 +164,11 @@ Projecting is *calibrating the worker*; injecting is *being present in it*. They
 be conflated — one changes future behavior, the other operates the present.
 
 The mechanism is **dual-mode**: an injectable agent can be (a) dispatched autonomously as
-today **and** (b) invoked directly — as a subagent or loaded in-context as a persona — for
-a live human channel. The injectable set is the **inner-loop producers and judges**.
+a subagent **and** (b) loaded in-context as a persona — for a live human channel. The
+injectable set is the **inner-loop producers and judges**. This is the same persona surface
+the **conductor** uses by default for the `spec-producer` / `solution-producer` (the live
+grill runs in-session, `../design/specialists-and-squads.md`): injecting is the Council
+stepping into a worker the model already knows how to run in-context.
 
 Two invariants:
 

@@ -12,7 +12,8 @@ the one whose output is kept.
 
 ## Build to keep, against the frozen suite
 
-- The solution-producer + impl-producer run (warm or spawned per the orchestrator's resolution).
+- The **solution-producer** runs inline in the conductor (in-session); the **impl-producer** runs
+  in a **spawned builder** (`../../design/specialists-and-squads.md`).
   The impl-producer co-authors the implementation **and** one verification per frozen
   scenario, anchored to the frozen `.feature`, never free-authored. It **never modifies**
   `spec.md` or the `.feature` (a behavior-changing gap is a `CONTENT_GAP` / `BLOCKER`, not an
@@ -22,7 +23,7 @@ the one whose output is kept.
 
 ## Low-risk in-flight suite updates
 
-A frozen scenario is not edited here. But low-risk, in-flight adjustments the operator serves
+A frozen scenario is not edited here. But low-risk, in-flight adjustments the conductor serves
 while building — clarifying a detail, an obvious stale-mistake correction — are captured in
 the **detail-adjustment report** (a view of the plan's combat log, `../../design/provenance-model.md`),
 not escalated. A change that would **narrow** a frozen scenario is **Clearance** (hard floor,

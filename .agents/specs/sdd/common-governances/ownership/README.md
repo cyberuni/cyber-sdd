@@ -6,7 +6,7 @@ spec-type: reference
 
 A **reference artifact**: the `ownership` governance — who may write each `spec.md` frontmatter
 field and each artifact, plus the freeze write-constraint. A fixed-universal SDD governance loaded by
-every producer, judge, conductor, and the create-spec/validate-spec skills; invariant per role (not
+every producer, judge, conductor, and the start-mission/validate-spec skills; invariant per role (not
 face-split).
 
 ## Subject

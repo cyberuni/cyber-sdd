@@ -69,5 +69,5 @@ Token-leanness comes from **per-concept, lean, role-split bars** — each role l
 - **An unresolvable required governance fails closed.**
   A required role's bar that resolves to nothing (plugin not installed, name typo) is a structural error — the gate fails closed (`gate-validation-governance`), never advancing on a missing bar.
 - **Gateways carry no governance.**
-  Governance loading targets **worker** agents and skills — the ones that perform governed work (`create-spec`, `validate-spec`, the producers/judges).
+  Governance loading targets **worker** agents and skills — the ones that perform governed work (`start-mission`, `validate-spec`, the producers/judges).
   A **gateway** skill (e.g. `sdd`) only classifies and routes; it holds **no** governance.

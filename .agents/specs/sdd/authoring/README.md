@@ -17,13 +17,13 @@ suite delta, it does not receive it.
 
 ## Role in the system
 
-**One capability, two callers.** Authoring is driven (a) **by a human directly**, interactively,
-when a person comes through the `../gateway/`; and (b) **by the mission autonomously**, as the
-**explore** phase (step 2) of the Mission Loop (`../mission/`, `../design/loops.md`), where the
-conductor spikes to learn and shows intermediate results to steer the contract. Explore is the
-mission's *use* of this capability — authoring is not "the explore phase" exclusively. Either way
-it **self-clears** when the agent can confidently generate a good diff, escalating to the human
-only on the hard floor (`../design/autonomy-rubric.md`).
+**One capability, two drive modes.** Authoring is the mission's **explore** phase (step 2 of the
+Mission Loop — `../mission/`, `../design/loops.md`), always run by the **conductor**: in-session via
+the user-facing **`start-mission`** skill (the human grills live), or headless via the **`automaton`**
+(autonomous). There is **no separate create/revise entry skill** — scaffolding a new node and
+re-opening a draft are modes of explore, folded into `start-mission`. Either way it **self-clears**
+when the agent can confidently generate a good diff, escalating to the human only on the hard floor
+(`../design/autonomy-rubric.md`).
 
 **Producer/judge separation (capability-wide).** The **producer** authors the diff (spec prose
 plus scenarios); a **distinct judge** actor verifies it. Authoring never collapses producing and
@@ -45,8 +45,9 @@ here.
 | **validate-spec** | behavioral | [`validate-spec/`](./validate-spec/README.md) | the spec gate — the verdict, the three verbs, per-file freeze, the digest, and the structural provenance checks |
 | **spec-format** | reference | [`spec-format/`](./spec-format/README.md) | the `spec-format-governance` bar — the required `## Use Cases` section + `spec.md` enrichment; a **reference artifact** (no `.feature`), loaded by the producer/judge |
 | **suite-format** | reference | [`suite-format/`](./suite-format/README.md) | the `suite-format-governance` bar — the `.feature` form (boolean Gherkin, `@rubric`, ordering, the `@frozen` marker); a **reference artifact**, loaded by the producer/judge |
-| **create-spec** | behavioral | [`create-spec/`](./create-spec/README.md) | user-facing entry skill — scaffold a new spec node and run the explore grill in-session (create / backfill modes); **entry-skill behaviors only** |
-| **revise-spec** | behavioral | [`revise-spec/`](./revise-spec/README.md) | user-facing entry skill — re-open a draft and run the explore grill in-session, no scaffolding; **entry-skill behaviors only** |
+
+The user-facing entry that *runs* this capability is **`start-mission`** (the conductor's explore
+phase); scaffolding a new node and re-opening a draft are modes of explore, not separate skills.
 
 ## Where the rules live
 

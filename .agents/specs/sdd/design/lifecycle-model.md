@@ -58,7 +58,7 @@ Do not commit SDD artifacts while their spec is `aligned: false`.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> draft: create-spec (new or backfill)
+    [*] --> draft: start-mission (new or backfill)
     draft --> approved: spec gate (validate-spec --target spec)
     approved --> implemented: impl gate (validate-spec --target impl)
     approved --> draft: behavior change (re-open)
@@ -200,7 +200,7 @@ This is positional, not definitional: the same automaton, run in-session as the 
 | `approval` human ratification (`verdict` + `by: <name>`) | the gate skill, **in-session position only** |
 | `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the conductor (synthesis) |
 | `aligned`, `strategy`, `<!-- open: -->` markers | the conductor |
-| `artifact-types` | `create-spec` (at scaffold) |
+| `artifact-types` | `start-mission` (at scaffold) |
 | `spec.md` body + the `.feature` | the spec-producer |
 
 The leash (`strategy.leash`, run-level) and the self-clear-vs-escalate bar that derives it live in `autonomy-rubric.md`; there is **no per-gate `leash` field** in an `approval` entry.

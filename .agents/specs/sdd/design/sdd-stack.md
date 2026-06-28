@@ -58,9 +58,6 @@ change-request (CR)     ← intent: the goal you grill into spec + suite deltas
 - **Change enters at the top and is driven down.**
   A CR enters as intent and is **grilled** into shape — explore researches the gaps and applies the Director / Builder / Architect lenses, expanding the thin CR into the plan (sequenced work) and the spec + suite deltas together; mission drives those into the implementation; the outcome follows.
   You do not edit outcome directly — you edit the layer that produces it.
-- **The `.feature` is part of the behavior suite, never part of the CR.**
-  A CR describes a desired change to behavior; the scenarios that *encode* behavior live one layer down, in the suite.
-  (See `../authoring/suite-format/README.md` for how scenarios are written and judged, and `unit-and-organization.md` for how the suite is organized within the one project spec.)
 - **The CR is consumed, not stored.**
   Once grilled into spec + suite deltas, the CR's job is done; it does not become a frozen artifact.
   Outer-loop retrospectives emit *new* CRs rather than reopening old ones (see `loops.md`).

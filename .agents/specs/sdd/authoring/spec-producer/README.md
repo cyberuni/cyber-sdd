@@ -5,10 +5,12 @@ spec-type: behavioral
 # spec-producer — grill a CR into spec prose + a boolean suite
 
 The authoring **procedure**: pressure-test a CR's intent into `spec.md` prose plus boolean
-scenarios. This is the default `spec-producer-governance` the operator runs **in-session** for
+scenarios. This is the default `spec-producer-governance` the **conductor** runs **in-session** for
 the producer role; a plugin may resolve a more capable producer for its domain
-(`../../design/governance-resolution.md`). The producer has **no user channel** — it grills up
-front or records an open marker; it never prompts mid-run.
+(`../../design/governance-resolution.md`). Run in-session (the default), it **grills the human
+live**; run **headless** (the spawned-operator fallback, `../../design/harness-spawning.md`) it has
+no user channel, so it grills up front and records an `<!-- open: -->` marker for anything it
+cannot resolve rather than prompting mid-run.
 
 `.feature` is **part of the behavior suite, never part of the CR** — the producer *writes* the
 suite delta, it does not receive it.
@@ -73,7 +75,7 @@ The producer writes the **spec body and the `.feature`**, nothing else:
 
 - It writes `spec.md` prose and the `.feature` scenarios.
 - It does **not** write the `status`, `aligned`, `approval`, or `produced-by` frontmatter —
-  those are the operator's and the gate's (`../../design/provenance-model.md`).
+  those are the conductor's and the gate's (`../../design/provenance-model.md`).
 - Scoring lingo appears **only** inside a `@rubric`-tagged scenario; every untagged scenario
   stays a pure boolean assertion (`../suite-format/README.md`).
 

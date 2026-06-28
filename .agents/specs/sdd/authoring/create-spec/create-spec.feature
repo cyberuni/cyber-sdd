@@ -1,4 +1,4 @@
-Feature: The create-spec entry skill — scaffold a new spec node and dispatch the producer
+Feature: The create-spec entry skill — scaffold a new spec node and run the explore grill
   Unit suite for the create-spec entry skill (the user-facing create unit). Entry-skill
   behaviors only — no grilling/authoring (those are ../spec-producer/spec-producer.feature's)
   and no gate verdict, freeze, or digest (those are ../validate-spec/validate-spec.feature's).
@@ -12,18 +12,18 @@ Feature: The create-spec entry skill — scaffold a new spec node and dispatch t
     When create-spec runs
     Then it determines the target capability folder under the project spec tree
 
-  Scenario: a new feature collects the up-front grill before the first dispatch
+  Scenario: a new feature collects the seed intent before the grill loop
     Given a new-feature CR with missing what, why, or interface
-    When create-spec prepares to dispatch the operator
-    Then it collects the up-front grill from the user first
+    When create-spec prepares to run the explore grill
+    Then it collects the seed intent from the user first
 
   # ---- UC2 — backfill from existing code ----
 
-  Scenario: a backfill skips the up-front grill
+  Scenario: a backfill skips the seed-intent grill
     Given a CR whose behavior already exists in code but has no spec node
-    When create-spec prepares to dispatch the operator
-    Then it skips the up-front grill
-    And it signals backfill to the operator
+    When create-spec prepares to run the explore grill
+    Then it skips the seed-intent questions
+    And it signals backfill to the producer
 
   # ---- UC3 — redirect when the node already exists ----
 
@@ -63,13 +63,13 @@ Feature: The create-spec entry skill — scaffold a new spec node and dispatch t
     When it writes the skeleton
     Then it writes no status, aligned, approval, or produced-by frontmatter
 
-  # ---- Cross-cutting — drive the operator, then leave at draft ----
+  # ---- Cross-cutting — run the grill in-session, then leave at draft ----
 
-  Scenario: a needs-input wave is batched back to the user
-    Given the operator returns needs-input during explore
-    When create-spec handles the result
-    Then it asks the user the batched questions
-    And it re-dispatches the operator with the answers
+  Scenario: the grill asks the user live and continues in-session
+    Given the in-session grill needs an answer from the user during explore
+    When create-spec handles it
+    Then it asks the user live in-session
+    And it continues the grill with the answers without respawning
 
   Scenario: the iteration cap is never silently auto-accepted
     Given the iteration cap is reached without the spec converging

@@ -94,7 +94,7 @@ Feature: SDD acceptance — change request to delivered outcome
 
   Scenario: A registered plugin's delegates resolve without directory scanning
     Given a plugin's init-write added its sdd-plugins entry to the registry
-    When the operator resolves delegates for that plugin's domain
+    When the conductor resolves delegates for that plugin's domain
     Then it reads the role-to-agent map from the registry
     And it does not scan user-global, project-global, or project-local plugin directories
 

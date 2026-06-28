@@ -7,8 +7,10 @@ spec-type: behavioral
 The user-facing **entry skill** for new capability content: locate and **scaffold** a new spec
 node under the project tree, then run the explore producer chain **in-session** over it. create-spec
 is a **conductor station** (`../../mission/`): it runs in the main session, so the spec-producer
-grills the human **live** (no spawned operator, no relay) and create-spec is the positional
-ratifier. It leaves the node at `status: draft`, ready for the spec gate (`../validate-spec/`). The
+grills the human **live** (no spawned operator, no relay), in the **in-session positional seat** —
+so the spec gate, when it later fires, ratifies in-position rather than via a relay (create-spec
+itself renders no verdict). It leaves the node at `status: draft`, ready for the spec gate
+(`../validate-spec/`). The
 same explore capability runs unattended in the headless fallback (`../../design/harness-spawning.md`).
 
 `.feature` is **part of the behavior suite, never part of the CR** — create-spec scaffolds the

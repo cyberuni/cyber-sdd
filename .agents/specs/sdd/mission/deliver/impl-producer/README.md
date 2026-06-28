@@ -23,7 +23,7 @@ into an implementation plus one verification per scenario.
 detail that **never** appears in the `.feature`.
 
 The procedure runs in two **modes** — the freeze is the boundary; every scenario in
-[`impl-producer.feature`](./impl-producer.feature) maps to one:
+[`impl-producer.feature`](./impl-producer.feature) maps to one of these modes or to a cross-cutting guarantee (the build rules, the boundaries, the producer surface):
 
 | Mode | The `.feature` | Purpose | Outcome |
 |---|---|---|---|

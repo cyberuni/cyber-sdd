@@ -32,7 +32,7 @@ The procedure runs in one of **three modes** — the distinct ways it is invoked
 
 Each use case is exercised under the grilling discipline below, and the producer always writes
 within the output boundary that closes this spec. Every scenario in
-[`spec-producer.feature`](./spec-producer.feature) maps to one of these three modes.
+[`spec-producer.feature`](./spec-producer.feature) maps to one of these three modes or to a cross-cutting guarantee (the grilling discipline, the output boundary).
 
 ## The grilling workflow
 

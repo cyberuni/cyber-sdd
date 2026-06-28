@@ -27,7 +27,7 @@ code or the suite; and it is **not** the transient execution plan (the conductor
 `todos`, `../../intake/`).
 
 The procedure runs in the cases below; every scenario in
-[`solution-producer.feature`](./solution-producer.feature) maps to one:
+[`solution-producer.feature`](./solution-producer.feature) maps to one of these cases or to a cross-cutting guarantee (the record-content rules, the producer surface):
 
 | Trigger | Inputs | Outcome |
 |---|---|---|

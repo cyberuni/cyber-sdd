@@ -9,8 +9,9 @@ The user-facing **entry skill** for an **existing** spec node: run the explore p
 twin of `../create-spec/`: a **conductor station** (`../../mission/`) that runs in the main session,
 so the spec-producer grills the human **live**. The node exists, so there is nothing to lay down;
 the work is to pressure-test the prose, bring the suite back into line, and leave the node at
-`status: draft`, ready for the spec gate (`../validate-spec/`). It is the positional ratifier and
-carries the **re-open precondition** — an approved/implemented node's `.feature` is frozen and may
+`status: draft`, ready for the spec gate (`../validate-spec/`). It runs in the **in-session
+positional seat** (so the gate ratifies in-position, not via a relay) and renders no verdict itself;
+it carries the **re-open precondition** — an approved/implemented node's `.feature` is frozen and may
 not be revised without a ratified re-open.
 
 `.feature` is **part of the behavior suite, never part of the CR** — the spec-producer (run inline)

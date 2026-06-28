@@ -42,6 +42,6 @@ project anchors plus user (`governance-resolution.md`).
 
 A project may itself be a **distributable plugin**.
 Plugin install **copies the whole plugin directory** with no include/exclude mechanism, so the spec **never lives inside a distributable plugin dir** — it would ship to every consumer (inert but bloat, and leaking design internals).
-Place the spec at `<repo>/.agents/specs/<project>/` (or `.agents/spec/` for a single-project repo); the plugin dir ships only its shippable artifacts (`skills/`, `agents/`, the manifest).
+**Spec placement follows the hoist.** A **nested project**'s spec is lifted out of its (possibly shippable) package dir to `<repo>/.agents/specs/<package-name>/`, named by the package. The **outer / repo-level project** is never a shippable dir, so its spec needs no hoisting — it lives at its own anchor, **`<repo>/.agents/spec/`** (singular). A single-project repo is the degenerate case: its sole project is the outer one, so its spec is just `.agents/spec/`. (`spec/` = this anchor's own project; `specs/<name>/` = nested projects hoisted up to it.) The plugin dir ships only its shippable artifacts (`skills/`, `agents/`, the manifest).
 The plugin's exported governances ship **as skills** in `skills/` (`governance-resolution.md`), never as a non-scanned `governances/` dir.
 The registry and the per-CR plans are consumer/runtime-side under `<repo>/.agents/`, never inside a plugin.

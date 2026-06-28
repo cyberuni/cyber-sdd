@@ -35,7 +35,8 @@ lifecycle units), never by splitting into a fleet of per-feature specs.
 
 ### The Mission Loop (steps 1–4)
 
-One cycle = one CR carried to completion, on one working tree ([`design/loops.md`](./design/loops.md)):
+Requests reach the loop through the universal **`gateway/`** — the router/door, not itself a loop
+step. One cycle = one CR carried to completion, on one working tree ([`design/loops.md`](./design/loops.md)):
 
 1. **intake** — a CR enters from a prompt, GitHub, Asana, or the local store (`intake/`,
    the only work-intake; it *feeds* the mission).
@@ -49,8 +50,7 @@ One cycle = one CR carried to completion, on one working tree ([`design/loops.md
    to `main`, a branch + PR, or prose (`mission/handoff/`).
 
 `mission/` **orchestrates** steps 1–4, run by the **conductor** — the main session by default, a
-spawned `sdd-operator` in the headless fallback. `gateway/` is the universal router/door (not a
-loop step). There is **no mandatory approval
+spawned `sdd-operator` in the headless fallback. There is **no mandatory approval
 station** — every write to spec/suite passes the **autonomy rubric**
 ([`design/autonomy-rubric.md`](./design/autonomy-rubric.md)), which self-clears or escalates; the human is an escalation
 target the bar invokes, not a fixed checkpoint. Inside a mission, three hard-floor stops can

@@ -69,7 +69,7 @@ The behavior suite is **part of the project spec**, carried by the **behavioral*
 - an **e2e suite** in `../acceptance/` — the project's outcome-level contract (the important cross-capability scenarios), consumed by step 3's verify;
 - **unit suites** — for the smaller internal pieces — that **colocate** with their capability folder, one `.feature` per unit.
 
-This is the old project/feature behavior split surviving as *test organization within one corpus*, not as separate lifecycles to re-gate.
+The e2e/unit split is **test organization within the one corpus**, not separate lifecycles to re-gate.
 (How scenarios are written and judged: `../authoring/suite-format/README.md`.)
 
 ## The folder skeleton maps to the loops

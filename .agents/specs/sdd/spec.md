@@ -12,8 +12,9 @@ deciding *how far it may go on its own*.
 
 ### The abstraction stack
 
-Each layer abstracts the one below. The lower three are durable and maintained; the upper two
-(CR, plan) are transient intent, consumed into them — never frozen:
+Each layer abstracts the one below ([`design/abstraction-stack.md`](./design/abstraction-stack.md)).
+The lower three are durable and maintained; the upper two (CR, plan) are transient intent,
+consumed into them — never frozen:
 
 - **outcome** — what actually happens.
 - **implementation** — abstraction of outcome; the built artifact (code, docs, config, agent
@@ -27,11 +28,11 @@ Each layer abstracts the one below. The lower three are durable and maintained; 
 
 One **project = one durable spec**, one behavior suite, one gate/freeze baseline. Size is
 solved by **organizing into files and folders** (folders are views, never lifecycle units),
-never by splitting into a fleet of per-feature specs. (`design/unit-and-organization.md`.)
+never by splitting into a fleet of per-feature specs. ([`design/unit-and-organization.md`](./design/unit-and-organization.md).)
 
 ### The Mission Loop (steps 1–4)
 
-One cycle = one CR carried to completion, on one working tree:
+One cycle = one CR carried to completion, on one working tree ([`design/loops.md`](./design/loops.md)):
 
 1. **intake** — a CR enters from a prompt, GitHub, Asana, or the local store (`intake/`,
    the only work-intake; it *feeds* the mission).
@@ -48,7 +49,7 @@ One cycle = one CR carried to completion, on one working tree:
 default, a spawned `sdd-operator` only in the headless fallback — sequencing steps 1–4;
 `gateway/` is the universal router/door (not a loop step). There is **no mandatory approval
 station** — every write to spec/suite passes the **autonomy rubric**
-(`design/autonomy-rubric.md`), which self-clears or escalates; the human is an escalation
+([`design/autonomy-rubric.md`](./design/autonomy-rubric.md)), which self-clears or escalates; the human is an escalation
 target the bar invokes, not a fixed checkpoint. Inside a mission, three hard-floor stops can
 fire (Clearance, Compatibility, Conflict resolution); the fourth floor, **Consent**, guards the
 forge loop's cross-installation egress, not a mission.
@@ -56,7 +57,7 @@ forge loop's cross-installation egress, not a mission.
 ### The four post-mission outer loops (step 5)
 
 Once a cycle completes, four loops may fire and emit **new CRs** — nothing re-enters the
-system except as a CR:
+system except as a CR ([`design/loops.md`](./design/loops.md)):
 
 - **campaign** (Product) — what the project should *be*: grow and prune capabilities.
 - **formation** (Structure) — is the corpus organized right: dedupe, split, reconcile.
@@ -83,5 +84,5 @@ system except as a CR:
 
 - **ONE spec, ONE behavior suite, ONE gate/freeze baseline.** Folders are *views*, never lifecycle units — none gets its own `status`/approval.
 - **Rule-in-design + behavior-in-capability.**
-- **Three spec types** (`design/unit-and-organization.md`): **descriptive** (no subject — rule docs + indexes; no marker), **reference artifact** (`spec-type: reference` — a suite-less shipped thing), **behavioral artifact** (`spec-type: behavioral` — a testable unit with a `.feature`). `spec-type` is per-node classification, never lifecycle.
+- **Three spec types** ([`design/unit-and-organization.md`](./design/unit-and-organization.md)): **descriptive** (no subject — rule docs + indexes; no marker), **reference artifact** (`spec-type: reference` — a suite-less shipped thing), **behavioral artifact** (`spec-type: behavioral` — a testable unit with a `.feature`). `spec-type` is per-node classification, never lifecycle.
 - **Unit scenarios colocate** with their capability; **acceptance (e2e) scenarios** live in `acceptance/`.

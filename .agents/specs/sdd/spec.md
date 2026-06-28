@@ -40,9 +40,9 @@ lifecycle units), never by splitting into a fleet of per-feature specs.
 
 ### The gateway — the one front door
 
-Every interaction enters through the universal **`gateway/`** (the `sdd` skill): it activates SDD,
+Every interaction enters through the universal **[`gateway/`](./gateway/README.md)** (the `sdd` skill): it activates SDD,
 classifies the request, and **routes** it — to a **mission** (a CR run through the loop below), a
-**`corpus/`** operation (dedupe, split, inspect), inner-loop agent-tuning (inject / project), a
+**[`corpus/`](./corpus/README.md)** operation (dedupe, split, inspect), inner-loop agent-tuning (inject / project), a
 **plugin-management** operation (install/remove a domain plugin, author a governance — *planned*), or
 one of the four **outer loops**. A task with no suite-relevant behavior **escapes** — outside the
 lifecycle, leaving no SDD record. The gateway is a **thin relay**: it classifies and dispatches,
@@ -52,19 +52,19 @@ holding no production logic and writing no project files itself. It is not part 
 
 One cycle = one CR carried to completion, on one working tree ([`design/loops.md`](./design/loops.md)):
 
-1. **intake** — a CR enters from a prompt, GitHub, Asana, or the local store (`intake/`,
+1. **intake** — a CR enters from a prompt, GitHub, Asana, or the local store ([`intake/`](./intake/README.md),
    the only work-intake; it *feeds* the mission).
 2. **explore** — *build to learn*: grill the CR into a spec + suite diff, spike to discover
    what the contract needs, iterate the spec-producer against the cold spec-judge. Ends at
    the **spec gate** (Draft → Approved), which **freezes** the `.feature` files it touched
-   (`authoring/`, invoked).
+   ([`authoring/`](./authoring/README.md), invoked).
 3. **deliver** — *build to keep* against the frozen suite, then verify at the **impl gate**
-   (Approved → Implemented) (`mission/deliver/`).
+   (Approved → Implemented) ([`mission/deliver/`](./mission/deliver/README.md)).
 4. **handoff** — land the verified result in the project-declared delivery shape — commits
-   to `main`, a branch + PR, or prose (`mission/handoff/`).
+   to `main`, a branch + PR, or prose ([`mission/handoff/`](./mission/handoff/README.md)).
 
-`mission/` **orchestrates** steps 1–4, run by the **conductor** — the main session by default, a
-spawned `sdd-operator` in the headless fallback. There is **no mandatory approval
+[`mission/`](./mission/README.md) **orchestrates** steps 1–4, run by the **conductor** — the main session by default, a
+spawned `automaton` in the headless fallback. There is **no mandatory approval
 station** — every write to spec/suite passes the **autonomy rubric**
 ([`design/autonomy-rubric.md`](./design/autonomy-rubric.md)), which self-clears or escalates; the human is an escalation
 target the bar invokes, not a fixed checkpoint. Inside a mission, three hard-floor stops can
@@ -85,17 +85,18 @@ system except as a CR ([`design/loops.md`](./design/loops.md)):
 
 | Folder | Owns | Loop role |
 |---|---|---|
-| `design/` | the abstract idea — rules & model | — |
-| `gateway/` | the universal router/door | — (not a loop step) |
-| `intake/` | the CR subsystem (sources + escape + inject) | feeds the mission (step 1) |
-| `authoring/` | grill CR → spec+suite diff (+ spec gate); shared capability | explore (step 2), invoked |
-| `mission/` | the orchestrator / conductor (+ impl gate) | Mission Loop steps 1–4 |
-| `mission/deliver/` | build to keep against the frozen suite | deliver (step 3) |
-| `mission/handoff/` | land the result in the delivery shape | handoff (step 4) |
-| `campaign/` `formation/` `doctrine/` `forge/` | the 4 post-mission outer loops | step 5 (not in the Mission Loop) |
-| `corpus/` | spec-corpus tooling | — |
-| `plugin/` | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
-| `acceptance/` | e2e behavior suite | — |
+| [`design/`](./design/) | the abstract idea — rules & model | — |
+| [`gateway/`](./gateway/README.md) | the universal router/door | — (not a loop step) |
+| [`intake/`](./intake/README.md) | the CR subsystem (sources + escape + inject) | feeds the mission (step 1) |
+| [`authoring/`](./authoring/README.md) | grill CR → spec+suite diff (+ spec gate); shared capability | explore (step 2), invoked |
+| [`mission/`](./mission/README.md) | the orchestrator / conductor (+ impl gate) | Mission Loop steps 1–4 |
+| [`mission/deliver/`](./mission/deliver/README.md) | build to keep against the frozen suite | deliver (step 3) |
+| [`mission/handoff/`](./mission/handoff/README.md) | land the result in the delivery shape | handoff (step 4) |
+| [`campaign/`](./campaign/README.md) [`formation/`](./formation/README.md) [`doctrine/`](./doctrine/README.md) [`forge/`](./forge/README.md) | the 4 post-mission outer loops | step 5 (not in the Mission Loop) |
+| [`common-governances/`](./common-governances/README.md) | the cross-cutting governance bar specs (actor + fixed-universal) | — |
+| [`corpus/`](./corpus/README.md) | spec-corpus tooling | — |
+| [`plugin/`](./plugin/README.md) | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
+| [`acceptance/`](./acceptance/README.md) | e2e behavior suite | — |
 
 ## Invariants
 

@@ -106,7 +106,7 @@ Together with `approval` (the judging twin) it gives full per-artifact provenanc
 | `produced-by` | who **made** each artifact | production role (`spec-producer`, `solution-producer`, `impl-producer`) | conductor, at production |
 | `approval` | who **judged** each gate (`verdict` + `by` + `why`) | gate (`spec`, `impl`) | conductor (self-assert) / skill (ratify) |
 
-Each `produced-by` value is the **plugin-qualified agent name** (`aces:aces-scenario-writer`, `quill:quill-doc-writer`, or `sdd:sdd-operator` when SDD's own default chain produced it — the in-session conductor for an inline spec/solution-producer, or its spawned builder for the impl-producer; see `specialists-and-squads.md`).
+Each `produced-by` value is the **plugin-qualified agent name** (`aces:aces-scenario-writer`, `quill:quill-doc-writer`, or `sdd:automaton` when SDD's own default chain produced it — the in-session conductor for an inline spec/solution-producer, or its spawned builder for the impl-producer; see `specialists-and-squads.md`).
 Recorded **always**, on every production.
 It plays two deliberately separated roles:
 
@@ -117,8 +117,8 @@ It plays two deliberately separated roles:
 status: approved
 produced-by:
   spec-producer: aces:aces-scenario-writer
-  solution-producer: sdd:sdd-operator
-  impl-producer: sdd:sdd-operator
+  solution-producer: sdd:automaton
+  impl-producer: sdd:automaton
 approval:
   spec:
     verdict: approve
@@ -162,7 +162,7 @@ One line appended **to the plan** per production-chain dispatch, so a later read
 Removed with the plan at retro (a tracked deletion).
 
 ```jsonl
-{"seq": 3, "kind": "report", "role": "spec-producer", "agent": "sdd:sdd-operator", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
+{"seq": 3, "kind": "report", "role": "spec-producer", "agent": "sdd:automaton", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
 ```
 
 `role` is the production role dispatched; `agent` is the plugin-qualified agent name; `outcome` is `pass | fail`.
@@ -197,7 +197,7 @@ Fewer is better — speculative categories are not seeded.
 Two growers: the **doctrine-loop Scanner's** recurring-pattern detection, and the opt-in **Forge loop** (`sdd-forge-loop`) collecting real corrections from plugin usage.
 
 **Who edits the enum.**
-A grower *proposes* a value; **adding it is an edit to `combat-log-governance`, ratified by the Council** (a producer/judge/operator never edits the enum on its own).
+A grower *proposes* a value; **adding it is an edit to `combat-log-governance`, ratified by the Council** (a producer/judge/conductor never edits the enum on its own).
 Until ratified, an off-enum `cause` still fails closed.
 
 A `cause` value that is **absent or off-enum** is a **structural error** (it breaks cross-mission matchability), not valid provenance, and **fails closed**.
@@ -255,7 +255,7 @@ Both are append-only: lines are added with the next CR-scoped `seq`, never edite
 | **doctrine-loop Scanner** | `strategy` (incl. distilled recurrence) | the **ledger** | report / correction / gate lines |
 | **producers / judges** | nothing | — | the entire record — they do not know their own registry identity authoritatively |
 
-A human-ratified `gate` line follows the **positional authority** rule (`lifecycle-model.md`): only the in-session position holding the real user channel writes `by: <name>`. By default the conductor *is* that position (main session), so it writes the ratification directly; a **headless spawned operator** has no user channel and writes only `by: agent` self-assertions, emitting a verdict packet on a human gate.
+A human-ratified `gate` line follows the **positional authority** rule (`lifecycle-model.md`): only the in-session position holding the real user channel writes `by: <name>`. By default the conductor *is* that position (main session), so it writes the ratification directly; a **headless spawned automaton** has no user channel and writes only `by: agent` self-assertions, emitting a verdict packet on a human gate.
 
 ## Readers split by path
 

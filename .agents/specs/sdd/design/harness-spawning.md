@@ -5,11 +5,11 @@ Companion to `specialists-and-squads.md` (spec/solution-producers run inline; im
 
 ## The constraint
 
-By default SDD's **conductor is the main (user) session** running the operator role — not a spawned agent (`specialists-and-squads.md`).
+By default SDD's **conductor is the main (user) session** — not a spawned agent (`specialists-and-squads.md`).
 The conductor **spawns cold judges** (`sdd-spec-judge`, `sdd-implementer`) for grader independence, and **spawns a builder** for the impl-producer — both **at depth 1 from the main session** (main → judge / builder).
 Depth 1 is the floor and the ceiling for the default path: every harness here supports a main session spawning subagents, so the default model **ports everywhere** and grader independence is **always** preserved (the judge is a real subagent the author cannot reach).
 
-The depth-2 case (`caller → spawned operator → judge`) arises only in the **headless / fan-out fallback** below, where the operator runs as a spawned subagent and spawns its own judges. That requires a harness that allows a subagent to spawn another.
+The depth-2 case (`caller → spawned automaton → judge`) arises only in the **headless / fan-out fallback** below, where the automaton runs as a spawned subagent and spawns its own judges. That requires a harness that allows a subagent to spawn another.
 
 ```mermaid
 flowchart TD
@@ -18,7 +18,7 @@ flowchart TD
         M -->|spawns| B1["impl-producer builder"]
     end
     subgraph HEADLESS["Headless / fan-out fallback · depth 2 · needs a nesting harness"]
-        C["caller / scheduler"] -->|spawns| OP["sdd-operator<br/>(no user channel)"]
+        C["caller / scheduler"] -->|spawns| OP["automaton<br/>(no user channel)"]
         OP -->|spawns| J2["cold judge"]
     end
 ```
@@ -41,8 +41,8 @@ Notes: Claude Code's separate **fork** (Agent tool with `subagent_type` omitted)
 ## Consequence for SDD
 
 - **One level is the floor (the default).** main session = conductor → cold judge / spawned builder. Every harness supports this, so the default conductor-in-session model ports everywhere **and keeps grader independence** — the judge is spawned from the main session, never folded into the author's context.
-- **Headless / fan-out fallback — spawned operator (depth 2).** When there is no live session to host the conductor — an unattended scheduler, or a multi-CR fan-out that spawns one operator per CR — the operator runs as a **spawned subagent** and spawns its own cold judges (`caller → operator → judge`). This needs a harness that allows a subagent to spawn another (Claude Code; Cursor shallowly). On a flat harness (Gemini, Amp, Codex-default) the spawned operator **cannot** spawn a cold judge, so either keep the conductor in the (headless) main session, or fold judging into the operator's context — which **forfeits grader independence** and must be recorded as such.
+- **Headless / fan-out fallback — spawned automaton (depth 2).** When there is no live session to host the conductor — an unattended scheduler, or a multi-CR fan-out that spawns one automaton per CR — the automaton runs as a **spawned subagent** and spawns its own cold judges (`caller → automaton → judge`). This needs a harness that allows a subagent to spawn another (Claude Code; Cursor shallowly). On a flat harness (Gemini, Amp, Codex-default) the spawned automaton **cannot** spawn a cold judge, so either keep the conductor in the (headless) main session, or fold judging into the automaton's context — which **forfeits grader independence** and must be recorded as such.
   - **Alternative — spawn a fresh session from outside.** Instead of nesting, a tool such as tmux can launch a new top-level session (a peer, not a subagent) that runs the conductor with its own depth-1 budget. This needs headless invocation (`-p`) and may require an API key, so it is an out-of-harness escape hatch, not the in-session path.
-- **Don't design for depth > 2.** Deep chains (a spawned operator's plugin delegate spawning its own sub-delegates) only port to Claude Code; treat anything past two as Claude-Code-only.
+- **Don't design for depth > 2.** Deep chains (a spawned automaton's plugin delegate spawning its own sub-delegates) only port to Claude Code; treat anything past two as Claude-Code-only.
 
 Survey current as of mid-2026; depth/version figures come from changelogs and credible writeups. Copilot CLI nesting is genuinely **unknown**, not confirmed-flat.

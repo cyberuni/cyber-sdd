@@ -8,10 +8,10 @@ The **handoff phase** of the Mission Loop — step 4. Take step-3's verified res
 `../deliver/`) and land it in the **project-declared delivery shape**. `handoff` is a verb,
 like the other mission phases; the **outcome** is the noun this action produces (a set of
 commits, a PR, a published chapter). The orchestrator that sequences this phase is
-`../README.md` (the [`operator`](../operator/README.md) unit).
+`../README.md` (the [`conductor`](../conductor/README.md) unit).
 
 > **This is a single behavioral unit, not an overview** — handoff has no sub-skills; the behavior
-> is enacted by the conductor (the [`operator`](../operator/README.md) realization, built in
+> is enacted by the conductor (the [`conductor`](../conductor/README.md) realization, built in
 > `core-agents`). This spec owns the **behavior + suite** ([`handoff.feature`](./handoff.feature)).
 
 ## Use Cases
@@ -22,7 +22,7 @@ shape, decomposed by unit of work, then writing the CR's public conclusion back 
 **Non-goals** — it does **not** re-verify (it consumes the verified result), does **not** touch the
 contract or write spec/suite frontmatter, introduces **no** new hard floor, and does **not** retire
 the mission plan (the doctrine loop deletes it later). The impl-gate verdict that produced the
-verified result is the [`operator`](../operator/README.md) unit's, not this phase's.
+verified result is the [`conductor`](../conductor/README.md) unit's, not this phase's.
 
 Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these behaviors:
 

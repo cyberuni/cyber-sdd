@@ -50,18 +50,19 @@ A domain plugin teaches SDD to produce and judge a new artifact-type. It impleme
 
 ### The plugin contract — the five delegate roles
 
-A plugin covers a set of artifact-types by providing agents for these role keys (source:
-`plugins/sdd/skills/plugin-contract-governance/SKILL.md`; squad model:
+A plugin covers a set of artifact-types by providing agents for these role keys (the bar is the
+single-owner reference node [`./plugin-contract/`](./plugin-contract/README.md), shipped as
+`plugins/sdd-new/skills/plugin-contract-governance/`; squad model:
 `../design/specialists-and-squads.md`). Any role may be `null` (degenerates to the SDD
 default) or omitted (falls back to the convention name `<plugin>-<role>`). A **producer**
 role may also name a model-tuned agent; naming any agent means the conductor **spawns** it.
 
 | Role key | Acts | SDD default |
 |---|---|---|
-| `spec-producer` | writes the `spec.md` body + the `.feature` | conductor loads `spec-producer-governance`, authors inline in-session (`sdd:sdd-operator`) |
-| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md`) when a unit has durable rationale | conductor loads `solution-producer-governance`, authors inline in-session (`sdd:sdd-operator`) |
+| `spec-producer` | writes the `spec.md` body + the `.feature` | conductor loads `spec-producer-governance`, authors inline in-session (`sdd:automaton`) |
+| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md`) when a unit has durable rationale | conductor loads `solution-producer-governance`, authors inline in-session (`sdd:automaton`) |
 | `spec-judge` | judges the `.feature` at the spec gate | `sdd-spec-judge` — spawned cold agent |
-| `impl-producer` | builds the artifact **and** its verification | conductor spawns a generic builder that loads `impl-producer-governance` (`sdd:sdd-operator`) |
+| `impl-producer` | builds the artifact **and** its verification | conductor spawns a generic builder that loads `impl-producer-governance` (`sdd:automaton`) |
 | `impl-judge` | runs the verification against the frozen `.feature` | `sdd-implementer` — spawned cold agent |
 
 **Producers run inline, judges spawn cold** ("conductor writes, cold judges grade"). The
@@ -99,7 +100,7 @@ here, and the management **skill** performs the write — so the gateway's thin-
 installs nothing, edits no files) still hold; the *handler* does the work.
 
 - **Manage domain plugins** — install / list / remove a plugin's `sdd-plugins[]` registration.
-- **Author a governance** — scaffold a `metadata:{artifact-type, actor, face}` governance
+- **Author a governance** — scaffold a `metadata:{artifact-type, actor, gate}` governance
   (the `create-governance` skill).
 - **Marketplace** — register a plugin to the marketplace and discover plugins by artifact-type;
   the **marketplace** is the global catalog, the **registry** the per-project resolution.

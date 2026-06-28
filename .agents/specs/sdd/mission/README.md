@@ -1,7 +1,7 @@
-# mission/ — the orchestrator (the operator role / conductor)
+# mission/ — the orchestrator (the conductor)
 
-`mission/` is the **orchestrator**: the operator role — the **conductor** (the main session by
-default; a spawned `sdd-operator` in the headless fallback) — the line officer that runs the
+`mission/` is the **orchestrator** — the **conductor** (the main session by
+default; a spawned `automaton` in the headless fallback) — the line officer that runs the
 **Mission Loop** over **steps 1–4** (intake → explore → deliver → handoff) against a frozen
 contract. A scheduler can pull one CR from `../intake/` and run this loop to step 4
 autonomously. **One cycle = one CR carried to completion.** It owns the loop logic
@@ -35,18 +35,18 @@ boundary** between them. The contrast is the *purpose of the build*, not throwaw
 
 ## The conductor — the line officer of the inner loop
 
-The **conductor** is the **main (user) session running the operator role**; it sequences one
+The **conductor** is the **main (user) session**; it sequences one
 **segment** (one sitting / run) of a cycle. By default it is **not a spawned agent** — it is
 the in-session position that holds the user channel (`../design/specialists-and-squads.md`,
 `../design/harness-spawning.md`). The full behavior — resolution, the production chain, explore
 orchestration, the impl gate, stop-provenance, segment mechanics, the in-flight floor — is the
-[`operator/`](./operator/README.md) unit spec. Its defining shape:
+[`conductor/`](./conductor/README.md) unit spec. Its defining shape:
 
 - **Holds the user channel.** Because the conductor *is* the main session, the **explore grill
   runs live** with the human and the conductor is the **positional ratifier** — it writes the
-  human gate verdict directly. The **headless / fan-out fallback** is the spawned `sdd-operator`
+  human gate verdict directly. The **headless / fan-out fallback** is the spawned `automaton`
   subagent with no user channel (it escalates by returning up its relay); that depth-2 path is
-  the [`operator/`](./operator/README.md) unit's headless variant.
+  the [`conductor/`](./conductor/README.md) unit's headless variant.
 - **Artifacts are the source of truth.** Position is derived from the on-disk artifacts
   (`spec.md`, the `.feature`, frontmatter) plus the plan — never a stored cursor — so any later
   session (or a headless run) resumes by re-reading them. This is what makes the mission
@@ -59,7 +59,7 @@ the internal repeat *inside* explore (spec-producer ⇄ spec-judge, spikes) and 
 
 ## Units
 
-This capability's behavior is realized by the **conductor** (the operator role) plus the
+This capability's behavior is realized by the **conductor** plus the
 **solution-producer** it runs inline. The unit of test is the skill — **one `.feature` per
 unit**, named for the unit and colocated with the unit's spec in its own folder. The freeze grain
 is **per `.feature` file**. Cross-capability outcome (e2e) scenarios live in `../acceptance/`,
@@ -67,10 +67,10 @@ never here.
 
 | Unit | Type | Spec | Role |
 |---|---|---|---|
-| **operator** | behavioral | [`operator/`](./operator/README.md) | the conductor / operator role — resolution (registry READ), the five-role production chain, explore orchestration, the impl gate, stop-provenance, segment mechanics, the in-flight floor; **realized in-session by default, by the spawned `sdd-operator` in the headless fallback** |
+| **conductor** | behavioral | [`conductor/`](./conductor/README.md) | the conductor role — resolution (registry READ), the five-role production chain, explore orchestration, the impl gate, stop-provenance, segment mechanics, the in-flight floor; **realized in-session by default, by the spawned `automaton` in the headless fallback** |
 | **solution-producer** | behavioral | [`solution-producer/`](./solution-producer/README.md) | the `solution-producer-governance` procedure — record the per-unit solution (chosen approach + rejected alternatives) **only when** a unit carries durable rationale; ungated, no judge of its own |
 
-The mission-owned **phases** are their own capability sub-folders, not operator units:
+The mission-owned **phases** are their own capability sub-folders, not conductor units:
 
 - **[`deliver/`](./deliver/README.md) (step 3)** — build **to keep** against the frozen suite, run
   the cold impl-judge, verify at the impl gate. Hosts the `impl-producer` + impl-judge behaviors.
@@ -105,7 +105,7 @@ sources are the stale side, to fix in the source sweep.
   **distinct**: `domain-plugin` = the chosen plugin for an ambiguous artifact-type (a
   *forward input* to resolution), `produced-by` = the after-the-fact record of who actually
   produced each artifact. The design position **stands**; the folded sources
-  (`sdd-operator-resolution`, `validate-spec`) that treat `domain-plugin` as **retired** and
+  (`automaton-resolution`, `validate-spec`) that treat `domain-plugin` as **retired** and
   migrate the choice into `produced-by` are the **stale side** — fix them in the source sweep,
   not the design.
 - **Squad vs the five-role chain — RESOLVED (same mechanism, two granularities).** A **squad**

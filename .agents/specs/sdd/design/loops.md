@@ -8,7 +8,7 @@ Never call this a "5-step loop" — the Mission Loop is **steps 1–4**, and ste
 flowchart TD
     GW[["gateway · classify + route"]] --> I
 
-    subgraph ML["Mission Loop — steps 1–4 (inner loop · one CR per cycle)"]
+    subgraph ML["Mission Loop"]
         direction LR
         I["1 · intake<br/>routed CR + scaffolded plan"] --> E["2 · explore<br/>build to learn"]
         E -->|"spec gate · freeze"| D["3 · deliver<br/>build to keep"]
@@ -18,12 +18,9 @@ flowchart TD
     H --> DONE([outcome delivered])
     DONE -.->|"step 5 · post-mission"| OUTER
 
-    subgraph OUTER["Four outer loops — NOT part of the Mission Loop"]
+    subgraph OUTER["Four outer loops"]
         direction LR
-        CAM[campaign · product]
-        FORM[formation · structure]
-        DOC[doctrine · process]
-        FRG[forge · field]
+        CAM[campaign · product] ~~~ FORM[formation · structure] ~~~ DOC[doctrine · process] ~~~ FRG[forge · field]
     end
 
     OUTER -.->|"emit a new CR"| I
@@ -33,7 +30,7 @@ The **freeze** at the spec gate is the explore→deliver boundary; the outer loo
 
 ## The Mission Loop — steps 1–4
 
-The inner loop, sequenced by the conductor — the main session running the operator role (`../mission/`; a spawned `sdd-operator` in the headless fallback, `design/harness-spawning.md`).
+The inner loop, sequenced by the conductor — the main session (`../mission/`; a spawned `automaton` in the headless fallback, `design/harness-spawning.md`).
 A scheduler can pull one CR and run the loop to step 4 on its own.
 The steps are **verbs** — actions taken — each producing a noun outcome.
 
@@ -47,38 +44,16 @@ The steps are **verbs** — actions taken — each producing a noun outcome.
 The mission **owns** deliver and handoff; it **invokes** `../authoring/` for explore; it is **fed** by `../intake/`.
 The `../gateway/` routes a request into the loop but is **not a step**.
 
-### 1 — intake
+Each phase's mechanics live in its **home** — this file owns the topology, not the per-phase detail:
 
-The only work-intake.
-A CR arrives from a prompt, Asana, Jira, Linear, GitHub, or the local store (`../intake/`) and is routed to the capabilities it touches.
-Nothing enters the system except as a CR.
-Intake also **scaffolds the mission plan** (`.agents/plans/<cr-ref>.plan.md`) from a basic template — frontmatter `todos` plus a `## NEXT` anchor — so the plan exists from step 1; the **conductor** fills its `todos` (the execution task DAG) during explore. The plan is execution state, distinct from the per-unit **solution** (`spec-structure.md`).
-This is the plan layer above the suite in the SDD stack (see `sdd-stack.md`); intake **feeds** the mission rather than living inside it.
+- **1 · intake** — CR sources, the escape hatch, and the plan scaffold → [`../intake/`](../intake/README.md).
+- **2 · explore** — the grill, spikes, spec-producer ⇄ spec-judge iteration, the spec gate + freeze → [`../authoring/`](../authoring/README.md).
+- **3 · deliver** — build against the frozen suite, impl-producer ⇄ cold impl-judge, the detail-adjustment report, the impl gate → [`../mission/deliver/`](../mission/deliver/README.md).
+- **4 · handoff** — landing the verified result in the project-declared delivery shape → [`../mission/handoff/`](../mission/handoff/README.md).
 
-### 2 — explore (build to learn)
-
-Grill the **plan + spec + suite** into a concrete diff, building **to learn**: spikes (thrown away), spec-producer ⇄ spec-judge **iteration**, and **showing intermediate results to the user** to steer the spec + suite.
-Explore also **builds the implementation to learn** — implementing surfaces what the contract is missing; it is **not** deferred wholesale to deliver (impl happens in **both** phases — the freeze, not "code vs no code," is the boundary; see the explore-vs-deliver note below).
-By default a human drives explore **interactively in the main session** (the conductor runs `../authoring/` in-session, grilling live); unattended, the same capability runs autonomously (the headless fallback, `design/harness-spawning.md`).
-There is **no mandatory human approval station**: the human is an escalation target the autonomy bar invokes.
-The phase ends at the **spec gate**, where the `.feature` **freezes** — the boundary between explore and deliver.
-
-### 3 — deliver (build to keep)
-
-Build **to keep** against the **frozen** suite, with **iteration** between the impl-producer and the cold impl-judge.
-The conductor serves in-flight expansion and minor fixes (not the human), recorded in a **detail-adjustment report** (a view of the mission **plan**'s mid-flight lines; see `provenance-model.md`).
-`producer ≠ judge` survives the gate fold: the judge stays a distinct actor.
-The human enters only on the hard floor.
-The phase ends at the **impl gate**.
-
-> **Explore vs deliver = the purpose of the build.** Implementation happens in **both**;
-> explore builds to learn (discarded spikes, steering the contract), deliver builds to keep
-> (against the frozen suite). The freeze is the boundary, not "code vs no code."
-
-### 4 — handoff
-
-Take step-3's verified result and land it in the **project-declared delivery shape**: commits broken down by unit of work to `main`; a branch pushed and a PR opened; a written chapter; etc. (`../mission/handoff/`).
-Handoff is a verb like the other phases; the *outcome* is the noun it produces.
+> **The freeze is the boundary, not "code vs no code."** Implementation happens in **both** explore and deliver;
+> explore builds to **learn** (discarded spikes, steering the contract), deliver builds to **keep**
+> (against the frozen suite). The spec gate / freeze is the explore→deliver pivot.
 
 ## The four outer loops — post-mission (step 5)
 

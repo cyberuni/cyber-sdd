@@ -13,6 +13,10 @@ This file is the rule side only.
 status: draft           # draft | approved | implemented | deprecated
 artifact-types:         # the artifact-types / squad keys this project touches: e.g. skill, subagent, command, agents-section, npm-package, docs; omit for a plain-code domain. Resolution is per file (each file's artifact-type -> its squad).
   - skill
+spec-layout:            # the declared organization strategy + spec location (design/spec-layout.md); read, never re-derived by scanning
+  strategy: capability-first   # capability-first | mirror-source | bounded-context | layered | doc-envelope
+  location: colocated          # colocated | hoisted | monorepo-member
+  placement-map: "#placement-map"   # anchor/path to the body placement map
 aligned: false          # true once the current layer's artifacts are synced
 strategy:               # run-level initial evaluation (leash + approach)
   leash: auto-all       # first-evaluated reach: auto-none | auto-spec | auto-all
@@ -39,7 +43,8 @@ domain-plugin:          # map: artifact-type -> owning plugin, when an artifact-
 Open input is recorded in the body as `<!-- open: ...
 -->` markers, not in frontmatter.
 
-`status` is the base schema; `artifact-types`, `aligned`, `strategy`, `approval`, `produced-by`, and `domain-plugin` are the SDD-workflow additions.
+`status` is the base schema; `artifact-types`, `spec-layout`, `aligned`, `strategy`, `approval`, `produced-by`, and `domain-plugin` are the SDD-workflow additions.
+`spec-layout` declares the organization strategy + spec location (`../design/spec-layout.md`); it is written once by `backfill-project-spec` at scaffold and rewritten only by the formation Warden during a deliberate reorganization.
 `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced.
 Do not commit SDD artifacts while their spec is `aligned: false`.
 
@@ -58,7 +63,7 @@ Do not commit SDD artifacts while their spec is `aligned: false`.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> draft: create-spec (new or backfill)
+    [*] --> draft: start-mission (new or backfill)
     draft --> approved: spec gate (validate-spec --target spec)
     approved --> implemented: impl gate (validate-spec --target impl)
     approved --> draft: behavior change (re-open)
@@ -189,8 +194,8 @@ The set of specs with any `verdict: approve`
 
 **Ratification authority is positional.** A human-attributed gate write — `status → approved | implemented`, a verdict carrying `by: <name>`, and the freeze — belongs to the **in-session position** that holds the real user channel.
 By default this is trivially satisfied: the **conductor is the main session** (`specialists-and-squads.md`), so the position that grills *is* the position that ratifies — it writes the human verdict directly.
-The rule bites only in the **headless / fan-out fallback** (`harness-spawning.md`), where the operator runs as a **spawned subagent** with no user channel: it then writes only `by: agent` self-assertions and `pause` halts, and on a human gate emits a verdict packet and stops — it never writes a human ratification, **even when a coordinator relays "the user approved"** (a relayed claim is not user confirmation).
-This is positional, not definitional: the same operator definition run in-session may perform the write.
+The rule bites only in the **headless / fan-out fallback** (`harness-spawning.md`), where the automaton runs as a **spawned subagent** with no user channel: it then writes only `by: agent` self-assertions and `pause` halts, and on a human gate emits a verdict packet and stops — it never writes a human ratification, **even when a coordinator relays "the user approved"** (a relayed claim is not user confirmation).
+This is positional, not definitional: the same automaton, run in-session as the conductor, may perform the write.
 
 **Who writes what** (the lifecycle slice; full matrix lives in the ownership rule):
 
@@ -200,7 +205,7 @@ This is positional, not definitional: the same operator definition run in-sessio
 | `approval` human ratification (`verdict` + `by: <name>`) | the gate skill, **in-session position only** |
 | `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the conductor (synthesis) |
 | `aligned`, `strategy`, `<!-- open: -->` markers | the conductor |
-| `artifact-types` | `create-spec` (at scaffold) |
+| `artifact-types` | `start-mission` (at scaffold) |
 | `spec.md` body + the `.feature` | the spec-producer |
 
 The leash (`strategy.leash`, run-level) and the self-clear-vs-escalate bar that derives it live in `autonomy-rubric.md`; there is **no per-gate `leash` field** in an `approval` entry.

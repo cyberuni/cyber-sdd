@@ -1,21 +1,21 @@
 # Governance resolution
 
 How an actor/discipline **governance** is defined, discovered, composed, and loaded for a production-chain role.
-Companion to `actors-and-governance.md` (what governances are) and `specialists-and-squads.md` (the squad and the per-role loadout).
+Companion to `actors-governance.md` (what governances are) and `specialists-and-squads.md` (the squad and the per-role loadout).
 Rule side only; the mechanical resolution is a deterministic helper (below).
 
 ## Two tiers
 
 A role's governances split by whether they vary with the artifact-type:
 
-- **Fixed-universal** — invariant per role on every invocation: `ownership`, `lifecycle`, `spec-format` (`spec-format-governance`), `suite-format`, `gate-validation`.
-  Ship with sdd; eligible for build-time embedding (`actors-and-governance.md`).
-- **Resolved-actor** — the actor bars `director` / `builder` / `architect`, resolved per `(artifact-type, face)`.
-  The variable tier; **never build-embedded** — resolution is dynamic per the file's artifact-type.
+- **Fixed-universal** — invariant per role on every invocation: `ownership`, `lifecycle`, `spec-format` (`spec-format-governance`), `suite-format`, `gate-validation`, `combat-log`.
+  Ship with sdd; load for every spec regardless of artifact-type (`actors-governance.md`).
+- **Resolved-actor** — the actor bars `director` / `builder` / `architect`, resolved per `(artifact-type, gate)`.
+  The variable tier, resolved dynamically per the file's artifact-type.
 
-## Two faces
+## Two faces, one merged bar
 
-Each actor bar has a **forward** face (a producer self-aligns to it) and a **backward** face (a judge grades against it), authored and loaded **separately** so a role loads only its face — a producer never loads the judge checklist, a judge never loads the producer how-to.
+Each actor bar has a **forward** face (a producer self-aligns to it) and a **backward** face (a judge grades against it), but the two are **one merged skill per `(actor, gate)`** (Model B; `common-governances/common-governances.solution.md`): the producer agent and the judge agent load the **same** bar — for objective criteria the faces mirror, so one source serves both. `producer ≠ judge` is preserved at the **agent** level. A subjective slice that a producer must not self-grade is split out as a **judge-only `@rubric`** bar.
 Strategist has no per-spec governance (it runs via the doctrine loop).
 
 ## Match key
@@ -26,11 +26,11 @@ Every governance carries frontmatter:
 metadata:
   artifact-type: <type>        # the squad key; omit for the typeless default
   actor: director | builder | architect
-  face: forward | backward
+  gate: spec | impl            # which gate's bar (director has spec only)
   compose: union | replace     # default: union
 ```
 
-Resolution matches on `(artifact-type, actor, face)`.
+Resolution matches on `(artifact-type, actor, gate)`.
 **Names need not be unique** — matching is by `metadata`, never by filename or skill name.
 
 ## Sources, by addressability
@@ -40,7 +40,7 @@ The deciding factor is **can SDD address the file?**
 | Source | Addressable? | Delivery | Loaded by |
 |---|---|---|---|
 | **project / user** | yes — `<project>/.agents/governances/` | a plain `.md` **or** a SKILL.md, authored in place, **no build** | the conductor **reads the file directly** |
-| **specialist plugin** | no — version-routed, internal path | `user-invocable:false` **skill** in the plugin's `skills/`; `init` records `<plugin>:<name>` per `(artifact-type,actor,face)` in `.agents/universal-plugin.json` | the conductor asks the **harness** to load `<plugin>:<name>` (harness version-routes) |
+| **specialist plugin** | no — version-routed, internal path | `user-invocable:false` **skill** in the plugin's `skills/`; `init` records `<plugin>:<name>` per `(artifact-type,actor,gate)` in `.agents/universal-plugin.json` | the conductor asks the **harness** to load `<plugin>:<name>` (harness version-routes) |
 | **sdd default** | via the sdd plugin | the sdd plugin's own governances (skills, `sdd:<name>`) | as a plugin source; lowest precedence |
 
 `${CLAUDE_PLUGIN_ROOT}` is harness-internal — SDD never paths into the plugin cache.

@@ -48,9 +48,9 @@ split worth pinning so readers don't take them for different things:
 
 | Word | Used in | Means |
 |---|---|---|
-| **bar** | design docs (`design/actors-and-governance.md`, `governance-resolution.md`) | the criteria an actor *owns* — Director (scope), Builder (coverage), Architect (structure) |
-| **lens** | loop / operator docs (`loops.md`, `lifecycle-model.md`, `mission/operator/`) | that **same** bar in *applied* form: the criteria a delegate looks *through* — a producer self-aligns forward, a judge grades backward |
+| **bar** | design docs (`design/actors-governance.md`, `governance-resolution.md`) | the criteria an actor *owns* — Director (scope), Builder (coverage), Architect (structure) |
+| **lens** | loop / conductor docs (`loops.md`, `lifecycle-model.md`, `mission/conductor/`) | that **same** bar in *applied* form: the criteria a delegate looks *through* — a producer self-aligns forward, a judge grades backward |
 
 Same concept; "bar" is ownership-side, "lens" is application-side. Canonical definition:
-`design/actors-and-governance.md`. (Maps to the motive-model's **Bar** —
+`design/actors-governance.md`. (Maps to the motive-model's **Bar** —
 `motive-model/glossary.md`.)

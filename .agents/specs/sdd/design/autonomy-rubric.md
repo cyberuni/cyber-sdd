@@ -7,7 +7,7 @@ The human is an **escalation target the bar invokes**, not a fixed checkpoint �
 The rubric **defines** the bar; the conductor **enacts** it.
 It is a **design/evaluation artifact**, not a runtime monolith loaded on every decision.
 At design/eval time the consumer is the eval tool (ACES), which sets and verifies each agent config's escalation posture against it.
-At runtime the verdict is made by the **conductor** — the capable position that runs a loop and makes its self-clear/escalate verdicts from baked-in logic (in SDD the **main session running the operator role**, or a spawned `sdd-operator` in the headless fallback; the formation Warden is another) — authored to conform to this rubric, never by loading the document per decision.
+At runtime the verdict is made by the **conductor** — the capable position that runs a loop and makes its self-clear/escalate verdicts from baked-in logic (in SDD the **main session**, or a spawned `automaton` in the headless fallback; the formation Warden is another) — authored to conform to this rubric, never by loading the document per decision.
 An agent's baked-in logic carries only the inputs its own decisions touch.
 
 ## The hard floor — the only mandatory human escalations

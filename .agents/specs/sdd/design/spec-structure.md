@@ -46,12 +46,19 @@ The solution is **per-unit and durable** — distinct from the per-CR execution 
 > The sections below are the **layout** — *recommended convention* for arranging the nodes above,
 > not the validated contract.
 
-## Screaming architecture
+## Screaming architecture — the default layout
 
-Organize top-level folders by **SDD capability** — the folder names scream what the project *does* — with two exceptions:
+**Screaming architecture** organizes top-level folders by **capability** — the folder names scream what the
+project *does* — with two exceptions:
 
 - **`design/`** — the abstract idea: the rules and model.
 - **`acceptance/`** — the outcome contract: the e2e behavior suite.
+
+It is the **default**, not the only, layout. The full menu of organization strategies (capability-first,
+mirror-source, bounded-context, layered, doc-envelope), the selection rule, and how each reconciles with the
+node taxonomy above live in [`spec-layout.md`](./spec-layout.md). Whichever is chosen is **declared**, not
+inferred — recorded in the root `spec.md` `spec-layout` frontmatter (`lifecycle-model.md`), so it is read,
+never re-derived by scanning.
 
 ## Rule-in-design + behavior-in-capability
 
@@ -77,12 +84,12 @@ The e2e/unit split is **test organization within the one corpus**, not separate 
 The top-level skeleton:
 
 ```
-design/ gateway/ intake/ authoring/ mission/{operator,solution-producer,deliver,handoff}
+design/ gateway/ intake/ authoring/ mission/{conductor,solution-producer,deliver,handoff}
 campaign/ formation/ doctrine/ forge/ corpus/ plugin/ acceptance/
 ```
 
 The **Mission Loop (steps 1–4)** maps to folders — `intake/` (1, the CR subsystem that **feeds** the loop) → `authoring/` (2, explore; owns the spec verification, **invoked** by the mission) → `mission/deliver/` (3, build to keep; owns the impl verification; verifies vs `acceptance/` + unit) → `mission/handoff/` (4, landing).
-`mission/` is the **orchestrator** — the conductor (the operator role) — that sequences the loop.
+`mission/` is the **orchestrator** — the conductor — that sequences the loop.
 The `gateway/` is the **universal router/door** — not a loop step.
 The four outer-loop folders (`campaign/`, `formation/`, `doctrine/`, `forge/`) fire **post-mission**, not as part of the Mission Loop (see `loops.md`).
 `design/`, `corpus/`, `plugin/`, and `acceptance/` are cross-cutting, not loop steps.

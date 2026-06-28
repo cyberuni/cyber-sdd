@@ -1,7 +1,7 @@
 Feature: The impl-judge procedure — run the verification against the frozen contract
   Unit suite for the default impl-judge (sdd-implementer). Judge behaviors only — it runs the
   verification the impl-producer authored and advises; it never authors tests, sets the bar, or
-  writes the gate verdict (that is ../../operator/). Cross-capability e2e scenarios live in
+  writes the gate verdict (that is ../../conductor/). Cross-capability e2e scenarios live in
   ../../../acceptance/.
 
   # ---- Map and run ----

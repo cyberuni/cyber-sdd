@@ -31,22 +31,22 @@ Sources: `sdd-gate-autonomy`, `sdd-escape-hatch`, `sdd-stop-provenance`, `../des
 - B2. Narrowing or deleting an e2e scenario (**Clearance**) escalates for human acknowledgment — unless the CR pre-authorized it.
 - B3. A change whose **semver class** (patch/minor/major) exceeds the authorized change-class ceiling (**Compatibility**) escalates; a class within the CR / run-mode ceiling proceeds without halting.
 - B4. A logical contradiction inside the suite (Scenario A says yes, Scenario B says no) halts implementation and escalates for human resolution.
-- B5. An obvious stale-mistake contradiction is served as an operator minor fix, not escalated.
+- B5. An obvious stale-mistake contradiction is served as a conductor minor fix, not escalated.
 - B6. A self-asserted gate advances the run asynchronously and enqueues the spec for ratify-or-kick-back review.
 
 (The mid-flight combat-log write of a halt is a **mission unit scenario**, not a cross-capability one — it colocates under `../mission/`. Acceptance keeps only the cross-capability outcome: a CR halts → a human resolves → the mission resumes, in B4.)
 
 ### C. Resolve-a-squad (registry → resolution → production chain)
-Sources: `sdd-contract-registry`, `sdd-operator-resolution`, `plugin/` init-WRITE.
+Sources: `sdd-contract-registry`, `automaton-resolution`, `plugin/` init-WRITE.
 
-- C1. A plugin's init-write registers an `sdd-plugins` entry; the operator later resolves that domain's delegates from it without scanning plugin directories.
-- C2. An unfilled producer role degenerates to the operator authoring inline (`produced-by.<role>: sdd:sdd-operator`); an unfilled judge role spawns the cold SDD-default judge.
+- C1. A plugin's init-write registers an `sdd-plugins` entry; the conductor later resolves that domain's delegates from it without scanning plugin directories.
+- C2. An unfilled producer role degenerates to the conductor authoring inline (`produced-by.<role>: sdd:automaton`); an unfilled judge role spawns the cold SDD-default judge.
 - C3. A domain claimed by two plugins returns needs-input once, the choice is recorded, and resume does not loop.
 - C4. A required role with no resolvable delegate hard-fails and records nothing.
 - C5. Re-running init at a newer version reconciles a stale entry; a corrupt registry fails closed and is left untouched.
 
 ### D. Freeze (authoring spec gate → mission impl gate)
-Sources: `sdd-operator-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
+Sources: `automaton-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
 
 - D1. A spec-gate approve freezes the `.feature` files the CR touched (a per-file `@frozen` tag); `spec.md` is kept aligned but never frozen, and the plan (brief + ordered `todos`) is never frozen — with no separate plan gate.
 - D2. The frozen `.feature` is the object at the spec gate and the bar at the impl gate.
@@ -55,12 +55,12 @@ Sources: `sdd-operator-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
 - D5. A spec can be Approved with no implementation; an illegal state tuple (impl committed against an unfrozen `.feature`) is rejected.
 
 ### E. Gate verdicts (authoring + mission, producer/judge separation)
-Sources: `sdd-gate-autonomy`, `sdd-operator-deliver`, `sdd-mission-loop`.
+Sources: `sdd-gate-autonomy`, `automaton-deliver`, `sdd-mission-loop`.
 
 - E1. The gate report carries a verdict with its Director/Builder/Architect-lens faces, the contestable defaults chosen, and a flag when self-asserted; it is regenerated from current state, never stored.
 - E2. The impl gate passes only when every frozen scenario has a passing verification; an uncovered scenario fails it and leaves `aligned` false.
 - E3. The cold judge runs the producer's verification and adds its own structural/scope reading; the producer never declares its own pass verdict.
-- E4. `aligned` is set true only when every impl-judge passes, and the gate station (not the operator) writes `status` and the human ratification.
+- E4. `aligned` is set true only when every impl-judge passes, and the gate station (not the conductor) writes `status` and the human ratification.
 
 ### F. Handoff (mission verified result → delivery shape)
 Sources: `mission/handoff/` (new), commit discipline.
@@ -88,7 +88,7 @@ Feature: SDD acceptance — change request to delivered outcome
 
   Scenario: A suite contradiction halts implementation for human resolution
     Given two frozen scenarios that contradict each other and are both plausibly intended
-    When the operator reaches the contradiction during implementation
+    When the conductor reaches the contradiction during implementation
     Then implementation halts
     And the bar escalates for human resolution
 

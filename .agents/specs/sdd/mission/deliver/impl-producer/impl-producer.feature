@@ -40,6 +40,18 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     Then the check is anchored to a frozen scenario
     And it is not free-authored from the builder's own sense of done
 
+  Scenario: direct execution of the frozen scenario is preferred over a hand-written mapping
+    Given a frozen scenario the runner can execute directly
+    When the impl-producer authors its verification
+    Then it executes the frozen scenario directly rather than mapping it to a hand-written unit test
+    And only the glue is producer-authored while the oracle stays owned by the frozen scenario
+
+  Scenario: a mapped check takes its oracle from the frozen scenario
+    Given a frozen scenario the impl-producer must map to a unit test
+    When it writes the assertion
+    Then the assertion's expected outcome is derived from the frozen scenario
+    And it is not derived from the builder's own sense of done
+
   Scenario: a frozen scenario may be left without a verification only as a reported gap
     Given a frozen scenario the build cannot yet verify
     When the impl-producer completes

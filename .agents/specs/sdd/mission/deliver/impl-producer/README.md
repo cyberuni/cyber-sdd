@@ -36,9 +36,16 @@ The procedure runs in two **modes** — the freeze is the boundary; every scenar
   testability) and **Architect** (structural fit — no duplication or conflict) lenses. The
   product/test split is a private detail, not surfaced.
 - **Author one verification per frozen scenario**, anchored to the frozen scenarios — **not**
-  free-authored from the builder's own sense of done. The impl-judge **runs** this verification;
-  the producer does not run it as the gate. A scenario left without a verification is the gap the
-  cold impl-judge later reports failing.
+  free-authored from the builder's own sense of done. **Prefer executing the frozen scenario
+  directly** (the `.feature` itself as the runnable check) over mapping it to a hand-written unit
+  test; direct execution keeps the **oracle spec-owned** and only the glue producer-authored. Where
+  a unit-test mapping is unavoidable, the assertion's **oracle semantics come from the frozen
+  scenario** (a faithful mapping), never from the builder's own sense of done — the cold impl-judge
+  re-derives that oracle and checks the mapping is faithful (`../impl-judge/`, ADR-0016).
+- **The producer's own test run is a pre-filter, not a verdict.** The builder iterates to green on
+  its own checks to learn it is done; that passing run **gates entry to judging, never the gate
+  outcome**. The impl-judge decides. A scenario left without a verification is the gap the cold
+  impl-judge later reports failing.
 - **Never edit the contract.** The builder does not set its own bar (four-eyes). A behavior-changing
   gap is a `CONTENT_GAP` / `BLOCKER`, never an in-place edit of `spec.md` or the `.feature`.
 

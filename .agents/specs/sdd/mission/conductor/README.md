@@ -171,7 +171,18 @@ writes no setup frontmatter.
   into Implemented). The `.feature` **pivots**: the object judged at the spec gate becomes the bar
   at the impl gate.
 - **Producer/judge separation survives the gate fold.** Folding the old `gate/` station into
-  `mission/` does not collapse roles — the judge stays a **distinct cold actor**.
+  `mission/` does not collapse roles — the judge stays a **distinct cold actor**. The judge's
+  verdict is *"does the frozen contract hold,"* not *"did the producer's tests pass"*: the
+  impl-producer's own green run is a **pre-filter**, and the cold impl-judge **re-derives** the
+  oracle from each frozen scenario rather than trusting the producer's assertions
+  (`../deliver/impl-judge/`, ADR-0016).
+- **The cold impl-judge is a different model from the impl-producer where the harness allows.**
+  Cold context alone removes only the author's *conversational* bias, not a same-model grader's
+  *correlated* blind spots — so the conductor dispatches the impl-judge on a **different model /
+  tier** than the producer (the lever that breaks correlated error), escalating toward a diverse
+  panel only at high blast radius. Verification **rigor scales with the leash**: the impl-judge
+  applies its objective behavioral-exercise backstop on **high-blast-radius** scenarios, not flatly
+  — the stronger evidence a larger blast demands (`../../design/autonomy-rubric.md`).
 - **The three gate actions** (vs the spec gate's contract-editing variants): **approve** →
   `implemented`; **change** → fix the **code** against the frozen `.feature` (the `.feature` is
   **not** modified); **reject** → redo the implementation, *or* a **Director-lens revert**

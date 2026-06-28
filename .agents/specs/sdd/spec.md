@@ -12,14 +12,18 @@ deciding *how far it may go on its own*.
 
 ### The abstraction stack
 
-Each layer abstracts the one below; every layer stays real and maintained:
+Each layer abstracts the one below. The lower three are durable and maintained; the upper two
+(CR, plan) are transient intent, consumed into them — never frozen:
 
 - **outcome** — what actually happens.
-- **code** — abstraction of outcome; still statically analyzable.
-- **spec + behavior suite** — abstraction of code; what humans read to know what the project
-  *is* and does.
-- **change-request (CR)** — abstraction of the behavior suite; the intent you *grill* into
-  concrete deltas to spec + suite (and from there, code).
+- **implementation** — abstraction of outcome; the built artifact (code, docs, config, agent
+  definitions…), still statically analyzable. SDD is not limited to generating code.
+- **spec + behavior suite** — abstraction of the implementation; what humans read to know what
+  the project *is* and does.
+- **plan** — abstraction of spec + suite; the change as sequenced work (per-CR execution state,
+  retired at retro), distinct from the durable contract below it.
+- **change-request (CR)** — abstraction of the plan; the goal as intent, *grilled* into concrete
+  deltas to spec + suite (and from there, the implementation).
 
 One **project = one durable spec**, one behavior suite, one gate/freeze baseline. Size is
 solved by **organizing into files and folders** (folders are views, never lifecycle units),
@@ -40,12 +44,14 @@ One cycle = one CR carried to completion, on one working tree:
 4. **handoff** — land the verified result in the project-declared delivery shape — commits
    to `main`, a branch + PR, or prose (`mission/handoff/`).
 
-`mission/` is the **autonomous orchestrator** (the operator) sequencing steps 1–4;
+`mission/` is the **orchestrator** — the conductor (the operator role), the main session by
+default, a spawned `sdd-operator` only in the headless fallback — sequencing steps 1–4;
 `gateway/` is the universal router/door (not a loop step). There is **no mandatory approval
 station** — every write to spec/suite passes the **autonomy rubric**
 (`design/autonomy-rubric.md`), which self-clears or escalates; the human is an escalation
-target the bar invokes, not a fixed checkpoint. The only mandatory stops are the hard floor
-(Clearance, Conflict resolution, Compatibility, Consent).
+target the bar invokes, not a fixed checkpoint. Inside a mission, three hard-floor stops can
+fire (Clearance, Compatibility, Conflict resolution); the fourth floor, **Consent**, guards the
+forge loop's cross-installation egress, not a mission.
 
 ### The four post-mission outer loops (step 5)
 
@@ -65,7 +71,7 @@ system except as a CR:
 | `gateway/` | the universal router/door | — (not a loop step) |
 | `intake/` | the CR subsystem (sources + escape + inject) | feeds the mission (step 1) |
 | `authoring/` | grill CR → spec+suite diff (+ spec gate); shared capability | explore (step 2), invoked |
-| `mission/` | the autonomous orchestrator (+ impl gate) | Mission Loop steps 1–4 |
+| `mission/` | the orchestrator / conductor (+ impl gate) | Mission Loop steps 1–4 |
 | `mission/deliver/` | build to keep against the frozen suite | deliver (step 3) |
 | `mission/handoff/` | land the result in the delivery shape | handoff (step 4) |
 | `campaign/` `formation/` `doctrine/` `forge/` | the 4 post-mission outer loops | step 5 (not in the Mission Loop) |
@@ -79,8 +85,3 @@ system except as a CR:
 - **Rule-in-design + behavior-in-capability.**
 - **Three spec types** (`design/unit-and-organization.md`): **descriptive** (no subject — rule docs + indexes; no marker), **reference artifact** (`spec-type: reference` — a suite-less shipped thing), **behavioral artifact** (`spec-type: behavioral` — a testable unit with a `.feature`). `spec-type` is per-node classification, never lifecycle.
 - **Unit scenarios colocate** with their capability; **acceptance (e2e) scenarios** live in `acceptance/`.
-
-## TODO
-
-- [ ] fill each capability folder
-- [ ] build the behavior suite (`acceptance/` + colocated unit)

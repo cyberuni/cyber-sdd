@@ -52,12 +52,12 @@ is **never** silently auto-accepted; create-spec **advances no status past draft
 Every scenario in [`create-spec.feature`](./create-spec.feature) maps to one of these three modes
 or to a cross-cutting guarantee. The scaffolding, status, and freeze *rules* live in
 `../../design/lifecycle-model.md`; the node-skeleton shape per type is the spec-types taxonomy in
-`../../design/unit-and-organization.md` and the section bars in `../spec-format/README.md` +
+`../../design/spec-structure.md` and the section bars in `../spec-format/README.md` +
 `../suite-format/README.md`. This unit is the *behavior* that enacts them.
 
 ## Classify the node
 
-A new node is one of the three spec types (`../../design/unit-and-organization.md`); create-spec
+A new node is one of the three spec types (`../../design/spec-structure.md`); create-spec
 scaffolds the matching skeleton, **declaring** the type in frontmatter — never leaving it to be
 inferred:
 

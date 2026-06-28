@@ -14,7 +14,7 @@ resolve a more capable solution-producer for its domain
 The solution is the unit's **third facet** (spec = *what*, suite = *proof*, solution = *why this
 shape*). It is **optional** — most units have none — and **ungated**: it gets no judge of its own
 and stays out of the spec-judge's view; the implementation's test result validates it transitively
-(`../../design/unit-and-organization.md`).
+(`../../design/spec-structure.md`).
 
 ## Use Cases
 

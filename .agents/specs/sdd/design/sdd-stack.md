@@ -36,11 +36,11 @@ change-request (CR)     ← intent: the goal you grill into spec + suite deltas
 - **plan** — the CR's intent **grilled into workable shape and sequenced as work** (not an abstraction of the spec).
   The todos and working method that **produce** the concrete spec + suite deltas — the work, without the delta content itself.
   Unlike the durable layers below it, the plan is **transient** per-CR mission state — scaffolded at intake, filled during explore, retired at the post-mission retro (`loops.md`).
-  Distinct from the per-unit **solution** (`unit-and-organization.md`), which is durable.
+  Distinct from the per-unit **solution** (`spec-structure.md`), which is durable.
 - **spec + behavior suite** — an abstraction of the implementation.
   What humans read to know what the project *is* and does without reading every line.
   The spec narrates the capabilities; the behavior suite pins them to checkable scenarios.
-  This layer comprises the three spec-node types — **descriptive**, **reference**, and **behavioral** (`unit-and-organization.md`); only behavioral nodes carry the suite.
+  This layer comprises the three spec-node types — **descriptive**, **reference**, and **behavioral** (`spec-structure.md`); only behavioral nodes carry the suite.
   Both stay maintained alongside the implementation — the spec is not a one-time design doc that rots after the first commit.
 - **implementation** — an abstraction of outcome.
   The built artifact — code, documentation, configuration, agent definitions, whatever the project ships.

@@ -51,7 +51,7 @@ The **registry** is the resolution handle for every plugin source; the **harness
 Two scopes, in SDD's own terms — **not** "workspace" or "repo-root" (both collide with VS Code / npm / git):
 
 - **user** — `~/.agents/`.
-- **project** — `<project>/.agents/`; a project is one durable spec (`unit-and-organization.md`).
+- **project** — `<project>/.agents/`; a project is one durable spec (`project-unit.md`).
 
 **Projects nest** — a monorepo is a project whose folders hold projects; the shared layer is the **outer project**, never a third named tier ("repo-root" dissolves).
 Resolution **unions** across the nested project anchors plus user.

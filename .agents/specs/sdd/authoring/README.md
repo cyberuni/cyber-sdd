@@ -9,7 +9,7 @@ in `../mission/`).
 suite delta, it does not receive it.
 
 > **This README is a `descriptive` capability overview — an index, not a testable spec**
-> (see the spec types in `../design/unit-and-organization.md`). It carries no `spec-type` marker,
+> (see the spec types in `../design/spec-structure.md`). It carries no `spec-type` marker,
 > no `.feature`, and no `## Use Cases`; each behavior lives in a **behavioral** spec (a unit spec)
 > below, where the use cases map to that unit's suite. (Only a behavioral node carries
 > `## Use Cases`; a descriptive index carries none — the same rule the gate digest applies when it

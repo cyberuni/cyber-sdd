@@ -26,7 +26,7 @@ file loses it. The functional spec is now the per-unit **solution** (`<unit>.sol
 **optional** (written only when a unit has a real design fork worth preserving — it never
 restates the code or the suite), boundary-aligned (not coverage-aligned), **not frozen**, and
 **ungated** (validated transitively at the impl gate). It is written by the **`solution-producer`**
-role. Model: `design/unit-and-organization.md` (the third unit facet) + `design/specialists-and-squads.md`
+role. Model: `design/spec-structure.md` (the third unit facet) + `design/specialists-and-squads.md`
 (the role). Impl (`solution-producer-governance` + per-unit spec/suite) is built in
 `sub-mission` / `sub-deliver`.
 

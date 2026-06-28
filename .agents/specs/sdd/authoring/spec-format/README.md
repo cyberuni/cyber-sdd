@@ -20,12 +20,12 @@ through a suite of its own.
   `## Use Cases` section and a `.feature`.
 - **Boundary** — the `.feature` Gherkin/rubric form and scenario ordering belong to `suite-format`;
   spec *granularity* (when a spec grows too big → carve it into more folders/units) belongs to
-  `../../design/unit-and-organization.md`. This bar owns only `spec.md` structure.
+  `../../design/spec-structure.md`. This bar owns only `spec.md` structure.
 
 ## The required `## Use Cases` section
 
 Every **behavioral** `spec.md` carries a dedicated `## Use Cases` section; a descriptive index or
-a reference artifact carries none (`../../design/unit-and-organization.md`). Open it with the frame
+a reference artifact carries none (`../../design/spec-structure.md`). Open it with the frame
 a table cannot hold, then list the use cases:
 
 - **Subject** — one line naming the territory these use cases all exercise.

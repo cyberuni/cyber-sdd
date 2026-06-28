@@ -54,7 +54,7 @@ isProject: false                         # Cursor: always false — SDD has no C
   Anywhere the plan body or a conclusion references the CR, give the **URL** too, not just the ref.
 - **`name` / `overview` / `todos` / `isProject`** are Cursor's own fields — populate them as Cursor does so the plan stays first-class in both tools.
 - **The `todos` block is the execution task DAG** — flattened to an ordered list, dependency expressed as **order**, not a per-todo edge field. The **conductor** fills it during explore (execution planning) into the single `.plan.md` that **intake scaffolded** at step 1 from a basic template (frontmatter `todos` + a `## NEXT` anchor; `../intake/README.md`). The `.plan.md` carries **execution state only** — todos, working method, `## NEXT`, the combat log.
-- **The solution (the old `plan.md`) is NOT here.** The per-CR functional spec was once folded into this file; it is now a **separate, durable, per-unit artifact** — `<unit>.solution.md`, beside the unit's spec and suite (`../design/unit-and-organization.md`). Folding durable design rationale into a retro-deleted file lost it; the split keys on scope and lifetime — **solution = per-unit + durable; task DAG = per-CR + transient**.
+- **The solution (the old `plan.md`) is NOT here.** The per-CR functional spec was once folded into this file; it is now a **separate, durable, per-unit artifact** — `<unit>.solution.md`, beside the unit's spec and suite (`../design/spec-structure.md`). Folding durable design rationale into a retro-deleted file lost it; the split keys on scope and lifetime — **solution = per-unit + durable; task DAG = per-CR + transient**.
 
 ## Two faces, two homes
 

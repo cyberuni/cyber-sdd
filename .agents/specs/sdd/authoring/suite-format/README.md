@@ -13,7 +13,7 @@ A **reference artifact**: the `suite-format` governance — how behavior-suite s
 - **Conformance** — verified by the **spec-judge** at the spec gate. A reference artifact carries this `## Subject` in place of a `## Use Cases` section and a `.feature`.
 - **Boundary** — the `spec.md` structure (the required `## Use Cases` section, enrichment) belongs to `../spec-format/`; the freeze/unfreeze *model* (triggers, the gate, iteration economy) belongs to `../../design/lifecycle-model.md`. This bar owns the `.feature` form.
 
-This bar governs the `.feature` of a **behavioral** spec only — `descriptive` and `reference` nodes carry no suite (see the spec types in `../../design/unit-and-organization.md`).
+This bar governs the `.feature` of a **behavioral** spec only — `descriptive` and `reference` nodes carry no suite (see the spec types in `../../design/spec-structure.md`).
 It applies uniformly to both the e2e scenarios in `../acceptance/` and the unit scenarios colocated with their capability folder — one corpus, one convention.
 
 ## The gate sees one boolean per scenario

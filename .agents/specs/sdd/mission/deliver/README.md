@@ -7,7 +7,7 @@ Implemented). The orchestrator that sequences this phase is [`../README.md`](../
 not the loop logic or the gate-verdict mechanics.
 
 > **This README is a `descriptive` phase overview — an index, not a testable spec**
-> (see the spec types in `../../design/unit-and-organization.md`). It carries no `spec-type`
+> (see the spec types in `../../design/spec-structure.md`). It carries no `spec-type`
 > marker, no `.feature`, and no `## Use Cases`; each behavior lives in a **behavioral** unit spec
 > below.
 

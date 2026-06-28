@@ -42,7 +42,7 @@ plus a `## NEXT` anchor — so the plan exists **from step 1**. The **conductor*
 it during explore (the task DAG flattened to `todos`, the working method, progress); it does
 **not** invent the plan from nothing later. The plan holds **execution state only** — the
 durable per-unit **solution** (chosen approach + rejected alternatives) lives beside each
-unit's spec + suite, not here (`../design/unit-and-organization.md`). A plan that already
+unit's spec + suite, not here (`../design/spec-structure.md`). A plan that already
 exists (a resumed mission) is opened, not re-scaffolded.
 
 ## Sources — the only work-intake
@@ -77,7 +77,7 @@ internal provenance (the ledger's work history, keyed by `cr`); neither duplicat
 **Claiming a CR is the coordination lock.** Before a mission starts, it **claims** the
 source record (assigns the issue / moves the task to in-progress → `accepted`) so no second
 mission picks the same CR. This is the CR-granularity complement to git's file-granularity
-locking (`../design/unit-and-organization.md`): git keeps two trees from colliding on the
+locking (`../design/cr-concurrency.md`): git keeps two trees from colliding on the
 same *file*; the source-claim keeps two trees from grabbing the same *CR*.
 
 **Write-back at handoff is conditional, never bookkeeping.** When delivery is a **PR** (the
@@ -134,7 +134,7 @@ The litmus is whether the change can affect observable behavior or break the sui
 
 The corpus-reorganization cases the original escape hatch listed — split/merge, relocate a
 contract, regenerate views, reorganize folders — are **no longer escapes**: per ruling E and
-`../design/unit-and-organization.md`, intra-project reorg is **plain editing** and
+`../design/project-unit.md`, intra-project reorg is **plain editing** and
 cross-project corpus acts are **gated lifecycle acts** owned by `../formation/` and
 `../corpus/`. Meta-work that changes SDD-plugin *behavior* (a lifecycle transition rule →
 "given status X, transition Y is rejected") is a freezable scenario → a **CR**, never an

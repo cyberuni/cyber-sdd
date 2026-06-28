@@ -52,7 +52,7 @@ The `../gateway/` routes a request into the loop but is **not a step**.
 The only work-intake.
 A CR arrives from a prompt, Asana, Jira, Linear, GitHub, or the local store (`../intake/`) and is routed to the capabilities it touches.
 Nothing enters the system except as a CR.
-Intake also **scaffolds the mission plan** (`.agents/plans/<cr-ref>.plan.md`) from a basic template — frontmatter `todos` plus a `## NEXT` anchor — so the plan exists from step 1; the **conductor** fills its `todos` (the execution task DAG) during explore. The plan is execution state, distinct from the per-unit **solution** (`unit-and-organization.md`).
+Intake also **scaffolds the mission plan** (`.agents/plans/<cr-ref>.plan.md`) from a basic template — frontmatter `todos` plus a `## NEXT` anchor — so the plan exists from step 1; the **conductor** fills its `todos` (the execution task DAG) during explore. The plan is execution state, distinct from the per-unit **solution** (`spec-structure.md`).
 This is the plan layer above the suite in the SDD stack (see `sdd-stack.md`); intake **feeds** the mission rather than living inside it.
 
 ### 2 — explore (build to learn)

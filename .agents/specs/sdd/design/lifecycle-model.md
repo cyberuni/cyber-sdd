@@ -43,7 +43,7 @@ Open input is recorded in the body as `<!-- open: ...
 `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced.
 Do not commit SDD artifacts while their spec is `aligned: false`.
 
-**This whole frontmatter is root-`spec.md`-only.** A capability node README (a `reference` or `behavioral` spec — see `../design/unit-and-organization.md` spec types) carries **only** its `spec-type` marker, never a lifecycle field — folders are views, never lifecycle units. The project has one lifecycle, on the root.
+**This whole frontmatter is root-`spec.md`-only.** A capability node README (a `reference` or `behavioral` spec — see `../design/spec-structure.md` spec types) carries **only** its `spec-type` marker, never a lifecycle field — folders are views, never lifecycle units. The project has one lifecycle, on the root.
 
 ## Status enum
 
@@ -137,7 +137,7 @@ Distinct from availability: a recorded producer whose plugin is merely uninstall
 ## Freeze (per suite file)
 
 Freeze is the contract baseline of the behavior suite.
-The vocabulary is **freeze / unfreeze** — deliberately *not* lock/unlock, which is reserved for the concurrency layer (one CR per working tree; see `unit-and-organization.md`).
+The vocabulary is **freeze / unfreeze** — deliberately *not* lock/unlock, which is reserved for the concurrency layer (one CR per working tree; see `cr-concurrency.md`).
 A frozen suite file is a settled contract, not a held mutex.
 
 **Freeze scope is per suite file, not per project.**

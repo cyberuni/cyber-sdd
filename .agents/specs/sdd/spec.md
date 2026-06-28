@@ -31,7 +31,7 @@ A **project** — a repo, an agent configuration, an npm package, a website, or 
 inside a monorepo (projects nest) — has **one durable spec**, one behavior suite, one gate/freeze
 baseline. Size is solved by **organizing into files and folders** (folders are views, never
 lifecycle units), never by splitting into a fleet of per-feature specs.
-([`design/unit-and-organization.md`](./design/unit-and-organization.md).)
+([`design/project-unit.md`](./design/project-unit.md).)
 
 ### The Mission Loop (steps 1–4)
 
@@ -87,5 +87,5 @@ system except as a CR ([`design/loops.md`](./design/loops.md)):
 
 - **ONE spec, ONE behavior suite, ONE gate/freeze baseline.** Folders are *views*, never lifecycle units — none gets its own `status`/approval.
 - **Rule-in-design + behavior-in-capability.**
-- **Three spec types** ([`design/unit-and-organization.md`](./design/unit-and-organization.md)): **descriptive** (no subject — rule docs + indexes; no marker), **reference artifact** (`spec-type: reference` — a suite-less shipped thing), **behavioral artifact** (`spec-type: behavioral` — a testable unit with a `.feature`). `spec-type` is per-node classification, never lifecycle.
+- **Three spec types** ([`design/spec-structure.md`](./design/spec-structure.md)): **descriptive** (no subject — rule docs + indexes; no marker), **reference artifact** (`spec-type: reference` — a suite-less shipped thing), **behavioral artifact** (`spec-type: behavioral` — a testable unit with a `.feature`). `spec-type` is per-node classification, never lifecycle.
 - **Unit scenarios colocate** with their capability; **acceptance (e2e) scenarios** live in `acceptance/`.

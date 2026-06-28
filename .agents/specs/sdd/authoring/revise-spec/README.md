@@ -49,9 +49,11 @@ A node must be **writable** before revise-spec runs the producer:
 
 ## Collect the seed intent, then grill in-session
 
-Collect the revise intent up front — what the change is and why, the parts of the spec it touches.
-Then run the spec-producer **inline** in **revise** mode (signal revise, not scaffold) and grill the
-user **live**, spawning the **cold spec-judge** each round, under an **iteration cap** (default **3**;
+Because the grill runs **in the main session**, its quality tracks the **session model**: on entry
+revise-spec **advises the user that a capable model (e.g. Opus) is recommended** before the live
+grill begins. Collect the revise intent up front — what the change is and why, the parts of the spec
+it touches. Then run the spec-producer **inline** in **revise** mode (signal revise, not scaffold)
+and grill the user **live**, spawning the **cold spec-judge** each round, under an **iteration cap** (default **3**;
 override if the user named one): incorporate the answers and the judge's verdict; on convergence
 exit; on `blocked` or cap-hit-without-converging **do not auto-accept** — present the failing
 scenarios / open items and let the user **accept as-is**, **keep grilling** (reset the count), or

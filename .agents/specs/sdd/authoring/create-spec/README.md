@@ -45,7 +45,8 @@ written as a user story with the concrete condition that triggers it:
 
 UC1 and UC2 then run the same procedure — **classify → scaffold → grill → drive the in-session
 grill → leave at draft** (the sections below) — under cross-cutting guarantees the suite also
-pins: an ambiguous classification is **asked, not guessed**; scaffolding writes **no control
+pins: on entry it **advises the user that a capable model (e.g. Opus) is recommended** for the live
+grill; an ambiguous classification is **asked, not guessed**; scaffolding writes **no control
 frontmatter**; the grill surfaces its questions to the user **live in-session**; the iteration cap
 is **never** silently auto-accepted; create-spec **advances no status past draft**.
 
@@ -84,7 +85,9 @@ instead.
 
 ## Run the grill in-session (the user loop)
 
-create-spec runs the spec-producer **inline** (it loads `spec-producer-governance`, or
+Because the grill runs **in the main session**, its quality tracks the **session model**: on entry
+create-spec **advises the user that a capable model (e.g. Opus) is recommended** before the live
+grill begins. create-spec runs the spec-producer **inline** (it loads `spec-producer-governance`, or
 persona-loads a plugin specialist) and **spawns the cold spec-judge** each round; for build-to-learn
 it spawns the impl-producer builder. Set an **iteration cap** for the sitting (default **3**;
 override if the user named one), then loop: grill the user **live** with the node path,

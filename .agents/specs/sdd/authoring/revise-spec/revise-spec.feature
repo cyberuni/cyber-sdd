@@ -23,6 +23,11 @@ Feature: The revise-spec entry skill — re-open a draft and run the explore gri
 
   # ---- Grill in-session (revise) ----
 
+  Scenario: the user is advised to use a capable model for the live grill
+    Given revise-spec is entered
+    When it prepares to run the in-session grill
+    Then it advises the user that a capable model such as Opus is recommended
+
   Scenario: revise-spec scaffolds no new node
     Given a CR touching an existing writable node
     When revise-spec runs

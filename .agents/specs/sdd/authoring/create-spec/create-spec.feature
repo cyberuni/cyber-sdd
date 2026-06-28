@@ -65,6 +65,11 @@ Feature: The create-spec entry skill — scaffold a new spec node and run the ex
 
   # ---- Cross-cutting — run the grill in-session, then leave at draft ----
 
+  Scenario: the user is advised to use a capable model for the live grill
+    Given create-spec is entered
+    When it prepares to run the in-session grill
+    Then it advises the user that a capable model such as Opus is recommended
+
   Scenario: the grill asks the user live and continues in-session
     Given the in-session grill needs an answer from the user during explore
     When create-spec handles it

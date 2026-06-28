@@ -18,25 +18,25 @@ change-request (CR)     ← intent: the goal you grill into spec + suite deltas
 
 ## The layers
 
-- **outcome** — what actually happens when the project runs: the behavior a user observes, the side effects, the shipped result.
-  The ground truth every layer above exists to predict.
-- **implementation** — an abstraction of outcome.
-  The built artifact — code, documentation, configuration, agent definitions, whatever the project ships.
-  SDD is not limited to generating code.
-  Still real, still maintained, still statically analyzable by engineers, security specialists, and agents.
-  Not discarded once written; it is the durable artifact that produces the outcome.
+- **change-request (CR)** — an abstraction of the plan.
+  The goal stated as intent — often **under-specified**, the raw request before it is researched into workable shape; you *grill* it into concrete deltas against spec + suite (and, through them, against the implementation and outcome).
+  A CR is the only unit of incoming intent; it is never the destination, only the request.
+- **plan** — an abstraction of spec + suite.
+  The change as sequenced work: the todos and working method that carry the CR's intent into concrete spec + suite deltas, without the delta content itself.
+  Unlike the durable layers below it, the plan is **transient** per-CR mission state — scaffolded at intake, filled during explore, retired at the post-mission retro (`loops.md`).
+  Distinct from the per-unit **solution** (`unit-and-organization.md`), which is durable.
 - **spec + behavior suite** — an abstraction of the implementation.
   What humans read to know what the project *is* and does without reading every line.
   The spec narrates the capabilities; the behavior suite pins them to checkable scenarios.
   This layer comprises the three spec-node types — **descriptive**, **reference**, and **behavioral** (`unit-and-organization.md`); only behavioral nodes carry the suite.
   Both stay maintained alongside the implementation — the spec is not a one-time design doc that rots after the first commit.
-- **plan** — an abstraction of spec + suite.
-  The change as sequenced work: the todos and working method that carry the CR's intent into concrete spec + suite deltas, without the delta content itself.
-  Unlike the durable layers below it, the plan is **transient** per-CR mission state — scaffolded at intake, filled during explore, retired at the post-mission retro (`loops.md`).
-  Distinct from the per-unit **solution** (`unit-and-organization.md`), which is durable.
-- **change-request (CR)** — an abstraction of the plan.
-  The goal stated as intent — often **under-specified**, the raw request before it is researched into workable shape; you *grill* it into concrete deltas against spec + suite (and, through them, against the implementation and outcome).
-  A CR is the only unit of incoming intent; it is never the destination, only the request.
+- **implementation** — an abstraction of outcome.
+  The built artifact — code, documentation, configuration, agent definitions, whatever the project ships.
+  SDD is not limited to generating code.
+  Still real, still maintained, still statically analyzable by engineers, security specialists, and agents.
+  Not discarded once written; it is the durable artifact that produces the outcome.
+- **outcome** — what actually happens when the project runs: the behavior a user observes, the side effects, the shipped result.
+  The ground truth every layer above exists to predict.
 
 ## Invariants
 

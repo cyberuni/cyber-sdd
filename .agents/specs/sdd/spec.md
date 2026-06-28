@@ -16,15 +16,15 @@ Each layer abstracts the one below ([`design/abstraction-stack.md`](./design/abs
 The lower three are durable and maintained; the upper two (CR, plan) are transient intent,
 consumed into them — never frozen:
 
-- **outcome** — what actually happens.
-- **implementation** — abstraction of outcome; the built artifact (code, docs, config, agent
-  definitions…), still statically analyzable. SDD is not limited to generating code.
-- **spec + behavior suite** — abstraction of the implementation; what humans read to know what
-  the project *is* and does.
-- **plan** — abstraction of spec + suite; the change as sequenced work (per-CR execution state,
-  retired at retro), distinct from the durable contract below it.
 - **change-request (CR)** — abstraction of the plan; the goal as intent, *grilled* into concrete
   deltas to spec + suite (and from there, the implementation).
+- **plan** — abstraction of spec + suite; the change as sequenced work (per-CR execution state,
+  retired at retro), distinct from the durable contract below it.
+- **spec + behavior suite** — abstraction of the implementation; what humans read to know what
+  the project *is* and does.
+- **implementation** — abstraction of outcome; the built artifact (code, docs, config, agent
+  definitions…), still statically analyzable. SDD is not limited to generating code.
+- **outcome** — what actually happens.
 
 One **project = one durable spec**, one behavior suite, one gate/freeze baseline. Size is
 solved by **organizing into files and folders** (folders are views, never lifecycle units),

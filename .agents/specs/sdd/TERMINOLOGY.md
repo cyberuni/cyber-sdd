@@ -40,3 +40,17 @@ role. Model: `design/spec-structure.md` (the third unit facet) + `design/special
 | `sdd-planner` (spawned agent) | `solution-producer` role (run **inline** by the conductor) | same procedure, conducted warm, not spawned; was briefly `plan-producer` |
 | spec **fleet** (one frozen spec per feature) | **one project spec** (folders, not sibling specs) | one spec / one suite / one gate-freeze baseline |
 | `gate/` station | folded into `mission/` + `authoring/` | the gate dissolves into the autonomy bar; the judge stays a distinct cold actor |
+
+## `bar` vs `lens` — one concept, two design-layer words
+
+Not an old→new rename — both old and new SDD say "lens." This is a **within-new-SDD** vocabulary
+split worth pinning so readers don't take them for different things:
+
+| Word | Used in | Means |
+|---|---|---|
+| **bar** | design docs (`design/actors-and-governance.md`, `governance-resolution.md`) | the criteria an actor *owns* — Director (scope), Builder (coverage), Architect (structure) |
+| **lens** | loop / operator docs (`loops.md`, `lifecycle-model.md`, `mission/operator/`) | that **same** bar in *applied* form: the criteria a delegate looks *through* — a producer self-aligns forward, a judge grades backward |
+
+Same concept; "bar" is ownership-side, "lens" is application-side. Canonical definition:
+`design/actors-and-governance.md`. (Maps to the motive-model's **Bar** —
+`motive-model/glossary.md`.)

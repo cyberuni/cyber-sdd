@@ -37,6 +37,11 @@ SDD's default actor governances:
 - **Architect bar** → the architect governance (structural fit).
 - **Strategist bar** → enacted through the **doctrine outer loop** (run at lifecycle granularity by its delegate), not a per-spec gate governance.
 
+The three applied actor bars — Director (scope), Builder (coverage), Architect (structure) — are the **lenses**: an actor's bar in use at a gate, the criteria a producer self-aligns to (**forward** face) and a judge grades against (**backward** face).
+"Bar" names the criteria an actor owns; "lens" names that same bar as the thing a delegate looks *through*.
+The loop and operator docs (`loops.md`, `lifecycle-model.md`, `mission/operator/`) use "lens" for this.
+A lens is **not** the actor (the human/motive), the face (the direction), or the delegate (the agent).
+
 Cross-cutting these is the **autonomy bar** — the autonomy governance / risk rubric (see `autonomy-rubric.md`).
 It is **not an actor**; it is the self-clear-vs-escalate arbiter every write passes, the risk-assessment side of every escalation point.
 It cooperates with the lifecycle legality rules but is a distinct axis from any single actor's bar.

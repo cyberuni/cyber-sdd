@@ -99,7 +99,7 @@ here, and the management **skill** performs the write — so the gateway's thin-
 installs nothing, edits no files) still hold; the *handler* does the work.
 
 - **Manage domain plugins** — install / list / remove a plugin's `sdd-plugins[]` registration.
-- **Author a governance** — scaffold a `metadata:{artifact-type, actor, face}` governance
+- **Author a governance** — scaffold a `metadata:{artifact-type, actor, gate}` governance
   (the `create-governance` skill).
 - **Marketplace** — register a plugin to the marketplace and discover plugins by artifact-type;
   the **marketplace** is the global catalog, the **registry** the per-project resolution.

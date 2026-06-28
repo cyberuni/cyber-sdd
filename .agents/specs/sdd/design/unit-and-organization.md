@@ -53,7 +53,7 @@ So SDD does not build a CR-concurrency manager — git is it.
   That CR-level lock is the **source claim**: a mission claims its CR at intake (assigns the issue → `accepted`) before work begins, so no second mission picks it up (`../intake/README.md`).
   Git file-locking and the source-claim are the two granularities of the same concurrency story.
 - **Cross-CR file collisions are git's job.**
-  "No two producers on the same file" holds *within* one CR (operator dispatch discipline; see `specialists-and-squads.md`).
+  "No two producers on the same file" holds *within* one CR (conductor orchestration discipline; see `specialists-and-squads.md`).
   Two CRs on separate trees touching the same file collide as an ordinary **git merge conflict** at handoff — resolved the normal way, not by an SDD lock.
 - **Overlapping frozen scenarios → the hard floor.**
   If a landing CR's frozen `.feature` was changed by another CR since its branch point, the landing CR rebases onto the new baseline; if its frozen scenarios now contradict, that is **Conflict resolution** (or **Clearance** if one clearly supersedes) per `autonomy-rubric.md`.
@@ -116,8 +116,8 @@ A behavioral unit may carry a third durable artifact beside its spec (`README.md
 - **What it holds.** A **decision record**: the chosen approach, key structural decisions, and the **rejected alternatives** and *why*. Only what the implementation and its test results **cannot** say — the roads not taken leave zero trace in code. It does **not** restate how each scenario is satisfied; the code shows that and the suite proves it.
 - **Optional.** Written only when a unit has a real design fork worth preserving. A unit whose design is obvious from its impl has **no** solution file — "let the implementation do the talking."
 - **Boundary-aligned, not coverage-aligned.** It shares the unit's folder and scope but never mirrors the scenario set — coverage is the suite's job.
-- **Not frozen.** The suite freezes at the spec gate; the solution stays live, refined as the impl is built. It is **ungated** — no solution-judge; the impl gate validates it transitively (`specialists-and-squads.md`).
-- **Who writes it.** The `solution-producer` role (`specialists-and-squads.md`), in explore and refined in deliver.
+- **Not frozen, not judged.** The suite freezes at the spec gate; the solution stays live, refined as the impl is built. It is **ungated** — no solution-judge, and it **stays out of the spec-judge's view** (the cold spec-judge reads `spec.md` + the `.feature` only); the impl gate validates it transitively (`specialists-and-squads.md`).
+- **Who writes it.** The `solution-producer` role (`specialists-and-squads.md`) — run **inline in the main-session conductor** — in explore, refined in deliver.
 
 The solution is **per-unit and durable** — distinct from the per-CR execution `.plan.md`, which is **transient** mission state (todos + working method, deleted at retro; `provenance-model.md`). The split keys on scope and lifetime — see `../TERMINOLOGY.md` for the old `plan.md`/`tasks.md` → solution / execution-plan mapping.
 

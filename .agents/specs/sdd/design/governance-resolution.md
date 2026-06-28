@@ -39,8 +39,8 @@ The deciding factor is **can SDD address the file?**
 
 | Source | Addressable? | Delivery | Loaded by |
 |---|---|---|---|
-| **project / user** | yes — `<project>/.agents/governances/` | a plain `.md` **or** a SKILL.md, authored in place, **no build** | the operator **reads the file directly** |
-| **specialist plugin** | no — version-routed, internal path | `user-invocable:false` **skill** in the plugin's `skills/`; `init` records `<plugin>:<name>` per `(artifact-type,actor,face)` in `.agents/universal-plugin.json` | the operator asks the **harness** to load `<plugin>:<name>` (harness version-routes) |
+| **project / user** | yes — `<project>/.agents/governances/` | a plain `.md` **or** a SKILL.md, authored in place, **no build** | the conductor **reads the file directly** |
+| **specialist plugin** | no — version-routed, internal path | `user-invocable:false` **skill** in the plugin's `skills/`; `init` records `<plugin>:<name>` per `(artifact-type,actor,face)` in `.agents/universal-plugin.json` | the conductor asks the **harness** to load `<plugin>:<name>` (harness version-routes) |
 | **sdd default** | via the sdd plugin | the sdd plugin's own governances (skills, `sdd:<name>`) | as a plugin source; lowest precedence |
 
 `${CLAUDE_PLUGIN_ROOT}` is harness-internal — SDD never paths into the plugin cache.
@@ -62,7 +62,7 @@ It does **not** blind-walk every directory: it jumps to the known **project anch
 - **Precedence (most-specific wins):** project > specialist-plugin > sdd-default; among nested projects, inner > outer.
 - **Default `union`:** every applicable governance is in force; non-conflicting criteria accumulate; **most-specific wins on conflict**.
 - **Opt-in `replace`:** a governance with `compose: replace` fully supersedes the lower-precedence bar for its key.
-- Conflict handling is **never** positional "last wins"; it is the explicit precedence above, enforced by the `governance-composition` rule the operator loads.
+- Conflict handling is **never** positional "last wins"; it is the explicit precedence above, enforced by the `governance-composition` rule the conductor loads.
 
 ## The deterministic helper
 

@@ -7,7 +7,7 @@ The human is an **escalation target the bar invokes**, not a fixed checkpoint �
 The rubric **defines** the bar; the conductor **enacts** it.
 It is a **design/evaluation artifact**, not a runtime monolith loaded on every decision.
 At design/eval time the consumer is the eval tool (ACES), which sets and verifies each agent config's escalation posture against it.
-At runtime the verdict is made by the **conductor** — the capable agent that runs a loop and makes its self-clear/escalate verdicts from baked-in logic (in SDD `sdd-operator`; the formation Warden is another) — authored to conform to this rubric, never by loading the document per decision.
+At runtime the verdict is made by the **conductor** — the capable position that runs a loop and makes its self-clear/escalate verdicts from baked-in logic (in SDD the **main session running the operator role**, or a spawned `sdd-operator` in the headless fallback; the formation Warden is another) — authored to conform to this rubric, never by loading the document per decision.
 An agent's baked-in logic carries only the inputs its own decisions touch.
 
 ## The hard floor — the only mandatory human escalations
@@ -28,7 +28,7 @@ A high computed confidence never unlocks it; the floor sits above the gradient e
   A **new** scenario that contradicts an old frozen one is also Clearance (a clear intended winner — the new replaces the old), not Conflict.
   (Whether a change is *also* a breaking change in product / semver terms is the **Compatibility** floor below, not Clearance — the two can co-fire.)
 - **Conflict resolution** is the only thing that truly halts work **unexpectedly** — reduce it by grilling harder at authoring.
-  An obvious stale-mistake contradiction is an operator-served minor fix; escalate only when both sides are plausibly intended.
+  An obvious stale-mistake contradiction is a conductor-served minor fix; escalate only when both sides are plausibly intended.
 - **Compatibility — the semver class.**
   The change is classified **patch** (fix) / **minor** (feature) / **major** (breaking) — mechanically from the scenario / API-diff, and **judged** by the resolved **Builder** governance for un-contracted user-facing change (a UI restyle's class is the designer-as-Builder's call), **domain-relative** (a design-system library is stricter than an app).
   The floor fires when the class **exceeds the authorized ceiling** (below); at or under it, the change self-clears.
@@ -122,7 +122,7 @@ The rubric's verdicts are made testable (vs by-hand vibing) in three layers:
 
 Output: which floor cases fire (and the detected class vs the ceiling) + the blast magnitude.
 The agent judges the **Builder** class read (un-contracted change), **novelty**, and **confidence** — the helper shrinks the judgment surface to those.
-2. **Baked-in logic** (Warden / operator) = helper output + the judged inputs, run at the relevant cadence (Warden per formation act).
+2. **Baked-in logic** (Warden / conductor) = helper output + the judged inputs, run at the relevant cadence (Warden per formation act).
 3. **An ACES golden suite** mapping `(act, risk profile) → expected verdict`, run at the doctrine cadence over the agent configs to catch posture drift mechanically.
 
 Backstop: provisional markers + the async review queue make "conservative + auditable" sufficient, not "infallible."

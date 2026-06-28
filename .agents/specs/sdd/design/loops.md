@@ -6,7 +6,7 @@ Never call this a "5-step loop" — the Mission Loop is **steps 1–4**, and ste
 
 ## The Mission Loop — steps 1–4
 
-The autonomous inner loop, sequenced by the operator (`../mission/`).
+The inner loop, sequenced by the conductor — the main session running the operator role (`../mission/`; a spawned `sdd-operator` in the headless fallback, `design/harness-spawning.md`).
 A scheduler can pull one CR and run the loop to step 4 on its own.
 The steps are **verbs** — actions taken — each producing a noun outcome.
 
@@ -25,21 +25,21 @@ The `../gateway/` routes a request into the loop but is **not a step**.
 The only work-intake.
 A CR arrives from a prompt, Asana, Jira, Linear, GitHub, or the local store (`../intake/`) and is routed to the capabilities it touches.
 Nothing enters the system except as a CR.
-Intake also **scaffolds the mission plan** (`.agents/plans/<cr-ref>.plan.md`) from a basic template — frontmatter `todos` plus a `## NEXT` anchor — so the plan exists from step 1; the **operator** fills its `todos` (the execution task DAG) during explore. The plan is execution state, distinct from the per-unit **solution** (`unit-and-organization.md`).
+Intake also **scaffolds the mission plan** (`.agents/plans/<cr-ref>.plan.md`) from a basic template — frontmatter `todos` plus a `## NEXT` anchor — so the plan exists from step 1; the **conductor** fills its `todos` (the execution task DAG) during explore. The plan is execution state, distinct from the per-unit **solution** (`unit-and-organization.md`).
 This is the abstraction layer above the suite (see `abstraction-stack.md`); intake **feeds** the mission rather than living inside it.
 
 ### 2 — explore (build to learn)
 
 Grill the **plan + spec + suite** into a concrete diff, building **to learn**: spikes (thrown away), spec-producer ⇄ spec-judge **iteration**, and **showing intermediate results to the user** to steer the spec + suite.
 Explore also **builds the implementation to learn** — implementing surfaces what the contract is missing; it is **not** deferred wholesale to deliver (impl happens in **both** phases — the freeze, not "code vs no code," is the boundary; see the explore-vs-deliver note below).
-The mission runs explore by driving `../authoring/` autonomously; a human can drive the same capability interactively through the gateway.
+By default a human drives explore **interactively in the main session** (the conductor runs `../authoring/` in-session, grilling live); unattended, the same capability runs autonomously (the headless fallback, `design/harness-spawning.md`).
 There is **no mandatory human approval station**: the human is an escalation target the autonomy bar invokes.
 The phase ends at the **spec gate**, where the `.feature` **freezes** — the boundary between explore and deliver.
 
 ### 3 — deliver (build to keep)
 
 Build **to keep** against the **frozen** suite, with **iteration** between the impl-producer and the cold impl-judge.
-The operator serves in-flight expansion and minor fixes (not the human), recorded in a **detail-adjustment report** (a view of the mission **plan**'s mid-flight lines; see `provenance-model.md`).
+The conductor serves in-flight expansion and minor fixes (not the human), recorded in a **detail-adjustment report** (a view of the mission **plan**'s mid-flight lines; see `provenance-model.md`).
 `producer ≠ judge` survives the gate fold: the judge stays a distinct actor.
 The human enters only on the hard floor.
 The phase ends at the **impl gate**.

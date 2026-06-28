@@ -15,7 +15,7 @@ artifact-type → { producer, judge, governances (actor + discipline), model, ef
 - **One squad per artifact-type; one producer per file.**
   No domain arrays, no producer composition, no "best match" producer race.
   The exclusion is **per file**, not per spec: a project-spec CR touches many artifact-types and so summons **multiple** specialists at once, but **no two producers ever act on the same file**.
-  Each file has exactly one artifact-type → exactly one squad → exactly one producer; the operator orchestrates the set and merges their outputs.
+  Each file has exactly one artifact-type → exactly one squad → exactly one producer; the conductor orchestrates the set and merges their outputs.
 - **artifact-type** = the squad key.
   It names the artifact / squad (`npm-package`, `agent-plugin`, `agent-skill`, `agent-definition`, `react-component`, `docs`, …).
   Each **file** has exactly one artifact-type; the spec's `artifact-types` frontmatter (plural) lists the **set** the project spans.
@@ -27,7 +27,7 @@ artifact-type → { producer, judge, governances (actor + discipline), model, ef
   The artifact-in-context determines the knowledge, not the file extension.
 
 A **squad** = the producer + judge **specialists** (with their gear — governances, model, and effort) for one artifact-type.
-A CR summons the squads for the artifact-types it touches; the **operator** orchestrates them and delivers.
+A CR summons the squads for the artifact-types it touches; the **conductor** (the main session running the operator role) orchestrates them and delivers.
 
 **`domain-plugin` stays distinct from `produced-by`.**
 `domain-plugin` = the chosen plugin for an ambiguous artifact-type (forward input to resolution); `produced-by` = who actually produced each artifact (after-the-fact record, see `provenance-model.md`).
@@ -37,22 +37,23 @@ The produced-by cutover wrongly conflated them — this was the original `sdd-pl
 
 A plugin covers a set of artifact-types by providing agents for these role keys.
 Any role may be `null` (degenerates to the SDD default) or omitted (falls back to the convention name `<plugin>-<role>`).
-A **producer** role may also name a model-tuned agent to run at its own model/effort — the model-tuning escape valve; naming any agent (plugin delegate or model-tuned) means the operator **spawns** it.
+A **producer** role may also name a model-tuned agent to run at its own model/effort — the model-tuning escape valve; naming any agent (plugin delegate or model-tuned) means the conductor **spawns** it (subject to the role-dependent surface below).
 
-| Role key | Acts | SDD default |
-|---|---|---|
-| `spec-producer` | writes the `spec.md` body + the `.feature` | Operator loads `spec-producer-governance`, authors inline (`sdd:sdd-operator`) |
-| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md` — the decision record: chosen approach + rejected alternatives) when a unit has durable rationale | Operator loads `solution-producer-governance`, authors inline (`sdd:sdd-operator`) |
-| `spec-judge` | judges the `.feature` at the spec gate | `sdd-spec-judge` — spawned cold agent |
-| `impl-producer` | builds the artifact **and** its verification | Operator loads `impl-producer-governance`, builds inline (`sdd:sdd-operator`) |
-| `impl-judge` | runs the verification against the frozen `.feature` | `sdd-implementer` — spawned cold agent |
+| Role key | Acts | Surface | SDD default |
+|---|---|---|---|
+| `spec-producer` | writes the `spec.md` body + the `.feature` | **in-session** (persona) | the conductor loads `spec-producer-governance` and authors inline (`sdd:sdd-operator`) |
+| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md` — the decision record: chosen approach + rejected alternatives) when a unit has durable rationale | **in-session** (persona) | the conductor loads `solution-producer-governance` and authors inline (`sdd:sdd-operator`) |
+| `spec-judge` | judges the `.feature` at the spec gate | **spawned cold** | `sdd-spec-judge` — spawned cold agent |
+| `impl-producer` | builds the artifact **and** its verification | **spawned** | the conductor spawns a builder that loads `impl-producer-governance` (`sdd:sdd-operator` marks the SDD-default chain) |
+| `impl-judge` | runs the verification against the frozen `.feature` | **spawned cold** | `sdd-implementer` — spawned cold agent |
 
-**Producers run inline, judges spawn cold** ("conductor writes, cold judges grade"): an SDD-default producer is a governance the operator loads and runs in its own warm context (recorded `produced-by.<role>: sdd:sdd-operator`); an SDD-default judge is a cold agent the operator spawns, because a grader must not share the author's context.
-A plugin delegate — or a model-tuned producer agent named for the slot — is always spawned, producer or judge alike.
+**The conductor is the main session.** The conductor is the main (user) session running the operator role; it holds the user channel and is the positional ratifier (`lifecycle-model.md`).
+It runs the **spec-producer** and **solution-producer** **inline** (recorded `produced-by.<role>: sdd:sdd-operator`) because spec-producing *is* the live human grill, which must stay where the user channel lives.
+The **impl-producer** (mechanical — it builds against a contract) and **every judge** (cold, because a grader must not share the author's context) run as **spawned subagents at depth 1 from the main session** — a spawn tree every harness supports (`harness-spawning.md`).
+This is the **role-dependent surface**: a `spec-producer` / `solution-producer` — SDD-default **or** plugin specialist — is **persona-loaded in-session**; an `impl-producer` or any judge is a **spawned subagent**.
 The judge stays a **distinct actor** (producer/judge separation), the surviving invariant of the gate fold.
-Because the operator is itself a spawned agent, spawning a cold judge is a subagent-spawns-subagent step — a portability floor of two nesting levels (`harness-spawning.md`).
 
-There is **no "generic Builder" fallback**: an unfilled producer is the operator authoring inline; an unfilled judge is the cold SDD-default agent.
+There is **no separate "generic Builder" registry entry**: an unfilled spec/solution-producer is the **conductor authoring inline**, an unfilled impl-producer is the **conductor spawning a builder** that runs `impl-producer-governance`, and an unfilled judge is the **cold SDD-default agent**.
 The `<plugin>-<role>` naming convention applies only when a role **key is omitted** and the plugin ships an agent at that conventional name.
 
 ## Which governances each role loads
@@ -71,9 +72,9 @@ Each role loads two tiers (`governance-resolution.md`): **fixed-universal** bars
 The invariant: **a producer self-aligns to exactly the bars its judge grades** — the same bars forward and backward, loaded as separate faces.
 The impl-gate Director-revert (`autonomy-rubric.md`) is an operator escalation the impl-judge surfaces, not a routine impl-judge bar.
 
-For an **SDD-default producer** role, the operator additionally loads the matching `spec-producer-governance` / `solution-producer-governance` / `impl-producer-governance` — the procedure it runs inline.
+For an **SDD-default spec/solution-producer** role, the conductor additionally loads the matching `spec-producer-governance` / `solution-producer-governance` — the procedure it runs inline; for an **SDD-default impl-producer**, the spawned builder loads `impl-producer-governance`.
 A plugin delegate carries its own procedure and loads these bars directly.
-The gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; `sdd-operator` loads all three.
+The gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; the conductor loads all three.
 The `sdd` gateway loads **no** governance — it is a thin relay that only classifies and routes (`actors-and-governance.md`, `gateway/README.md`); reading a raw `status` value for routing needs no governance load.
 How each resolved-actor bar is discovered, composed, and loaded: `governance-resolution.md`.
 
@@ -105,13 +106,14 @@ Each entry:
 | `name` | Yes | Plugin name; matches the plugin's `.plugin/plugin.json` `name` |
 | `version` | Yes | Installed plugin version |
 | `domains` | Yes | Open-string **artifact-type**s this plugin covers (e.g. `skill`, `subagent`, `command`, `agents-section`) — never folder names; new types need no schema bump |
-| `roles` | Yes | Map of the five production-chain roles to spawned agents; `null` or omitted = SDD default (a producer role → operator authors inline as `sdd:sdd-operator`; a judge role → operator spawns the cold SDD-default judge agent) |
+| `roles` | Yes | Map of the five production-chain roles to agents; `null` or omitted = SDD default (a spec/solution-producer role → conductor authors inline as `sdd:sdd-operator`; an impl-producer role → conductor spawns a builder; a judge role → conductor spawns the cold SDD-default judge agent) |
 | `governances` | Yes | Actor-governance bindings (`director`, `builder`, `architect`); the block is required, each binding may be `null` = SDD default |
 
-**Degeneration of `null` / missing keys** (this file guarantees only what is a valid *stored* shape; the traversal is the operator's):
+**Degeneration of `null` / missing keys** (this file guarantees only what is a valid *stored* shape; the traversal is the conductor's):
 
-- **A producer role** (`spec-producer`, `solution-producer`, `impl-producer`) that is `null` or absent → the operator **loads the producer governance and authors inline**; the recorded `produced-by.<role>` is `sdd:sdd-operator`.
-- **A judge role** (`spec-judge`, `impl-judge`) that is `null` or absent → the operator **spawns the SDD-default cold judge agent** (`sdd-spec-judge`, `sdd-implementer`).
+- **A spec/solution-producer role** that is `null` or absent → the conductor **loads the producer governance and authors inline** (in the main session); the recorded `produced-by.<role>` is `sdd:sdd-operator`.
+- **An impl-producer role** that is `null` or absent → the conductor **spawns a builder** that loads `impl-producer-governance`; the recorded `produced-by.impl-producer` is `sdd:sdd-operator` (the SDD-default-chain marker).
+- **A judge role** (`spec-judge`, `impl-judge`) that is `null` or absent → the conductor **spawns the SDD-default cold judge agent** (`sdd-spec-judge`, `sdd-implementer`).
   A judge default is never loaded inline — grader independence requires a cold context.
 
 **Resolution** (owned by `../mission/`, shown here because the shape is its direct input): resolution is **per file** — each file's **artifact-type** (the squad key, **not** the folder name) is matched against each entry's `domains[]`.

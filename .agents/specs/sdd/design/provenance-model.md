@@ -4,7 +4,7 @@ The **shape** of production provenance.
 Provenance spans **three tiers** by lifetime (below): a **tracked per-worktree plan** (transient in the tree, durable in git history), a durable **ledger**, and a durable **public** trail.
 The durable record has **two faces** — a current-state face in `spec.md` frontmatter and the append-only `ledger.jsonl` sibling.
 This file owns the record shape, the entry shapes, the matchable `cause` enum, and write-ownership.
-Recording *behavior* (when the operator appends, how it resolves a producer) lives in `../mission/`; this is the shape only.
+Recording *behavior* (when the conductor appends, how it resolves a producer) lives in `../mission/`; this is the shape only.
 
 ## Three provenance tiers
 
@@ -53,7 +53,7 @@ isProject: false                         # Cursor: always false — SDD has no C
   Always record **both**: `cr` is the matchable source-qualified id used for retirement (source-status query) and collision-free naming; `cr-url` is the human link (`github-<n>` → `https://github.com/<owner>/<repo>/issues/<n>`, `asana-<gid>` → the task URL, `local-<slug>` → omit or a local anchor).
   Anywhere the plan body or a conclusion references the CR, give the **URL** too, not just the ref.
 - **`name` / `overview` / `todos` / `isProject`** are Cursor's own fields — populate them as Cursor does so the plan stays first-class in both tools.
-- **The `todos` block is the execution task DAG** — flattened to an ordered list, dependency expressed as **order**, not a per-todo edge field. The **operator** fills it during explore (execution planning) into the single `.plan.md` that **intake scaffolded** at step 1 from a basic template (frontmatter `todos` + a `## NEXT` anchor; `../intake/README.md`). The `.plan.md` carries **execution state only** — todos, working method, `## NEXT`, the combat log.
+- **The `todos` block is the execution task DAG** — flattened to an ordered list, dependency expressed as **order**, not a per-todo edge field. The **conductor** fills it during explore (execution planning) into the single `.plan.md` that **intake scaffolded** at step 1 from a basic template (frontmatter `todos` + a `## NEXT` anchor; `../intake/README.md`). The `.plan.md` carries **execution state only** — todos, working method, `## NEXT`, the combat log.
 - **The solution (the old `plan.md`) is NOT here.** The per-CR functional spec was once folded into this file; it is now a **separate, durable, per-unit artifact** — `<unit>.solution.md`, beside the unit's spec and suite (`../design/unit-and-organization.md`). Folding durable design rationale into a retro-deleted file lost it; the split keys on scope and lifetime — **solution = per-unit + durable; task DAG = per-CR + transient**.
 
 ## Two faces, two homes
@@ -82,13 +82,13 @@ Outer-loop `strategy` lines (cross-CR by nature) may omit it.
 `ledger.jsonl` is **never frozen and never gated**: it keeps appending across the whole lifecycle, including while `spec.md` and the `.feature` are frozen at `approved`.
 The freeze and the gates govern the contract (`spec.md` + the `.feature`) only.
 
-Write flow: the operator dispatch **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** self-asserted `gate` lines to the durable `ledger.jsonl`.
+Write flow: the conductor **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** self-asserted `gate` lines to the durable `ledger.jsonl`.
 At retro the doctrine-loop Scanner reads the concluded combat log, **distills** recurring causes, and **appends** `strategy` lines to the ledger.
 **Deletion is decoupled from distill** (Plan retirement, below): the distill fires at `→ implemented`; the **tracked deletion** of the plan is a separate, later retro step, gated on source = `done`/merged **and** distilled.
 
 ```mermaid
 flowchart LR
-  disp[operator dispatch] -->|overwrites| state[current-state face<br/>spec.md frontmatter]
+  disp[conductor] -->|overwrites| state[current-state face<br/>spec.md frontmatter]
   disp -->|appends report/correction| clog[combat log<br/>plan *.log.jsonl, tracked]
   disp -->|appends self-asserted gate| ledger[ledger.jsonl<br/>sibling file, durable]
   clog -->|read at retro| scanner[doctrine-loop Scanner]
@@ -103,10 +103,10 @@ Together with `approval` (the judging twin) it gives full per-artifact provenanc
 
 | Field | Records | Keyed by | Written by |
 |---|---|---|---|
-| `produced-by` | who **made** each artifact | production role (`spec-producer`, `solution-producer`, `impl-producer`) | operator, at dispatch |
-| `approval` | who **judged** each gate (`verdict` + `by` + `why`) | gate (`spec`, `impl`) | operator (self-assert) / skill (ratify) |
+| `produced-by` | who **made** each artifact | production role (`spec-producer`, `solution-producer`, `impl-producer`) | conductor, at production |
+| `approval` | who **judged** each gate (`verdict` + `by` + `why`) | gate (`spec`, `impl`) | conductor (self-assert) / skill (ratify) |
 
-Each `produced-by` value is the **plugin-qualified agent name** (`aces:aces-scenario-writer`, `quill:quill-doc-writer`, or `sdd:sdd-operator` when SDD's own inline default produced it — see `specialists-and-squads.md`).
+Each `produced-by` value is the **plugin-qualified agent name** (`aces:aces-scenario-writer`, `quill:quill-doc-writer`, or `sdd:sdd-operator` when SDD's own default chain produced it — the in-session conductor for an inline spec/solution-producer, or its spawned builder for the impl-producer; see `specialists-and-squads.md`).
 Recorded **always**, on every production.
 It plays two deliberately separated roles:
 
@@ -238,7 +238,7 @@ The `strategy` line also carries the **distilled recurrence count** for a `cause
 
 ## The detail-adjustment report — a view of the plan
 
-During implement-and-verify, the operator serves expansion and minor fixes in-flight (not the human), recorded in a **detail-adjustment report** — a *view of the plan's `report` and `correction` lines*, not a separate journal. The human enters only on the hard floor (`autonomy-rubric.md`).
+During implement-and-verify, the conductor serves expansion and minor fixes in-flight (not the human), recorded in a **detail-adjustment report** — a *view of the plan's `report` and `correction` lines*, not a separate journal. The human enters only on the hard floor (`autonomy-rubric.md`).
 Live current-state is regenerated on demand; the durable record is the ledger.
 
 ## Write ownership
@@ -249,13 +249,13 @@ Both are append-only: lines are added with the next CR-scoped `seq`, never edite
 
 | Writer | May append | To | Never writes |
 |---|---|---|---|
-| **operator** | `report`, `correction` | the **plan** | strategy lines; human-ratified `gate` lines |
-| **operator** | **self-asserted `gate`** (`by: agent`, same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | the **ledger** | human-ratified `gate` lines |
+| **conductor** | `report`, `correction` | the **plan** | strategy lines; human-ratified `gate` lines |
+| **conductor** | **self-asserted `gate`** (`by: agent`, same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | the **ledger** | human-ratified `gate` lines |
 | **gate skill (`validate-spec`), in-session** | **human-ratified `gate`** (`by: <name>`) | the **ledger** | report / correction / strategy lines |
 | **doctrine-loop Scanner** | `strategy` (incl. distilled recurrence) | the **ledger** | report / correction / gate lines |
 | **producers / judges** | nothing | — | the entire record — they do not know their own registry identity authoritatively |
 
-A human-ratified `gate` line follows the **positional authority** rule (`lifecycle-model.md`): only the in-session position holding the real user channel writes `by: <name>`; a spawned operator writes only `by: agent` self-assertions and emits a verdict packet on a human gate.
+A human-ratified `gate` line follows the **positional authority** rule (`lifecycle-model.md`): only the in-session position holding the real user channel writes `by: <name>`. By default the conductor *is* that position (main session), so it writes the ratification directly; a **headless spawned operator** has no user channel and writes only `by: agent` self-assertions, emitting a verdict packet on a human gate.
 
 ## Readers split by path
 

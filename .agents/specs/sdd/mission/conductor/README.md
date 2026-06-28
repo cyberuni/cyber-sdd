@@ -6,11 +6,12 @@ spec-type: behavioral
 
 The **conductor** is the line officer of the inner loop — the **conductor role** that runs one
 **segment** of a Mission cycle against a frozen contract. By default it is the **main (user)
-session** (holds the user channel, grills live, ratifies in-session); in the **headless / fan-out
-fallback** it is a spawned `automaton` subagent with no user channel that escalates up its
-relay (`../../design/harness-spawning.md`). This unit is the **one realization** of that role —
-resolution, the production chain, explore orchestration, the impl gate, segment mechanics,
-stop-provenance, and the in-flight floor — whichever surface it runs on.
+session** (holds the user channel, grills live, ratifies in-session), realized by the user-facing
+**`start-mission`** skill; in the **headless / fan-out fallback** it is a spawned `automaton`
+subagent with no user channel that escalates up its relay (`../../design/harness-spawning.md`).
+This unit is the **one realization** of that role — resolution, the production chain, explore
+orchestration, the impl gate, segment mechanics, stop-provenance, and the in-flight floor —
+whichever surface it runs on.
 
 ## Use Cases
 

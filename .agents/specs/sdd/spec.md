@@ -33,10 +33,18 @@ baseline. Size is solved by **organizing into files and folders** (folders are v
 lifecycle units), never by splitting into a fleet of per-feature specs.
 ([`design/project-unit.md`](./design/project-unit.md).)
 
+### The gateway — the one front door
+
+Every interaction enters through the universal **`gateway/`** (the `sdd` skill): it activates SDD,
+classifies the request, and **routes** it — to a **mission** (a CR run through the loop below), a
+**`corpus/`** operation (dedupe, split, inspect), inner-loop agent-tuning (inject / project), or one
+of the four **outer loops**. A task with no suite-relevant behavior **escapes** — outside the
+lifecycle, leaving no SDD record. The gateway is a **thin relay**: it classifies and dispatches,
+holding no production logic and writing no project files itself. It is not part of any loop.
+
 ### The Mission Loop (steps 1–4)
 
-Requests reach the loop through the universal **`gateway/`** — the router/door, not itself a loop
-step. One cycle = one CR carried to completion, on one working tree ([`design/loops.md`](./design/loops.md)):
+One cycle = one CR carried to completion, on one working tree ([`design/loops.md`](./design/loops.md)):
 
 1. **intake** — a CR enters from a prompt, GitHub, Asana, or the local store (`intake/`,
    the only work-intake; it *feeds* the mission).

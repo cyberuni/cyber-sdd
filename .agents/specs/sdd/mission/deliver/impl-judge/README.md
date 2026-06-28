@@ -2,14 +2,16 @@
 spec-type: behavioral
 ---
 
-# impl-judge — run the verification against the frozen contract
+# impl-judge — judge the implementation against the frozen contract
 
-The **impl-judge** procedure: run the impl-producer's verification against the **frozen**
-`.feature`, returning pass/fail per scenario plus an orthogonal structural/scope read. This is the
-default `sdd-implementer` the conductor **spawns cold** at the impl gate (`producer ≠ judge`
-enforced by context separation); a plugin's judge covers its own artifact-type
-(`../../../design/governance-resolution.md`). The judge **runs** the verification the impl-producer
-authored — it does not author tests and it does not set the bar.
+The **impl-judge** procedure: decide whether the implementation honors the **frozen** `.feature`,
+returning pass/fail per scenario plus an orthogonal structural/scope read. This is the default
+`sdd-implementer` the conductor **spawns cold** at the impl gate (`producer ≠ judge` enforced by
+context separation); a plugin's judge covers its own artifact-type
+(`../../../design/governance-resolution.md`). The judge does not author tests and does not set the
+bar (the frozen `.feature` is the bar). Its verdict answers **"does the frozen contract hold"**, not
+"did the producer's tests pass" — the producer's own green tests are a **pre-filter, never the
+verdict** (`sdd:provenance-model`-adjacent rationale recorded in ADR-0016).
 
 ## Use Cases
 
@@ -26,17 +28,38 @@ The procedure runs at the impl gate; every scenario in
 
 | Behavior | What it checks |
 |---|---|
+| **re-derive the oracle from the frozen scenario** | derive "what passing means" from the scenario's Given/When/Then, **not** from the producer's chosen assertions; confirm the authored check genuinely asserts that behavior |
 | **map each frozen scenario to its verification** | one functional test/eval per scenario, located among the impl-producer's verification, never free-authored |
-| **run the result per scenario** | pass only when a passing check exercises the observable behavior the scenario asserts |
+| **a scenario passes only when its behavior is exercised** | pass only when a passing check exercises the observable behavior the scenario asserts; a check that passes without exercising it does not count |
+| **the producer's green run is a pre-filter, not the verdict** | the producer's own passing test run is necessary, never sufficient — the judge's independent re-derivation decides |
 | **an uncovered scenario fails** | a frozen scenario with no verification, or a failing one, is `failing` |
+| **behavioral-exercise backstop (leash-scoped)** | for a high-blast-radius scenario, confirm a passing check **fails when the named behavior is broken** (a scoped mutation of the asserted behavior) |
 | **orthogonal structural read** | fold in a fit / no-duplication / no-conflict reading, orthogonal to the builder's lens |
-| **roll up** | implementation passes **only** when every scenario has a passing check |
+| **roll up** | implementation passes **only** when every scenario has a passing, behavior-exercising check |
 | **a behavior-changing gap is a BLOCKER** | a gap that needs specified behavior to change is reported, not edited |
+
+## The layered verdict (ADR-0016)
+
+Cold context removes the author's *conversational* bias but not a same-model grader's *correlated*
+blind spots, and re-running the producer's own assertions only confirms internal consistency. So the
+verdict is layered, cheap → expensive, scaled by the **leash** (blast radius,
+`../../../design/autonomy-rubric.md`):
+
+- **Re-derive from the frozen contract (primary).** Treat each frozen scenario as the **specified
+  oracle** and independently confirm the producer's check asserts that behavior — never trust the
+  producer's chosen assertion as the definition of passing.
+- **Exercise backstop (objective, leash-scoped).** For a high-blast-radius scenario, verify a passing
+  check **fails when the named behavior breaks** — a scoped behavioral mutation, applied to the
+  behavior the scenario names, **not** the whole codebase (the cost is bounded by the leash, not flat).
+- **Producer green = pre-filter.** The producer iterates to green on its own; that run gates entry to
+  judging, never the verdict.
 
 ## Cold and advisory
 
 The impl-judge runs in a **fresh cold context** the impl-producer cannot reach — the grader does not
-share the author's context. It collapses any graded subject (a rubric score, a threshold) to a
+share the author's context — and is **a different model from the producer where the harness allows**
+(the one lever that breaks correlated blind spots; the conductor sets it,
+`../../conductor/README.md`). It collapses any graded subject (a rubric score, a threshold) to a
 **boolean per scenario**; scoring lingo never leaks into the contract. Its output is **advice** —
 the [`../../conductor/`](../../conductor/README.md) unit turns the pass/fail rollup into the gate
 verdict, the leash check, and `aligned`.

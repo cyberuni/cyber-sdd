@@ -12,10 +12,22 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Then it locates one functional check per frozen scenario among that verification
     And it does not free-author a check of its own
 
+  Scenario: the judge re-derives the oracle from the frozen scenario
+    Given a frozen scenario and the impl-producer's authored check
+    When the impl-judge judges that scenario
+    Then it derives the expected behavior from the scenario's Given and When and Then
+    And it confirms the authored check asserts that behavior rather than trusting the producer's chosen assertion
+
   Scenario: a scenario passes only when its check exercises the asserted behavior
     Given a frozen scenario with an authored check
     When the impl-judge runs the check
     Then the scenario passes only when a passing check exercises the observable behavior it asserts
+
+  Scenario: the producer's own green run is a pre-filter, not the verdict
+    Given the impl-producer reports its authored tests passing
+    When the impl-judge judges the implementation
+    Then the producer's passing run does not by itself pass the gate
+    And the judge's independent re-derivation decides each scenario's verdict
 
   Scenario: a frozen scenario with no verification fails
     Given a frozen scenario that has no authored verification
@@ -28,6 +40,17 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Then it reports that scenario failing
 
   # ---- Structural read and rollup ----
+
+  Scenario: a high-blast-radius scenario gets the behavioral-exercise backstop
+    Given a frozen high-blast-radius scenario with a passing check
+    When the impl-judge applies the exercise backstop
+    Then it confirms the check fails when the named behavior is broken
+    And it scopes the backstop to the behavior the scenario names rather than the whole codebase
+
+  Scenario: a low-blast-radius scenario skips the exercise backstop
+    Given a frozen low-blast-radius scenario within the leash
+    When the impl-judge judges it
+    Then it does not apply the exercise backstop to that scenario
 
   Scenario: the judge folds in an orthogonal structural read
     Given the impl-judge running the verification

@@ -35,7 +35,7 @@ change-request (CR)     ← intent: the goal you grill into spec + suite deltas
   Unlike the durable layers below it, the plan is **transient** per-CR mission state — scaffolded at intake, filled during explore, retired at the post-mission retro (`loops.md`).
   Distinct from the per-unit **solution** (`unit-and-organization.md`), which is durable.
 - **change-request (CR)** — an abstraction of the plan.
-  The goal stated as intent, before it is decomposed into sequenced work; you *grill* it into concrete deltas against spec + suite (and, through them, against the implementation and outcome).
+  The goal stated as intent — often **under-specified**, the raw request before it is researched into workable shape; you *grill* it into concrete deltas against spec + suite (and, through them, against the implementation and outcome).
   A CR is the only unit of incoming intent; it is never the destination, only the request.
 
 ## Invariants
@@ -44,7 +44,7 @@ change-request (CR)     ← intent: the goal you grill into spec + suite deltas
   The lower three (spec + suite, implementation, outcome) are never scaffolding to be thrown away — a drifted spec or a stale suite is a defect at that layer, the same as a bug in the implementation.
   The upper two (CR, plan) are transient intent that is **consumed** into those durable layers, not kept: the CR is grilled away into deltas, the plan is retired at retro.
 - **Abstraction flows down; change enters at the top.**
-  A CR is decomposed into a plan; the plan sequences deltas to spec + suite; authoring realizes them there; mission drives them into the implementation; the outcome follows.
+  A CR enters as intent and is **grilled** into shape — explore researches the gaps and applies the Director / Builder / Architect lenses, expanding the thin CR into the plan (sequenced work) and the spec + suite deltas together; mission drives those into the implementation; the outcome follows.
   You do not edit outcome directly — you edit the abstraction that produces it.
 - **The `.feature` is part of the behavior suite, never part of the CR.**
   A CR describes a desired change to behavior; the scenarios that *encode* behavior live one layer down, in the suite.

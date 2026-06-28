@@ -42,6 +42,7 @@ here.
 | Unit | Type | Spec | Role |
 |---|---|---|---|
 | **spec-producer** | behavioral | [`spec-producer/`](./spec-producer/README.md) | the `spec-producer-governance` procedure — grill a CR into spec prose + a boolean suite (create / revise / backfill modes); **producer behaviors only** |
+| **backfill-project-spec** | behavioral | [`backfill-project-spec/`](./backfill-project-spec/README.md) | the project-level layout bootstrap — choose an organization strategy + spec location, scaffold the skeleton, and declare `spec-layout`, when an existing project has no consolidated spec; an **internal step the conductor loads** during explore |
 | **validate-spec** | behavioral | [`validate-spec/`](./validate-spec/README.md) | the spec gate — the verdict, the three verbs, per-file freeze, the digest, and the structural provenance checks |
 | **spec-format** | reference | [`spec-format/`](./spec-format/README.md) | the `spec-format-governance` bar — the required `## Use Cases` section + `spec.md` enrichment; a **reference artifact** (no `.feature`), loaded by the producer/judge |
 | **suite-format** | reference | [`suite-format/`](./suite-format/README.md) | the `suite-format-governance` bar — the `.feature` form (boolean Gherkin, `@rubric`, ordering, the `@frozen` marker); a **reference artifact**, loaded by the producer/judge |

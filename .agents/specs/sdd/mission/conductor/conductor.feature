@@ -39,6 +39,18 @@ Feature: The conductor — running one mission segment
     Then it reads the resolved lockfile only
     And it does not scan plugin directories
 
+  Scenario: an absent registry resolves to the SDD defaults
+    Given a segment starting against a project with no registry lockfile
+    When the conductor resolves its delegates
+    Then it resolves zero plugins and every role falls to its SDD default
+    And it does not halt or report an error
+
+  Scenario: a malformed registry fails closed
+    Given a registry lockfile that is not valid JSON or omits the plugins array
+    When the conductor reads it to resolve delegates
+    Then the conductor halts with a structural error
+    And it resolves no delegate from the unreadable registry
+
   Scenario: resolution matches artifact-type per file
     Given a CR that touches files of more than one artifact-type
     When the conductor resolves delegates

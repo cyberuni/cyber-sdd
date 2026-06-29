@@ -75,6 +75,11 @@ Resolution branches on role kind, and (for producers) on the **role-dependent su
   (`sdd:sdd-spec-judge` / `sdd:sdd-implementer`, or the covering plugin's judge) — never inline,
   regardless of naming.
 
+The lockfile itself need not exist: an **absent** `.agents/universal-plugin.json` is **legal** — it
+resolves to zero plugins, so every role falls to its SDD default. A **malformed** lockfile (not
+valid JSON, or missing the `sdd-plugins` array) instead **hard-fails closed** — the same
+structural-error class below — because a registry that cannot be read cannot be trusted to resolve.
+
 A required role **always lands on a real delegate** or the conductor **hard-fails closed** and
 records nothing (no inline sentinel) — the same fail-closed structural-error class as a malformed
 `produced-by` entry or an off-enum combat-log `cause`. A domain claimed by two plugins returns

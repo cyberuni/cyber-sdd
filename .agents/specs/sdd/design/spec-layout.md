@@ -73,6 +73,8 @@ overall design in `design/`.
 
 ### Alternatives under investigation
 
+**Decision (2026-06-28):** Ship **S1 (capability-first, default) + S2 (mirror-source)**. The three alternatives below — S3 bounded-context (DDD), S4 layered, S5 doc-envelope (arc42) — remain deferred and are promoted to first-class compass routes only when a concrete project demands one; decide by demand, not preemptively.
+
 - **S3 — Bounded-context (DDD) + glossary.** Top-level by subdomain/bounded context; context-map index +
   glossary at root. **Pro:** boundaries follow business + team ownership (socially-obvious placement); the
   glossary kills the vocabulary ambiguity that wrecks topical schemes. **Con:** heavy strategic analysis;

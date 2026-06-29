@@ -101,13 +101,13 @@ Behaviors that *enact* the loop live in the unit specs here (and under `deliver/
 All three below are **resolved in design** — the design position stands and the folded
 sources are the stale side, to fix in the source sweep.
 
-- **`domain-plugin` vs `produced-by` — RESOLVED (ruling B).** `../design/` keeps these
-  **distinct**: `domain-plugin` = the chosen plugin for an ambiguous artifact-type (a
-  *forward input* to resolution), `produced-by` = the after-the-fact record of who actually
-  produced each artifact. The design position **stands**; the folded sources
-  (`automaton-resolution`, `validate-spec`) that treat `domain-plugin` as **retired** and
-  migrate the choice into `produced-by` are the **stale side** — fix them in the source sweep,
-  not the design.
+- **The contested-type choice vs `produced-by` — RESOLVED (ruling B).** `../design/` keeps these
+  **distinct**: the contested-type → chosen-plugin disambiguation = the chosen plugin for an
+  ambiguous artifact-type (a *forward input* to resolution, recorded as `.agents/sdd/` resolution
+  state, decisive on resume), `produced-by` = the after-the-fact record of who actually produced
+  each artifact. The distinctness **stands** — never **conflate** them; migrating the choice into
+  `produced-by` was the original blocker. The old root-spec.md `domain-plugin` frontmatter field is
+  **retired**: the choice lives in `.agents/sdd/`, not frontmatter (`../design/artifact-type.md`).
 - **Squad vs the five-role chain — RESOLVED (same mechanism, two granularities).** A **squad**
   is the selection unit, **one per artifact-type**; it supplies the **five role slots**
   (`spec-producer`, `solution-producer`, `spec-judge`, `impl-producer`, `impl-judge`). The

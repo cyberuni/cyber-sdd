@@ -33,16 +33,15 @@ approval:               # per-gate verdict
   impl: { verdict: approve, by: <human name> }   # ratified — no why needed
 produced-by:            # who produced each artifact; see provenance-model.md
   spec-producer: <plugin>:<agent>
-domain-plugin:          # map: artifact-type -> owning plugin, when an artifact-type is contested (distinct from produced-by)
-  <artifact-type>: <plugin>
 ---
 ```
 
 Open input is recorded in the body as `<!-- open: ...
 -->` markers, not in frontmatter.
 
-`status` is the base schema; `spec-layout`, `aligned`, `strategy`, `approval`, `produced-by`, and `domain-plugin` are the SDD-workflow additions.
+`status` is the base schema; `spec-layout`, `aligned`, `strategy`, `approval`, and `produced-by` are the SDD-workflow additions.
 A file's **artifact-type** (the squad key) is **resolved per file, not stored** in this frontmatter (`../design/artifact-type.md`); the project carries no root `artifact-types` summary.
+The **contested-type → chosen-plugin** disambiguation (when two plugins claim an artifact-type) is recorded as `.agents/sdd/` resolution state — decisive on resume, **distinct from `produced-by`** — never a frontmatter field (`../design/artifact-type.md`, `specialists-and-squads.md`).
 `spec-layout` declares the organization strategy + spec location (`../design/spec-layout.md`); it is written once by `backfill-project-spec` at scaffold and rewritten only by the formation Warden during a deliberate reorganization.
 `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced.
 Do not commit SDD artifacts while their spec is `aligned: false`.

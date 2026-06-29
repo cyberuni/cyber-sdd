@@ -129,9 +129,9 @@ approval:
 "`X` produced this" stays true forever, even after `X` is uninstalled — never rewrite or erase it on the basis of current availability; annotate `[unavailable]` rather than drop it.
 The registry (`.agents/universal-plugin.json`) is the source of truth for **who acts next**; `produced-by` is a **cache**, never an authority.
 
-**`domain-plugin` stays distinct from `produced-by`.**
-`domain-plugin` is the forward-input disambiguation choice for an ambiguous artifact-type (which plugin to resolve); `produced-by` is the after-the-fact record of who actually produced each artifact.
-The conflation of the two was the original `sdd-plugin` impl-gate blocker; they are not the same field.
+**The contested-type choice stays distinct from `produced-by`.**
+The contested-type → chosen-plugin disambiguation is the forward-input choice for an ambiguous artifact-type (which plugin to resolve), recorded as `.agents/sdd/` resolution state; `produced-by` is the after-the-fact record of who actually produced each artifact.
+Conflating the two was the original `sdd-plugin` impl-gate blocker; they are not the same record.
 
 ### Availability degrades; structural validity fails closed
 

@@ -26,17 +26,28 @@ or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
 
-The conductor's behavior groups into six concerns, each a section below; every scenario in
+The conductor's behavior groups into seven concerns, each a section below; every scenario in
 [`conductor.feature`](./conductor.feature) maps to one of them:
 
 | Concern | What it covers |
 |---|---|
-| **resolution** | classify each file's artifact-type (convention-first + the tiebreaker map), read the registry, match it to a squad, resolve every role to a delegate or the SDD default, fail closed |
+| **classification** | decide each file's artifact-type — convention-first, the optional `.agents/sdd/` tiebreaker on ambiguity (confirm-not-guess, write-back) |
+| **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the three actions, layer-scoped `aligned`, verdict-not-station, fail-closed |
 | **stop-provenance** | the three-layer model — strategy block, the leash, the per-gate verdict, the durable pause, the in-flight hard floor |
+
+## Classification — a file's artifact-type
+
+Before it can resolve, the conductor must know each file's artifact-type — **resolved per file,
+never stored** (`../../design/artifact-type.md`). It classifies **by convention/context first** (a
+`SKILL.md` under `skills/` is a `skill`); the file **extension never decides**. Only on a **genuine
+ambiguity or a path the user flags** does it consult the optional tiebreaker map
+`.agents/sdd/artifact-types.toml` (most-specific glob wins); still unresolved, it **confirms with
+the user — never guesses** — and **writes the binding back**, so a later segment classifies the same
+path deterministically without asking.
 
 ## Resolution — the registry READ
 
@@ -47,14 +58,6 @@ each production-chain role to a plugin delegate or the SDD default. A project to
 artifact-types summons several squads at once. This unit owns the **classification + READ /
 resolution** side; the init-WRITE of the lockfile is `../../plugin/`, the registry **shape** is
 `../../design/specialists-and-squads.md`.
-
-**Classifying a file's artifact-type.** Before it can match, the conductor must know each file's
-artifact-type — **resolved per file, never stored** (`../../design/artifact-type.md`). It
-classifies **by convention/context first** (a `SKILL.md` under `skills/` is a `skill`); the file
-**extension never decides**. Only on a **genuine ambiguity or a path the user flags** does it
-consult the optional tiebreaker map `.agents/sdd/artifact-types.toml` (most-specific glob wins);
-still unresolved, it **confirms with the user — never guesses** — and **writes the binding back**,
-so a later segment classifies the same path deterministically without asking.
 
 Resolution branches on role kind, and (for producers) on the **role-dependent surface**:
 

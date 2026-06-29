@@ -139,6 +139,26 @@ SKILLs (lifecycle / gate-validation / ownership), the producers (backfill / star
 spec-producer), the behavioral specs that re-home `aligned` (`conductor.feature`, `acceptance/`), and
 finally the root `sdd` spec + the `aces` sibling.
 
+## Amendment — location-bounded spec recognition (discover-specs CR)
+
+The original framing recognized a spec by **shape alone**: any git-tracked `spec.md` whose
+frontmatter `status` is in the lifecycle enum, found by globbing `**/spec.md` repo-wide. That over-
+scanned (a stray `spec.md` anywhere with a `status` would be loaded) and was costlier than the router
+hot path needs. Recognition is **narrowed to location-bounded AND shape-confirmed** — a spec is a
+git-tracked `spec.md` that **both** sits at one of three fixed SDD spec locations **and** carries a
+lifecycle `status`:
+
+1. `.agents/spec/spec.md` — repo-root single-project
+2. `.agents/specs/<project>/spec.md` — repo-root multi-project
+3. `<project-path>/.agents/spec/spec.md` — a nested project (the `**` is the project-path, any depth)
+
+The `status` shape stays the confirming filter (so a stray non-spec `spec.md` at a location is not
+loaded; a status-bearing `spec.md` outside the three locations is not a spec). The locations are
+fixed conventions, **not** a stored registry — the router still derives, nothing to keep in sync. The
+concrete engine is the **`discover-specs`** skill (`plugins/sdd-new/skills/discover-specs/`):
+frontmatter-only, TOON output, consumed by the gateway's status scan. Reconciled sites:
+`corpus/discovery` (spec + suite), `lifecycle-governance`, `corpus/README`, and this ADR.
+
 ## Related Decisions
 
 - [ADR-0012](0012-spec-frontmatter-schema.md) — **superseded** by this ADR (status/priority/blocked-by).

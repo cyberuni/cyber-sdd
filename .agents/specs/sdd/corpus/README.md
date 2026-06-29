@@ -45,7 +45,7 @@ The freeze grain is per `.feature` file, so units freeze independently. Cross-ca
 
 | Unit | Type | Spec | Role |
 |---|---|---|---|
-| **discovery** | behavioral | [`discovery/`](./discovery/README.md) | find specs by **shape, not location** — glob `**/spec.md`, filter to a lifecycle `status`, match a name to a folder slug, disambiguate with the user |
+| **discovery** | behavioral | [`discovery/`](./discovery/README.md) | find specs at the **three SDD spec locations** (`.agents/spec`, `.agents/specs/<project>`, `<project-path>/.agents/spec`), confirmed by lifecycle `status` shape; read frontmatter only and emit a TOON list; match a name to a folder slug, disambiguate with the user |
 | **digest** | behavioral | [`digest/`](./digest/README.md) | a read-only, fixed-section summary of one spec (What / Status / Scenarios / Key decisions / Open items) |
 | **dedupe-specs** | behavioral | [`dedupe-specs/`](./dedupe-specs/README.md) | find substantial overlap across a candidate set and **propose** a dedupe plan (survivor + folds); approval-gated, write-free |
 | **split-spec** | behavioral | [`split-spec/`](./split-spec/README.md) | group an oversized spec's decisions + scenarios into cohesive concerns and **propose** a split plan; approval-gated, write-free |

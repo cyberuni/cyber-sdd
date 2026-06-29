@@ -1,8 +1,10 @@
 @frozen
-Feature: The discovery procedure — find specs at the SDD spec locations by status shape
-  Unit suite for the discovery tool (the discover-specs engine). Derivation behaviors
-  only — locating specs at the three SDD spec locations, confirming them by status shape, and
-  name-resolving over the returned list. Cross-capability e2e scenarios live in ../../acceptance/.
+Feature: The discovery procedure — find specs at the SDD spec locations, named and resolvable
+  Unit suite for the discovery tool (the discover-specs engine). Locating specs at the three SDD
+  spec locations, confirming them by status shape, naming each project, and resolving a name over
+  the list. Deterministic scenarios are node:test-verified; the two @rubric scenarios are agentic
+  (judged by hand / by ACES when wired) because they assert agent behavior, not script output.
+  Cross-capability e2e scenarios live in ../../acceptance/.
 
   # ── List the specs — the three spec locations ──
 
@@ -33,40 +35,88 @@ Feature: The discovery procedure — find specs at the SDD spec locations by sta
     When discovery lists the specs
     Then that file is excluded from the set
 
-  # ── Output — a TOON list of specs with their frontmatter, bodies unread ──
+  # ── Project name and its source ──
 
-  Scenario: each discovered spec carries its frontmatter in the list
+  Scenario: a declared frontmatter name is authoritative
+    Given a discovered spec whose frontmatter declares a name
+    When discovery lists the specs
+    Then the entry carries that name with name-source "declared"
+
+  Scenario: the repo-root single project derives an assumable name
+    Given a discovered .agents/spec/spec.md with no declared name
+    When discovery lists the specs
+    Then the entry carries an assumable repo-root name with name-source "derived"
+
+  Scenario: a .agents/specs/<project> folder names itself
+    Given a discovered .agents/specs/<project>/spec.md with no declared name
+    When discovery lists the specs
+    Then the entry carries the <project> folder as its name with name-source "derived"
+
+  Scenario: a nested project with no declared name guesses its folder basename
+    Given a discovered nested <project-path>/.agents/spec/spec.md with no declared name
+    When discovery lists the specs
+    Then the entry carries the folder basename as its name with name-source "guessed"
+
+  # ── Output — frontmatter only, as TOON ──
+
+  Scenario: each discovered spec carries its frontmatter and name in the list
     Given a set of discovered specs
     When discovery lists them
-    Then each entry carries the spec's folder slug, status, project-path, and gate approvals
-
-  Scenario: discovery reads frontmatter only, never spec bodies
-    Given a discovered spec.md with a body below its frontmatter
-    When discovery lists the specs
-    Then it parses only the frontmatter block and does not read the body
+    Then each entry carries the folder slug, name, name-source, status, project-path, and gate approvals
 
   Scenario: the list is emitted as TOON
     Given a set of discovered specs
     When discovery emits the list
     Then it is rendered as a TOON table keyed by the spec columns
 
-  # ── Resolve a name — over the discovered list ──
+  Scenario: the output carries no spec body content
+    Given a discovered spec.md with content below its frontmatter
+    When discovery lists the specs
+    Then no body content appears in any field of the output
 
-  Scenario: a name resolves to the spec whose folder slug matches
-    Given a set of discovered specs keyed by folder slug
-    When discovery resolves a name that matches exactly one slug
+  # ── Resolve a name — the deterministic half ──
+
+  Scenario: a name resolves to the one spec whose name matches
+    Given a set of discovered specs and a name that matches exactly one spec's name
+    When discovery resolves the name
     Then it returns that spec
 
-  Scenario: an ambiguous name is disambiguated with the user
-    Given a name that matches more than one folder slug
+  Scenario: an ambiguous name returns the candidate set
+    Given a name that matches more than one spec's name
     When discovery resolves the name
-    Then it asks the user to disambiguate
-    And it does not guess a match
+    Then it returns the matching specs as candidates
+    And it does not pick one
 
-  # ── No path registry — the locations are fixed conventions, not a stored list ──
+  # ── No path registry — the locations are fixed conventions ──
 
   Scenario: discovery consults no path registry
     Given a spec that has moved between two spec locations
     When discovery lists the specs
     Then it finds the spec by scanning the fixed locations
     And it consults no registry, array, or index of paths
+
+  # ── Agentic — judged by hand / by ACES (assert agent behavior, not script output) ──
+
+  @rubric
+  Scenario: an ambiguous name is disambiguated with the user
+    Given an agent resolving a name that returns more than one candidate
+    When the agent disambiguates the name
+    Then the agent is judged against the rubric
+      """
+      dimension: presents the candidates to the user (max 1)
+      dimension: does not silently pick one (max 1)
+      threshold: 2
+      """
+    And the rubric score is at least the threshold
+
+  @rubric
+  Scenario: an agent using discovery never learns a spec body
+    Given an agent that lists specs through discovery, where one spec hides a sentinel only in its body
+    When the agent reports what it knows about that spec
+    Then the agent is judged against the rubric
+      """
+      dimension: reports the spec's frontmatter facts (max 1)
+      dimension: does not reveal the body sentinel (max 1)
+      threshold: 2
+      """
+    And the rubric score is at least the threshold

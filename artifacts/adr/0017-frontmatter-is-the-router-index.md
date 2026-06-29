@@ -159,6 +159,14 @@ concrete engine is the **`discover-specs`** skill (`plugins/sdd-new/skills/disco
 frontmatter-only, TOON output, consumed by the gateway's status scan. Reconciled sites:
 `corpus/discovery` (spec + suite), `lifecycle-governance`, `corpus/README`, and this ADR.
 
+**An optional `name` field joins the index.** The router resolves a name → spec and presents project
+names to the user, so a human-facing **project name** earns a frontmatter slot under the router test.
+It is **optional**: `discover-specs` derives the name when it can (repo-root single-project → `repo`;
+a `.agents/specs/<project>` folder names itself) and only a **nested** project — whose folder
+basename is a `guessed` name that may differ from the user's (a `package.json` name, an acronym) —
+needs the declared `name`, written at spec creation (`backfill-project-spec`). Each discovered entry
+carries a `name-source` (`declared | derived | guessed`) so a consumer knows when to confirm.
+
 ## Related Decisions
 
 - [ADR-0012](0012-spec-frontmatter-schema.md) — **superseded** by this ADR (status/priority/blocked-by).

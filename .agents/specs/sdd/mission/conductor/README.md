@@ -26,7 +26,7 @@ or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
 
-The conductor's behavior groups into eight concerns, each a section below; every scenario in
+The conductor's behavior groups into nine concerns, each a section below; every scenario in
 [`conductor.feature`](./conductor.feature) maps to one of them:
 
 | Concern | What it covers |
@@ -37,6 +37,7 @@ The conductor's behavior groups into eight concerns, each a section below; every
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
+| **in-flight floor** | detail-adjustment served in-session vs the three mission hard floors (Clearance / Compatibility / Conflict) that mandate a human stop |
 | **stop-provenance** | the three-layer model — strategy block, the leash, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
 
@@ -224,7 +225,7 @@ The mission serves its own minor work rather than bouncing to the human:
   detail-adjustment view, not escalated.
 - **Hard-floor escalation (the only mandatory human stops).** Three can fire inside the mission,
   per `../../design/autonomy-rubric.md`: **Clearance** of a **narrowing** (weakening/deleting an
-  acceptance scenario) — overridable and pre-authorizable in the CR; **Compatibility** when the
+  existing frozen or e2e scenario) — overridable and pre-authorizable in the CR; **Compatibility** when the
   change's **semver class** exceeds the CR/run-mode change-class ceiling — likewise
   pre-authorizable; and **Conflict resolution** of a logical contradiction in the suite (Scenario
   A says yes while Scenario B says no) — *not* pre-authorizable, a defect not a choice, the only

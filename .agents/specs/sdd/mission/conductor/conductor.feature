@@ -214,6 +214,53 @@ Feature: The conductor — running one mission segment
     When it judges that gate
     Then it does not check the impl layer
 
+  # ---- In-flight service and the hard floor ----
+
+  Scenario: a detail-adjustment is served in-session, not escalated
+    Given the conductor makes a minor in-flight fix while running a segment
+    When it records the adjustment
+    Then it appends a combat-log entry surfaced as a detail-adjustment view
+    And it does not escalate the adjustment to the human
+
+  Scenario: a narrowing fires the Clearance floor
+    Given a diff that weakens or deletes a frozen or e2e scenario
+    When the conductor reaches a gate
+    Then it fires the Clearance floor and escalates for human clearance to narrow
+
+  Scenario: a pre-authorized narrowing does not halt mid-flight
+    Given a narrowing whose Clearance was pre-authorized in the CR
+    When the conductor reaches the gate
+    Then the Clearance floor self-clears
+    And the mission does not halt for the narrowing
+
+  Scenario: a semver class over the ceiling fires the Compatibility floor
+    Given a change whose semver class exceeds the authorized change-class ceiling
+    When the conductor reaches a gate
+    Then it fires the Compatibility floor and escalates to authorize the class
+
+  Scenario: a change at or under the ceiling self-clears
+    Given a change whose semver class is at or under the authorized ceiling
+    When the conductor reaches the gate
+    Then the Compatibility floor does not fire
+    And the change self-clears
+
+  Scenario: a genuine contradiction fires Conflict resolution
+    Given two suite scenarios that contradict each other with no intended winner
+    When the conductor reaches the impl gate
+    Then it fires the Conflict-resolution floor and halts for the human to pick the intended scenario
+
+  Scenario: a stale-mistake contradiction is served, not escalated
+    Given a suite contradiction that is an obvious stale mistake
+    When the conductor encounters it
+    Then it serves the fix in-session as a minor correction
+    And it does not fire the Conflict-resolution floor
+
+  Scenario: Consent is not a mission floor
+    Given the conductor runs a mission segment
+    When it checks the hard floor
+    Then it does not fire a Consent floor
+    And egress consent is left to the forge loop
+
   # ---- Stop-provenance — why I halted, not just why I went ----
 
   Scenario: a run emits a durable strategy block at the start

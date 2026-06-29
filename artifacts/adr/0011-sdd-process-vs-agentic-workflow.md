@@ -7,8 +7,9 @@ Accepted
 ## Context
 
 The root SDD spec (`.agents/specs/sdd/spec.md`) opened with "SDD is a workflow." Separately, the
-per-project "how we work this project" slice (conventions, gate tuning, CI, commit discipline,
-layout strategy) needed a name, and "process" vs "workflow" felt interchangeable.
+"how we work" layer needed a name, and "process" vs "workflow" felt interchangeable. (An earlier
+draft of this ADR also placed that layer in a per-project `## Process` section; Decision item 3
+below retracts that — process is a repo-level concern, not a per-project section.)
 
 They are not interchangeable. A terminology survey
 ([`docs/research/sdd-vs-agentic-workflow.md`](../../packages/cyber-skills/docs/research/sdd-vs-agentic-workflow.md))
@@ -31,9 +32,9 @@ the runtime that Anthropic's ephemeral agentic workflows do not have.
 
 ## Decision Drivers
 
-- Naming a per-project methodology file `workflow.md` would be an altitude mismatch (workflow = the
-  automation subset / the runtime engine, not the governing methodology) in the exact repo where the
-  agentic workflow-vs-agent distinction is load-bearing.
+- Calling the governing "how we work" layer a `workflow` would be an altitude mismatch (workflow =
+  the automation subset / the runtime engine, not the governing methodology) in the exact repo where
+  the agentic workflow-vs-agent distinction is load-bearing.
 - "Process" is the academic umbrella for *how work is done* and is unclaimed in the agentic domain.
 - The spec should situate SDD in the agentic-workflow literature rather than ignore it, and should
   state what makes SDD more than a workflow.
@@ -42,14 +43,14 @@ the runtime that Anthropic's ephemeral agentic workflows do not have.
 
 ## Considered Options
 
-### Option 1: Name the methodology slice `workflow`
+### Option 1: Name the governing layer `workflow`
 
 - **Pros**: "workflow" is the hot industry word; familiar.
 - **Cons**: collides with Anthropic's claimed workflow-vs-agent meaning *in an agents repo*; demotes
   a runtime/automation word onto a governing-methodology artifact; under-names the methodology
   (workflow is the subset, not the umbrella).
 
-### Option 2: Name the methodology slice `process`; reserve `workflow` for the runtime engine (chosen)
+### Option 2: Name the governing layer `process`; reserve `workflow` for the runtime engine (chosen)
 
 - **Pros**: matches the academic umbrella; unclaimed in agentic usage; ratifies existing house usage
   (the doctrine "Process" loop); keeps a clean two-altitude vocabulary.
@@ -68,10 +69,14 @@ the runtime that Anthropic's ephemeral agentic workflows do not have.
      loop and the per-project "how we work this project" slice.
    - **workflow** = the runtime orchestration layer — *how SDD runs*. Names the Mission Loop engine.
 
-3. **The per-project methodology slice is named `process`** — authored as a `## Process` section in
-   the root `spec.md`, extracted to a sibling `process.md` only when it grows (the optionality rule
-   used for `<unit>.solution.md`). It is **not** a substructure folder (folders vary by layout
-   strategy) and **not** `workflow.md`.
+3. **Process lives in the repo-level process spec, not a per-project section.** A CR that targets
+   process (how the work is done) lands in **one** place — the repo-level process spec at
+   `<repo-root>/.agents/spec` — in both a simple repo and a monorepo. Process is never per-project:
+   a project's own quality/convention rules are **content of that project's spec**
+   (`.agents/specs/<project>`), and per-project *variation* in process (which gates/lenses apply, an
+   exemption) is **config/data** in that project's spec or the registry — not a second process
+   narrative. There is therefore **no per-project `## Process` section**, and no `process.md` /
+   `workflow.md` sibling. (Defining/building `.agents/spec` itself is separate, later work.)
 
 Background survey:
 [`docs/research/sdd-vs-agentic-workflow.md`](../../packages/cyber-skills/docs/research/sdd-vs-agentic-workflow.md).

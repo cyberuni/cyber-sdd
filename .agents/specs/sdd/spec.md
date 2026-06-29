@@ -33,7 +33,7 @@ freeze), **human gates**, and **governance**. That governing layer is a *methodo
 **process** altitude (BPM / software-process). So the two terms are not rivals but **two altitudes**:
 **process** = the governing methodology layer (*what SDD is*); **workflow** = the runtime
 orchestration layer (*how SDD runs*). This is why "Process" names the doctrine loop and the
-per-project methodology slice, while "workflow" is reserved for the engine. Decision +
+repo-level process spec, while "workflow" is reserved for the engine. Decision +
 background: [ADR-0011](../../../artifacts/adr/0011-sdd-process-vs-agentic-workflow.md).
 
 ### The SDD stack

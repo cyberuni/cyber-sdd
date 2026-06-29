@@ -47,23 +47,28 @@ below:
 | **Milestone retro** | a human-held retro | the milestone's concluded combat logs | strategy across the milestone |
 | **Recurring pattern** | the same correction recurs across missions | the **distilled `cause` recurrence count** in the ledger (maintained mission-over-mission), never a re-scan of many missions' raw logs | strategy to codify the pattern |
 | **Drift / staleness** | a now-false convention or governance contradiction | the corpus (conventions, governances) | a **PRUNE** strategy |
-| **Token-waste** | mission/session token cost over a **configurable bound**, **or** on-demand retro | the mission's raw `.jsonl` transcripts — **not** the combat log | efficiency strategy |
+| **Token-waste** | a flagged-waste `correction` in the log, **or** session token cost over a **configurable bound** (pre-merge) | the **categorical** efficiency `correction` from the committed combat log (**post-merge**); raw `.jsonl` transcripts add numeric depth but are **pre-merge / same-machine only** | efficiency strategy |
 
 ## Inputs — the concluded combat log vs transcripts (enrichment)
 
 The Scanner reads **persisted artifacts post-hoc** — never live subagent context.
 
 - **Combat log** — PRIMARY input: the **concluded mission's** combat log (the plan's
-  `*.log.jsonl`), read once at retro. Strategy is draftable from it **alone**; raw
-  transcripts are additive, never required. The combat log is **committed but transient in
-  the tree**: the Scanner **distills early** (at `→ implemented`), and the **doctrine loop
-  deletes the plan later** as a tracked deletion — a separate retro step gated on source =
-  `done`/merged **and** distilled (Plan retirement, `../design/provenance-model.md`).
-- **Raw `.jsonl` transcripts** — optional enrichment, harness-specific. The **sole exception**
-  is the token-waste dimension, which is transcript-backed (the token-usage breakdown lives only
-  in transcripts) and **threshold-gated** — it runs the heavy analysis only over the configurable
-  bound or on demand, never under the bound without an on-demand request. No numeric threshold is
-  baked in; **no token-cost field is added** to the combat log.
+  `*.log.jsonl`), read once at retro. Strategy is draftable from it **alone** for **every
+  categorical dimension**; raw transcripts are additive, never required — the **sole**
+  transcript-only piece is the *numeric* token-waste depth (below). The combat log is **committed
+  but transient in the tree**: the Scanner **distills early** (at `→ implemented`), and the
+  **doctrine loop deletes the plan later** as a tracked deletion — a separate retro step gated on
+  source = `done`/merged **and** distilled (Plan retirement, `../design/provenance-model.md`).
+- **Raw `.jsonl` transcripts** — optional enrichment, harness-specific, and **may be absent
+  post-merge** (another machine, the session gone). The token-waste dimension **splits**: a
+  **coarse, categorical** efficiency signal rides in the committed log as a `correction` (the
+  conductor flags notable waste — a class, **no raw counts**), so the post-merge loop keeps the
+  dimension; the **numeric** breakdown lives only in transcripts and is **threshold-gated +
+  pre-merge / same-machine only** (run over a configurable bound or on demand, never under it
+  without a request). Consistent with the safe-to-publish floor
+  (`../design/provenance-model.md`), **no raw token-cost number is written to the committed
+  log** — only the categorical class.
 
 ## Where each strategy entry lands
 

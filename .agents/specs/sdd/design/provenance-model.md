@@ -218,6 +218,10 @@ The enum is **closed at any point in time** but **discovered from usage, not des
 Fewer is better — speculative categories are not seeded.
 Two growers: the **doctrine-loop Scanner's** recurring-pattern detection, and the opt-in **Forge loop** (`sdd-forge-loop`) collecting real corrections from plugin usage.
 
+**Efficiency is a categorical class, discovered like the rest.**
+The committed log is designed to carry a **coarse** efficiency signal — the conductor flagging notable token-waste as a `correction` (a class, **never raw counts**) — so the post-merge doctrine loop keeps the efficiency dimension without transcripts (`../doctrine/README.md`).
+Its concrete `correction-kind` / `cause` are **not seeded**: they enter on first real recurrence by the same Council-ratified growth, and the numeric token-cost depth stays **transcript-only / pre-merge** — consistent with the safe-to-publish floor, no raw number ever enters the log.
+
 **Who edits the enum.**
 A grower *proposes* a value; **adding it is an edit to `combat-log-governance`, ratified by the Council** (a producer/judge/conductor never edits the enum on its own).
 Until ratified, an off-enum `cause` still fails closed.

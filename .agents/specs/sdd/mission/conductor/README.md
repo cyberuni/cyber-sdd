@@ -31,7 +31,7 @@ The conductor's behavior groups into six concerns, each a section below; every s
 
 | Concern | What it covers |
 |---|---|
-| **resolution** | read the registry, match each file's artifact-type, resolve every role to a delegate or the SDD default, fail closed |
+| **resolution** | classify each file's artifact-type (convention-first + the tiebreaker map), read the registry, match it to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
@@ -44,9 +44,17 @@ At the start of a segment the conductor reads **only** the project registry
 `.agents/universal-plugin.json` (the resolved lockfile — it never scans plugin directories),
 matches **each file's** artifact-type (resolution is per file, not one spec-`type`), and resolves
 each production-chain role to a plugin delegate or the SDD default. A project touching several
-artifact-types summons several squads at once. This unit owns the **READ / resolution** side
-only; the init-WRITE of the lockfile is `../../plugin/`, the registry **shape** is
+artifact-types summons several squads at once. This unit owns the **classification + READ /
+resolution** side; the init-WRITE of the lockfile is `../../plugin/`, the registry **shape** is
 `../../design/specialists-and-squads.md`.
+
+**Classifying a file's artifact-type.** Before it can match, the conductor must know each file's
+artifact-type — **resolved per file, never stored** (`../../design/artifact-type.md`). It
+classifies **by convention/context first** (a `SKILL.md` under `skills/` is a `skill`); the file
+**extension never decides**. Only on a **genuine ambiguity or a path the user flags** does it
+consult the optional tiebreaker map `.agents/sdd/artifact-types.toml` (most-specific glob wins);
+still unresolved, it **confirms with the user — never guesses** — and **writes the binding back**,
+so a later segment classifies the same path deterministically without asking.
 
 Resolution branches on role kind, and (for producers) on the **role-dependent surface**:
 

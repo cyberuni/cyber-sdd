@@ -5,6 +5,32 @@ Feature: The conductor — running one mission segment
   impl-producer build and impl-judge run colocate under ../deliver/; cross-capability e2e
   scenarios live in ../../acceptance/.
 
+  # ---- Classification — a file's artifact-type ----
+
+  Scenario: an unambiguous file is classified by convention
+    Given a file whose location and kind make its artifact-type obvious
+    When the conductor classifies it
+    Then it assigns the artifact-type by convention
+    And it does not consult the tiebreaker map
+
+  Scenario: an ambiguous file is resolved by the tiebreaker map
+    Given a file whose artifact-type convention cannot settle
+    And a tiebreaker map binding a matching path glob to an artifact-type
+    When the conductor classifies it
+    Then it assigns the most-specific matching binding's artifact-type
+
+  Scenario: an unresolved ambiguity is confirmed and recorded, never guessed
+    Given a file whose artifact-type neither convention nor the tiebreaker map settles
+    When the conductor classifies it
+    Then it asks the user to confirm the artifact-type rather than guessing
+    And it writes the confirmed binding back to the tiebreaker map
+
+  Scenario: a user-flagged path is recorded and decisive on resume
+    Given the user flags a path as a given artifact-type
+    When the conductor classifies that path
+    Then it records the binding in the tiebreaker map
+    And a later classification of that path resolves without asking
+
   # ---- Resolution — the registry READ ----
 
   Scenario: resolution reads only the registry lockfile

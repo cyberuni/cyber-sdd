@@ -1,3 +1,7 @@
+---
+spec-type: behavioral
+---
+
 # acceptance/ — the e2e behavior suite
 
 The **outcome-level (e2e) behavior suite** — the scenarios that exercise SDD end-to-end and
@@ -5,10 +9,29 @@ The **outcome-level (e2e) behavior suite** — the scenarios that exercise SDD e
 loop step.** Unit scenarios stay colocated with their capability folder; only
 cross-capability outcome scenarios live here.
 
-Written in boolean / rubric Gherkin per `../authoring/suite-format/README.md`: every scenario is a
+Written in boolean Gherkin per `../authoring/suite-format/README.md`: every scenario is a
 declarative Given/When/Then with a pass/fail reading, no rubric or threshold in the
 `.feature` itself. A scenario earns a place here only if it crosses two or more capability
 folders; a single-capability behavior belongs as a unit scenario.
+
+## Use Cases
+
+**Subject** — the cross-capability (e2e) outcomes that exercise SDD end-to-end, each spanning two
+or more capability folders.
+**Non-goals** — no single-capability behavior (those are unit scenarios in their own folder), no
+loop step of its own, and no rubric/threshold in the `.feature`.
+
+The suite is organized into one `.feature` per outcome **theme**; the `## Seed` below is the
+row-level inventory each theme realizes.
+
+| Theme | Cross-capability outcome | Suite |
+|---|---|---|
+| **A. CR lifecycle** | intake → authoring → mission → handoff | [`cr-lifecycle.feature`](./cr-lifecycle.feature) |
+| **B. Escalation floor** | the autonomy bar across authoring + mission | [`escalation-floor.feature`](./escalation-floor.feature) |
+| **C. Resolve-a-squad** | registry → resolution → production chain | [`resolve-squad.feature`](./resolve-squad.feature) |
+| **D. Freeze** | the spec gate → the impl gate | [`freeze.feature`](./freeze.feature) |
+| **E. Gate verdicts** | producer/judge separation across both gates | [`gate-verdicts.feature`](./gate-verdicts.feature) |
+| **F. Handoff** | the verified result → the delivery shape | [`handoff.feature`](./handoff.feature) |
 
 ## Seed — the cross-capability outcomes to carry
 
@@ -69,41 +92,7 @@ Sources: `mission/handoff/` (new), commit discipline.
 - F2. A PR-flow project lands the result as a branch + pull request; a commit-to-main project lands it as commits on `main`.
 - F3. Handoff introduces no new hard floor (no force-push/history-rewrite gate).
 
-## Exemplars
-
-```gherkin
-Feature: SDD acceptance — change request to delivered outcome
-
-  Scenario: A prompt-raised CR runs end-to-end to a delivered outcome
-    Given a human raises a change request as a prompt
-    When SDD intakes it, grills it to a spec+suite diff, passes the spec gate,
-      implements against the frozen .feature, and passes the impl gate
-    Then the verified result is landed in the project-declared delivery shape
-
-  Scenario: A narrowing escalates unless the CR pre-authorized it
-    Given a change request whose diff narrows an e2e acceptance scenario
-    And the change request did not pre-authorize the narrowing
-    When the autonomy bar assesses the write
-    Then it escalates for human acknowledgment before the write lands
-
-  Scenario: A suite contradiction halts implementation for human resolution
-    Given two frozen scenarios that contradict each other and are both plausibly intended
-    When the conductor reaches the contradiction during implementation
-    Then implementation halts
-    And the bar escalates for human resolution
-
-  Scenario: A registered plugin's delegates resolve without directory scanning
-    Given a plugin's init-write added its sdd-plugins entry to the registry
-    When the conductor resolves delegates for that plugin's domain
-    Then it reads the role-to-agent map from the registry
-    And it does not scan user-global, project-global, or project-local plugin directories
-
-  Scenario: The frozen .feature is the object at the spec gate and the bar at the impl gate
-    Given the spec gate judged the .feature against the domain criteria and froze it
-    When the impl gate evaluates the implementation
-    Then it judges the implementation against the frozen .feature as the bar
-    And the impl gate passes only when every frozen scenario has a passing verification
-```
+The realized scenarios live in the six theme `.feature` files above.
 
 ## Source
 

@@ -16,7 +16,8 @@ loaded by the conductor, validate-spec, and the doctrine-loop Scanner; invariant
   `../../design/governance-resolution.md`).
 - **Contract surface** — the two-face record (current-state frontmatter + append-only ledger), the
   four entry kinds (`report` / `correction` → the combat log; `gate` / `strategy` → the ledger), the
-  CR-scoped `seq`, the matchable `cause` enum, and free-text hygiene.
+  CR-scoped `seq`, the write-time UTC `ts`, the pseudonymous `handle`, the matchable `cause` enum, and
+  the safe-to-publish floor.
 - **Conformance** — verified through consumer suites (conductor + validate-spec + Scanner), never by
   this artifact itself. A reference artifact carries this `## Subject` in place of `## Use Cases` +
   a `.feature`.

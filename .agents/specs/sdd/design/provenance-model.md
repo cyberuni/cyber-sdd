@@ -144,17 +144,38 @@ The "never blocks" invariant is scoped to **availability**:
 ## Entry shapes — across the plan and the ledger
 
 One JSON object per line (JSON Lines).
-Every line carries a **CR-scoped `seq`** (append order *within its CR*, restarting per CR — never a global counter) and a `kind`.
+Every line carries a **CR-scoped `seq`** (append order *within its CR*, restarting per CR — never a global counter), a **write-time UTC `ts`**, an optional pseudonymous **`handle`**, and a `kind`.
 Four kinds, split by tier: **`report`** and **`correction`** are mid-flight → the **combat log** (the plan's `*.log.jsonl`); **`gate`** and **`strategy`** are durable → the slim `ledger.jsonl`.
 
 A CR-scoped `seq` is collision-free under concurrency: one CR lives in exactly one worktree at a time (the source-claim lock, `../intake/README.md`), so two concurrent missions always hold different CRs and never mint the same `(cr, seq)`.
 The durable ledger receives only sparse `gate`/`strategy` lines, so its rare cross-tree appends reconcile by **union merge** (keep all lines — they are independent records, never contradictions); set `ledger.jsonl merge=union` in `.gitattributes`.
 This append reconciliation is purely mechanical and **never** reaches the hard floor (which is for semantic frozen-scenario conflicts, not log appends).
 
-**Free-text hygiene (committed-plan rule).**
-Because the combat log is **committed** (the plan is tracked), the free-text `summary` / `detail` fields describe the **decision or its class** only — they **never embed code, prompts, secrets, or literal values** (those stay in the uncommitted raw `.jsonl` transcripts, read only for token-waste).
-The structured fields are enums (`role` / `agent` / `outcome` / `correction-kind` / `cause`); the free text stays commit-message-grade.
-Enforced by `combat-log-governance`; no redaction pipeline is needed.
+**Safe-to-publish-by-construction floor (committed-record rule).**
+The combat log is **committed**, so every line is **published to git history permanently** — the "deleted at retro" step removes it from the *tree*, never from history — and a distilled line may be carried **upstream by the Forge loop** (`../forge/README.md`).
+Treat every field as forever-public; the floor binds **all** fields, not only free text:
+
+- **Categorical only.** Structured fields are enums (`role` / `agent` / `outcome` / `correction-kind` / `cause`); counts are counts-of-classes; the free-text `summary` / `detail` describe the **decision or its class**, commit-message-grade.
+- **Never in the committed record:** email, OS usernames, hostnames, absolute paths, session/machine ids, secrets, code, prompts, literal values, and **raw numbers** (token/cost). Those stay in the uncommitted raw `.jsonl` transcripts (read only for the pre-merge token-waste pass).
+- **Identity is a pseudonym** (`handle`, below), never `user.email`.
+
+The floor is **structural** — enforced by `combat-log-governance`; no redaction pipeline is needed for the committed record (the Forge loop redacts again before any cross-installation send).
+
+**Write-time `ts`.**
+Every line carries a UTC `ts` (ISO-8601, second granularity) stamped **at write-time** — the session clock is the only place wall-clock is knowable, and the doctrine loop reads the committed log **post-merge, possibly on another machine** (the session is gone).
+`seq` orders lines *within* a CR; `ts` adds cross-mission ordering and the coarse durations the efficiency dimension needs.
+(Per-entry timestamps are mild behavioral metadata; UTC plus the pseudonymous handle keep them safe-to-publish.)
+
+**Identity — the per-entry `handle` (pseudonymous).**
+Mid-flight lines (`report` / `correction`) and `strategy` carry a `handle`: the writer's pseudonym.
+A `gate` line keeps `by` (the *ratifier* — a human name or `agent`), unchanged.
+Resolution, at write-time:
+
+- `SDD_HANDLE` (env) — if set, it is the `handle`.
+- **unset** → omit `handle`; attribution falls back to the **git commit author** git records natively. SDD does **not** read `git config` — a committed line is already authored by its commit, so the inline handle is an optional override, not a required field.
+- **never** `user.email`.
+
+The in-file `handle` / `by` is **advisory, not proof**: a self-asserting automaton can write any string, so the doctrine loop never treats it as cryptographic evidence of a human act — the positional-authority rule plus the **git commit signature** are the control.
 
 ### `report` — per-subagent dispatch (plan, tracked)
 
@@ -162,7 +183,7 @@ One line appended **to the plan** per production-chain dispatch, so a later read
 Removed with the plan at retro (a tracked deletion).
 
 ```jsonl
-{"seq": 3, "kind": "report", "role": "spec-producer", "agent": "sdd:automaton", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
+{"seq": 3, "ts": "2026-06-28T18:30:11Z", "handle": "unional", "kind": "report", "role": "spec-producer", "agent": "sdd:automaton", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
 ```
 
 `role` is the production role dispatched; `agent` is the plugin-qualified agent name; `outcome` is `pass | fail`.
@@ -176,7 +197,7 @@ Raw `correction` lines are transient in the tree (committed, then removed with t
 Cross-mission recurrence is therefore tracked by the *distilled* count, not by scanning many specs' raw logs.
 
 ```jsonl
-{"seq": 7, "kind": "correction", "correction-kind": "gate-reject", "cause": "coverage-gap", "detail": "spec gate rejected — no negative scenario for the malformed-entry path"}
+{"seq": 7, "ts": "2026-06-28T18:41:02Z", "handle": "unional", "kind": "correction", "correction-kind": "gate-reject", "cause": "coverage-gap", "detail": "spec gate rejected — no negative scenario for the malformed-entry path"}
 ```
 
 - **`correction-kind`** — the closed set `gate-reject | judge-iteration | council-kickback`.
@@ -209,7 +230,7 @@ One line per gate verdict per CR — the immutable twin of the standing `approva
 Where `approval` is overwritten by the next CR, the `gate` line preserves every CR's verdict forever, keyed by `cr`.
 
 ```jsonl
-{"seq": 9, "kind": "gate", "cr": 34, "gate": "spec", "verdict": "approve", "by": "unional", "cause": "dimension", "frozen": ["intake/intake.feature", "mission/mission.feature"]}
+{"seq": 9, "ts": "2026-06-28T19:02:55Z", "kind": "gate", "cr": 34, "gate": "spec", "verdict": "approve", "by": "unional", "cause": "dimension", "frozen": ["intake/intake.feature", "mission/mission.feature"]}
 ```
 
 - **`gate`** — `spec | impl`, the gate this verdict closes.
@@ -231,7 +252,7 @@ This contract defines the **shape** of that line; the **write is owned by the do
 The `strategy` line also carries the **distilled recurrence count** for a `cause` (in `evidence`), maintained across missions because the raw `correction` lines that fed it are removed with each plan at retro.
 
 ```jsonl
-{"seq": 12, "kind": "strategy", "recommendation": "codify the coverage-gap pattern as a spec-format-governance check", "evidence": ["coverage-gap x3 across sdd-foo, sdd-bar, sdd-baz"], "ratified": false}
+{"seq": 12, "ts": "2026-06-29T08:15:40Z", "handle": "sdd-scanner", "kind": "strategy", "recommendation": "codify the coverage-gap pattern as a spec-format-governance check", "evidence": ["coverage-gap x3 across sdd-foo, sdd-bar, sdd-baz"], "ratified": false}
 ```
 
 `evidence` lists the corrections that drove the recommendation; `ratified: false` means the Council holds keep-or-cut — unratified strategy never enters the corpus.

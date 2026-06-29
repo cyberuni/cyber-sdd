@@ -39,7 +39,7 @@ redaction, visibility, and human review are load-bearing, not bolted-on**:
 |---|---|
 | **Consent** | explicit opt-in; **default OFF**; revocable. With opt-in OFF the loop captures nothing and sends nothing — fully inert. |
 | **Minimize** | capture only the correction-with-cause record needed upstream — not surrounding context, not the whole transcript. |
-| **Redact / anonymize** | strip or mask sensitive content (secrets, paths, identifying data) before anything can be transmitted. |
+| **Redact / anonymize** | strip or mask sensitive content (secrets, paths, identifying data — **including the `handle`, the `ts`, and any numbers**) before anything can be transmitted. The committed record is already safe-to-publish by construction (`../design/provenance-model.md`); this is the second, cross-installation belt. |
 | **Preview** | the user reviews **exactly what would be sent** before it leaves — no opaque payload. |
 | **Maintainer review** | a submission enters the shared corpus **only** after a human maintainer reviews it. |
 

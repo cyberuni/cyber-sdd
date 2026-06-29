@@ -255,7 +255,38 @@ Feature: The conductor — running one mission segment
     When the human ratifies a gate
     Then the conductor writes the human verdict directly
 
-  Scenario: a mid-flight halt is recorded to the plan log
-    Given the conductor stops mid-flight
+  Scenario: a mid-flight halt is recorded as a halt entry, not just a gate pause
+    Given the conductor stops mid-phase, not at a gate
     When it halts
-    Then it records why it halted to the plan's log ledger
+    Then it appends a halt entry to the plan's combat log
+    And the halt entry carries the phase and a categorical why block
+    And the why block carries no raw blocker content
+
+  # ---- Combat-log telemetry — safe-to-publish, captured live ----
+
+  Scenario: every combat-log line carries a write-time UTC timestamp
+    Given the conductor appends a report, correction, or halt line
+    When the line is written
+    Then it carries a write-time UTC ts
+
+  Scenario: a combat-log line carries the configured handle
+    Given SDD_HANDLE is set
+    When the conductor appends a combat-log line
+    Then the line carries that handle
+
+  Scenario: an unset handle is omitted rather than read from git config
+    Given SDD_HANDLE is unset
+    When the conductor appends a combat-log line
+    Then the line omits the handle
+    And no handle is read from git config
+
+  Scenario: the committed combat log carries no email or raw identifiers
+    Given the conductor writes any combat-log line
+    When the line is committed
+    Then it carries no email, absolute path, hostname, or session id
+    And it carries no raw token or cost number
+
+  Scenario: mid-flight telemetry is flushed during the mission, not at the end
+    Given a mission still in flight
+    When the conductor records a report, correction, or halt
+    Then the line is flushed to the committed combat log during the mission

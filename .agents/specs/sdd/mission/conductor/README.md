@@ -26,7 +26,7 @@ or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
 
-The conductor's behavior groups into seven concerns, each a section below; every scenario in
+The conductor's behavior groups into eight concerns, each a section below; every scenario in
 [`conductor.feature`](./conductor.feature) maps to one of them:
 
 | Concern | What it covers |
@@ -37,7 +37,8 @@ The conductor's behavior groups into seven concerns, each a section below; every
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the three actions, layer-scoped `aligned`, verdict-not-station, fail-closed |
-| **stop-provenance** | the three-layer model — strategy block, the leash, the per-gate verdict, the durable pause, the in-flight hard floor |
+| **stop-provenance** | the three-layer model — strategy block, the leash, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
+| **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
 
 ## Classification — a file's artifact-type
 

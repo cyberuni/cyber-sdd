@@ -1,3 +1,7 @@
+---
+spec-type: behavioral
+---
+
 # formation/ — the structure outer loop
 
 The **Formation loop** (metaphor) / **Structure loop** (descriptive) — the step-5 outer loop
@@ -8,6 +12,22 @@ have organized right?**
 
 Standing subject: **`corpus/`** (and the whole organization). Formation evolves how the corpus
 is arranged, not what it says.
+
+## Use Cases
+
+**Subject** — the formation loop: keeping the whole spec corpus structurally organized between
+missions, and the Warden's per-act self-clear-vs-escalate verdict.
+**Non-goals** — it never runs as the per-spec gate structural check, never decides *what to build*
+(→ `campaign/`), never grows the *process* (→ `doctrine/`), and never writes a spec's `status`.
+
+| Trigger | Inputs | Outcome |
+|---|---|---|
+| **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: split / dedupe / reconcile candidates, each carrying the Warden's self-clear-or-escalate verdict |
+
+A formation pass exercises the three acts under the verdict discipline below; the per-act verdict,
+the frozen-contract guard, and the altitude routing are cross-cutting guarantees. Every scenario in
+[`formation.feature`](./formation.feature) maps to an act, to the verdict, or to one of those
+guarantees.
 
 ## Input — the corpus structure + discovery, scoped by the public trail
 
@@ -95,7 +115,6 @@ Formation owns corpus structure only and emits **no** out-of-loop decision:
 - a **process lesson** → routed to `doctrine/` (Process);
 - a **per-spec gate structural check** → **declined**; Formation does not run as the gate check.
 
-## Scenarios
-
-Unit scenarios for the loop and the Warden's verdict colocate in this folder; cross-capability
-outcome scenarios (a split or dedupe end-to-end) live in `acceptance/`.
+Unit scenarios for the loop and the Warden's verdict are in
+[`formation.feature`](./formation.feature); cross-capability outcome scenarios (a split or dedupe
+end-to-end) live in [`../acceptance/`](../acceptance/README.md).

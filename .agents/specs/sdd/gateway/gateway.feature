@@ -32,6 +32,12 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     Then the gateway surfaces the count of pending strategy as an entry point
     And it neither drafts nor ratifies any strategy
 
+  Scenario: the gateway scans statuses with the discover-specs engine
+    Given the user asks the gateway to help choose the most-actionable spec
+    When the gateway scans the project statuses
+    Then it reads the specs' frontmatter via the discover-specs engine
+    And it does not read any spec body
+
   # ---- Loading the handling skill ----
 
   Scenario: a resolved route loads the handling skill in-session and works directly

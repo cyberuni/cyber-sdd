@@ -59,7 +59,7 @@ and draws no draft.
 | **Ship** | `→ implemented` (impl gate) | the concluded mission's combat log + *[opt]* transcripts | strategy from a successful mission |
 | **Kill** | `→ deprecated` (deprecation path) | the concluded mission's combat log — why it failed + *[opt]* transcripts | strategy from the failure |
 | **Milestone retro** | a human-held retro | the milestone's concluded combat logs | strategy across the milestone |
-| **Recurring pattern** | the same `cause` recurs across missions | the distilled `cause` recurrence count in the ledger, never a re-scan of many raw logs | strategy to codify the pattern |
+| **Recurring pattern** | the same `cause` recurs across missions | the distilled count of **distinct CRs** exhibiting the `cause` in the ledger (not raw entry count), never a re-scan of many raw logs | strategy to codify the pattern |
 | **Drift / staleness** | a now-false convention or governance contradiction | the corpus (conventions, governances) | a **PRUNE** strategy |
 | **Token-waste** | a flagged-waste `correction`, or session cost over a configurable bound (pre-merge) | the categorical efficiency `correction` from the committed log (post-merge); raw transcripts add numeric depth (pre-merge / same-machine only) | efficiency strategy |
 

@@ -23,7 +23,7 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Then it drafts strategy across the milestone's concluded combat logs
 
   Scenario: a recurring cause is codified from its distilled count
-    Given a cause whose distilled recurrence count rose across missions
+    Given a cause exhibited by a rising count of distinct CRs
     When the Scanner fires
     Then it drafts a strategy to codify the recurring pattern
     And it reads the distilled recurrence count, not many missions' raw logs

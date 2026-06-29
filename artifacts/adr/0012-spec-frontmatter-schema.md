@@ -1,7 +1,11 @@
 # ADR 0012: Spec Frontmatter Schema for Status, Priority, and Dependencies
 
-**Status:** Accepted  
+**Status:** Superseded by [ADR-0017](0017-frontmatter-is-the-router-index.md)  
 **Date:** 2026-06-15
+
+> Superseded: `priority` + `blocked-by` were removed with the spec-graph apparatus (Phase 0); the
+> current minimal schema (`status` + `project-path`) and the router-index rationale are in
+> [ADR-0017](0017-frontmatter-is-the-router-index.md).
 
 ---
 

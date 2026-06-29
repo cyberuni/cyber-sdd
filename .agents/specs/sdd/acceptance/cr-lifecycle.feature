@@ -3,10 +3,14 @@ Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → h
   Cross-capability e2e outcomes for a change request carried end-to-end. Outcome-level only;
   single-capability behavior lives as a unit scenario in its own folder.
 
+  # ── End-to-end — intake to delivered outcome ──
+
   Scenario: a prompt-raised CR runs end-to-end to a delivered outcome
     Given a human raises a change request as a prompt
     When SDD intakes it, grills it to a spec and suite diff, passes the spec gate, implements against the frozen feature, and passes the impl gate
     Then the verified result is landed in the project-declared delivery shape
+
+  # ── Intake — a CR enters, and its project spec is located ──
 
   Scenario: a GitHub or Asana CR routes through the same single intake
     Given a change request raised from a GitHub issue or an Asana task
@@ -14,11 +18,24 @@ Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → h
     Then it enters through the same single intake as a prompt-raised CR
     And it reaches a delivered outcome through the same loop
 
+  Scenario: intake locates the target's project spec by discovery
+    Given a change request naming a target project
+    When SDD intakes it
+    Then it locates the project spec by discovering specs at the spec locations
+    And it resolves the target to the one spec, disambiguating an ambiguous match with the user
+
+  Scenario: a CR whose target project has no spec routes to backfill
+    Given a change request whose target project has no spec at any spec location
+    When SDD intakes it
+    Then it routes to backfill-project-spec to lay out the project spec before the mission proceeds
+
   Scenario: an outer-loop finding re-enters only as a new CR
     Given an outer loop produces a finding
     When the finding is carried back into the system
     Then it re-enters only as a new change request
     And nothing changes the system through any side channel
+
+  # ── Explore, gates, and lifecycle independence ──
 
   Scenario: a confidently-diffable CR self-clears the grill without a human
     Given a CR the agent can confidently turn into a spec and suite diff

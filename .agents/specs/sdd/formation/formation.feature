@@ -1,3 +1,4 @@
+@frozen
 Feature: The formation loop — keep the spec corpus structurally organized
   Unit suite for the formation (structure) outer loop run by the Warden. Loop, act, and
   verdict behaviors only — corpus-wide structure, never per-spec gate judgment. Cross-capability

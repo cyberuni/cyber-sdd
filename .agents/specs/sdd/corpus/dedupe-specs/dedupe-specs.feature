@@ -1,3 +1,4 @@
+@frozen
 Feature: The dedupe-specs procedure — propose collapsing overlapping scope
   Unit suite for the dedupe-specs tool. Overlap-analysis and proposal behaviors only — it
   executes nothing and writes nothing. Cross-capability e2e scenarios live in ../../acceptance/.

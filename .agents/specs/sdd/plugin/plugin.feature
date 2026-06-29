@@ -1,3 +1,4 @@
+@frozen
 Feature: SDD's plugin nature — manifest, workspace init, and the registry init-WRITE
   Unit suite for the plugin capability. Packaging, workspace-init, and contract-registry
   init-WRITE behaviors only — never the registry shape (design/) or its read/resolution

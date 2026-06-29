@@ -1,3 +1,4 @@
+@frozen
 Feature: The align-specs procedure — detect & reconcile prose↔suite drift
   Unit suite for the align-specs tool. Detect and reconcile behaviors only — on-demand and CI
   alignment over chosen specs. Cross-capability e2e scenarios live in ../../acceptance/.

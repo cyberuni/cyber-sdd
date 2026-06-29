@@ -1,3 +1,4 @@
+@frozen
 Feature: The conductor — running one mission segment
   Unit suite for the conductor unit (the conductor / spawned automaton). Covers resolution,
   the five-role production chain, explore orchestration, segment mechanics, the impl gate, and

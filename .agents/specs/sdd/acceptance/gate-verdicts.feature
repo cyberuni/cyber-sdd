@@ -1,3 +1,4 @@
+@frozen
 Feature: SDD acceptance — gate verdicts (producer/judge separation across both gates)
   Cross-capability e2e outcomes for the gate verdicts spanning authoring and mission.
   Outcome-level only.

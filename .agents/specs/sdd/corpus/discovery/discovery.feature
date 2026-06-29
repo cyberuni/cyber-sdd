@@ -1,3 +1,4 @@
+@frozen
 Feature: The discovery procedure — find specs by shape, not location
   Unit suite for the discovery tool. Derivation behaviors only — locating and name-resolving
   specs from frontmatter shape. Cross-capability e2e scenarios live in ../../acceptance/.

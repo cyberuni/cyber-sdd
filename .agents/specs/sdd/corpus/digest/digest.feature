@@ -1,3 +1,4 @@
+@frozen
 Feature: The digest procedure — a read-only, fixed-section summary of one spec
   Unit suite for the digest tool. Read-only summarization behaviors only — it never writes,
   ranks, or judges. Cross-capability e2e scenarios live in ../../acceptance/.

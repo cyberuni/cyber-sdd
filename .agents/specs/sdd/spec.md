@@ -1,6 +1,10 @@
 ---
-status: draft
+status: approved
 project-path: plugins/sdd-new
+approval:
+  spec:
+    verdict: approve
+    by: unional
 ---
 
 # Spec-Driven Development (SDD)

@@ -1,3 +1,4 @@
+@frozen
 Feature: The split-spec procedure — propose decomposing an oversized spec
   Unit suite for the split-spec tool. Decomposition-analysis and proposal behaviors only — it
   executes nothing and writes nothing. Cross-capability e2e scenarios live in ../../acceptance/.

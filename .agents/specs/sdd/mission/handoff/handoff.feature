@@ -1,3 +1,4 @@
+@frozen
 Feature: The handoff phase — land the verified result in the declared delivery shape
   Unit suite for the handoff phase (step 4). Handoff consumes the verified result and lands it;
   it does not re-verify, touch the contract, or introduce a new hard floor. Cross-capability

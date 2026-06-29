@@ -1,3 +1,4 @@
+@frozen
 Feature: SDD acceptance — handoff (the verified result → the delivery shape)
   Cross-capability e2e outcomes for landing a verified result, spanning mission/handoff and
   commit discipline. Outcome-level only.

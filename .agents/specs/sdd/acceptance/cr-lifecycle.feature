@@ -1,3 +1,4 @@
+@frozen
 Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → handoff)
   Cross-capability e2e outcomes for a change request carried end-to-end. Outcome-level only;
   single-capability behavior lives as a unit scenario in its own folder.

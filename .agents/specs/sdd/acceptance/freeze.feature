@@ -1,3 +1,4 @@
+@frozen
 Feature: SDD acceptance — freeze (the spec gate → the impl gate)
   Cross-capability e2e outcomes for the freeze that spans authoring's spec gate and mission's
   impl gate. Outcome-level only.

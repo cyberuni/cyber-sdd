@@ -1,3 +1,4 @@
+@frozen
 Feature: The solution-producer procedure — record the per-unit solution
   Unit suite for the solution-producer-governance procedure. Solution-producer behaviors only —
   the optional per-unit design record. No gate, no judge, no freeze (the solution is ungated and

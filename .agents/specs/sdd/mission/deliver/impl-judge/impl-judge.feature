@@ -1,3 +1,4 @@
+@frozen
 Feature: The impl-judge procedure — run the verification against the frozen contract
   Unit suite for the default impl-judge (sdd-implementer). Judge behaviors only — it runs the
   verification the impl-producer authored and advises; it never authors tests, sets the bar, or

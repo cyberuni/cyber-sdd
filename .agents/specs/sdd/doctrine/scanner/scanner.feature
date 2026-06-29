@@ -1,3 +1,4 @@
+@frozen
 Feature: The Scanner detect-and-draft loop — draft unratified strategy at lifecycle granularity
   Unit suite for the Scanner (sdd-scanner), the detect-and-draft half of the Doctrine loop. The
   Scanner reads persisted artifacts post-hoc, drafts unratified strategy to the durable ledger,

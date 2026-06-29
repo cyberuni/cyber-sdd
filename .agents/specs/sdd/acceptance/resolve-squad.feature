@@ -1,3 +1,4 @@
+@frozen
 Feature: SDD acceptance — resolve a squad (registry → resolution → production chain)
   Cross-capability e2e outcomes spanning plugin/ init-WRITE and mission/ resolution.
   Outcome-level only.

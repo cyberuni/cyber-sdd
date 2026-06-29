@@ -1,3 +1,4 @@
+@frozen
 Feature: The impl-producer procedure — build the implementation + its verification
   Unit suite for the impl-producer-governance procedure (the deliver-phase builder). Producer
   behaviors only — no gate verdict (that is ../impl-judge/ and ../../conductor/), no contract

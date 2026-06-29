@@ -1,3 +1,4 @@
+@frozen
 Feature: SDD acceptance — escalation floor (the autonomy bar across authoring + mission)
   Cross-capability e2e outcomes for the self-clear-vs-escalate floor spanning both gates.
   Outcome-level only.

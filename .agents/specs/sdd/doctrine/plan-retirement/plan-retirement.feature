@@ -1,3 +1,4 @@
+@frozen
 Feature: Plan retirement — the gated, idempotent tracked deletion of a retired plan
   Unit suite for plan retirement, the Doctrine loop's last retro step. Every scenario asserts an
   OBSERVABLE outcome of the sweep over a given cleared set — the filesystem effect. The clearance

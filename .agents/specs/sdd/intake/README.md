@@ -45,6 +45,19 @@ durable per-unit **solution** (chosen approach + rejected alternatives) lives be
 unit's spec + suite, not here (`../design/spec-structure.md`). A plan that already
 exists (a resumed mission) is opened, not re-scaffolded.
 
+## Units
+
+`intake/` is a **descriptive** subsystem index (no `spec-type` marker, no `.feature`); each testable
+behavior lives in a **behavioral** unit spec below. The unit of test is the skill — **one `.feature`
+per unit**, colocated with the unit's spec in its own folder.
+
+| Unit | Type | Spec | Role |
+|---|---|---|---|
+| **plan-discovery** | behavioral | [`plan-discovery/`](./plan-discovery/README.md) | find the resumable missions by their plan briefs under `.agents/plans` — a present `*.plan.md` is an unretired mission; read frontmatter + the `## NEXT` lead only, tally its todos, emit a TOON list; the **gateway** runs it on entry to offer resume |
+
+The CR **sources** adapter and the local CR **store** are deferred net-new units (see the open
+marker below); they are not yet behavioral specs.
+
 ## Sources — the only work-intake
 
 A CR may originate from any source; the source is the carrier, never a different kind of

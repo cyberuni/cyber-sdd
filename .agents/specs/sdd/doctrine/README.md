@@ -5,6 +5,12 @@ evolves **how we work**: strategy, workflow, conventions. Actor: the **Strategis
 delegate the **Scanner in the Bunker** (`sdd-scanner`), parallel to the conductor that runs the
 inner mission loop. It fires at **lifecycle granularity, never per-gate**.
 
+> **This README is a `descriptive` capability overview — an index, not a testable spec**
+> (see the spec types in `../design/spec-structure.md`). It carries no `spec-type` marker,
+> no `.feature`, and no `## Use Cases`; each behavior lives in a **behavioral** unit spec below,
+> where the use cases map to that unit's suite. (Only a behavioral node carries `## Use Cases`; a
+> descriptive index carries none.)
+
 Standing subject: **the process — `design/`** (the methodology and its rules), and the broader
 corpus of skills, governances, and conventions that doctrine is the principles slice of. The
 Scanner watches every **mission** reach a terminal state, drafts **strategy** (forward
@@ -12,6 +18,9 @@ recommendations to revise governances, conventions, skills), and surfaces it to 
 **Council** for keep-or-cut.
 
 ## Detect-and-draft vs keep-or-cut
+
+The loop splits into a cheap continuous half the delegate owns and an accountable half the human
+holds:
 
 | Half | Holder | Cost | Effect |
 |---|---|---|---|
@@ -22,96 +31,29 @@ The Scanner is the **sole writer** of `strategy` entries; the conductor (`report
 and the producers (nothing) never write them. **No strategy enters the corpus without the
 Council's ratification.**
 
-## Output — emits new CRs
+## Units
 
-The Scanner drafts strategy to the **ledger** (the durable `ledger.jsonl` sibling of the root
-`spec.md`) and **accumulates** it, surfacing it **episodically** — at a retro, on demand, or
-when a threshold piles up — never synchronously blocking a mission. The `gateway/` surfaces the
-**count of pending (unratified) strategy** when the Council re-enters; that is the entry point
-to keep-or-cut. On **ratify**,
-the strategy re-enters as a **new CR** (`intake/README.md`) that re-tunes the
-**doctrine** (`design/`) and grows the corpus; on **cut**, it stays unratified and absent.
+The capability's behavior is realized by **two units of code**, each its own behavioral spec with
+one `.feature`. The freeze grain is **per `.feature` file**. Cross-capability outcome (e2e)
+scenarios — a ratified strategy re-tuning doctrine end-to-end — live in `../acceptance/`, never
+here.
 
-The Scanner **observes** a mission's terminal transition; it **never writes** the `status`
-transition itself (the impl gate or the deprecation path does).
-
-## Triggers — the six use cases
-
-A single gate passing is **not** a trigger. The loop fires only at the lifecycle granularity
-below:
-
-| Use case | Trigger | Input | Drafts |
+| Unit | Type | Spec | Role |
 |---|---|---|---|
-| **Ship** | `→ implemented` (the impl gate writes it) | the concluded mission's combat log (**PRIMARY**) + *[opt]* transcripts | strategy from a successful mission |
-| **Kill** | `→ deprecated` (the deprecation path writes it) | the concluded mission's combat log — why it failed (**PRIMARY**) + *[opt]* transcripts | strategy from the failure |
-| **Milestone retro** | a human-held retro | the milestone's concluded combat logs | strategy across the milestone |
-| **Recurring pattern** | the same correction recurs across missions | the **distilled `cause` recurrence count** in the ledger (maintained mission-over-mission), never a re-scan of many missions' raw logs | strategy to codify the pattern |
-| **Drift / staleness** | a now-false convention or governance contradiction | the corpus (conventions, governances) | a **PRUNE** strategy |
-| **Token-waste** | a flagged-waste `correction` in the log, **or** session token cost over a **configurable bound** (pre-merge) | the **categorical** efficiency `correction` from the committed combat log (**post-merge**); raw `.jsonl` transcripts add numeric depth but are **pre-merge / same-machine only** | efficiency strategy |
-
-## Inputs — the concluded combat log vs transcripts (enrichment)
-
-The Scanner reads **persisted artifacts post-hoc** — never live subagent context.
-
-- **Combat log** — PRIMARY input: the **concluded mission's** combat log (the plan's
-  `*.log.jsonl`), read once at retro. Strategy is draftable from it **alone** for **every
-  categorical dimension**; raw transcripts are additive, never required — the **sole**
-  transcript-only piece is the *numeric* token-waste depth (below). The combat log is **committed
-  but transient in the tree**: the Scanner **distills early** (at `→ implemented`), and the
-  **doctrine loop deletes the plan later** as a tracked deletion — a separate retro step gated on
-  source = `done`/merged **and** distilled (Plan retirement, `../design/provenance-model.md`).
-- **Raw `.jsonl` transcripts** — optional enrichment, harness-specific, and **may be absent
-  post-merge** (another machine, the session gone). The token-waste dimension **splits**: a
-  **coarse, categorical** efficiency signal rides in the committed log as a `correction` (the
-  conductor flags notable waste — a class, **no raw counts**), so the post-merge loop keeps the
-  dimension; the **numeric** breakdown lives only in transcripts and is **threshold-gated +
-  pre-merge / same-machine only** (run over a configurable bound or on demand, never under it
-  without a request). Consistent with the safe-to-publish floor
-  (`../design/provenance-model.md`), **no raw token-cost number is written to the committed
-  log** — only the categorical class.
-
-## Where each strategy entry lands
-
-Every `strategy` entry lands in the **one project ledger** (`ledger.jsonl`, sibling of the root
-`spec.md`) — there is no per-spec log to route to under the project-spec model. Every entry is
-**unratified** and carries its **driving evidence** (the distilled `cause` recurrence that drove
-it, from the concluded combat logs); the ledger is append-only — the next CR-scoped `seq`, never
-an edit. The entry **shape** is owned by `design/provenance-model.md` and is not restated here.
+| **scanner** | behavioral | [`scanner/`](./scanner/README.md) | the Scanner detect-and-draft loop — the six lifecycle triggers, sole-writer of `strategy`, observe-not-write, post-hoc inputs (the combat log alone, transcripts additive), episodic surfacing; realized by the `sdd-scanner` agent loading the `doctrine-loop` skill |
+| **plan-retirement** | behavioral | [`plan-retirement/`](./plan-retirement/README.md) | doctrine's last retro step — the gated, idempotent **tracked deletion** of a retired plan (`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`) once its source is done/merged **and** distilled; realized by the `plan-retirement` `.mts` skill |
 
 ## Strategy → doctrine → corpus
 
 Three distinct things, by time-direction: **strategy** is the Scanner's *forward* output
 (situational, transient until ratified); **doctrine** is the *principles* layer (`design/`,
 re-tuned by ratified strategy); the **corpus** is the *full durable body* every other delegate
-reads from (skills, governances, conventions, templates), which ratified strategy grows.
-
-## Plan retirement — doctrine's last retro step
-
-Doctrine **owns plan retirement** (`../design/provenance-model.md`, Plan retirement). Because
-plans are now **tracked** (committed with the work, not gitignored), they are removed from the
-tree by a deliberate, gated act — never a gitignore side effect:
-
-- **Distill and delete are decoupled.** The distill fires at `→ implemented` (step 3, before
-  the PR exists); the **delete** is a separate, later act — doctrine's **last retro step**.
-- **The retirement sweep** globs `.agents/plans/*.plan.md` and, for each `<cr-ref>`, queries
-  its **source** status natively (the `cr-ref` is source-qualified — `github-34` → GH issue
-  #34, `asana-<gid>` → Asana, `local-<slug>` → the local store). It deletes
-  `<cr-ref>.plan.md` + `<cr-ref>.log.jsonl` (a **tracked deletion**) **only when** the source
-  is `done`/merged **AND** the plan has been distilled. It is **idempotent** — a missing plan
-  or an open CR is a no-op, so the sweep is safe to re-run (CI post-merge invocation optional).
-- Never delete an un-distilled plan (the retro never ran); deletion runs only after the
-  distill has written strategy/recurrence to the ledger.
-
-Delivered as a non-user-invocable skill carrying a self-contained `.mts` script (the repo's
-node-≥23.6 / no-deps convention; agent fallback when `node` is absent).
+reads from (skills, governances, conventions, templates), which ratified strategy grows. The
+entry **shape** and the ledger it lands in are owned by `../design/provenance-model.md` and
+`combat-log-governance`; this index does not restate them.
 
 ## Boundaries — Doctrine owns the process only
 
 It routes out-of-loop requests: a build-or-deprecate request → `campaign/`; a structure
 observation → `formation/`; field corrections → `forge/`. Doctrine grows *how we work* and
 nothing else.
-
-## Scenarios
-
-Unit scenarios for the loop colocate in this folder; cross-capability outcome scenarios (a
-ratified strategy re-tuning doctrine end-to-end) live in `acceptance/`.

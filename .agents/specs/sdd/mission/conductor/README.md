@@ -36,7 +36,7 @@ The conductor's behavior groups into eight concerns, each a section below; every
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
-| **impl gate** | Approved → Implemented — the three actions, layer-scoped `aligned`, verdict-not-station, fail-closed |
+| **impl gate** | Approved → Implemented — the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
 | **stop-provenance** | the three-layer model — strategy block, the leash, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
 
@@ -132,9 +132,9 @@ is a validation detail that **never appears in the `.feature`**.
 
 **Write boundary.** Running a producer role inline, the conductor writes that producer's outputs
 (spec body + `.feature`, or `<unit>.solution.md`); a named producer agent writes those instead
-when spawned. The conductor also writes the `aligned` field, the `produced-by` map, the sibling
-`*.log.jsonl` ledger (`report` / `correction` lines only — **never** a `strategy` line, that slot
-is the doctrine Scanner's), and — on a self-asserted gate within leash — the provisional
+when spawned. The conductor also writes `project-path` (at scaffold), the `produced-by` map, the
+sibling `*.log.jsonl` ledger (`report` / `correction` lines only — **never** a `strategy` line, that
+slot is the doctrine Scanner's), and — on a self-asserted gate within leash — the provisional
 `approval.<gate>` entry. It **never** writes `status` (the skill owns it) or a human ratification
 verdict (`by: <name>`) when running headless. A **gate-review segment that runs no producer is
 read-only** — it writes nothing, only reads the artifacts and emits the gate report.
@@ -176,12 +176,12 @@ judges the implementation against the **frozen contract** — `../../acceptance/
 suite) **plus the colocated unit suites**. The gate is verdict-only and **fails closed**; it
 writes no setup frontmatter.
 
-- **`aligned` is layer-scoped.** At the impl gate, impl-layer `aligned` means the implementation
-  conforms to the frozen `.feature` — true **only when every impl-judge passes**. A frozen
-  scenario with **no verification** is reported failing by the cold impl-judge and blocks
-  `aligned`. Checking the impl layer at the *spec* gate is forbidden (it would collapse Approved
-  into Implemented). The `.feature` **pivots**: the object judged at the spec gate becomes the bar
-  at the impl gate.
+- **Impl-sync is the suite run, not a stored flag (ADR-0017).** At the impl gate, the
+  implementation conforms to the frozen `.feature` **only when every impl-judge passes** — that
+  run is what advances `status` to `implemented`. A frozen scenario with **no verification** is
+  reported failing by the cold impl-judge and blocks the advance. Checking the impl layer at the
+  *spec* gate is forbidden (it would collapse Approved into Implemented). The `.feature` **pivots**:
+  the object judged at the spec gate becomes the bar at the impl gate.
 - **Producer/judge separation survives the gate fold.** Folding the old `gate/` station into
   `mission/` does not collapse roles — the judge stays a **distinct cold actor**. The judge's
   verdict is *"does the frozen contract hold,"* not *"did the producer's tests pass"*: the
@@ -204,10 +204,11 @@ writes no setup frontmatter.
 **Verdict, not station.** The gate is not a fixed checkpoint; it dissolves into the autonomy bar.
 The conductor **derives the leash** for the gate (the dimension assessment in
 `../../design/autonomy-rubric.md`) and either **self-asserts within leash** (writes
-`approval.impl: { verdict: approve, by: agent, why }` + `aligned`; the spec lands in the review
+`approval.impl: { verdict: approve, by: agent, why }`; the spec lands in the review
 queue for async ratification) or **stops at the gate** with a verdict packet for the human.
 **Never advance** — by self-assertion or human verdict — when any judge reports failures, any open
-marker remains, or `aligned` is false; those fail the **confidence** dimension. Human ratification
+marker remains, or (at the impl gate) any frozen scenario's verification does not pass; those fail
+the **confidence** dimension. Human ratification
 (`verdict: approve, by: <name>`, advance `status`) is reserved to the **in-session position** that
 holds the real user channel — by default the conductor itself, which writes it directly; a
 **headless spawned automaton** instead emits the verdict packet and stops, **even when a

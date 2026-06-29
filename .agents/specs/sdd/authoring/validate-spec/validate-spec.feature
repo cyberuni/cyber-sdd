@@ -67,7 +67,7 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Then the file is unfrozen
     And the gate escalates Clearance
 
-  Scenario: spec.md is kept aligned and never frozen
+  Scenario: spec.md is kept in sync and never frozen
     Given an approved spec
     When the gate freezes the touched suite files
     Then spec.md is not frozen

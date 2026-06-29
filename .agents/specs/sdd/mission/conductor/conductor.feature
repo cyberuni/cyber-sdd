@@ -198,20 +198,20 @@ Feature: The conductor — running one mission segment
     Then the frozen feature is unfrozen
     And the spec returns to draft
 
-  Scenario: aligned is true only when every impl-judge passes
+  Scenario: status advances to implemented only when every impl-judge passes
     Given the impl gate has run its judges
     When any impl-judge reports a failure
-    Then impl-layer aligned is false
+    Then status does not advance to implemented
 
-  Scenario: a frozen scenario with no verification blocks aligned
+  Scenario: a frozen scenario with no verification blocks the impl gate
     Given a frozen scenario that has no verification
     When the cold impl-judge runs
     Then it reports that scenario failing
-    And impl-layer aligned is blocked
+    And status does not advance to implemented
 
   Scenario: the impl layer is not checked at the spec gate
     Given the conductor is at the spec gate
-    When it sets aligned for that gate's layer
+    When it judges that gate
     Then it does not check the impl layer
 
   # ---- Stop-provenance — why I halted, not just why I went ----

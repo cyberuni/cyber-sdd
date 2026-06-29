@@ -19,7 +19,7 @@ it does not produce.
 | Trigger | Inputs | Outcome |
 |---|---|---|
 | **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
-| **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept aligned, never frozen |
+| **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
 | **run structural provenance / alignment / spec-type checks** — before any verdict | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only |
 
@@ -65,8 +65,8 @@ the delta.
 `@frozen` tag — no scenario edits to a frozen file without a ratified re-open; untouched files
 keep their state. An *additive* scenario folds into a frozen file without unfreezing it
 (self-clears); a *narrowing/rewriting* edit unfreezes its file and fires **Clearance**.
-`spec.md` is **kept aligned, never frozen** — editable, but it may not contradict a frozen
-scenario; that invariant is enforced by the alignment check and the judge, not by a flat freeze
+`spec.md` is **kept in sync, never frozen** — editable, but it may not contradict a frozen
+scenario; that invariant is enforced by the coverage judge, not by a flat freeze
 of the prose. Vocabulary is **freeze/unfreeze**; "lock" is reserved for the concurrency layer.
 Freeze rules: `../../design/lifecycle-model.md`.
 

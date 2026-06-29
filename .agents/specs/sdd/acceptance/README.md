@@ -48,7 +48,7 @@ Sources: `sdd-contract-registry`, `automaton-resolution`, `plugin/` init-WRITE.
 ### D. Freeze (authoring spec gate → mission impl gate)
 Sources: `automaton-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
 
-- D1. A spec-gate approve freezes the `.feature` files the CR touched (a per-file `@frozen` tag); `spec.md` is kept aligned but never frozen, and the plan (brief + ordered `todos`) is never frozen — with no separate plan gate.
+- D1. A spec-gate approve freezes the `.feature` files the CR touched (a per-file `@frozen` tag); `spec.md` is kept in sync but never frozen, and the plan (brief + ordered `todos`) is never frozen — with no separate plan gate.
 - D2. The frozen `.feature` is the object at the spec gate and the bar at the impl gate.
 - D3. An agent refuses to edit a frozen `.feature` and directs reverting to draft.
 - D4. A fatal deal-breaker reverts an approved spec to draft (a Director-revert) and unfreezes the `.feature`.
@@ -58,9 +58,9 @@ Sources: `automaton-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
 Sources: `sdd-gate-autonomy`, `automaton-deliver`, `sdd-mission-loop`.
 
 - E1. The gate report carries a verdict with its Director/Builder/Architect-lens faces, the contestable defaults chosen, and a flag when self-asserted; it is regenerated from current state, never stored.
-- E2. The impl gate passes only when every frozen scenario has a passing verification; an uncovered scenario fails it and leaves `aligned` false.
+- E2. The impl gate passes only when every frozen scenario has a passing verification; an uncovered scenario fails it and `status` stays `approved`.
 - E3. The cold judge runs the producer's verification and adds its own structural/scope reading; the producer never declares its own pass verdict.
-- E4. `aligned` is set true only when every impl-judge passes, and the gate station (not the conductor) writes `status` and the human ratification.
+- E4. `status` advances to `implemented` only when every impl-judge passes, and the gate station (not the conductor) writes `status` and the human ratification.
 
 ### F. Handoff (mission verified result → delivery shape)
 Sources: `mission/handoff/` (new), commit discipline.

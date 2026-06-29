@@ -28,8 +28,8 @@ classifier holding no production logic.
 
 **Non-goals** — it holds **no** production logic, edits no project files, registers no hooks,
 installs nothing, requires no CLI; it **never drafts or ratifies** strategy (only surfaces the
-pending count); and it writes **no** `status` / `aligned` / `approval` (the gate / conductor own
-those).
+pending count) and **never resumes or retires** a mission (only surfaces the resumable briefs); and
+it writes **no** `status` / `aligned` / `approval` (the gate / conductor own those).
 
 Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these behaviors:
 
@@ -42,6 +42,7 @@ Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these be
 | **change → start-mission** | a request to change the project / spec loads `start-mission` in-session |
 | **the four-option rule** | an intake question presents at most four options, never truncating silently |
 | **surface pending strategy** | on Council re-entry, surface the count of unratified `strategy` lines in the root `ledger.jsonl` as an entry point — never draft or ratify |
+| **surface in-progress missions** | on re-entry, surface the resumable mission plan briefs (via the `discover-plans` engine) as a resume entry point — never resume or retire |
 | **headless → automaton** | with no user channel, the gateway spawns the **automaton** (the headless driver) instead of working in-session |
 | **ambiguity routes into a mission** | a request that may touch behavior but names no skill loads `start-mission` so the grill decides |
 | **escape** | a non-CR (no suite-relevant behavior) proceeds outside the lifecycle, leaving no SDD record |
@@ -65,6 +66,15 @@ not an up-front classifier, so ambiguity is routed in and decided during explore
   the count: it never drafts strategy (the Scanner's job) nor ratifies it (the Council's positional
   act). A zero count is not surfaced. (`strategy` lives in the durable `ledger.jsonl`, never in the
   per-mission `*.log.jsonl` combat log — `../common-governances/combat-log/`.)
+- **Surface in-progress missions.** On re-entry, surface the **resumable missions** — the plan
+  briefs under `.agents/plans` — as a resume entry point, via the **`discover-plans`** engine
+  (`../intake/plan-discovery/`). A present `*.plan.md` is an unretired mission (retirement deletes
+  the brief), so each one the engine lists is resumable; the gateway shows the CR ref, its todo
+  tally, and the `## NEXT` lead so the user can pick one up via `resume-mission`. The gateway only
+  *surfaces*: it never **resumes** (that loads `resume-mission`) nor **retires** (the doctrine
+  loop's `plan-retirement`). An empty set is not surfaced. This is the **resumable-mission** sibling
+  of surface-pending-strategy — two distinct concerns: pending strategy is the doctrine loop's
+  unratified ledger lines for the Council; in-progress missions are paused work to continue.
 - **Never ask more than four options (hard rule).** A single `AskUserQuestion` carries at most four
   options — the intake tool rejects more than four (`too_big, maximum 4`). When a derived list would
   exceed four, present only the most-actionable few (≤ 4) or ask the user to name the target

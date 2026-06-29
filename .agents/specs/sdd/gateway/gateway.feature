@@ -32,6 +32,17 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     Then the gateway surfaces the count of pending strategy as an entry point
     And it neither drafts nor ratifies any strategy
 
+  Scenario: in-progress missions are surfaced on re-entry
+    Given resumable mission plan briefs exist under the plans location
+    When the user re-enters through the gateway
+    Then the gateway surfaces the in-progress missions via the discover-plans engine as a resume entry point
+    And it neither resumes nor retires any mission itself
+
+  Scenario: no in-progress missions surfaces nothing
+    Given no plan briefs exist under the plans location
+    When the user re-enters through the gateway
+    Then the gateway surfaces no resume entry point
+
   Scenario: the gateway scans statuses with the discover-specs engine
     Given the user asks the gateway to help choose the most-actionable spec
     When the gateway scans the project statuses

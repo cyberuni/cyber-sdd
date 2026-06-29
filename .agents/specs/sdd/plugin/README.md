@@ -73,9 +73,9 @@ loads is owned by `../design/specialists-and-squads.md`.
 
 A domain plugin's `init-<plugin>` skill writes that plugin's `sdd-plugins[]` entry into
 `.agents/universal-plugin.json` at install/upgrade/re-run time. This folder owns the
-**write**; the entry **shape** (the five-role map and governance bindings) is owned by
-`../design/specialists-and-squads.md`, and **resolving** an entry at runtime is owned by
-`../mission/`.
+**write**; the entry **shape** (the `squads[]` map — each squad a set of artifact-types →
+its five-role chain + governance bindings) is owned by `../design/specialists-and-squads.md`,
+and **resolving** an entry at runtime is owned by `../mission/`.
 
 The write is idempotent and self-reconciling:
 
@@ -85,8 +85,8 @@ The write is idempotent and self-reconciling:
    let a human repair it).
 3. Find the entry whose `name` matches this plugin; replace it if present, append it if not.
 4. Reconcile a stale entry against the plugin's own version: on a `version` mismatch, update
-   `version` and bring `roles`/`governances` to the current plugin shape; rewrite an
-   old-shape entry to the role-map shape.
+   `version` and bring its `squads[]` to the current plugin shape; rewrite an old-shape entry
+   (legacy `domains[]` + a shared `roles`/`governances`) to the `squads[]` shape.
 5. Write back without reordering or reformatting other entries.
 
 Version reconciliation is the init skill's job at install/upgrade/re-run, so the runtime

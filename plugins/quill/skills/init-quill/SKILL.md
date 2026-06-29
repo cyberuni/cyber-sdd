@@ -24,8 +24,8 @@ Read quill's own version from its plugin manifest (it ships inside the plugin, s
 Find the entry where `"name": "quill"` in the `sdd-plugins` array:
 
 - **Not found** → append the canonical entry (create the array if absent).
-- **Found, old shape** (the pre-operator `scenario-advisor` / `implementer` keys) → **rewrite** it to the role-map shape below. The operator never reads the old shape — migration is rewrite-on-init, not a dual-reader.
-- **Found, role-map shape, stale `version`** → rewrite when the recorded version differs from quill's own (install / upgrade / manual re-run reconciles drift here; the operator never compares versions at runtime).
+- **Found, old shape** (the pre-operator `scenario-advisor` / `implementer` keys, or the legacy `domains[]` + shared `roles`/`governances`) → **rewrite** it to the `squads[]` shape below. The conductor never reads the old shape — migration is rewrite-on-init, not a dual-reader.
+- **Found, `squads[]` shape, stale `version`** → rewrite when the recorded version differs from quill's own (install / upgrade / manual re-run reconciles drift here; the conductor never compares versions at runtime).
 
 Do not reorder or reformat other entries.
 
@@ -35,21 +35,31 @@ Do not reorder or reformat other entries.
 {
   "name": "quill",
   "version": "<quill version>",
-  "domains": ["documentation", "guide", "tutorial", "article", "reference"],
-  "roles": {
-    "spec-producer": "quill-writer",
-    "plan-producer": null,
-    "spec-judge": null,
-    "impl-producer": "quill-doc-writer",
-    "impl-judge": "quill-implementer"
-  },
-  "governances": { "director": null, "builder": null, "architect": null }
+  "squads": [
+    {
+      "artifact-types": ["documentation", "guide", "tutorial", "article", "reference"],
+      "roles": {
+        "spec-producer": "quill-writer",
+        "solution-producer": null,
+        "spec-judge": null,
+        "impl-producer": "quill-doc-writer",
+        "impl-judge": "quill-implementer"
+      },
+      "governances": {
+        "director-spec": null,
+        "builder-spec": null,
+        "builder-impl": null,
+        "architect-spec": null,
+        "architect-impl": null
+      }
+    }
+  ]
 }
 ```
 
-`spec-judge: null` degenerates to static doc criteria that `validate-spec` runs — no judge agent. `plan-producer: null` uses the SDD default planner. Each `null` governance uses the SDD default actor governance.
+quill serves its five documentation artifact-types with one squad. `spec-judge: null` degenerates to static doc criteria that `validate-spec` runs — no judge agent. `solution-producer: null` uses the SDD default. Each `null` governance uses the SDD default actor-gate bar.
 
-**The `governances` block is required.** Every entry must carry a `governances` map (each binding may be `null`, but the block itself must be present). Reject a payload with no `governances` block — fail with an error and **do not write** the file.
+**Each squad's `governances` block is required.** Every squad must carry a `governances` map (each binding may be `null`, but the block itself must be present). Reject a payload with a squad missing its `governances` block — fail with an error and **do not write** the file.
 
 ### 4. Write the updated file
 

@@ -1,3 +1,7 @@
+---
+spec-type: behavioral
+---
+
 # plugin/ — SDD's plugin nature
 
 SDD's **plugin nature**, two-faced: SDD **ships as a plugin** to a host agent runtime, and
@@ -5,6 +9,24 @@ SDD **is extended by domain plugins** that fill its production-chain roles. This
 the packaging/manifest face and the plugin-contract + registry **init-WRITE** face. The
 registry **shape** lives in `../design/specialists-and-squads.md`; the registry
 **READ/resolution** lives in `../mission/`; only the **init-WRITE** lives here.
+
+## Use Cases
+
+**Subject** — SDD's plugin packaging (the public manifest), workspace init (the plan directory +
+Cursor symlink), and the contract-registry **init-WRITE**.
+**Non-goals** — it does **not** own the registry **shape** (→ `../design/specialists-and-squads.md`)
+or its **READ/resolution** (→ `../mission/`); the **plugin contract** itself is the reference node
+[`./plugin-contract/`](./plugin-contract/README.md); and the user-facing **plugin/governance
+management** + **marketplace** are net-new, deferred to follow-up CRs (their spec + suite are
+authored when that work lands).
+
+| Trigger | Inputs | Outcome |
+|---|---|---|
+| **ships-as-plugin manifest** — the SDD plugin is packaged | the SDD plugin directory | a `plugin.json` declaring `name` + the `skills` / `agents` pointers (the host-runtime contract) |
+| **workspace init** — SDD's own `init` skill prepares a repo | a repo | `.agents/plans/` ensured + `.cursor/plans` symlinked to it; idempotent and non-clobbering |
+| **contract-registry init-WRITE** — a domain plugin's `init-<plugin>` runs | a plugin + `.agents/universal-plugin.json` | the plugin's `sdd-plugins[]` entry written idempotently and self-reconciled to the current shape |
+
+Every scenario in [`plugin.feature`](./plugin.feature) maps to one of these three entry points.
 
 ## SDD ships as a plugin
 
@@ -109,13 +131,10 @@ These are **net-new capabilities, deferred to follow-up CRs** — the impl is no
 captures the shape so the `../gateway/` has a declared route; the spec + suite are authored when the
 work lands.
 
-## Scenarios
-
-Unit scenarios for plugin behavior (manifest validity, idempotent init-write,
-fail-closed on a corrupt registry, version reconciliation, the `.cursor/plans` symlink +
-its no-clobber migration) **colocate** in this folder.
-Cross-capability outcomes (a plugin registers and the conductor later resolves its delegates)
-live in `../acceptance/`.
+Unit scenarios for plugin behavior (manifest validity, idempotent init-write, fail-closed on a
+corrupt registry, version reconciliation, the `.cursor/plans` symlink + its no-clobber migration)
+are in [`plugin.feature`](./plugin.feature). Cross-capability outcomes (a plugin registers and the
+conductor later resolves its delegates) live in [`../acceptance/`](../acceptance/README.md).
 
 ## Source
 

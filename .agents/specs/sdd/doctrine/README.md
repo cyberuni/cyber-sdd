@@ -7,9 +7,9 @@ inner mission loop. It fires at **lifecycle granularity, never per-gate**.
 
 Standing subject: **the process — `design/`** (the methodology and its rules), and the broader
 corpus of skills, governances, and conventions that doctrine is the principles slice of. The
-Scanner watches every spec reach a terminal state, drafts **strategy** (forward recommendations
-to revise governances, conventions, skills), and surfaces it to the human **Council** for
-keep-or-cut.
+Scanner watches every **mission** reach a terminal state, drafts **strategy** (forward
+recommendations to revise governances, conventions, skills), and surfaces it to the human
+**Council** for keep-or-cut.
 
 ## Detect-and-draft vs keep-or-cut
 
@@ -32,7 +32,8 @@ to keep-or-cut. On **ratify**,
 the strategy re-enters as a **new CR** (`intake/README.md`) that re-tunes the
 **doctrine** (`design/`) and grows the corpus; on **cut**, it stays unratified and absent.
 
-The Scanner **observes** the terminal transitions; it **never writes** spec `status`.
+The Scanner **observes** a mission's terminal transition; it **never writes** the `status`
+transition itself (the impl gate or the deprecation path does).
 
 ## Triggers — the six use cases
 
@@ -44,7 +45,7 @@ below:
 | **Ship** | `→ implemented` (the impl gate writes it) | the concluded mission's combat log (**PRIMARY**) + *[opt]* transcripts | strategy from a successful mission |
 | **Kill** | `→ deprecated` (the deprecation path writes it) | the concluded mission's combat log — why it failed (**PRIMARY**) + *[opt]* transcripts | strategy from the failure |
 | **Milestone retro** | a human-held retro | the milestone's concluded combat logs | strategy across the milestone |
-| **Recurring pattern** | the same correction recurs across missions | the **distilled `cause` recurrence count** in the ledger (maintained mission-over-mission), never a re-scan of many specs' raw logs | strategy to codify the pattern |
+| **Recurring pattern** | the same correction recurs across missions | the **distilled `cause` recurrence count** in the ledger (maintained mission-over-mission), never a re-scan of many missions' raw logs | strategy to codify the pattern |
 | **Drift / staleness** | a now-false convention or governance contradiction | the corpus (conventions, governances) | a **PRUNE** strategy |
 | **Token-waste** | mission/session token cost over a **configurable bound**, **or** on-demand retro | the mission's raw `.jsonl` transcripts — **not** the combat log | efficiency strategy |
 

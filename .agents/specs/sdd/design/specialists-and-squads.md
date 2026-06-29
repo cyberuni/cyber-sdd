@@ -13,12 +13,12 @@ artifact-type → { producer, judge, governances (actor + discipline), model, ef
 ```
 
 - **One squad per artifact-type; one producer per file.**
-  No domain arrays, no producer composition, no "best match" producer race.
+  No producer composition, no "best match" producer race — each file resolves to exactly one squad.
   The exclusion is **per file**, not per spec: a project-spec CR touches many artifact-types and so summons **multiple** specialists at once, but **no two producers ever act on the same file**.
   Each file has exactly one artifact-type → exactly one squad → exactly one producer; the conductor orchestrates the set and merges their outputs.
-- **artifact-type** = the squad key.
-  It names the artifact / squad (`npm-package`, `agent-plugin`, `agent-skill`, `agent-definition`, `react-component`, `docs`, …).
-  Each **file** has exactly one artifact-type; the spec's `artifact-types` frontmatter (plural) lists the **set** the project spans.
+- **artifact-type** = the squad key (`artifact-type.md`).
+  It names the artifact / squad (`skill`, `subagent`, `command`, `agents-section`, `docs`, `npm-package`, `react-component`, …) — an open string, never a folder name.
+  Each **file** has exactly one artifact-type, **resolved not stored** (`artifact-type.md`); a project spans many types and summons one squad per type.
   There is no structural `project | feature` axis — one project is one spec, and folders are views, not lifecycle units (see `project-unit.md`).
 - **Disciplines (process/workflow) fold into governances.**
   "Basic knowledge" (React, TS, logic) is never *loaded* — it is just picking the right **model + effort**.
@@ -29,9 +29,9 @@ artifact-type → { producer, judge, governances (actor + discipline), model, ef
 A **squad** = the producer + judge **specialists** (with their gear — governances, model, and effort) for one artifact-type.
 A CR summons the squads for the artifact-types it touches; the **conductor** (the main session) orchestrates them and delivers.
 
-**`domain-plugin` stays distinct from `produced-by`.**
-`domain-plugin` = the chosen plugin for an ambiguous artifact-type (forward input to resolution); `produced-by` = who actually produced each artifact (after-the-fact record, see `provenance-model.md`).
-The produced-by cutover wrongly conflated them — this was the original `sdd-plugin` impl-gate blocker.
+**The contested-type choice stays distinct from `produced-by`.**
+The chosen plugin for a contested artifact-type is a forward input to resolution (decisive on resume); `produced-by` = who actually produced each artifact (after-the-fact record, see `provenance-model.md`).
+Conflating them was the original `sdd-plugin` impl-gate blocker.
 
 ## The five delegate roles (closed set)
 
@@ -80,24 +80,34 @@ How each resolved-actor bar is discovered, composed, and loaded: `governance-res
 
 ## Registry SHAPE
 
-The registry lives in `.agents/universal-plugin.json` as a top-level `sdd-plugins[]` array — a project-level map from each installed domain plugin to the SDD production-chain roles it fills.
+The registry lives in `.agents/universal-plugin.json` as a top-level `sdd-plugins[]` array — a project-level map from each installed plugin to the **squads** it provides.
 It is the **single resolution source** the conductor reads; there is no out-of-band assignment fallback.
 The conductor reads **only** this file — it does not scan plugin directories.
-Each entry:
+Each entry declares one or more **squads**, each serving a **set of artifact-types** (the squad-per-artifact-type principle, without duplicating a shared squad):
 
 ```json
 {
   "name": "<plugin>",
   "version": "<semver>",
-  "domains": ["<artifact-type>", "..."],
-  "roles": {
-    "spec-producer": "<agent | null>",
-    "solution-producer": "<agent | null>",
-    "spec-judge":    "<agent | null>",
-    "impl-producer": "<agent | null>",
-    "impl-judge":    "<agent | null>"
-  },
-  "governances": { "director": "<name | null>", "builder": "<name | null>", "architect": "<name | null>" }
+  "squads": [
+    {
+      "artifact-types": ["<artifact-type>", "..."],
+      "roles": {
+        "spec-producer": "<agent | null>",
+        "solution-producer": "<agent | null>",
+        "spec-judge":    "<agent | null>",
+        "impl-producer": "<agent | null>",
+        "impl-judge":    "<agent | null>"
+      },
+      "governances": {
+        "director-spec":  "<name | null>",
+        "builder-spec":   "<name | null>",
+        "builder-impl":   "<name | null>",
+        "architect-spec": "<name | null>",
+        "architect-impl": "<name | null>"
+      }
+    }
+  ]
 }
 ```
 
@@ -105,9 +115,10 @@ Each entry:
 |---|---|---|
 | `name` | Yes | Plugin name; matches the plugin's `.plugin/plugin.json` `name` |
 | `version` | Yes | Installed plugin version |
-| `domains` | Yes | Open-string **artifact-type**s this plugin covers (e.g. `skill`, `subagent`, `command`, `agents-section`) — never folder names; new types need no schema bump |
-| `roles` | Yes | Map of the five production-chain roles to agents; `null` or omitted = SDD default (a spec/solution-producer role → conductor authors inline as `sdd:automaton`; an impl-producer role → conductor spawns a builder; a judge role → conductor spawns the cold SDD-default judge agent) |
-| `governances` | Yes | Actor-governance bindings (`director`, `builder`, `architect`); the block is required, each binding may be `null` = SDD default |
+| `squads` | Yes | One or more squads. A squad = `{ artifact-types[], roles{}, governances{} }`. A plugin needing a *different* producer/judge per type lists multiple squads; a shared squad lists many types. The plugin's served set (marketplace discovery) = the union of all `squads[].artifact-types` |
+| `squads[].artifact-types` | Yes | Open-string **artifact-type**s this squad serves (e.g. `skill`, `subagent`, `command`, `agents-section`) — never folder names; new types need no schema bump. A type appears in **at most one** squad per plugin |
+| `squads[].roles` | Yes | Map of the five production-chain roles to agents; `null` or omitted = SDD default (a spec/solution-producer role → conductor authors inline as `sdd:automaton`; an impl-producer role → conductor spawns a builder; a judge role → conductor spawns the cold SDD-default judge agent) |
+| `squads[].governances` | Yes | Model-B actor-gate bars (`director-spec`, `builder-spec`, `builder-impl`, `architect-spec`, `architect-impl`); the block is required, each binding may be `null` = SDD default |
 
 **Degeneration of `null` / missing keys** (this file guarantees only what is a valid *stored* shape; the traversal is the conductor's):
 
@@ -116,11 +127,10 @@ Each entry:
 - **A judge role** (`spec-judge`, `impl-judge`) that is `null` or absent → the conductor **spawns the SDD-default cold judge agent** (`sdd-spec-judge`, `sdd-implementer`).
   A judge default is never loaded inline — grader independence requires a cold context.
 
-**Resolution** (owned by `../mission/`, shown here because the shape is its direct input): resolution is **per file** — each file's **artifact-type** (the squad key, **not** the folder name) is matched against each entry's `domains[]`.
-The spec's `artifact-types` frontmatter lists the set the project spans; a project touching several types summons several squads at once, one per file — never one spec-`type` matched against `domains[]`.
-For a given artifact-type: absent or unmatched → zero matches → all roles degenerate to SDD defaults.
-One match → resolve each role and governance key (name = use it; `null` = SDD default; missing role key = `<plugin>-<role>`).
-Two or more matches → read the **`domain-plugin`** map; if it names the chosen plugin for this artifact-type, use it, else return `needs-input` for the producing path to ask (the answer is written to `domain-plugin`, decisive on resume).
-`domain-plugin` (the chosen plugin for a contested artifact-type) stays **distinct** from `produced-by` (the after-the-fact record of who produced each artifact).
+**Resolution** (owned by `../mission/`, shown here because the shape is its direct input): resolution is **per file** — each file's **artifact-type** (the squad key, **not** the folder name; resolved per `artifact-type.md`) is matched against each plugin's `squads[]`: the squad whose `artifact-types` contains it serves the file.
+A project touching several types summons several squads at once, one per file.
+For a given artifact-type: absent or unmatched across all plugins → SDD defaults.
+One matching squad → resolve each role and governance key (name = use it; `null` = SDD default; missing role key = `<plugin>-<role>`).
+Two or more plugins claim the type → **contested**: return `needs-input` for the producing path to ask; the choice is recorded (decisive on resume) — the contested-type disambiguation (`artifact-type.md`), distinct from `produced-by` (the after-the-fact record of who produced each artifact).
 
 The **init-WRITE** of an entry (a plugin registering itself idempotently, version-reconciling, fail-closed on a corrupt registry) is a *behavior* and lives in `../plugin/`, not here — this file owns only the stored shape.

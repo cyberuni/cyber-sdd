@@ -1,7 +1,7 @@
 # Governance resolution
 
 How an actor/discipline **governance** is defined, discovered, composed, and loaded for a production-chain role.
-Companion to `actors-governance.md` (what governances are) and `specialists-and-squads.md` (the squad and the per-role loadout).
+Companion to `actors-governance.md` (what governances are), `specialists-and-squads.md` (the squad and the per-role loadout), and `artifact-type.md` (the squad key and how a file resolves to one).
 Rule side only; the mechanical resolution is a deterministic helper (below).
 
 ## Two tiers

@@ -59,7 +59,7 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Given the spec-producer authoring a diff
     When it writes its output
     Then it writes the spec.md body and the .feature scenarios
-    And it does not write the status, aligned, approval, or produced-by frontmatter
+    And it does not write the status, project-path, approval, or produced-by frontmatter
 
   Scenario: scoring lingo is confined to a tagged rubric scenario
     Given the producer writes a gradient behavior that needs a rubric

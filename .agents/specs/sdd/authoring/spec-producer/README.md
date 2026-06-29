@@ -19,7 +19,7 @@ suite delta, it does not receive it.
 
 **Subject** — the spec-producer procedure: turning one CR into a spec + suite diff.
 **Non-goals** — it renders no gate verdict, freezes nothing, and emits no digest (those are
-`../validate-spec/`); it does not write the control frontmatter (`status` / `aligned` /
+`../validate-spec/`); it does not write the control frontmatter (`status` / `project-path` /
 `approval` / `produced-by`).
 
 The procedure runs in one of **three modes** — the distinct ways it is invoked:
@@ -74,7 +74,7 @@ Phase 2 — the suite:
 The producer writes the **spec body and the `.feature`**, nothing else:
 
 - It writes `spec.md` prose and the `.feature` scenarios.
-- It does **not** write the `status`, `aligned`, `approval`, or `produced-by` frontmatter —
+- It does **not** write the `status`, `project-path`, `approval`, or `produced-by` frontmatter —
   those are the conductor's and the gate's (`../../design/provenance-model.md`).
 - Scoring lingo appears **only** inside a `@rubric`-tagged scenario; every untagged scenario
   stays a pure boolean assertion (`../suite-format/README.md`).

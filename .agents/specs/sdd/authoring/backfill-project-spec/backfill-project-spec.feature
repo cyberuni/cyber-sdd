@@ -88,20 +88,21 @@ Feature: backfill-project-spec — lay out an existing project's spec
 
   # ---- Declared organization ----
 
-  Scenario: the spec-layout frontmatter is written on the root spec.md
+  Scenario: the project-path frontmatter is written on the root spec.md
     Given a chosen strategy and location
     When the bootstrap writes the root spec.md
-    Then the root frontmatter carries a spec-layout block with the strategy and location
+    Then the root frontmatter carries project-path naming the governed source dir
+    And the frontmatter carries no spec-layout block
 
-  Scenario: the placement map is written into the root body
+  Scenario: the placement map naming the strategy is written into the root body
     Given the bootstrap writes the root spec.md
     When it records the organization
-    Then the body contains the placement map
+    Then the body contains the placement map naming the chosen strategy
 
   Scenario: the produced root passes the static state check
     Given a tree the bootstrap has scaffolded
     When check-spec-state runs over it
-    Then the root spec-layout block and lifecycle tuple are legal
+    Then the root lifecycle tuple is legal
 
   # ---- Hand-back and boundary ----
 

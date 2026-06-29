@@ -17,17 +17,17 @@ runs **once at bootstrap**, before the normal per-unit explore (`../spec-produce
 
 ## Use Cases
 
-**Subject** — choosing and scaffolding the *organization* of one project's spec (its layout + declared
-`spec-layout`), then handing back to per-unit explore.
+**Subject** — choosing and scaffolding the *organization* of one project's spec (its layout, the
+`project-path` frontmatter + the body placement map), then handing back to per-unit explore.
 **Non-goals** — it does **not** fill each node's `## Use Cases` + `.feature` (that is `../spec-producer/`
 during explore); it renders **no** gate verdict and freezes nothing (`../validate-spec/`); it does **not**
-write the control frontmatter `status` / `aligned` / `approval` / `produced-by`; ongoing **re-organization**
+write the control frontmatter `status` / `approval` / `produced-by`; ongoing **re-organization**
 of an existing spec is the formation **Warden**'s (`../../formation/`), not this unit; it does not implement
 the project it scaffolds.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **bootstrap** — an existing project (or one package) with no consolidated spec | the project source + the user's **location** and **strategy** choices | a scaffolded **draft** spec tree: the shared envelope + the strategy skeleton + stub nodes (each declaring a legal `spec-type`) + root `spec.md` carrying the `spec-layout` frontmatter and the placement map, at `status: draft` |
+| **bootstrap** — an existing project (or one package) with no consolidated spec | the project source + the user's **location** and **strategy** choices | a scaffolded **draft** spec tree: the shared envelope + the strategy skeleton + stub nodes (each declaring a legal `spec-type`) + root `spec.md` carrying the `project-path` frontmatter and the body placement map, at `status: draft` |
 | **monorepo** — a repo with multiple package anchors | the repo + the user's per-project selection | one **bootstrap** per chosen package (each hoisted to `<repo>/.agents/specs/<pkg>/`) plus the outer project (`<repo>/.agents/spec/`), several draft trees in one pass |
 
 Every scenario in [`backfill-project-spec.feature`](./backfill-project-spec.feature) maps to one of these two
@@ -55,18 +55,18 @@ In order; the conductor runs it in-session, surfacing each choice to the user (r
    node READMEs, each declaring a **legal `spec-type`** (testable surface → behavioral; shipped suite-less
    artifact → reference + `## Subject`; index / rule / structural grouping → descriptive). Under
    **mirror-source**, mirror only to the **unit boundary** — no node is created below a behavioral leaf.
-5. **Declare** the organization: write the **`spec-layout` frontmatter** (strategy + location +
-   placement-map pointer) on root `spec.md`, and the **placement map** into its body — both in the same act,
-   so the layout is read, never re-derived (`../../design/spec-layout.md`).
+5. **Declare** the organization: write the **`project-path` frontmatter** (the governed source dir; the
+   spec location mode is derived from it) on root `spec.md`, and the **placement map** — naming the chosen
+   strategy — into its body, so the layout is read, never re-derived. There is **no `spec-layout` block**
+   (`../../design/spec-layout.md`; ADR-0017).
 6. **Hand back** to `start-mission`'s per-unit explore to fill each behavioral node; **propose** node
    placement for the formation **Warden** to confirm or relocate. Leave the tree at `status: draft`.
 
 ## The output boundary
 
 - It writes the **skeleton** (folders + stub node READMEs with declared `spec-type`), the root `spec.md`
-  envelope (the `spec-layout` frontmatter + the placement map), and the `design/decisions/` + glossary homes.
+  envelope (the `project-path` frontmatter + the placement map), and the `design/decisions/` + glossary homes.
 - It does **not** author any node's `## Use Cases` or `.feature` (that is the per-unit explore), render a gate
-  verdict, freeze, or write `status` / `aligned` / `approval` / `produced-by` — those belong to the conductor
+  verdict, freeze, or write `status` / `approval` / `produced-by` — those belong to the conductor
   and `../validate-spec/`.
-- The produced root passes `../validate-spec/scripts/check-spec-state.mts` (a legal `spec-layout` block and a
-  legal root tuple).
+- The produced root passes `../validate-spec/scripts/check-spec-state.mts` (a legal root tuple).

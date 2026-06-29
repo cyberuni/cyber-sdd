@@ -11,8 +11,6 @@ This file is the rule side only.
 ```yaml
 ---
 status: draft           # draft | approved | implemented | deprecated
-artifact-types:         # the artifact-types / squad keys this project touches: e.g. skill, subagent, command, agents-section, npm-package, docs; omit for a plain-code domain. Resolution is per file (each file's artifact-type -> its squad).
-  - skill
 spec-layout:            # the declared organization strategy + spec location (design/spec-layout.md); read, never re-derived by scanning
   strategy: capability-first   # capability-first | mirror-source | bounded-context | layered | doc-envelope
   location: colocated          # colocated | hoisted | monorepo-member
@@ -43,7 +41,8 @@ domain-plugin:          # map: artifact-type -> owning plugin, when an artifact-
 Open input is recorded in the body as `<!-- open: ...
 -->` markers, not in frontmatter.
 
-`status` is the base schema; `artifact-types`, `spec-layout`, `aligned`, `strategy`, `approval`, `produced-by`, and `domain-plugin` are the SDD-workflow additions.
+`status` is the base schema; `spec-layout`, `aligned`, `strategy`, `approval`, `produced-by`, and `domain-plugin` are the SDD-workflow additions.
+A file's **artifact-type** (the squad key) is **resolved per file, not stored** in this frontmatter (`../design/artifact-type.md`); the project carries no root `artifact-types` summary.
 `spec-layout` declares the organization strategy + spec location (`../design/spec-layout.md`); it is written once by `backfill-project-spec` at scaffold and rewritten only by the formation Warden during a deliberate reorganization.
 `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced.
 Do not commit SDD artifacts while their spec is `aligned: false`.
@@ -205,7 +204,6 @@ This is positional, not definitional: the same automaton, run in-session as the 
 | `approval` human ratification (`verdict` + `by: <name>`) | the gate skill, **in-session position only** |
 | `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the conductor (synthesis) |
 | `aligned`, `strategy`, `<!-- open: -->` markers | the conductor |
-| `artifact-types` | `start-mission` (at scaffold) |
 | `spec.md` body + the `.feature` | the spec-producer |
 
 The leash (`strategy.leash`, run-level) and the self-clear-vs-escalate bar that derives it live in `autonomy-rubric.md`; there is **no per-gate `leash` field** in an `approval` entry.

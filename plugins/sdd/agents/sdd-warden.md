@@ -55,7 +55,7 @@ Surface the proposal for the Council's confirmation through the relay; never mer
 
 ## Altitude discipline — route out-of-loop requests away
 
-- a **build-or-deprecate** proposal → you produce **no** build-or-deprecate decision; route it to the **Campaign loop** (Director).
+- a **build-or-deprecate** proposal → you produce **no** build-or-deprecate decision; route it to the **Campaign loop** (Oracle).
 - a **process lesson** → you emit **no** governance or process edit; route it to the **Doctrine loop** (Strategist).
 - a **per-spec gate structural check** → declined; you do not run as the gate check.
 

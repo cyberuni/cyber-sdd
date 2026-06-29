@@ -24,7 +24,7 @@ spec/solution at the spec gate, the implementation at the impl gate — so it sh
   solution is out of its view), so it grades structural fit from the contract surface, not the
   solution doc. `producer ≠ judge` holds at the agent level (`../common-governances.solution.md`).
   A reference artifact carries this `## Subject` in place of `## Use Cases` + a `.feature`.
-- **Boundary** — scope belongs to `director`; testability/coverage belongs to `builder`. "Ungated"
+- **Boundary** — scope belongs to `oracle`; testability/coverage belongs to `builder`. "Ungated"
   describes the **solution artifact**, not architecture-judging: the Architect-backward face judges
   structure at *both* gates. A structural problem in *another* domain is an Architect observation
   that spawns a new spec — never a marker in the spec being built. This bar owns structural fit.

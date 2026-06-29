@@ -74,7 +74,7 @@ test('resolution: A required role with no resolvable delegate hard-fails', () =>
 })
 
 test('resolution: An actor governance is resolved from the registry with an SDD default', () => {
-	assert.ok(has('governances{ director, builder, architect }'))
+	assert.ok(has('governances{ oracle, builder, architect }'))
 	assert.ok(hasAny('`null` = SDD default', 'null = SDD default'))
 })
 

@@ -8,7 +8,7 @@ user-invocable: false
 
 The procedure the **Operator** follows when it runs the **spec-producer** role from the SDD default — i.e. no plugin covers the domain and no model-tuned producer agent is named for the slot, so the Operator **loads this governance and authors inline** in its own warm context (recorded `produced-by.spec-producer: sdd:sdd-operator`). This is the producer-side relocation of the former `sdd-scenario-writer` agent: same procedure, run inline by the conductor rather than spawned. The grader is separate — a **cold spec-judge** (`sdd:sdd-spec-judge` or the plugin's judge) always reviews the output; this governance never judges its own work.
 
-Load alongside this governance: `sdd:spec-governance` (the `.feature` format bar, scenario-ordering convention, and the `spec.md` enrichment / human-readability rule) and the resolved **director** + **builder** actor bars (scope and testability/coverage) to self-align before writing. Load `sdd:ownership-governance` for the write-ownership matrix — which fields the spec-producer may write and which belong to the Operator or the gate skill.
+Load alongside this governance: `sdd:spec-governance` (the `.feature` format bar, scenario-ordering convention, and the `spec.md` enrichment / human-readability rule) and the resolved **oracle** + **builder** actor bars (scope and testability/coverage) to self-align before writing. Load `sdd:ownership-governance` for the write-ownership matrix — which fields the spec-producer may write and which belong to the Operator or the gate skill.
 
 ## Inputs (folded in by the Operator)
 

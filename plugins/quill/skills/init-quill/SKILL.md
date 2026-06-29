@@ -46,7 +46,7 @@ Do not reorder or reformat other entries.
         "impl-judge": "quill-implementer"
       },
       "governances": {
-        "director-spec": null,
+        "oracle-spec": null,
         "builder-spec": null,
         "builder-impl": null,
         "architect-spec": null,

@@ -17,7 +17,7 @@ Each [actor](/motive-model/four-actors/) wears a command hat. The actor names th
 
 | Fleet role | Actor | Commands | Bar |
 |---|---|---|---|
-| **Commander** | Director | the **campaign** — which territories to pursue, what to abandon; the go/no-go to commit or stand down | scope, kill-or-ship |
+| **Commander** | Oracle | the **campaign** — which territories to pursue, what to abandon; the go/no-go to commit or stand down | scope, kill-or-ship |
 | **Battler** | Builder | the **mission** — taking one territory | testability, coverage |
 | **Warden** | Architect | the **formation** — keeping the fleet's order of battle coherent | structural fit |
 | **Scanner** | Strategist | the **watch** — reading combat reports for patterns and drafting doctrine | scope of doctrine, kill-or-keep a lesson |

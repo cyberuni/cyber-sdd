@@ -35,7 +35,7 @@ alignment is **judge-only**; only the `.feature` carries scenario identity.
 
 ## Reconcile
 
-For each gap a **Director-lens (scope)** call sets the direction, then the **Builder (coverage)
+For each gap a **Oracle-lens (scope)** call sets the direction, then the **Builder (coverage)
 lens** fixes coverage:
 
 - **in-scope** → add a scenario to the `.feature`;

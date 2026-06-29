@@ -56,7 +56,7 @@ change-request (CR)     ← intent: the goal you grill into spec + suite deltas
   The lower three (spec + suite, implementation, outcome) are never scaffolding to be thrown away — a drifted spec or a stale suite is a defect at that layer, the same as a bug in the implementation.
   The upper two (CR, plan) are transient intent that is **consumed** into those durable layers, not kept: the CR is grilled away into deltas, the plan is retired at retro.
 - **Change enters at the top and is driven down.**
-  A CR enters as intent and is **grilled** into shape — explore researches the gaps and applies the Director / Builder / Architect lenses, expanding the thin CR into the plan (sequenced work) and the spec + suite deltas together; mission drives those into the implementation; the outcome follows.
+  A CR enters as intent and is **grilled** into shape — explore researches the gaps and applies the Oracle / Builder / Architect lenses, expanding the thin CR into the plan (sequenced work) and the spec + suite deltas together; mission drives those into the implementation; the outcome follows.
   You do not edit outcome directly — you edit the layer that produces it.
 - **The CR is consumed, not stored.**
   Once grilled into spec + suite deltas, the CR's job is done; it does not become a frozen artifact.

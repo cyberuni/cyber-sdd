@@ -81,9 +81,9 @@ Both gates take the same three verbs; what each does differs by gate, because th
 |---|---|---|
 | **approve** | → `approved`; **freeze** the `.feature`; set `approval.spec` | → `implemented`; set `approval.impl` |
 | **change** | revise the contract (`spec.md` / `.feature`); stays `draft` | fix the **code** against the frozen `.feature`; the `.feature` is **not** modified |
-| **reject** | scope-kill — drop or return to `draft` | redo the implementation — **or** a **Director-revert**: building proved a frozen scenario fatal, so **unfreeze** the `.feature` and return to `draft` |
+| **reject** | scope-kill — drop or return to `draft` | redo the implementation — **or** a **Oracle-revert**: building proved a frozen scenario fatal, so **unfreeze** the `.feature` and return to `draft` |
 
-Two asymmetries: at the spec gate **change edits the contract**; at the impl gate **change edits the code** (the frozen `.feature` is off-limits). The impl gate is the **only** place a frozen `.feature` reopens, via the Director-revert — rare and deliberate.
+Two asymmetries: at the spec gate **change edits the contract**; at the impl gate **change edits the code** (the frozen `.feature` is off-limits). The impl gate is the **only** place a frozen `.feature` reopens, via the Oracle-revert — rare and deliberate.
 
 ## Report
 

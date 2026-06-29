@@ -16,7 +16,7 @@ Load `sdd:lifecycle-governance` (status transitions, the freeze re-open transiti
 ## Actors
 
 - **Architect leads** — overlap and contradiction are structural-fit problems: which spec is the true home for the overlapping behavior, and which artifact's claim holds? The Architect proposes the resolution.
-- **Director** — checks the surviving home is a **coherent scope unit** and that resolving the contradiction does not orphan a real behavior.
+- **Oracle** — checks the surviving home is a **coherent scope unit** and that resolving the contradiction does not orphan a real behavior.
 - **Builder** — checks **coverage survives**: every overlapping scenario lands in exactly one home, none orphaned, none left duplicated; the reconciliation leaves the contract testable.
 - **Council (human)** — owns the corpus; confirms both the plan and the result.
 
@@ -43,7 +43,7 @@ Escalate the proposal to the Council through the relay (`STATUS: needs-input`) *
 - Move each overlapping behavior into its single home; remove the duplicate from the loser (or deprecate the absorbed spec per `lifecycle-governance`).
 - Amend the losing artifact so the contradiction is gone; the corpus holds no internal contradiction.
 - Rewire any `blocked-by` / `subtasks` edges the resolution implies.
-- Builder verifies total coverage is preserved; Director verifies each surviving home is coherent; Architect verifies no overlap or contradiction remains.
+- Builder verifies total coverage is preserved; Oracle verifies each surviving home is coherent; Architect verifies no overlap or contradiction remains.
 
 ## Checkpoint 2 — Council confirms the result
 

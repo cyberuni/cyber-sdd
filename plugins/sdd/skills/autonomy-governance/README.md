@@ -9,4 +9,4 @@ Two consumers only — it is **not** loaded by every runtime actor:
 - the **most capable conductor agent** (in SDD, the opus operator; the formation-loop Warden for structural acts) makes the per-decision verdict at runtime;
 - the **eval tool / ACES** sets and verifies each agent config's escalation posture against the rubric at design time.
 
-The contract is phrased portably — the conductor role is abstract, and **ACES (the agent-configuration domain) is the intended future home**. Ships as an SDD fallback governance, sibling to `architect-governance`, `director-governance`, and `gate-validation-governance`. Reference content only — no rationale prose; the spec at `artifacts/specs/autonomy-governance/` records why.
+The contract is phrased portably — the conductor role is abstract, and **ACES (the agent-configuration domain) is the intended future home**. Ships as an SDD fallback governance, sibling to `architect-governance`, `oracle-governance`, and `gate-validation-governance`. Reference content only — no rationale prose; the spec at `artifacts/specs/autonomy-governance/` records why.

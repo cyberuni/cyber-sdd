@@ -69,7 +69,7 @@ The proposal is surfaced for human confirmation through the relay; the Warden do
 
 Formation never decides what to build and never grows the process. It emits **no out-of-loop decision** and routes the request to the loop that owns it:
 
-- a **build-or-deprecate** proposal ("we should build feature X" / "deprecate Y") → **routed to the Campaign loop** (Director). Formation produces no build-or-deprecate decision.
+- a **build-or-deprecate** proposal ("we should build feature X" / "deprecate Y") → **routed to the Campaign loop** (Oracle). Formation produces no build-or-deprecate decision.
 - a **process lesson** ("we should add cause Y to the enum" / "the team should work this way") → **routed to the Doctrine loop** (Strategist). Formation emits no governance or process edit.
 - a **per-spec gate structural check** → declined; Formation does not run as the gate check.
 

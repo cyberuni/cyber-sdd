@@ -62,15 +62,15 @@ Each role loads two tiers (`governance-resolution.md`): **fixed-universal** bars
 
 | Role | Fixed-universal | Resolved-actor (face) |
 |---|---|---|
-| spec-producer | `spec-format-governance`, `suite-format`, `ownership-governance` | `director`, `builder`, `architect` — **forward** |
+| spec-producer | `spec-format-governance`, `suite-format`, `ownership-governance` | `oracle`, `builder`, `architect` — **forward** |
 | solution-producer | `ownership-governance` | `architect` — **forward** (ungated; no judge) |
-| spec-judge | `spec-format-governance`, `suite-format`, `lifecycle-governance`, `gate-validation-governance` | `director`, `builder`, `architect` — **backward** |
+| spec-judge | `spec-format-governance`, `suite-format`, `lifecycle-governance`, `gate-validation-governance` | `oracle`, `builder`, `architect` — **backward** |
 | impl-producer | `ownership-governance` | `builder`, `architect` — **forward** |
 | impl-judge | `ownership-governance` | `builder`, `architect` — **backward** |
 
-**Lens set per gate** (the sdd-default squad; a squad may override): **spec gate** `{director, builder, architect}`; **impl gate** `{builder, architect}`; **solution** `{architect}` (ungated).
+**Lens set per gate** (the sdd-default squad; a squad may override): **spec gate** `{oracle, builder, architect}`; **impl gate** `{builder, architect}`; **solution** `{architect}` (ungated).
 The invariant: **a producer self-aligns to exactly the bars its judge grades** — the same bars forward and backward, loaded as separate faces.
-The impl-gate Director-revert (`autonomy-rubric.md`) is a conductor escalation the impl-judge surfaces, not a routine impl-judge bar.
+The impl-gate Oracle-revert (`autonomy-rubric.md`) is a conductor escalation the impl-judge surfaces, not a routine impl-judge bar.
 
 For an **SDD-default spec/solution-producer** role, the conductor additionally loads the matching `spec-producer-governance` / `solution-producer-governance` — the procedure it runs inline; for an **SDD-default impl-producer**, the spawned builder loads `impl-producer-governance`.
 A plugin delegate carries its own procedure and loads these bars directly.
@@ -100,7 +100,7 @@ Each entry declares one or more **squads**, each serving a **set of artifact-typ
         "impl-judge":    "<agent | null>"
       },
       "governances": {
-        "director-spec":  "<name | null>",
+        "oracle-spec":  "<name | null>",
         "builder-spec":   "<name | null>",
         "builder-impl":   "<name | null>",
         "architect-spec": "<name | null>",
@@ -118,7 +118,7 @@ Each entry declares one or more **squads**, each serving a **set of artifact-typ
 | `squads` | Yes | One or more squads. A squad = `{ artifact-types[], roles{}, governances{} }`. A plugin needing a *different* producer/judge per type lists multiple squads; a shared squad lists many types. The plugin's served set (marketplace discovery) = the union of all `squads[].artifact-types` |
 | `squads[].artifact-types` | Yes | Open-string **artifact-type**s this squad serves (e.g. `skill`, `subagent`, `command`, `agents-section`) — never folder names; new types need no schema bump. A type appears in **at most one** squad per plugin |
 | `squads[].roles` | Yes | Map of the five production-chain roles to agents; `null` or omitted = SDD default (a spec/solution-producer role → conductor authors inline as `sdd:automaton`; an impl-producer role → conductor spawns a builder; a judge role → conductor spawns the cold SDD-default judge agent) |
-| `squads[].governances` | Yes | Model-B actor-gate bars (`director-spec`, `builder-spec`, `builder-impl`, `architect-spec`, `architect-impl`); the block is required, each binding may be `null` = SDD default |
+| `squads[].governances` | Yes | Model-B actor-gate bars (`oracle-spec`, `builder-spec`, `builder-impl`, `architect-spec`, `architect-impl`); the block is required, each binding may be `null` = SDD default |
 
 **Degeneration of `null` / missing keys** (this file guarantees only what is a valid *stored* shape; the traversal is the conductor's):
 

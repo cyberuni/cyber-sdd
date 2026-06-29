@@ -16,7 +16,7 @@ Load `sdd:lifecycle-governance` (project/feature composition via `subtasks`, the
 ## Actors
 
 - **Architect leads** — decomposition is the structural-fit decision: where are the real seams between behaviors? The Architect proposes the boundaries.
-- **Director** — checks each resulting child is a **coherent scope unit** (a shippable behavior, not an arbitrary fragment); a split that cuts mid-behavior fails this bar.
+- **Oracle** — checks each resulting child is a **coherent scope unit** (a shippable behavior, not an arbitrary fragment); a split that cuts mid-behavior fails this bar.
 - **Builder** — checks **coverage survives**: every scenario lands in exactly one child, none orphaned, none duplicated; each child's use-cases↔scenarios mapping still holds.
 - **Council (human)** — owns comprehension; confirms both the plan and the result.
 
@@ -42,7 +42,7 @@ Escalate the plan to the Council through the relay (`STATUS: needs-input`) **bef
 - Re-type the source as the **project spec** (the human overview: project-level use cases + narrative), or create a new project spec and deprecate the source per `lifecycle-governance`.
 - Create each **feature child** with its slice of use cases and its `.feature` (the assigned scenarios), step-down ordered.
 - Wire `subtasks` (parent → children) and any inter-child `blocked-by`.
-- Builder verifies total coverage is preserved; Director verifies each child is a coherent scope; Architect verifies the seam holds with no cross-child duplication.
+- Builder verifies total coverage is preserved; Oracle verifies each child is a coherent scope; Architect verifies the seam holds with no cross-child duplication.
 
 ## Checkpoint 2 — Council confirms the result
 

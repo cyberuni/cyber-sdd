@@ -11,7 +11,7 @@ SDD runs all four:
 
 | Actor | Motive | SDD object | Owns the bar for |
 |---|---|---|---|
-| **Director** | intend — what's worth doing | the CR's scope and kill-or-ship | scope; the decision *not* to build |
+| **Oracle** | intend — what's worth doing | the CR's scope and kill-or-ship | scope; the decision *not* to build |
 | **Builder** | generate — make the thing | the spec, the suite, the implementation | testability and coverage |
 | **Architect** | structure — keep the whole legible | the corpus shape and per-spec structural fit | structural fit |
 | **Strategist** | accumulate — make knowledge compound | the durable corpus / doctrine | what is worth encoding |
@@ -32,12 +32,12 @@ The backward face is productive, not passive: it **codifies the bar** into loada
 Each actor's **bar** is encoded as a governance an agent loads.
 SDD's default actor governances:
 
-- **Director bar** → the director governance (scope, kill-or-ship).
+- **Oracle bar** → the oracle governance (scope, kill-or-ship).
 - **Builder bar** → the builder governance (testability, coverage).
 - **Architect bar** → the architect governance (structural fit).
 - **Strategist bar** → enacted through the **doctrine outer loop** (run at lifecycle granularity by its delegate), not a per-spec gate governance.
 
-The three applied actor bars — Director (scope), Builder (coverage), Architect (structure) — are the **lenses**: an actor's bar in use at a gate, the criteria a producer self-aligns to (**forward** face) and a judge grades against (**backward** face).
+The three applied actor bars — Oracle (scope), Builder (coverage), Architect (structure) — are the **lenses**: an actor's bar in use at a gate, the criteria a producer self-aligns to (**forward** face) and a judge grades against (**backward** face).
 "Bar" names the criteria an actor owns; "lens" names that same bar as the thing a delegate looks *through*.
 The loop and conductor docs (`loops.md`, `lifecycle-model.md`, `mission/conductor/`) use "lens" for this.
 A lens is **not** the actor (the human/motive), the face (the direction), or the delegate (the agent).

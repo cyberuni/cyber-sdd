@@ -13,5 +13,5 @@ Two decisions are recorded in [`common-governances.solution.md`](./common-govern
   `gate-validation`) is **one invariant skill each** (not face-split); single-owner `plugin-contract`
   lives in `../plugin/`; `autonomy` is descriptive + baked-in (no node, no skill).
 
-Bars to be built here by the `sub-governances` sub-mission: the generic `director` / `builder` /
+Bars to be built here by the `sub-governances` sub-mission: the generic `oracle` / `builder` /
 `architect` core, plus `lifecycle` / `ownership` / `combat-log` / `gate-validation`.

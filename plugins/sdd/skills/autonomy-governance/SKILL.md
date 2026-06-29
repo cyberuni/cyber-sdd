@@ -95,7 +95,7 @@ A survey of the SDD surface placed every escalation point in one of four buckets
 
 | Bucket | Meaning | Rubric behavior |
 |---|---|---|
-| **A** | Already risk-gated — the model being generalized (spec gate, impl gate, leash ceiling, Director-revert) | self-clears **when low-risk**, escalates when any dimension is high |
+| **A** | Already risk-gated — the model being generalized (spec gate, impl gate, leash ceiling, Oracle-revert) | self-clears **when low-risk**, escalates when any dimension is high |
 | **B** | Mandatory today but risk-gradable → *should* self-clear when low-risk (freeze re-open, split-spec / dedupe-specs checkpoints, formation-loop surfacing, doctrine keep-or-cut, campaign go/keep, change-request accept, forced spec re-review) | self-clears when the change is **additive / low-risk** — the value this governance unlocks |
 | **C** | Irreducibly human — **intent**, not risk (iteration-cap accept/change, observation accept/decline, operator needs-input, domain disambiguation, escape-hatch classification, inject, gateway 4-option menu) | **always `escalate`**, regardless of computed score — the verdict names the decision as an **intent decision** |
 | **D** | Hard floor (forge-loop redaction / data egress) | **always `escalate · hard floor`** by invariant |
@@ -152,4 +152,4 @@ This governance is the **risk-assessment** side. It **cooperates with** — and 
 
 ## Portability — ACES is the intended future home
 
-The contract is **plugin-portable**. It ships as an SDD fallback governance, sibling to `architect-governance`, `director-governance`, and `gate-validation-governance`, but **nothing binds it to the SDD plugin**: the conductor role is phrased abstractly ("the most capable conductor agent in the system"), and the rubric is a general agent-config-autonomy bar. **ACES (the agent-configuration domain) is the intended future home** — this contract is designed to migrate into or be enhanced by ACES when ACES is ready to own the agent-config autonomy concern. When the contract is inspected for its future home, it **names ACES** and **stays plugin-portable**.
+The contract is **plugin-portable**. It ships as an SDD fallback governance, sibling to `architect-governance`, `oracle-governance`, and `gate-validation-governance`, but **nothing binds it to the SDD plugin**: the conductor role is phrased abstractly ("the most capable conductor agent in the system"), and the rubric is a general agent-config-autonomy bar. **ACES (the agent-configuration domain) is the intended future home** — this contract is designed to migrate into or be enhanced by ACES when ACES is ready to own the agent-config autonomy concern. When the contract is inspected for its future home, it **names ACES** and **stays plugin-portable**.

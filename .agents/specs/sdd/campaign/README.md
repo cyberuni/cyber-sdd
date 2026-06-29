@@ -2,7 +2,7 @@
 
 The **Campaign loop** (metaphor) / **Product loop** (descriptive) — the step-5 outer loop
 that **grows and prunes the product**: it decides which capabilities the project should
-*have*. Actor: the **Director**. Fleet role: the **Commander**. The delegate watches missions
+*have*. Actor: the **Oracle**. Fleet role: the **Commander**. The delegate watches missions
 reach a terminal state and reasons across the whole product — *"we shipped capability A; B is
 the natural next; and with B, capability C is now redundant — deprecate it."*
 

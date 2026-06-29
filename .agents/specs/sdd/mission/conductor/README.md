@@ -120,10 +120,10 @@ The two live-grill producers run **inline** (in-session); the impl-producer is *
 spawned**; every judge is **spawned cold** in a context the author cannot reach. All spawns are
 **depth 1** from the main session — collapsing the old `caller → automaton → judge` (depth 2) tree.
 
-The five roles apply three **lenses** (governances, not agents): **Director** (scope), **Builder**
+The five roles apply three **lenses** (governances, not agents): **Oracle** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the
-spec-judge and impl-judge **apply** them backward. There is no "Builder judge" or "Director
-agent" — a verdict has a Director-lens face, a Builder-lens face, and an Architect-lens face.
+spec-judge and impl-judge **apply** them backward. There is no "Builder judge" or "Oracle
+agent" — a verdict has a Oracle-lens face, a Builder-lens face, and an Architect-lens face.
 
 The constraint that forces the judge split is **`producer ≠ judge`**, enforced by context
 separation: the hand that writes an artifact never signs off on it. Tagline: **"the conductor
@@ -203,7 +203,7 @@ writes no setup frontmatter.
   — the stronger evidence a larger blast demands (`../../design/autonomy-rubric.md`).
 - **The three gate actions** (vs the spec gate's contract-editing variants): **approve** →
   `implemented`; **change** → fix the **code** against the frozen `.feature` (the `.feature` is
-  **not** modified); **reject** → redo the implementation, *or* a **Director-lens revert**
+  **not** modified); **reject** → redo the implementation, *or* a **Oracle-lens revert**
   (building proved a frozen scenario fatal → **unfreeze** the `.feature` and return to `draft`).
   The impl gate is the **only** place a frozen `.feature` reopens.
 

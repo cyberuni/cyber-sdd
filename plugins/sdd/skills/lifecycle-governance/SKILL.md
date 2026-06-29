@@ -48,7 +48,7 @@ Open input is recorded in the body as `<!-- open: ... -->` markers, not in front
 
 **`domain-type` is the resolution axis, distinct from the folder name and from `type`.** The spec **folder slug** (`governance-composition`, `sdd-operator`) is the domain *instance* — free-form, one per spec. `type` is `project | feature` (composition shape). `domain-type` is the *kind of artifact* the spec produces, and it is the **only** field a plugin's `domains[]` is matched against during delegate resolution (see `plugin-contract-governance`). A spec whose `domain-type` is one of a registered plugin's `domains[]` resolves that plugin's production-chain roles; an absent or unmatched `domain-type` degenerates every role to the SDD default. Plain-code specs omit it. `domain-type` is set once at scaffold time and is not a free-for-all string — it draws from the artifact-type vocabulary the project's registered plugins cover (for agent-configuration work: `skill | subagent | command | agents-section`).
 
-An `approval.<gate>` with `verdict: approve` and `by: agent` is a **provisional self-assertion** carrying its four-dimension `why`; `by: <human name>` is a **ratification**. A `verdict: pause` records why the agent halted (its `why`, no `by`); a `verdict: reject` is a scope-kill or Director-revert. The set of specs with any `verdict: approve` + `by: agent` is the human review queue; specs with a `verdict: pause` form the awaiting-input queue. The leash is run-level (the `strategy` block), not per-gate; its derivation and who writes each are defined in `gate-validation-governance`.
+An `approval.<gate>` with `verdict: approve` and `by: agent` is a **provisional self-assertion** carrying its four-dimension `why`; `by: <human name>` is a **ratification**. A `verdict: pause` records why the agent halted (its `why`, no `by`); a `verdict: reject` is a scope-kill or Oracle-revert. The set of specs with any `verdict: approve` + `by: agent` is the human review queue; specs with a `verdict: pause` form the awaiting-input queue. The leash is run-level (the `strategy` block), not per-gate; its derivation and who writes each are defined in `gate-validation-governance`.
 
 ## Spec typing and composition
 
@@ -94,7 +94,7 @@ stateDiagram-v2
     approved --> implemented: impl gate (validate-spec --target impl)
     approved --> draft: behavior change (re-open)
     implemented --> draft: behavior change (re-open)
-    draft --> deprecated: Director kill decision
+    draft --> deprecated: Oracle kill decision
     approved --> deprecated
     implemented --> deprecated
 ```

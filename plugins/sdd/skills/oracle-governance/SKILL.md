@@ -1,12 +1,12 @@
 ---
-name: director-governance
-description: "Internal skill: the Director actor bar — scope and kill-or-ship criteria. The SDD default for the director governance, loaded by the spec-producer to self-align and by the gate to judge scope. Not triggered by users directly."
+name: oracle-governance
+description: "Internal skill: the Oracle actor bar — scope and kill-or-ship criteria. The SDD default for the oracle governance, loaded by the spec-producer to self-align and by the gate to judge scope. Not triggered by users directly."
 user-invocable: false
 ---
 
-# Director Governance
+# Oracle Governance
 
-The **Director** bar: is the intent worth committing? The default for the `director` actor governance — a plugin may bind its own; this is what loads when the registry leaves `governances.director` null. The spec-producer loads it to self-align on scope; the gate's Director-backward face loads it to judge kill-or-ship.
+The **Oracle** bar: is the intent worth committing? The default for the `oracle` actor governance — a plugin may bind its own; this is what loads when the registry leaves `governances.oracle` null. The spec-producer loads it to self-align on scope; the gate's Oracle-backward face loads it to judge kill-or-ship.
 
 ## The bar
 

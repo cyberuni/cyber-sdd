@@ -10,7 +10,7 @@ A role's governances split by whether they vary with the artifact-type:
 
 - **Fixed-universal** — invariant per role on every invocation: `ownership`, `lifecycle`, `spec-format` (`spec-format-governance`), `suite-format`, `gate-validation`, `combat-log`.
   Ship with sdd; load for every spec regardless of artifact-type (`actors-governance.md`).
-- **Resolved-actor** — the actor bars `director` / `builder` / `architect`, resolved per `(artifact-type, gate)`.
+- **Resolved-actor** — the actor bars `oracle` / `builder` / `architect`, resolved per `(artifact-type, gate)`.
   The variable tier, resolved dynamically per the file's artifact-type.
 
 ## Two faces, one merged bar
@@ -25,8 +25,8 @@ Every governance carries frontmatter:
 ```yaml
 metadata:
   artifact-type: <type>        # the squad key; omit for the typeless default
-  actor: director | builder | architect
-  gate: spec | impl            # which gate's bar (director has spec only)
+  actor: oracle | builder | architect
+  gate: spec | impl            # which gate's bar (oracle has spec only)
   compose: union | replace     # default: union
 ```
 

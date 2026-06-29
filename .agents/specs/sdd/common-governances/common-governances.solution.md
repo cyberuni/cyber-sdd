@@ -20,9 +20,9 @@ producer agent (self-align) and the judge agent (grade). Naming: `<actor>-<gate>
   generic core via `compose: union`; supplied per artifact-type by project/plugin, **not** SDD
   defaults.
 
-SDD ships the generic `director` / `builder` / `architect` core (face-merged); discipline squads are
-resolution-time, project/plugin-supplied. The default shape: `director-spec`, `builder-spec`,
-`builder-impl`, `architect-spec`, `architect-impl` (director has no impl face) + judge-only rubric
+SDD ships the generic `oracle` / `builder` / `architect` core (face-merged); discipline squads are
+resolution-time, project/plugin-supplied. The default shape: `oracle-spec`, `builder-spec`,
+`builder-impl`, `architect-spec`, `architect-impl` (oracle has no impl face) + judge-only rubric
 splits where a discipline is subjective.
 
 ## Considered — Model A: per-role bars (`<actor>-<gate>-<face>`)

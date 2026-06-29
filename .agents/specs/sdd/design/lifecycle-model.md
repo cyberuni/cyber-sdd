@@ -63,7 +63,7 @@ stateDiagram-v2
     approved --> implemented: impl gate (validate-spec --target impl)
     approved --> draft: behavior change (re-open)
     implemented --> draft: behavior change (re-open)
-    draft --> deprecated: Director-lens kill (scope)
+    draft --> deprecated: Oracle-lens kill (scope)
     approved --> deprecated
     implemented --> deprecated
 ```
@@ -163,7 +163,7 @@ The `@frozen` tag is metadata, excluded from the contract content the freeze pro
   (The durable ledger holds the per-CR `gate` and freeze record; the mid-flight combat log lives in the plan: `provenance-model.md`.)
 - **Spec owns behavior.**
   If the implementation disagrees with `spec.md`, the implementation is wrong — fix it, or unfreeze the relevant file for a new cycle.
-- **The impl gate is the only place a frozen file can reopen** — via the Director-lens revert: building proved the contract wrong, so unfreeze that file and return its layer to draft.
+- **The impl gate is the only place a frozen file can reopen** — via the Oracle-lens revert: building proved the contract wrong, so unfreeze that file and return its layer to draft.
   Rare and deliberate.
 
 **Iteration economy.**
@@ -185,7 +185,7 @@ The act of advancing a gate is delegable; the accountability is not.
   A self-assertion is an **async review marker, not a synchronous stop**: the run advances immediately and the spec lands in the derived review queue.
 - **`by: <human name>`** = ratified.
 - **`verdict: pause`** records why the agent halted (its `why`, no `by`); the spec joins the awaiting-input queue.
-- **`verdict: reject`** is a scope-kill or Director-lens revert.
+- **`verdict: reject`** is a scope-kill or Oracle-lens revert.
 
 **The review queue is derived, not stored.**
 The set of specs with any `verdict: approve`

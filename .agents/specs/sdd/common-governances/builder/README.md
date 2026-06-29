@@ -26,6 +26,6 @@ the implementation *satisfy* it) at the impl gate — so it ships as two bars, `
   **impl-producer** and graded by the **impl-judge**. Faces merged per gate — one bar, loaded by
   both agents; `producer ≠ judge` holds at the agent level (`../common-governances.solution.md`).
   A reference artifact carries this `## Subject` in place of `## Use Cases` + a `.feature`.
-- **Boundary** — scope/kill-or-ship belongs to `director`; structural fit belongs to `architect`;
+- **Boundary** — scope/kill-or-ship belongs to `oracle`; structural fit belongs to `architect`;
   the `@rubric` form for a graded scenario belongs to `suite-format`. This bar owns testability and
   coverage.

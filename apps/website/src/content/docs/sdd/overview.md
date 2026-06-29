@@ -3,7 +3,7 @@ title: SDD Workflow Overview
 description: The players in the Spec-Driven Development workflow — gateway, Operator, stations, production-chain roles, governances — and how they relate across the three loops.
 ---
 
-This is the **machinery** of Spec-Driven Development: who does what, and how control moves between them. For *why* SDD exists and what a spec is, see [Spec-Driven Development](/concepts/spec-driven-development/); for the actor theory (Director, Architect, Builder, Strategist), see [The Four Actors](/motive-model/four-actors/). This page maps the moving parts; [Control Flow](/sdd/control-flow/) traces a run end to end.
+This is the **machinery** of Spec-Driven Development: who does what, and how control moves between them. For *why* SDD exists and what a spec is, see [Spec-Driven Development](/concepts/spec-driven-development/); for the actor theory (Oracle, Architect, Builder, Strategist), see [The Four Actors](/motive-model/four-actors/). This page maps the moving parts; [Control Flow](/sdd/control-flow/) traces a run end to end.
 
 ## The cast
 
@@ -40,9 +40,9 @@ Each role resolves to a **plugin agent** (when a plugin covers the domain) or an
 
 | Role | SDD default | Loads (actor bar) |
 |---|---|---|
-| spec-producer | `spec-producer-governance` (Operator runs inline, `sdd:sdd-operator`) | director + builder governance |
+| spec-producer | `spec-producer-governance` (Operator runs inline, `sdd:sdd-operator`) | oracle + builder governance |
 | plan-producer | `plan-producer-governance` (Operator runs inline) | architect governance |
-| spec-judge | `sdd-spec-judge` (spawned cold) | director + builder + architect |
+| spec-judge | `sdd-spec-judge` (spawned cold) | oracle + builder + architect |
 | impl-producer | `impl-producer-governance` (Operator runs inline) | builder + architect |
 | impl-judge | `sdd-implementer` (spawned cold) | builder governance |
 
@@ -60,7 +60,7 @@ Loadable contracts — each owns one rule set so no player restates it:
 | `spec-governance` | `.feature` format, the `## Use Cases` rule, the granularity heuristic |
 | `combat-log-governance` | the two-face provenance record (current-state + append-only ledger) |
 | `plugin-contract-governance` | the five delegate roles and the registry shape |
-| `director` / `builder` / `architect` governance | each actor's bar (scope, testability, structural fit) |
+| `oracle` / `builder` / `architect` governance | each actor's bar (scope, testability, structural fit) |
 
 ## The loops
 
@@ -70,7 +70,7 @@ SDD runs as a set of feedback loops. **Four** operate within one *adoption* of S
 flowchart TB
   subgraph adoption[One adoption of SDD]
     build[Build · Mission — Builder]
-    product[Product · Campaign — Director]
+    product[Product · Campaign — Oracle]
     structure[Structure · Formation — Architect]
     process[Process · Doctrine — Strategist]
   end
@@ -82,7 +82,7 @@ flowchart TB
 | Loop (descriptive · metaphor) | Actor | Altitude | Improves |
 |---|---|---|---|
 | **Build · Mission** | Builder | inner — one spec | builds a single spec, `draft → implemented` |
-| **Product · Campaign** | Director | outer — across missions | the product: which features to add, which to deprecate |
+| **Product · Campaign** | Oracle | outer — across missions | the product: which features to add, which to deprecate |
 | **Structure · Formation** | Architect | outer — across missions | the corpus's organization: dedupe, split, keep the graph coherent |
 | **Process · Doctrine** | Strategist | outer — across missions | how we work: codify lessons from missions into the corpus |
 | **Harness · Forge** | maintainers | meta — across installations | SDD itself: the `cause` enum, performance, token cost, the plugin roadmap |

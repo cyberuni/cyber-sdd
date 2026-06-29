@@ -8,18 +8,15 @@ This file is the rule side only.
 
 `spec.md` carries YAML frontmatter:
 
+The frontmatter is the **router's upfront index** (ADR-0017): the gateway scans every `spec.md`
+frontmatter (no bodies) to route to the most important next action, so a field earns its place only
+if routing needs it without the body. That collapses it to two durable fields — `status` and
+`project-path` — plus the gate-written `approval` + `produced-by` maps that appear as gates run:
+
 ```yaml
 ---
 status: draft           # draft | approved | implemented | deprecated
-spec-layout:            # the declared organization strategy + spec location (design/spec-layout.md); read, never re-derived by scanning
-  strategy: capability-first   # capability-first | mirror-source | bounded-context | layered | doc-envelope
-  location: colocated          # colocated | hoisted | monorepo-member
-  placement-map: "#placement-map"   # anchor/path to the body placement map
-aligned: false          # true once the current layer's artifacts are synced
-strategy:               # run-level initial evaluation (leash + approach)
-  leash: auto-all       # first-evaluated reach: auto-none | auto-spec | auto-all
-  by: derived           # derived | user
-  approach: [no-spike, mocks, worktree]   # blast-radius-containment choices
+project-path: plugins/sdd-new   # repo-relative source dir this spec governs; the spec location mode is derivable (design/spec-layout.md)
 approval:               # per-gate verdict
   spec:                 # verdict: approve | pause | reject
     verdict: approve
@@ -39,12 +36,12 @@ produced-by:            # who produced each artifact; see provenance-model.md
 Open input is recorded in the body as `<!-- open: ...
 -->` markers, not in frontmatter.
 
-`status` is the base schema; `spec-layout`, `aligned`, `strategy`, `approval`, and `produced-by` are the SDD-workflow additions.
+`status` is the base schema; `project-path`, `approval`, and `produced-by` are the SDD-workflow additions.
+`project-path` records the repo-relative source dir the spec governs, so the router maps a touched file → its spec; the spec **location mode** (`colocated | hoisted | monorepo-member`) is *derivable* from it (hoisted iff `project-path` is not the spec's own dir), never a stored field (`../design/spec-layout.md`).
 A file's **artifact-type** (the squad key) is **resolved per file, not stored** in this frontmatter (`../design/artifact-type.md`); the project carries no root `artifact-types` summary.
 The **contested-type → chosen-plugin** disambiguation (when two plugins claim an artifact-type) is recorded as `.agents/sdd/` resolution state — decisive on resume, **distinct from `produced-by`** — never a frontmatter field (`../design/artifact-type.md`, `specialists-and-squads.md`).
-`spec-layout` declares the organization strategy + spec location (`../design/spec-layout.md`); it is written once by `backfill-project-spec` at scaffold and rewritten only by the formation Warden during a deliberate reorganization.
-`aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced.
-Do not commit SDD artifacts while their spec is `aligned: false`.
+The **organization strategy** (`capability-first`, …) is declared in the **body** (the placement map), not frontmatter — read on demand by `backfill-project-spec` / the formation Warden, off the router's hot path (`../design/spec-layout.md`).
+There is **no `aligned` field** (ADR-0017): contract-sync (`spec.md` ↔ `.feature`) is *judged* at the spec gate, impl-sync is the impl gate's *runtime suite run*, per-node settled state is the `@frozen` scan, and what is in flux right now is the `.plan.md` todos. Do not commit SDD artifacts while a touched `.feature` is unfrozen or the plan's todos are incomplete.
 
 **This whole frontmatter is root-`spec.md`-only.** A capability node README (a `reference` or `behavioral` spec — see `../design/spec-structure.md` spec types) carries **only** its `spec-type` marker, never a lifecycle field — folders are views, never lifecycle units. The project has one lifecycle, on the root.
 
@@ -87,25 +84,31 @@ stateDiagram-v2
 **Producer/judge role separation survives the gate fold.**
 Even though gates are no longer a fixed station, the judge stays a distinct actor from the producer: a producer writes the artifact, a judge grades it, and a judge never patches what it grades (see `specialists-and-squads.md`).
 
-## `aligned` is layer-scoped
+## Sync is derived, not stored (no `aligned` flag)
 
-`aligned` means *the current layer's artifacts are synced* — which layer depends on the gate:
+There is **no `aligned` field** (ADR-0017). "Synced" is two different properties at two layers, each
+already derivable or judged — a stored boolean would only cache one, conflate the other, and
+over-claim at project granularity:
 
-- **At the spec gate**, `aligned: true` means the **contract layer** (`spec.md` ↔ `.feature`) is in sync.
-  Implementation is **not** required; exploratory spike code is excluded as scaffolding.
-- **At the impl gate**, `aligned: true` means the **impl layer** conforms to the frozen `.feature`.
-  Set it only when **every** impl-judge returns a pass; if any fails, leave `aligned: false` and surface the blocker.
+- **Contract layer** (`spec.md` ↔ `.feature`) — **judged** at the spec gate by the Builder coverage
+  lens (no scenario IDs in prose, so it is never a mechanical flag).
+- **Impl layer** (impl ↔ frozen `.feature`) — derived by **running the frozen suite**. The impl gate
+  advances to `status: implemented` only when **every** impl-judge returns a pass; if any fails it
+  stays `approved` and surfaces the blocker. That run is the guarantee the old `aligned: true` only
+  cached.
+- **Per-node settled-vs-in-flux** — the **`@frozen`** tag scan over `.feature` files (a frozen file is
+  a settled contract; an unfrozen one is being worked).
+- **What is in flux right now** — the **`.plan.md` todos** (the active mission's touched set).
 
-`aligned: true` never on its own means "implemented."
-The conductor sets `aligned: false` at the start of a segment and only synthesis sets it back to `true`.
+`status` alone carries the lifecycle; the conductor needs no segment-level `aligned` toggle — an
+in-flight segment is the open plan todo plus the unfrozen `.feature` it touches.
 
 ## Legal-state tuples
 
 The mechanical authority is `validate-spec/scripts/check-spec-state.mts` — run it to enforce; if `node` is unavailable, apply the same rules by reading frontmatter.
-The `(status, aligned, markers, .feature, approval)` tuple is **illegal** when:
+The `(status, markers, .feature, approval)` tuple is **illegal** when:
 
 - `status: approved` with no `.feature` — a spec requires a frozen `.feature` to be approved.
-- `status: implemented` with `aligned` not `true` — implemented requires `aligned: true`.
 - `status: approved` or `implemented` with any `<!-- open: -->` markers — markers block the gate.
 - `approval` names a gate other than `spec` or `impl`.
 - an `approval.<gate>` has a `verdict` other than `approve`, `pause`, or `reject`.
@@ -117,7 +120,6 @@ The `(status, aligned, markers, .feature, approval)` tuple is **illegal** when:
 - `status: approved` or `implemented` with no `approval.spec` `verdict: approve` + `by` — the spec gate has no recorded ratification.
 - `status: implemented` with no `approval.impl` `verdict: approve` + `by` — the impl gate has no recorded ratification.
 
-`status: draft` with `aligned: true` is **legal** — `aligned` is layer-scoped, so a synced contract may hold `aligned: true` while still draft, ready for the spec gate.
 Open markers at `draft` are permitted (markers block only the *gate*, not the draft state).
 
 Reject illegal tuples **before** any other gate work.
@@ -154,7 +156,7 @@ The `@frozen` tag is metadata, excluded from the contract content the freeze pro
   An *additive* scenario never unfreezes its file: it widens the contract, cannot break existing impl or contradict, and **self-clears** — it folds into the frozen file under the conductor's authority, logged as a detail-adjustment (`provenance-model.md`).
   Explore is mostly narrowing/reshaping (much unfreezing); deliver is mostly additive (stays frozen).
   One rule covers both phases.
-- **`spec.md` is kept aligned, never frozen** — it is the readable abstraction of the suite, free to be reworded/restructured (prose, diagrams, pictures) as long as it does not contradict a frozen scenario.
+- **`spec.md` is kept in sync, never frozen** — it is the readable abstraction of the suite, free to be reworded/restructured (prose, diagrams, pictures) as long as it does not contradict a frozen scenario.
   That invariant is enforced by the alignment check + the spec-judge applying the Builder (coverage) lens at the spec gate (and on demand by `../corpus/` `align-specs`), **not** by freezing the prose.
   Prose↔suite drift detection is judge-only (no scenario IDs in the prose); the mechanical handle is the scenario-diff (narrowing a frozen scenario → Clearance).
 - **The ledger is never frozen and never gated** — it keeps appending across the whole lifecycle, including while files sit `@frozen`.
@@ -202,7 +204,7 @@ This is positional, not definitional: the same automaton, run in-session as the 
 | `status` (on human verdict, or to match an in-leash self-assertion) | the gate skill (`validate-spec`), in-session |
 | `approval` human ratification (`verdict` + `by: <name>`) | the gate skill, **in-session position only** |
 | `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the conductor (synthesis) |
-| `aligned`, `strategy`, `<!-- open: -->` markers | the conductor |
+| `project-path`, `<!-- open: -->` markers | the conductor |
 | `spec.md` body + the `.feature` | the spec-producer |
 
 The leash (`strategy.leash`, run-level) and the self-clear-vs-escalate bar that derives it live in `autonomy-rubric.md`; there is **no per-gate `leash` field** in an `approval` entry.

@@ -57,7 +57,7 @@ project *does* — with two exceptions:
 It is the **default**, not the only, layout. The full menu of organization strategies (capability-first,
 mirror-source, bounded-context, layered, doc-envelope), the selection rule, and how each reconciles with the
 node taxonomy above live in [`spec-layout.md`](./spec-layout.md). Whichever is chosen is **declared**, not
-inferred — recorded in the root `spec.md` `spec-layout` frontmatter (`lifecycle-model.md`), so it is read,
+inferred — named in the root `spec.md` body placement map (`spec-layout.md`), so it is read,
 never re-derived by scanning.
 
 ## Rule-in-design + behavior-in-capability

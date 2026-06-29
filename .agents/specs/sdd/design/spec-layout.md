@@ -35,7 +35,7 @@ in (scope, terminology, conformance, references):
 
 | Slot | Holds | Node type |
 |---|---|---|
-| `spec.md` (root) | the declared **`spec-layout`** frontmatter + the descriptive index + the **placement map** | descriptive |
+| `spec.md` (root) | `project-path` frontmatter + the descriptive index + the **declared organization** (the **placement map**, which names the strategy) | descriptive |
 | `design/` | the architecture, rules/model, and the **`design/decisions/` ADR log** (the "why") | descriptive |
 | `acceptance/` | the e2e behavior suite (cross-capability outcomes) | behavioral |
 | a **tooling/project** home | build, CI, packaging, deps — the carve-out *every* scheme needs | descriptive |
@@ -136,7 +136,8 @@ divergence *is* the maintenance tradeoff the layout step must surface:
 
 **Net additions to SDD — all additive, no break to the unit contract:**
 
-1. the declared **`spec-layout`** root frontmatter field (below);
+1. the declared **organization** — a body placement map naming the strategy (below); `project-path`
+   frontmatter records the governed source dir, and the spec **location mode** is derived from it;
 2. the per-strategy **spec-type classifier** the layout step runs while scaffolding (testable surface →
    behavioral; shipped suite-less artifact → reference + `## Subject`; index / rule / structural grouping →
    descriptive);
@@ -159,32 +160,27 @@ or layer-organized, plugin shape (`.plugin/`+`skills/`+`agents/`), owners (`CODE
 Always present **one recommended strategy + rationale**, show the alternative, let the user choose. The
 deferred strategies (S3/S4/S5) are reachable via "show more options," pointing at this doc.
 
-## Declared organization — `spec-layout`
+## Declared organization — the body placement map
 
 The chosen layout is **declared, not inferred** — the same principle `spec-structure.md` applies to
-`spec-type`. It is recorded in **two complementary places on the root `spec.md`**, so a later edit reads a
-field instead of re-scanning the tree:
+`spec-type`. The organization is **not** a frontmatter field (ADR-0017: frontmatter is the router's
+upfront index — the strategy is not something the cross-project router needs). It lives where the
+people and the placement ops that consume it already read, the **body of the root `spec.md`**:
 
-- **Frontmatter — `spec-layout` (machine-readable).** Declares the primary `strategy`, the spec `location`
-  mode, and a pointer to the placement map. On the root lifecycle frontmatter (`lifecycle-model.md`),
-  validated by `check-spec-state.mts`:
+- **The placement map (body, human + machine readable).** The maintained "a concept of kind K lives in
+  home H" taxonomy + the nesting rule, **naming the primary strategy** in its heading/intro
+  (`capability-first | mirror-source | bounded-context | layered | doc-envelope`), so a newcomer routes
+  a new concept without holding the tree in their head, and `backfill` / the Warden read the strategy
+  on demand.
+- **The spec `location` mode** (`colocated | hoisted | monorepo-member`) is **derived** from the
+  `project-path` frontmatter (hoisted iff `project-path` is not the spec's own dir) — not declared.
 
-  ```yaml
-  spec-layout:
-    strategy: capability-first   # capability-first | mirror-source | bounded-context | layered | doc-envelope
-    location: hoisted            # colocated | hoisted | monorepo-member
-    placement-map: "#placement-map"   # anchor/path to the body map
-  ```
-
-- **Body — the placement map (human-readable).** The maintained "a concept of kind K lives in home H"
-  taxonomy + the nesting rule, so a newcomer routes a new concept without holding the tree in their head.
-
-**Who writes it.** `backfill-project-spec` — the only step that *decides* the layout (it ran detection + the
-compass with the user) — stamps both at its scaffold step, in the same act that writes root `spec.md`.
-**Who reads it.** `start-mission`'s explore consults it to place a new node; the formation **Warden** reads it
-to judge structural fit. A normal node-add never re-derives the organization; the **Warden** rewrites
-`spec-layout` + the placement map only during a deliberate reorganization. That read/write split is the
-concrete mechanism behind "never re-scan the tree."
+**Who writes it.** `backfill-project-spec` — the only step that *decides* the layout (it ran detection +
+the compass with the user) — writes the placement map (and `project-path`) at its scaffold step, in the
+same act that writes root `spec.md`. **Who reads it.** `start-mission`'s explore consults the placement
+map to place a new node; the formation **Warden** reads it to judge structural fit. A normal node-add
+never re-derives the organization; the **Warden** rewrites the placement map only during a deliberate
+reorganization.
 
 ## How this lowers the #35 placement burden
 

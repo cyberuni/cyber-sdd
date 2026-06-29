@@ -4,6 +4,12 @@
 
 Accepted
 
+> **Update note (2026-06-28):** The three-tier model below is current, but two terms drifted.
+> The durable ledger is now `ledger.jsonl` — the name `combat-log.jsonl` now refers to the
+> per-mission `*.log.jsonl` (mid-flight tier). And the plan is **tracked, not gitignored** —
+> committed with the work, distilled then deleted at retro. Current shape:
+> `.agents/specs/sdd/design/provenance-model.md`.
+
 ## Context
 
 SDD's original provenance model was a **two-face combat log**: a current-state face in
@@ -146,5 +152,4 @@ pending `plugins/sdd/` sweep (`combat-log-governance`, `ownership-governance`). 
 
 ## Related Decisions
 
-- [ADR-0011](0011-spec-plan-file-naming.md) — spec/plan file naming
 - [ADR-0014](0014-sdd-governance-split.md) — SDD governance split

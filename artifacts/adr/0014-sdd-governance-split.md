@@ -4,6 +4,13 @@
 
 Accepted
 
+> **Update note (2026-06-28):** The split landed and expanded. Renames since:
+> `spec-governance` → `spec-format-governance` + `suite-format-governance`; the actors are now
+> director/builder/architect (`framer` → `director`); `sdd-operator` → `conductor`;
+> `sdd-planner` → `solution-producer`; `domain-plugin` and `approved-by` were dropped. The
+> consumer/loader table below is historical. Current governance set and wiring:
+> `.agents/specs/sdd/design/specialists-and-squads.md` + `design/governance-resolution.md`.
+
 ## Context
 
 ADR-0013 established the **governance skill** pattern: reference/criteria content lives in a `user-invocable: false` skill, loaded by the plugin's own agents and dependent plugins' agents through the harness. The first such skill, `sdd:spec-governance`, holds the universal `.feature` format bar, scenario ordering, and `spec.md` enrichment rule.

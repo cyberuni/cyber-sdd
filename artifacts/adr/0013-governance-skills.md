@@ -4,6 +4,10 @@
 
 Accepted
 
+> **Update note (2026-06-28):** Core decision current. Two refs are stale: the path
+> `artifacts/specs/sdd-orchestrator/` no longer exists, and `sdd:spec-governance` was renamed
+> to `spec-format-governance`. Current model: `.agents/specs/sdd/design/governance-resolution.md`.
+
 ## Context
 
 Reference/criteria content — version-pinned standards like `skill-design`, and (in the SDD plugin redesign) the universal `.feature` format bar, scenario-ordering convention, and spec principles — has historically been loaded on demand via `cyber-skills governance show <name>` (ADR-0001, ADR-0002).

@@ -1,3 +1,8 @@
+---
+status: draft
+project-path: plugins/sdd-new
+---
+
 # Spec-Driven Development (SDD)
 
 > Root project spec — the **descriptive** top index for the whole project. Rules live in
@@ -103,6 +108,11 @@ system except as a CR ([`design/loops.md`](./design/loops.md)):
 - **forge** (Field, external) — improve SDD itself from opt-in end-user field corrections.
 
 ## Capability map
+
+The placement map — the declared organization (`design/spec-layout.md`). SDD is organized
+**capability-first**: top-level folders name what the project *does*. A new concept routes to the
+folder whose capability it serves; rules go to `design/`, cross-capability e2e scenarios to
+`acceptance/`.
 
 | Folder | Owns | Loop role |
 |---|---|---|

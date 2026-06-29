@@ -15,7 +15,7 @@ loaded by the conductor, validate-spec, and the doctrine-loop Scanner; invariant
   `plugins/sdd-new/skills/combat-log-governance/` (a fixed-universal SDD governance —
   `../../design/governance-resolution.md`).
 - **Contract surface** — the two-face record (current-state frontmatter + append-only ledger), the
-  four entry kinds (`report` / `correction` → the combat log; `gate` / `strategy` → the ledger), the
+  five entry kinds (`report` / `correction` / `halt` → the combat log; `gate` / `strategy` → the ledger), the
   CR-scoped `seq`, the write-time UTC `ts`, the pseudonymous `handle`, the matchable `cause` enum, and
   the safe-to-publish floor.
 - **Conformance** — verified through consumer suites (conductor + validate-spec + Scanner), never by

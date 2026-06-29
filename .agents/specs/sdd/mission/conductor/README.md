@@ -253,5 +253,8 @@ Autonomy and gate provenance use a **three-layer model** (rules in
 
 The conductor writes `approve`/`by: agent` and `pause` verdicts during synthesis; the gate station
 writes human ratifications (by default the conductor itself, in-session). No producer writes
-`approval`. The **mid-flight combat-log write of a halt** — why the agent stopped — is recorded to
-the plan's `*.log.jsonl` during the mission, so a stop is as accountable as a go.
+`approval`. A stop that is **not at a gate** is recorded as a `kind: halt` combat-log line (the
+categorical `why` block; `../../design/provenance-model.md`, `combat-log-governance`), **flushed to
+the committed `*.log.jsonl` during the mission, not at the end** — the doctrine loop reads only the
+committed log post-merge (the session may be gone, possibly on another machine), so a stop is as
+accountable, and as recoverable, as a go.

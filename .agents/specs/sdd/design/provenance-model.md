@@ -82,7 +82,8 @@ Outer-loop `strategy` lines (cross-CR by nature) may omit it.
 `ledger.jsonl` is **never frozen and never gated**: it keeps appending across the whole lifecycle, including while `spec.md` and the `.feature` are frozen at `approved`.
 The freeze and the gates govern the contract (`spec.md` + the `.feature`) only.
 
-Write flow: the conductor **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** self-asserted `gate` lines to the durable `ledger.jsonl`.
+Write flow: the conductor **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` / `halt` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** self-asserted `gate` lines to the durable `ledger.jsonl`.
+These mid-flight lines are **flushed to the committed `*.log.jsonl` during the mission, not at the end** — the doctrine loop reads the committed log **post-merge** (the session and its transcripts may be gone, possibly on another machine), so an unflushed line is a lost line.
 At retro the doctrine-loop Scanner reads the concluded combat log, **distills** recurring causes, and **appends** `strategy` lines to the ledger.
 **Deletion is decoupled from distill** (Plan retirement, below): the distill fires at `→ implemented`; the **tracked deletion** of the plan is a separate, later retro step, gated on source = `done`/merged **and** distilled.
 
@@ -145,7 +146,7 @@ The "never blocks" invariant is scoped to **availability**:
 
 One JSON object per line (JSON Lines).
 Every line carries a **CR-scoped `seq`** (append order *within its CR*, restarting per CR — never a global counter), a **write-time UTC `ts`**, an optional pseudonymous **`handle`**, and a `kind`.
-Four kinds, split by tier: **`report`** and **`correction`** are mid-flight → the **combat log** (the plan's `*.log.jsonl`); **`gate`** and **`strategy`** are durable → the slim `ledger.jsonl`.
+Five kinds, split by tier: **`report`**, **`correction`**, and **`halt`** are mid-flight → the **combat log** (the plan's `*.log.jsonl`); **`gate`** and **`strategy`** are durable → the slim `ledger.jsonl`.
 
 A CR-scoped `seq` is collision-free under concurrency: one CR lives in exactly one worktree at a time (the source-claim lock, `../intake/README.md`), so two concurrent missions always hold different CRs and never mint the same `(cr, seq)`.
 The durable ledger receives only sparse `gate`/`strategy` lines, so its rare cross-tree appends reconcile by **union merge** (keep all lines — they are independent records, never contradictions); set `ledger.jsonl merge=union` in `.gitattributes`.
@@ -223,6 +224,20 @@ Until ratified, an off-enum `cause` still fails closed.
 
 A `cause` value that is **absent or off-enum** is a **structural error** (it breaks cross-mission matchability), not valid provenance, and **fails closed**.
 
+### `halt` — a mid-flight stop (plan, tracked)
+
+A stop that is **not** at a gate: the agent halts mid-phase — a hard floor reached, an input it cannot supply, a blast radius it will not cross on its own.
+The gate-time stop is a `gate` line (`verdict: pause`, in the ledger); this `halt` line is its **mid-flight twin**, so *"why I halted"* is recorded as durably as *"why I went"* — read at retro like any combat-log line, never lost when the session ends.
+
+```jsonl
+{"seq": 5, "ts": "2026-06-28T18:50:33Z", "handle": "unional", "kind": "halt", "phase": "explore", "why": {"floor": "clearance", "blast": "high — would drop scenarios from a frozen suite", "novelty": "low", "confidence": "high"}}
+```
+
+- **`phase`** — `intake | explore | deliver | handoff`, where the mission stopped.
+- **`why`** — the **same categorical block** the `approval` map carries (`floor` / `blast` / `novelty` / `confidence`; `lifecycle-model.md`), **classes only** (safe-to-publish) — never the raw blocker content.
+
+A gate-time `pause` stays a `gate` line; `halt` covers only the **non-gate** stop, filling the gap so a mid-flight stop is as accountable — and as recoverable — as a gate verdict.
+
 ### `gate` — the durable per-CR gate verdict
 
 The durable record of *"this CR's diff was approved (or paused/rejected) at this gate."*
@@ -270,7 +285,7 @@ Both are append-only: lines are added with the next CR-scoped `seq`, never edite
 
 | Writer | May append | To | Never writes |
 |---|---|---|---|
-| **conductor** | `report`, `correction` | the **plan** | strategy lines; human-ratified `gate` lines |
+| **conductor** | `report`, `correction`, `halt` | the **plan** | strategy lines; human-ratified `gate` lines |
 | **conductor** | **self-asserted `gate`** (`by: agent`, same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | the **ledger** | human-ratified `gate` lines |
 | **gate skill (`validate-spec`), in-session** | **human-ratified `gate`** (`by: <name>`) | the **ledger** | report / correction / strategy lines |
 | **doctrine-loop Scanner** | `strategy` (incl. distilled recurrence) | the **ledger** | report / correction / gate lines |

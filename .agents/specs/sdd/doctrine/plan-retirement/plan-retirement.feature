@@ -1,15 +1,17 @@
 Feature: Plan retirement — the gated, idempotent tracked deletion of a retired plan
-  Unit suite for plan retirement, the Doctrine loop's last retro step. The sweep deletes a plan's
-  two files as a tracked deletion only when its caller has cleared the cr-ref (source done/merged
-  AND distilled); everything else is a no-op. Cross-capability e2e scenarios (a mission distilled
-  then retired end-to-end) live in ../../acceptance/.
+  Unit suite for plan retirement, the Doctrine loop's last retro step. Every scenario asserts an
+  OBSERVABLE outcome of the sweep over a given cleared set — the filesystem effect. The clearance
+  JUDGMENT (source done/merged AND distilled) is the caller's, out of this unit, so no scenario
+  asserts it. Cross-capability e2e scenarios (a mission distilled then retired end-to-end) live in
+  ../../acceptance/.
 
-  # ---- Distill and delete are decoupled ----
+  # ---- Delete-only: the sweep never distills ----
 
-  Scenario: distill fires early and delete is a separate later step
-    Given a mission distilled at the implemented transition
-    When the plan is later retired
-    Then the deletion is a separate retro step from the distill
+  Scenario: the sweep only deletes and writes nothing to the ledger
+    Given a cr-ref cleared for retirement
+    When the sweep runs
+    Then it deletes the cr-ref's plan files
+    And it writes no strategy or recurrence to the ledger
 
   # ---- The sweep deletes both plan files ----
 
@@ -21,26 +23,25 @@ Feature: Plan retirement — the gated, idempotent tracked deletion of a retired
     And it deletes the cr-ref's log.jsonl
     And the deletion is a tracked deletion of the tree only
 
-  # ---- Never retire an uncleared plan ----
-
-  Scenario: a plan whose source is still open is not cleared
-    Given a plan whose source is still open
+  Scenario: a cleared cr-ref with only its plan.md present deletes it and no-ops the missing half
+    Given a cr-ref cleared for retirement
+    And its plan.md exists but its log.jsonl is already gone
     When the sweep runs
-    Then the plan is not cleared for retirement
-    And it is left untouched
+    Then it deletes the plan.md
+    And it makes no change for the already-missing log.jsonl
 
-  Scenario: a plan that was never distilled is not cleared
-    Given a plan whose mission was never distilled
-    When the sweep runs
-    Then the plan is not cleared for retirement
-    And it is left untouched
+  # ---- Fail-closed: only an explicitly-cleared cr-ref is touched ----
 
-  # ---- Fail-closed on clearance ----
-
-  Scenario: only an explicitly-cleared cr-ref is touched
-    Given a plan on disk that the caller did not clear
+  Scenario: a plan the caller did not clear is left untouched
+    Given a plan on disk whose cr-ref the caller did not clear
     When the sweep runs
     Then it does not delete that plan
+
+  Scenario: clearing a cr-ref does not delete a different cr-ref it is a prefix of
+    Given a cr-ref is cleared for retirement
+    And a different plan whose cr-ref begins with the cleared one exists on disk
+    When the sweep runs
+    Then it does not delete the different plan
 
   # ---- Idempotency ----
 

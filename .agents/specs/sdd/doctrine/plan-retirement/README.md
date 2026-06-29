@@ -29,16 +29,17 @@ cleared to retire, and does **not** delete from git **history** (a tracked delet
 files from the *tree* only).
 
 Every scenario in [`plan-retirement.feature`](./plan-retirement.feature) maps to one of these
-behaviors:
+behaviors. Each asserts an **observable outcome of the sweep** over a given cleared set — the
+filesystem effect — never the caller's clearance decision (which is out of this unit):
 
 | Behavior | What it covers |
 |---|---|
-| **distill and delete are decoupled** | distill fires at `→ implemented`; the delete is a separate, later retro step |
-| **the sweep deletes both plan files** | a cleared `<cr-ref>` removes `<cr-ref>.plan.md` **and** `<cr-ref>.log.jsonl` as a tracked deletion |
-| **never retire an uncleared plan** | a plan whose source is still open, or that was never distilled, is not cleared, so it is left untouched |
-| **fail-closed on clearance** | only an explicitly-cleared `<cr-ref>` is touched; an un-named plan is never deleted |
-| **idempotent — missing plan is a no-op** | a `<cr-ref>` with no plan on disk (already retired) deletes nothing |
-| **safe to re-run** | re-running the sweep over the same inputs makes no further change |
+| **delete-only, never distill** | the sweep only deletes; distill (writing `strategy`/recurrence to the ledger) is the Scanner's earlier, separate step — the sweep writes nothing to the ledger |
+| **deletes both plan files** | a cleared, present `<cr-ref>` removes `<cr-ref>.plan.md` **and** `<cr-ref>.log.jsonl` as a tracked deletion |
+| **partial pair is no-op'd** | a cleared `<cr-ref>` whose `log.jsonl` is already gone still deletes `plan.md` and no-ops the missing half |
+| **fail-closed — uncleared is untouched** | a plan the caller did not clear (its source still open, or never distilled) is left untouched; only an explicitly-cleared `<cr-ref>` is ever touched |
+| **exact-stem match** | clearing a `<cr-ref>` never collateral-deletes a different `<cr-ref>` it is a prefix of |
+| **idempotent — missing plan is a no-op** | a cleared `<cr-ref>` with no plan on disk deletes nothing; the sweep is safe to re-run |
 
 ## The clearance boundary
 
@@ -51,6 +52,11 @@ the sweep. The sweep is the **mechanical, fail-closed gate + filesystem act**: g
 set, it deletes exactly those plans that exist and nothing else. Anything not cleared, missing, or
 already gone is a no-op. This keeps the deterministic deletion testable and the policy judgment
 with the agent that can make it.
+
+The sweep's **authoritative observable is the filesystem effect** — which plan files it deleted.
+Its printed summary of the retired `<cr-ref>`s is **advisory** (operator feedback), **not** part of
+the frozen contract; the impl-judge re-derives its oracle from the on-disk deletions, not the
+stdout.
 
 ## Delivery
 

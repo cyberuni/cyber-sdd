@@ -133,6 +133,31 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | [`plugin/`](./plugin/README.md) | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
 | [`acceptance/`](./acceptance/README.md) | e2e behavior suite | — |
 
+<!-- BEGIN generated: by-concept (corpus/concept-index) -->
+
+## By concept
+
+> Generated from `concept:` frontmatter by `corpus/concept-index` — do not edit by hand.
+
+| Concept | Facets |
+|---|---|
+| `artifact-type` | `design/artifact-type.md` (rule) |
+| `autonomy` | `acceptance/` (e2e) · `design/autonomy-rubric.md` (rule) |
+| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/align-specs/` (behavior) · `corpus/concept-index/` (behavior) · `corpus/dedupe-specs/` (behavior) · `corpus/digest/` (behavior) · `corpus/discovery/` (behavior) · `corpus/split-spec/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) |
+| `delivery` | `acceptance/` (e2e) · `mission/deliver/impl-judge/` (behavior) · `mission/deliver/impl-producer/` (behavior) · `mission/handoff/` (behavior) |
+| `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
+| `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
+| `intake` | `intake/plan-discovery/` (behavior) |
+| `lifecycle` | `acceptance/` (e2e) · `authoring/validate-spec/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) |
+| `orchestration` | `design/cr-concurrency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission/conductor/` (behavior) |
+| `plugin` | `plugin/` (behavior) · `plugin/plugin-contract/` (reference) |
+| `provenance` | `acceptance/` (e2e) · `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) |
+| `resolution` | `acceptance/` (e2e) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) |
+| `routing` | `gateway/` (behavior) |
+| `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `authoring/validate-spec/` (behavior) · `mission/solution-producer/` (behavior) |
+
+<!-- END generated: by-concept -->
+
 ## Invariants
 
 - **ONE spec, ONE behavior suite, ONE gate/freeze baseline.** Folders are *views*, never lifecycle units — none gets its own `status`/approval.

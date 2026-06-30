@@ -38,6 +38,7 @@ The procedure runs at the impl gate; every scenario in
 | **orthogonal structural read** | fold in a fit / no-duplication / no-conflict reading, orthogonal to the builder's lens |
 | **roll up** | implementation passes **only** when every scenario has a passing, behavior-exercising check |
 | **a behavior-changing gap is a BLOCKER** | a gap that needs specified behavior to change is reported, not edited |
+| **judge ≠ producer model** | the judge runs in a fresh context **and**, where the harness allows, at a **different model** from the producer — the lever that breaks *correlated* (not just conversational) blind spots |
 
 ## The layered verdict (ADR-0016)
 

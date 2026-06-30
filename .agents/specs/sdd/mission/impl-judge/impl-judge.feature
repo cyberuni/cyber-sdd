@@ -19,10 +19,20 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Then it derives the expected behavior from the scenario's Given and When and Then
     And it confirms the authored check asserts that behavior rather than trusting the producer's chosen assertion
 
+  Scenario: a check whose assertion diverges from the re-derived oracle fails
+    Given a frozen scenario whose authored check asserts something other than the re-derived oracle
+    When the impl-judge judges that scenario
+    Then it reports that scenario failing rather than trusting the producer's assertion
+
   Scenario: a scenario passes only when its check exercises the asserted behavior
     Given a frozen scenario with an authored check
     When the impl-judge runs the check
     Then the scenario passes only when a passing check exercises the observable behavior it asserts
+
+  Scenario: a passing check that does not exercise the asserted behavior fails its scenario
+    Given a frozen scenario whose authored check passes without exercising the behavior it asserts
+    When the impl-judge judges that scenario
+    Then it reports that scenario failing
 
   Scenario: the producer's own green run is a pre-filter, not the verdict
     Given the impl-producer reports its authored tests passing
@@ -86,3 +96,8 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     When it completes
     Then it runs in a fresh context the impl-producer cannot reach
     And it returns advice rather than writing the gate verdict or status
+
+  Scenario: the judge runs at a different model from the producer where the harness allows
+    Given the impl-judge spawned cold at the impl gate
+    When the harness allows selecting the grader model
+    Then it runs at a different model from the impl-producer to break correlated blind spots

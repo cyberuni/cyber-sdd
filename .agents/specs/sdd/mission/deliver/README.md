@@ -16,6 +16,23 @@ to **learn** against the still-draft contract; deliver builds to **keep** agains
 contract. The **freeze is the boundary**. Implementation happens in both — deliver is the one whose
 output is kept.
 
+## The deliver read-set — the frozen suite is the contract
+
+At deliver the contract is **the frozen `.feature`**, not the prose. So the read-set is scoped, not
+the whole node:
+
+- **read** the frozen `<unit>.feature` (the contract to build against), the optional
+  `<unit>.solution.md` (the chosen approach + rejected alternatives — design rationale the code can't
+  show), and the **implementation files for the touched artifact-type** (scoped via `produced-by` /
+  `resolve-governances`, not the whole tree);
+- **do not re-read** the prose unit spec (`README.md` / `## Use Cases`) — that was *explore's* input to
+  author the suite; once frozen, the `.feature` carries the contract and the prose adds no constraint
+  the suite doesn't already encode. `spec.md` is kept in sync but is not a deliver input
+  (`../../design/lifecycle-model.md`).
+
+This keeps the per-mission read cost proportional to what changed — the frozen scenarios plus the
+touched impl — rather than re-reading the full node every cycle.
+
 ## Units
 
 The deliver phase produces the artifacts the impl gate judges. Its two units split on the

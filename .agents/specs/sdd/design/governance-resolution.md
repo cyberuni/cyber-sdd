@@ -13,7 +13,8 @@ Rule side only; the mechanical part is a deterministic **matcher** (below) — i
 A role's governances split by whether they vary with the artifact-type:
 
 - **Fixed-universal** — invariant per role on every invocation: `ownership`, `lifecycle`, `spec-format` (`spec-format-governance`), `suite-format`, `gate-validation`, `combat-log`.
-  Ship with sdd; load for every spec regardless of artifact-type (`actors-governance.md`). They are **declared in the role/agent definition** and **not** produced by the matcher — only the resolved-actor tier is matched.
+  Ship with sdd; apply to every spec regardless of artifact-type (`actors-governance.md`). They are **declared in the role/agent definition** and **not** produced by the matcher — only the resolved-actor tier is matched.
+  **Loaded lazily, not eagerly.** Their *names* are known up front from the role/agent definition (a compact operating digest), but a full governance **body** is read **only at the decision or gate that invokes it** — `gate-validation` + `lifecycle` at a gate, `suite-format` only while authoring a `.feature`, `spec-format` only while writing `spec.md`, `combat-log` only when writing the log. A one-line change that touches no gate and authors no suite never pays to read all six bodies; the per-mission token floor is the digest, not the corpus of governance prose.
 - **Resolved-actor** — the actor bars `oracle` / `builder` / `architect`, matched per `(artifact-type, gate)`.
   The variable tier, matched dynamically per the file's artifact-type — the **only** thing the matcher resolves.
 

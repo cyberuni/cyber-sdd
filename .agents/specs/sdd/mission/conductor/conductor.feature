@@ -205,9 +205,9 @@ Feature: The conductor — running one mission segment
     Then it fixes the code against the frozen feature
     And the frozen feature is not modified
 
-  Scenario: a Director-lens revert unfreezes the feature back to draft
+  Scenario: an Oracle-lens revert unfreezes the feature back to draft
     Given building proves a frozen scenario fatal
-    When the conductor takes a Director-lens revert at the impl gate
+    When the conductor takes an Oracle-lens revert at the impl gate
     Then the frozen feature is unfrozen
     And the spec returns to draft
 

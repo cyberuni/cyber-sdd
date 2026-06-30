@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: governance
 ---
 
 # architect — the Architect actor bar

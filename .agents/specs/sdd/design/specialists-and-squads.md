@@ -1,3 +1,7 @@
+---
+concept: [governance, resolution]
+---
+
 # Specialists & squads
 
 The selection model behind production: the **squad**, the five delegate roles, which governances each loads, and the **registry SHAPE** that stores it.

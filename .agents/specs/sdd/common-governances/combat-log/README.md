@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: provenance
 ---
 
 # combat-log — the provenance record bar

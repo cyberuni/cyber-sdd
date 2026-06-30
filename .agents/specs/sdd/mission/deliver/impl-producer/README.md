@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: delivery
 ---
 
 # impl-producer — build the implementation + its verification

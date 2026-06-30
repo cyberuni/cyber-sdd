@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: lifecycle
 ---
 
 # gate-validation — the gate-legality bar

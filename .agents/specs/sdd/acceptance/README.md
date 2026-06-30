@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [lifecycle, autonomy, resolution, delivery, provenance]
 ---
 
 # acceptance/ — the e2e behavior suite

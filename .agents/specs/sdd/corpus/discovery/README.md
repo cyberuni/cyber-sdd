@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: corpus-structure
 ---
 
 # discovery — find specs at the SDD spec locations, named and resolvable

@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: corpus-structure
 ---
 
 # formation/ — the structure outer loop

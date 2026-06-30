@@ -1,3 +1,7 @@
+---
+concept: lifecycle
+---
+
 # Lifecycle model
 
 The **rules** behind the lifecycle: the frontmatter schema, the status enum, the legal state transitions, the freeze state-transition, and gate accountability.
@@ -43,7 +47,7 @@ The **contested-type → chosen-plugin** disambiguation (when two plugins claim 
 The **organization strategy** (`capability-first`, …) is declared in the **body** (the placement map), not frontmatter — read on demand by `backfill-project-spec` / the formation Warden, off the router's hot path (`../design/spec-layout.md`).
 There is **no `aligned` field** (ADR-0017): contract-sync (`spec.md` ↔ `.feature`) is *judged* at the spec gate, impl-sync is the impl gate's *runtime suite run*, per-node settled state is the `@frozen` scan, and what is in flux right now is the `.plan.md` todos. Do not commit SDD artifacts while a touched `.feature` is unfrozen or the plan's todos are incomplete.
 
-**This whole frontmatter is root-`spec.md`-only.** A capability node README (a `reference` or `behavioral` spec — see `../design/spec-structure.md` spec types) carries **only** its `spec-type` marker, never a lifecycle field — folders are views, never lifecycle units. The project has one lifecycle, on the root.
+**This whole frontmatter is root-`spec.md`-only.** A capability node README (a `reference` or `behavioral` spec — see `../design/spec-structure.md` spec types) carries **only** classification frontmatter (`spec-type`, `artifact-types`, `concept`), never a lifecycle field — folders are views, never lifecycle units. The project has one lifecycle, on the root.
 
 ## Status enum
 

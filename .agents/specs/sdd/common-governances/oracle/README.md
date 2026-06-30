@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: governance
 ---
 
 # oracle — the Oracle actor bar

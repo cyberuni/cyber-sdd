@@ -1,3 +1,7 @@
+---
+concept: governance
+---
+
 # Actors & governance
 
 The SDD actor model is the `motive-model` applied to spec-driven development.

@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: delivery
 ---
 
 # mission/handoff/ — the handoff phase (step 4)

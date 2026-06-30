@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: orchestration
 ---
 
 # conductor — the inner-loop conductor role

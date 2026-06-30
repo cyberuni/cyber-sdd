@@ -1,3 +1,8 @@
+---
+concept: corpus-structure
+model: true
+---
+
 # Spec layout — organization strategies
 
 **How the top-level body of one spec is decomposed**, and how that choice is *declared* rather than
@@ -20,8 +25,8 @@ strategy (`spec-structure.md`, `lifecycle-model.md`):
 - a **behavioral leaf** = node `README.md` (`spec-type: behavioral`, `## Use Cases`) + a colocated
   `<unit>.feature` (frozen per-file at the gate) + optional `<unit>.solution.md` (ungated, out of the
   spec-judge's view);
-- **`spec-type` is the only per-node frontmatter**; all lifecycle stays on the root `spec.md`; freeze is
-  per-`.feature`; one lifecycle per project.
+- **a node carries only classification frontmatter** (`spec-type`, `artifact-types`, `concept`), never
+  lifecycle; all lifecycle stays on the root `spec.md`; freeze is per-`.feature`; one lifecycle per project.
 
 A strategy therefore **composes with SDD iff** every node it emits classifies to one `spec-type` and every
 behavioral leaf can host that triple. "Where do the solution and suite go?" has one answer under all

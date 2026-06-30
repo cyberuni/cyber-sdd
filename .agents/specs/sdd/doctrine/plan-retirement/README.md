@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [doctrine, provenance]
 ---
 
 # doctrine/plan-retirement/ — doctrine's last retro step

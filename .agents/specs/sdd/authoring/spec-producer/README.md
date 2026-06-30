@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: spec-authoring
 ---
 
 # spec-producer — grill a CR into spec prose + a boolean suite

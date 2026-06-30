@@ -1,3 +1,7 @@
+---
+concept: orchestration
+---
+
 # Harness spawning constraints
 
 The depth of agent nesting a harness allows is a **hard portability limit** on SDD's spawn model.

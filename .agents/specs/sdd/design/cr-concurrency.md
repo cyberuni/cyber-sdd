@@ -1,3 +1,7 @@
+---
+concept: orchestration
+---
+
 # CR concurrency — one CR per working tree
 
 A CR is an abstraction of a suite delta, and a suite delta lands as code.

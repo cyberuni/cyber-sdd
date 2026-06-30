@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: plugin
 ---
 
 # plugin/ — SDD's plugin nature

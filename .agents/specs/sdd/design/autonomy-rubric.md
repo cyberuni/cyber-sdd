@@ -1,3 +1,7 @@
+---
+concept: autonomy
+---
+
 # Autonomy rubric — the self-clear-vs-escalate bar
 
 This rubric is the single self-clear-vs-escalate arbiter for **every SDD autonomy decision** — every write to the spec/suite, each gate's self-assertion (via the leash), and every outer-loop delegate act (including the forge loop's opt-in egress, the Consent floor).

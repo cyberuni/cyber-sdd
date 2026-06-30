@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: resolution
 ---
 
 # resolution — match the governance bars for an artifact-type, bucketed by tier

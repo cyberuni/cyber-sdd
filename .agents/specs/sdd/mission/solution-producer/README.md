@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: spec-authoring
 ---
 
 # solution-producer — record the per-unit solution

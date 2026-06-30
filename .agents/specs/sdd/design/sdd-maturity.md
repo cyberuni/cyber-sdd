@@ -1,3 +1,7 @@
+---
+model: true
+---
+
 # SDD maturity levels
 
 SDD is not a single mode — it is a spectrum of how tightly the spec governs the code. The

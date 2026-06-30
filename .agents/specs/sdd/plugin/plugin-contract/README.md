@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: plugin
 ---
 
 # plugin-contract — the SDD plugin contract bar

@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: lifecycle
 ---
 
 # lifecycle — the spec lifecycle bar

@@ -1,3 +1,7 @@
+---
+concept: [governance, resolution]
+---
+
 # Governance resolution
 
 How an actor/discipline **governance** is defined, matched, composed, and loaded for a production-chain role.

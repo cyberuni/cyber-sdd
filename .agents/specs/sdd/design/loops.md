@@ -1,3 +1,8 @@
+---
+concept: orchestration
+model: true
+---
+
 # The loop architecture
 
 SDD has **one inner loop** — the **Mission Loop** — fed by exactly one intake, plus **four outer loops** that fire **post-mission** and can only re-enter as new CRs.

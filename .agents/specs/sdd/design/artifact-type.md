@@ -1,3 +1,7 @@
+---
+concept: artifact-type
+---
+
 # Artifact-type
 
 The **squad key**: how SDD decides which producer/judge/governances/model/effort handle a given

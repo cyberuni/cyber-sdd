@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: spec-authoring
 ---
 
 # spec-format — the spec.md structure bar

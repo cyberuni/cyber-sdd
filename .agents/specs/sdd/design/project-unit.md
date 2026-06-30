@@ -1,3 +1,8 @@
+---
+concept: corpus-structure
+model: true
+---
+
 # The project is the unit
 
 The **external** boundary: what maps to one spec. (The spec's *internal* structure — node types

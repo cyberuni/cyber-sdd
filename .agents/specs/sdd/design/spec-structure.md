@@ -1,3 +1,8 @@
+---
+concept: corpus-structure
+model: true
+---
+
 # Spec structure — node types and layout
 
 The **internal** structure of one spec, in two parts: **what kinds of nodes it is made of** (the

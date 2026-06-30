@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: spec-authoring
 ---
 
 # suite-format — the .feature behavior-suite bar

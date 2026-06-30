@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: delivery
 ---
 
 # impl-judge — judge the implementation against the frozen contract

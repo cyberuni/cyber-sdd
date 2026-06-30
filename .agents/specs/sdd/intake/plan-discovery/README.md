@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: intake
 ---
 
 # plan-discovery — find resumable missions by their plan briefs

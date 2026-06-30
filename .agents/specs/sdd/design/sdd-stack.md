@@ -1,3 +1,7 @@
+---
+model: true
+---
+
 # The SDD stack
 
 Five layers — **intent → work → contract → artifact → behavior** — that get more concrete as you

@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: doctrine
 ---
 
 # doctrine/scanner/ — the Scanner detect-and-draft loop

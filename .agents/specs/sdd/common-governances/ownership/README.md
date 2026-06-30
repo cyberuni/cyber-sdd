@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: governance
 ---
 
 # ownership — the write-ownership bar

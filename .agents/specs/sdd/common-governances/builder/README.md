@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: governance
 ---
 
 # builder — the Builder actor bar

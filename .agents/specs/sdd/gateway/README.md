@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: routing
 ---
 
 # gateway/ — the universal front door (the `sdd` skill)

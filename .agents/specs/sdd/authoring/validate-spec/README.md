@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [lifecycle, spec-authoring]
 ---
 
 # validate-spec — the spec gate

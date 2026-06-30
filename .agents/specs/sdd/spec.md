@@ -143,7 +143,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 |---|---|
 | `artifact-type` | `design/artifact-type.md` (rule) |
 | `autonomy` | `acceptance/` (e2e) · `design/autonomy-rubric.md` (rule) |
-| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/align-specs/` (behavior) · `corpus/concept-index/` (behavior) · `corpus/dedupe-specs/` (behavior) · `corpus/digest/` (behavior) · `corpus/discovery/` (behavior) · `corpus/split-spec/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) |
+| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/align-specs/` (behavior) · `corpus/concept-index/` (behavior) · `corpus/dedupe-specs/` (behavior) · `corpus/digest/` (behavior) · `corpus/discovery/` (behavior) · `corpus/place-node/` (behavior) · `corpus/split-spec/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) |
 | `delivery` | `acceptance/` (e2e) · `mission/deliver/impl-judge/` (behavior) · `mission/deliver/impl-producer/` (behavior) · `mission/handoff/` (behavior) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |

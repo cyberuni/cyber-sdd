@@ -67,7 +67,8 @@ never here.
 
 | Unit | Type | Spec | Role |
 |---|---|---|---|
-| **conductor** | behavioral | [`conductor/`](./conductor/README.md) | the conductor role — resolution (registry READ), the five-role production chain, explore orchestration, the impl gate, stop-provenance, segment mechanics, the in-flight floor; **realized in-session by default, by the spawned `automaton` in the headless fallback** |
+| **conductor** | behavioral | [`conductor/`](./conductor/README.md) | the conductor role — *orchestrating* resolution (it runs the `resolution/` matcher and composes the bars), the five-role production chain, explore orchestration, the impl gate, stop-provenance, segment mechanics, the in-flight floor; **realized in-session by default, by the spawned `automaton` in the headless fallback** |
+| **resolution** | behavioral | [`resolution/`](./resolution/README.md) | the registry **READ** — match the resolved-actor bars for an artifact-type and name each role's agent, returned **bucketed by tier** for the agent to compose; the `resolve-governances` matcher engine |
 | **solution-producer** | behavioral | [`solution-producer/`](./solution-producer/README.md) | the `solution-producer-governance` procedure — record the per-unit solution (chosen approach + rejected alternatives) **only when** a unit carries durable rationale; ungated, no judge of its own |
 
 The mission-owned **phases** are their own capability sub-folders, not conductor units:

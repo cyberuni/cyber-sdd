@@ -41,8 +41,8 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 
 ## Inputs
 
-The verified result of the deliver phase: the implementation passed the impl gate, `aligned`
-is true for the impl layer, and the colocated unit suites plus `../../acceptance/` are green.
+The verified result of the deliver phase: the implementation passed the impl gate, impl-sync holds
+(the frozen suite runs green), and the colocated unit suites plus `../../acceptance/` are green.
 Handoff **consumes** this; it does not re-verify and it does not touch the contract.
 
 ## Placement finalization — the scoped Warden pass

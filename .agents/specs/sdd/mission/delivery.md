@@ -52,7 +52,7 @@ not these. Cross-capability outcome (e2e) scenarios live in `../acceptance/`.
 
 ## Where the rules live
 
-- **The impl-gate verdict** (the three actions, layer-scoped `aligned`, verdict-not-station,
+- **The impl-gate verdict** (the three actions, derived impl-sync, verdict-not-station,
   positional authority) → the [`conductor`](conductor/README.md) unit; this phase only **produces**
   what the gate judges.
 - **Low-risk in-flight adjustments** the conductor serves while building (clarify a detail, an

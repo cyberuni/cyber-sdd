@@ -53,7 +53,7 @@ done?` mirror to merge or split. So each is **one skill**, not an `(actor, gate)
 | lifecycle | `lifecycle-model.md` (schema / status / transitions / freeze) | `common-governances/lifecycle/` | `lifecycle-governance` | `validate-spec.feature` |
 | ownership | `provenance-model.md` | `common-governances/ownership/` | `ownership-governance` | validate-spec + producer/judge suites |
 | combat-log | `provenance-model.md` | `common-governances/combat-log/` | `combat-log-governance` | conductor + validate-spec + Scanner suites |
-| gate-validation | `lifecycle-model.md` (two gates / `aligned` scoping / legal-state tuples / gate accountability) | `common-governances/gate-validation/` | `gate-validation-governance` | `validate-spec.feature` |
+| gate-validation | `lifecycle-model.md` (two gates / derived sync / legal-state tuples / gate accountability) | `common-governances/gate-validation/` | `gate-validation-governance` | `validate-spec.feature` |
 
 - Each `common-governances/<name>/README.md` is a `spec-type: reference` node (`## Subject`, no
   `.feature`), **thin** — it names the bar's surface and points to its `design/` model; the model is
@@ -77,7 +77,7 @@ canonical; the runtime verdict comes from the conductor's own logic, never from 
 ### Reconciles resolved (reasoned to intent, not tallied)
 
 1. **gate-validation model home → FOLD into `lifecycle-model.md` (no new `design/gate-validation.md`).**
-   The legality content — the two gates, `aligned` layer-scoping, the legal-state tuples, gate
+   The legality content — the two gates, derived sync, the legal-state tuples, gate
    accountability — **already lives in `lifecycle-model.md`** (those four sections). A standalone doc
    would fragment the legal-tuple list, not clarify it. The `lifecycle/` and `gate-validation/`
    reference nodes share one design doc, carving distinct Subjects: lifecycle = schema / status /
@@ -86,7 +86,7 @@ canonical; the runtime verdict comes from the conductor's own logic, never from 
    moved to `autonomy-rubric.md` (a hard floor + a **three**-dimension gradient); `lifecycle-model.md`
    § Gate accountability already defers to it ("the leash … lives in `autonomy-rubric.md`"). The new
    `gate-validation-governance` **drops the baseline's "four-dimension" leash section** entirely — it
-   is the gate-**legality** layer only (legal tuples, `aligned` scoping, approval attribution,
+   is the gate-**legality** layer only (legal tuples, derived sync, approval attribution,
    no-resolvable-producer fail-closed). Neither 4 nor 5 — zero.
 3. **architect-spec asymmetric inputs** — resolved in the actor model above (one merged `architect-spec`
    bar + a per-face footer).

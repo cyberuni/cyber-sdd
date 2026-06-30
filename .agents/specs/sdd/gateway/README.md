@@ -30,7 +30,7 @@ classifier holding no production logic.
 **Non-goals** — it holds **no** production logic, edits no project files, registers no hooks,
 installs nothing, requires no CLI; it **never drafts or ratifies** strategy (only surfaces the
 pending count) and **never resumes or retires** a mission (only surfaces the resumable briefs); and
-it writes **no** `status` / `aligned` / `approval` (the gate / conductor own those).
+it writes **no** `status` / `approval` (the gate / conductor own those).
 
 Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these behaviors:
 
@@ -147,7 +147,7 @@ is **not** a separate orchestrator role — it is the driver run headless.
 
 The gateway writes **no** contract state. The internal spec / impl gates own the `status` write and
 the human ratification of `approval`; the conductor (the in-session user, or the automaton when
-headless) owns `aligned` and any provisional self-assertion. The gateway writes neither.
+headless) owns any provisional self-assertion. The gateway writes neither.
 
 ## Recognize the escape and the freeze
 

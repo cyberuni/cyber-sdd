@@ -294,7 +294,7 @@ Both are append-only: lines are added with the next CR-scoped `seq`, never edite
 | Writer | May append | To | Never writes |
 |---|---|---|---|
 | **conductor** | `report`, `correction`, `halt` | the **plan** | strategy lines; human-ratified `gate` lines |
-| **conductor** | **self-asserted `gate`** (`by: agent`, same boundary as `produced-by` / `aligned` / a self-asserted `approval`) | the **ledger** | human-ratified `gate` lines |
+| **conductor** | **self-asserted `gate`** (`by: agent`, same boundary as `produced-by` / a self-asserted `approval`) | the **ledger** | human-ratified `gate` lines |
 | **gate skill (`validate-spec`), in-session** | **human-ratified `gate`** (`by: <name>`) | the **ledger** | report / correction / strategy lines |
 | **doctrine-loop Scanner** | `strategy` (incl. distilled recurrence) | the **ledger** | report / correction / gate lines |
 | **producers / judges** | nothing | — | the entire record — they do not know their own registry identity authoritatively |

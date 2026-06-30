@@ -23,7 +23,7 @@ Mid-flight working detail is per-mission and committed with the work, then remov
 
 **Naming (fleet metaphor).**
 The mid-flight `*.log.jsonl` is the **combat log** — the blow-by-blow of the mission while it is fought.
-The durable `ledger.jsonl` is the **ledger** — the sparse book the doctrine loop **distills** the combat log into and keeps.
+The durable `ledger.jsonl` is the **ledger** — the sparse book of durable outcomes: the conductor **appends `gate`** lines to it directly at each gate, and the doctrine loop **distills `strategy`** lines into it from the combat log at retro.
 "Combat log" always means the live per-mission log in the plan; "ledger" always means the durable sibling of the root `spec.md`.
 They are never the same file.
 

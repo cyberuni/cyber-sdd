@@ -80,6 +80,12 @@ Feature: The handoff phase — land the verified result in the declared delivery
     Then the source is closed by the merge
     And handoff adds no separate close
 
+  Scenario: an unmerged pull request leaves the source open
+    Given handoff delivered the work as a pull request that has not yet merged
+    When handoff completes
+    Then the source stays open
+    And handoff writes no status transition for it
+
   Scenario: direct-to-main work transitions the source to done on push
     Given handoff delivered the work directly to main
     When the work is pushed

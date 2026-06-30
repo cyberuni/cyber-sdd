@@ -18,7 +18,7 @@ demand and lives in the root `spec.md` as a machine-owned block, never hand-main
 root `spec.md`.
 **Non-goals** — it never reads a node body (frontmatter only, like `../discovery/`), never edits
 anything in `spec.md` outside its own delimited block, never writes lifecycle state, and never ranks
-or judges (that is `../dedupe-specs/` and the spec gate).
+or judges (that is `../check-spec-structure/` and the spec gate).
 
 | Trigger | Inputs | Outcome |
 |---|---|---|

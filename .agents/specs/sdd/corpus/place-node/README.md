@@ -14,8 +14,8 @@ finalized at handoff ([`../../mission/handoff/`](../../mission/handoff/README.md
 ## Use Cases
 
 **Subject** — suggesting a provisional home + duplicate-catch for a node about to be scaffolded.
-**Non-goals** — it never writes, never relocates (that is handoff), never ranks specs for dedupe (that
-is `../dedupe-specs/`), and never reads a node body (frontmatter only, like `../discovery/`).
+**Non-goals** — it never writes, never relocates (that is handoff), never audits node-shape (that
+is `../check-spec-structure/`), and never reads a node body (frontmatter only, like `../discovery/`).
 
 | Trigger | Inputs | Outcome |
 |---|---|---|

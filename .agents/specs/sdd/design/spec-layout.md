@@ -212,7 +212,7 @@ you have built and verified it, not before. So placement is **two-phase**, and n
 
 **Division of labor** (#35's open question): explore *proposes* a home; the **handoff** Warden pass
 *finalizes* it in-PR (per-mission); the **post-mission** Warden owns only **cross-mission** structural
-drift (dedupe, split, reconcile across missions). Pre-determined organization is an **input to** formation,
+drift (node-shape audit, align, reconcile across missions). Pre-determined organization is an **input to** formation,
 not a replacement for it.
 
 ## How this lowers the #35 placement burden

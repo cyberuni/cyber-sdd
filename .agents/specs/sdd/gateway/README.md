@@ -106,7 +106,7 @@ flowchart TD
     BARE -->|no| GATHER["gather missing intent<br/>(≤ 4 options)"] --> CLASSIFY
     BARE -->|yes · fast path| CLASSIFY{classify}
     CLASSIFY -->|change the project / spec| SM["start-mission<br/>(runs the mission loop)"]
-    CLASSIFY -->|dedupe / split / inspect| CORPUS[corpus]
+    CLASSIFY -->|audit / align / inspect| CORPUS[corpus]
     CLASSIFY -->|retrospective / field| OUTER["outer loop → new CR → start-mission"]
     CLASSIFY -->|manage plugins / governances · planned| PLUGIN["plugin"]
     CLASSIFY -->|no suite-relevant behavior| ESCAPE["escape · no SDD record"]
@@ -123,7 +123,7 @@ is re-opened through a mission, never edited in place.
 | User intent | Skill (handler) |
 |---|---|
 | Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
-| Dedupe, split, reconcile, or inspect the corpus | **corpus** tools |
+| Audit node-shape, align, reconcile, or inspect the corpus | **corpus** tools |
 | A task with no suite-relevant behavior (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 | Manage domain plugins (install / list / remove), author a governance, or register to the marketplace | the **plugin** capability (`../plugin/README.md`) — *planned, deferred CR* |

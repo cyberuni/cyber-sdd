@@ -14,7 +14,7 @@ artifacts every spec shares, so its shape stays consistent across every domain.
 ## Use Cases
 
 **Subject** — summarizing one spec folder into the five fixed sections.
-**Non-goals** — it never writes, never ranks specs against each other (that is `dedupe-specs`), and
+**Non-goals** — it never writes, never audits node-shape (that is `../check-spec-structure/`), and
 never judges quality (that is the spec gate). It reads exactly one spec.
 
 | Trigger | Inputs | Outcome |

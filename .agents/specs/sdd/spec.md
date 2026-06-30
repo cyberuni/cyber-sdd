@@ -72,7 +72,7 @@ lifecycle units), never by splitting into a fleet of per-feature specs.
 
 Every interaction enters through the universal **[`gateway/`](./gateway/README.md)** (the `sdd` skill): it activates SDD,
 classifies the request, and **routes** it — to a **mission** (a CR run through the loop below), a
-**[`corpus/`](./corpus/README.md)** operation (dedupe, split, inspect), inner-loop agent-tuning (inject / project), a
+**[`corpus/`](./corpus/README.md)** operation (audit, align, inspect), inner-loop agent-tuning (inject / project), a
 **plugin-management** operation (install/remove a domain plugin, author a governance — *planned*), or
 one of the four **outer loops**. A task with no suite-relevant behavior **escapes** — outside the
 lifecycle, leaving no SDD record. The gateway is a **thin relay**: it classifies and dispatches,
@@ -107,7 +107,7 @@ Once a cycle completes, four loops may fire and emit **new CRs** — nothing re-
 system except as a CR ([`design/loops.md`](./design/loops.md)):
 
 - **campaign** (Product) — what the project should *be*: grow and prune capabilities.
-- **formation** (Structure) — is the corpus organized right: dedupe, split, reconcile.
+- **formation** (Structure) — is the corpus organized right: audit node-shape, align, reconcile.
 - **doctrine** (Process) — how we work: distill strategy from the combat log, retire plans.
 - **forge** (Field, external) — improve SDD itself from opt-in end-user field corrections.
 
@@ -143,7 +143,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 |---|---|
 | `artifact-type` | `design/artifact-type.md` (rule) |
 | `autonomy` | `acceptance/` (e2e) · `design/autonomy-rubric.md` (rule) |
-| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/align-specs/` (behavior) · `corpus/concept-index/` (behavior) · `corpus/dedupe-specs/` (behavior) · `corpus/digest/` (behavior) · `corpus/discovery/` (behavior) · `corpus/place-node/` (behavior) · `corpus/split-spec/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) |
+| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/align-spec/` (behavior) · `corpus/check-spec-structure/` (behavior) · `corpus/concept-index/` (behavior) · `corpus/digest/` (behavior) · `corpus/discovery/` (behavior) · `corpus/place-node/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) |
 | `delivery` | `acceptance/` (e2e) · `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |

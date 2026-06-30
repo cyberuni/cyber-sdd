@@ -2,44 +2,44 @@
 Feature: The formation loop — keep the spec corpus structurally organized
   Unit suite for the formation (structure) outer loop run by the Warden. Loop, act, and
   verdict behaviors only — corpus-wide structure, never per-spec gate judgment. Cross-capability
-  end-to-end outcomes (a split or dedupe carried through) live in ../acceptance/.
+  end-to-end outcomes (a split or reconcile carried through) live in ../acceptance/.
 
-  # ── The three corpus-wide acts ──
+  # ── The intra-spec structural acts ──
 
-  Scenario: a monolith that trips the granularity heuristic is split
-    Given a spec that trips the spec-granularity heuristic
+  Scenario: a node that trips the granularity heuristic is flagged for a split
+    Given a node whose suite trips the granularity heuristic
     When the formation pass runs
-    Then it raises a split finding for that spec
+    Then it raises an oversized-node split finding for that node
 
-  Scenario: a spec within the granularity heuristic is left alone
-    Given a spec that sits within the granularity heuristic
+  Scenario: a node within the granularity heuristic is left alone
+    Given a node whose suite sits within the granularity heuristic
     When the formation pass runs
-    Then it raises no split finding for that spec
+    Then it raises no split finding for that node
 
-  Scenario: overlapping specs produce a dedupe finding that names them
-    Given two specs that cover overlapping behavior
+  Scenario: an untagged node is flagged by the node-shape audit
+    Given a spec-typed node that carries no concept tag
     When the formation pass runs
-    Then it produces a dedupe finding naming the overlapping specs
+    Then it raises an untagged-node finding naming that node
 
-  Scenario: specs that do not overlap produce no dedupe finding
-    Given two specs whose behavior does not overlap
+  Scenario: a concept-tagged node raises no untagged finding
+    Given a spec-typed node that carries a concept tag
     When the formation pass runs
-    Then it produces no dedupe finding for them
+    Then it raises no untagged-node finding for that node
 
-  Scenario: contradicting artifacts produce a reconcile finding that names them
-    Given two governances that contradict each other
+  Scenario: contradicting nodes produce a reconcile finding that names them
+    Given two nodes in the spec that contradict each other
     When the formation pass runs
-    Then it produces a reconcile finding naming the contradicting artifacts
+    Then it produces a reconcile finding naming the contradicting nodes
 
-  Scenario: artifacts that agree produce no reconcile finding
-    Given two governances that agree with each other
+  Scenario: nodes that agree produce no reconcile finding
+    Given two nodes that agree with each other
     When the formation pass runs
     Then it produces no reconcile finding for them
 
-  Scenario: contradicting specs produce a reconcile finding that names them
-    Given two specs that contradict each other
+  Scenario: contradicting governances produce a reconcile finding that names them
+    Given two governances that contradict each other
     When the formation pass runs
-    Then it produces a reconcile finding naming the contradicting specs
+    Then it produces a reconcile finding naming the contradicting governances
 
   # ── Corpus-wide, not the gate ──
 
@@ -78,8 +78,8 @@ Feature: The formation loop — keep the spec corpus structurally organized
     When the Council rejects the act
     Then the provisional marker is unwound
 
-  Scenario: a narrowing dedupe escalates as a Clearance
-    Given a dedupe that would drop scenarios
+  Scenario: a narrowing reconcile escalates as a Clearance
+    Given a reconcile that would drop scenarios
     When the Warden renders its verdict
     Then it escalates the act as a Clearance
     And the finding re-enters as a new CR
@@ -94,8 +94,8 @@ Feature: The formation loop — keep the spec corpus structurally organized
     When the Warden renders its verdict
     Then it escalates the act as Compatibility
 
-  Scenario: a destructive dedupe escalates regardless of contract impact
-    Given a dedupe that deprecates a spec
+  Scenario: a destructive act escalates regardless of contract impact
+    Given a structural act that deprecates a node
     When the Warden renders its verdict
     Then it escalates the act regardless of its contract-impact class
 

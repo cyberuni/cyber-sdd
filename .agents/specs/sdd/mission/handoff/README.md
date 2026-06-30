@@ -59,7 +59,7 @@ node already in the right place — no follow-up formation CR.
   spec/suite node only — never the impl — so the impl-gate verdict is path-independent, and squad
   resolution (by `artifact-types`, not folder) is unchanged.
 - **Scoped, not corpus-wide.** This finalizes only *this mission's* placement; cross-mission structural
-  drift (dedupe, split across missions) stays with the post-mission formation loop (`../../formation/`).
+  drift (node-shape audit + align across missions) stays with the post-mission formation loop (`../../formation/`).
 - **Logged, keyed by name.** Each relocation is recorded as a detail-adjustment in the combat log
   (`../../design/provenance-model.md`), referencing the node by its **stable name**, so the move never
   dangles a reference.

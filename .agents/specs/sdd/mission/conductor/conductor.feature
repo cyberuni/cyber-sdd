@@ -222,6 +222,11 @@ Feature: The conductor — running one mission segment
     Then it reports that scenario failing
     And status does not advance to implemented
 
+  Scenario: an unresolved open marker blocks the impl-gate advance
+    Given an unresolved open marker at the impl gate
+    When the conductor evaluates the impl gate
+    Then status does not advance to implemented
+
   Scenario: the impl layer is not checked at the spec gate
     Given the conductor is at the spec gate
     When it judges that gate
@@ -292,6 +297,12 @@ Feature: The conductor — running one mission segment
     Given a gate the conductor self-asserts within leash
     When it writes the verdict
     Then the entry carries verdict approve, by agent, and a why
+
+  Scenario: a gate outside the leash is not self-asserted
+    Given a gate whose derived reach falls outside the run-level leash
+    When the conductor evaluates the verdict
+    Then it does not self-assert approval
+    And it stops and emits a verdict packet for the human
 
   Scenario: a pause omits by and still carries a durable why
     Given the conductor halts at a gate

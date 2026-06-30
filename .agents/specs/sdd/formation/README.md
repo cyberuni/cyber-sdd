@@ -117,6 +117,7 @@ Formation owns corpus structure only and emits **no** out-of-loop decision:
 
 - a **build-or-deprecate** request → routed to `campaign/` (Product);
 - a **process lesson** → routed to `doctrine/` (Process);
+- a **field correction** → routed to `forge/` (Field); the Warden makes no field correction itself;
 - a **per-spec gate structural check** → **declined**; Formation does not run as the gate check.
 
 Unit scenarios for the loop and the Warden's verdict are in

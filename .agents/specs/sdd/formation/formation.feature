@@ -67,6 +67,17 @@ Feature: The formation loop — keep the spec corpus structurally organized
     Then it self-clears the act in-session
     And it leaves a provisional agent-attributed marker
 
+  Scenario: a low-blast consistency-fix reconcile self-clears
+    Given a reconcile that is a low-blast, high-confidence consistency fix
+    When the Warden renders its verdict
+    Then it self-clears the act in-session
+    And it leaves a provisional agent-attributed marker
+
+  Scenario: a Council reject unwinds the provisional marker
+    Given a self-cleared act carrying a provisional marker
+    When the Council rejects the act
+    Then the provisional marker is unwound
+
   Scenario: a narrowing dedupe escalates as a Clearance
     Given a dedupe that would drop scenarios
     When the Warden renders its verdict
@@ -128,3 +139,9 @@ Feature: The formation loop — keep the spec corpus structurally organized
     When it routes the request
     Then it routes it to the doctrine loop
     And it emits no process edit itself
+
+  Scenario: a field correction routes to forge
+    Given the Warden encounters a field correction
+    When it routes the request
+    Then it routes it to the forge loop
+    And it makes no field correction itself

@@ -1,17 +1,17 @@
 # Governance resolution
 
-How an actor/discipline **governance** is defined, discovered, composed, and loaded for a production-chain role.
+How an actor/discipline **governance** is defined, matched, composed, and loaded for a production-chain role.
 Companion to `actors-governance.md` (what governances are), `specialists-and-squads.md` (the squad and the per-role loadout), and `artifact-type.md` (the squad key and how a file resolves to one).
-Rule side only; the mechanical resolution is a deterministic helper (below).
+Rule side only; the mechanical part is a deterministic **matcher** (below) — it names candidates; the **agent** composes.
 
 ## Two tiers
 
 A role's governances split by whether they vary with the artifact-type:
 
 - **Fixed-universal** — invariant per role on every invocation: `ownership`, `lifecycle`, `spec-format` (`spec-format-governance`), `suite-format`, `gate-validation`, `combat-log`.
-  Ship with sdd; load for every spec regardless of artifact-type (`actors-governance.md`).
-- **Resolved-actor** — the actor bars `oracle` / `builder` / `architect`, resolved per `(artifact-type, gate)`.
-  The variable tier, resolved dynamically per the file's artifact-type.
+  Ship with sdd; load for every spec regardless of artifact-type (`actors-governance.md`). They are **declared in the role/agent definition** and **not** produced by the matcher — only the resolved-actor tier is matched.
+- **Resolved-actor** — the actor bars `oracle` / `builder` / `architect`, matched per `(artifact-type, gate)`.
+  The variable tier, matched dynamically per the file's artifact-type — the **only** thing the matcher resolves.
 
 ## Two faces, one merged bar
 
@@ -53,18 +53,19 @@ Two scopes, in SDD's own terms — **not** "workspace" or "repo-root" (both coll
 - **user** — `~/.agents/`.
 - **project** — `<project>/.agents/`; a project is one durable spec (`project-unit.md`).
 
-**Projects nest** — a monorepo is a project whose folders hold projects; the shared layer is the **outer project**, never a third named tier ("repo-root" dissolves).
-Resolution **unions** across the nested project anchors plus user.
-It does **not** blind-walk every directory: it jumps to the known **project anchors** (a project announces itself via its spec) plus user — union is anchor-based, not depth-based.
+**Projects nest** — a monorepo is a project whose folders hold projects; the shared layer is the **outer project** (`project-root`), never a third named tier ("repo-root" dissolves).
+The matcher reads the **caller-passed project anchors** (the file's own `project`, plus `project-root` in a monorepo) — it does **not** discover them: the conductor knows the project from `discover-specs`' `project-path` or context and hands the anchors in. (A `user` tier — `~/.agents/` — is **deferred**; see ADR-0018.)
 
-## Precedence & composition
+## Precedence & composition — the agent's job, not the matcher's
 
-- **Precedence (most-specific wins):** project > specialist-plugin > sdd-default; among nested projects, inner > outer.
-- **Default `union`:** every applicable governance is in force; non-conflicting criteria accumulate; **most-specific wins on conflict**.
-- **Opt-in `replace`:** a governance with `compose: replace` fully supersedes the lower-precedence bar for its key.
-- Conflict handling is **never** positional "last wins"; it is the explicit precedence above, enforced by the `governance-composition` rule the conductor loads.
+The matcher returns each bar's candidates **bucketed by tier**; it does **not** order or compose. The **agent** loads each candidate and composes:
 
-## The deterministic helper
+- **Precedence (most-specific wins):** `sdd-default < plugin < project-root < project`.
+- **Default `union`:** every applicable governance is in force; non-conflicting criteria accumulate; **on a conflict, the higher-precedence (more-specific) candidate wins**.
+- **Opt-in `replace`:** a governance whose own frontmatter carries `compose: replace` (read by the agent when it loads the file) **fully supersedes** the lower-precedence candidates for its bar.
+- Conflict handling is **never** positional "last wins"; it is the explicit precedence above, applied by the agent — there is no separate composition rule to load.
 
-The mechanical part — discover candidates across sources, match `metadata`, apply precedence, emit the per-role **load/compose plan** — is a deterministic `.mts` helper (sibling to `check-spec-state.mts`; node-≥23.6, no deps, agent fallback when node is absent).
-The agent never hand-enumerates: it runs the helper, then **executes the plan** (direct-read for project files, harness-load for `<plugin>:<name>` skills) and composes per `governance-composition`.
+## The deterministic matcher
+
+The mechanical part — match `metadata` against the caller-passed anchors + the matched plugin squad + the sdd default, and **name** the per-role candidates **bucketed by tier** (`project` / `project-root` / `plugin` / `sdd`) — is the deterministic `.mts` script in the `resolve-governances` skill (node-≥23.6, no deps, agent fallback when node is absent). It carries **no `compose`** and applies **no precedence** — only the variable resolved-actor bars + each role's agent.
+The agent never hand-enumerates: it runs the matcher, then **loads** each candidate (direct-read for project files, harness-load for `<plugin>:<name>` / `sdd:<name>` skills) and **composes by the precedence above**, reading each governance's own `compose` at load time.

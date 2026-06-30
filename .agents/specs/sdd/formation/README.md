@@ -19,7 +19,10 @@ is arranged, not what it says.
 **Subject** — the formation loop: keeping the whole spec corpus structurally organized between
 missions, and the Warden's per-act self-clear-vs-escalate verdict.
 **Non-goals** — it never runs as the per-spec gate structural check, never decides *what to build*
-(→ `campaign/`), never grows the *process* (→ `doctrine/`), and never writes a spec's `status`.
+(→ `campaign/`), never grows the *process* (→ `doctrine/`), never writes a spec's `status`, and
+never finalizes a **single mission's own** node placement — that is the mission's **handoff** step
+(`../mission/handoff/`), scoped to the touched nodes and landed in the same change. Formation owns
+only **cross-mission** structural drift.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|

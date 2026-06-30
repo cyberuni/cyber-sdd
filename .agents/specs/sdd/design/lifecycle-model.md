@@ -155,6 +155,10 @@ A spec-gate `approve` freezes the files that CR *touched* (re-freezing them at t
 "Which scenarios are currently the frozen contract" is answered by the set of `@frozen` files — a plain per-file flag, no computed baseline and no scenario-ID registry.
 The `@frozen` tag is metadata, excluded from the contract content the freeze protects; toggling it is not a scenario edit.
 
+**Freeze protects content, not path.**
+What a freeze protects is the **scenario content** of the `.feature`, not where the file sits. A **pure rename** of a frozen `.feature` — a `git mv` with **zero content delta** (a git `R100`) — does **not** unfreeze it and is **not** a gate-able edit; the file stays `@frozen` at the same baseline.
+This is what lets **placement be finalized at handoff** (`spec-layout.md`): after the impl gate passes, a node may be relocated to its blessed home in the same change without re-opening its contract. Only a *content* change to a frozen scenario unfreezes it (the narrowing/rewriting trigger below); a relocation moves the spec/suite node, never the impl, so the impl gate's verdict is path-independent.
+
 - **The unfreeze trigger is risk, not phase.**
   A *narrowing or rewriting* of a scenario unfreezes its file — in explore or deliver alike; at the gate that is **Clearance** (`autonomy-rubric.md`), contract narrowed → escalate.
   An *additive* scenario never unfreezes its file: it widens the contract, cannot break existing impl or contradict, and **self-clears** — it folds into the frozen file under the conductor's authority, logged as a detail-adjustment (`provenance-model.md`).

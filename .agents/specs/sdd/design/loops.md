@@ -69,7 +69,7 @@ They are **not** part of the Mission Loop; nothing re-opens a closed cycle in pl
 | Loop | Folder | Concern | Standing subject it evolves |
 |---|---|---|---|
 | **campaign** (product) | `../campaign/` | what the project delivers | the capability folders |
-| **formation** (structure) | `../formation/` | how the corpus is organized | `../corpus/` |
+| **formation** (structure) | `../formation/` | how the corpus is organized **across missions** (a single mission finalizes its own node placement at **handoff**, not here) | `../corpus/` |
 | **doctrine** (process) | `../doctrine/` | how we work | `../design/` |
 | **forge** (field) | `../forge/` | improve **SDD itself** from field corrections | end-user corrections across installations (**external** — no folder subject) |
 

@@ -21,6 +21,11 @@ Feature: backfill-project-spec — lay out an existing project's spec
     When the bootstrap detects the project shape
     Then it recommends colocating the spec at <project>/.agents/spec/
 
+  Scenario: a project that already has a consolidated spec is not backfilled
+    Given an existing project that already has a consolidated spec
+    When the bootstrap is consulted
+    Then it does not backfill and leaves the existing spec untouched
+
   # ---- Location choice ----
 
   Scenario: the recommended location is surfaced first and is overridable
@@ -60,6 +65,11 @@ Feature: backfill-project-spec — lay out an existing project's spec
     When the bootstrap presents strategy options
     Then ADR is not among the strategies offered
 
+  Scenario: a project with no discernible decomposition and no feature-first layout takes the default
+    Given a project with no discernible capability decomposition and no feature-first source layout
+    When the bootstrap recommends a strategy
+    Then it recommends the capability-first default
+
   # ---- Scaffold ----
 
   Scenario: the shared envelope is scaffolded for every strategy
@@ -94,6 +104,16 @@ Feature: backfill-project-spec — lay out an existing project's spec
     When the bootstrap writes the root spec.md
     Then the root frontmatter carries project-path naming the governed source dir
     And the frontmatter carries no spec-layout block
+
+  Scenario: a name that is not reliably derivable is confirmed with the user before writing
+    Given a hoisted or nested project whose name is not reliably derivable
+    When the bootstrap records the organization
+    Then it asks the user and confirms the name before writing it to the root frontmatter
+
+  Scenario: a colocated project with a correct repo-root name writes no name frontmatter
+    Given a colocated project whose repo-root name is already correct
+    When the bootstrap writes the root spec.md
+    Then it writes no name frontmatter
 
   Scenario: the placement map naming the strategy is written into the root body
     Given the bootstrap writes the root spec.md

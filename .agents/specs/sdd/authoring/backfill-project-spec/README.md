@@ -59,7 +59,9 @@ In order; the conductor runs it in-session, surfacing each choice to the user (r
 5. **Declare** the organization: write the **`project-path` frontmatter** (the governed source dir; the
    spec location mode is derived from it) on root `spec.md`, and the **placement map** — naming the chosen
    strategy — into its body, so the layout is read, never re-derived. There is **no `spec-layout` block**
-   (`../../design/spec-layout.md`; ADR-0017).
+   (`../../design/spec-layout.md`; ADR-0017). Write the **`name` frontmatter** only when the project name
+   is **not reliably derivable** — for a hoisted or nested project, **ask the user and confirm** before
+   writing it; skip it when the colocated repo-root name is already correct.
 6. **Hand back** to `start-mission`'s per-unit explore to fill each behavioral node; **propose** node
    placement for the formation **Warden** to confirm or relocate. Leave the tree at `status: draft`.
 

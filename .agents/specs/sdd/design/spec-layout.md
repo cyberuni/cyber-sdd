@@ -169,26 +169,52 @@ The chosen layout is **declared, not inferred** — the same principle `spec-str
 upfront index — the strategy is not something the cross-project router needs). It lives where the
 people and the placement ops that consume it already read, the **body of the root `spec.md`**:
 
-- **The placement map (body, human + machine readable).** The maintained "a concept of kind K lives in
-  home H" taxonomy + the nesting rule, **naming the primary strategy** in its heading/intro
-  (`capability-first | mirror-source | bounded-context | layered | doc-envelope`), so a newcomer routes
-  a new concept without holding the tree in their head, and `backfill` / the Warden read the strategy
-  on demand.
+- **The placement map (body, human + machine readable) — a routing table, not prose.** The maintained
+  "a concept of kind K lives in home H" taxonomy + the nesting rule, **naming the primary strategy** in
+  its heading/intro (`capability-first | mirror-source | bounded-context | layered | doc-envelope`), so a
+  newcomer routes a new concept without holding the tree in their head, and `backfill` / the Warden read
+  the strategy on demand. Where capabilities share control-flow edges and a concept plausibly fits two
+  homes, the table carries an explicit **tie-break rule** for each known overlap (e.g. *mission vs
+  doctrine*, *design vs capability*, *gateway vs intake*): "if it touches both X and Y, prefer Z because…".
+  A lookup, not a derivation.
 - **The spec `location` mode** (`colocated | hoisted | monorepo-member`) is **derived** from the
   `project-path` frontmatter (hoisted iff `project-path` is not the spec's own dir) — not declared.
 
 **Who writes it.** `backfill-project-spec` — the only step that *decides* the layout (it ran detection +
 the compass with the user) — writes the placement map (and `project-path`) at its scaffold step, in the
-same act that writes root `spec.md`. **Who reads it.** `start-mission`'s explore consults the placement
-map to place a new node; the formation **Warden** reads it to judge structural fit. A normal node-add
-never re-derives the organization; the **Warden** rewrites the placement map only during a deliberate
+same act that writes root `spec.md`. **Who reads it.** `start-mission`'s explore consults the routing
+table for its **provisional** placement; the **handoff** Warden pass re-reads it to **finalize** placement
+(below); the post-mission Warden reads it to judge cross-mission structural fit. A normal node-add never
+re-derives the organization; the **Warden** rewrites the placement map only during a deliberate
 reorganization.
+
+## Placement is provisional in explore, finalized at handoff
+
+Placement-correctness needs information explore does not yet have — you know where a node belongs *after*
+you have built and verified it, not before. So placement is **two-phase**, and never blocks explore:
+
+- **Explore places provisionally.** It splits the decision in two — first classify `spec-type`
+  (mechanical, fail-closed checked: testable→behavioral, shipped-suite-less→reference, rule/index→
+  descriptive), then pick a capability home from the routing table (via `../corpus/` `place-node`). Any
+  plausible home is fine; the move, if any, is cheap.
+- **Handoff finalizes placement, in the same PR.** After the impl gate passes, a Warden pass **scoped to
+  the mission's touched nodes** relocates any misplaced node to its blessed home via `git mv` and logs the
+  relocation. The change then lands with every node already in the right place — no follow-up formation CR.
+- **Relocation never re-gates.** A pure rename of a frozen `.feature` (zero content delta) does **not**
+  unfreeze it (`lifecycle-model.md`, `../common-governances/gate-validation/`); freeze is a content-state,
+  not a path-binding. Relocation moves the spec/suite node, not the impl, and resolution is by
+  `artifact-types` not folder — so the impl gate's verdict and squad resolution are both path-independent.
+
+**Division of labor** (#35's open question): explore *proposes* a home; the **handoff** Warden pass
+*finalizes* it in-PR (per-mission); the **post-mission** Warden owns only **cross-mission** structural
+drift (dedupe, split, reconcile across missions). Pre-determined organization is an **input to** formation,
+not a replacement for it.
 
 ## How this lowers the #35 placement burden
 
 The layout step emits, regardless of strategy: a **pre-determined skeleton** (contributors slot, not invent);
-the **placement map** (the explicit, maintained taxonomy #35 asks for); a **placement compass** reused by
-explore (≤2 closed questions → suggested home) plus **"belongs near X" + duplicate-catch** via `../corpus/`
-discovery+digest. **Division of labor** (#35's open question): the contributor *proposes* a home via the
-compass; the formation **Warden** *confirms/relocates*. Pre-determined organization is an **input to**
-formation, not a replacement for it.
+the **placement-map routing table** (the explicit, maintained taxonomy #35 asks for, with tie-breaks); a
+**`place-node` lookup** reused by explore and the handoff pass (`spec-type` + signals → suggested home +
+`concept:` tag + **"belongs near X" duplicate-catch** via `../corpus/` discovery+digest). Because explore's
+placement is only **provisional** and the **handoff** pass finalizes it cheaply in-PR, a contributor never
+has to get placement right up front — removing the back-and-forth #35 names.

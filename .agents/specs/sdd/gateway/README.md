@@ -44,6 +44,7 @@ Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these be
 | **the four-option rule** | an intake question presents at most four options, never truncating silently |
 | **surface pending strategy** | on Council re-entry, surface the count of unratified `strategy` lines in the root `ledger.jsonl` as an entry point — never draft or ratify |
 | **surface in-progress missions** | on re-entry, surface the resumable mission plan briefs (via the `discover-plans` engine) as a resume entry point — never resume or retire |
+| **status scan (help me choose)** | on a "help me choose" request, scan the project's spec statuses via the `discover-specs` engine to surface the most-actionable spec — reads frontmatter only, never a spec body |
 | **headless → automaton** | with no user channel, the gateway spawns the **automaton** (the headless driver) instead of working in-session |
 | **ambiguity routes into a mission** | a request that may touch behavior but names no skill loads `start-mission` so the grill decides |
 | **escape** | a non-CR (no suite-relevant behavior) proceeds outside the lifecycle, leaving no SDD record |
@@ -76,6 +77,11 @@ not an up-front classifier, so ambiguity is routed in and decided during explore
   loop's `plan-retirement`). An empty set is not surfaced. This is the **resumable-mission** sibling
   of surface-pending-strategy — two distinct concerns: pending strategy is the doctrine loop's
   unratified ledger lines for the Council; in-progress missions are paused work to continue.
+- **Status scan (help me choose).** When the user asks the gateway to help choose the
+  most-actionable spec, scan the project's spec **statuses** via the **`discover-specs`** engine
+  (`../corpus/discovery/`) and surface them. The scan reads each spec's **frontmatter only** —
+  never a spec body. The gateway only *surfaces* the statuses as an entry point; it routes the
+  chosen target onward (a change loads `start-mission`), it does not itself work the spec.
 - **Never ask more than four options (hard rule).** A single `AskUserQuestion` carries at most four
   options — the intake tool rejects more than four (`too_big, maximum 4`). When a derived list would
   exceed four, present only the most-actionable few (≤ 4) or ask the user to name the target

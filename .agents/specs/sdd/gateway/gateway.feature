@@ -32,6 +32,11 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     Then the gateway surfaces the count of pending strategy as an entry point
     And it neither drafts nor ratifies any strategy
 
+  Scenario: no pending strategy surfaces nothing
+    Given no unratified strategy lines exist in the project's ledger
+    When the Council re-enters through the gateway
+    Then the gateway surfaces no pending-strategy entry point
+
   Scenario: in-progress missions are surfaced on re-entry
     Given resumable mission plan briefs exist under the plans location
     When the user re-enters through the gateway

@@ -21,14 +21,17 @@ commits, a PR, a published chapter). The orchestrator that sequences this phase 
 shape, decomposed by unit of work, then writing the CR's public conclusion back to its source.
 
 **Non-goals** — it does **not** re-verify (it consumes the verified result), does **not** touch the
-contract or write spec/suite frontmatter, introduces **no** new hard floor, and does **not** retire
-the mission plan (the doctrine loop deletes it later). The impl-gate verdict that produced the
-verified result is the [`conductor`](../conductor/README.md) unit's, not this phase's.
+contract **content** or write spec/suite frontmatter (it may **relocate** a node — a pure rename that
+preserves freeze — but never edits a scenario or a frontmatter field), introduces **no** new hard
+floor, and does **not** retire the mission plan (the doctrine loop deletes it later). The impl-gate
+verdict that produced the verified result is the [`conductor`](../conductor/README.md) unit's, not
+this phase's.
 
 Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these behaviors:
 
 | Behavior | What it covers |
 |---|---|
+| **finalize placement** | relocate this mission's provisionally-placed nodes to their blessed home via a pure rename (freeze survives), scoped to the touched nodes, logged — in the same change |
 | **land in the declared shape** | detect the project's single declared shape and land accordingly (commit-to-main / branch+PR / deploy / chapter) |
 | **decompose by unit of work** | a multi-unit cycle lands as multiple commits / a unit-split PR, never one blob, never two unrelated concerns together |
 | **conditional status write-back** | a PR closes the source on merge (`Closes #N`); direct-to-`main` work transitions the source to `done` on push |
@@ -41,6 +44,27 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 The verified result of the deliver phase: the implementation passed the impl gate, `aligned`
 is true for the impl layer, and the colocated unit suites plus `../../acceptance/` are green.
 Handoff **consumes** this; it does not re-verify and it does not touch the contract.
+
+## Placement finalization — the scoped Warden pass
+
+Before landing, handoff finalizes **where** the mission's nodes live. Explore placed each new node in
+a *provisional* home (`../../design/spec-layout.md`); now that the work is built and verified — the
+moment of best information — handoff runs a Warden placement pass **scoped to the mission's touched
+nodes**, applies the placement-map routing table (`../../design/spec-layout.md`), and **relocates** any
+misplaced node to its blessed home via `git mv`, in the **same change** so the delivery shows every
+node already in the right place — no follow-up formation CR.
+
+- **A relocation is a pure rename, never a content edit.** A frozen `.feature` stays frozen across the
+  move (`../../design/lifecycle-model.md`, freeze-protects-content-not-path); the move touches the
+  spec/suite node only — never the impl — so the impl-gate verdict is path-independent, and squad
+  resolution (by `artifact-types`, not folder) is unchanged.
+- **Scoped, not corpus-wide.** This finalizes only *this mission's* placement; cross-mission structural
+  drift (dedupe, split across missions) stays with the post-mission formation loop (`../../formation/`).
+- **Logged, keyed by name.** Each relocation is recorded as a detail-adjustment in the combat log
+  (`../../design/provenance-model.md`), referencing the node by its **stable name**, so the move never
+  dangles a reference.
+- **Usually a no-op.** With the routing table + `place-node` (`../../corpus/`), explore's provisional
+  pick is usually already the blessed home, so most missions relocate nothing.
 
 ## The delivery-shape contract
 

@@ -27,6 +27,38 @@ Feature: The handoff phase — land the verified result in the declared delivery
     Then it does not re-run the verification
     And it does not modify spec.md or the feature
 
+  # ---- Finalize placement (the scoped Warden pass) ----
+
+  Scenario: handoff relocates a provisionally-placed node to its blessed home
+    Given a node explore placed in a provisional home
+    And the placement-map routing table names a different blessed home
+    When handoff finalizes placement
+    Then it relocates the node to the blessed home by renaming its files
+    And the relocation lands in the same change as the work
+
+  Scenario: relocating a node is a pure rename that preserves freeze
+    Given a frozen .feature among the mission's touched nodes
+    When handoff relocates its node
+    Then the move changes the path with no change to the file content
+    And the .feature stays frozen
+
+  Scenario: placement finalization is scoped to the mission's touched nodes
+    Given a corpus with specs unrelated to this mission
+    When handoff finalizes placement
+    Then it relocates only the mission's touched nodes
+    And it does not reorganize the unrelated specs
+
+  Scenario: a correctly-placed node is not relocated
+    Given a node explore already placed in its blessed home
+    When handoff finalizes placement
+    Then the node is not relocated
+
+  Scenario: a relocation is logged and keyed by node name
+    Given handoff relocates a node
+    When it records the relocation
+    Then the relocation is logged as a detail-adjustment
+    And the node is referenced by its stable name
+
   # ---- Decompose by unit of work ----
 
   Scenario: a multi-unit cycle lands as multiple units

@@ -85,4 +85,4 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Given the impl-judge spawned at the impl gate
     When it completes
     Then it runs in a fresh context the impl-producer cannot reach
-    And it returns advice rather than writing the gate verdict, status, or aligned
+    And it returns advice rather than writing the gate verdict or status

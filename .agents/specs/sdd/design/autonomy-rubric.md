@@ -65,7 +65,7 @@ Two **modulate** (they set how much evidence a self-clear needs); one **decides*
 |---|---|---|---|
 | **Blast radius (magnitude)** | modulator | few, peripheral artifacts | many artifacts, or **central / sensitive** ones (high dependency fan-in, marked-sensitive paths). Measured by the **scope and sensitivity of what's touched** — **not** compatibility/breakage (a separate concern), **not** mere surface location. |
 | **Novelty** | modulator | trivial / defaulted, or already human-ratified | a new contestable choice the human has not seen |
-| **Confidence** | **decider** | evidence converges; a clean judge pass (which already reflects the resolved **Builder** bar — e.g. any coverage / mutation threshold that artifact-type requires, and the impl-judge's **behavioral-exercise backstop** that Blast radius demands on high-blast scenarios, `mission/deliver/impl-judge`); no unresolved markers | a marginal verdict; unresolved `<!-- open: -->` markers |
+| **Confidence** | **decider** | evidence converges; a clean judge pass (which already reflects the resolved **Builder** bar — e.g. any coverage / mutation threshold that artifact-type requires, and the impl-judge's **behavioral-exercise backstop** that Blast radius demands on high-blast scenarios, `mission/impl-judge`); no unresolved markers | a marginal verdict; unresolved `<!-- open: -->` markers |
 
 **Why git-reversibility is not a dimension.**
 SDD produces tracked artifacts, so inner-loop work is cheap to undo — that is the **autonomy license** (the reason self-clear can lean permissive), a constant baseline, not a per-decision signal. Genuinely irreversible acts are either the **Consent** floor (egress) or **pre-authorized** (destructive ops); externally-guarded SDLC acts are out of scope.

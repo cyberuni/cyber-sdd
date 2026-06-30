@@ -43,7 +43,7 @@ The steps are **verbs** — actions taken — each producing a noun outcome.
 |---|---|---|---|---|
 | 1 | **intake** | `../intake/` (feeds the loop) | the CR subsystem | a routed CR + a scaffolded plan |
 | 2 | **explore** | `../authoring/` (invoked by the mission) | build to **learn** | a frozen spec + suite (+ learn-built impl) |
-| 3 | **deliver** | `../mission/deliver/` | build to **keep** | a verified result |
+| 3 | **deliver** | `../mission/delivery.md` (+ `impl-producer/`, `impl-judge/`) | build to **keep** | a verified result |
 | 4 | **handoff** | `../mission/handoff/` | landing | the project's delivery shape |
 
 The mission **owns** deliver and handoff; it **invokes** `../authoring/` for explore; it is **fed** by `../intake/`.
@@ -53,7 +53,7 @@ Each phase's mechanics live in its **home** — this file owns the topology, not
 
 - **1 · intake** — CR sources, the escape hatch, and the plan scaffold → [`../intake/`](../intake/README.md).
 - **2 · explore** — the grill, spikes, spec-producer ⇄ spec-judge iteration, the spec gate + freeze → [`../authoring/`](../authoring/README.md).
-- **3 · deliver** — build against the frozen suite, impl-producer ⇄ cold impl-judge, the detail-adjustment report, the impl gate → [`../mission/deliver/`](../mission/deliver/README.md).
+- **3 · deliver** — build against the frozen suite, impl-producer ⇄ cold impl-judge, the detail-adjustment report, the impl gate → [`../mission/delivery.md`](../mission/delivery.md).
 - **4 · handoff** — landing the verified result in the project-declared delivery shape → [`../mission/handoff/`](../mission/handoff/README.md).
 
 > **The freeze is the boundary, not "code vs no code."** Implementation happens in **both** explore and deliver;

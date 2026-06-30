@@ -3,7 +3,7 @@ Feature: The conductor — running one mission segment
   Unit suite for the conductor unit (the conductor / spawned automaton). Covers resolution,
   the five-role production chain, explore orchestration, segment mechanics, the impl gate, and
   stop-provenance. The grilling workflow and the spec gate are ../../authoring/'s; the
-  impl-producer build and impl-judge run colocate under ../deliver/; cross-capability e2e
+  impl-producer build and impl-judge run colocate as sibling mission units (../impl-producer/, ../impl-judge/); cross-capability e2e
   scenarios live in ../../acceptance/.
 
   # ---- Classification — a file's artifact-type ----

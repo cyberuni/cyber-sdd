@@ -96,13 +96,17 @@ The e2e/unit split is **test organization within the one corpus**, not separate 
 The top-level skeleton:
 
 ```
-design/ gateway/ intake/ authoring/ mission/{conductor,solution-producer,deliver,handoff}
+design/ gateway/ intake/ authoring/ mission/{conductor,solution-producer,impl-producer,impl-judge,handoff}
 campaign/ formation/ doctrine/ forge/ corpus/ plugin/ acceptance/
 ```
 
-The **Mission Loop (steps 1–4)** maps to folders — `intake/` (1, the CR subsystem that **feeds** the loop) → `authoring/` (2, explore; owns the spec verification, **invoked** by the mission) → `mission/deliver/` (3, build to keep; owns the impl verification; verifies vs `acceptance/` + unit) → `mission/handoff/` (4, landing).
+The **Mission Loop (steps 1–4)** maps to folders — `intake/` (1, the CR subsystem that **feeds** the loop) → `authoring/` (2, explore; owns the spec verification, **invoked** by the mission) → the `mission/` deliver units (3, build to keep; `impl-producer/` + `impl-judge/`, overview in `mission/delivery.md`; verifies vs `acceptance/` + unit) → `mission/handoff/` (4, landing).
 `mission/` is the **orchestrator** — the conductor — that sequences the loop.
 The `gateway/` is the **universal router/door** — not a loop step.
 The four outer-loop folders (`campaign/`, `formation/`, `doctrine/`, `forge/`) fire **post-mission**, not as part of the Mission Loop (see `loops.md`).
 `design/`, `corpus/`, `plugin/`, and `acceptance/` are cross-cutting, not loop steps.
 Three internal outer loops evolve a standing subject — campaign → capabilities, formation → `corpus/`, doctrine → `design/`; the external **forge** loop has no folder subject — it improves SDD itself from opt-in end-user field corrections.
+
+## Depth cap — two levels (`<capability>/<unit>`)
+
+The capability tree is **capped at two levels**: a top-level capability folder and its leaf units (`README` + `.feature` + optional `.solution.md`). A node never sits three deep. A sub-grouping *within* a capability — a phase, a producer/judge pair, a cluster — is a **cross-cutting concern**, so it is expressed by a `concept:` tag and recovered by the by-concept index (the concept axis), **never by a third folder level**. (Example: the deliver phase's `impl-producer` + `impl-judge` are flat `mission/` units sharing `concept: delivery`, not a `mission/deliver/` sub-tree.) Since SDD's sub-groupings are all concepts, two levels suffice — and the phase overview that would have been a folder `README` becomes a sibling **descriptive** doc (e.g. `mission/delivery.md`).

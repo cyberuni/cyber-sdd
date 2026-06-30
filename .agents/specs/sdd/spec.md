@@ -89,7 +89,7 @@ One cycle = one CR carried to completion, on one working tree ([`design/loops.md
    the **spec gate** (Draft → Approved), which **freezes** the `.feature` files it touched
    ([`authoring/`](./authoring/README.md), invoked).
 3. **deliver** — *build to keep* against the frozen suite, then verify at the **impl gate**
-   (Approved → Implemented) ([`mission/deliver/`](./mission/deliver/README.md)).
+   (Approved → Implemented) ([`mission/delivery`](./mission/delivery.md)).
 4. **handoff** — land the verified result in the project-declared delivery shape — commits
    to `main`, a branch + PR, or prose ([`mission/handoff/`](./mission/handoff/README.md)).
 
@@ -125,7 +125,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | [`intake/`](./intake/README.md) | the CR subsystem (sources + escape + inject) | feeds the mission (step 1) |
 | [`authoring/`](./authoring/README.md) | grill CR → spec+suite diff (+ spec gate); shared capability | explore (step 2), invoked |
 | [`mission/`](./mission/README.md) | the orchestrator / conductor (+ impl gate) | Mission Loop steps 1–4 |
-| [`mission/deliver/`](./mission/deliver/README.md) | build to keep against the frozen suite | deliver (step 3) |
+| [`mission/delivery`](./mission/delivery.md) | build to keep against the frozen suite | deliver (step 3) |
 | [`mission/handoff/`](./mission/handoff/README.md) | land the result in the delivery shape | handoff (step 4) |
 | [`campaign/`](./campaign/README.md) [`formation/`](./formation/README.md) [`doctrine/`](./doctrine/README.md) [`forge/`](./forge/README.md) | the 4 post-mission outer loops | step 5 (not in the Mission Loop) |
 | [`common-governances/`](./common-governances/README.md) | the cross-cutting governance bar specs (actor + fixed-universal) | — |
@@ -144,7 +144,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | `artifact-type` | `design/artifact-type.md` (rule) |
 | `autonomy` | `acceptance/` (e2e) · `design/autonomy-rubric.md` (rule) |
 | `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/align-specs/` (behavior) · `corpus/concept-index/` (behavior) · `corpus/dedupe-specs/` (behavior) · `corpus/digest/` (behavior) · `corpus/discovery/` (behavior) · `corpus/place-node/` (behavior) · `corpus/split-spec/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) |
-| `delivery` | `acceptance/` (e2e) · `mission/deliver/impl-judge/` (behavior) · `mission/deliver/impl-producer/` (behavior) · `mission/handoff/` (behavior) |
+| `delivery` | `acceptance/` (e2e) · `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
 | `intake` | `intake/plan-discovery/` (behavior) |

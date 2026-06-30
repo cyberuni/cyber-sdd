@@ -22,7 +22,7 @@ recording provenance — on either surface (in-session conductor / headless `aut
 
 **Non-goals** — it does **not** own the grilling workflow or the spec gate (those are
 `../../authoring/`), the impl-producer build or the impl-judge run (those colocate under
-`../deliver/`), the delivery shape (`../handoff/`), the registry init-WRITE (`../../plugin/`),
+`../delivery.md`), the delivery shape (`../handoff/`), the registry init-WRITE (`../../plugin/`),
 or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape, all in
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
@@ -178,7 +178,7 @@ A **segment** is one run within a cycle (suspend-and-resume). The conductor:
 
 ## The impl gate
 
-Mission **owns the impl gate** (Approved → Implemented), exercised in `../deliver/`. The gate
+Mission **owns the impl gate** (Approved → Implemented), exercised in `../delivery.md`. The gate
 judges the implementation against the **frozen contract** — `../../acceptance/` (the e2e outcome
 suite) **plus the colocated unit suites**. The gate is verdict-only and **fails closed**; it
 writes no setup frontmatter.
@@ -194,7 +194,7 @@ writes no setup frontmatter.
   verdict is *"does the frozen contract hold,"* not *"did the producer's tests pass"*: the
   impl-producer's own green run is a **pre-filter**, and the cold impl-judge **re-derives** the
   oracle from each frozen scenario rather than trusting the producer's assertions
-  (`../deliver/impl-judge/`, ADR-0016).
+  (`../impl-judge/`, ADR-0016).
 - **The cold impl-judge is a different model from the impl-producer where the harness allows.**
   Cold context alone removes only the author's *conversational* bias, not a same-model grader's
   *correlated* blind spots — so the conductor dispatches the impl-judge on a **different model /

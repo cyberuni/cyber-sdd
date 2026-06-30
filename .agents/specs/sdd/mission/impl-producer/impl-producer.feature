@@ -1,8 +1,8 @@
 @frozen
 Feature: The impl-producer procedure — build the implementation + its verification
   Unit suite for the impl-producer-governance procedure (the deliver-phase builder). Producer
-  behaviors only — no gate verdict (that is ../impl-judge/ and ../../conductor/), no contract
-  edits. Cross-capability e2e scenarios live in ../../../acceptance/.
+  behaviors only — no gate verdict (that is ../impl-judge/ and ../conductor/), no contract
+  edits. Cross-capability e2e scenarios live in ../../acceptance/.
 
   # ---- Modes — explore (draft) vs implement (frozen) ----
 

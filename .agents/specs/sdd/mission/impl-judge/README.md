@@ -9,7 +9,7 @@ The **impl-judge** procedure: decide whether the implementation honors the **fro
 returning pass/fail per scenario plus an orthogonal structural/scope read. This is the default
 `sdd-implementer` the conductor **spawns cold** at the impl gate (`producer ≠ judge` enforced by
 context separation); a plugin's judge covers its own artifact-type
-(`../../../design/governance-resolution.md`). The judge does not author tests and does not set the
+(`../../design/governance-resolution.md`). The judge does not author tests and does not set the
 bar (the frozen `.feature` is the bar). Its verdict answers **"does the frozen contract hold"**, not
 "did the producer's tests pass" — the producer's own green tests are a **pre-filter, never the
 verdict** (`sdd:provenance-model`-adjacent rationale recorded in ADR-0016).
@@ -21,7 +21,7 @@ against the frozen `.feature` to a boolean per scenario, and rolling that up to 
 implementation-pass verdict.
 
 **Non-goals** — it does **not** author the verification (the impl-producer does), does **not**
-write the gate verdict / `approval` / `status` / `aligned` (the [`../../conductor/`](../../conductor/README.md)
+write the gate verdict / `approval` / `status` / `aligned` (the [`../conductor/`](../conductor/README.md)
 does), and does **not** modify `spec.md` or the `.feature`. It only judges and advises.
 
 The procedure runs at the impl gate; every scenario in
@@ -44,7 +44,7 @@ The procedure runs at the impl gate; every scenario in
 Cold context removes the author's *conversational* bias but not a same-model grader's *correlated*
 blind spots, and re-running the producer's own assertions only confirms internal consistency. So the
 verdict is layered, cheap → expensive, scaled by the **leash** (blast radius,
-`../../../design/autonomy-rubric.md`):
+`../../design/autonomy-rubric.md`):
 
 - **Re-derive from the frozen contract (primary).** Treat each frozen scenario as the **specified
   oracle** and independently confirm the producer's check asserts that behavior — never trust the
@@ -60,9 +60,9 @@ verdict is layered, cheap → expensive, scaled by the **leash** (blast radius,
 The impl-judge runs in a **fresh cold context** the impl-producer cannot reach — the grader does not
 share the author's context — and is **a different model from the producer where the harness allows**
 (the one lever that breaks correlated blind spots; the conductor sets it,
-`../../conductor/README.md`). It collapses any graded subject (a rubric score, a threshold) to a
+`../conductor/README.md`). It collapses any graded subject (a rubric score, a threshold) to a
 **boolean per scenario**; scoring lingo never leaks into the contract. Its output is **advice** —
-the [`../../conductor/`](../../conductor/README.md) unit turns the pass/fail rollup into the gate
+the [`../conductor/`](../conductor/README.md) unit turns the pass/fail rollup into the gate
 verdict, the leash check, and `aligned`.
 
 > **Impl note:** the `sdd-implementer` **agent** that realizes this unit is built in the

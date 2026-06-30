@@ -6,7 +6,7 @@ default; a spawned `automaton` in the headless fallback) — the line officer th
 contract. A scheduler can pull one CR from `../intake/` and run this loop to step 4
 autonomously. **One cycle = one CR carried to completion.** It owns the loop logic
 (segments, the leash, escalation, autonomous sequencing) and the two **mission-owned
-phases** `deliver/` (step 3) and `handoff/` (step 4). It **invokes** the shared
+phases** — **deliver** (step 3) and **handoff** (step 4). It **invokes** the shared
 `../authoring/` capability to run **explore** (step 2); it does **not** own authoring,
 `../intake/`, or the `../gateway/`.
 
@@ -27,7 +27,7 @@ The four mission phases:
 |---|---|---|---|
 | **intake** | 1 | `../intake/` (feeds the mission) | a routed CR enters |
 | **explore** | 2 | `../authoring/` (invoked) | build to **learn** — spikes, thrown away, showing intermediate results to steer the spec + suite |
-| **deliver** | 3 | `deliver/` (mission-owned) | build to **keep** — against the frozen suite |
+| **deliver** | 3 | `delivery.md` + `impl-producer/` + `impl-judge/` (mission-owned) | build to **keep** — against the frozen suite |
 | **handoff** | 4 | `handoff/` (mission-owned) | land the verified result in the delivery shape |
 
 Implementation happens in **both** explore and deliver; the **spec gate / freeze is the
@@ -71,16 +71,19 @@ never here.
 | **resolution** | behavioral | [`resolution/`](./resolution/README.md) | the registry **READ** — match the resolved-actor bars for an artifact-type and name each role's agent, returned **bucketed by tier** for the agent to compose; the `resolve-governances` matcher engine |
 | **solution-producer** | behavioral | [`solution-producer/`](./solution-producer/README.md) | the `solution-producer-governance` procedure — record the per-unit solution (chosen approach + rejected alternatives) **only when** a unit carries durable rationale; ungated, no judge of its own |
 
-The mission-owned **phases** are their own capability sub-folders, not conductor units:
+The mission-owned **phases** (flat at `mission/`, capped at two levels):
 
-- **[`deliver/`](./deliver/README.md) (step 3)** — build **to keep** against the frozen suite, run
-  the cold impl-judge, verify at the impl gate. Hosts the `impl-producer` + impl-judge behaviors.
+- **deliver (step 3)** — build **to keep** against the frozen suite, run the cold impl-judge, verify
+  at the impl gate. Overview in [`delivery.md`](./delivery.md); its producer≠judge pair are direct
+  mission units, [`impl-producer/`](./impl-producer/README.md) + [`impl-judge/`](./impl-judge/README.md)
+  (grouped by `concept: delivery`, not a folder).
 - **[`handoff/`](./handoff/README.md) (step 4)** — land step-3's verified result in the
   project-declared delivery shape (commits → `main` / branch → PR / prose).
 
 ## Where the rules live
 
-Behaviors that *enact* the loop live in the unit specs here (and under `deliver/` / `handoff/`); the
+Behaviors that *enact* the loop live in the unit specs here (`impl-producer/`, `impl-judge/`,
+`handoff/`, …); the
 *rules* they enact live in `../design/`: lifecycle / freeze / the freeze pivot in
 `lifecycle-model.md`, the autonomy bar / hard floor in `autonomy-rubric.md`, the provenance shape
 (combat log / ledger / public trail) in `provenance-model.md`, the squad / registry shape in

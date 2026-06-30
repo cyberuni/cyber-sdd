@@ -9,7 +9,7 @@ The **impl-producer** procedure: build the implementation **and** one verificati
 scenario, against the **frozen** `.feature`. This is the default `impl-producer-governance` the
 conductor runs by **spawning a generic builder** that loads the governance (recorded
 `produced-by.impl-producer: sdd:automaton`); a plugin / model-tuned producer spawns its own
-agent at its own model and effort (`../../../design/governance-resolution.md`). Unlike the
+agent at its own model and effort (`../../design/governance-resolution.md`). Unlike the
 spec / solution-producer (which run inline — the live grill), the impl-producer is **mechanical
 and spawned** on every surface.
 

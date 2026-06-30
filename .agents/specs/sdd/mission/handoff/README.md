@@ -6,7 +6,7 @@ concept: delivery
 # mission/handoff/ — the handoff phase (step 4)
 
 The **handoff phase** of the Mission Loop — step 4. Take step-3's verified result (from
-`../deliver/`) and land it in the **project-declared delivery shape**. `handoff` is a verb,
+`../delivery.md`) and land it in the **project-declared delivery shape**. `handoff` is a verb,
 like the other mission phases; the **outcome** is the noun this action produces (a set of
 commits, a PR, a published chapter). The orchestrator that sequences this phase is
 `../README.md` (the [`conductor`](../conductor/README.md) unit).

@@ -22,6 +22,16 @@ Feature: The solution-producer procedure — record the per-unit solution
     When a revise changes the design reasoning
     Then the existing solution is tightened in place
 
+  Scenario: a revise whose design fork no longer exists removes the solution file
+    Given a unit that already has a solution record
+    When a revise leaves the unit with no remaining design fork
+    Then the existing solution file is removed
+
+  Scenario: grill discussion without a real fork gets no solution file
+    Given a unit with extensive grill discussion but only one viable approach
+    When the solution-producer evaluates it
+    Then no solution file is written
+
   # ---- What the solution records — and must not ----
 
   Scenario: the solution is aligned to the design boundary, not to scenarios
@@ -34,6 +44,17 @@ Feature: The solution-producer procedure — record the per-unit solution
     Given a candidate solution that only paraphrases the spec and suite
     When the solution-producer evaluates it
     Then no solution file is written
+
+  Scenario: the solution-producer writes no spec, suite, or control frontmatter
+    Given the solution-producer recording a unit's design rationale
+    When it writes the solution file
+    Then it writes no spec.md prose, no .feature, and no control frontmatter
+
+  Scenario: a behavior gap found while recording becomes an observation, not an edit
+    Given the solution-producer finds a behavior gap while recording the rationale
+    When it reports
+    Then it raises the gap as an observation
+    And it does not edit spec.md or the feature in place
 
   Scenario: the solution lives beside the unit and persists
     Given a unit with a durable design rationale

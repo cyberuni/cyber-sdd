@@ -30,10 +30,11 @@ It reads only the brief's frontmatter and its `## NEXT` section — never the re
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **list the plans** — a tool needs the resumable-mission set (the gateway, on entry) | a repo root | every `*.plan.md` under `.agents/plans` carrying frontmatter, keyed by CR ref, with its name, todo tally (total / completed / in-progress), and `## NEXT` lead, as TOON |
+| **list the plans** — a tool needs the resumable-mission set (the gateway, on entry) | a repo root | every `*.plan.md` under `.agents/plans` carrying frontmatter, keyed by CR ref, with its name, todo tally (total / completed / in-progress), `status` (the dispatch flag; `active` when unset), and `## NEXT` lead, as TOON |
+| **filter by status** — a dispatcher wants only the plans at one dispatch status (the gateway, selecting the approved queue) | the repo root + a requested status | only the briefs whose `status` matches (an unset status counts as `active`); absent the request, no status filter is applied |
 | **resolve a ref** — a request names one mission to resume | the discovered list + a CR ref | the plan whose filename slug matches |
 
-Every scenario in [`plan-discovery.feature`](./plan-discovery.feature) maps to one of these two
+Every scenario in [`plan-discovery.feature`](./plan-discovery.feature) maps to one of these three
 entry points.
 
 ## How a plan brief is recognized
@@ -47,10 +48,20 @@ Recognition is **location-bounded and shape-confirmed** — both must hold:
   no frontmatter is a stray and is skipped; a sibling that does not end `.plan.md` (a combat-log
   `*.log.jsonl`, a loose `*.md`) is never a brief.
 
-**Present means resumable.** plan-discovery applies **no status filter** of its own — a present
-brief is already unretired (retirement is a deletion, not a flag), so the scan lists every brief it
-finds, all-completed or not, and leaves ranking to the caller. The todo tally it reports lets the
-caller distinguish a barely-started mission from one near handoff.
+**Present means resumable.** plan-discovery applies **no status filter of its own** — a present
+brief is already unretired (retirement is a deletion, not a flag), so the default scan lists every
+brief it finds, all-completed or not, and leaves ranking to the caller. The todo tally it reports
+lets the caller distinguish a barely-started mission from one near handoff.
+
+**The `status` flag is carried, not interpreted.** Each brief may declare a top-level `status` — the
+plan-level dispatch flag (`active` by default, `approved` once a human clears the mission for headless
+dispatch; the enum + the three-way `status` distinction are owned by
+[`../../design/provenance-model.md`](../../design/provenance-model.md)). plan-discovery **reports**
+`status` in every entry (an unset value reads as `active`) and, **only when a caller explicitly
+requests it**, narrows the set to one status — the opt-in filter the gateway uses to select the
+approved dispatch queue (`../../gateway/dispatch/README.md`). It never acts on the flag itself:
+selection and dispatch are the gateway's, the write is `mission/checkpoint`'s, and retirement stays a
+deletion — plan-discovery only surfaces the flag.
 
 The ref match is against the **filename slug** (the `<cr-ref>` before `.plan.md`). The plan-brief
 schema and the plans-location convention are owned by [`../README.md`](../README.md) and

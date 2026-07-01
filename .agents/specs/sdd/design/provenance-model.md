@@ -45,6 +45,7 @@ name: <short plan title>                 # Cursor: the plan's display name
 overview: <one-paragraph summary>        # Cursor: quote if it contains : or other YAML-special chars
 cr: <cr-ref>                             # SDD: the source-qualified CR id (github-34, asana-<gid>, local-<slug>)
 cr-url: <web URL of the CR>              # SDD: the CR's source link, so a reader opens it in one click
+status: active                           # SDD: the mission's dispatch flag — active | approved (default active when absent)
 todos:                                   # Cursor: the editable task list (the execution task DAG flattened to ordered todos; dependency = order, no edge field)
   - id: <kebab-id>
     content: <task description>
@@ -56,6 +57,13 @@ isProject: false                         # Cursor: always false — SDD has no C
 - **`cr` + `cr-url`** are the SDD extension.
   Always record **both**: `cr` is the matchable source-qualified id used for retirement (source-status query) and collision-free naming; `cr-url` is the human link (`github-<n>` → `https://github.com/<owner>/<repo>/issues/<n>`, `asana-<gid>` → the task URL, `local-<slug>` → omit or a local anchor).
   Anywhere the plan body or a conclusion references the CR, give the **URL** too, not just the ref.
+- **`status`** is the SDD **mission dispatch flag** — a **top-level, plan-scoped** enum, the go-signal the headless dispatch loop selects on:
+  - `active` — the default (and the meaning of an **absent** `status`): the mission is in-progress or not-yet-cleared; the automaton does not pick it up on its own.
+  - `approved` — a human has **reviewed the brief** (todos, `## NEXT`, the strategy/leash) and **cleared it for headless dispatch**; the gateway's `dispatch` loop runs `approved` briefs first, one at a time (`../gateway/dispatch/README.md`).
+
+  The write is owned by `../mission/checkpoint/` (a human clearing the mission, e.g. `pause-mission --approve`); `discover-plans` **reports** it and `dispatch` **selects** on it, but neither sets it. It is **independent of the strategy leash**: `status: approved` says *run this mission*; the ratified `strategy` leash says *how far the automaton may self-assert on its own* — a tight leash simply makes an approved mission stop at its first gate and relay, which is safe.
+
+  **Three distinct `status` fields, three scopes — do not conflate:** this **plan-level `status`** (`active | approved`, the *mission's* dispatch flag); each **todo's `status`** (`pending | in_progress | completed`, nested under a todo, a *task's* progress); and **`spec.md`'s `status`** (`draft | approved | implemented`, the *contract's* lifecycle, `lifecycle-model.md`). They share a word, not a scope; Cursor ignores the plan-level key, so the addition is safe.
 - **`name` / `overview` / `todos` / `isProject`** are Cursor's own fields — populate them as Cursor does so the plan stays first-class in both tools.
 - **The `todos` block is the execution task DAG** — flattened to an ordered list, dependency expressed as **order**, not a per-todo edge field. The **conductor** fills it during explore (execution planning) into the single `.plan.md` that **intake scaffolded** at step 1 from a basic template (frontmatter `todos` + a `## NEXT` anchor; `../intake/README.md`). The `.plan.md` carries **execution state only** — todos, working method, `## NEXT`, the combat log.
 - **The solution (the old `plan.md`) is NOT here.** The per-CR functional spec was once folded into this file; it is now a **separate, durable, per-unit artifact** — `<unit>.solution.md`, beside the unit's spec and suite (`../design/spec-structure.md`). Folding durable design rationale into a retro-deleted file lost it; the split keys on scope and lifetime — **solution = per-unit + durable; task DAG = per-CR + transient**.

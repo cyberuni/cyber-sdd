@@ -61,6 +61,38 @@ Feature: The plan-discovery procedure — find resumable missions by their plan 
     When plan-discovery emits the list
     Then it is rendered as a TOON table keyed by the plan columns
 
+  # ── Status — the plan-level dispatch flag ──
+
+  Scenario: each discovered plan carries its status
+    Given a plan brief whose frontmatter declares a top-level status
+    When plan-discovery lists the plans
+    Then the entry carries that status
+
+  Scenario: a plan brief with no status is reported as active
+    Given a plan brief whose frontmatter declares no top-level status
+    When plan-discovery lists the plans
+    Then the entry's status is active
+
+  Scenario: the default listing applies no status filter
+    Given a set of discovered plans with mixed statuses
+    When plan-discovery lists the plans with no status filter requested
+    Then every discovered plan is in the set regardless of its status
+
+  Scenario: an explicit status filter narrows the set to that status
+    Given a set of discovered plans with mixed statuses
+    When plan-discovery lists the plans filtered to status approved
+    Then only the plans whose status is approved are in the set
+
+  Scenario: the status filter treats an unset status as active
+    Given a plan brief with no top-level status and a filter to status active
+    When plan-discovery lists the plans
+    Then that plan is in the set
+
+  Scenario: a status filter that matches no brief yields the empty set
+    Given a set of discovered plans none of whose status is the requested value
+    When plan-discovery lists the plans filtered to that status
+    Then the set is empty
+
   # ── Resolve a ref — over the discovered list ──
 
   Scenario: a cr ref resolves to the plan whose filename slug matches

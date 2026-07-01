@@ -80,6 +80,13 @@ The mission-owned **phases** (flat at `mission/`, capped at two levels):
 - **[`handoff/`](./handoff/README.md) (step 4)** — land step-3's verified result in the
   project-declared delivery shape (commits → `main` / branch → PR / prose).
 
+A segment-boundary behavior, not a numbered phase:
+
+- **[`checkpoint/`](./checkpoint/README.md)** — write a mission's live state into its plan brief so a
+  later session resumes it (the `pause-mission` skill enacts it); `--approve` additionally clears the
+  mission for headless dispatch by setting the brief's `status: approved`
+  (`../gateway/dispatch/README.md`).
+
 ## Where the rules live
 
 Behaviors that *enact* the loop live in the unit specs here (`impl-producer/`, `impl-judge/`,

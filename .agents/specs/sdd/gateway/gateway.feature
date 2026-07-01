@@ -103,6 +103,11 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     Then it spawns the automaton as the headless driver
     And the automaton self-asserts at the autonomy bar and batches needs-input rather than asking live
 
+  Scenario: a request to run the approved missions enters the dispatch loop
+    Given the user asks the gateway to run the approved missions
+    When the gateway classifies it
+    Then it enters the dispatch loop to run the approved-plan queue headless
+
   Scenario: a routed change writes no contract state
     Given the gateway resolves a request to change the project
     When it loads start-mission in-session

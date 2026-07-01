@@ -50,6 +50,7 @@ Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these be
 | **surface in-progress missions** | on re-entry, surface the resumable mission plan briefs (via the `discover-plans` engine) as a resume entry point — never resume or retire |
 | **status scan (help me choose)** | on a "help me choose" request, scan the project's spec statuses via the `discover-specs` engine to surface the most-actionable spec — reads frontmatter only, never a spec body |
 | **headless → automaton** | with no user channel, the gateway spawns the **automaton** (the headless driver) instead of working in-session |
+| **dispatch the approved queue** | a "run the approved missions" request (or an unattended trigger) enters the **dispatch** loop (`./dispatch/README.md`) — run each `approved` brief headless in a fresh automaton, sequentially |
 | **ambiguity routes into a mission** | a request that may touch behavior but names no skill loads `start-mission` so the grill decides |
 | **escape** | a non-CR (no suite-relevant behavior) proceeds outside the lifecycle, leaving no SDD record |
 | **freeze** | a request to change a frozen `.feature` loads `start-mission` to re-open it through the grill, never an in-place edit |
@@ -155,6 +156,13 @@ fan-out), the gateway spawns the **automaton** — the headless driver (the orch
 mission loop with **no human in the seat**: it self-asserts at the autonomy bar and batches
 `needs-input` rather than asking live, and whatever spawned it relays those questions. The automaton
 is **not** a separate orchestrator role — it is the driver run headless.
+
+The **multi-CR fan-out** is a distinct behavior with its own node: `dispatch` (`./dispatch/README.md`)
+— the gateway's **approved-plan dispatch loop**. When the work is a queue of already-reviewed missions
+(each brief cleared with `status: approved`), the gateway runs them **sequentially, one automaton per
+brief, each freshly spawned** so nothing carries across missions (the token floor). It is entered by
+an attended "run the approved missions" request or an unattended trigger. `dispatch` still spawns and
+relays only — it writes no contract state.
 
 ### Write-ownership is preserved
 

@@ -200,7 +200,7 @@ you have built and verified it, not before. So placement is **two-phase**, and n
 
 - **Explore places provisionally.** It splits the decision in two — first classify `spec-type`
   (mechanical, fail-closed checked: testable→behavioral, shipped-suite-less→reference, rule/index→
-  descriptive), then pick a capability home from the routing table (via `../corpus/` `place-node`). Any
+  descriptive), then pick a capability home from the routing table (via `../project-spec/` `place-node`). Any
   plausible home is fine; the move, if any, is cheap.
 - **Handoff finalizes placement, in the same PR.** After the impl gate passes, a Warden pass **scoped to
   the mission's touched nodes** relocates any misplaced node to its blessed home via `git mv` and logs the
@@ -220,6 +220,6 @@ not a replacement for it.
 The layout step emits, regardless of strategy: a **pre-determined skeleton** (contributors slot, not invent);
 the **placement-map routing table** (the explicit, maintained taxonomy #35 asks for, with tie-breaks); a
 **`place-node` lookup** reused by explore and the handoff pass (`spec-type` + signals → suggested home +
-`concept:` tag + **"belongs near X" duplicate-catch** via `../corpus/` discovery+digest). Because explore's
+`concept:` tag + **"belongs near X" duplicate-catch** via `../project-spec/place-node`). Because explore's
 placement is only **provisional** and the **handoff** pass finalizes it cheaply in-PR, a contributor never
 has to get placement right up front — removing the back-and-forth #35 names.

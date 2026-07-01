@@ -85,5 +85,5 @@ The only mandatory human escalations are the four-C hard floor (Clearance, Confl
 
 ## Cross-cutting (not loop steps)
 
-`design/` (the rules), `../corpus/` (spec-corpus tooling), `../plugin/` (SDD's plugin nature), and `../acceptance/` (the e2e suite deliver verifies against) are cross-cutting.
+`design/` (the rules), `../corpus/` (corpus tooling) · `../project-spec/` (project-spec maintenance), `../plugin/` (SDD's plugin nature), and `../acceptance/` (the e2e suite deliver verifies against) are cross-cutting.
 They are consumed by the loops but are not themselves steps.

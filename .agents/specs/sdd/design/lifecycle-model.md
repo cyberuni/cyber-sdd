@@ -171,7 +171,7 @@ This is what lets **placement be finalized at handoff** (`spec-layout.md`): afte
   Explore is mostly narrowing/reshaping (much unfreezing); deliver is mostly additive (stays frozen).
   One rule covers both phases.
 - **`spec.md` is kept in sync, never frozen** — it is the readable abstraction of the suite, free to be reworded/restructured (prose, diagrams, pictures) as long as it does not contradict a frozen scenario.
-  That invariant is enforced by the alignment check + the spec-judge applying the Builder (coverage) lens at the spec gate (and on demand by `../corpus/` `align-specs`), **not** by freezing the prose.
+  That invariant is enforced by the alignment check + the spec-judge applying the Builder (coverage) lens at the spec gate (and on demand by `../project-spec/` `align-spec`), **not** by freezing the prose.
   Prose↔suite drift detection is judge-only (no scenario IDs in the prose); the mechanical handle is the scenario-diff (narrowing a frozen scenario → Clearance).
 - **The ledger is never frozen and never gated** — it keeps appending across the whole lifecycle, including while files sit `@frozen`.
   (The durable ledger holds the per-CR `gate` and freeze record; the mid-flight combat log lives in the plan: `provenance-model.md`.)

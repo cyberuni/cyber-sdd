@@ -26,7 +26,7 @@ only **cross-mission** structural drift.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: node-shape / split / reconcile candidates, each carrying the Warden's self-clear-or-escalate verdict |
+| **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/` + `project-spec/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: node-shape / split / reconcile candidates, each carrying the Warden's self-clear-or-escalate verdict |
 
 A formation pass exercises the three acts under the verdict discipline below; the per-act verdict,
 the frozen-contract guard, and the altitude routing are cross-cutting guarantees. Every scenario in
@@ -35,7 +35,7 @@ guarantees.
 
 ## Input — the corpus structure + discovery, scoped by the public trail
 
-The Warden's **primary** input is structural: the corpus **structure** and **discovery** (`corpus/`)
+The Warden's **primary** input is structural: the corpus **structure** and **discovery** (`corpus/` + `project-spec/`)
 — it reads what the corpus *is*, never what a mission *did*. To stay efficient rather than
 cold-scanning the whole corpus every run, it may consult the durable **public trail** (CR-source
 conclusions + changesets + git history) **forward** via a cursor over the public trail
@@ -52,14 +52,14 @@ structural maintenance is **intra-spec**:
 - **split** an oversized node that has outgrown the granularity heuristic into sub-nodes,
 - **reconcile** prose↔suite drift, or a contradiction between two nodes or two governances.
 
-| Act | Trigger | Station (`corpus/`) | Output |
+| Act | Trigger | Station (`corpus/` + `project-spec/`) | Output |
 |---|---|---|---|
 | **Audit node-shape** | a formation pass fires post-mission | `check-spec-structure` | a finding set: untagged-node (blocking) + oversized-node (advisory), each naming the node |
 | **Split an oversized node** | a node's `.feature` trips the granularity heuristic | `check-spec-structure` | an oversized-node finding proposing a sub-node split |
 | **Reconcile drift / contradiction** | prose↔suite drift, or two nodes contradict | `align-spec` | a reconcile finding (drift fixed by direction; contradiction → align the losing side) |
 
 A station is **not** a dependency — Formation depends on the corpus **structure** and **discovery**
-(`corpus/`), not on any given station skill.
+(`corpus/` + `project-spec/`), not on any given station skill.
 
 ## Corpus-wide — DISTINCT from the per-spec gate judgment
 

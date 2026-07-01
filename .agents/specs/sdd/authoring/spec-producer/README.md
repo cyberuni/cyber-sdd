@@ -48,7 +48,7 @@ scenarios chase a moving target.
 Phase 1 — the prose:
 
 - **Scope** — is the touched behavior still *one* coherent thing? Grilling that reveals a
-  bundle of several is the moment to recommend a split (a `../../corpus/` operation), not to
+  bundle of several is the moment to recommend a split (a `../../project-spec/` operation), not to
   grow a monolith.
 - **Use cases / entry points** — is each trigger, input, and outcome still accurate? Did the
   change add, remove, or alter an entry point?

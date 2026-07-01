@@ -63,7 +63,7 @@ node already in the right place — no follow-up formation CR.
 - **Logged, keyed by name.** Each relocation is recorded as a detail-adjustment in the combat log
   (`../../design/provenance-model.md`), referencing the node by its **stable name**, so the move never
   dangles a reference.
-- **Usually a no-op.** With the routing table + `place-node` (`../../corpus/`), explore's provisional
+- **Usually a no-op.** With the routing table + `place-node` (`../../project-spec/`), explore's provisional
   pick is usually already the blessed home, so most missions relocate nothing.
 
 ## The delivery-shape contract

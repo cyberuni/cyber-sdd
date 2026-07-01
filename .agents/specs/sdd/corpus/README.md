@@ -24,12 +24,15 @@ one project-spec at a time, under [`../project-spec/`](../project-spec/README.md
 
 | Unit | Type | Spec | Role |
 |---|---|---|---|
-| **discovery** | behavioral | [`discovery/`](./discovery/README.md) | find specs at the **three SDD spec locations** (`.agents/spec`, `.agents/specs/<project>`, `<project-path>/.agents/spec`), confirmed by lifecycle `status` shape; read frontmatter only and emit a TOON list; match a name to a folder slug, disambiguate with the user |
+| **discovery** | behavioral | [`discovery/`](./discovery/README.md) | find specs at the **three fixed SDD spec locations** (`.agents/spec`, `.agents/specs/<project>`, `<project-path>/.agents/spec`) **plus any extra anchors declared in `spec-anchors`**, confirmed by lifecycle `status` shape; read frontmatter only and emit a TOON list; match a name to a folder slug, disambiguate with the user |
+| **spec-anchors** | behavioral | [`spec-anchors/`](./spec-anchors/README.md) | declare & curate the **opt-in extra anchors** discovery scans (`.agents/sdd/spec-anchors.toml`): list fixed + custom, CRUD the custom ones, induce a pattern from a sample path, preview its match — a manage-level engine that writes only the config, never spec content (ADR-0019) |
 
 ## Boundaries
 
-- **Lists, does not restructure.** `discovery` reads frontmatter across the corpus and emits a view.
-  Nothing at this level writes spec bodies, `status`, `approval`, or a freeze.
+- **Lists, does not restructure.** `discovery` reads frontmatter across the corpus and emits a view;
+  `spec-anchors` curates the discovery config. Nothing at this level writes spec bodies, `status`,
+  `approval`, or a freeze — `spec-anchors` writes **only** its own config file
+  (`.agents/sdd/spec-anchors.toml`), which is operational config, not spec content.
 - **Intra-spec maintenance is elsewhere.** digest, concept-index, place-node, check-spec-structure,
   and align-spec operate on one project-spec — they live under
   [`../project-spec/`](../project-spec/README.md).

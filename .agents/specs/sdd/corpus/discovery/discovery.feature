@@ -1,10 +1,10 @@
-@frozen
 Feature: The discovery procedure — find specs at the SDD spec locations, named and resolvable
-  Unit suite for the discovery tool (the discover-specs engine). Locating specs at the three SDD
-  spec locations, confirming them by status shape, naming each project, and resolving a name over
-  the list. Deterministic scenarios are node:test-verified; the two @rubric scenarios are agentic
-  (judged by hand / by ACES when wired) because they assert agent behavior, not script output.
-  Cross-capability e2e scenarios live in ../../acceptance/.
+  Unit suite for the discovery tool (the discover-specs engine). Locating specs at the three fixed
+  SDD spec locations PLUS any extra anchors declared in the project's spec-anchors config, confirming
+  them by status shape, naming each project, and resolving a name over the list. Deterministic
+  scenarios are node:test-verified; the two @rubric scenarios are agentic (judged by hand / by ACES
+  when wired) because they assert agent behavior, not script output. Cross-capability e2e scenarios
+  live in ../../acceptance/.
 
   # ── List the specs — the three spec locations ──
 
@@ -87,13 +87,42 @@ Feature: The discovery procedure — find specs at the SDD spec locations, named
     Then it returns the matching specs as candidates
     And it does not pick one
 
-  # ── No path registry — the locations are fixed conventions ──
+  # ── Extra anchors — the spec-anchors config adds locations on top of the fixed conventions ──
 
-  Scenario: discovery consults no path registry
-    Given a spec that has moved between two spec locations
+  Scenario: the three fixed conventions are always scanned regardless of config
+    Given a repo with no spec-anchors config file
     When discovery lists the specs
-    Then it finds the spec by scanning the fixed locations
-    And it consults no registry, array, or index of paths
+    Then it scans the three fixed conventions and finds every spec at them
+
+  Scenario: an absent spec-anchors config leaves discovery scanning only the fixed conventions
+    Given a git-tracked spec.md carrying a lifecycle status at a non-standard path and no spec-anchors config
+    When discovery lists the specs
+    Then that spec is excluded from the set
+
+  Scenario: a declared extra anchor adds a location to the scan
+    Given a spec-anchors config declaring an extra anchor and a git-tracked spec.md with a lifecycle status at that anchor
+    When discovery lists the specs
+    Then that spec is in the set
+
+  Scenario: a spec at an extra anchor is still shape-confirmed by status
+    Given a spec-anchors config declaring an extra anchor and a spec.md at that anchor carrying no lifecycle status
+    When discovery lists the specs
+    Then that file is excluded from the set
+
+  Scenario: an anchor pattern with a project token names the spec from the captured segment
+    Given an extra anchor whose pattern captures a project segment and a discovered spec.md at it with no declared name
+    When discovery lists the specs
+    Then the entry carries the captured segment as its name with name-source "derived"
+
+  Scenario: an extra-anchor spec with no project token and no declared name guesses its folder basename
+    Given a discovered spec.md at an extra anchor with neither a project-token capture nor a declared name
+    When discovery lists the specs
+    Then the entry carries the folder basename as its name with name-source "guessed"
+
+  Scenario: a declared frontmatter name is authoritative for an extra-anchor spec too
+    Given a discovered spec.md at an extra anchor whose frontmatter declares a name
+    When discovery lists the specs
+    Then the entry carries that name with name-source "declared"
 
   # ── Agentic — judged by hand / by ACES (assert agent behavior, not script output) ──
 

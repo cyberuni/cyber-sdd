@@ -88,3 +88,20 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     When it authors the scenario
     Then the rubric form never appears in an untagged scenario
     And every untagged scenario stays a pure boolean assertion
+
+  Scenario: the producer self-checks the authored feature form before returning
+    Given the spec-producer has authored a .feature
+    When it finishes writing the suite
+    Then it runs the mechanical feature-form check over the authored file
+    And it does not report complete while a form violation remains
+
+  Scenario: the producer fixes a hedge word the self-check flags
+    Given the producer's authored .feature has a hedge adverb in a Then step
+    When the mechanical form check flags the non-boolean step
+    Then the producer rewrites the step to a boolean assertion before returning
+
+  Scenario: the producer reports complete when the self-check finds no violation
+    Given the producer's authored .feature is well formed
+    When the mechanical form check runs over it
+    Then the check reports no violation
+    And the producer reports complete

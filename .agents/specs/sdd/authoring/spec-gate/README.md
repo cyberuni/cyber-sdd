@@ -22,7 +22,7 @@ it does not produce.
 | **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
-| **run structural provenance / alignment / spec-type checks** — before any verdict | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only |
+| **run structural provenance / alignment / spec-type / feature-form checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files** |
 
 Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
@@ -109,3 +109,14 @@ Before any verdict the gate applies the structural provenance checks
 `correction` cause **fail closed**; an uninstalled-but-valid recorded producer only **flags**. A
 required role with no resolvable producer also fails closed. The gate stays verdict-only — it
 writes no setup frontmatter to resolve any of these.
+
+## The feature-form pre-filter
+
+Alongside the structural checks, and **before the cold judge is spawned**, the gate runs the
+deterministic `.feature`-form check over the CR's **touched** `.feature` files — the executable
+form of `../suite-format/README.md` (Gherkin validity, every `Then` a boolean assertion, no hedge
+adverbs or leaked rubric lingo, scenario sectioning). It **fails closed**: an invalid form advances
+no status and the judge is not spawned, so a well-formed suite is the only thing the qualitative
+judge ever sees, and a mechanical bar never rides on the judge catching a hedge word. The check is
+**scoped to the touched files**, not the whole tree (the tree-wide sweep stays a CI backstop). The
+gate stays verdict-only — it fixes nothing, it reports the form violation for the producer to fix.

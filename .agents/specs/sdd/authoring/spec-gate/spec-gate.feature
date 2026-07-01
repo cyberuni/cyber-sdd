@@ -135,3 +135,28 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Given a node README with no spec-type marker
     When the gate applies its structural checks
     Then the gate raises no spec-type violation for that node
+
+  # ---- Feature-form pre-filter ----
+
+  Scenario: an invalid feature form fails the gate closed before the judge runs
+    Given a touched .feature whose Then step is not a boolean assertion
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+
+  Scenario: a touched feature missing a Then fails the gate closed
+    Given a touched .feature with a scenario that has no Then step
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+
+  Scenario: the feature-form check scopes to the CR's touched feature files
+    Given a CR that touched a subset of the project's .feature files
+    When the gate runs the feature-form check
+    Then the check covers only the touched files, not the whole tree
+
+  Scenario: a well-formed touched feature passes the pre-filter and the judge runs
+    Given every touched .feature is well formed
+    When the gate applies its structural checks
+    Then the feature-form check raises no violation
+    And the gate spawns the cold judge

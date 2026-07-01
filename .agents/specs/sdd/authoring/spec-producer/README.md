@@ -69,6 +69,10 @@ Phase 2 — the suite:
 - Each scenario stays a pure boolean `Given`/`When`/`Then` (or the rubric form per
   `../suite-format/README.md`); tighten any that drifted.
 - Step-down ordering and stage grouping still hold after the edits.
+- **Self-check the form before returning** — run the deterministic `.feature`-form check (the
+  executable form of `../suite-format/README.md`) over the authored suite and fix any violation (a
+  non-boolean `Then`, a hedge adverb, leaked rubric lingo) before reporting complete. Settling this
+  mechanical bar here spends no cold-judge round on a defect a linter catches every time.
 
 ## The output boundary
 

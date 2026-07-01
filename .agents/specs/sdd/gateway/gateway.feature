@@ -87,6 +87,16 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     When the gateway classifies it
     Then it loads start-mission in-session to run the mission loop over the project spec
 
+  Scenario: a corpus-management request loads the manage skill
+    Given an invocation that asks to manage the corpus rather than change the project
+    When the gateway classifies it
+    Then it loads manage in the current session to run the manage-level operation
+
+  Scenario: the manage-the-corpus menu option loads the manage skill
+    Given the user selects "Manage the corpus" from the bare two-level menu
+    When the gateway routes the selection
+    Then it loads manage in the current session
+
   Scenario: with no user channel the gateway spawns the automaton
     Given no user session is available to host the conductor
     When the gateway carries out the downstream work

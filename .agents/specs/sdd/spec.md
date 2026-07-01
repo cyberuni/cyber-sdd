@@ -153,7 +153,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | `plugin` | `plugin/` (behavior) · `plugin/plugin-contract/` (reference) |
 | `provenance` | `acceptance/` (e2e) · `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) |
 | `resolution` | `acceptance/` (e2e) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) |
-| `routing` | `gateway/` (behavior) |
+| `routing` | `gateway/` (behavior) · `gateway/manage/` (behavior) |
 | `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `authoring/validate-spec/` (behavior) · `mission/solution-producer/` (behavior) |
 
 <!-- END generated: by-concept -->

@@ -64,12 +64,12 @@ In order; the conductor runs it in-session, surfacing each choice to the user (r
    `<capability>/<unit>` and never three deep — a sub-grouping inside a capability is a `concept:` tag, not a
    third folder level. Under **mirror-source**, mirror only to the **unit boundary** — no node is created
    below a behavioral leaf. A stub declares its `spec-type` only; its cross-cutting `concept:` tag is assigned
-   later, in per-unit explore (`../spec-producer/`, via `../../corpus/place-node/`), not at scaffold.
+   later, in per-unit explore (`../spec-producer/`, via `../../project-spec/place-node/`), not at scaffold.
 5. **Declare** the organization: write the **`project-path` frontmatter** (the governed source dir; the
    spec location mode is derived from it) on root `spec.md`, and the **placement map** — naming the chosen
    strategy — into its body, so the layout is read, never re-derived. Beside it, **reserve the generated
-   by-concept index block** (`../../corpus/concept-index/`, `../../design/spec-structure.md`) — the
-   cross-cutting `concept → its nodes` view that `corpus/concept-index` fills from `concept:` frontmatter;
+   by-concept index block** (`../../project-spec/concept-index/`, `../../design/spec-structure.md`) — the
+   cross-cutting `concept → its nodes` view that `project-spec/concept-index` fills from `concept:` frontmatter;
    the bootstrap leaves the block for that engine to generate, never hand-maintaining it. There is **no
    `spec-layout` block** (`../../design/spec-layout.md`; ADR-0017). Write the **`name` frontmatter** only
    when the project name is **not reliably derivable** — for a hoisted or nested project, **ask the user and

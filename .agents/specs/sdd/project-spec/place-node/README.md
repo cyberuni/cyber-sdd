@@ -15,7 +15,7 @@ finalized at handoff ([`../../mission/handoff/`](../../mission/handoff/README.md
 
 **Subject** — suggesting a provisional home + duplicate-catch for a node about to be scaffolded.
 **Non-goals** — it never writes, never relocates (that is handoff), never audits node-shape (that
-is `../check-spec-structure/`), and never reads a node body (frontmatter only, like `../discovery/`).
+is `../check-spec-structure/`), and never reads a node body (frontmatter only, like `../../corpus/discovery/`).
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
@@ -29,7 +29,7 @@ the read-only boundary that closes this spec.
 ## How a home is suggested — derivation, not a registry
 
 The suggestion is **derived from the corpus's own `concept:` tags**, never a stored routing list (the
-`../discovery/` no-drift rule): the home for a concept is **where that concept's facets already sit**.
+`../../corpus/discovery/` no-drift rule): the home for a concept is **where that concept's facets already sit**.
 A concept enacted across `design/` + `mission/` suggests those capabilities; the human tie-break rules
 for genuinely contested overlaps live in the placement-map routing table
 ([`../../design/spec-layout.md`](../../design/spec-layout.md)), which `place-node` points to rather than

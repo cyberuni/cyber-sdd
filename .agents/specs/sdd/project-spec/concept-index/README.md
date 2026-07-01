@@ -9,14 +9,14 @@ The **concept-index** procedure: scan one spec corpus for every node's `concept:
 render a **by-concept view** — `concept → {its nodes across every folder}` — that re-unifies a
 cross-cutting concern whose facets the capability folder tree scatters
 ([`../../design/spec-structure.md`](../../design/spec-structure.md), the concept axis). The view is
-**pure derivation** from the `concept:` tags (the `../discovery/` no-drift rule): it is regenerated on
+**pure derivation** from the `concept:` tags (the `../../corpus/discovery/` no-drift rule): it is regenerated on
 demand and lives in the root `spec.md` as a machine-owned block, never hand-maintained.
 
 ## Use Cases
 
 **Subject** — deriving the by-concept index from node frontmatter and maintaining its block in the
 root `spec.md`.
-**Non-goals** — it never reads a node body (frontmatter only, like `../discovery/`), never edits
+**Non-goals** — it never reads a node body (frontmatter only, like `../../corpus/discovery/`), never edits
 anything in `spec.md` outside its own delimited block, never writes lifecycle state, and never ranks
 or judges (that is `../check-spec-structure/` and the spec gate).
 

@@ -75,7 +75,7 @@ nested levels (corpus ⊃ project-spec ⊃ node) are defined in
 
 Every interaction enters through the universal **[`gateway/`](./gateway/README.md)** (the `sdd` skill): it activates SDD,
 classifies the request, and **routes** it — to a **mission** (a CR run through the loop below), a
-**[`corpus/`](./corpus/README.md)** operation (audit, align, inspect), inner-loop agent-tuning (inject / project), a
+**[`corpus/`](./corpus/README.md)** or **[`project-spec/`](./project-spec/README.md)** operation (inspect, audit, align), inner-loop agent-tuning (inject / project), a
 **plugin-management** operation (install/remove a domain plugin, author a governance — *planned*), or
 one of the four **outer loops**. A task with no suite-relevant behavior **escapes** — outside the
 lifecycle, leaving no SDD record. The gateway is a **thin relay**: it classifies and dispatches,
@@ -132,7 +132,8 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | [`mission/handoff/`](./mission/handoff/README.md) | land the result in the delivery shape | handoff (step 4) |
 | [`campaign/`](./campaign/README.md) [`formation/`](./formation/README.md) [`doctrine/`](./doctrine/README.md) [`forge/`](./forge/README.md) | the 4 post-mission outer loops | step 5 (not in the Mission Loop) |
 | [`common-governances/`](./common-governances/README.md) | the cross-cutting governance bar specs (actor + fixed-universal) | — |
-| [`corpus/`](./corpus/README.md) | spec-corpus tooling | — |
+| [`corpus/`](./corpus/README.md) | corpus-level tooling — discovery across project-specs | — |
+| [`project-spec/`](./project-spec/README.md) | project-spec-level maintenance — digest, index, place, audit, align (one project-spec) | — |
 | [`plugin/`](./plugin/README.md) | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
 | [`acceptance/`](./acceptance/README.md) | e2e behavior suite | — |
 
@@ -146,7 +147,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 |---|---|
 | `artifact-type` | `design/artifact-type.md` (rule) |
 | `autonomy` | `acceptance/` (e2e) · `design/autonomy-rubric.md` (rule) |
-| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/align-spec/` (behavior) · `corpus/check-spec-structure/` (behavior) · `corpus/concept-index/` (behavior) · `corpus/digest/` (behavior) · `corpus/discovery/` (behavior) · `corpus/place-node/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) |
+| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/discovery/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) · `project-spec/align-spec/` (behavior) · `project-spec/check-spec-structure/` (behavior) · `project-spec/concept-index/` (behavior) · `project-spec/digest/` (behavior) · `project-spec/place-node/` (behavior) |
 | `delivery` | `acceptance/` (e2e) · `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |

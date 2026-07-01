@@ -19,7 +19,7 @@ frontmatter only and emits the list as TOON.
 **Subject** — deriving the set of named project specs in a repo, and resolving a name to one of them.
 **Non-goals** — it reads no runtime behavior, owns no lifecycle state, never reads spec bodies
 (frontmatter only), and never writes. It locates specs; it does not summarize them (that is
-`digest`) or audit their node-shape (that is `../check-spec-structure/`).
+`digest`) or audit their node-shape (that is `../../project-spec/check-spec-structure/`).
 
 | Trigger | Inputs | Outcome |
 |---|---|---|

@@ -42,7 +42,7 @@ Every scenario in [`manage.feature`](./manage.feature) maps to one of these beha
 | **bootstrap → backfill** | a "set up the project spec for the first time" request loads `backfill-project-spec` |
 | **inspect → read-only engine** | an inspect request loads the matching read-only engine (`discover-specs` / `concept-index` / `place-node` / `discover-plans`) |
 | **audit → engine** | an audit request loads `check-spec-structure` / `align-spec` / `formation` |
-| **housekeeping → engine** | a housekeeping request loads `plan-retirement` (retire completed mission plans) |
+| **housekeeping → engine** | a housekeeping request loads `plan-retirement` (retire completed mission plans) or `manage-spec-anchors` (curate discovery's extra spec anchors) |
 | **load the engine in-session** | a resolved route loads the matched engine in the **current session** and runs it directly — `manage` spawns nothing |
 | **hand off a behavior change** | when an operation surfaces a needed behavior change, `manage` hands off to `start-mission` rather than editing the spec/suite |
 | **non-mission guard** | `manage` opens no CR and invokes no gate |
@@ -63,7 +63,7 @@ flowchart TD
     PICK -->|Bootstrap| BF["backfill-project-spec"]
     PICK -->|Inspect| INS["discover-specs · concept-index · place-node · discover-plans"]
     PICK -->|Audit &amp; align| AUD["check-spec-structure · align-spec · formation"]
-    PICK -->|Housekeeping| HK["plan-retirement"]
+    PICK -->|Housekeeping| HK["plan-retirement · manage-spec-anchors"]
 ```
 
 | Group | Operations (engines it loads) |
@@ -71,7 +71,7 @@ flowchart TD
 | **Bootstrap** | `backfill-project-spec` — scaffold a project's spec envelope for the first time (`../../authoring/backfill-project-spec/`) |
 | **Inspect** | `discover-specs` (list specs + statuses) · `concept-index` (by-concept view) · `place-node` (where a concept belongs) · `discover-plans` (in-progress missions) — the read-only engines (`../../corpus/`, `../../project-spec/`, `../../intake/plan-discovery/`) |
 | **Audit & align** | `check-spec-structure` (node-shape) · `align-spec` (prose↔suite drift) · `formation` (corpus-wide audit/split/reconcile) — an audit that needs a behavior change hands off to `start-mission` (`../../corpus/`, `../../formation/`) |
-| **Housekeeping** | `plan-retirement` (retire completed mission plans) (`../../doctrine/plan-retirement/`) — reviewing pending strategy stays gateway-owned (the gateway's episodic pending-count, option 3), not a manage engine |
+| **Housekeeping** | `plan-retirement` (retire completed mission plans) (`../../doctrine/plan-retirement/`) · `manage-spec-anchors` (list / CRUD / induce / preview discovery's extra spec anchors) (`../../corpus/spec-anchors/`) — reviewing pending strategy stays gateway-owned (the gateway's episodic pending-count, option 3), not a manage engine |
 
 ## Load the engine in-session
 
@@ -79,7 +79,8 @@ When the route resolves, `manage` **loads the matched engine in the current sess
 runs it directly — it **spawns nothing**. Read-only engines (`discover-*`, `check-spec-structure`,
 `place-node`, `concept-index --check`) run in place; write-capable operations stay **owned by their
 engine** — `backfill-project-spec` scaffolds the skeleton, `plan-retirement` performs its gated
-deletion, `concept-index --write` refreshes the generated block. `manage` only routes.
+deletion, `concept-index --write` refreshes the generated block, `manage-spec-anchors` writes its
+own `spec-anchors.toml` config (operational config, never spec content). `manage` only routes.
 
 **Manage picks no model.** Like the gateway, the model + effort a piece of work needs is determined
 by the **engine `manage` loads** — the `.mts` engines are light; a `backfill` or `formation` grill

@@ -1,6 +1,6 @@
 ---
 spec-type: behavioral
-concept: corpus-structure
+concept: spec-structure
 ---
 
 # place-node — suggest a provisional home for a new node

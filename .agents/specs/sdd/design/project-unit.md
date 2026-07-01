@@ -1,5 +1,5 @@
 ---
-concept: corpus-structure
+concept: spec-structure
 model: true
 ---
 

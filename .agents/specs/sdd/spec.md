@@ -147,7 +147,6 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 |---|---|
 | `artifact-type` | `design/artifact-type.md` (rule) |
 | `autonomy` | `acceptance/` (e2e) · `design/autonomy-rubric.md` (rule) |
-| `corpus-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/discovery/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) · `project-spec/align-spec/` (behavior) · `project-spec/check-spec-structure/` (behavior) · `project-spec/concept-index/` (behavior) · `project-spec/digest/` (behavior) · `project-spec/place-node/` (behavior) |
 | `delivery` | `acceptance/` (e2e) · `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
@@ -159,6 +158,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | `resolution` | `acceptance/` (e2e) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) |
 | `routing` | `gateway/` (behavior) · `gateway/manage/` (behavior) |
 | `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-gate/` (behavior) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `mission/solution-producer/` (behavior) |
+| `spec-structure` | `authoring/backfill-project-spec/` (behavior) · `corpus/discovery/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) · `project-spec/align-spec/` (behavior) · `project-spec/check-spec-structure/` (behavior) · `project-spec/concept-index/` (behavior) · `project-spec/digest/` (behavior) · `project-spec/place-node/` (behavior) |
 
 <!-- END generated: by-concept -->
 

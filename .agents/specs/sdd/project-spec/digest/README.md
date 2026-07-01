@@ -1,6 +1,6 @@
 ---
 spec-type: behavioral
-concept: corpus-structure
+concept: spec-structure
 ---
 
 # digest — a read-only, fixed-section summary of one spec

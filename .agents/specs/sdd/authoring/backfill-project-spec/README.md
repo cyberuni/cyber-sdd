@@ -1,6 +1,6 @@
 ---
 spec-type: behavioral
-concept: corpus-structure
+concept: spec-structure
 ---
 
 # backfill-project-spec — lay out an existing project's spec

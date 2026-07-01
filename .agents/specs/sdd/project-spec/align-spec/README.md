@@ -1,6 +1,6 @@
 ---
 spec-type: behavioral
-concept: corpus-structure
+concept: spec-structure
 ---
 
 # align-spec — detect & reconcile prose↔suite drift

@@ -172,3 +172,27 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate applies its structural checks
     Then the feature-form check raises no violation
     And the gate spawns the cold judge
+
+  # ---- Referenced-artifact-exists pre-filter ----
+
+  Scenario: a touched spec.md or README referencing a nonexistent artifact fails the gate closed
+    Given a touched spec.md or README naming a skill, engine, or artifact path that does not exist on disk
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+
+  Scenario: a template placeholder or glob in a referenced path is not a violation
+    Given a touched spec.md or README naming a path containing a template placeholder or a glob
+    When the gate applies its structural checks
+    Then the referenced-artifact check raises no violation for that path
+
+  Scenario: the referenced-artifact check scopes to the CR's touched spec.md and README files
+    Given a CR that touched a subset of the project's spec.md and README files
+    When the gate runs the referenced-artifact check
+    Then the check covers only the touched files, not the whole tree
+
+  Scenario: every touched reference resolving passes the pre-filter and the judge runs
+    Given every artifact path named in the touched spec.md and README files resolves on disk
+    When the gate applies its structural checks
+    Then the referenced-artifact check raises no violation
+    And the gate spawns the cold judge

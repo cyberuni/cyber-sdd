@@ -22,7 +22,7 @@ it does not produce.
 | **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
-| **run structural provenance / alignment / spec-type / feature-form checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files** |
+| **run structural provenance / alignment / spec-type / feature-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a referenced skill/engine/artifact path that resolves to nothing → **fail closed**, scoped to the touched files, a template placeholder or glob exempt |
 
 Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
@@ -123,3 +123,16 @@ no status and the judge is not spawned, so a well-formed suite is the only thing
 judge ever sees, and a mechanical bar never rides on the judge catching a hedge word. The check is
 **scoped to the touched files**, not the whole tree (the tree-wide sweep stays a CI backstop). The
 gate stays verdict-only — it fixes nothing, it reports the form violation for the producer to fix.
+
+## The referenced-artifact-exists pre-filter
+
+Alongside the feature-form check, and also **before the cold judge is spawned**, the gate runs a
+deterministic scan for **broken artifact references** in the CR's **touched** `spec.md`/`README.md`
+files: every backtick-wrapped path shaped like a relative (`./`, `../`) or repo-root-relative
+(`.agents/`, `plugins/`, `packages/`, `apps/`, `docs/`, `.claude/`) reference must resolve to a real
+file or directory; a template placeholder (`<project>`) or glob (`*.plan.md`) is exempt. It **fails
+closed**: a broken reference advances no status and the judge is not spawned. **Deliberately scoped
+to `--files`, never the tree-wide `--root` sweep** — the accumulated corpus legitimately names
+example/convention paths (an opt-in config not yet created, a hypothetical nested project) a blind
+tree-wide scan cannot distinguish from a real broken reference, so this check only ever gates a
+CR's own new/touched prose.

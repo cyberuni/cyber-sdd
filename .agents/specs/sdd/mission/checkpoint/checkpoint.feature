@@ -53,3 +53,20 @@ Feature: The checkpoint procedure — write a mission's state into its plan brie
     Given a human checkpoints a reviewed mission with the approve intent
     When the checkpoint writes the brief
     Then it sets the status flag and does not itself dispatch or resume the mission
+
+  # ---- Reconcile-forward checkpoint ----
+
+  Scenario: a reconcile-forward checkpoint runs the gate floor before marking retirement-ready
+    Given a plan brief whose CR reached approved or implemented via commits merged outside this session
+    When the mission is checkpointed as reconciled forward
+    Then the checkpoint runs checkGateFloor for the CR before marking it retirement-ready
+
+  Scenario: a reconcile-forward checkpoint with a gate floor violation surfaces the gap instead of hiding it
+    Given a plan brief whose CR reached approved or implemented but checkGateFloor reports a violation
+    When the mission is checkpointed as reconciled forward
+    Then the ## NEXT anchor records the gate floor violation instead of declaring the plan retirement-ready
+
+  Scenario: a reconcile-forward checkpoint of a non-CR investigation requires no gate floor check
+    Given a plan brief whose mission opened no CR and invoked no gate
+    When the mission is checkpointed as reconciled forward
+    Then the checkpoint skips checkGateFloor and marks the plan complete on its own merits

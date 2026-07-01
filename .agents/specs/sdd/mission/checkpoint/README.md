@@ -39,8 +39,9 @@ rule, `../../common-governances/lifecycle/`).
 |---|---|---|
 | **checkpoint the mission** — pause / wrap up mid-mission | the live session state + the brief (scaffolded if absent) | each touched todo's `status` updated, the `## NEXT` anchor rewritten, the brief committed — the mission is resumable |
 | **approve on checkpoint** — a human clears a reviewed mission for headless dispatch (`--approve`) | the checkpoint + a human approve intent | the brief's top-level `status` is set to `approved`; a plain checkpoint leaves `status` unchanged |
+| **reconcile-forward checkpoint** — a later session finds the CR's work already merged (no live gate run this session) | the plan brief + the CR's ledger state | for a CR-bearing mission, verifies a `gate` ledger line exists before the plan is marked retirement-ready; a missing line is surfaced in `## NEXT`, never silently completed; a non-CR mission (no gate ever invoked) needs no ledger line |
 
-Every scenario in [`checkpoint.feature`](./checkpoint.feature) maps to one of these two entry points.
+Every scenario in [`checkpoint.feature`](./checkpoint.feature) maps to one of these three entry points.
 
 ## Checkpoint writes only the brief
 
@@ -64,6 +65,22 @@ has reviewed the mission and cleared it for the gateway's headless dispatch queu
 - **Brief-only, flag-only.** It writes the one frontmatter field; it does not dispatch the mission
   (that is `../../gateway/dispatch/`) and does not touch the run-level leash (approval says *run it*;
   the leash says *how far* — `../../design/provenance-model.md`).
+
+## Reconcile-forward checkpoint
+
+A checkpoint whose live state is "I found this CR's work already merged, not this session's own
+run" — the same write shape as an ordinary checkpoint, but its input is git/ledger evidence
+instead of a live conductor session. Scope is deliberately **narrow**: the `start-mission` escape
+hatch ("a non-CR writes no record") stays untouched — an investigation-only mission that opened
+no CR correctly needs no ledger line. Only a mission that **did** open a real CR and reach
+`approved`/`implemented` gets the guarantee: before marking such a plan retirement-ready, the
+checkpoint runs the existing mechanical gate floor
+(`spec-gate`'s `check-spec-state.mts` `checkGateFloor` — already wired into `verify:specs-new`,
+today it only fires when someone thinks to run that command) and treats a floor violation the
+same as a missing line. Finding the floor clean — done, mark it. Finding a violation — the
+`## NEXT` anchor records the gap explicitly; the plan is **not** declared retirement-ready on git
+evidence alone. This closes the gap where a reconciling session could mark a CR-bearing mission
+complete without ever running the check that would have caught it.
 
 ## Delivery
 

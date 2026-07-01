@@ -73,7 +73,7 @@ Resolution branches on role kind, and (for producers) on the **role-dependent su
   sdd:automaton`); a named plugin / model-tuned producer spawns that agent at its **own model
   and effort**.
 - **Judge, always** → the conductor **spawns a cold agent** in a fresh context
-  (`sdd:sdd-spec-judge` / `sdd:sdd-implementer`, or the covering plugin's judge) — never inline,
+  (`sdd:sdd-spec-judge` / `sdd:sdd-impl-judge`, or the covering plugin's judge) — never inline,
   regardless of naming.
 
 The lockfile itself need not exist: an **absent** `.agents/universal-plugin.json` is **legal** — it
@@ -105,7 +105,7 @@ inline in the main session** (the live grill); the **impl-producer runs in a spa
 | **spec-judge** | judges the contract | runs the domain bar on the `.feature` | nothing — advises | `sdd-spec-judge` — spawned cold |
 | **solution-producer** | records the solution | the per-unit decision record, **only when** the unit has durable rationale | `<unit>.solution.md` | conductor loads governance, authors **inline (in-session)** |
 | **impl-producer** | builds artifact + verification | the implementation **and** one verification per frozen scenario | code/docs/config **+** tests/evals | conductor **spawns a builder** that loads governance |
-| **impl-judge** | runs the verification | runs the producer's tests/evals + an orthogonal structural/scope read | nothing — advises | `sdd-implementer` — spawned cold |
+| **impl-judge** | runs the verification | runs the producer's tests/evals + an orthogonal structural/scope read | nothing — advises | `sdd-impl-judge` — spawned cold |
 
 The role-dependent surface — **the conductor writes the contract live, cold judges grade** — is the
 heart of the conductor-in-session model:

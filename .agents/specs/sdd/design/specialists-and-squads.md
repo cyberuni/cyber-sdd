@@ -49,7 +49,7 @@ A **producer** role may also name a model-tuned agent to run at its own model/ef
 | `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md` — the decision record: chosen approach + rejected alternatives) when a unit has durable rationale | **in-session** (persona) | the conductor loads `solution-producer-governance` and authors inline (`sdd:automaton`) |
 | `spec-judge` | judges the `.feature` at the spec gate | **spawned cold** | `sdd-spec-judge` — spawned cold agent |
 | `impl-producer` | builds the artifact **and** its verification | **spawned** | the conductor spawns a builder that loads `impl-producer-governance` (`sdd:automaton` marks the SDD-default chain) |
-| `impl-judge` | runs the verification against the frozen `.feature` | **spawned cold** | `sdd-implementer` — spawned cold agent |
+| `impl-judge` | runs the verification against the frozen `.feature` | **spawned cold** | `sdd-impl-judge` — spawned cold agent |
 
 **The conductor is the main session.** The conductor is the main (user) session; it holds the user channel and is the positional ratifier (`lifecycle-model.md`).
 It runs the **spec-producer** and **solution-producer** **inline** (recorded `produced-by.<role>: sdd:automaton`) because spec-producing *is* the live human grill, which must stay where the user channel lives.
@@ -128,7 +128,7 @@ Each entry declares one or more **squads**, each serving a **set of artifact-typ
 
 - **A spec/solution-producer role** that is `null` or absent → the conductor **loads the producer governance and authors inline** (in the main session); the recorded `produced-by.<role>` is `sdd:automaton`.
 - **An impl-producer role** that is `null` or absent → the conductor **spawns a builder** that loads `impl-producer-governance`; the recorded `produced-by.impl-producer` is `sdd:automaton` (the SDD-default-chain marker).
-- **A judge role** (`spec-judge`, `impl-judge`) that is `null` or absent → the conductor **spawns the SDD-default cold judge agent** (`sdd-spec-judge`, `sdd-implementer`).
+- **A judge role** (`spec-judge`, `impl-judge`) that is `null` or absent → the conductor **spawns the SDD-default cold judge agent** (`sdd-spec-judge`, `sdd-impl-judge`).
   A judge default is never loaded inline — grader independence requires a cold context.
 
 **Resolution** (owned by `../mission/`, shown here because the shape is its direct input): resolution is **per file** — each file's **artifact-type** (the squad key, **not** the folder name; resolved per `artifact-type.md`) is matched against each plugin's `squads[]`: the squad whose `artifact-types` contains it serves the file.

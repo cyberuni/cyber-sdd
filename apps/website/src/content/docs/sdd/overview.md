@@ -44,7 +44,7 @@ Each role resolves to a **plugin agent** (when a plugin covers the domain) or an
 | plan-producer | `plan-producer-governance` (Operator runs inline) | architect governance |
 | spec-judge | `sdd-spec-judge` (spawned cold) | oracle + builder + architect |
 | impl-producer | `impl-producer-governance` (Operator runs inline) | builder + architect |
-| impl-judge | `sdd-implementer` (spawned cold) | builder governance |
+| impl-judge | `sdd-impl-judge` (spawned cold) | builder governance |
 
 Plugins supply domain-aware roles: **ACES** for agent-configuration artifacts, **Quill** for documentation. The registry (`.agents/universal-plugin.json`) maps domain → plugin → role agents; the [plugin contract](#governances) defines the shape.
 

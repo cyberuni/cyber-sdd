@@ -288,11 +288,12 @@ Feature: The conductor — running one mission segment
 
   # ---- Stop-provenance — why I halted, not just why I went ----
 
-  Scenario: a run emits a durable strategy block at the start
+  Scenario: a run emits a durable leash block at the start
     Given a run starting before any exploration
     When the conductor evaluates the initial strategy
-    Then it writes a run-level strategy block carrying the leash and the approach
-    And the strategy block does not record the ceiling
+    Then it writes a run-level leash block carrying the leash and the approach
+    And the leash block is kind leash, not a strategy line
+    And the leash block does not record the ceiling
 
   Scenario: the leash is re-checked at each gate against discovered state
     Given a run-level leash set at the start

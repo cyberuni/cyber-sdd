@@ -18,12 +18,12 @@ Mid-flight working detail is per-mission and committed with the work, then remov
 | Tier | Home | Holds | Lifetime |
 |---|---|---|---|
 | **Private scratch — the plan** | `.agents/plans/<cr-ref>.plan.md` (brief) + `.agents/plans/<cr-ref>.log.jsonl` (**the combat log**) | grill analysis + task DAG + progress; the append-only `report` / `correction` lines + a **CR-scoped `seq`** | **transient in the tree, durable in history** — tracked, distilled then deleted at retro |
-| **Durable internal — the ledger** | `ledger.jsonl` sibling to the **root** `spec.md` | only `gate` (verdict + `frozen[]`) and `strategy` (incl. the distilled recurrence) | durable |
+| **Durable internal — the ledger** | `ledger.jsonl` sibling to the **root** `spec.md` | the conductor's run-start `leash` block, `gate` (verdict + `frozen[]`), and `strategy` (incl. the distilled recurrence) | durable |
 | **Durable public — the trail** | the CR source conclusion + changesets + git history | what shipped, for the outer loops to read forward | durable, external |
 
 **Naming (fleet metaphor).**
 The mid-flight `*.log.jsonl` is the **combat log** — the blow-by-blow of the mission while it is fought.
-The durable `ledger.jsonl` is the **ledger** — the sparse book of durable outcomes: the conductor **appends `gate`** lines to it directly at each gate, and the doctrine loop **distills `strategy`** lines into it from the combat log at retro.
+The durable `ledger.jsonl` is the **ledger** — the sparse book of durable outcomes: the conductor **appends its run-start `leash` block and `gate`** lines to it directly, and the doctrine loop **distills `strategy`** lines into it from the combat log at retro.
 "Combat log" always means the live per-mission log in the plan; "ledger" always means the durable sibling of the root `spec.md`.
 They are never the same file.
 
@@ -59,9 +59,9 @@ isProject: false                         # Cursor: always false — SDD has no C
   Anywhere the plan body or a conclusion references the CR, give the **URL** too, not just the ref.
 - **`status`** is the SDD **mission dispatch flag** — a **top-level, plan-scoped** enum, the go-signal the headless dispatch loop selects on:
   - `active` — the default (and the meaning of an **absent** `status`): the mission is in-progress or not-yet-cleared; the automaton does not pick it up on its own.
-  - `approved` — a human has **reviewed the brief** (todos, `## NEXT`, the strategy/leash) and **cleared it for headless dispatch**; the gateway's `dispatch` loop runs `approved` briefs first, one at a time (`../gateway/dispatch/README.md`).
+  - `approved` — a human has **reviewed the brief** (todos, `## NEXT`, the run-level leash) and **cleared it for headless dispatch**; the gateway's `dispatch` loop runs `approved` briefs first, one at a time (`../gateway/dispatch/README.md`).
 
-  The write is owned by `../mission/checkpoint/` (a human clearing the mission, e.g. `pause-mission --approve`); `discover-plans` **reports** it and `dispatch` **selects** on it, but neither sets it. It is **independent of the strategy leash**: `status: approved` says *run this mission*; the ratified `strategy` leash says *how far the automaton may self-assert on its own* — a tight leash simply makes an approved mission stop at its first gate and relay, which is safe.
+  The write is owned by `../mission/checkpoint/` (a human clearing the mission, e.g. `pause-mission --approve`); `discover-plans` **reports** it and `dispatch` **selects** on it, but neither sets it. It is **independent of the run-level leash**: `status: approved` says *run this mission*; the run-level `leash` block says *how far the automaton may self-assert on its own* — a tight leash simply makes an approved mission stop at its first gate and relay, which is safe.
 
   **Three distinct `status` fields, three scopes — do not conflate:** this **plan-level `status`** (`active | approved`, the *mission's* dispatch flag); each **todo's `status`** (`pending | in_progress | completed`, nested under a todo, a *task's* progress); and **`spec.md`'s `status`** (`draft | approved | implemented`, the *contract's* lifecycle, `lifecycle-model.md`). They share a word, not a scope; Cursor ignores the plan-level key, so the addition is safe.
 - **`name` / `overview` / `todos` / `isProject`** are Cursor's own fields — populate them as Cursor does so the plan stays first-class in both tools.
@@ -73,7 +73,7 @@ isProject: false                         # Cursor: always false — SDD has no C
 | Face | Home | Shape | Mutability | Holds |
 |---|---|---|---|---|
 | **Current-state** | `spec.md` frontmatter | `produced-by` (map by role) + `approval` (map by gate: `verdict` + `why`) | **overwritten** — last write wins | the authoritative *present*: who produced each artifact, and the **standing** verdict per gate (the latest CR's outcome) |
-| **Ledger** | sibling `ledger.jsonl` | one JSON object per line, appended in order | **immutable** — lines appended, never edited or removed | the durable *history*: every CR's `gate` verdict + `strategy`, in order (mid-flight detail lives in the plan) |
+| **Ledger** | sibling `ledger.jsonl` | one JSON object per line, appended in order | **immutable** — lines appended, never edited or removed | the durable *history*: every CR's run-start `leash` block + `gate` verdict + `strategy`, in order (mid-flight detail lives in the plan) |
 
 The current-state face answers *"who produced this, and what is the verdict now?"*
 The ledger answers *"what was decided to get here?"*
@@ -94,7 +94,7 @@ Outer-loop `strategy` lines (cross-CR by nature) may omit it.
 `ledger.jsonl` is **never frozen and never gated**: it keeps appending across the whole lifecycle, including while `spec.md` and the `.feature` are frozen at `approved`.
 The freeze and the gates govern the contract (`spec.md` + the `.feature`) only.
 
-Write flow: the conductor **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` / `halt` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** self-asserted `gate` lines to the durable `ledger.jsonl`.
+Write flow: the conductor **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` / `halt` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** its run-start `leash` block and self-asserted `gate` lines to the durable `ledger.jsonl`.
 These mid-flight lines are **flushed to the committed `*.log.jsonl` during the mission, not at the end** — the doctrine loop reads the committed log **post-merge** (the session and its transcripts may be gone, possibly on another machine), so an unflushed line is a lost line.
 At retro the doctrine-loop Scanner reads the concluded combat log, **distills** recurring causes, and **appends** `strategy` lines to the ledger.
 **Deletion is decoupled from distill** (Plan retirement, below): the distill fires at `→ implemented`; the **tracked deletion** of the plan is a separate, later retro step, gated on source = `done`/merged **and** distilled.
@@ -103,7 +103,7 @@ At retro the doctrine-loop Scanner reads the concluded combat log, **distills** 
 flowchart LR
   disp[conductor] -->|overwrites| state[current-state face<br/>spec.md frontmatter]
   disp -->|appends report/correction| clog[combat log<br/>plan *.log.jsonl, tracked]
-  disp -->|appends self-asserted gate| ledger[ledger.jsonl<br/>sibling file, durable]
+  disp -->|appends run-start leash + self-asserted gate| ledger[ledger.jsonl<br/>sibling file, durable]
   clog -->|read at retro| scanner[doctrine-loop Scanner]
   scanner -->|distills + appends strategy| ledger
   scanner -->|deletes later, gated| clog
@@ -158,10 +158,10 @@ The "never blocks" invariant is scoped to **availability**:
 
 One JSON object per line (JSON Lines).
 Every line carries a **CR-scoped `seq`** (append order *within its CR*, restarting per CR — never a global counter), a **write-time UTC `ts`**, an optional pseudonymous **`handle`**, and a `kind`.
-Five kinds, split by tier: **`report`**, **`correction`**, and **`halt`** are mid-flight → the **combat log** (the plan's `*.log.jsonl`); **`gate`** and **`strategy`** are durable → the slim `ledger.jsonl`.
+Six kinds, split by tier: **`report`**, **`correction`**, and **`halt`** are mid-flight → the **combat log** (the plan's `*.log.jsonl`); the conductor's run-start **`leash`** block, **`gate`**, and **`strategy`** are durable → the slim `ledger.jsonl`.
 
 A CR-scoped `seq` is collision-free under concurrency: one CR lives in exactly one worktree at a time (the source-claim lock, `../intake/README.md`), so two concurrent missions always hold different CRs and never mint the same `(cr, seq)`.
-The durable ledger receives only sparse `gate`/`strategy` lines, so its rare cross-tree appends reconcile by **union merge** (keep all lines — they are independent records, never contradictions); set `ledger.jsonl merge=union` in `.gitattributes`.
+The durable ledger receives only sparse `leash`/`gate`/`strategy` lines, so its rare cross-tree appends reconcile by **union merge** (keep all lines — they are independent records, never contradictions); set `ledger.jsonl merge=union` in `.gitattributes`.
 This append reconciliation is purely mechanical and **never** reaches the hard floor (which is for semantic frozen-scenario conflicts, not log appends).
 
 **Safe-to-publish-by-construction floor (committed-record rule).**
@@ -276,6 +276,20 @@ Where `approval` is overwritten by the next CR, the `gate` line preserves every 
 
 The `gate` line is the **load-bearing answer to G**: with no per-folder `status`/`approval`, the durable "CR approved + scenarios frozen" record is this ledger entry, not a sidecar and not a growing frontmatter block.
 
+### `leash` — the conductor's run-start autonomy block (ledger, durable)
+
+The durable record of the run's **initial strategy evaluation**: the conductor's autonomy bar for the mission, written once at run start (before exploration). It carries the run-level `leash` reach and the `approach[]` containment methods; it is **not** the Scanner's `strategy` and is **never** counted as pending strategy (it has no `ratified` field).
+
+```jsonl
+{"seq": 49, "ts": "2026-07-01T08:31:12Z", "kind": "leash", "cr": "disambiguate-strategy-kind", "leash": "auto-spec", "by": "user", "blast": "medium", "approach": ["no-spike", "worktree"]}
+```
+
+- **`leash`** — the run-level reach: `auto-none | auto-spec | auto-all` (`lifecycle-model.md`).
+- **`by`** — `derived` (the conductor assessed it) or `user` (user-specified).
+- **`blast`** — the assessed blast radius that set the reach.
+- **`approach[]`** — the containment methods (`no-spike`, `mocks`, `worktree`, …).
+- The ceiling is **not** recorded (session-local). The conductor writes this block; it never writes `strategy` (the Scanner's alone). Pre-rename historical run-start blocks appear as `kind: strategy` and are grandfathered (append-only ledger).
+
 ### `strategy` — the slot this contract shapes but does not write (ledger, durable)
 
 The Scanner records drafted strategy to the durable ledger.
@@ -295,7 +309,7 @@ Live current-state is regenerated on demand; the durable record is the ledger.
 
 ## Write ownership
 
-The mid-flight `report` / `correction` lines are appended to the **plan** (`*.log.jsonl`); the durable `gate` / `strategy` lines are appended to the **ledger** (`ledger.jsonl`).
+The mid-flight `report` / `correction` lines are appended to the **plan** (`*.log.jsonl`); the durable `leash` / `gate` / `strategy` lines are appended to the **ledger** (`ledger.jsonl`).
 No writer touches the ledger through `spec.md` frontmatter.
 Both are append-only: lines are added with the next CR-scoped `seq`, never edited or deleted.
 
@@ -303,6 +317,7 @@ Both are append-only: lines are added with the next CR-scoped `seq`, never edite
 |---|---|---|---|
 | **conductor** | `report`, `correction`, `halt` | the **plan** | strategy lines; human-ratified `gate` lines |
 | **conductor** | **self-asserted `gate`** (`by: agent`, same boundary as `produced-by` / a self-asserted `approval`) | the **ledger** | human-ratified `gate` lines |
+| **conductor** | run-start **`leash`** block (leash reach + `approach[]`, at run start) | the **ledger** | `strategy` lines |
 | **gate skill (`spec-gate`), in-session** | **human-ratified `gate`** (`by: <name>`) | the **ledger** | report / correction / strategy lines |
 | **doctrine-loop Scanner** | `strategy` (incl. distilled recurrence) | the **ledger** | report / correction / gate lines |
 | **producers / judges** | nothing | — | the entire record — they do not know their own registry identity authoritatively |
@@ -326,7 +341,7 @@ Forge reads the distilled `correction`-with-`cause` from the ledger; campaign / 
 |---|---|---|---|
 | `spec.md` | contract prose + standing current-state frontmatter | **never** (kept aligned) | yes |
 | `<name>.feature` | contract scenarios | **per file**, via its own `@frozen` tag, set on a spec-gate `approve` that touched it (see `lifecycle-model.md`) | yes |
-| `ledger.jsonl` (root sibling) | durable ledger — `gate` + `strategy` only (append-only, `merge=union`) | **never** | **never** |
+| `ledger.jsonl` (root sibling) | durable ledger — `leash` + `gate` + `strategy` only (append-only, `merge=union`) | **never** | **never** |
 
 The mid-flight **plan** (`.agents/plans/<cr-ref>.plan.md` + `.log.jsonl`) is **not** part of the spec folder: it is **tracked** per-worktree scratch (committed with the work, kept in the PR), removed from the tree at retro once distilled and its source is done/merged (ADR-0015).
 

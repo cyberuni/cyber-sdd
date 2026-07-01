@@ -39,7 +39,7 @@ The conductor's behavior groups into nine concerns, each a section below; every 
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
 | **in-flight floor** | detail-adjustment served in-session vs the three mission hard floors (Clearance / Compatibility / Conflict) that mandate a human stop |
-| **stop-provenance** | the three-layer model — strategy block, the leash, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
+| **stop-provenance** | the three-layer model — `leash` block, the leash reach, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
 
 ## Classification — a file's artifact-type
@@ -249,12 +249,14 @@ Autonomy and gate provenance use a **three-layer model** (rules in
 `../../design/autonomy-rubric.md` and `../../design/provenance-model.md`; this unit enacts it):
 
 1. **Initial strategy evaluation** (run start, before exploration) — assesses blast radius and the
-   other dimensions against the request and emits a durable run-level `strategy` block: `leash`
+   other dimensions against the request and emits a durable run-level `kind: leash` block: `leash`
    (the run's reach), `by: derived | user`, and `approach[]` (containment methods — `no-spike`,
    `mocks`, `worktree`). It **may be user-specified** rather than derived. The ceiling is **not**
-   recorded (session-local).
+   recorded (session-local). The block is `kind: leash`, **not** `strategy` — `strategy` is the
+   Scanner's Council-decidable recommendation alone (`../../doctrine/scanner/`), and the conductor
+   never writes it.
 2. **The leash** — the run-level reach (`auto-none | auto-spec | auto-all`), **re-checked at each
-   gate** against discovered state; it lives in `strategy`, never inside a per-gate entry.
+   gate** against discovered state; it lives in the `leash` block, never inside a per-gate entry.
    Effective reach = `min(ceiling, derived)`.
 3. **The per-gate verdict** — `approval`, a map keyed by gate (`spec`, `impl`). Each entry:
    `verdict: approve | pause | reject`, `by` (on approve/reject; **omitted on pause** — a pause is

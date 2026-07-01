@@ -79,6 +79,12 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Then the Scanner is the writer
     And the conductor and producers never write strategy
 
+  Scenario: the conductor's run-start leash block is kind leash, not strategy
+    Given the conductor's run-start block carrying the leash and the approach
+    When it is appended to the ledger
+    Then it is kind leash, not kind strategy
+    And it does not collide with the Scanner's strategy nor count toward pending strategy
+
   Scenario: the Scanner observes a terminal transition but never writes status
     Given a terminal lifecycle transition written by the impl gate or the deprecation path
     When the Scanner reacts to it

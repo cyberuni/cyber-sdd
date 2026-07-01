@@ -16,9 +16,10 @@ loaded by the conductor, spec-gate, and the doctrine-loop Scanner; invariant per
   `plugins/sdd-new/skills/combat-log-governance/` (a fixed-universal SDD governance —
   `../../design/governance-resolution.md`).
 - **Contract surface** — the two-face record (current-state frontmatter + append-only ledger), the
-  five entry kinds (`report` / `correction` / `halt` → the combat log; `gate` / `strategy` → the ledger), the
-  CR-scoped `seq`, the write-time UTC `ts`, the pseudonymous `handle`, the matchable `cause` enum, and
-  the safe-to-publish floor.
+  six entry kinds (`report` / `correction` / `halt` → the combat log; `leash` / `gate` / `strategy` →
+  the ledger — the conductor writes `leash` + self-asserted `gate`, the Scanner alone writes
+  `strategy`), the CR-scoped `seq`, the write-time UTC `ts`, the pseudonymous `handle`, the matchable
+  `cause` enum, and the safe-to-publish floor.
 - **Conformance** — verified through consumer suites (conductor + spec-gate + Scanner), never by
   this artifact itself. A reference artifact carries this `## Subject` in place of `## Use Cases` +
   a `.feature`.

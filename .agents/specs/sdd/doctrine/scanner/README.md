@@ -42,6 +42,7 @@ Every scenario in [`scanner.feature`](./scanner.feature) maps to one of these be
 | **Token-waste** | a flagged-waste `correction`, or session cost over a configurable bound, drafts efficiency strategy |
 | **not per-gate** | a single gate passing without a terminal transition is **not** a trigger — the Scanner drafts nothing |
 | **sole writer of strategy** | the Scanner is the only writer of `strategy`; the conductor and producers never write it |
+| **leash block is not strategy** | the conductor's run-start block is `kind: leash`, never `strategy`; it does not collide with the Scanner's `strategy` nor count toward pending strategy |
 | **observe, not write status** | the Scanner reacts to a terminal transition written elsewhere; it never writes `status` |
 | **post-hoc persisted inputs** | the Scanner reads persisted files after a mission ends, never live subagent context |
 | **draftable from the combat log alone** | every categorical dimension is draftable from the committed log; transcripts are additive, never required |

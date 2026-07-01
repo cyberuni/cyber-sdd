@@ -14,7 +14,7 @@ stands on its own — `resume-mission` is one convenient reader).
 
 This node also owns the **approve-on-checkpoint** act: clearing a mission for headless dispatch by
 setting the brief's top-level **`status: approved`**. Approval is a **human review act** — a person
-reviews the brief (todos, `## NEXT`, the strategy/leash) and clears it — recorded onto the brief as
+reviews the brief (todos, `## NEXT`, the run-level leash) and clears it — recorded onto the brief as
 it is checkpointed (`pause-mission --approve`). The flag it writes is the go-signal the gateway's
 `../../gateway/dispatch/` loop selects on; the enum + the three-way `status` distinction are owned by
 `../../design/provenance-model.md`.
@@ -62,7 +62,7 @@ has reviewed the mission and cleared it for the gateway's headless dispatch queu
 - **Plain checkpoint does not approve.** A checkpoint without the approve intent leaves `status`
   untouched (an unset `status` stays unset, i.e. `active`).
 - **Brief-only, flag-only.** It writes the one frontmatter field; it does not dispatch the mission
-  (that is `../../gateway/dispatch/`) and does not touch the strategy leash (approval says *run it*;
+  (that is `../../gateway/dispatch/`) and does not touch the run-level leash (approval says *run it*;
   the leash says *how far* — `../../design/provenance-model.md`).
 
 ## Delivery

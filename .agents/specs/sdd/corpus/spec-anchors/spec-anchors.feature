@@ -1,3 +1,4 @@
+@frozen
 Feature: The spec-anchors config — declare and curate the extra anchors discovery scans
   Unit suite for the spec-anchors config and its curation engine (manage-spec-anchors). The config
   format, listing fixed + custom anchors, CRUD over the custom ones, inducing a pattern from a sample
@@ -66,6 +67,16 @@ Feature: The spec-anchors config — declare and curate the extra anchors discov
     When the engine validates it
     Then it is rejected and the config on disk is unchanged
 
+  Scenario: removing an anchor absent from the config changes nothing
+    Given a config that does not contain a given anchor
+    When the engine removes that anchor
+    Then it reports that nothing was removed and the config on disk is unchanged
+
+  Scenario: editing a custom anchor to a malformed pattern is rejected
+    Given a config containing a custom anchor
+    When the engine edits it to a malformed pattern
+    Then the edit is rejected and the config on disk is unchanged
+
   # ── Induce a pattern from a sample path ──
 
   Scenario: induce offers a literal directory candidate for a sample path
@@ -78,6 +89,11 @@ Feature: The spec-anchors config — declare and curate the extra anchors discov
     When the engine induces anchor patterns
     Then a candidate replacing that segment with a <project> capture token is offered
 
+  Scenario: induce rejects a sample path that does not resolve inside the repo
+    Given a sample path that does not exist under the repo root
+    When the engine induces anchor patterns
+    Then it reports the path as unusable and offers no candidate
+
   # ── Preview a pattern's effect ──
 
   Scenario: preview lists the projects a candidate pattern would match
@@ -89,6 +105,16 @@ Feature: The spec-anchors config — declare and curate the extra anchors discov
     Given a candidate anchor pattern being previewed
     When the engine previews it
     Then the config on disk is unchanged
+
+  Scenario: preview of a pattern that matches no spec reports an empty match
+    Given a candidate anchor pattern that matches no spec on disk
+    When the engine previews the pattern
+    Then it reports that the pattern matches no project
+
+  Scenario: preview rejects a malformed candidate pattern
+    Given a malformed candidate anchor pattern
+    When the engine previews it
+    Then it reports the pattern as invalid and lists no matches
 
   # ── Boundaries — writes only the config, never spec content ──
 

@@ -1,3 +1,4 @@
+@frozen
 Feature: The manage dispatcher — classify a manage-level request and load the engine in-session
   Unit suite for the manage unit (the manage skill). Classification + loading the matching
   engine only — manage holds no production logic, opens no CR, invokes no gate, and writes no
@@ -43,7 +44,7 @@ Feature: The manage dispatcher — classify a manage-level request and load the 
     When manage classifies it
     Then it loads the plan-retirement engine in the current session
 
-  Scenario: a request to curate the spec anchors loads manage-spec-anchors
+  Scenario: a housekeeping request to curate the spec anchors loads manage-spec-anchors
     Given a request to list or change discovery's extra spec anchors
     When manage classifies it
     Then it loads the manage-spec-anchors engine in the current session

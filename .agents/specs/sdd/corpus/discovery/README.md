@@ -49,6 +49,11 @@ Recognition is **location-bounded and shape-confirmed** — both must hold:
   stray file by accident); and a status-bearing `spec.md` at a path that is **neither** a fixed
   convention **nor** a declared extra anchor is not discovered either.
 
+**Fail-safe on the config.** The extra-anchor config is read defensively: an **unreadable or
+malformed** `.agents/sdd/spec-anchors.toml` yields **no** extra anchors — discovery falls back to the
+three fixed conventions (with a warning) rather than crash. Because the gateway scans discovery on
+every entry, a hand-corrupted config must never break that hot path (ADR-0019).
+
 The lifecycle-`status` convention and the fixed spec-location set are owned by
 [`../../design/`](../../design/) (ADR-0017); the extra-anchor override is owned by ADR-0019 and the
 [`spec-anchors`](../spec-anchors/README.md) node. Discovery's consumers defer to them rather than

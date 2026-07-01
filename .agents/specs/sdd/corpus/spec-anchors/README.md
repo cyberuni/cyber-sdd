@@ -61,12 +61,13 @@ anchors = [
 | `<project-path>/.agents/spec/` | fixed | a nested project's hoisted spec, at any depth |
 | *(each config entry)* | custom | whatever the declared pattern matches |
 
-## Resilience — a bad config never breaks discovery
+## Resilience — validate on write
 
-Curation validates a pattern **before** it is written, so a malformed entry is not persisted through
-the skill. Discovery itself is **fail-safe**: an unreadable or malformed `spec-anchors.toml` is
-ignored with a warning and discovery falls back to the three fixed conventions, so the gateway's
-status scan never crashes on a hand-corrupted config.
+Curation **validates a pattern before it is written**, so a malformed entry is not persisted through
+the skill (a bad pattern to add, or an edit to a malformed pattern, is rejected and the config on
+disk is unchanged). The complementary **read-side** guarantee — that an already-corrupted
+`spec-anchors.toml` never breaks discovery's scan — is owned by [`../discovery/`](../discovery/README.md)
+(it ignores an unreadable/malformed config and falls back to the fixed conventions), not by this node.
 
 ## Delivery
 

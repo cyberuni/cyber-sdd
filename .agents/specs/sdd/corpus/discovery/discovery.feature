@@ -1,3 +1,4 @@
+@frozen
 Feature: The discovery procedure — find specs at the SDD spec locations, named and resolvable
   Unit suite for the discovery tool (the discover-specs engine). Locating specs at the three fixed
   SDD spec locations PLUS any extra anchors declared in the project's spec-anchors config, confirming
@@ -30,8 +31,8 @@ Feature: The discovery procedure — find specs at the SDD spec locations, named
     When discovery lists the specs
     Then that file is excluded from the set
 
-  Scenario: a status-bearing spec.md outside the three locations is not discovered
-    Given a git-tracked spec.md carrying a lifecycle status that sits outside the three spec locations
+  Scenario: a status-bearing spec.md at neither a fixed convention nor a declared extra anchor is not discovered
+    Given a git-tracked spec.md carrying a lifecycle status at a path that is neither one of the three fixed conventions nor a declared extra anchor
     When discovery lists the specs
     Then that file is excluded from the set
 
@@ -123,6 +124,11 @@ Feature: The discovery procedure — find specs at the SDD spec locations, named
     Given a discovered spec.md at an extra anchor whose frontmatter declares a name
     When discovery lists the specs
     Then the entry carries that name with name-source "declared"
+
+  Scenario: an unreadable or malformed spec-anchors config is ignored and discovery falls back to the fixed conventions
+    Given an unreadable or malformed .agents/sdd/spec-anchors.toml
+    When discovery lists the specs
+    Then it yields no extra anchors and still finds the specs at the three fixed conventions
 
   # ── Agentic — judged by hand / by ACES (assert agent behavior, not script output) ──
 

@@ -54,3 +54,20 @@ split worth pinning so readers don't take them for different things:
 Same concept; "bar" is ownership-side, "lens" is application-side. Canonical definition:
 `design/actors-governance.md`. (Maps to the motive-model's **Bar** —
 `motive-model/glossary.md`.)
+
+## `corpus` vs `project-spec` vs `node` — three nested levels
+
+Not an old→new rename — a **within-new-SDD** vocabulary split, pinned so the three are never
+conflated (the old "one frozen spec per feature" fleet blurred them):
+
+| Level | Is | Filesystem |
+|---|---|---|
+| **corpus** | the *collection* of project-specs in a repo (**NOUN only**) | `.agents/specs/` |
+| **project-spec** | one project's whole durable spec — one `spec.md`, one suite, one gate/freeze | `.agents/specs/<project>/` |
+| **node** | one unit's `spec.md` (+ `.feature`) inside a project-spec | `…/<capability>/<unit>/` |
+
+`corpus ⊃ project-spec ⊃ node`. **Operations are named by the level they act upon** — an op over one
+project-spec is *project-spec-level*, an op across projects is *corpus-level*; "corpus" never becomes
+a verb or an operation prefix. This is why `corpus/discovery` (ranges across projects) keeps its name
+while the intra-spec engines live under `project-spec/`. Canonical definition:
+`design/spec-structure.md`. Decision: [ADR-0019](../../../artifacts/adr/0019-name-the-three-spec-levels.md).

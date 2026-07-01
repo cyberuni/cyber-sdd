@@ -2,7 +2,7 @@
 Feature: The spec-producer procedure — grill a CR into spec prose + a boolean suite
   Unit suite for the spec-producer-governance procedure (the producer unit). Producer
   behaviors only — no gate verdict, freeze, or digest scenarios (those are
-  ../validate-spec/validate-spec.feature's).
+  ../spec-gate/spec-gate.feature's).
 
   # ---- Modes — create / revise / backfill ----
 
@@ -17,6 +17,12 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it interrogates the existing content and tightens what is weak or stale
     And it scaffolds no new capability skeleton
 
+  Scenario: revise adds scenarios for new behavior and retires them for removed behavior
+    Given a revise that adds some behavior and removes other behavior
+    When the spec-producer updates the suite
+    Then it adds scenarios for the new behavior
+    And it retires the scenarios for the removed behavior
+
   Scenario: backfill skips the up-front grill and reads the existing implementation
     Given a CR whose behavior already exists in code
     When the spec-producer runs in backfill mode
@@ -30,10 +36,20 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     When the prose contract is still unsettled
     Then the producer makes no scenario edits until the prose is settled
 
+  Scenario: the producer scans all issues and summarizes them before resolving any
+    Given a CR with several distinct issues
+    When the producer begins grilling
+    Then it scans the issues holistically and summarizes them before resolving any single one
+
   Scenario: the producer takes one issue to resolution before the next
     Given the producer has summarized several issues in the CR
     When it works them
     Then it resolves the single most important issue before starting another
+
+  Scenario: grilling that reveals a bundle of several recommends a split
+    Given a CR under grilling that reveals a bundle of several distinct units
+    When the producer recognizes the bundle
+    Then it recommends a split rather than growing one node into a monolith
 
   Scenario: a missing required input becomes an open marker, not an invention
     Given the producer needs an input that is missing and cannot be inferred
@@ -62,8 +78,30 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it writes the spec.md body and the .feature scenarios
     And it does not write the status, project-path, approval, or produced-by frontmatter
 
+  Scenario: the producer leaves no placeholder in its output
+    Given the spec-producer authoring a diff
+    When it writes its output
+    Then it leaves no TBD, TODO, or empty section
+
   Scenario: scoring lingo is confined to a tagged rubric scenario
     Given the producer writes a gradient behavior that needs a rubric
     When it authors the scenario
     Then the rubric form never appears in an untagged scenario
     And every untagged scenario stays a pure boolean assertion
+
+  Scenario: the producer self-checks the authored feature form before returning
+    Given the spec-producer has authored a .feature
+    When it finishes writing the suite
+    Then it runs the mechanical feature-form check over the authored file
+    And it does not report complete while a form violation remains
+
+  Scenario: the producer fixes a hedge word the self-check flags
+    Given the producer's authored .feature has a hedge adverb in a Then step
+    When the mechanical form check flags the non-boolean step
+    Then the producer rewrites the step to a boolean assertion before returning
+
+  Scenario: the producer reports complete when the self-check finds no violation
+    Given the producer's authored .feature is well formed
+    When the mechanical form check runs over it
+    Then the check reports no violation
+    And the producer reports complete

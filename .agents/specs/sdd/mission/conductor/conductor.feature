@@ -81,6 +81,13 @@ Feature: The conductor — running one mission segment
     Then the conductor halts with a structural error
     And it records no inline sentinel for the missing role
 
+  Scenario: a resolved producer that recuses falls back to the SDD default
+    Given a resolved producer that recuses from a subject as outside its domain
+    When the conductor runs the chain for that unit
+    Then it re-resolves that unit's chain to the SDD-default producer, bars, and judge
+    And it does not halt with a structural error
+    And it records the recusal as a combat-log line
+
   Scenario: a domain claimed by two plugins asks before proceeding
     Given an artifact-type claimed by two plugins
     When the conductor resolves that role
@@ -205,9 +212,9 @@ Feature: The conductor — running one mission segment
     Then it fixes the code against the frozen feature
     And the frozen feature is not modified
 
-  Scenario: a Director-lens revert unfreezes the feature back to draft
+  Scenario: an Oracle-lens revert unfreezes the feature back to draft
     Given building proves a frozen scenario fatal
-    When the conductor takes a Director-lens revert at the impl gate
+    When the conductor takes an Oracle-lens revert at the impl gate
     Then the frozen feature is unfrozen
     And the spec returns to draft
 
@@ -221,6 +228,11 @@ Feature: The conductor — running one mission segment
     When the cold impl-judge runs
     Then it reports that scenario failing
     And status does not advance to implemented
+
+  Scenario: an unresolved open marker blocks the impl-gate advance
+    Given an unresolved open marker at the impl gate
+    When the conductor evaluates the impl gate
+    Then status does not advance to implemented
 
   Scenario: the impl layer is not checked at the spec gate
     Given the conductor is at the spec gate
@@ -292,6 +304,12 @@ Feature: The conductor — running one mission segment
     Given a gate the conductor self-asserts within leash
     When it writes the verdict
     Then the entry carries verdict approve, by agent, and a why
+
+  Scenario: a gate outside the leash is not self-asserted
+    Given a gate whose derived reach falls outside the run-level leash
+    When the conductor evaluates the verdict
+    Then it does not self-assert approval
+    And it stops and emits a verdict packet for the human
 
   Scenario: a pause omits by and still carries a durable why
     Given the conductor halts at a gate

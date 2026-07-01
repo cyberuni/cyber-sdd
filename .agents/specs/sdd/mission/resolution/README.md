@@ -86,6 +86,6 @@ disambiguation; its `node:test` is the deterministic oracle for every scenario b
 
 ## Source
 
-- new — no prior `plugins/sdd/` impl. The matching logic first lived inside `validate-spec/scripts/`;
+- new — no prior `plugins/sdd/` impl. The matching logic first lived inside `spec-gate/scripts/`;
   this CR extracted it into the `resolve-governances` skill (consumed by the conductor and both cold
   judges) and narrowed it from a precedence-applying composer to a tier-bucketing matcher (ADR-0018).

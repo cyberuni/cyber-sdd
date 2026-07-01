@@ -25,9 +25,9 @@ Quill fills these `sdd-operator` production-chain roles for its domain types:
 
 | Role | Agent |
 |---|---|
-| spec-producer | `quill-writer` |
+| spec-producer | `quill-spec-writer` |
 | impl-producer | `quill-doc-writer` |
-| impl-judge | `quill-implementer` |
+| impl-judge | `quill-judge` |
 | spec-judge | SDD default `sdd-spec-judge` (spawned cold) |
 | plan-producer | SDD default (`plan-producer-governance`, run inline) |
 
@@ -43,9 +43,9 @@ Register by running `init-quill` in a project that uses `sdd-operator`.
 
 | Agent | Role |
 |---|---|
-| `quill-writer` | spec-producer — writes the spec.md body and the boolean `.feature` for doc domains |
+| `quill-spec-writer` | spec-producer — writes the spec.md body and the boolean `.feature` for doc domains |
 | `quill-doc-writer` | impl-producer — writes the documentation **and its per-scenario acceptance checks** against the frozen `.feature` |
-| `quill-implementer` | impl-judge — **runs** the producer's acceptance checks (static inspection) per frozen scenario |
+| `quill-judge` | impl-judge — **runs** the producer's acceptance checks (static inspection) per frozen scenario |
 
 ## Installation
 

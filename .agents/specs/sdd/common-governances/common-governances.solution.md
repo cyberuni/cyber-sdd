@@ -50,10 +50,10 @@ done?` mirror to merge or split. So each is **one skill**, not an `(actor, gate)
 
 | bar | model home (`design/`) | reference node | skill | verified through |
 |---|---|---|---|---|
-| lifecycle | `lifecycle-model.md` (schema / status / transitions / freeze) | `common-governances/lifecycle/` | `lifecycle-governance` | `validate-spec.feature` |
-| ownership | `provenance-model.md` | `common-governances/ownership/` | `ownership-governance` | validate-spec + producer/judge suites |
-| combat-log | `provenance-model.md` | `common-governances/combat-log/` | `combat-log-governance` | conductor + validate-spec + Scanner suites |
-| gate-validation | `lifecycle-model.md` (two gates / derived sync / legal-state tuples / gate accountability) | `common-governances/gate-validation/` | `gate-validation-governance` | `validate-spec.feature` |
+| lifecycle | `lifecycle-model.md` (schema / status / transitions / freeze) | `common-governances/lifecycle/` | `lifecycle-governance` | `spec-gate.feature` |
+| ownership | `provenance-model.md` | `common-governances/ownership/` | `ownership-governance` | spec-gate + producer/judge suites |
+| combat-log | `provenance-model.md` | `common-governances/combat-log/` | `combat-log-governance` | conductor + spec-gate + Scanner suites |
+| gate-validation | `lifecycle-model.md` (two gates / derived sync / legal-state tuples / gate accountability) | `common-governances/gate-validation/` | `gate-validation-governance` | `spec-gate.feature` |
 
 - Each `common-governances/<name>/README.md` is a `spec-type: reference` node (`## Subject`, no
   `.feature`), **thin** — it names the bar's surface and points to its `design/` model; the model is

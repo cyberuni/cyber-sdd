@@ -1,16 +1,20 @@
 ---
 spec-type: behavioral
-concept: corpus-structure
+concept: spec-structure
 ---
 
 # discovery — find specs at the SDD spec locations, named and resolvable
 
-The **discovery** procedure: locate the project specs in a repo at the **three SDD spec
-locations**, confirmed by their **status shape**, each carrying a **project name** so a consumer can
-resolve a name → spec. A spec is a git-tracked `spec.md` that sits at one of the three locations
-**and** carries a frontmatter `status` in the lifecycle enum. The locations are **fixed
-conventions**, not a hardcoded registry: no array or index of paths is ever consulted — discovery is
-a **pure derivation**, so no second place can drift. The concrete engine is the
+The **discovery** procedure: locate the project specs in a repo at the **three fixed SDD spec
+locations** — **plus any extra anchors the project declares** in its
+[`spec-anchors`](../spec-anchors/README.md) config — confirmed by their **status shape**, each
+carrying a **project name** so a consumer can resolve a name → spec. A spec is a git-tracked
+`spec.md` that sits at one of the three fixed conventions **or** at a declared extra anchor **and**
+carries a frontmatter `status` in the lifecycle enum. The three conventions are always scanned and
+need no registry; **extra anchors are an opt-in override** for projects whose specs live
+off-convention, read from a persistent config (`.agents/sdd/spec-anchors.toml`). That config is a
+declared second source that can drift, so it is opt-in and **curated** through the `spec-anchors`
+manage skill rather than derived. The concrete engine is the
 [`discover-specs`](../../../plugins/sdd-new/skills/discover-specs/) skill, which parses each spec's
 frontmatter only and emits the list as TOON.
 
@@ -19,7 +23,7 @@ frontmatter only and emits the list as TOON.
 **Subject** — deriving the set of named project specs in a repo, and resolving a name to one of them.
 **Non-goals** — it reads no runtime behavior, owns no lifecycle state, never reads spec bodies
 (frontmatter only), and never writes. It locates specs; it does not summarize them (that is
-`digest`) or compare them (that is `dedupe-specs`).
+`digest`) or audit their node-shape (that is `../../project-spec/check-spec-structure/`).
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
@@ -32,17 +36,28 @@ Every scenario in [`discovery.feature`](./discovery.feature) maps to one of thes
 
 Recognition is **location-bounded and shape-confirmed** — both must hold:
 
-- **Location** — the `spec.md` sits at one of the three SDD spec locations:
+- **Location** — the `spec.md` sits at one of the three fixed SDD spec locations, **or** at an extra
+  anchor the project declared in its `spec-anchors` config:
   1. `.agents/spec/spec.md` — repo-root single-project
   2. `.agents/specs/<project>/spec.md` — repo-root multi-project
   3. `<project-path>/.agents/spec/spec.md` — a nested project (the `**` is the project-path, any depth)
-- **Shape** — its frontmatter `status` is in the lifecycle enum. A `spec.md` at a spec location with
-  no lifecycle `status` is **not** a spec (so the scan never grabs a stray file by accident); and a
-  status-bearing `spec.md` **outside** the three locations is not discovered either.
+  4. **extra anchors** — each entry in `.agents/sdd/spec-anchors.toml`, a repo-relative pattern that
+     may carry a `<project>` capture token; **opt-in and additive** (absent config ⇒ only 1–3 are
+     scanned, so today's behavior is unchanged).
+- **Shape** — its frontmatter `status` is in the lifecycle enum. A `spec.md` at *any* recognized
+  location (fixed or extra) with no lifecycle `status` is **not** a spec (so the scan never grabs a
+  stray file by accident); and a status-bearing `spec.md` at a path that is **neither** a fixed
+  convention **nor** a declared extra anchor is not discovered either.
 
-The lifecycle-`status` convention and the spec-location set are owned by
-[`../../design/`](../../design/) (ADR-0017); discovery's consumers defer to them rather than restate
-them.
+**Fail-safe on the config.** The extra-anchor config is read defensively: an **unreadable or
+malformed** `.agents/sdd/spec-anchors.toml` yields **no** extra anchors — discovery falls back to the
+three fixed conventions (with a warning) rather than crash. Because the gateway scans discovery on
+every entry, a hand-corrupted config must never break that hot path (ADR-0019).
+
+The lifecycle-`status` convention and the fixed spec-location set are owned by
+[`../../design/`](../../design/) (ADR-0017); the extra-anchor override is owned by ADR-0019 and the
+[`spec-anchors`](../spec-anchors/README.md) node. Discovery's consumers defer to them rather than
+restate them.
 
 ## Project name and its source
 
@@ -53,10 +68,11 @@ flags how trustworthy it is — because a project's name is not always derivable
   `../../authoring/backfill-project-spec/`). Required in practice for a **nested** project, whose
   folder may not be the name the user uses (a `package.json` name, an acronym, …).
 - **`derived`** — reliably inferred: the repo-root single-project (`.agents/spec`) takes the
-  assumable name `repo`; a `.agents/specs/<project>` folder names itself.
-- **`guessed`** — a nested project with no declared name falls back to its folder **basename** (e.g.
-  `pkg-a` from `packages/pkg-a/.agents/spec`); a consumer should **confirm** a guessed name with the
-  user before relying on it.
+  assumable name `repo`; a `.agents/specs/<project>` folder names itself; an extra anchor whose
+  pattern carries a `<project>` capture token names the spec from the **captured segment**.
+- **`guessed`** — a nested project (or an extra anchor with no `<project>` token) with no declared
+  name falls back to its folder **basename** (e.g. `pkg-a` from `packages/pkg-a/.agents/spec`); a
+  consumer should **confirm** a guessed name with the user before relying on it.
 
 ## The deterministic / agentic split
 
@@ -84,3 +100,7 @@ the agent-config impl-judge. The node and its engine carry different names (capa
 - new — no prior `plugins/sdd/` impl. First implemented under `plugins/sdd-new/` in the
   `discover-specs` CR, which also narrowed spec recognition from "any `spec.md` with a
   status, anywhere" to the three location-bounded patterns (ADR-0017).
+- extended (GitHub #39, ADR-0019) — recognition widened from the three fixed conventions alone to
+  those **plus** the opt-in extra anchors declared in `spec-anchors` config; the earlier
+  "consults no path registry / pure derivation" invariant is superseded for the extra-anchor case
+  (the config *is* a declared registry), curated through the `spec-anchors` manage skill.

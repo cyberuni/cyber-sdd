@@ -17,9 +17,21 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     Then it spikes against the draft feature to probe the contract
     And the ship-quality impl-judge does not run
 
+  Scenario: implement mode against a non-frozen feature does not build to keep
+    Given a feature that is not frozen
+    When implement mode is requested
+    Then the impl-producer does not build to keep against it
+    And it does not treat the unfrozen feature as the fixed bar
+
   Scenario: an explore discovery returns as a content gap, not a contract edit
     Given the impl-producer spiking in explore mode
     When it finds the chosen solution needs a behavior the feature omits
+    Then it returns the discovery as a content gap
+    And it writes nothing into spec.md or the feature
+
+  Scenario: an explore discovery that contradicts the contract returns as a content gap
+    Given the impl-producer spiking in explore mode
+    When it finds the chosen solution contradicts a behavior the feature specifies
     Then it returns the discovery as a content gap
     And it writes nothing into spec.md or the feature
 
@@ -58,6 +70,11 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     When the impl-producer completes
     Then it reports the missing verification rather than fabricating a passing check
 
+  Scenario: a partially-verifiable frozen scenario reports the unverified part as a gap
+    Given a frozen scenario only part of which the build can verify
+    When the impl-producer completes
+    Then it reports the unverified part as a gap rather than claiming full verification
+
   Scenario: a rubric or threshold stays out of the feature
     Given a scenario whose verification uses a rubric or threshold
     When the impl-producer authors that verification
@@ -85,3 +102,8 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     When the conductor runs it
     Then it runs in a spawned builder that loads the governance
     And the artifact is recorded as produced by the conductor
+
+  Scenario: a plugin impl-producer runs at its own model and effort
+    Given a plugin-bound impl-producer role
+    When the conductor runs it
+    Then it runs in a spawned builder at the plugin's own model and effort

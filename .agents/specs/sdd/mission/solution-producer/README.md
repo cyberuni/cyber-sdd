@@ -34,7 +34,7 @@ The procedure runs in the cases below; every scenario in
 |---|---|---|
 | **a unit has a real design fork** — a non-obvious approach chosen over plausible alternatives | the unit's spec + suite + the design reasoning from the grill | `<unit>.solution.md` recording the chosen approach **and** the rejected alternatives with why |
 | **a unit has no durable rationale** — the shape follows directly from the spec | the unit's spec + suite | **no** solution file is written (the optional facet stays absent) |
-| **a revise touches a unit whose solution already exists** | the existing solution + the new reasoning | the solution is tightened in place; it is never frozen and carries no gate |
+| **a revise touches a unit whose solution already exists** | the existing solution + the new reasoning | the solution is tightened in place; if the revise leaves no remaining design fork, the file is **removed**; it is never frozen and carries no gate |
 
 ## What the solution records — and what it must not
 

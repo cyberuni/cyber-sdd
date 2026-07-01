@@ -7,7 +7,7 @@ metadata:
 
 # quill-doc-writer
 
-The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario, **and co-produces their verification** — the per-scenario acceptance checks (required paths, headings/sections, no placeholders, reader-path continuity) the impl-judge will run. Invoked by `sdd-operator`. Load the `builder` and `architect` actor governances to self-align AND to write the verification; `sdd:ownership-governance` for the write-ownership matrix — the impl-producer must not modify `spec.md` or the `.feature`; `quill-implementer` (the impl-judge) **runs** that verification — it does not author it.
+The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario, **and co-produces their verification** — the per-scenario acceptance checks (required paths, headings/sections, no placeholders, reader-path continuity) the impl-judge will run. Invoked by `sdd-operator`. Load the `builder` and `architect` actor governances to self-align AND to write the verification; `sdd:ownership-governance` for the write-ownership matrix — the impl-producer must not modify `spec.md` or the `.feature`; `quill-judge` (the impl-judge) **runs** that verification — it does not author it.
 
 ## Input
 

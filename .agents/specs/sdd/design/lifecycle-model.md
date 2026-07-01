@@ -63,8 +63,8 @@ There is **no `aligned` field** (ADR-0017): contract-sync (`spec.md` ↔ `.featu
 ```mermaid
 stateDiagram-v2
     [*] --> draft: start-mission (new or backfill)
-    draft --> approved: spec gate (validate-spec --target spec)
-    approved --> implemented: impl gate (validate-spec --target impl)
+    draft --> approved: spec gate (spec-gate --target spec)
+    approved --> implemented: impl gate (spec-gate --target impl)
     approved --> draft: behavior change (re-open)
     implemented --> draft: behavior change (re-open)
     draft --> deprecated: Oracle-lens kill (scope)
@@ -109,7 +109,7 @@ in-flight segment is the open plan todo plus the unfrozen `.feature` it touches.
 
 ## Legal-state tuples
 
-The mechanical authority is `validate-spec/scripts/check-spec-state.mts` — run it to enforce; if `node` is unavailable, apply the same rules by reading frontmatter.
+The mechanical authority is `spec-gate/scripts/check-spec-state.mts` — run it to enforce; if `node` is unavailable, apply the same rules by reading frontmatter.
 The `(status, markers, .feature, approval)` tuple is **illegal** when:
 
 - `status: approved` with no `.feature` — a spec requires a frozen `.feature` to be approved.
@@ -135,13 +135,19 @@ If `check-spec-state.mts` changes, this list follows it — the script is the so
 - `spec-type: reference` with no `## Subject` section — illegal (the reference descriptor is required).
 - `spec-type: behavioral` with no `## Use Cases` section — illegal (a behavioral spec maps use cases to scenarios).
 
-These run wherever the helper runs; the `sdd-new` copy of `check-spec-state.mts` carries them (the baseline at `plugins/sdd/skills/validate-spec/scripts/` predates the spec-type marker).
+These run wherever the helper runs; the `sdd-new` copy of `check-spec-state.mts` carries them (the baseline at `plugins/sdd/skills/spec-gate/scripts/` predates the spec-type marker).
 
 **No-resolvable-producer fails closed.**
 A required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role.
 When a gate runs and a required role has **no resolvable producer** (not a plugin agent and not even an SDD default), the gate **fails closed** with a blocker; it advances nothing.
 This is a **structural** error, the same fail-closed class as a malformed `produced-by` entry or an off-enum `cause` (defined in `provenance-model.md`).
 Distinct from availability: a recorded producer whose plugin is merely uninstalled is flagged, not blocked.
+
+**A resolved producer may recuse; recusal falls back to the SDD default.**
+Distinct from no-resolvable-producer (above): a producer that **resolves** may **recuse** from a subject at runtime — declare it outside its domain and produce nothing (e.g. a domain plugin bound by artifact-type meets a subject its lens does not fit).
+Recusal is **not** a structural error. The conductor **re-resolves that unit's chain to the SDD defaults** — the default producer for that role plus the SDD-default bars and judge — and proceeds; other units keep their resolved squad.
+The recusal is recorded as a **combat-log line** (a routing fact, `provenance-model.md`), never a halt.
+Only a **resolved** producer may recuse; a **missing** delegate still fails closed.
 
 ## Freeze (per suite file)
 
@@ -165,7 +171,7 @@ This is what lets **placement be finalized at handoff** (`spec-layout.md`): afte
   Explore is mostly narrowing/reshaping (much unfreezing); deliver is mostly additive (stays frozen).
   One rule covers both phases.
 - **`spec.md` is kept in sync, never frozen** — it is the readable abstraction of the suite, free to be reworded/restructured (prose, diagrams, pictures) as long as it does not contradict a frozen scenario.
-  That invariant is enforced by the alignment check + the spec-judge applying the Builder (coverage) lens at the spec gate (and on demand by `../corpus/` `align-specs`), **not** by freezing the prose.
+  That invariant is enforced by the alignment check + the spec-judge applying the Builder (coverage) lens at the spec gate (and on demand by `../project-spec/` `align-spec`), **not** by freezing the prose.
   Prose↔suite drift detection is judge-only (no scenario IDs in the prose); the mechanical handle is the scenario-diff (narrowing a frozen scenario → Clearance).
 - **The ledger is never frozen and never gated** — it keeps appending across the whole lifecycle, including while files sit `@frozen`.
   (The durable ledger holds the per-CR `gate` and freeze record; the mid-flight combat log lives in the plan: `provenance-model.md`.)
@@ -209,7 +215,7 @@ This is positional, not definitional: the same automaton, run in-session as the 
 
 | Field / write | Written by |
 |---|---|
-| `status` (on human verdict, or to match an in-leash self-assertion) | the gate skill (`validate-spec`), in-session |
+| `status` (on human verdict, or to match an in-leash self-assertion) | the gate skill (`spec-gate`), in-session |
 | `approval` human ratification (`verdict` + `by: <name>`) | the gate skill, **in-session position only** |
 | `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the conductor (synthesis) |
 | `project-path`, `<!-- open: -->` markers | the conductor |

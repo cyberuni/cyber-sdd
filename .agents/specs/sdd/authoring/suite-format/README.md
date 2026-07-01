@@ -15,7 +15,7 @@ A **reference artifact**: the `suite-format` governance — how behavior-suite s
 - **Boundary** — the `spec.md` structure (the required `## Use Cases` section, enrichment) belongs to `../spec-format/`; the freeze/unfreeze *model* (triggers, the gate, iteration economy) belongs to `../../design/lifecycle-model.md`. This bar owns the `.feature` form.
 
 This bar governs the `.feature` of a **behavioral** spec only — `descriptive` and `reference` nodes carry no suite (see the spec types in `../../design/spec-structure.md`).
-It applies uniformly to both the e2e scenarios in `../acceptance/` and the unit scenarios colocated with their capability folder — one corpus, one convention.
+It applies uniformly to both the e2e scenarios in `../acceptance/` and the unit scenarios colocated with their capability folder — one project-spec, one convention.
 
 ## The gate sees one boolean per scenario
 
@@ -80,6 +80,15 @@ The domain's resolved spec-judge (default `sdd-spec-judge`) validates:
 The structural check is **universal** — every resolved judge enforces it identically.
 Scoring capability is **per-resolved-judge**: the default does baseline by-hand scoring; a plugin may supply a more capable judge (e.g. ACES for agent-config domains).
 A resolved judge does **not** reject scoring lingo *inside* a `@rubric` scenario — that is the sanctioned form — and it rejects a malformed `@rubric` scenario (missing threshold or named dimensions) structurally, before scoring begins.
+
+## Mechanical enforcement (the executable form)
+
+The universal structural rules above — Gherkin validity, every untagged `Then` a boolean assertion (no hedge adverbs, no leaked rubric lingo), and scenario sectioning — have a deterministic **executable form** that runs as a mechanical pre-filter at two runtime touchpoints, not only in CI:
+
+- The **spec-producer** self-runs it after authoring a `.feature` and fixes any violation before returning (`../spec-producer/README.md`), so a mechanical defect never costs a cold-judge round.
+- The **spec gate** runs it **fail-closed over the CR's touched `.feature` files, before the cold judge is spawned** (`../spec-gate/README.md`), so the qualitative judge only ever sees well-formed suites.
+
+A tree-wide sweep stays a CI backstop. The mechanical check settles the form; the resolved judge spends its rounds on the qualitative bars (coverage, scope, fit), never on catching a hedge word.
 
 ## Prohibition
 

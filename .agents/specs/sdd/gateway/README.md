@@ -38,10 +38,14 @@ Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these be
 |---|---|
 | **activate** | `$sdd` / "use SDD" explicitly activates the gateway |
 | **gather missing intent** | a bare invocation gathers intent before loading any skill; it does not begin work until the route is known |
-| **fast path** | an invocation naming both work and action loads the handling skill directly, no menu |
+| **fast path** | an invocation naming both work and action loads the handling skill directly, no menu — including concrete utterances ("add a start-mission skill to sdd", "work on <issue url>") |
+| **partial intake** | a partially-specified request resolves what it can and asks only for the missing piece, within the four-option rule |
 | **load the skill in-session** | a resolved route loads the matched skill in the **current session** and works directly — the gateway spawns nothing |
 | **change → start-mission** | a request to change the project / spec loads `start-mission` in-session |
 | **the four-option rule** | an intake question presents at most four options, never truncating silently |
+| **two-level menu** | a bare invocation conducts intake as a two-level menu (never a flat list) whose top level presents **exactly four** options |
+| **write-ownership guard** | a routed change writes no `status` / `approval` — the gateway writes no contract state |
+| **thin-classifier guard** | classifying loads no governance and holds no production logic, only loading the matched skill |
 | **surface pending strategy** | on Council re-entry, surface the count of unratified `strategy` lines in the root `ledger.jsonl` as an entry point — never draft or ratify |
 | **surface in-progress missions** | on re-entry, surface the resumable mission plan briefs (via the `discover-plans` engine) as a resume entry point — never resume or retire |
 | **status scan (help me choose)** | on a "help me choose" request, scan the project's spec statuses via the `discover-specs` engine to surface the most-actionable spec — reads frontmatter only, never a spec body |
@@ -58,9 +62,12 @@ which source carried it and which skill handles it. A **task that is not a CR** 
 suite-relevant behavior — **escapes** (the task-vs-CR boundary, below); recognition is the grill,
 not an up-front classifier, so ambiguity is routed in and decided during explore.
 
-- **Fast path.** When the invocation already names enough to act — a change and a target, or a
-  self-evidently classifiable request — skip the menu and load the handling skill directly.
-- **Gather missing intent.** When the request is bare, do not guess; conduct intake to recover the
+- **Fast path.** When the invocation already names enough to act — a change and a target
+  ("add a start-mission skill to sdd", "work on <issue url>"), or a self-evidently classifiable
+  request — skip the menu and load the handling skill directly. A **partially-specified** request
+  resolves what it can and asks only for the missing piece, within the four-option rule.
+- **Gather missing intent.** When the request is bare, do not guess; conduct intake as a **two-level
+  menu** (never a flat list) whose top level presents **exactly four** options, to recover the
   missing piece (the work, or the action), then classify.
 - **Surface pending strategy.** When the Council re-enters, surface the count of pending
   (unratified) `strategy` lines in the project's **root `ledger.jsonl`** (the durable sibling of the
@@ -99,7 +106,7 @@ flowchart TD
     BARE -->|no| GATHER["gather missing intent<br/>(≤ 4 options)"] --> CLASSIFY
     BARE -->|yes · fast path| CLASSIFY{classify}
     CLASSIFY -->|change the project / spec| SM["start-mission<br/>(runs the mission loop)"]
-    CLASSIFY -->|dedupe / split / inspect| CORPUS[corpus]
+    CLASSIFY -->|manage: bootstrap / inspect / audit / housekeeping| MANAGE["manage<br/>(loads the corpus engine)"]
     CLASSIFY -->|retrospective / field| OUTER["outer loop → new CR → start-mission"]
     CLASSIFY -->|manage plugins / governances · planned| PLUGIN["plugin"]
     CLASSIFY -->|no suite-relevant behavior| ESCAPE["escape · no SDD record"]
@@ -116,7 +123,7 @@ is re-opened through a mission, never edited in place.
 | User intent | Skill (handler) |
 |---|---|
 | Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
-| Dedupe, split, reconcile, or inspect the corpus | **corpus** tools |
+| Manage the corpus — bootstrap, inspect, audit, or housekeeping (non-mission) | **`manage`** (`./manage/README.md`) — the manage dispatcher; loads the matching corpus engine in-session |
 | A task with no suite-relevant behavior (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 | Manage domain plugins (install / list / remove), author a governance, or register to the marketplace | the **plugin** capability (`../plugin/README.md`) — *planned, deferred CR* |

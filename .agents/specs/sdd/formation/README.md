@@ -1,6 +1,6 @@
 ---
 spec-type: behavioral
-concept: corpus-structure
+concept: spec-structure
 ---
 
 # formation/ — the structure outer loop
@@ -26,7 +26,7 @@ only **cross-mission** structural drift.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: split / dedupe / reconcile candidates, each carrying the Warden's self-clear-or-escalate verdict |
+| **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/` + `project-spec/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: node-shape / split / reconcile candidates, each carrying the Warden's self-clear-or-escalate verdict |
 
 A formation pass exercises the three acts under the verdict discipline below; the per-act verdict,
 the frozen-contract guard, and the altitude routing are cross-cutting guarantees. Every scenario in
@@ -35,7 +35,7 @@ guarantees.
 
 ## Input — the corpus structure + discovery, scoped by the public trail
 
-The Warden's **primary** input is structural: the corpus **structure** and **discovery** (`corpus/`)
+The Warden's **primary** input is structural: the corpus **structure** and **discovery** (`corpus/` + `project-spec/`)
 — it reads what the corpus *is*, never what a mission *did*. To stay efficient rather than
 cold-scanning the whole corpus every run, it may consult the durable **public trail** (CR-source
 conclusions + changesets + git history) **forward** via a cursor over the public trail
@@ -43,22 +43,23 @@ to learn what shipped recently and prioritize the structural pass there first. I
 the combat log (the doctrine loop's input, retired at retro) and **never** live subagent context
 — like the other outer loops it fires strictly post-mission.
 
-## The three corpus-wide acts
+## The intra-spec structural acts
 
-It acts on the corpus's *structure*, not its content:
+It acts on each spec's *structure*, not its content — now that one project is **one spec**,
+structural maintenance is **intra-spec**:
 
-- **dedupe** overlapping specs so each behavior has exactly one home,
-- **split** monoliths that have outgrown the spec-granularity heuristic,
-- **reconcile contradictions** between governances or between specs.
+- **audit node-shape** — untagged orphans and oversized nodes within a spec,
+- **split** an oversized node that has outgrown the granularity heuristic into sub-nodes,
+- **reconcile** prose↔suite drift, or a contradiction between two nodes or two governances.
 
-| Act | Trigger | Station (`corpus/`) | Output |
+| Act | Trigger | Station (`corpus/` + `project-spec/`) | Output |
 |---|---|---|---|
-| **Split a monolith** | a spec trips the spec-granularity heuristic | `split-spec` | a project spec + feature children |
-| **Dedupe overlap** | two specs cover overlapping behavior | `dedupe-specs` | a finding naming the overlapping specs |
-| **Reconcile a contradiction** | two governances (or two specs) contradict | `dedupe-specs` | a finding naming the contradicting artifacts |
+| **Audit node-shape** | a formation pass fires post-mission | `check-spec-structure` | a finding set: untagged-node (blocking) + oversized-node (advisory), each naming the node |
+| **Split an oversized node** | a node's `.feature` trips the granularity heuristic | `check-spec-structure` | an oversized-node finding proposing a sub-node split |
+| **Reconcile drift / contradiction** | prose↔suite drift, or two nodes contradict | `align-spec` | a reconcile finding (drift fixed by direction; contradiction → align the losing side) |
 
 A station is **not** a dependency — Formation depends on the corpus **structure** and **discovery**
-(`corpus/`), not on any given station skill.
+(`corpus/` + `project-spec/`), not on any given station skill.
 
 ## Corpus-wide — DISTINCT from the per-spec gate judgment
 
@@ -70,7 +71,7 @@ not be conflated:
 | Scope | the **whole corpus** | **one spec** |
 | Cadence | **continuous**, across missions | **point-in-time**, at one spec's gate |
 | Question | is the corpus **organized** right? | does **this change** fit structurally? |
-| Acts | dedupe, split, reconcile | one approve/pause/reject structural verdict |
+| Acts | audit node-shape, split, reconcile | one approve/pause/reject structural verdict |
 
 Formation **does not fire** as the per-spec structural check at a gate, and the gate's
 structural verdict **is not** Formation. Every run produces a **finding set covering every spec
@@ -89,9 +90,9 @@ it has **no direct user channel**:
   refactor or consistency fix. The Warden acts **in-session** and
   leaves a **provisional, agent-attributed marker** that is never final until the Council
   ratifies the trail; a Council reject unwinds it.
-- **Escalate** the narrowing, contested, or class-exceeding acts — deprecating a spec or dropping
-  scenarios in a dedupe (**Clearance**), picking the winning claim in a reconciliation
-  (**Conflict**), or a structural change whose **semver class** exceeds the ceiling
+- **Escalate** the narrowing, contested, or class-exceeding acts — deprecating a node or dropping
+  scenarios in a narrowing reconcile or split (**Clearance**), picking the winning claim in a
+  reconciliation (**Conflict**), or a structural change whose **semver class** exceeds the ceiling
   (**Compatibility**). The escalated finding re-enters as a **new CR**
   (`intake/README.md`) naming the artifacts; it does not land until the Council
   ratifies.
@@ -108,7 +109,7 @@ guard is keyed on **contract impact**, not the bare fact that the `.feature` is 
   a frozen `.feature`**, leaving the provisional marker; no freeze re-open needed;
 - a split that **alters or drops scenario truth is a narrowing** — it shards a frozen contract only
   with a Council-ratified freeze re-open;
-- **dedupe is destructive** (it deprecates a spec) — it **escalates regardless** of
+- a **deprecating act is destructive** (it removes a node) — it **escalates regardless** of
   contract-impact class.
 
 ## Altitude discipline — route, do not decide
@@ -117,8 +118,9 @@ Formation owns corpus structure only and emits **no** out-of-loop decision:
 
 - a **build-or-deprecate** request → routed to `campaign/` (Product);
 - a **process lesson** → routed to `doctrine/` (Process);
+- a **field correction** → routed to `forge/` (Field); the Warden makes no field correction itself;
 - a **per-spec gate structural check** → **declined**; Formation does not run as the gate check.
 
 Unit scenarios for the loop and the Warden's verdict are in
-[`formation.feature`](./formation.feature); cross-capability outcome scenarios (a split or dedupe
+[`formation.feature`](./formation.feature); cross-capability outcome scenarios (a split or reconcile
 end-to-end) live in [`../acceptance/`](../acceptance/README.md).

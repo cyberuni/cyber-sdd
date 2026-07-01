@@ -1,6 +1,6 @@
 ---
 spec-type: behavioral
-concept: corpus-structure
+concept: spec-structure
 ---
 
 # backfill-project-spec — lay out an existing project's spec
@@ -10,6 +10,11 @@ The **project-level layout bootstrap**: when an existing project has **no consol
 so the per-unit explore that follows slots work into known homes instead of inventing placement. It is the
 structural answer to [#35](https://github.com/cyberuni/cyber-skills/issues/35) — lowering the placement
 burden on non-owner builders.
+
+It enacts the **structure-doc trio**: `../../design/spec-structure.md` (the node taxonomy — the three
+spec-types, the **concept axis**, the **two-level depth cap**, screaming-architecture as the default),
+`../../design/spec-layout.md` (the strategy menu + the body-declared organization), and
+`../../design/project-unit.md` (the external boundary + the spec location).
 
 It is **not a user-facing entry skill**. The single entry is `../../gateway/` → `start-mission`; this unit is
 an **internal step the conductor loads during explore** when it finds an existing project lacking a spec. It
@@ -21,7 +26,7 @@ runs **once at bootstrap**, before the normal per-unit explore (`../spec-produce
 **Subject** — choosing and scaffolding the *organization* of one project's spec (its layout, the
 `project-path` frontmatter + the body placement map), then handing back to per-unit explore.
 **Non-goals** — it does **not** fill each node's `## Use Cases` + `.feature` (that is `../spec-producer/`
-during explore); it renders **no** gate verdict and freezes nothing (`../validate-spec/`); it does **not**
+during explore); it renders **no** gate verdict and freezes nothing (`../spec-gate/`); it does **not**
 write the control frontmatter `status` / `approval` / `produced-by`; ongoing **re-organization**
 of an existing spec is the formation **Warden**'s (`../../formation/`), not this unit; it does not implement
 the project it scaffolds.
@@ -54,20 +59,30 @@ In order; the conductor runs it in-session, surfacing each choice to the user (r
 4. **Scaffold** the **shared envelope** (root `spec.md`, `design/` incl. the `design/decisions/` ADR log,
    `acceptance/`, a tooling/project home, a glossary) + the chosen strategy's **top-level skeleton** of stub
    node READMEs, each declaring a **legal `spec-type`** (testable surface → behavioral; shipped suite-less
-   artifact → reference + `## Subject`; index / rule / structural grouping → descriptive). Under
-   **mirror-source**, mirror only to the **unit boundary** — no node is created below a behavioral leaf.
+   artifact → reference + `## Subject`; index / rule / structural grouping → descriptive). The skeleton
+   respects the **two-level depth cap** (`../../design/spec-structure.md`) under **every** strategy: a node is
+   `<capability>/<unit>` and never three deep — a sub-grouping inside a capability is a `concept:` tag, not a
+   third folder level. Under **mirror-source**, mirror only to the **unit boundary** — no node is created
+   below a behavioral leaf. A stub declares its `spec-type` only; its cross-cutting `concept:` tag is assigned
+   later, in per-unit explore (`../spec-producer/`, via `../../project-spec/place-node/`), not at scaffold.
 5. **Declare** the organization: write the **`project-path` frontmatter** (the governed source dir; the
    spec location mode is derived from it) on root `spec.md`, and the **placement map** — naming the chosen
-   strategy — into its body, so the layout is read, never re-derived. There is **no `spec-layout` block**
-   (`../../design/spec-layout.md`; ADR-0017).
+   strategy — into its body, so the layout is read, never re-derived. Beside it, **reserve the generated
+   by-concept index block** (`../../project-spec/concept-index/`, `../../design/spec-structure.md`) — the
+   cross-cutting `concept → its nodes` view that `project-spec/concept-index` fills from `concept:` frontmatter;
+   the bootstrap leaves the block for that engine to generate, never hand-maintaining it. There is **no
+   `spec-layout` block** (`../../design/spec-layout.md`; ADR-0017). Write the **`name` frontmatter** only
+   when the project name is **not reliably derivable** — for a hoisted or nested project, **ask the user and
+   confirm** before writing it; skip it when the colocated repo-root name is already correct.
 6. **Hand back** to `start-mission`'s per-unit explore to fill each behavioral node; **propose** node
    placement for the formation **Warden** to confirm or relocate. Leave the tree at `status: draft`.
 
 ## The output boundary
 
-- It writes the **skeleton** (folders + stub node READMEs with declared `spec-type`), the root `spec.md`
-  envelope (the `project-path` frontmatter + the placement map), and the `design/decisions/` + glossary homes.
+- It writes the **skeleton** (folders + stub node READMEs with declared `spec-type`, capped at two levels),
+  the root `spec.md` envelope (the `project-path` frontmatter + the placement map + the reserved by-concept
+  index block), and the `design/decisions/` + glossary homes.
 - It does **not** author any node's `## Use Cases` or `.feature` (that is the per-unit explore), render a gate
   verdict, freeze, or write `status` / `approval` / `produced-by` — those belong to the conductor
-  and `../validate-spec/`.
-- The produced root passes `../validate-spec/scripts/check-spec-state.mts` (a legal root tuple).
+  and `../spec-gate/`.
+- The produced root passes `../spec-gate/scripts/check-spec-state.mts` (a legal root tuple).

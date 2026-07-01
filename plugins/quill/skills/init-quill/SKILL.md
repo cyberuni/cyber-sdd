@@ -39,11 +39,11 @@ Do not reorder or reformat other entries.
     {
       "artifact-types": ["documentation", "guide", "tutorial", "article", "reference"],
       "roles": {
-        "spec-producer": "quill-writer",
+        "spec-producer": "quill-spec-writer",
         "solution-producer": null,
         "spec-judge": null,
         "impl-producer": "quill-doc-writer",
-        "impl-judge": "quill-implementer"
+        "impl-judge": "quill-judge"
       },
       "governances": {
         "oracle-spec": null,
@@ -57,7 +57,7 @@ Do not reorder or reformat other entries.
 }
 ```
 
-quill serves its five documentation artifact-types with one squad. `spec-judge: null` degenerates to static doc criteria that `validate-spec` runs — no judge agent. `solution-producer: null` uses the SDD default. Each `null` governance uses the SDD default actor-gate bar.
+quill serves its five documentation artifact-types with one squad. `spec-judge: null` degenerates to static doc criteria that `spec-gate` runs — no judge agent. `solution-producer: null` uses the SDD default. Each `null` governance uses the SDD default actor-gate bar.
 
 **Each squad's `governances` block is required.** Every squad must carry a `governances` map (each binding may be `null`, but the block itself must be present). Reject a payload with a squad missing its `governances` block — fail with an error and **do not write** the file.
 

@@ -29,15 +29,30 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Then it drafts a strategy to codify the recurring pattern
     And it reads the distilled recurrence count, not many missions' raw logs
 
+  Scenario: a cause seen once does not codify a pattern
+    Given a cause exhibited below the rising recurrence count
+    When the Scanner fires
+    Then it drafts no strategy to codify a pattern
+
   Scenario: a now-false convention drafts a PRUNE strategy
     Given a convention in the corpus that is now false
     When the Scanner fires
     Then it drafts a PRUNE strategy to remove the stale convention
 
+  Scenario: a convention that still holds drafts no PRUNE
+    Given a convention in the corpus that still holds
+    When the Scanner fires
+    Then it drafts no PRUNE strategy
+
   Scenario: notable token-waste drafts efficiency strategy
     Given a flagged-waste correction in the committed log
     When the Scanner fires
     Then it drafts efficiency strategy from the categorical efficiency class
+
+  Scenario: an ordinary correction that is not flagged-waste drafts no efficiency strategy
+    Given a correction in the committed log that is not flagged as token-waste
+    When the Scanner fires
+    Then it drafts no efficiency strategy
 
   # ---- Not a per-gate loop ----
 
@@ -45,6 +60,16 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Given a gate passed without a terminal lifecycle transition
     When the Scanner observes it
     Then it drafts no strategy
+
+  Scenario: a non-terminal status move is not a trigger
+    Given a status transition that is not terminal, such as draft to approved
+    When the Scanner observes it
+    Then it drafts no strategy
+
+  Scenario: token-waste under the bound without a request does not run the heavy analysis
+    Given token-waste below the configured bound and no explicit request
+    When the Scanner observes it
+    Then it does not run the numeric token-waste analysis
 
   # ---- Write boundaries ----
 

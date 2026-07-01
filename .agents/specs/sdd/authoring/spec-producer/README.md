@@ -20,7 +20,7 @@ suite delta, it does not receive it.
 
 **Subject** — the spec-producer procedure: turning one CR into a spec + suite diff.
 **Non-goals** — it renders no gate verdict, freezes nothing, and emits no digest (those are
-`../validate-spec/`); it does not write the control frontmatter (`status` / `project-path` /
+`../spec-gate/`); it does not write the control frontmatter (`status` / `project-path` /
 `approval` / `produced-by`).
 
 The procedure runs in one of **three modes** — the distinct ways it is invoked:
@@ -48,7 +48,7 @@ scenarios chase a moving target.
 Phase 1 — the prose:
 
 - **Scope** — is the touched behavior still *one* coherent thing? Grilling that reveals a
-  bundle of several is the moment to recommend a split (a `../../corpus/` operation), not to
+  bundle of several is the moment to recommend a split (a `../../project-spec/` operation), not to
   grow a monolith.
 - **Use cases / entry points** — is each trigger, input, and outcome still accurate? Did the
   change add, remove, or alter an entry point?
@@ -69,6 +69,10 @@ Phase 2 — the suite:
 - Each scenario stays a pure boolean `Given`/`When`/`Then` (or the rubric form per
   `../suite-format/README.md`); tighten any that drifted.
 - Step-down ordering and stage grouping still hold after the edits.
+- **Self-check the form before returning** — run the deterministic `.feature`-form check (the
+  executable form of `../suite-format/README.md`) over the authored suite and fix any violation (a
+  non-boolean `Then`, a hedge adverb, leaked rubric lingo) before reporting complete. Settling this
+  mechanical bar here spends no cold-judge round on a defect a linter catches every time.
 
 ## The output boundary
 
@@ -81,5 +85,5 @@ The producer writes the **spec body and the `.feature`**, nothing else:
   stays a pure boolean assertion (`../suite-format/README.md`).
 
 **Producer/judge separation.** The producer authors the diff; a **distinct judge** actor
-verifies it (`../validate-spec/`). The producer self-aligns against the same governances the
+verifies it (`../spec-gate/`). The producer self-aligns against the same governances the
 judge checks against — it never collapses producing and judging into one voice.

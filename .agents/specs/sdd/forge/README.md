@@ -55,7 +55,7 @@ after the core loops are solid, costing nothing operationally in its absence.
 
 ## Boundaries — Forge owns the field channel only
 
-A product decision → `../campaign/`; a corpus-structure observation → `../formation/`; a
+A product decision → `../campaign/`; a spec-structure observation → `../formation/`; a
 process lesson → `../doctrine/`. Forge owns only the **opt-in, cross-installation channel**
 that improves SDD from real field corrections — nothing about a project's own harness.
 

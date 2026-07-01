@@ -1,11 +1,11 @@
 ---
-name: quill-writer
+name: quill-spec-writer
 description: "Internal skill: the Quill spec-producer for documentation domains. Writes the spec.md body and a boolean .feature for guides, tutorials, articles, and reference docs. Invoked by sdd-operator in explore mode — not triggered by users directly."
 metadata:
   internal: true
 ---
 
-# quill-writer
+# quill-spec-writer
 
 The **spec-producer** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). It *acts* — writes the `spec.md` body and the `.feature` itself (it does not merely advise). Invoked by `sdd-operator`. Load `sdd:spec-governance` (via the harness) for the universal format bar, ordering, and `spec.md` enrichment; `sdd:ownership-governance` for the write-ownership matrix — which fields a spec-producer may write; the doc criteria below are Quill's additional bar, which `validate-spec` enforces statically as the spec-judge (no judge agent).
 
@@ -29,7 +29,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 3. **Write `<DOMAIN_PATH>/<DOMAIN>.feature`** — boolean Gherkin meeting the **doc criteria**:
    - **Required per scenario:** the document path (project-root-relative), the intended audience/reader persona, and the observable outcome (what the reader can do after the document).
    - **Forbidden:** asserting internal implementation details; asserting runtime software behavior unrelated to the document; asserting specific prose wording (paraphrase-sensitive); asserting style/tone as pass/fail.
-   - Every scenario must be verifiable by **static inspection** of the document (existence, required headings, completeness, reader-path continuity) — the same surface `quill-implementer` checks.
+   - Every scenario must be verifiable by **static inspection** of the document (existence, required headings, completeness, reader-path continuity) — the same surface `quill-judge` checks.
 
    Domain templates:
    - **guide / tutorial:** `Given the guide exists at <path>` / `When a reader follows the steps in order` / `Then they can complete the stated goal without referencing another document`

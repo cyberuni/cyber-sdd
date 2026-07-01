@@ -39,11 +39,11 @@ Do not reorder or reformat other entries.
     {
       "artifact-types": ["documentation", "guide", "tutorial", "article", "reference"],
       "roles": {
-        "spec-producer": "quill-writer",
+        "spec-producer": "quill-spec-writer",
         "solution-producer": null,
         "spec-judge": null,
         "impl-producer": "quill-doc-writer",
-        "impl-judge": "quill-implementer"
+        "impl-judge": "quill-judge"
       },
       "governances": {
         "oracle-spec": null,

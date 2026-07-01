@@ -9,6 +9,10 @@ Accepted
 > per-mission `*.log.jsonl` (mid-flight tier). And the plan is **tracked, not gitignored** —
 > committed with the work, distilled then deleted at retro. Current shape:
 > `.agents/specs/sdd/design/provenance-model.md`.
+>
+> **Superseded in part (ADR-0020):** the durable ledger is no longer one `ledger.jsonl` with
+> `merge=union`; it is a `ledger/` **directory** of per-CR-per-writer shard files (conflicts
+> structurally impossible, no merge driver), and ledger lines drop the wall-clock `ts`.
 
 ## Context
 

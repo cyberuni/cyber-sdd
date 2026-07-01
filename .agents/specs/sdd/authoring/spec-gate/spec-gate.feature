@@ -46,6 +46,12 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Then each touched .feature file is marked frozen
     And a durable per-CR gate verdict is recorded in the ledger
 
+  Scenario: the gate verdict lands in the mission's own ledger shard
+    Given the gate records an approve verdict
+    When the durable gate line is written
+    Then it is appended to the mission's own hash-suffixed shard file in the ledger directory
+    And no shard file written by another mission is edited
+
   Scenario: change revises the diff and freezes nothing
     Given a spec + suite diff returned for changes
     When the gate records the change verdict

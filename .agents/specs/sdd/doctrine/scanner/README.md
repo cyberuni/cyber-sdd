@@ -47,7 +47,8 @@ Every scenario in [`scanner.feature`](./scanner.feature) maps to one of these be
 | **post-hoc persisted inputs** | the Scanner reads persisted files after a mission ends, never live subagent context |
 | **draftable from the combat log alone** | every categorical dimension is draftable from the committed log; transcripts are additive, never required |
 | **unratified + carries evidence** | every entry is `ratified: false` and carries the driving evidence (the distilled `cause` recurrence) |
-| **lands in the one project ledger** | strategy appends to `ledger.jsonl` (root sibling), next `seq`, append-only — never an edit |
+| **lands in the Scanner's own ledger shard** | strategy appends to the Scanner's own shard in the root-sibling `ledger/` dir, next `seq` within that shard, append-only — never an edit |
+| **concurrent runs never contend** | two Scanner runs recording at the same time each write a distinct hash-suffixed shard file; neither edits the other's, so the appends never conflict |
 | **episodic surfacing** | strategy accumulates and surfaces episodically via the gateway's pending count, never synchronously blocking a mission |
 | **out-of-loop routing** | a build/deprecate request → campaign; a structure observation → formation; a field correction → forge |
 
@@ -86,12 +87,13 @@ post-merge loop keeps the dimension; the **numeric** breakdown lives only in tra
 
 ## Where each strategy entry lands
 
-Every `strategy` entry lands in the **one project ledger** (`ledger.jsonl`, sibling of the root
-`spec.md`) — there is no per-spec log to route to under the project-spec model. Every entry is
-**unratified** and carries its **driving evidence** (the distilled `cause` recurrence from the
-concluded combat logs); the ledger is append-only — the next `seq`, never an edit. The Scanner's
-`handle` is `sdd-scanner`. The entry **shape** is owned by `../../design/provenance-model.md` and
-`combat-log-governance` and is not restated here.
+Every `strategy` entry lands in the **one project ledger** — the `ledger/` directory sibling of the root
+`spec.md`, in the **Scanner's own hash-suffixed shard** (`strategy.<hash>.jsonl`); there is no per-spec
+log to route to under the project-spec model, and two concurrent Scanner runs write distinct shards so
+they never collide. Every entry is **unratified** and carries its **driving evidence** (the distilled
+`cause` recurrence from the concluded combat logs); the shard is append-only — the next `seq` within it,
+never an edit. The Scanner's `handle` is `sdd-scanner`. The entry **shape** is owned by
+`../../design/provenance-model.md` and `combat-log-governance` and is not restated here.
 
 ## Surfacing and the Council
 
@@ -112,4 +114,4 @@ lives in `../../acceptance/`.
 ## Source
 
 - migrated from `plugins/sdd/skills/doctrine-loop/` + `plugins/sdd/agents/sdd-scanner.md`,
-  refreshed to the project-spec ledger model (one `ledger.jsonl`, `handle: sdd-scanner`).
+  refreshed to the project-spec sharded-ledger model (`ledger/` dir of per-writer shards, `handle: sdd-scanner`).

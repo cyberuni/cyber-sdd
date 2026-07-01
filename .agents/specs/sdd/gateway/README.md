@@ -46,7 +46,7 @@ Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these be
 | **two-level menu** | a bare invocation conducts intake as a two-level menu (never a flat list) whose top level presents **exactly four** options |
 | **write-ownership guard** | a routed change writes no `status` / `approval` — the gateway writes no contract state |
 | **thin-classifier guard** | classifying loads no governance and holds no production logic, only loading the matched skill |
-| **surface pending strategy** | on Council re-entry, surface the count of unratified `strategy` lines in the root `ledger.jsonl` as an entry point — never draft or ratify |
+| **surface pending strategy** | on Council re-entry, surface the count of unratified `strategy` lines globbed from the root `ledger/` shards as an entry point — never draft or ratify |
 | **surface in-progress missions** | on re-entry, surface the resumable mission plan briefs (via the `discover-plans` engine) as a resume entry point — never resume or retire |
 | **status scan (help me choose)** | on a "help me choose" request, scan the project's spec statuses via the `discover-specs` engine to surface the most-actionable spec — reads frontmatter only, never a spec body |
 | **headless → automaton** | with no user channel, the gateway spawns the **automaton** (the headless driver) instead of working in-session |
@@ -71,12 +71,12 @@ not an up-front classifier, so ambiguity is routed in and decided during explore
   menu** (never a flat list) whose top level presents **exactly four** options, to recover the
   missing piece (the work, or the action), then classify.
 - **Surface pending strategy.** When the Council re-enters, surface the count of pending
-  (unratified) `strategy` lines in the project's **root `ledger.jsonl`** (the durable sibling of the
-  root `spec.md`) — the doctrine loop's keep-or-cut — as an entry point. The gateway only *surfaces*
-  the count: it never drafts strategy (the Scanner's job) nor ratifies it (the Council's positional
-  act). A zero count is not surfaced. Only `kind: strategy` lines with `ratified: false` are counted
-  — the conductor's `kind: leash` run-start blocks are **not** strategy and never counted.
-  (`strategy` lives in the durable `ledger.jsonl`, never in the
+  (unratified) `strategy` lines globbed from the project's **root `ledger/` shards** (the durable
+  sibling of the root `spec.md`) — the doctrine loop's keep-or-cut — as an entry point. The gateway
+  only *surfaces* the count: it never drafts strategy (the Scanner's job) nor ratifies it (the
+  Council's positional act). A zero count is not surfaced. Only `kind: strategy` lines with
+  `ratified: false` are counted — the conductor's `kind: leash` run-start blocks are **not** strategy
+  and never counted. (`strategy` lives in the durable `ledger/` shards, never in the
   per-mission `*.log.jsonl` combat log — `../common-governances/combat-log/`.)
 - **Surface in-progress missions.** On re-entry, surface the **resumable missions** — the plan
   briefs under `.agents/plans` — as a resume entry point, via the **`discover-plans`** engine

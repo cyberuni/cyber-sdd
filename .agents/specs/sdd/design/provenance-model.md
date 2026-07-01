@@ -6,7 +6,7 @@ concept: provenance
 
 The **shape** of production provenance.
 Provenance spans **three tiers** by lifetime (below): a **tracked per-worktree plan** (transient in the tree, durable in git history), a durable **ledger**, and a durable **public** trail.
-The durable record has **two faces** — a current-state face in `spec.md` frontmatter and the append-only `ledger.jsonl` sibling.
+The durable record has **two faces** — a current-state face in `spec.md` frontmatter and the append-only **ledger**, a sibling `ledger/` directory of per-writer shard files.
 This file owns the record shape, the entry shapes, the matchable `cause` enum, and write-ownership.
 Recording *behavior* (when the conductor appends, how it resolves a producer) lives in `../mission/`; this is the shape only.
 
@@ -18,14 +18,20 @@ Mid-flight working detail is per-mission and committed with the work, then remov
 | Tier | Home | Holds | Lifetime |
 |---|---|---|---|
 | **Private scratch — the plan** | `.agents/plans/<cr-ref>.plan.md` (brief) + `.agents/plans/<cr-ref>.log.jsonl` (**the combat log**) | grill analysis + task DAG + progress; the append-only `report` / `correction` lines + a **CR-scoped `seq`** | **transient in the tree, durable in history** — tracked, distilled then deleted at retro |
-| **Durable internal — the ledger** | `ledger.jsonl` sibling to the **root** `spec.md` | the conductor's run-start `leash` block, `gate` (verdict + `frozen[]`), and `strategy` (incl. the distilled recurrence) | durable |
+| **Durable internal — the ledger** | `ledger/` directory sibling to the **root** `spec.md`, holding one `<cr-ref>.<hash>.jsonl` shard per CR per writer | the conductor's run-start `leash` block, `gate` (verdict + `frozen[]`), and `strategy` (incl. the distilled recurrence) | durable |
 | **Durable public — the trail** | the CR source conclusion + changesets + git history | what shipped, for the outer loops to read forward | durable, external |
 
 **Naming (fleet metaphor).**
 The mid-flight `*.log.jsonl` is the **combat log** — the blow-by-blow of the mission while it is fought.
-The durable `ledger.jsonl` is the **ledger** — the sparse book of durable outcomes: the conductor **appends its run-start `leash` block and `gate`** lines to it directly, and the doctrine loop **distills `strategy`** lines into it from the combat log at retro.
-"Combat log" always means the live per-mission log in the plan; "ledger" always means the durable sibling of the root `spec.md`.
-They are never the same file.
+The durable `ledger/` directory is the **ledger** — the sparse book of durable outcomes: the conductor **appends its run-start `leash` block and `gate`** lines to its own shard directly, and the doctrine loop **distills `strategy`** lines into its own shard from the combat log at retro.
+"Combat log" always means the live per-mission log in the plan; "ledger" always means the durable sibling `ledger/` directory of the root `spec.md`.
+They are never the same store.
+
+**Why a directory of shards, not one file (ADR-0020).**
+A single shared `ledger.jsonl` conflicts on every concurrent mission: two branches each append a line at end-of-file, so git sees overlapping EOF hunks and raises a merge conflict; worse, two sessions sharing **one working tree** (a fork) clobber the file with no git merge at all (last-writer-wins).
+Sharding removes the shared path: each writer appends only to its **own** `<cr-ref>.<hash>.jsonl` shard, so no two writers ever touch the same file — conflicts and clobbers are **structurally impossible**, needing no merge driver. The reader **globs** `ledger/*.jsonl` (plus a legacy `ledger.jsonl` if present) and concatenates; the ledger is **one logical book, many physical shards**.
+
+The shard name is `<cr-ref>.<hash>.jsonl` (Scanner strategy lines, often CR-less, shard as `strategy.<hash>.jsonl`). `<hash>` is **6 random hex minted once per writer-session** — random, **not** derived from a machine id, hostname, or user (deriving it would leak identity and violate the safe-to-publish floor). Same writer-session, same CR → same shard (append there); a different session or a different tree → a different hash → a different file, which is exactly what makes concurrent writes non-colliding.
 
 The plan is also a **portable handoff artifact**: a self-contained Markdown brief, co-located with the worktree (not a home-dir session), readable by any agent or model that picks up the mission.
 `<cr-ref>` is the source-qualified CR id (`github-34`, `asana-<gid>`, `local-<slug>`).
@@ -73,7 +79,7 @@ isProject: false                         # Cursor: always false — SDD has no C
 | Face | Home | Shape | Mutability | Holds |
 |---|---|---|---|---|
 | **Current-state** | `spec.md` frontmatter | `produced-by` (map by role) + `approval` (map by gate: `verdict` + `why`) | **overwritten** — last write wins | the authoritative *present*: who produced each artifact, and the **standing** verdict per gate (the latest CR's outcome) |
-| **Ledger** | sibling `ledger.jsonl` | one JSON object per line, appended in order | **immutable** — lines appended, never edited or removed | the durable *history*: every CR's run-start `leash` block + `gate` verdict + `strategy`, in order (mid-flight detail lives in the plan) |
+| **Ledger** | sibling `ledger/` dir — one `<cr-ref>.<hash>.jsonl` shard per CR per writer | one JSON object per line, appended to the writer's **own** shard | **immutable** — lines appended, never edited or removed | the durable *history*: every CR's run-start `leash` block + `gate` verdict + `strategy` (mid-flight detail lives in the plan) |
 
 The current-state face answers *"who produced this, and what is the verdict now?"*
 The ledger answers *"what was decided to get here?"*
@@ -87,14 +93,14 @@ The same two-face split that separates `produced-by` (standing) from `report` (h
 There is **no per-CR `approval` block** in frontmatter and no separate per-CR sidecar file.
 
 **Every ledger line carries an optional `cr`.**
-Because one `ledger.jsonl` now spans many change requests against the one durable spec, each entry tags the CR it belongs to (`"cr": 34`) so a reader groups a mission's lines without the transcript.
+Because the one project ledger spans many change requests against the one durable spec, each entry tags the CR it belongs to (`"cr": 34`) so a reader groups a mission's lines across shards without the transcript.
 Outer-loop `strategy` lines (cross-CR by nature) may omit it.
 
 **The ledger is operational provenance, not contract.**
-`ledger.jsonl` is **never frozen and never gated**: it keeps appending across the whole lifecycle, including while `spec.md` and the `.feature` are frozen at `approved`.
+The `ledger/` shards are **never frozen and never gated**: writers keep appending across the whole lifecycle, including while `spec.md` and the `.feature` are frozen at `approved`.
 The freeze and the gates govern the contract (`spec.md` + the `.feature`) only.
 
-Write flow: the conductor **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` / `halt` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** its run-start `leash` block and self-asserted `gate` lines to the durable `ledger.jsonl`.
+Write flow: the conductor **overwrites** the current-state face in `spec.md`, **appends** mid-flight `report` / `correction` / `halt` lines to the **combat log** (the plan's `*.log.jsonl`), and **appends** its run-start `leash` block and self-asserted `gate` lines to its **own shard** in the durable `ledger/`.
 These mid-flight lines are **flushed to the committed `*.log.jsonl` during the mission, not at the end** — the doctrine loop reads the committed log **post-merge** (the session and its transcripts may be gone, possibly on another machine), so an unflushed line is a lost line.
 At retro the doctrine-loop Scanner reads the concluded combat log, **distills** recurring causes, and **appends** `strategy` lines to the ledger.
 **Deletion is decoupled from distill** (Plan retirement, below): the distill fires at `→ implemented`; the **tracked deletion** of the plan is a separate, later retro step, gated on source = `done`/merged **and** distilled.
@@ -103,7 +109,7 @@ At retro the doctrine-loop Scanner reads the concluded combat log, **distills** 
 flowchart LR
   disp[conductor] -->|overwrites| state[current-state face<br/>spec.md frontmatter]
   disp -->|appends report/correction| clog[combat log<br/>plan *.log.jsonl, tracked]
-  disp -->|appends run-start leash + self-asserted gate| ledger[ledger.jsonl<br/>sibling file, durable]
+  disp -->|appends run-start leash + self-asserted gate to its own shard| ledger[ledger/ dir<br/>per-writer shards, durable]
   clog -->|read at retro| scanner[doctrine-loop Scanner]
   scanner -->|distills + appends strategy| ledger
   scanner -->|deletes later, gated| clog
@@ -157,12 +163,12 @@ The "never blocks" invariant is scoped to **availability**:
 ## Entry shapes — across the plan and the ledger
 
 One JSON object per line (JSON Lines).
-Every line carries a **CR-scoped `seq`** (append order *within its CR*, restarting per CR — never a global counter), a **write-time UTC `ts`**, an optional pseudonymous **`handle`**, and a `kind`.
-Six kinds, split by tier: **`report`**, **`correction`**, and **`halt`** are mid-flight → the **combat log** (the plan's `*.log.jsonl`); the conductor's run-start **`leash`** block, **`gate`**, and **`strategy`** are durable → the slim `ledger.jsonl`.
+Every line carries a **CR-scoped `seq`** (append order *within its shard* — restarting per shard, never a global counter), an optional pseudonymous **`handle`**, and a `kind`. **Combat-log** lines additionally carry a **write-time UTC `ts`**; **ledger** lines carry **no wall-clock time** (see below).
+Six kinds, split by tier: **`report`**, **`correction`**, and **`halt`** are mid-flight → the **combat log** (the plan's `*.log.jsonl`); the conductor's run-start **`leash`** block, **`gate`**, and **`strategy`** are durable → the slim `ledger/` shards.
 
-A CR-scoped `seq` is collision-free under concurrency: one CR lives in exactly one worktree at a time (the source-claim lock, `../intake/README.md`), so two concurrent missions always hold different CRs and never mint the same `(cr, seq)`.
-The durable ledger receives only sparse `leash`/`gate`/`strategy` lines, so its rare cross-tree appends reconcile by **union merge** (keep all lines — they are independent records, never contradictions); set `ledger.jsonl merge=union` in `.gitattributes`.
-This append reconciliation is purely mechanical and **never** reaches the hard floor (which is for semantic frozen-scenario conflicts, not log appends).
+`seq` needs no cross-writer coordination: it is simply each shard's own line count, and each shard has exactly one writer, so two concurrent missions writing different shards can never mint a conflicting `(shard, seq)`.
+The sharded storage makes concurrent appends **non-colliding by construction** — a merge driver is **not** used and none is needed; there is no shared `ledger.jsonl` for two branches (or two same-tree sessions) to contend over.
+Concurrent-append reconciliation therefore never arises and **never** reaches the hard floor (which is for semantic frozen-scenario conflicts, not log storage).
 
 **Safe-to-publish-by-construction floor (committed-record rule).**
 The combat log is **committed**, so every line is **published to git history permanently** — the "deleted at retro" step removes it from the *tree*, never from history — and a distilled line may be carried **upstream by the Forge loop** (`../forge/README.md`).
@@ -174,10 +180,10 @@ Treat every field as forever-public; the floor binds **all** fields, not only fr
 
 The floor is **structural** — enforced by `combat-log-governance`; no redaction pipeline is needed for the committed record (the Forge loop redacts again before any cross-installation send).
 
-**Write-time `ts`.**
-Every line carries a UTC `ts` (ISO-8601, second granularity) stamped **at write-time** — the session clock is the only place wall-clock is knowable, and the doctrine loop reads the committed log **post-merge, possibly on another machine** (the session is gone).
-`seq` orders lines *within* a CR; `ts` adds cross-mission ordering and the coarse durations the efficiency dimension needs.
-(Per-entry timestamps are mild behavioral metadata; UTC plus the pseudonymous handle keep them safe-to-publish.)
+**Write-time `ts` — combat-log lines only.**
+Combat-log lines (`report` / `correction` / `halt`) carry a UTC `ts` (ISO-8601, second granularity) stamped **at write-time** — the session clock is the only place wall-clock is knowable, and the doctrine loop reads the committed combat log **post-merge, possibly on another machine** (the session is gone). Within a mission, `ts` orders those lines and feeds the **pre-merge coarse-duration** signal the efficiency dimension reads from the raw transcripts (`../doctrine/README.md`).
+**Ledger lines (`leash` / `gate` / `strategy`) carry no `ts`.** They are the forever-public durable record; a wall-clock timestamp on a committed, cross-machine-read artifact leaks activity timing and timezone for no load-bearing gain — nothing reads ledger `ts`, ordering *within* a shard is `seq`, and the cross-mission timeline is git commit history. A machine-invariant *duration/effort* signal (engagement count, not wall-clock — wall-clock duration varies per machine) is a **separate coarse-categorical field**, deferred until the Scanner consumes it (so we never persist a field nothing reads).
+(Legacy ledger lines written before ADR-0020 carry a `ts` and are grandfathered — append-only, never rewritten.)
 
 **Identity — the per-entry `handle` (pseudonymous).**
 Mid-flight lines (`report` / `correction`) and `strategy` carry a `handle`: the writer's pseudonym.
@@ -261,7 +267,7 @@ One line per gate verdict per CR — the immutable twin of the standing `approva
 Where `approval` is overwritten by the next CR, the `gate` line preserves every CR's verdict forever, keyed by `cr`.
 
 ```jsonl
-{"seq": 9, "ts": "2026-06-28T19:02:55Z", "kind": "gate", "cr": 34, "gate": "spec", "verdict": "approve", "by": "unional", "cause": "dimension", "frozen": ["intake/intake.feature", "mission/mission.feature"]}
+{"seq": 2, "kind": "gate", "cr": 34, "gate": "spec", "verdict": "approve", "by": "unional", "cause": "dimension", "frozen": ["intake/intake.feature", "mission/mission.feature"]}
 ```
 
 - **`gate`** — `spec | impl`, the gate this verdict closes.
@@ -281,7 +287,7 @@ The `gate` line is the **load-bearing answer to G**: with no per-folder `status`
 The durable record of the run's **initial strategy evaluation**: the conductor's autonomy bar for the mission, written once at run start (before exploration). It carries the run-level `leash` reach and the `approach[]` containment methods; it is **not** the Scanner's `strategy` and is **never** counted as pending strategy (it has no `ratified` field).
 
 ```jsonl
-{"seq": 49, "ts": "2026-07-01T08:31:12Z", "kind": "leash", "cr": "disambiguate-strategy-kind", "leash": "auto-spec", "by": "user", "blast": "medium", "approach": ["no-spike", "worktree"]}
+{"seq": 1, "kind": "leash", "cr": "disambiguate-strategy-kind", "leash": "auto-spec", "by": "user", "blast": "medium", "approach": ["no-spike", "worktree"]}
 ```
 
 - **`leash`** — the run-level reach: `auto-none | auto-spec | auto-all` (`lifecycle-model.md`).
@@ -297,7 +303,7 @@ This contract defines the **shape** of that line; the **write is owned by the do
 The `strategy` line also carries the **distilled recurrence count** for a `cause` (in `evidence`), maintained across missions because the raw `correction` lines that fed it are removed with each plan at retro.
 
 ```jsonl
-{"seq": 12, "ts": "2026-06-29T08:15:40Z", "handle": "sdd-scanner", "kind": "strategy", "recommendation": "codify the coverage-gap pattern as a spec-format-governance check", "evidence": ["coverage-gap x3 across sdd-foo, sdd-bar, sdd-baz"], "ratified": false}
+{"seq": 1, "handle": "sdd-scanner", "kind": "strategy", "recommendation": "codify the coverage-gap pattern as a spec-format-governance check", "evidence": ["coverage-gap x3 across sdd-foo, sdd-bar, sdd-baz"], "ratified": false}
 ```
 
 `evidence` lists the corrections that drove the recommendation; `ratified: false` means the Council holds keep-or-cut — unratified strategy never enters the corpus.
@@ -309,9 +315,9 @@ Live current-state is regenerated on demand; the durable record is the ledger.
 
 ## Write ownership
 
-The mid-flight `report` / `correction` lines are appended to the **plan** (`*.log.jsonl`); the durable `leash` / `gate` / `strategy` lines are appended to the **ledger** (`ledger.jsonl`).
-No writer touches the ledger through `spec.md` frontmatter.
-Both are append-only: lines are added with the next CR-scoped `seq`, never edited or deleted.
+The mid-flight `report` / `correction` lines are appended to the **plan** (`*.log.jsonl`); the durable `leash` / `gate` / `strategy` lines are appended to the writer's **own shard** in the **ledger** (`ledger/<cr-ref>.<hash>.jsonl`).
+No writer touches the ledger through `spec.md` frontmatter, and no writer appends to another writer's shard.
+Both are append-only: lines are added with the next `seq` **within the writer's own shard**, never edited or deleted.
 
 | Writer | May append | To | Never writes |
 |---|---|---|---|
@@ -341,7 +347,7 @@ Forge reads the distilled `correction`-with-`cause` from the ledger; campaign / 
 |---|---|---|---|
 | `spec.md` | contract prose + standing current-state frontmatter | **never** (kept aligned) | yes |
 | `<name>.feature` | contract scenarios | **per file**, via its own `@frozen` tag, set on a spec-gate `approve` that touched it (see `lifecycle-model.md`) | yes |
-| `ledger.jsonl` (root sibling) | durable ledger — `leash` + `gate` + `strategy` only (append-only, `merge=union`) | **never** | **never** |
+| `ledger/` (root sibling dir) | durable ledger — `leash` + `gate` + `strategy` only, one `<cr-ref>.<hash>.jsonl` shard per CR per writer (append-only; conflict-free by construction, no merge driver) | **never** | **never** |
 
 The mid-flight **plan** (`.agents/plans/<cr-ref>.plan.md` + `.log.jsonl`) is **not** part of the spec folder: it is **tracked** per-worktree scratch (committed with the work, kept in the PR), removed from the tree at retro once distilled and its source is done/merged (ADR-0015).
 

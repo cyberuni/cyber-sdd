@@ -22,6 +22,7 @@ So SDD does not build a CR-concurrency manager — git is it.
 - **Cross-CR file collisions are git's job.**
   "No two producers on the same file" holds *within* one CR (conductor orchestration discipline; see `specialists-and-squads.md`).
   Two CRs on separate trees touching the same file collide as an ordinary **git merge conflict** at handoff — resolved the normal way, not by an SDD lock.
+  The **durable ledger is exempt**: it is a `ledger/` directory of per-CR-per-writer shard files, so two concurrent missions append to different files and never collide (ADR-0020, `provenance-model.md`) — the one high-frequency shared-file case is designed out, not merge-resolved.
 - **Overlapping frozen scenarios → the hard floor.**
   If a landing CR's frozen `.feature` was changed by another CR since its branch point, the landing CR rebases onto the new baseline; if its frozen scenarios now contradict, that is **Conflict resolution** (or **Clearance** if one clearly supersedes) per `autonomy-rubric.md`.
   Parallelism's cost is paid at merge, where git already makes you pay it.

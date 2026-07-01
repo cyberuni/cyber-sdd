@@ -62,7 +62,7 @@ census:
 - **Location:** `.agents/sdd/artifact-types.toml` (the `.agents/sdd/*` runtime-settings home).
 - **Shape:** a keyed TOML map `"<path-or-glob>" = "<artifact-type>"`.
 - **Mutable, edited in place** — last-write-wins per key; correct a wrong binding by overwriting its
-  key. It is a lookup table, **not** an append-only event log (contrast the `ledger.jsonl` /
+  key. It is a lookup table, **not** an append-only event log (contrast the `ledger/` /
   `*.log.jsonl` provenance streams in `provenance-model.md`).
 - **Optional** — absent is fine; convention covers the common case. The map exists to make a *known*
   ambiguity reproducible, not to enumerate every file.

@@ -118,11 +118,18 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Then the entry is unratified
     And it carries the driving evidence that drove it
 
-  Scenario: strategy lands append-only in the one project ledger
+  Scenario: strategy lands append-only in the Scanner's own ledger shard
     Given a strategy entry
     When the Scanner records it
-    Then it appends to the project ledger with the next seq
+    Then it appends to the Scanner's own shard file in the project ledger directory
+    And the entry carries the next seq within that shard
     And it never edits a prior entry
+
+  Scenario: two concurrent Scanner runs never contend for one ledger file
+    Given two Scanner runs record strategy at the same time
+    When each appends its entry
+    Then each writes to a distinct hash-suffixed shard file
+    And neither edits a file the other writes, so the appends never conflict
 
   # ---- Surfacing ----
 

@@ -8,7 +8,7 @@ concept: provenance
 A **reference artifact**: the `combat-log` governance — the shape of the production provenance
 record: the tracked per-CR **combat log** (in the plan) and the durable **ledger** sibling of the
 root `spec.md`, their entry shapes, and the matchable `cause` enum. A fixed-universal SDD governance
-loaded by the conductor, validate-spec, and the doctrine-loop Scanner; invariant per role.
+loaded by the conductor, spec-gate, and the doctrine-loop Scanner; invariant per role.
 
 ## Subject
 
@@ -19,7 +19,7 @@ loaded by the conductor, validate-spec, and the doctrine-loop Scanner; invariant
   five entry kinds (`report` / `correction` / `halt` → the combat log; `gate` / `strategy` → the ledger), the
   CR-scoped `seq`, the write-time UTC `ts`, the pseudonymous `handle`, the matchable `cause` enum, and
   the safe-to-publish floor.
-- **Conformance** — verified through consumer suites (conductor + validate-spec + Scanner), never by
+- **Conformance** — verified through consumer suites (conductor + spec-gate + Scanner), never by
   this artifact itself. A reference artifact carries this `## Subject` in place of `## Use Cases` +
   a `.feature`.
 - **Boundary** — the model + rationale (three tiers, plan retirement, readers-split) live in

@@ -7,7 +7,7 @@ concept: governance
 
 A **reference artifact**: the `ownership` governance — who may write each `spec.md` frontmatter
 field and each artifact, plus the freeze write-constraint. A fixed-universal SDD governance loaded by
-every producer, judge, conductor, and the start-mission/validate-spec skills; invariant per role (not
+every producer, judge, conductor, and the start-mission/spec-gate skills; invariant per role (not
 face-split).
 
 ## Subject
@@ -18,7 +18,7 @@ face-split).
 - **Contract surface** — the write-ownership matrix (which role may write each field / artifact), the
   producer write boundary, positional ratification authority, and the frozen-`.feature` write
   constraint.
-- **Conformance** — verified through consumer suites (`../../authoring/validate-spec/` + the
+- **Conformance** — verified through consumer suites (`../../authoring/spec-gate/` + the
   producer/judge suites), never by this artifact itself. A reference artifact carries this
   `## Subject` in place of `## Use Cases` + a `.feature`.
 - **Boundary** — the field *definitions* live in `lifecycle`; the *legality* of the resulting state

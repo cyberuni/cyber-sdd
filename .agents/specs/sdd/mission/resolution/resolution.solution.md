@@ -42,10 +42,10 @@ the omission is a decision, not an oversight.
 
 ## Considered — the resolver as its own skill (chosen)
 
-The matcher first lived inside `validate-spec/scripts/`. Because it is consumed by the **conductor**
+The matcher first lived inside `spec-gate/scripts/`. Because it is consumed by the **conductor**
 (start-mission) **and** both cold judges — not just the spec gate — it was **extracted** into its own
 `resolve-governances` engine-skill, parallel to `discover-specs` / `discover-plans` /
-`plan-retirement`. The alternative (leaving it under `validate-spec`) mis-stated ownership and buried
+`plan-retirement`. The alternative (leaving it under `spec-gate`) mis-stated ownership and buried
 a shared engine under one consumer.
 
 ## Why this is reversible

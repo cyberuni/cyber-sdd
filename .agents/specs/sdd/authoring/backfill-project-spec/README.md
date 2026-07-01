@@ -26,7 +26,7 @@ runs **once at bootstrap**, before the normal per-unit explore (`../spec-produce
 **Subject** — choosing and scaffolding the *organization* of one project's spec (its layout, the
 `project-path` frontmatter + the body placement map), then handing back to per-unit explore.
 **Non-goals** — it does **not** fill each node's `## Use Cases` + `.feature` (that is `../spec-producer/`
-during explore); it renders **no** gate verdict and freezes nothing (`../validate-spec/`); it does **not**
+during explore); it renders **no** gate verdict and freezes nothing (`../spec-gate/`); it does **not**
 write the control frontmatter `status` / `approval` / `produced-by`; ongoing **re-organization**
 of an existing spec is the formation **Warden**'s (`../../formation/`), not this unit; it does not implement
 the project it scaffolds.
@@ -84,5 +84,5 @@ In order; the conductor runs it in-session, surfacing each choice to the user (r
   index block), and the `design/decisions/` + glossary homes.
 - It does **not** author any node's `## Use Cases` or `.feature` (that is the per-unit explore), render a gate
   verdict, freeze, or write `status` / `approval` / `produced-by` — those belong to the conductor
-  and `../validate-spec/`.
-- The produced root passes `../validate-spec/scripts/check-spec-state.mts` (a legal root tuple).
+  and `../spec-gate/`.
+- The produced root passes `../spec-gate/scripts/check-spec-state.mts` (a legal root tuple).

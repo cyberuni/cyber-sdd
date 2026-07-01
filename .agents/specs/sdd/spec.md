@@ -148,13 +148,13 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
 | `intake` | `intake/plan-discovery/` (behavior) |
-| `lifecycle` | `acceptance/` (e2e) · `authoring/validate-spec/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) |
+| `lifecycle` | `acceptance/` (e2e) · `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) |
 | `orchestration` | `design/cr-concurrency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission/conductor/` (behavior) |
 | `plugin` | `plugin/` (behavior) · `plugin/plugin-contract/` (reference) |
 | `provenance` | `acceptance/` (e2e) · `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) |
 | `resolution` | `acceptance/` (e2e) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) |
 | `routing` | `gateway/` (behavior) · `gateway/manage/` (behavior) |
-| `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `authoring/validate-spec/` (behavior) · `mission/solution-producer/` (behavior) |
+| `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-gate/` (behavior) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `mission/solution-producer/` (behavior) |
 
 <!-- END generated: by-concept -->
 

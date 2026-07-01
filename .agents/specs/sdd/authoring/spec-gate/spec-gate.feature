@@ -1,6 +1,6 @@
 @frozen
 Feature: The spec gate — judge a spec + suite diff and freeze on approve
-  Unit suite for the validate-spec gate skill (the gate unit). Gate behaviors only — the
+  Unit suite for the spec-gate skill (the gate unit). Gate behaviors only — the
   producer's grilling/authoring behaviors live in ../spec-producer/spec-producer.feature; the
   cross-capability CR lifecycle lives in ../../acceptance/.
 

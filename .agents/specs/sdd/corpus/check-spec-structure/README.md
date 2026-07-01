@@ -30,7 +30,7 @@ It carries two **deterministic** checks plus one **judgment** arm:
 `.feature` scenario counts, and emitting a finding set (with severity) for the Warden.
 **Non-goals** — it never audits **placement-drift** (concepts legitimately scatter — that is
 `../place-node/` + handoff + the Warden), never renders the **by-concept view** (`../concept-index/`),
-never checks **gate legality** (`../../authoring/validate-spec/`), and never flags **over-fragmented
+never checks **gate legality** (`../../authoring/spec-gate/`), and never flags **over-fragmented
 folders** or **singleton concepts** (see *Out of scope* below for the rationale).
 
 | Trigger | Inputs | Outcome |
@@ -69,7 +69,7 @@ A finding carries a **severity**, and `--check` reads it:
   that engine.
 
 It also does **not** render the by-concept view (`../concept-index/`) or check gate **legality** —
-the `## Use Cases`/`## Subject`/spec-type reconcile is `../../authoring/validate-spec/`'s
+the `## Use Cases`/`## Subject`/spec-type reconcile is `../../authoring/spec-gate/`'s
 `check-spec-state`, fail-closed at the gate; this engine is advisory drift over time.
 
 ## Determinism and the write boundary

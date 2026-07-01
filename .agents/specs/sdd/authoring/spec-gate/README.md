@@ -3,7 +3,7 @@ spec-type: behavioral
 concept: [lifecycle, spec-authoring]
 ---
 
-# validate-spec — the spec gate
+# spec-gate — the spec gate
 
 The **spec gate**: the verdict on the spec + suite **diff** before it becomes the contract. It
 runs the distinct judge actor, derives the **leash** (the verdict assessment in
@@ -24,7 +24,7 @@ it does not produce.
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
 | **run structural provenance / alignment / spec-type checks** — before any verdict | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only |
 
-Every scenario in [`validate-spec.feature`](./validate-spec.feature) maps to one of these four
+Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
 in `lifecycle-model.md`, the self-clear-vs-escalate bar and the four-C hard floor in
 `autonomy-rubric.md`, the provenance shape in `provenance-model.md`. This unit is the *behavior*

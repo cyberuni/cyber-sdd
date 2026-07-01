@@ -63,8 +63,8 @@ There is **no `aligned` field** (ADR-0017): contract-sync (`spec.md` ↔ `.featu
 ```mermaid
 stateDiagram-v2
     [*] --> draft: start-mission (new or backfill)
-    draft --> approved: spec gate (validate-spec --target spec)
-    approved --> implemented: impl gate (validate-spec --target impl)
+    draft --> approved: spec gate (spec-gate --target spec)
+    approved --> implemented: impl gate (spec-gate --target impl)
     approved --> draft: behavior change (re-open)
     implemented --> draft: behavior change (re-open)
     draft --> deprecated: Oracle-lens kill (scope)
@@ -109,7 +109,7 @@ in-flight segment is the open plan todo plus the unfrozen `.feature` it touches.
 
 ## Legal-state tuples
 
-The mechanical authority is `validate-spec/scripts/check-spec-state.mts` — run it to enforce; if `node` is unavailable, apply the same rules by reading frontmatter.
+The mechanical authority is `spec-gate/scripts/check-spec-state.mts` — run it to enforce; if `node` is unavailable, apply the same rules by reading frontmatter.
 The `(status, markers, .feature, approval)` tuple is **illegal** when:
 
 - `status: approved` with no `.feature` — a spec requires a frozen `.feature` to be approved.
@@ -135,7 +135,7 @@ If `check-spec-state.mts` changes, this list follows it — the script is the so
 - `spec-type: reference` with no `## Subject` section — illegal (the reference descriptor is required).
 - `spec-type: behavioral` with no `## Use Cases` section — illegal (a behavioral spec maps use cases to scenarios).
 
-These run wherever the helper runs; the `sdd-new` copy of `check-spec-state.mts` carries them (the baseline at `plugins/sdd/skills/validate-spec/scripts/` predates the spec-type marker).
+These run wherever the helper runs; the `sdd-new` copy of `check-spec-state.mts` carries them (the baseline at `plugins/sdd/skills/spec-gate/scripts/` predates the spec-type marker).
 
 **No-resolvable-producer fails closed.**
 A required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role.
@@ -215,7 +215,7 @@ This is positional, not definitional: the same automaton, run in-session as the 
 
 | Field / write | Written by |
 |---|---|
-| `status` (on human verdict, or to match an in-leash self-assertion) | the gate skill (`validate-spec`), in-session |
+| `status` (on human verdict, or to match an in-leash self-assertion) | the gate skill (`spec-gate`), in-session |
 | `approval` human ratification (`verdict` + `by: <name>`) | the gate skill, **in-session position only** |
 | `approval` self-assertion (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the conductor (synthesis) |
 | `project-path`, `<!-- open: -->` markers | the conductor |

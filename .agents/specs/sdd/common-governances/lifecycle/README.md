@@ -16,7 +16,7 @@ role; it is invariant per role (not face-split).
   `../../design/governance-resolution.md`).
 - **Contract surface** — the root `spec.md` frontmatter schema, the `status` enum, the legal status
   transitions, open-marker gating, and the per-file freeze state-transition.
-- **Conformance** — verified through a consumer's suite (`../../authoring/validate-spec/`) and the
+- **Conformance** — verified through a consumer's suite (`../../authoring/spec-gate/`) and the
   mechanical `check-spec-state.mts`, never by this artifact itself. A reference artifact carries this
   `## Subject` in place of `## Use Cases` + a `.feature`.
 - **Boundary** — the **model + rationale** live in `../../design/lifecycle-model.md` (canonical);

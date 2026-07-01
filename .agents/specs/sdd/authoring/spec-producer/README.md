@@ -20,7 +20,7 @@ suite delta, it does not receive it.
 
 **Subject** — the spec-producer procedure: turning one CR into a spec + suite diff.
 **Non-goals** — it renders no gate verdict, freezes nothing, and emits no digest (those are
-`../validate-spec/`); it does not write the control frontmatter (`status` / `project-path` /
+`../spec-gate/`); it does not write the control frontmatter (`status` / `project-path` /
 `approval` / `produced-by`).
 
 The procedure runs in one of **three modes** — the distinct ways it is invoked:
@@ -81,5 +81,5 @@ The producer writes the **spec body and the `.feature`**, nothing else:
   stays a pure boolean assertion (`../suite-format/README.md`).
 
 **Producer/judge separation.** The producer authors the diff; a **distinct judge** actor
-verifies it (`../validate-spec/`). The producer self-aligns against the same governances the
+verifies it (`../spec-gate/`). The producer self-aligns against the same governances the
 judge checks against — it never collapses producing and judging into one voice.

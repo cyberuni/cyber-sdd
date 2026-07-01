@@ -78,7 +78,7 @@ The impl-gate Oracle-revert (`autonomy-rubric.md`) is a conductor escalation the
 
 For an **SDD-default spec/solution-producer** role, the conductor additionally loads the matching `spec-producer-governance` / `solution-producer-governance` — the procedure it runs inline; for an **SDD-default impl-producer**, the spawned builder loads `impl-producer-governance`.
 A plugin delegate carries its own procedure and loads these bars directly.
-The gate skill `validate-spec` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; the conductor loads all three.
+The gate skill `spec-gate` loads `lifecycle-`, `ownership-`, and `gate-validation-governance`; the conductor loads all three.
 The `sdd` gateway loads **no** governance — it is a thin relay that only classifies and routes (`actors-governance.md`, `gateway/README.md`); reading a raw `status` value for routing needs no governance load.
 How each resolved-actor bar is discovered, composed, and loaded: `governance-resolution.md`.
 

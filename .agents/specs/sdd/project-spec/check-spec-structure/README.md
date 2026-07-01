@@ -7,7 +7,7 @@ concept: corpus-structure
 
 The **check-spec-structure** procedure: audit the **internal node-shape** of one project spec and
 emit a finding set for the formation Warden. It is the **intra-spec** successor to the retired
-cross-spec corpus tools (`dedupe-specs`/`split-spec`) — now that one project is **one spec**,
+cross-spec tools (`dedupe-specs`/`split-spec`) — now that one project is **one spec**,
 structural maintenance happens *inside* a spec, not across many. It is a read-only, advisory
 detector (the `../place-node/` family): it computes findings and writes nothing; the Warden decides
 and acts (`../../formation/`).
@@ -35,8 +35,8 @@ folders** or **singleton concepts** (see *Out of scope* below for the rationale)
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **audit node-shape** (default) — a formation pass needs the structural finding set | a project spec corpus dir | a finding set: each **untagged-node** (blocking) and **oversized-node** (advisory) naming the node; read-only |
-| **check drift** (CI) — a no-regression structural guard | a corpus dir, check mode | exits **non-zero** iff a **blocking** finding exists, and **writes nothing**; advisory-only findings still exit zero |
+| **audit node-shape** (default) — a formation pass needs the structural finding set | the project-spec directory | a finding set: each **untagged-node** (blocking) and **oversized-node** (advisory) naming the node; read-only |
+| **check drift** (CI) — a no-regression structural guard | the project-spec directory, check mode | exits **non-zero** iff a **blocking** finding exists, and **writes nothing**; advisory-only findings still exit zero |
 | **a node missing a concept tag** | a spec-typed node README with no `concept:` | an **untagged-node** finding — the node is orphaned from the by-concept index (blocking) |
 | **a node whose suite exceeds the granularity threshold** | a node + its `.feature`, a threshold | an **oversized-node** finding proposing a sub-node split (advisory) |
 | **two nodes in the spec that contradict** (judgment) | two conflicting nodes | escalated for the **Warden**'s judgment via the `@rubric` arm — the engine emits no deterministic finding |
@@ -51,7 +51,7 @@ A finding carries a **severity**, and `--check` reads it:
 
 - **blocking** (`untagged-node`) — a structural-integrity defect; `--check` exits non-zero.
 - **advisory** (`oversized-node`) — a judgment candidate, not a regression; surfaced in the audit
-  for the Warden but **never** fails `--check`. (This is why the engine ships green against a corpus
+  for the Warden but **never** fails `--check`. (This is why the engine ships green against a project-spec
   that legitimately holds a large node pending a deliberate split.)
 
 ## Out of scope (deferred, with rationale)
@@ -62,7 +62,7 @@ A finding carries a **severity**, and `--check` reads it:
   and `../../authoring/backfill-project-spec/` both carry `corpus-structure` yet belong where they
   sit). Placement is owned by `../place-node/` (advising a **new** node's home), the mission
   **handoff** (finalizing it), and the **Warden's** judgment — not a recurring mechanical audit.
-- **over-fragmented capability folder** — no settled heuristic on a young corpus; high
+- **over-fragmented capability folder** — no settled heuristic on a young project-spec; high
   false-positive risk. Revisit once oversized/integrity produce signal.
 - **stale / singleton `concept:` value** — a singleton concept is legitimately valid, and surfacing
   where a concept lives **is** the `../concept-index/` by-concept view; including it would duplicate

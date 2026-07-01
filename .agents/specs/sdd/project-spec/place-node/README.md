@@ -19,16 +19,16 @@ is `../check-spec-structure/`), and never reads a node body (frontmatter only, l
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **suggest a home** — explore is placing a new node | a corpus dir + the node's `concept` | the capability folders where that concept already lives, ranked by how many of its facets sit there — the provisional home |
-| **a concept with no prior home** | a corpus dir + a `concept` no node yet carries | an empty home suggestion — a new concept; explore picks any plausible capability, finalized at handoff |
-| **catch a duplicate** — guard against re-creating an existing node | a corpus dir + the node's name | the existing nodes whose name overlaps — "belongs near X" |
+| **suggest a home** — explore is placing a new node | the project-spec directory + the node's `concept` | the capability folders where that concept already lives, ranked by how many of its facets sit there — the provisional home |
+| **a concept with no prior home** | the project-spec directory + a `concept` no node yet carries | an empty home suggestion — a new concept; explore picks any plausible capability, finalized at handoff |
+| **catch a duplicate** — guard against re-creating an existing node | the project-spec directory + the node's name | the existing nodes whose name overlaps — "belongs near X" |
 
 Every scenario in [`place-node.feature`](./place-node.feature) maps to one of these entry points or to
 the read-only boundary that closes this spec.
 
 ## How a home is suggested — derivation, not a registry
 
-The suggestion is **derived from the corpus's own `concept:` tags**, never a stored routing list (the
+The suggestion is **derived from the project-spec's own `concept:` tags**, never a stored routing list (the
 `../../corpus/discovery/` no-drift rule): the home for a concept is **where that concept's facets already sit**.
 A concept enacted across `design/` + `mission/` suggests those capabilities; the human tie-break rules
 for genuinely contested overlaps live in the placement-map routing table

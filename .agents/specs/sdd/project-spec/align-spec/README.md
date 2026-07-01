@@ -5,7 +5,7 @@ concept: corpus-structure
 
 # align-spec — detect & reconcile prose↔suite drift
 
-The **align-spec** procedure: the one **user-invocable** (and CI-usable) corpus tool, and the only
+The **align-spec** procedure: the one **user-invocable** (and CI-usable) project-spec tool, and the only
 one that **reconciles** rather than only reporting. It runs the same alignment check the spec gate
 runs ([`../../authoring/`](../../authoring/README.md)), but **on demand** across **the project
 spec's nodes** — for audits, post-large-change verification, and CI gating. Drift is normally caught

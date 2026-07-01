@@ -107,6 +107,11 @@ handle) while giving the same structural guarantee.
 - A stale reader that expects a single `ledger.jsonl` sees only the migrated legacy shard until
   updated. Mitigated: the reader globs `ledger/*.jsonl` **and** a legacy `ledger.jsonl`, so migration
   is a pure `git mv` with no window of loss.
+- The shard address is a 6-hex random hash (~16.7M values). "Non-colliding by construction" means no
+  two writers ever *intentionally* write the same path, not that a hash collision is impossible — two
+  concurrent writer-sessions on the *same* CR would need the same hash to collide (~1 in 16.7M). This
+  is well below any real risk at SDD's concurrency; a future high-concurrency need could widen the
+  hash or fold in the session pid.
 
 ## Implementation Notes
 

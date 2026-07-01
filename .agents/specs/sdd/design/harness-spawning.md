@@ -10,7 +10,7 @@ Companion to `specialists-and-squads.md` (spec/solution-producers run inline; im
 ## The constraint
 
 By default SDD's **conductor is the main (user) session** — not a spawned agent (`specialists-and-squads.md`).
-The conductor **spawns cold judges** (`sdd-spec-judge`, `sdd-implementer`) for grader independence, and **spawns a builder** for the impl-producer — both **at depth 1 from the main session** (main → judge / builder).
+The conductor **spawns cold judges** (`sdd-spec-judge`, `sdd-impl-judge`) for grader independence, and **spawns a builder** for the impl-producer — both **at depth 1 from the main session** (main → judge / builder).
 Depth 1 is the floor and the ceiling for the default path: every harness here supports a main session spawning subagents, so the default model **ports everywhere** and grader independence is **always** preserved (the judge is a real subagent the author cannot reach).
 
 The depth-2 case (`caller → spawned automaton → judge`) arises only in the **headless / fan-out fallback** below, where the automaton runs as a spawned subagent and spawns its own judges. That requires a harness that allows a subagent to spawn another.

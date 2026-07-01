@@ -1,6 +1,6 @@
 @frozen
 Feature: The impl-judge procedure — run the verification against the frozen contract
-  Unit suite for the default impl-judge (sdd-implementer). Judge behaviors only — it runs the
+  Unit suite for the default impl-judge (sdd-impl-judge). Judge behaviors only — it runs the
   verification the impl-producer authored and advises; it never authors tests, sets the bar, or
   writes the gate verdict (that is ../conductor/). Cross-capability e2e scenarios live in
   ../../acceptance/.
@@ -40,6 +40,12 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Then the producer's passing run does not by itself pass the gate
     And the judge's independent re-derivation decides each scenario's verdict
 
+  Scenario: the judge re-derives the oracle for every scenario regardless of blast radius
+    Given frozen scenarios at both high and low blast radius
+    When the impl-judge judges each scenario
+    Then it re-derives the oracle from the frozen scenario in every case
+    And it never substitutes the producer's passing run for its own re-derivation on a low-blast-radius scenario
+
   Scenario: a frozen scenario with no verification fails
     Given a frozen scenario that has no authored verification
     When the impl-judge runs
@@ -68,6 +74,12 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     When it judges the implementation
     Then it folds in a fit and no-duplication and no-conflict reading orthogonal to the builder's lens
 
+  Scenario: a structural read finding is raised as a blocker that withholds the pass
+    Given the impl-judge's orthogonal structural read finds a fit or duplication or conflict problem
+    When the impl-judge reports its result
+    Then it raises that finding as a structural blocker distinct from the per-scenario checks
+    And it does not report the implementation passing while that structural blocker stands
+
   Scenario: the implementation passes only when every scenario passes
     Given a run where some frozen scenarios pass and at least one fails
     When the impl-judge rolls up its result
@@ -84,6 +96,11 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Given a scenario whose check yields a rubric score
     When the impl-judge reports it
     Then it collapses the score to a boolean pass or fail for that scenario
+
+  Scenario: each failing scenario is reported by name with its owning lens and failed check
+    Given a run where one or more frozen scenarios fail
+    When the impl-judge reports its result
+    Then it names each failing scenario with the lens that owns it and the check that failed
 
   Scenario: a behavior-changing gap is reported as a blocker, not edited
     Given the impl-judge finds a gap that needs specified behavior to change

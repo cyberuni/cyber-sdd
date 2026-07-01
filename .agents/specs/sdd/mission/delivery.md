@@ -48,7 +48,7 @@ not these. Cross-capability outcome (e2e) scenarios live in `../acceptance/`.
 | Unit | Type | Spec | Role |
 |---|---|---|---|
 | **impl-producer** | behavioral | [`impl-producer/`](./impl-producer/README.md) | the `impl-producer-governance` procedure — build the implementation **and** one verification per frozen scenario against the frozen `.feature`; **spawned builder**, never edits `spec.md` / `.feature`, applies the Builder + Architect lenses |
-| **impl-judge** | behavioral | [`impl-judge/`](./impl-judge/README.md) | the cold impl-judge — run the producer's verification + an orthogonal structural/scope read, collapse any graded subject to a boolean per scenario; **spawned cold** (`sdd-implementer`) |
+| **impl-judge** | behavioral | [`impl-judge/`](./impl-judge/README.md) | the cold impl-judge — run the producer's verification + an orthogonal structural/scope read, collapse any graded subject to a boolean per scenario; **spawned cold** (`sdd-impl-judge`) |
 
 ## Where the rules live
 

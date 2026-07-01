@@ -86,7 +86,7 @@ role may also name a model-tuned agent; naming any agent means the conductor **s
 | `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md`) when a unit has durable rationale | conductor loads `solution-producer-governance`, authors inline in-session (`sdd:automaton`) |
 | `spec-judge` | judges the `.feature` at the spec gate | `sdd-spec-judge` — spawned cold agent |
 | `impl-producer` | builds the artifact **and** its verification | conductor spawns a generic builder that loads `impl-producer-governance` (`sdd:automaton`) |
-| `impl-judge` | runs the verification against the frozen `.feature` | `sdd-implementer` — spawned cold agent |
+| `impl-judge` | runs the verification against the frozen `.feature` | `sdd-impl-judge` — spawned cold agent |
 
 **Producers run inline, judges spawn cold** ("conductor writes, cold judges grade"). The
 judge stays a **distinct actor** (producer/judge separation). Which governances each role

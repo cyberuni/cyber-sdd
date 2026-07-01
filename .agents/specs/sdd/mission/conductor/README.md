@@ -83,7 +83,11 @@ structural-error class below — because a registry that cannot be read cannot b
 
 A required role **always lands on a real delegate** or the conductor **hard-fails closed** and
 records nothing (no inline sentinel) — the same fail-closed structural-error class as a malformed
-`produced-by` entry or an off-enum combat-log `cause`. A domain claimed by two plugins returns
+`produced-by` entry or an off-enum combat-log `cause`. A resolved delegate that **recuses** from a
+subject (declares it outside its domain and produces nothing) is **distinct** from a missing
+delegate: recusal is **not** a structural error — the conductor **re-resolves that unit's chain to
+the SDD defaults** (default producer + SDD-default bars + judge) and proceeds, recording the recusal
+as a combat-log line (`design/lifecycle-model.md`). A domain claimed by two plugins returns
 `needs-input` (answered in-session, or up the relay in the headless fallback); the choice is
 written and resume is decisive.
 

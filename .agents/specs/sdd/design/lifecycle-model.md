@@ -143,6 +143,12 @@ When a gate runs and a required role has **no resolvable producer** (not a plugi
 This is a **structural** error, the same fail-closed class as a malformed `produced-by` entry or an off-enum `cause` (defined in `provenance-model.md`).
 Distinct from availability: a recorded producer whose plugin is merely uninstalled is flagged, not blocked.
 
+**A resolved producer may recuse; recusal falls back to the SDD default.**
+Distinct from no-resolvable-producer (above): a producer that **resolves** may **recuse** from a subject at runtime — declare it outside its domain and produce nothing (e.g. a domain plugin bound by artifact-type meets a subject its lens does not fit).
+Recusal is **not** a structural error. The conductor **re-resolves that unit's chain to the SDD defaults** — the default producer for that role plus the SDD-default bars and judge — and proceeds; other units keep their resolved squad.
+The recusal is recorded as a **combat-log line** (a routing fact, `provenance-model.md`), never a halt.
+Only a **resolved** producer may recuse; a **missing** delegate still fails closed.
+
 ## Freeze (per suite file)
 
 Freeze is the contract baseline of the behavior suite.

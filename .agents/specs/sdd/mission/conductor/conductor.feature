@@ -81,6 +81,13 @@ Feature: The conductor — running one mission segment
     Then the conductor halts with a structural error
     And it records no inline sentinel for the missing role
 
+  Scenario: a resolved producer that recuses falls back to the SDD default
+    Given a resolved producer that recuses from a subject as outside its domain
+    When the conductor runs the chain for that unit
+    Then it re-resolves that unit's chain to the SDD-default producer, bars, and judge
+    And it does not halt with a structural error
+    And it records the recusal as a combat-log line
+
   Scenario: a domain claimed by two plugins asks before proceeding
     Given an artifact-type claimed by two plugins
     When the conductor resolves that role

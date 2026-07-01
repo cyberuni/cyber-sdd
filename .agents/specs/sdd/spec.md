@@ -137,11 +137,11 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | [`plugin/`](./plugin/README.md) | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
 | [`acceptance/`](./acceptance/README.md) | e2e behavior suite | — |
 
-<!-- BEGIN generated: by-concept (corpus/concept-index) -->
+<!-- BEGIN generated: by-concept (project-spec/concept-index) -->
 
 ## By concept
 
-> Generated from `concept:` frontmatter by `corpus/concept-index` — do not edit by hand.
+> Generated from `concept:` frontmatter by `project-spec/concept-index` — do not edit by hand.
 
 | Concept | Facets |
 |---|---|

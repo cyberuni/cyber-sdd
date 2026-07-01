@@ -108,6 +108,7 @@ Order scenarios to trace the workflow top-to-bottom:
 Freeze is **per `.feature` file**: a frozen suite file carries a feature-level **`@frozen` tag**. The tag is metadata, **excluded from the contract content** the freeze protects — toggling it is not a scenario edit. How scenario edits interact with a frozen file:
 
 - An **additive** scenario folds into a frozen file without unfreezing it — it widens the contract, cannot break existing impl, and **self-clears**.
+- A **pure move/rename** (`git mv`, zero content delta) **preserves the freeze** — a freeze protects the scenario content, not the file's path, so relocating a frozen node is not a scenario edit and is not gate-able.
 - A **narrowing or rewriting** edit **unfreezes** the file; at the gate that fires **Clearance**.
 
-Vocabulary is **freeze / unfreeze** — never lock/unlock (reserved for the concurrency layer). The freeze/unfreeze *model* — when freeze fires (the Draft → Approved gate), the unfreeze risk trigger, iteration economy — lives in `../../design/lifecycle-model.md`; this bar owns only the marker and the suite-edit rule above.
+Vocabulary is **freeze / unfreeze** — never lock/unlock (reserved for the concurrency layer). The freeze/unfreeze *model* — when freeze fires (the Draft → Approved gate), the unfreeze risk trigger, relocation preserving freeze, iteration economy — lives in `../../design/lifecycle-model.md`; this bar owns only the marker and the suite-edit rules above.

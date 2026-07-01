@@ -62,6 +62,12 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Then the file stays frozen
     And the addition self-clears
 
+  Scenario: a pure move or rename of a frozen file preserves its freeze
+    Given a frozen .feature file
+    When the file is relocated by a pure rename with no content change
+    Then the file stays frozen
+    And the gate raises no Clearance
+
   Scenario: a narrowing edit unfreezes its file and fires Clearance
     Given a frozen .feature file
     When a scenario in it is narrowed or rewritten

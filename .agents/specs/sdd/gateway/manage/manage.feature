@@ -1,6 +1,6 @@
 @frozen
 Feature: The manage dispatcher — classify a manage-level request and load the engine in-session
-  Unit suite for the manage unit (the manage skill). Classification + loading the matching corpus
+  Unit suite for the manage unit (the manage skill). Classification + loading the matching
   engine only — manage holds no production logic, opens no CR, invokes no gate, and writes no
   contract state. Cross-capability e2e scenarios live in ../../acceptance/.
 
@@ -34,8 +34,8 @@ Feature: The manage dispatcher — classify a manage-level request and load the 
     When manage classifies it
     Then it loads the discover-specs engine in the current session
 
-  Scenario: an audit request loads the matching corpus engine
-    Given a request to audit the corpus node-shape
+  Scenario: an audit request loads the matching engine
+    Given a request to audit the project-spec node-shape
     When manage classifies it
     Then it loads the check-spec-structure engine in the current session
 

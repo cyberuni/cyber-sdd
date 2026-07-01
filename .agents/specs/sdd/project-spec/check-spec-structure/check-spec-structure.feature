@@ -8,27 +8,27 @@ Feature: The check-spec-structure procedure — audit node-shape within one proj
 
   Scenario: a spec-typed node missing a concept tag is flagged as an untagged orphan
     Given a node whose README declares a spec-type but carries no concept tag
-    When check-spec-structure audits the corpus
+    When check-spec-structure audits the project-spec
     Then it emits an untagged-node finding naming that node
 
   Scenario: a node carrying a concept tag raises no untagged finding
     Given a node whose README declares a spec-type and a concept tag
-    When check-spec-structure audits the corpus
+    When check-spec-structure audits the project-spec
     Then it emits no untagged-node finding for that node
 
   Scenario: a node whose suite exceeds the granularity threshold is flagged oversized
     Given a node whose .feature scenario count exceeds the threshold
-    When check-spec-structure audits the corpus
+    When check-spec-structure audits the project-spec
     Then it emits an oversized-node finding proposing a sub-node split
 
   Scenario: a node within the granularity threshold raises no oversized finding
     Given a node whose .feature scenario count is within the threshold
-    When check-spec-structure audits the corpus
+    When check-spec-structure audits the project-spec
     Then it emits no oversized-node finding for that node
 
-  Scenario: a structurally clean corpus produces no findings
-    Given a corpus whose nodes are all concept-tagged and within the threshold
-    When check-spec-structure audits the corpus
+  Scenario: a structurally clean project-spec produces no findings
+    Given a project-spec whose nodes are all concept-tagged and within the threshold
+    When check-spec-structure audits the project-spec
     Then it emits no findings
 
   # ── Severity & check mode (CI) ──
@@ -44,18 +44,18 @@ Feature: The check-spec-structure procedure — audit node-shape within one proj
     Then the oversized-node finding is advisory
 
   Scenario: check mode exits non-zero on a blocking finding and writes nothing
-    Given a corpus with an untagged-node finding
+    Given a project-spec with an untagged-node finding
     When check-spec-structure runs with the check flag
     Then it exits non-zero
     And it writes no artifact
 
   Scenario: check mode exits zero when only advisory findings exist
-    Given a corpus whose only finding is an oversized-node advisory
+    Given a project-spec whose only finding is an oversized-node advisory
     When check-spec-structure runs with the check flag
     Then it exits zero
 
-  Scenario: check mode exits zero on a clean corpus
-    Given a corpus with no findings
+  Scenario: check mode exits zero on a clean project-spec
+    Given a project-spec with no findings
     When check-spec-structure runs with the check flag
     Then it exits zero
 
@@ -79,12 +79,12 @@ Feature: The check-spec-structure procedure — audit node-shape within one proj
   # ── The write boundary ──
 
   Scenario: the audit writes nothing
-    Given check-spec-structure auditing a corpus
+    Given check-spec-structure auditing a project-spec
     When it emits its finding set
     Then it writes no file
     And it writes no status, approval, or freeze
 
   Scenario: frontmatter only — no node body reaches a deterministic finding
     Given a node whose body prose differs from its frontmatter
-    When check-spec-structure audits the corpus
+    When check-spec-structure audits the project-spec
     Then no deterministic finding is derived from the node body

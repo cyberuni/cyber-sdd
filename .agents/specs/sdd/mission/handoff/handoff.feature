@@ -43,10 +43,10 @@ Feature: The handoff phase — land the verified result in the declared delivery
     And the .feature stays frozen
 
   Scenario: placement finalization is scoped to the mission's touched nodes
-    Given a corpus with specs unrelated to this mission
+    Given a project-spec with nodes unrelated to this mission
     When handoff finalizes placement
     Then it relocates only the mission's touched nodes
-    And it does not reorganize the unrelated specs
+    And it does not reorganize the unrelated nodes
 
   Scenario: a correctly-placed node is not relocated
     Given a node explore already placed in its blessed home

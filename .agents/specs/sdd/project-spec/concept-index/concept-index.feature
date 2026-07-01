@@ -1,6 +1,6 @@
 @frozen
-Feature: The concept-index procedure — render the by-concept view of one corpus from frontmatter
-  Unit suite for the concept-index tool. Scanning a spec corpus for concept: frontmatter, grouping
+Feature: The concept-index procedure — render the by-concept view of one project-spec from frontmatter
+  Unit suite for the concept-index tool. Scanning a project-spec for concept: frontmatter, grouping
   nodes by concern, annotating each with its facet kind, and maintaining the generated block in the
   root spec.md. Deterministic scenarios are node:test-verified. Cross-capability e2e scenarios live
   in ../../acceptance/.
@@ -8,59 +8,59 @@ Feature: The concept-index procedure — render the by-concept view of one corpu
   # ── Scan and group — concept: tags are the source ──
 
   Scenario: a node's concept tag places it under that concept
-    Given a corpus node whose frontmatter declares concept "resolution"
-    When concept-index renders the corpus
+    Given a project-spec node whose frontmatter declares concept "resolution"
+    When concept-index renders the project-spec
     Then the node appears under the "resolution" concept
 
   Scenario: a node tagged with several concepts appears under each
-    Given a corpus node whose frontmatter declares concept [governance, resolution]
-    When concept-index renders the corpus
+    Given a project-spec node whose frontmatter declares concept [governance, resolution]
+    When concept-index renders the project-spec
     Then the node appears under "governance"
     And the node appears under "resolution"
 
   Scenario: a node with no concept tag is omitted
-    Given a corpus node whose frontmatter declares no concept
-    When concept-index renders the corpus
+    Given a project-spec node whose frontmatter declares no concept
+    When concept-index renders the project-spec
     Then the node appears under no concept in the index
 
   # ── Facet kind — derived mechanically from location + spec-type ──
 
   Scenario: a design/ node is annotated as a rule
     Given a node under design/ tagged with a concept
-    When concept-index renders the corpus
+    When concept-index renders the project-spec
     Then the node's facet kind is "rule"
 
   Scenario: an acceptance/ node is annotated as e2e
     Given a node under acceptance/ tagged with a concept
-    When concept-index renders the corpus
+    When concept-index renders the project-spec
     Then the node's facet kind is "e2e"
 
   Scenario: a reference node is annotated as reference
     Given a node with spec-type reference tagged with a concept, outside design/ and acceptance/
-    When concept-index renders the corpus
+    When concept-index renders the project-spec
     Then the node's facet kind is "reference"
 
   Scenario: a behavioral node is annotated as behavior
     Given a node with spec-type behavioral tagged with a concept, outside design/ and acceptance/
-    When concept-index renders the corpus
+    When concept-index renders the project-spec
     Then the node's facet kind is "behavior"
 
   # ── Determinism — pure derivation ──
 
   Scenario: rendering twice is byte-identical
-    Given a fixed corpus of tagged nodes
-    When concept-index renders the corpus twice
+    Given a fixed project-spec of tagged nodes
+    When concept-index renders the project-spec twice
     Then the two rendered tables are byte-identical
 
   Scenario: concepts and nodes are emitted in a stable order
-    Given a corpus of tagged nodes
-    When concept-index renders the corpus
+    Given a project-spec of tagged nodes
+    When concept-index renders the project-spec
     Then the concepts are ordered deterministically
     And the nodes under each concept are ordered deterministically
 
   Scenario: the output carries no node body content
-    Given a corpus node with a sentinel only in its body, below its frontmatter
-    When concept-index renders the corpus
+    Given a project-spec node with a sentinel only in its body, below its frontmatter
+    When concept-index renders the project-spec
     Then the sentinel appears nowhere in the rendered table
 
   # ── Write boundary — only the generated block changes ──
@@ -85,10 +85,10 @@ Feature: The concept-index procedure — render the by-concept view of one corpu
 
   Scenario: check succeeds when the block is current
     Given a root spec.md whose generated block equals the freshly rendered table
-    When concept-index checks the corpus
+    When concept-index checks the project-spec
     Then it reports no drift
 
   Scenario: check fails when the block is stale
     Given a root spec.md whose generated block differs from the freshly rendered table
-    When concept-index checks the corpus
+    When concept-index checks the project-spec
     Then it reports drift and exits non-zero

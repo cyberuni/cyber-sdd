@@ -49,7 +49,7 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
   Scenario: grilling that reveals a bundle of several recommends a split
     Given a CR under grilling that reveals a bundle of several distinct units
     When the producer recognizes the bundle
-    Then it recommends a corpus split rather than growing one node into a monolith
+    Then it recommends a split rather than growing one node into a monolith
 
   Scenario: a missing required input becomes an open marker, not an invention
     Given the producer needs an input that is missing and cannot be inferred

@@ -37,7 +37,7 @@ workers doing the dynamic work at the leaves. SDD chose structure on purpose —
 provenance, and auditability come from.
 
 But SDD is **more than a workflow**. An agentic workflow is an ephemeral task automation; SDD wraps
-that runtime in a durable **spec corpus**, a **lifecycle** (draft → approved → implemented +
+that runtime in a durable **project-spec**, a **lifecycle** (draft → approved → implemented +
 freeze), **human gates**, and **governance**. That governing layer is a *methodology* — the
 **process** altitude (BPM / software-process). So the two terms are not rivals but **two altitudes**:
 **process** = the governing methodology layer (*what SDD is*); **workflow** = the runtime
@@ -63,9 +63,12 @@ frozen:
 - **outcome** — what actually happens.
 
 A **project** — a repo, an agent configuration, an npm package, a website, or a single package
-inside a monorepo (projects nest) — has **one durable spec**, one behavior suite, one gate/freeze
-baseline. Size is solved by **organizing into files and folders** (folders are views, never
-lifecycle units), never by splitting into a fleet of per-feature specs.
+inside a monorepo (projects nest) — has **one durable spec** (its **project-spec**), one behavior
+suite, one gate/freeze baseline. Size is solved by **organizing into files and folders** (folders
+are views, never lifecycle units), never by splitting into a fleet of per-feature specs. The
+collection of project-specs in a repo is the **corpus** — a noun, not an operation; the three
+nested levels (corpus ⊃ project-spec ⊃ node) are defined in
+[`design/spec-structure.md`](./design/spec-structure.md).
 ([`design/project-unit.md`](./design/project-unit.md).)
 
 ### The gateway — the one front door

@@ -5,10 +5,26 @@ model: true
 
 # Spec structure — node types and layout
 
-The **internal** structure of one spec, in two parts: **what kinds of nodes it is made of** (the
+The **internal** structure of one project-spec, in two parts: **what kinds of nodes it is made of** (the
 taxonomy — a validated contract) and **how those nodes are arranged into a tree** (the layout — a
 recommended convention). The counterpart to `project-unit.md`, which fixes the *external* boundary
-(what maps to one spec); here is the *internal* structure of that one spec.
+(what maps to one project-spec); here is the *internal* structure of that one project-spec.
+
+## Three levels — corpus, project-spec, node
+
+The spec vocabulary has **three nested levels**, and every operation is named by the level it acts upon:
+
+- **corpus** — the *collection* of project-specs in a repo (`.agents/specs/`: `sdd`, `aces`, …). A
+  **noun**, kept scarce and precise — never a verb or an operation prefix. A **corpus-level** action
+  ranges across projects (e.g. `corpus/discovery` lists them; nothing restructures across them).
+- **project-spec** — one project's whole durable spec (`.agents/specs/<project>/`): one `spec.md`,
+  one behavior suite, one gate/freeze baseline. A **project-spec-level** action operates within a
+  single project's tree — audit its node-shape, index its concepts, place a node, reconcile its drift.
+- **node** — one unit inside a project-spec: a `spec.md` (+ optional `.feature` / `.solution.md`).
+  The taxonomy below classifies nodes.
+
+`corpus ⊃ project-spec ⊃ node`. This doc is the **project-spec** level — the internal structure of
+one project-spec. "corpus" appears below only where a concern genuinely spans the collection.
 
 ## Spec types
 
@@ -74,7 +90,7 @@ never re-derived by scanning.
 
 ## Rule-in-design + behavior-in-capability
 
-A rule and the behavior that enacts it live in different places — the **descriptive**/**behavioral** split above, applied to the corpus:
+A rule and the behavior that enacts it live in different places — the **descriptive**/**behavioral** split above, applied across the project-spec:
 
 - **Rules** — the lifecycle schema, the autonomy rubric, the provenance shape, the SDD stack, the loop, the squad model, the suite style — live in `design/` as **descriptive** model docs.
 - **Behaviors** — the scenarios that *enact* those rules — live in the capability folders as **behavioral** specs.
@@ -83,12 +99,12 @@ This keeps `design/` readable as a model while the capabilities stay testable as
 
 ## Behavior-suite organization
 
-The behavior suite is **part of the project spec**, carried by the **behavioral** specs, organized as:
+The behavior suite is **part of the project-spec**, carried by the **behavioral** specs, organized as:
 
 - an **e2e suite** in `../acceptance/` — the project's outcome-level contract (the important cross-capability scenarios), consumed by step 3's verify;
 - **unit suites** — for the smaller internal pieces — that **colocate** with their capability folder, one `.feature` per unit.
 
-The e2e/unit split is **test organization within the one corpus**, not separate lifecycles to re-gate.
+The e2e/unit split is **test organization within the one project-spec**, not separate lifecycles to re-gate.
 (How scenarios are written and judged: `../authoring/suite-format/README.md`.)
 
 ## The folder skeleton maps to the loops

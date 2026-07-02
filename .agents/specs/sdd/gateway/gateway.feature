@@ -142,6 +142,12 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     Then the work proceeds outside the lifecycle the same as a task with no suite-relevant behavior
     And the gateway writes no SDD record
 
+  Scenario: a mixed-durability request carves the durable part into a CR and escapes the rest
+    Given a request touching several artifacts where some resolve durable and some non-durable
+    When the gateway classifies it
+    Then it carves the durable artifacts into the mission and escapes the non-durable ones
+    And the gateway writes no SDD record for the escaped artifacts
+
   Scenario: a frozen feature is not edited in place
     Given an approved spec whose .feature is frozen
     When the user asks to change a scenario

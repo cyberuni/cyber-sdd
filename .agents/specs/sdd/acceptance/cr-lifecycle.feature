@@ -58,6 +58,12 @@ Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → h
     When SDD intakes it
     Then the project's declaration decides, not the location default
 
+  Scenario: a mixed request carves its durable artifacts into a CR and escapes the non-durable ones
+    Given a single request touching multiple artifacts whose durability signals resolve differently — some durable, some non-durable
+    When SDD intakes it
+    Then only the durable artifacts are carved into the change request
+    And the non-durable artifacts proceed outside the lifecycle, reaching no gate and leaving no combat-log record
+
   # ── Explore, gates, and lifecycle independence ──
 
   Scenario: a confidently-diffable CR self-clears the grill without a human

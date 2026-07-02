@@ -50,7 +50,7 @@ rules for principles, progressive disclosure, description structure, and when to
 logic to a script:
 
 ```bash
-npx cyber-skills@<version> governance show skill-design   # resolve <version> via: npm view cyber-skills version — never @latest
+npx cyberplace@<version> governance show skill-design   # resolve <version> via: npm view cyberplace version — never @latest
 ```
 
 If the skill will ship a `scripts/` directory or document CLI commands agents run, also load
@@ -150,7 +150,7 @@ is `improve`.
 Run the structural audit and fix any CRITICAL or HIGH finding **before** presenting the skill:
 
 ```bash
-npx cyber-skills@<version> audit validate --path <placement-dir>/<name>
+npx cyberplace@<version> audit validate --path <placement-dir>/<name>
 ```
 
 For a fuller pass, invoke the `improve-skill` skill. Do not present a skill with an

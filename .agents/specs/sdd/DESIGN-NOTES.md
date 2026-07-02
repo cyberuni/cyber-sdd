@@ -1,7 +1,7 @@
 # SDD redesign — design notes
 
 > **SUPERSEDED — historical record, not the working model.** These are the original CR #34
-> (<https://github.com/cyberuni/cyber-skills/issues/34>) design-discussion notes, kept for
+> (<https://github.com/cyberuni/cyberplace/issues/34>) design-discussion notes, kept for
 > provenance. The working model is now the root [`spec.md`](./spec.md) narrative + the
 > [`design/`](./design/) rules + the capability folders. The model evolved past these notes
 > during the post-review cleanup; where this doc disagrees with the spec tree, **the spec

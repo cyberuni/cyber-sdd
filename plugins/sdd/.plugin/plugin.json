@@ -3,8 +3,8 @@
 	"name": "sdd",
 	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 	"author": { "name": "unional" },
-	"homepage": "https://github.com/cyberuni/cyber-skills",
-	"repository": "https://github.com/cyberuni/cyber-skills",
+	"homepage": "https://github.com/cyberuni/cyberplace",
+	"repository": "https://github.com/cyberuni/cyberplace",
 	"skills": "./skills",
 	"agents": "./agents"
 }

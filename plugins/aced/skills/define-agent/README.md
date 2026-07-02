@@ -36,5 +36,5 @@ This lets you hand off work to the agent autonomously, or step into its role you
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/define-agent
+npx skills add cyberuni/cyberplace --skill aced/define-agent
 ```

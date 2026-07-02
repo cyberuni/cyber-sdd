@@ -21,5 +21,5 @@ Locates the target's `eval.md` and frozen `.feature`, invokes `aced-case-judge` 
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/run
+npx skills add cyberuni/cyberplace --skill aced/run
 ```

@@ -4,8 +4,8 @@
 	"version": "0.1.0",
 	"description": "Documentation SDD plugin. Spec, write, and verify documentation — guides, tutorials, articles, reference pages, and READMEs — as implementation artifacts with verifiable structure.",
 	"author": { "name": "unional" },
-	"homepage": "https://github.com/cyberuni/cyber-skills",
-	"repository": "https://github.com/cyberuni/cyber-skills",
+	"homepage": "https://github.com/cyberuni/cyberplace",
+	"repository": "https://github.com/cyberuni/cyberplace",
 	"skills": "./skills",
 	"agents": "./agents"
 }

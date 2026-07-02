@@ -21,5 +21,5 @@ Scans `artifacts/specs/*/eval.md`, computes per-suite pass rate/mean/trend from 
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/report
+npx skills add cyberuni/cyberplace --skill aced/report
 ```

@@ -21,5 +21,5 @@ If the target is ACED-tracked (has an `eval.md`), it loads the internal impl-pro
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/improve
+npx skills add cyberuni/cyberplace --skill aced/improve
 ```

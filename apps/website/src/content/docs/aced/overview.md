@@ -31,7 +31,7 @@ Evaluation runs in four independent layers:
 
 | Layer | What it checks |
 |---|---|
-| **Structural** | Required fields and format (via `cyber-skills audit`) |
+| **Structural** | Required fields and format (via `cyberplace audit`) |
 | **Trigger** | Does the agent invoke this artifact at the right times? |
 | **Behavior** | When invoked, does the agent follow the steps and rules? |
 | **Quality** | Is the output the agent produces actually good? |
@@ -95,7 +95,7 @@ Suites live in `artifacts/specs/` alongside SDD specs. Each suite has its own pa
 ## Installation
 
 ```bash
-npx skills add cyberuni/cyber-skills --plugin aced
+npx skills add cyberuni/cyberplace --plugin aced
 ```
 
 ## Related

@@ -21,5 +21,5 @@ Locates the target suite, classifies the new scenario's layer (trigger / behavio
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/add-scenario
+npx skills add cyberuni/cyberplace --skill aced/add-scenario
 ```

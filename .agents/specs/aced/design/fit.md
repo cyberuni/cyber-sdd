@@ -10,7 +10,7 @@ criteria that carry signal; it never re-decides fit.
 **FIT = which of ACED's four eval layers carry real signal for this subject.**
 
 The four layers (`design/README.md`): **Structural** (fields/format — already covered by
-`cyber-skills audit`), **Trigger** (does it fire at the right times), **Behavior** (does it follow
+`cyberplace audit`), **Trigger** (does it fire at the right times), **Behavior** (does it follow
 the steps/rules when invoked), **Quality** (is the output good). A subject that only has signal at
 the **Structural** layer is not an ACED subject — ACED adds nothing an existing linter does not.
 

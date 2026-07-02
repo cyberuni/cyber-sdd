@@ -12,7 +12,7 @@ to one spec), `spec-structure.md` fixes the *node taxonomy* (descriptive / refer
 **menu of strategies** with a selection rule, a fit reconciliation, and a declared record — the model behind
 the `backfill-project-spec` authoring unit (`../authoring/backfill-project-spec/`).
 
-The problem it answers ([#35](https://github.com/cyberuni/cyber-skills/issues/35)): placing a concept
+The problem it answers ([#35](https://github.com/cyberuni/cyberplace/issues/35)): placing a concept
 correctly today needs the whole system in your head. The owner places fast; a newcomer is slow and
 error-prone, and misplacement becomes structural debt formation must later reconcile. A **pre-determined,
 declared layout** turns an open placement decision into a closed slotting one.

@@ -4,8 +4,8 @@
 	"version": "0.1.0",
 	"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
 	"author": { "name": "unional" },
-	"homepage": "https://github.com/cyberuni/cyber-skills",
-	"repository": "https://github.com/cyberuni/cyber-skills",
+	"homepage": "https://github.com/cyberuni/cyberplace",
+	"repository": "https://github.com/cyberuni/cyberplace",
 	"commands": "./commands",
 	"skills": "./skills",
 	"agents": "./agents"

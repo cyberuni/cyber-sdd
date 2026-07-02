@@ -8,7 +8,7 @@ concept: spec-structure
 The **project-level layout bootstrap**: when an existing project has **no consolidated spec**, choose an
 **organization strategy** (`../../design/spec-layout.md`), scaffold the skeleton, and **declare** the choice,
 so the per-unit explore that follows slots work into known homes instead of inventing placement. It is the
-structural answer to [#35](https://github.com/cyberuni/cyber-skills/issues/35) — lowering the placement
+structural answer to [#35](https://github.com/cyberuni/cyberplace/issues/35) — lowering the placement
 burden on non-owner builders.
 
 It enacts the **structure-doc trio**: `../../design/spec-structure.md` (the node taxonomy — the three

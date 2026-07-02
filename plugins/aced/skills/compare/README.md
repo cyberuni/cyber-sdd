@@ -21,5 +21,5 @@ Scores the frozen `.feature` suite against a "before" version (default: previous
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/compare
+npx skills add cyberuni/cyberplace --skill aced/compare
 ```

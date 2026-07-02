@@ -12,7 +12,7 @@ draft of this ADR also placed that layer in a per-project `## Process` section; 
 below retracts that — process is a repo-level concern, not a per-project section.)
 
 They are not interchangeable. A terminology survey
-([`docs/research/sdd-vs-agentic-workflow.md`](../../packages/cyber-skills/docs/research/sdd-vs-agentic-workflow.md))
+([`docs/research/sdd-vs-agentic-workflow.md`](../../packages/cyberplace/docs/research/sdd-vs-agentic-workflow.md))
 found the two words diverge by **altitude** and by **domain-claim**:
 
 - **Academia / standards** (BPM, van der Aalst; CMMI, ISO/IEC 90003): **process** is the umbrella
@@ -79,4 +79,4 @@ the runtime that Anthropic's ephemeral agentic workflows do not have.
    `workflow.md` sibling. (Defining/building `.agents/spec` itself is separate, later work.)
 
 Background survey:
-[`docs/research/sdd-vs-agentic-workflow.md`](../../packages/cyber-skills/docs/research/sdd-vs-agentic-workflow.md).
+[`docs/research/sdd-vs-agentic-workflow.md`](../../packages/cyberplace/docs/research/sdd-vs-agentic-workflow.md).

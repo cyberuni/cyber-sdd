@@ -26,7 +26,7 @@ After reporting findings, it applies fixes directly to the SKILL.md.
 Mechanical checks can run without an LLM:
 
 ```bash
-npx cyber-skills@<version> audit validate --path skills/my-skill
+npx cyberplace@<version> audit validate --path skills/my-skill
 ```
 
 Full quality review and fix application require this agent skill after mechanical validation passes.
@@ -34,5 +34,5 @@ Full quality review and fix application require this agent skill after mechanica
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/improve-skill
+npx skills add cyberuni/cyberplace --skill aced/improve-skill
 ```

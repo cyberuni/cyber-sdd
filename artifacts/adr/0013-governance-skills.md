@@ -10,11 +10,11 @@ Accepted
 
 ## Context
 
-Reference/criteria content — version-pinned standards like `skill-design`, and (in the SDD plugin redesign) the universal `.feature` format bar, scenario-ordering convention, and spec principles — has historically been loaded on demand via `cyber-skills governance show <name>` (ADR-0001, ADR-0002).
+Reference/criteria content — version-pinned standards like `skill-design`, and (in the SDD plugin redesign) the universal `.feature` format bar, scenario-ordering convention, and spec principles — has historically been loaded on demand via `cyberplace governance show <name>` (ADR-0001, ADR-0002).
 
 Two pressures now make that mechanism the wrong home:
 
-1. **NodeJS elimination.** The SDD plugin redesign (see `artifacts/specs/sdd-orchestrator/`) aims to run its loop without `npx cyber-skills` / `npx universal-plugin`. `governance show` is a NodeJS runtime call inside the loop.
+1. **NodeJS elimination.** The SDD plugin redesign (see `artifacts/specs/sdd-orchestrator/`) aims to run its loop without `npx cyberplace` / `npx universal-plugin`. `governance show` is a NodeJS runtime call inside the loop.
 2. **Scope.** The obvious NodeJS-free alternative — an `AGENTS.md` section — is **project-global**: it loads for *all* work in the project, including work unrelated to the plugin. A plugin exists to stay scoped; its governance should load only when that plugin's work is happening.
 
 We need a home for reference content that is harness-native (no NodeJS), plugin-scoped (not `AGENTS.md`), and loadable by other agents (the plugin's own agents and dependent plugins' agents — e.g. ACED and Quill spec-producers loading SDD's format governance).

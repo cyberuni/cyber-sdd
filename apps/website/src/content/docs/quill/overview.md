@@ -47,7 +47,7 @@ Producers act (they write); judges run cold — `quill-judge` is a separate cont
 ## Installation
 
 ```bash
-npx skills add cyberuni/cyber-skills --plugin quill
+npx skills add cyberuni/cyberplace --plugin quill
 ```
 
 Then run `init-quill` to register Quill in `.agents/universal-plugin.json` so the SDD conductor resolves its roles for documentation domain types.

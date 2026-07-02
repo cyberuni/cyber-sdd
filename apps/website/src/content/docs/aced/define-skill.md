@@ -15,7 +15,7 @@ Creates or improves a **workflow skill** — a process, tool-based, or standard 
 2. Loads the `skill-design` governance for authoring rules.
 3. Settles scope, trigger condition, output contract, quality bar, and out-of-scope before writing — asks the user to resolve anything that can't be inferred.
 4. Chooses a pattern (process / tool-based / standard) and a placement (user-global / project-private / project-public), scaffolds the file, and creates a symlink per targeted runtime (Claude Code, Cursor, Codex).
-5. Runs the structural audit (`cyber-skills audit validate`) and fixes any CRITICAL or HIGH finding before presenting the skill.
+5. Runs the structural audit (`cyberplace audit validate`) and fixes any CRITICAL or HIGH finding before presenting the skill.
 
 ## Three entry points
 

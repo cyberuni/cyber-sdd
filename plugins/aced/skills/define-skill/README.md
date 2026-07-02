@@ -33,5 +33,5 @@ It then drafts the SKILL.md (kebab-case name, a 150–400 char trigger-bearing d
 ## Install
 
 ```bash
-npx skills add cyberuni/cyber-skills --skill aced/define-skill
+npx skills add cyberuni/cyberplace --skill aced/define-skill
 ```

@@ -12,7 +12,7 @@ Evaluation runs in layers:
 
 | Layer | What it checks |
 |---|---|
-| **Structural** | Required fields and format (via `cyber-skills audit`) |
+| **Structural** | Required fields and format (via `cyberplace audit`) |
 | **Trigger** | Does the agent invoke this configuration at the right times? |
 | **Behavior** | When invoked, does the agent follow the steps and rules? |
 | **Quality** | Is the output actually good? |
@@ -29,7 +29,7 @@ records a `**Fit:**` line in its spec:
 | **partial** | mechanically executes a predetermined path (graded behavior, no activation choice) | behavior/quality evals; **no trigger near-miss** required |
 | **wrong-squad** | is a deterministic script/engine (assertable output, not graded) | **recuses** — use an ordinary test harness (`node:test`), not ACED |
 
-Only the **Structural** layer signal on a subject means it is **wrong-squad** — `cyber-skills audit`
+Only the **Structural** layer signal on a subject means it is **wrong-squad** — `cyberplace audit`
 already covers that. The classifier lives in `skills/aced-fit/` (model: the spec's `design/fit.md`).
 
 ## Skills
@@ -103,7 +103,7 @@ eval:
 ## Installation
 
 ```bash
-npx skills add cyberuni/cyber-skills --plugin aced
+npx skills add cyberuni/cyberplace --plugin aced
 ```
 
 ## Relationship to SDD

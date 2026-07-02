@@ -50,7 +50,7 @@ Register by running `init-quill` in a project that uses the `sdd` plugin.
 ## Installation
 
 ```bash
-npx skills add cyberuni/cyber-skills --plugin quill
+npx skills add cyberuni/cyberplace --plugin quill
 ```
 
 Then run `init-quill` to register quill in `.agents/universal-plugin.json`.

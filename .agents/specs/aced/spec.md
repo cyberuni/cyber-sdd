@@ -6,16 +6,16 @@ approval:
     verdict: approve
     by: agent
     why:
-      leash: within — a draft agent-config spec on a feature branch; freeze is reversible via the re-open flag
-      basis: every behavioral unit cold-judged ALIGNED (3-lens {oracle,builder,architect}) and the glossary Subject + acceptance e2e pass; the three .mts gates are green over the tree
-      cr: 38
+      leash: within — additive CR on feature branch mission/aced-manage-model-runners; two new behavioral units (manage gateway + manage-model-runners engine), no existing frozen scenario narrowed; reversible
+      basis: cold spec-judge graded both nodes 3-lens {oracle,builder,architect}; oracle+architect PASS, builder's one blocking gap (missing Fit declaration) fixed on both plus the two advisories (atomic four-option scenario, scoring near-miss); both .feature frozen
+      cr: manage-model-runners
   impl:
     verdict: approve
     by: agent
     why:
       leash: within — agent-config impl on a feature branch, reversible
-      basis: two cold impl-judges verified all 12 units conform to their frozen .feature (oracle re-derived per scenario, ADR-0016); the four found gaps were fixed in code and re-verified; pnpm verify green
-      cr: 38
+      basis: cold impl-judge (ADR-0016, oracle re-derived per frozen scenario) graded both skills — all 24 frozen scenarios PASS, no code gaps; eval suites 1:1 with scenarios; manage stays a thin dispatcher, manage-model-runners honors every invariant (one def/model, additive-only never auto-remove, confirm-before-remove, non-invocable); audit validate green on both skills
+      cr: manage-model-runners
 ---
 
 # ACED — Agent Config Evaluation & Development
@@ -52,6 +52,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `improve` |
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` |
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
+| [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
 | [`design/`](./design/README.md) | descriptive | the eval model + the `decisions/` ADR log |
 | [`acceptance/`](./acceptance/README.md) | descriptive | the e2e behavior suite (author → run → improve → compare) |
 | [`glossary/`](./glossary/README.md) | reference | the agent-config eval vocabulary |
@@ -65,6 +66,9 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 - **a new way to *grow or fix* the golden set** → `suite-authoring/`.
 - **a new SDD delegate role** → `sdd-roles/` (matched to the plugin-contract roles).
 - **plugin registration / discovery** → `registry/`.
+- **a manage-level (non-mission) operation** (inspect / maintain the tooling corpus, not author or
+  score) → routed through `manage/`; a new such engine that authors config lives under its capability
+  folder (e.g. `config-authoring/manage-model-runners/`) and is added to the `manage/` routing table.
 - **a rule or model** (an eval layer, the mapping, a scoring convention) → `design/` (descriptive); a
   **decision + its rationale** → `design/decisions/` (ADR); a **unit's design fork** → that unit's
   `<unit>.solution.md`.

@@ -21,17 +21,17 @@ Quill handles: `documentation`, `guide`, `tutorial`, `article`, `reference`
 
 ## Production-chain roles
 
-Quill fills these `sdd-operator` production-chain roles for its domain types:
+Quill fills these SDD production-chain roles for its domain types:
 
 | Role | Agent |
 |---|---|
 | spec-producer | `quill-spec-writer` |
 | impl-producer | `quill-doc-writer` |
 | impl-judge | `quill-judge` |
-| spec-judge | SDD default `sdd-spec-judge` (spawned cold) |
-| plan-producer | SDD default (`plan-producer-governance`, run inline) |
+| spec-judge | `null` — degenerates to static doc criteria run by `spec-gate` itself, no judge agent |
+| solution-producer | `null` — uses the SDD default (`solution-producer-governance`, run inline by the conductor) |
 
-Register by running `init-quill` in a project that uses `sdd-operator`.
+Register by running `init-quill` in a project that uses the `sdd` plugin.
 
 ## Skills
 

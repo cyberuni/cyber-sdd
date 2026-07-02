@@ -1,11 +1,11 @@
 ---
 name: init-quill
-description: Use this skill to register quill as the SDD documentation plugin for this project — writes a quill role-map entry to .agents/universal-plugin.json so sdd-operator resolves the quill production-chain roles for documentation domain types.
+description: Use this skill to register quill as the SDD documentation plugin for this project — writes a quill role-map entry to .agents/universal-plugin.json so the SDD conductor resolves the quill production-chain roles for documentation domain types.
 ---
 
 # Init Quill
 
-Register quill in the project's SDD plugin registry so `sdd-operator` can resolve quill's production-chain roles by reading **only** `.agents/universal-plugin.json` — no plugin-directory scanning at runtime. This is the lockfile pattern: resolution happens here, at setup.
+Register quill in the project's SDD plugin registry so the **conductor** can resolve quill's production-chain roles by reading **only** `.agents/universal-plugin.json` — no plugin-directory scanning at runtime. This is the lockfile pattern: resolution happens here, at setup.
 
 ## Workflow
 
@@ -72,4 +72,4 @@ Confirm:
 - quill role-map entry present under `sdd-plugins`, stamped with quill's version
 - Domains registered: `documentation`, `guide`, `tutorial`, `article`, `reference`
 
-Next step: use `create-spec` (sdd plugin) to scaffold a documentation spec; the operator resolves the quill roles automatically.
+Next step: use `sdd:start-mission` to scaffold a documentation spec; the conductor resolves the quill roles automatically.

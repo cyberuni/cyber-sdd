@@ -1,13 +1,13 @@
 ---
 name: quill-judge
-description: "Internal skill: the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, reporting pass/fail per scenario. Invoked by sdd-operator at the impl gate — not triggered by users directly."
+description: "Internal skill: the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, reporting pass/fail per scenario. Invoked by the SDD conductor at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # quill-judge
 
-The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by `sdd-operator`. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
+The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
 
 ## Input
 
@@ -16,8 +16,7 @@ DOMAIN                — domain type (documentation | guide | tutorial | articl
 DOMAIN_PATH           — project-root-relative path to the spec folder
 SPEC_PATH             — project-root-relative path to spec.md
 FEATURE_PATH          — project-root-relative path to the .feature file
-PLAN_PATH             — project-root-relative path to plan.md (or null)
-TASKS_PATH            — project-root-relative path to tasks.md (or null)
+SOLUTION_PATH         — project-root-relative path to <unit>.solution.md (or null)
 IMPLEMENTATION_PATHS  — list of project-root-relative paths from ## Artifacts table where layer=impl
 VERIFICATION_PATHS    — the acceptance checks the impl-producer recorded (e.g. <DOMAIN_PATH>/verification.md)
 ```
@@ -51,7 +50,7 @@ If any reader-path condition cannot be verified by static inspection, mark it SK
 
 ### 4. Aggregate results
 
-Collect per-scenario: PASS, FAIL, or SKIP. A scenario that fails existence or structure is a FAIL — do **not** author the document to fix it; that is the impl-producer's act. Report the FAIL as a `BLOCKER` so the operator re-runs `quill-doc-writer`.
+Collect per-scenario: PASS, FAIL, or SKIP. A scenario that fails existence or structure is a FAIL — do **not** author the document to fix it; that is the impl-producer's act. Report the FAIL as a `BLOCKER` so the conductor re-runs `quill-doc-writer`.
 
 `IMPLEMENTATION_PASS` is `true` only when every scenario is PASS or SKIP.
 

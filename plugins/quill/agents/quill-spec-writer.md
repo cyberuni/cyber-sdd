@@ -1,13 +1,13 @@
 ---
 name: quill-spec-writer
-description: "Internal skill: the Quill spec-producer for documentation domains. Writes the spec.md body and a boolean .feature for guides, tutorials, articles, and reference docs. Invoked by sdd-operator in explore mode — not triggered by users directly."
+description: "Internal skill: the Quill spec-producer for documentation domains. Writes the spec.md body and a boolean .feature for guides, tutorials, articles, and reference docs. Invoked by the SDD conductor in explore mode — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # quill-spec-writer
 
-The **spec-producer** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). It *acts* — writes the `spec.md` body and the `.feature` itself (it does not merely advise). Invoked by `sdd-operator`. Load `sdd:spec-governance` (via the harness) for the universal format bar, ordering, and `spec.md` enrichment; `sdd:ownership-governance` for the write-ownership matrix — which fields a spec-producer may write; the doc criteria below are Quill's additional bar, which `spec-gate` enforces statically as the spec-judge (no judge agent).
+The **spec-producer** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). It *acts* — writes the `spec.md` body and the `.feature` itself (it does not merely advise). Invoked by the SDD conductor. Load `sdd:spec-format-governance` for the `spec.md` skeleton and enrichment and `sdd:suite-format-governance` for the `.feature` form; `sdd:ownership-governance` for the write-ownership matrix — which fields a spec-producer may write; the doc criteria below are Quill's additional bar, which `spec-gate` enforces statically as the spec-judge (no judge agent).
 
 ## Input
 
@@ -24,7 +24,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
 1. **Read the command surface.** Identify the document's path or path pattern, its audience/reader persona, and its declared purpose (install guide, conceptual overview, how-to, API reference). Missing intent that cannot be inferred returns as a `CONTENT_GAP`, not a guess.
 
-2. **Write the `spec.md` body** — What, Why, design decisions, command surface — enriched per `sdd:spec-governance`. Do not write the control frontmatter (`status`, `aligned`, `domain-plugin`).
+2. **Write the `spec.md` body** — What, Why, design decisions, command surface — enriched per `sdd:spec-format-governance`. Do not write the control frontmatter (`status`, `project-path`, `approval`, `produced-by`).
 
 3. **Write `<DOMAIN_PATH>/<DOMAIN>.feature`** — boolean Gherkin meeting the **doc criteria**:
    - **Required per scenario:** the document path (project-root-relative), the intended audience/reader persona, and the observable outcome (what the reader can do after the document).

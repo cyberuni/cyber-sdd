@@ -6,7 +6,7 @@ concept: routing
 # gateway/manage/ — the manage-level dispatcher (the `manage` skill)
 
 The second front door, beside the gateway: `manage` is the user-facing handler for **manage-level
-(non-mission) work** on the project — bootstrap, inspect, audit, housekeeping — as opposed to
+(non-mission) work** on the project — setup & discovery, inspect, audit, housekeeping — as opposed to
 `start-mission`, which *changes what the project specifies*. Like the gateway it is a **thin
 dispatcher**: it classifies a manage request and **loads the matching engine in the current
 session**, holding no production logic, loading no governance, and writing no contract state. It is
@@ -23,9 +23,9 @@ edits the spec/suite itself.
 
 ## Use Cases
 
-**Subject** — the manage dispatcher: classify a **manage-level** request (bootstrap / inspect /
-audit / housekeeping) and **load the matching engine in the current session**, so the session
-runs it directly — a thin dispatcher holding no production logic.
+**Subject** — the manage dispatcher: classify a **manage-level** request (setup & discovery /
+inspect / audit / housekeeping) and **load the matching engine in the current session**, so the
+session runs it directly — a thin dispatcher holding no production logic.
 
 **Non-goals** — it holds **no** production logic, loads no governance, and performs no operation
 itself beyond loading the matched engine; it **opens no CR** and **invokes no gate**; it **never
@@ -39,10 +39,11 @@ Every scenario in [`manage.feature`](./manage.feature) maps to one of these beha
 | **fast path** | a request naming a manage operation loads its engine directly, no menu |
 | **two-level menu** | a bare invocation conducts intake as a two-level menu whose top level presents the four operation groups |
 | **the four-option rule** | an intake question presents at most four options, never truncating silently |
-| **bootstrap → backfill** | a "set up the project spec for the first time" request loads `backfill-project-spec` |
+| **setup → backfill** | a "set up the project spec for the first time" request loads `backfill-project-spec` |
+| **setup → spec anchors** | a "list or change discovery's extra spec anchors" request loads `manage-spec-anchors` |
 | **inspect → read-only engine** | an inspect request loads the matching read-only engine (`discover-specs` / `concept-index` / `place-node` / `discover-plans`) |
 | **audit → engine** | an audit request loads `check-spec-structure` / `align-spec` / `formation` |
-| **housekeeping → engine** | a housekeeping request loads `plan-retirement` (retire completed mission plans) or `manage-spec-anchors` (curate discovery's extra spec anchors) |
+| **housekeeping → engine** | a housekeeping request loads `plan-retirement` (retire completed mission plans) |
 | **load the engine in-session** | a resolved route loads the matched engine in the **current session** and runs it directly — `manage` spawns nothing |
 | **hand off a behavior change** | when an operation surfaces a needed behavior change, `manage` hands off to `start-mission` rather than editing the spec/suite |
 | **non-mission guard** | `manage` opens no CR and invokes no gate |
@@ -58,20 +59,20 @@ Manage-level work is grouped so a bare invocation resolves within the four-optio
 ```mermaid
 flowchart TD
     REQ["request → manage"] --> BARE{"names an operation?"}
-    BARE -->|no| GROUPS["group menu<br/>(≤ 4: Bootstrap · Inspect · Audit &amp; align · Housekeeping)"] --> PICK{pick engine}
+    BARE -->|no| GROUPS["group menu<br/>(≤ 4: Setup &amp; discovery · Inspect · Audit &amp; align · Housekeeping)"] --> PICK{pick engine}
     BARE -->|yes · fast path| PICK
-    PICK -->|Bootstrap| BF["backfill-project-spec"]
+    PICK -->|Setup &amp; discovery| SD["backfill-project-spec · manage-spec-anchors"]
     PICK -->|Inspect| INS["discover-specs · concept-index · place-node · discover-plans"]
     PICK -->|Audit &amp; align| AUD["check-spec-structure · align-spec · formation"]
-    PICK -->|Housekeeping| HK["plan-retirement · manage-spec-anchors"]
+    PICK -->|Housekeeping| HK["plan-retirement"]
 ```
 
 | Group | Operations (engines it loads) |
 |---|---|
-| **Bootstrap** | `backfill-project-spec` — scaffold a project's spec envelope for the first time (`../../authoring/backfill-project-spec/`) |
+| **Setup & discovery** | `backfill-project-spec` — scaffold a project's spec envelope for the first time (`../../authoring/backfill-project-spec/`) · `manage-spec-anchors` — list / CRUD / induce / preview discovery's extra spec anchors (`../../corpus/spec-anchors/`); both are prerequisites for a project being found and usable, not routine cleanup |
 | **Inspect** | `discover-specs` (list specs + statuses) · `concept-index` (by-concept view) · `place-node` (where a concept belongs) · `discover-plans` (in-progress missions) — the read-only engines (`../../corpus/`, `../../project-spec/`, `../../intake/plan-discovery/`) |
 | **Audit & align** | `check-spec-structure` (node-shape) · `align-spec` (prose↔suite drift) · `formation` (corpus-wide audit/split/reconcile) — an audit that needs a behavior change hands off to `start-mission` (`../../corpus/`, `../../formation/`) |
-| **Housekeeping** | `plan-retirement` (retire completed mission plans) (`../../doctrine/plan-retirement/`) · `manage-spec-anchors` (list / CRUD / induce / preview discovery's extra spec anchors) (`../../corpus/spec-anchors/`) — reviewing pending strategy stays gateway-owned (the gateway's episodic pending-count, option 3), not a manage engine |
+| **Housekeeping** | `plan-retirement` (retire completed mission plans) (`../../doctrine/plan-retirement/`) — reviewing pending strategy stays gateway-owned (the gateway's episodic pending-count, option 3), not a manage engine |
 
 ## Load the engine in-session
 
@@ -97,6 +98,6 @@ is itself a change to the project is redirected to `start-mission`, not handled 
 ## Scenarios (colocated)
 
 The behavior suite is [`manage.feature`](./manage.feature) — intake (fast path / two-level group
-menu / four-option rule), the group routes (bootstrap / inspect / audit / housekeeping), loading the
+menu / four-option rule), the group routes (setup & discovery / inspect / audit / housekeeping), loading the
 engine in-session, and the boundaries (non-mission, hand-off to `start-mission`, write-ownership,
 thin-classifier). Cross-capability e2e scenarios live in `../../acceptance/`.

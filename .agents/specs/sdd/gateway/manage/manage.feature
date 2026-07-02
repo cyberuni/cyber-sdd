@@ -24,10 +24,15 @@ Feature: The manage dispatcher — classify a manage-level request and load the 
 
   # ---- Group routes ----
 
-  Scenario: a bootstrap request loads backfill-project-spec
+  Scenario: a setup request loads backfill-project-spec
     Given a request to set up the project's spec for the first time
     When manage classifies it
     Then it loads backfill-project-spec in the current session
+
+  Scenario: a setup request to curate the spec anchors loads manage-spec-anchors
+    Given a request to list or change discovery's extra spec anchors
+    When manage classifies it
+    Then it loads the manage-spec-anchors engine in the current session
 
   Scenario: an inspect request loads the matching read-only engine
     Given a request to list the project's specs and their statuses
@@ -43,11 +48,6 @@ Feature: The manage dispatcher — classify a manage-level request and load the 
     Given a request to retire completed mission plans
     When manage classifies it
     Then it loads the plan-retirement engine in the current session
-
-  Scenario: a housekeeping request to curate the spec anchors loads manage-spec-anchors
-    Given a request to list or change discovery's extra spec anchors
-    When manage classifies it
-    Then it loads the manage-spec-anchors engine in the current session
 
   # ---- Loading the engine ----
 

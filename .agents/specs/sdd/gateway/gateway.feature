@@ -75,6 +75,12 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     Then it reads the specs' frontmatter via the discover-specs engine
     And it does not read any spec body
 
+  Scenario: no spec found for a target offers manage-spec-anchors
+    Given a request targets a project and the discover-specs engine finds no spec for it
+    When the gateway classifies it
+    Then it offers manage-spec-anchors alongside backfill-project-spec as entry points
+    And it does not assume the project was never scaffolded
+
   # ---- Loading the handling skill ----
 
   Scenario: a resolved route loads the handling skill in-session and works directly

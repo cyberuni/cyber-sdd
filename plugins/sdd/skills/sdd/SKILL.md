@@ -36,7 +36,7 @@ When `$sdd` is invoked with no work item, artifact, or action, do not guess. Con
 | # | Top-level option | Covers |
 |---|---|---|
 | 1 | **Make a change to the project** | open a CR against the project spec (add a capability, revise behavior, implement, land) → `start-mission` |
-| 2 | **Manage the corpus** | bootstrap, inspect, audit, or housekeeping (non-mission) → `manage` |
+| 2 | **Manage the corpus** | setup & discovery, inspect, audit, or housekeeping (non-mission) → `manage` |
 | 3 | **Review pending strategy** | the doctrine loop's unratified `strategy` lines, when any are pending |
 | 4 | **Help me choose** | scan the spec + statuses, suggest the most-actionable few (≤ 4), let the user pick |
 
@@ -46,6 +46,8 @@ When a derived list would exceed four, present only the most-actionable few (≤
 
 For **Help me choose** — and whenever it needs to locate the project spec or rank the most-actionable few — the gateway runs the **`discover-specs`** skill, the frontmatter-only engine for `corpus/discovery`. It returns the TOON list of every project spec at the SDD spec locations — the three fixed conventions plus any opt-in extra anchors a project declared (ADR-0019) — with its `status`, `project-path`, and gate `approvals`; the gateway ranks from that and never opens a spec body. This is a read, not production logic — the same category as counting `ledger/` shard lines for pending strategy — so the thin-classifier rule still holds.
 
+**No spec found offers spec anchors.** When `discover-specs` finds no spec for a target project, do not assume it was simply never scaffolded — its spec may sit off the three fixed conventions and need a declared extra anchor. Offer `manage-spec-anchors` (via `manage`) alongside `backfill-project-spec` as entry points, rather than routing straight to backfill.
+
 ## The routing table is the user-skill→capability index
 
 Classification routes a request to the **skill** that handles it; the routing table doubles as the index of what a user can invoke (there is no separate `skills.md`).
@@ -53,7 +55,7 @@ Classification routes a request to the **skill** that handles it; the routing ta
 | User intent | Skill (handler) |
 |---|---|
 | Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
-| Manage the corpus — bootstrap, inspect, audit, or housekeeping (non-mission) | **`manage`** — the manage dispatcher; loads the matching corpus engine in-session |
+| Manage the corpus — setup & discovery, inspect, audit, or housekeeping (non-mission) | **`manage`** — the manage dispatcher; loads the matching corpus engine in-session |
 | A task with no suite-relevant behavior, or confined to a non-durable surface (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 

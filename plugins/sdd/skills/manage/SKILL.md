@@ -18,10 +18,10 @@ The **manage-level** front door to an SDD project — the user-facing handler fo
 
 | # | Operation group | Covers |
 |---|---|---|
-| 1 | **Bootstrap** | scaffold a project's spec envelope for the first time → `backfill-project-spec` |
+| 1 | **Setup & discovery** | scaffold a project's spec envelope for the first time → `backfill-project-spec`; curate discovery's extra spec anchors → `manage-spec-anchors` (both are prerequisites for a project being found and usable, not routine cleanup) |
 | 2 | **Inspect** | list / navigate the corpus → `discover-specs`, `concept-index`, `place-node`, `discover-plans` |
 | 3 | **Audit & align** | audit node-shape, drift, structure → `check-spec-structure`, `formation-loop`, `align-spec` *(planned)* |
-| 4 | **Housekeeping** | retire completed mission plans → `plan-retirement`; curate discovery's extra spec anchors → `manage-spec-anchors` |
+| 4 | **Housekeeping** | retire completed mission plans → `plan-retirement` |
 
 When a group's engine list would exceed four at the second level, present only the most-relevant few (≤ 4) or ask the user to name the engine directly; never enumerate into an over-four question and never truncate silently.
 
@@ -31,7 +31,8 @@ Classification routes a manage request to the **engine** that handles it; every 
 
 | Group | Request | Engine (handler) |
 |---|---|---|
-| **Bootstrap** | set up / backfill a project's spec for the first time | **`backfill-project-spec`** — scaffolds the spec envelope + stub nodes |
+| **Setup & discovery** | set up / backfill a project's spec for the first time | **`backfill-project-spec`** — scaffolds the spec envelope + stub nodes |
+| **Setup & discovery** | list / change discovery's extra spec anchors | **`manage-spec-anchors`** — list fixed + custom anchors, CRUD the custom ones, induce a pattern from a path, preview its match (writes only `.agents/sdd/spec-anchors.toml`) |
 | **Inspect** | list the specs + statuses | **`discover-specs`** — frontmatter-only corpus scan |
 | **Inspect** | render / refresh the by-concept view | **`concept-index`** — `--check` (read) / `--write` (refresh block) |
 | **Inspect** | where does a new concept belong | **`place-node`** — provisional home + duplicate catch |
@@ -40,7 +41,6 @@ Classification routes a manage request to the **engine** that handles it; every 
 | **Audit & align** | reconcile prose↔suite drift | **`align-spec`** *(planned — spec-only, no engine yet)* — a fix that edits behavior **hands off to `start-mission`** |
 | **Audit & align** | corpus-wide audit / split / reconcile | **`formation-loop`** — emits new CRs (→ `start-mission`) |
 | **Housekeeping** | retire completed mission plans | **`plan-retirement`** — gated, idempotent deletion of retired briefs |
-| **Housekeeping** | list / change discovery's extra spec anchors | **`manage-spec-anchors`** — list fixed + custom anchors, CRUD the custom ones, induce a pattern from a path, preview its match (writes only `.agents/sdd/spec-anchors.toml`) |
 
 Reviewing **pending strategy** is **not** a manage operation — it stays **gateway-owned** (the gateway's episodic pending-count, its option 3). `manage` does not surface or ratify strategy.
 

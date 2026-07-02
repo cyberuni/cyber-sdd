@@ -10,7 +10,7 @@ Judge an agent-config .feature against the agent-scenario criteria (trigger cont
 
 **Subject** — when the conductor dispatches it as the spec-judge at the spec gate, grading an
 agent-config `.feature` against the agent-scenario criteria (trigger context, near-miss balance,
-rule coverage, edge coverage, boolean form) and reporting a per-scenario verdict.
+rule coverage, edge coverage, boolean form, rubric structure) and reporting a per-scenario verdict.
 **Non-goals** — writing or fixing the `spec.md` or `.feature` (that is `scenario-writer`); running
 or scoring the eval suite (`implementer` / `judge`); the generic SDD `spec-gate` gate check.
 
@@ -23,6 +23,7 @@ or scoring the eval suite (`implementer` / `judge`); the generic SDD `spec-gate`
 | Recuse a wrong-squad subject | a subject determined wrong-squad for ACED | it reports the subject recused rather than a per-scenario verdict |
 | Check trigger balance (tier-conditional) | a **strong-fit** suite with only obviously-irrelevant negatives and no near-miss | the suite is reported failing on trigger-balance; a **partial-fit** suite with no near-miss **passes** (near-miss N/A) |
 | Check edge coverage | fewer than three edge-case or must-not-do guard scenarios | the suite is reported failing on edge-coverage |
-| Check boolean form | a `Then` that embeds a rubric, threshold, or score | that scenario is reported failing on boolean-form |
+| Check boolean form | an **untagged** `Then` that embeds a rubric, threshold, or score | that scenario is reported failing on boolean-form |
+| Check rubric structure | a `@rubric` scenario | a well-formed one (dimensions + per-dimension max + one threshold + collapsing `Then`) is accepted; a malformed one is reported failing on rubric-structure before scoring |
 | Pass a clean suite | a `.feature` meeting every criterion | every scenario is reported passing with no blocker |
 | Guard on missing subject | the subject text is null or unreadable | it returns needs-input rather than inventing the contract |

@@ -12,7 +12,7 @@ Score simulated agent behavior against a rubric for a scenario and layer (1–5 
 simulated agent behavior against a rubric for a single scenario and layer, and emitting exactly
 SCORE / PASS / WHAT WORKED / WHAT FAILED.
 **Non-goals** — rolling up the gate verdict or `IMPLEMENTATION_PASS` (that is `implementer`);
-aggregating across N runs; deciding which evals exist or authoring the rubric (the impl-producer);
+aggregating across N runs; deciding which evals exist or authoring the rubric (that is `scenario-writer`, inline in the frozen `.feature`);
 running the suite (`implementer` / `run`).
 
 | Use case | Trigger / inputs | Outcome |

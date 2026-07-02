@@ -1,8 +1,8 @@
 @frozen
-Feature: run — score the current config against its golden set
-  Unit suite for the run skill: resolve a golden-set eval suite, judge every case, and report.
-  Scoring a single case is aced-case-judge's contract; diff and roll-up are compare/report. Cross-
-  capability e2e scenarios live in ../../acceptance/.
+Feature: run — score the current config against its frozen .feature suite
+  Unit suite for the run skill: resolve the frozen .feature suite and its eval.md, judge every
+  scenario, and report. Scoring a single case is aced-case-judge's contract; diff and roll-up are
+  compare/report. Cross-capability e2e scenarios live in ../../acceptance/.
 
   # ---- Triggering ----
 
@@ -55,20 +55,20 @@ Feature: run — score the current config against its golden set
     When run prepares the evaluation
     Then it reads the target configuration in full before any case is judged
 
-  Scenario: every case runs in a stable order
-    Given a golden set of several cases
+  Scenario: every scenario runs in a stable order
+    Given a frozen .feature of several scenarios
     When run executes the suite
-    Then it judges every case in filename order
+    Then it judges every scenario in .feature order
 
   Scenario: layers absent from the suite config are skipped
-    Given a suite whose config omits a layer
-    When run executes a case carrying that layer
-    Then it skips that layer for the case
+    Given an eval.md whose layers omit a layer
+    When run executes a scenario tagged with that layer
+    Then it skips that layer for the scenario
 
-  Scenario: a failing case does not stop the run
-    Given a golden set where an early case fails
+  Scenario: a failing scenario does not stop the run
+    Given a frozen .feature where an early scenario fails
     When run executes the suite
-    Then it judges all remaining cases before reporting
+    Then it judges all remaining scenarios before reporting
 
   # ---- Reporting and persistence ----
 

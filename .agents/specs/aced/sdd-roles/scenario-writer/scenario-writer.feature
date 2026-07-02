@@ -1,9 +1,10 @@
 @frozen
 Feature: scenario-writer — the spec-producer role
   Unit suite for the ACED spec-producer the conductor dispatches in explore: write the spec.md body
-  and a boolean .feature for one agent-config artifact. Grading the suite is spec-validator; running
-  the evals is implementer; scoring one case is judge. Cross-capability e2e (a full explore→deliver
-  pass over a real skill) lives in ../../acceptance/, not here.
+  and the .feature for one agent-config artifact — boolean scenarios, @rubric for graded behavior, and
+  a @trigger Scenario Outline for activation, with the rubric authored inline (no separate golden set).
+  Grading the suite is spec-validator; running the evals is implementer; scoring one case is judge.
+  Cross-capability e2e (a full explore→deliver pass over a real skill) lives in ../../acceptance/, not here.
 
   # ---- Role boundary ----
 
@@ -22,10 +23,10 @@ Feature: scenario-writer — the spec-producer role
     When it completes the spec-producer role
     Then it does not emit a pass or fail verdict on that suite
 
-  Scenario: it does not author the eval suite
-    Given the conductor dispatches scenario-writer for an artifact
+  Scenario: it authors the rubric inline in the .feature, not a separate golden set
+    Given the conductor dispatches scenario-writer for a graded-behavior artifact
     When it produces the .feature
-    Then it does not write an eval rubric or a golden-set case
+    Then it writes the rubric and threshold inline in a @rubric scenario and authors no separate golden-set file
 
   # ---- Fit (classified first) ----
 
@@ -59,6 +60,11 @@ Feature: scenario-writer — the spec-producer role
     When scenario-writer writes the trigger scenarios
     Then the .feature contains a should-trigger scenario and a same-keyword near-miss should-not-trigger scenario
 
+  Scenario: trigger cases are authored as a @trigger Scenario Outline
+    Given a strong-fit subject with several representative should-trigger and should-not-trigger queries
+    When scenario-writer writes the trigger cases
+    Then it writes a @trigger Scenario Outline whose Examples table carries one row per query with its should_trigger value
+
   Scenario: a partial-fit subject gets no fabricated near-miss
     Given a partial-fit subject that runs a mechanical procedure with graded behavior but no activation decision
     When scenario-writer writes the .feature
@@ -74,10 +80,15 @@ Feature: scenario-writer — the spec-producer role
     When scenario-writer writes the behavior scenarios
     Then the .feature contains a scenario asserting the agent does not run "git add -A"
 
-  Scenario: the .feature stays boolean
+  Scenario: a graded subject uses @rubric while a deterministic one stays boolean
     Given a non-deterministic subject whose quality is graded over many runs
     When scenario-writer writes the .feature
-    Then every Then is a boolean assertion and no rubric or threshold appears in any scenario
+    Then it tags the graded scenarios @rubric with named dimensions and a threshold in the Then docstring and leaves every untagged scenario carrying only boolean assertions
+
+  Scenario: a prohibited behavior is asserted as a boolean Then
+    Given a subject that forbids a specific action
+    When scenario-writer writes the must-not-do guard
+    Then it asserts the prohibition as a boolean Then step rather than a separate golden-set must-not list
 
   # ---- Gaps and guards ----
 

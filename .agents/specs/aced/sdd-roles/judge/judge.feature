@@ -3,8 +3,8 @@ Feature: judge — the internal scorer
   Unit suite for the ACED scorer invoked by implementer and the run/compare reporting skills: score one
   simulated agent behavior against a rubric for a single scenario and layer, and emit the four-field
   result. Rolling up the gate verdict and aggregating across runs are implementer's job; authoring the
-  rubric is the impl-producer's. Cross-capability e2e (scoring inside a full impl-gate run) lives in
-  ../../acceptance/, not here.
+  rubric is scenario-writer's (inline in the frozen .feature). Cross-capability e2e (scoring inside a
+  full impl-gate run) lives in ../../acceptance/, not here.
 
   # ---- Role boundary ----
 

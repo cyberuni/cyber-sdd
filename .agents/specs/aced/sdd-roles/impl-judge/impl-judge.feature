@@ -1,22 +1,22 @@
 @frozen
-Feature: impl-judge — run and roll up the eval suite at the impl gate
-  Unit suite for the ACED impl-judge the conductor dispatches at the impl gate: run the eval suite the
-  impl-producer authored over N runs, collapse each frozen scenario to a boolean, and roll up the gate
-  verdict. Authoring the evals is the impl-producer; grading the spec .feature is spec-validator;
-  scoring one case is judge. Cross-capability e2e (a full impl gate over a real subject) lives in
-  ../../acceptance/, not here.
+Feature: impl-judge — run and roll up the frozen .feature suite at the impl gate
+  Unit suite for the ACED impl-judge the conductor dispatches at the impl gate: run the frozen .feature
+  suite (its inline @rubric and @trigger cases) over N runs, collapse each frozen scenario to a boolean,
+  and roll up the gate verdict. Authoring the .feature and its inline rubric is scenario-writer at
+  explore; grading the spec .feature is spec-validator; scoring one case is judge. Cross-capability e2e
+  (a full impl gate over a real subject) lives in ../../acceptance/, not here.
 
   # ---- Role boundary ----
 
   Scenario: dispatched as the impl-judge it runs the evals
-    Given the conductor dispatches impl-judge with a subject and its eval suite keyed to frozen scenarios
+    Given the conductor dispatches impl-judge with a subject and its frozen .feature suite
     When it runs the impl-judge role
     Then it reports a pass or fail verdict for each frozen scenario
 
   Scenario: it does not author the evals
-    Given the eval suite handed to impl-judge was written by the impl-producer
+    Given the frozen .feature handed to impl-judge was authored by scenario-writer at explore
     When it runs the impl gate
-    Then it does not write or rewrite any rubric or golden-set case
+    Then it does not write or rewrite the .feature or its inline rubric
 
   Scenario: it never edits the spec or the feature
     Given impl-judge is running the eval suite
@@ -24,16 +24,16 @@ Feature: impl-judge — run and roll up the eval suite at the impl gate
     Then it does not modify the spec.md or the .feature
 
   Scenario: it delegates per-case scoring to judge
-    Given a frozen scenario with its eval
+    Given a frozen @rubric scenario
     When impl-judge evaluates that scenario
     Then it invokes judge to do the scoring rather than scoring the case itself
 
   # ---- Running the suite ----
 
-  Scenario: one eval per frozen scenario is confirmed
-    Given every frozen .feature scenario has exactly one eval keyed to it
-    When impl-judge loads the eval suite
-    Then it runs one eval per frozen scenario
+  Scenario: every frozen scenario is exercised once
+    Given a frozen .feature suite
+    When impl-judge loads it
+    Then it exercises every frozen scenario exactly once and reads each scenario's own inline criteria
 
   Scenario: a trigger-layer scenario runs the trigger policy
     Given a frozen scenario tagged as a trigger-layer case
@@ -62,10 +62,10 @@ Feature: impl-judge — run and roll up the eval suite at the impl gate
     When impl-judge rolls up the gate verdict
     Then it reports the implementation failing and names the failing scenarios
 
-  Scenario: a frozen scenario with no eval is a blocker
-    Given a frozen scenario that has no eval authored for it
-    When impl-judge loads the eval suite
-    Then it reports a blocker and does not free-author the missing eval
+  Scenario: a @rubric scenario with no inline rubric is a blocker
+    Given a frozen @rubric scenario whose inline rubric block is absent
+    When impl-judge loads the suite
+    Then it reports a blocker and does not free-author the missing rubric
 
   Scenario: a behavior-changing gap is a blocker not an edit
     Given impl-judge finds a behavior-changing gap while running the suite

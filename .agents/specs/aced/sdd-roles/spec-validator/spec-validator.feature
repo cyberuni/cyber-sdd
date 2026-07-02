@@ -18,9 +18,9 @@ Feature: spec-validator — the spec-judge role
     Then it does not modify the spec.md or the .feature
 
   Scenario: it does not run the eval suite
-    Given the subject also has an eval rubric and golden set on disk
+    Given the subject's .feature carries inline @rubric scenarios
     When spec-validator grades the spec gate
-    Then it does not run an eval or score a golden-set case
+    Then it validates the rubric structure but does not run an eval or score a case
 
   # ---- Fit (read, never decided) ----
 
@@ -67,15 +67,25 @@ Feature: spec-validator — the spec-judge role
     When spec-validator checks edge-coverage
     Then it reports the suite failing on edge-coverage
 
-  Scenario: a leaked grade fails boolean-form
-    Given a scenario whose Then asserts the agent earns a graded rubric value
+  Scenario: a leaked grade in an untagged scenario fails boolean-form
+    Given an untagged scenario whose Then asserts the agent earns a graded rubric value
     When spec-validator checks boolean-form
     Then it reports that scenario failing on boolean-form
+
+  Scenario: a well-formed @rubric scenario passes rubric-structure
+    Given a @rubric scenario with named dimensions, a per-dimension max, one threshold, and a collapsing Then
+    When spec-validator checks rubric-structure
+    Then it accepts the scenario and does not report it failing on boolean-form
+
+  Scenario: a malformed @rubric scenario fails rubric-structure
+    Given a @rubric scenario missing its threshold or its named dimensions
+    When spec-validator checks rubric-structure
+    Then it reports that scenario failing on rubric-structure before any scoring
 
   # ---- Reporting and guards ----
 
   Scenario: a clean suite passes every criterion
-    Given a .feature that meets trigger-context, rule-coverage, trigger-balance, edge-coverage, and boolean-form
+    Given a .feature that meets trigger-context, rule-coverage, trigger-balance, edge-coverage, boolean-form, and rubric-structure
     When spec-validator grades the suite
     Then it reports every scenario passing and emits no blocker
 

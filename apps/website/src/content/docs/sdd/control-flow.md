@@ -1,120 +1,114 @@
 ---
 title: SDD Control Flow
-description: How control moves through a Spec-Driven Development run — gateway intake, the relay model, the Operator's segment loop, station dispatch, and gate escalation.
+description: How control moves through a Spec-Driven Development run — gateway intake, the in-session conductor, the mission loop's phases, the autonomy leash, and gate escalation.
 ---
 
-This traces one run of the **Build loop (Mission)** — the Operator advancing a single spec — end to end. For the cast of players and the full five-loop model, see the [Overview](/sdd/overview/).
+This traces one run of the **Mission loop** — the conductor advancing a single change request (CR) against the project spec — end to end. For the cast of players and the loop model, see the [Overview](/sdd/overview/).
 
-## The relay model
+## No relay — the session is the conductor
 
-The **Operator has no user channel.** The only place a human is reached is the **relay** — the gateway (or the station skill that invoked the Operator). Control bounces between the relay and the Operator: the Operator runs autonomously until it hits a checkpoint, escalates upward, and the relay carries the question to the Council and re-spawns the Operator with the answer.
+There is no spawned lead delegate between the gateway and the work. For an attended session, the gateway **loads `start-mission` in the current session** and the work proceeds there — the session itself holds the user channel, grills live, and (within its leash) ratifies. The only exception is headless dispatch: with no user channel, the gateway spawns the **automaton** (`sdd:sdd-automaton`), which runs the identical mission loop but self-asserts within leash and batches `needs-input` up its own relay instead of asking live.
 
 ```mermaid
 sequenceDiagram
   actor Council
-  participant GW as Gateway (relay)
-  participant OP as Operator
-  participant RO as Roles (producers/judges)
+  participant GW as Gateway (sdd)
+  participant CD as Conductor (this session)
+  participant D as Delegates (producers / judges)
 
   Council->>GW: invoke sdd (intent)
-  GW->>GW: intake · route by status · resolve station
-  GW->>OP: spawn (workflow action + station + paths)
-  activate OP
-  OP->>RO: dispatch production-chain roles
-  RO-->>OP: results (artifacts / verdicts)
-  OP-->>GW: STATUS: needs-input (batched questions) — at a gate/scrub
-  deactivate OP
-  GW->>Council: ask (gate verdict / ratification)
-  Council-->>GW: answers
-  GW->>OP: re-spawn (resume with answers)
-  activate OP
-  OP-->>GW: STATUS: complete
-  deactivate OP
-  GW->>Council: report the resolved route
+  GW->>GW: classify: change vs manage vs escape
+  GW->>CD: load start-mission in-session
+  activate CD
+  CD->>D: run producers inline, spawn cold judges
+  D-->>CD: artifacts / verdicts
+  CD-->>Council: grill live, ask at seed-intent / cap / gate
+  Council-->>CD: answers / ratification
+  CD-->>Council: handoff — PR / commits / summary
+  deactivate CD
 ```
-
-The Operator escalates **only at a gate** (a go/no-go to advance status) or **scrub** (a kill). Between checkpoints it runs to completion without asking.
 
 ## Intake and routing
 
-The gateway resolves intent to a **workflow action**, then maps that action to the **station** the Operator runs.
+The gateway resolves intent to a skill via a two-level menu when the request is bare (never more than four options per `AskUserQuestion`), or skips straight to the matched skill on a fast path ("add a start-mission skill to sdd", "work on \<issue url\>").
 
-- **Fast path** — when the invocation names both an artifact and an action ("implement the auth spec"), route directly.
-- **Two-level menu** — on a bare invocation, a fixed four-option menu (create/backfill · work on existing · manage specs & graph · help me choose), never more than four options.
+| User intent | Handler |
+|---|---|
+| Make any change to the project (add, revise, implement, land) | `start-mission` |
+| Manage the corpus — bootstrap, inspect, audit, housekeeping | `manage` |
+| No suite-relevant behavior, or a non-durable artifact | escape — no CR, no record |
+| Product / structure / process retrospective, field corrections | the campaign / formation / doctrine / forge loop → a new CR (`start-mission`) |
 
-Routing reads the spec's `status` from frontmatter:
+One project is one durable spec — routing classifies *what the user wants to do to the project*, never which spec in a fleet to pick.
 
-| Status | Workflow action | Station |
-|---|---|---|
-| no spec, no implementation | Draft spec | `create-spec` |
-| no spec, implementation exists | Backfill spec | `create-spec` |
-| `draft` (unchecked items / open markers) | Revise spec | `revise-spec` |
-| `draft` (complete, clean) | Review at the spec gate | `validate-spec` |
-| `approved` | Review at the impl gate | `validate-spec` |
-| `implemented` | behavior change → Revise spec (re-open) | `revise-spec` |
-| `deprecated` | not implementable → spec management | — |
-| oversized / multi-behavior | Split | `split-spec` |
-| graph stale | Refresh spec graph | `render-spec-graph` |
+## The mission loop's four phases
 
-## Segment vs mission
+A mission carries one CR from intent to a landed result, in **segments** (autonomous sittings, checkpointed via `pause-mission` / `resume-mission`) rather than one unbroken run:
 
-A **segment** is one autonomous Operator run — spawned, runs to a checkpoint, returns to the relay. It is the Operator's atomic unit, and it is *finer* than a mission:
-
-- A **mission** is one spec's full journey (`draft → approved → implemented`). A mission is a **sequence of segments** with relay round-trips between them (explore → spec gate → deliver → impl gate) — not a single run.
-- **Not every segment is a mission step.** The Operator also runs **management segments** that aren't any one spec's journey: `render-spec-graph` (refresh the derived graph) and `split-spec` (decompose one spec into many).
-
-So a segment carries out *either* a mission step (`create-spec` / `revise-spec` / `validate-spec` on one spec) *or* a cross-spec management operation. And segments are the **Operator's** unit — the Build-loop (Mission) delegate. The **Doctrine** loop (Scanner) and **Forge** loop (`sdd-forge-loop`) are driven by *other* delegates; their autonomous runs are analogous but are neither segments nor missions in this vocabulary.
-
-## A segment, in detail
-
-Inside one Operator run:
+1. **Intake** — recover the request, locate the project spec via `discover-specs`, scaffold `.agents/plans/<cr-ref>-<what>.plan.md`, and run the escape check (no suite-relevant behavior, or non-durable via `resolve-durability`).
+2. **Explore** — *build to learn.* Resolve each touched file's production chain (`resolve-governances`), place and classify each node, then loop: grill the user live, write the draft `spec.md` + `.feature`, spawn the cold spec-judge, spike the impl-producer builder to steer the grill. Ends at the **spec gate**.
+3. **Deliver** — *build to keep.* Spawn the impl-producer builder against the now-**frozen** suite (the read-set is scoped to the frozen `.feature`, the optional `.solution.md`, and the implementation files — not the prose spec). The **impl gate** spawns the cold impl-judge to verify every frozen scenario.
+4. **Handoff** — a Warden placement pass relocates any provisionally-placed node to its blessed home (a pure rename, freeze-preserving), then lands per the project's delivery shape (branch/PR, decomposed by unit of work), with follow-ups filed as new CRs.
 
 ```mermaid
 flowchart TD
-  start([Operator spawned for a segment]) --> resolve[Resolve delegates from the registry<br/>plugin agents or SDD defaults]
-  resolve --> run[Run the mapped station in-session]
-  run --> dispatch[Spawn production-chain roles<br/>producer → judge]
-  dispatch --> synth[Synthesize: set aligned, derive the leash]
-  synth --> gate{At a gate or scrub?}
-  gate -->|no| run
-  gate -->|"yes, within leash"| selfassert[Self-assert provisionally<br/>approval by: agent]
-  gate -->|"yes, outside leash / marginal"| escalate[STATUS: needs-input<br/>escalate to the relay]
-  selfassert --> done([Return to relay])
-  escalate --> done
+  start([Conductor: start-mission]) --> intake[Intake: open CR, scaffold plan, escape check]
+  intake --> resolve[Resolve production chain per touched file]
+  resolve --> grill[Grill loop: draft spec + .feature, cold spec-judge, build-to-learn spike]
+  grill -->|converged| gate1{Spec gate}
+  grill -->|blocked / cap hit| ask[Ask: accept-as-is / keep looping / change direction]
+  ask --> grill
+  gate1 -->|approve, freezes .feature| deliver[Deliver: build to keep against frozen suite]
+  deliver --> gate2{Impl gate: cold impl-judge}
+  gate2 -->|every scenario passes| handoff[Handoff: placement pass, land, follow-up CRs]
+  gate2 -->|reject / Oracle revert| deliver
 ```
 
-The Operator resolves each role to a plugin agent or an SDD default; if a required role resolves to neither, it **hard-fails closed** with a blocker. It dispatches the producer, then the judge (`producer ≠ judge`), and synthesizes the result.
+## The autonomy leash
 
-## The leash — self-assert or stop
+At **run start** the conductor evaluates blast radius and the other dimensions and writes a run-level `kind: leash` block to its own `ledger/` shard: `auto-none | auto-spec | auto-all`, with `by: derived | user` and containment `approach[]`. At **each gate** it re-derives the leash against discovered state and either self-asserts within it (`approval.<gate>: { verdict: approve, by: agent, why }` — provisional, landing in an async review queue) or stops with a verdict packet for the human.
 
-At a gate the Operator derives a **leash** from four dimensions of the change: reversibility, blast radius, decision novelty, confidence. If all read safe and the verdict is clean, the gate may be **self-asserted** (the Operator writes a provisional `approval` with `by: agent`) and the run continues — the human reviews asynchronously. If any dimension reads risky or the verdict is marginal, the gate **stops** and escalates for the Council's positional ratification. Freeze-breaks (re-opening an `approved`/`implemented` spec) are always positional. The full derivation lives in `gate-validation-governance`.
+| Leash | Self-asserts | Stops at |
+|---|---|---|
+| `auto-none` | nothing | the spec gate |
+| `auto-spec` | the spec gate | the impl gate |
+| `auto-all` | both gates | nothing |
+
+**Hard floors always stop, regardless of leash:** **Clearance** (narrowing/deleting an acceptance scenario), **Compatibility** (the semver class exceeds the authorized ceiling), and **Conflict** (a logical contradiction in the suite, not pre-authorizable). Human ratification — writing `by: <name>`, advancing `status` — is reserved to the in-session position holding the real user channel; a headless automaton never writes it, even when a coordinator relays "the user approved."
+
+## Provenance: combat log vs ledger
+
+Two separate stores, never conflated:
+
+| Store | Home | Holds | Lifetime |
+|---|---|---|---|
+| **Combat log** | `.agents/plans/<cr-ref>.log.jsonl`, beside the plan brief | `report` / `correction` / `halt` — chatty mid-flight detail, each with a write-time UTC `ts` | tracked, deleted at retro once distilled and merged |
+| **Ledger** | `ledger/` directory, sibling to the root `spec.md`; one `<cr-ref>.<hash>.jsonl` shard **per CR per writer** | run-start `leash`, `gate` verdicts, Scanner-drafted `strategy` — no `ts` | durable, never deleted, never frozen |
+
+Sharding (one file per writer per CR) makes concurrent appends collision-free by construction — no merge driver is needed. Readers glob `ledger/*.jsonl` (plus a legacy `ledger.jsonl` if present).
 
 ## Write-ownership across the flow
 
-A gate changes *who is invoked*, not *who writes what*:
-
 | Writer | Writes |
 |---|---|
-| **Gate station** (`validate-spec`) | `status`; the human ratification of `approval` (`by: <name>`) |
-| **Operator** | `aligned`; a provisional self-asserted `approval` (`by: agent`); the combat-log `report`/`correction` entries; `<!-- open: -->` markers |
-| **Producers** | `spec.md` body, the `.feature`, `plan.md`, `tasks.md` |
-| **Scanner** (doctrine loop) | combat-log `strategy` entries |
-| **Relay** | nothing — it routes and carries the user channel |
+| **The gate (internal step in `start-mission`)** | `status`; the human ratification of `approval` (`by: <name>`); the freeze (`@frozen` tag) |
+| **Conductor** | `<!-- open: -->` markers; the `produced-by` map; a provisional self-asserted `approval` (`by: agent`); combat-log `report`/`correction`/`halt`; the ledger `leash` block and self-asserted `gate` lines |
+| **Producers** | `spec.md` body, the `.feature`, `<unit>.solution.md` |
+| **Scanner** (doctrine loop) | ledger `strategy` lines |
+| **Gateway** | nothing — it only classifies and routes |
 
 ## The spec's lifecycle
 
-The stations and gates move a spec through its status:
-
 ```mermaid
 stateDiagram-v2
-  [*] --> draft: create-spec / revise-spec
-  draft --> draft: revise-spec (grill) · split-spec
-  draft --> approved: spec gate (validate-spec)
-  approved --> implemented: impl gate (validate-spec)
-  approved --> draft: revise-spec (re-open · freeze-break)
-  implemented --> draft: revise-spec (re-open · freeze-break)
-  draft --> deprecated: scrub
-  approved --> deprecated: scrub
+    [*] --> draft: start-mission (new or backfill)
+    draft --> approved: spec gate
+    approved --> implemented: impl gate
+    approved --> draft: behavior change (re-open)
+    implemented --> draft: behavior change (re-open)
+    draft --> deprecated: Oracle-lens kill
+    approved --> deprecated
+    implemented --> deprecated
 ```
 
-`approved` and `implemented` **freeze** the `.feature`; changing a frozen contract requires a Council-ratified re-open back to `draft` (a freeze-break), after which the spec re-passes its gates. A spec that has grown too large is decomposed by `split-spec` — with the Council confirming both the split plan and the result — into a project spec plus feature children, each of which then flows through this same lifecycle.
+`approved` and `implemented` **freeze** each touched `.feature` (a per-file `@frozen` tag, not a per-project state). The unfreeze trigger is **risk, not phase**: an additive scenario self-clears and stays frozen; a pure `git mv` rename preserves the freeze (letting handoff relocate a node without reopening its contract); only a *narrowing or rewriting* edit is a re-open — a ratified transition back to `draft`, after which the node re-passes its gates.

@@ -7,7 +7,7 @@ SDD carries a running metaphor: **the work is a strike fleet.** It isn't decorat
 
 ## The conceit
 
-A spec is a **territory** — owned ground the fleet takes and holds. It persists: once taken, it stays on the map and is re-engaged only when it must change. A **mission** is the operation to take one territory; the **frontier** is the leading edge of all the ground held so far. The human is **fleet command** (the Conductor / Council): they hold motive and accountability, and theirs are the only hands on ratification and the kill switch. Everyone else is a delegate carrying out command's intent. The fleet learns from every mission, refits between them, and — across many fleets — improves the ships themselves.
+A spec is a **territory** — owned ground the fleet takes and holds. It persists: once taken, it stays on the map and is re-engaged only when it must change. A **mission** is the operation to take one territory; the **frontier** is the leading edge of all the ground held so far. The human is **fleet command** (the Council): they hold motive and accountability, and theirs are the only hands on ratification. Everyone else is a delegate carrying out command's intent. The fleet learns from every mission, refits between them, and — across many fleets — improves the ships themselves.
 
 The point of the metaphor is **altitude discipline**: it keeps "win this mission" separate from "is this the right campaign," "is the fleet well-ordered," "what did we learn," and "should the ships themselves change." Those are the five loops.
 
@@ -24,18 +24,20 @@ Each [actor](/motive-model/four-actors/) wears a command hat. The actor names th
 
 Every role has two faces: **forward** (produce — press the attack) and **backward** (judge — hold the line at the gate). `producer ≠ judge`: the hand that strikes is never the hand that signs off.
 
-## Delegates — who is actually invoked
+## The conductor holds the bridge — no separate line officer
 
-Command sets intent; **delegates** carry it out. The two named delegates:
+Earlier fleet vocabulary had a spawned "Operator" running each mission with no channel to command. That's gone: **fleet command's own officer runs the mission from the bridge.** The attended mission (`start-mission`) runs *in the session that holds the user channel* — there is no relay round-trip because command is already on the bridge. The one delegate that still runs a mission with no one aboard is the **automaton** (`sdd-automaton`): the same conductor, crewed for an unmanned sortie (an unattended scheduler, or fanning a queue of pre-cleared missions), which self-asserts within its leash and radios batched questions back rather than asking live.
 
-- **Operator** (`sdd-operator`) — the line officer of a mission. Runs one autonomous **segment**, resolves which units to commit, dispatches the production chain, and reports back. Has **no channel to fleet command** — it escalates through the relay only at a gate or a scrub.
+- **Bridge (conductor)** — the officer at the helm, running the mission loop directly: resolves delegates, dispatches the production chain, grills command live, self-asserts within leash.
+- **Unmanned sortie (automaton)** — the identical mission loop run with no one aboard; it never self-approves a mission for launch.
 - **Scanner in the Bunker** (the doctrine delegate) — watches every mission reach a terminal state, drafts strategy from the combat logs, and surfaces it to command. It watches and drafts; it never fires (never writes lifecycle state).
+- **Warden on watch** (the formation delegate) — audits the fleet's order of battle post-mission, corpus-wide; self-clears the routine repositioning, escalates the rest as a new mission order.
 
-The **relay** (the `sdd` gateway) is the signal line: it is the *only* place a delegate reaches fleet command. The Operator runs dark between checkpoints and transmits up the relay when it needs a decision.
+The **gateway** is the signal station: it is where a request first reaches the fleet, and it is the *only* place a headless automaton's questions surface to command (it holds no channel of its own — it relays).
 
 ## The loops
 
-The five altitudes, each owned by a command role (the [Overview](/sdd/overview/) has the same table in plain terms):
+The five altitudes, each owned by a command role (the [Overview](/sdd/overview/) has the same table in plain terms, with which loops are shipped today):
 
 | Loop | Plain name | Role | Question |
 |---|---|---|---|
@@ -45,32 +47,33 @@ The five altitudes, each owned by a command role (the [Overview](/sdd/overview/)
 | **Doctrine** | Process | Scanner | what did we *learn* about how to fight? |
 | **Forge** | Harness | (the shipyard) | should the *ships themselves* change? |
 
-**Mission** is the inner loop — one spec's full lifecycle, across the explore and deliver phases. **Campaign / Formation / Doctrine** are the outer loops, run across missions: choosing which territories to take, keeping the formation sound, distilling doctrine. **Forge** sits above a single fleet entirely — the shipyard that refits the vessels from the combat reports of *every* fleet (every installation), so the ships get better for all. That last one is the recursion: SDD improving SDD.
+**Mission** is the inner loop — one CR's full lifecycle, across the explore and deliver phases. **Campaign / Formation / Doctrine** are the outer loops, run across missions: choosing which territories to take, keeping the formation sound, distilling doctrine. **Forge** sits above a single fleet entirely — the shipyard that refits the vessels from field corrections across *every* fleet (every installation), opt-in and privacy-gated. That last one is the recursion: SDD improving SDD.
 
 ## Artifacts and acts
 
 | Fleet term | Real concept |
 |---|---|
 | **Territory** | a spec — owned ground, taken and held; it persists (a noun, not an act) |
-| **Frontier** | the leading edge of all held territory — the spec-graph as a whole |
-| **Mission** | the operation to take one territory — one spec's full lifecycle, across the explore and deliver phases (a verb) |
+| **Frontier** | the leading edge of all held territory — the project spec as a whole |
+| **Mission** | the operation to take one territory — one CR's full lifecycle, across the explore and deliver phases (a verb) |
 | **Engagement** | one iteration *within* a phase — a single producer⇄judge exchange |
-| **Segment** | one autonomous Operator run (a sortie) between relay check-ins; holds one or more engagements |
-| **Combat log** | the spec's provenance record: who produced and judged each artifact, every correction with its cause, the strategy drafted from it (see `combat-log-governance`) |
-| **Sealed orders** | the **frozen** `.feature` of an `approved`/`implemented` spec — the contract cannot be altered mid-mission; changing it requires command to break the seal (a ratified re-open) |
-| **The gate** | the go/no-go: a backward-face verdict to advance the mission to its next phase (the spec's lifecycle status). Command ratifies; a delegate may only self-assert within its **leash** |
+| **Segment** | one autonomous conductor sitting between checkpoints (`pause-mission` / `resume-mission`); holds one or more engagements |
+| **Combat log** | the mission's mid-flight provenance: `report` / `correction` / `halt` entries beside the plan brief, deleted at retro once distilled |
+| **Ledger** | the durable, sharded record beside the root spec: the run-start leash, every gate verdict, and Scanner-drafted strategy — never frozen, never deleted |
+| **Sealed orders** | the **frozen** `.feature` of an `approved`/`implemented` node — the contract cannot be altered mid-mission; changing it requires command to break the seal (a ratified re-open) |
+| **The gate** | the go/no-go: a backward-face verdict to advance the mission to its next phase (the spec's lifecycle status). Command ratifies; the conductor may only self-assert within its **leash** |
 | **Scrub** | a kill decision — stand the mission down and abandon the territory (`deprecated`) |
-| **The leash** | how far a delegate may act on its own before it must signal command — derived per gate from reversibility, blast radius, novelty, and confidence |
+| **The leash** | how far the conductor may act on its own before it must signal command — derived per gate from reversibility, blast radius, novelty, and confidence |
 
 ## Project vs inject
 
 Two ways a delegate is committed, and the distinction matters:
 
-- **Project** — spawn a *fresh* unit (a subagent) with sealed orders and no memory of the bridge. Clean context, isolated.
-- **Inject** — run a skill *in the current officer's own context*. The instructions become part of who is already on the bridge.
+- **Project** — spawn a *fresh* unit (a subagent) with sealed orders and no memory of the bridge. Clean context, isolated — the cold judges, the impl-producer builder, the automaton (when headless), the Scanner, the Warden.
+- **Inject** — run a skill *in the current officer's own context*. The instructions become part of who is already on the bridge — the conductor running `start-mission`, the SDD-default producers it authors inline.
 
-The Operator **projects** the production-chain roles (they are spawned subagents) and **injects** its stations (`create-spec`, `validate-spec`, … are skills it runs in-session). Confusing the two — trying to *project* a station as a subagent — is the classic misfire and it fails outright.
+The conductor **injects** the producer governances it runs inline and **projects** the judges it spawns. Confusing the two — trying to *inject* a role that requires an independent grader, or *project* a producer that should stay inline with the live grill — breaks the "producer ≠ judge" independence the gate depends on.
 
 ## Why keep the metaphor
 
-It earns its place three ways: it gives each prompt a posture (a Battler presses, a Warden guards, a Scanner watches), it makes altitude confusion audible ("that's a Campaign question, not a Mission one"), and it travels — fleet command, sealed orders, and the forge are immediately legible to a newcomer in a way that "the outer cross-installation harness-improvement loop" is not.
+It earns its place three ways: it gives each prompt a posture (a Battler presses, a Warden guards, a Scanner watches), it makes altitude confusion audible ("that's a Campaign question, not a Mission one"), and it travels — fleet command, sealed orders, and the shipyard are immediately legible to a newcomer in a way that "the outer cross-installation harness-improvement loop" is not.

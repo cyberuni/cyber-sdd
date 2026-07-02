@@ -10,7 +10,8 @@
 //   3. <project-path>/.agents/spec/spec.md    — a nested project (** = project-path, any depth)
 //   4. any extra anchor declared in .agents/sdd/spec-anchors.toml (ADR-0019) — opt-in and additive;
 //      absent config ⇒ only 1–3 are scanned (today's behavior). A pattern may carry a <project>
-//      capture token that both globs a segment and names the spec from it.
+//      capture token that both globs a segment and names the spec from it; `**` globs zero or more
+//      segments (any depth), for a spec whose depth under an anchor root varies.
 // A spec.md at one of these locations is a spec only if its frontmatter `status` is in the
 // lifecycle enum; a status-bearing spec.md elsewhere, or a stray spec.md at a spec location
 // with no lifecycle status, is NOT loaded (so the scan never grabs the wrong file by accident).
@@ -223,9 +224,27 @@ export function readAnchors(root: string): string[] {
 	}
 }
 
-// Expand one anchor pattern against the filesystem into the spec dirs it matches. A `*` segment
-// globs one directory level; a `<project>` segment globs AND captures the segment as the spec name.
-// A literal segment must exist. The matched dir is a spec dir iff it holds a spec.md.
+// Every dir reachable from `startDir` by descending zero or more levels (startDir itself included),
+// skipping SKIP_DIRS. Backs the `**` segment (any-depth glob) below.
+function collectDescendants(root: string, startDir: string): string[] {
+	const out = [startDir]
+	let entries: import('node:fs').Dirent[]
+	try {
+		entries = readdirSync(join(root, startDir), { withFileTypes: true })
+	} catch {
+		return out
+	}
+	for (const e of entries) {
+		if (!e.isDirectory() || SKIP_DIRS.has(e.name)) continue
+		out.push(...collectDescendants(root, startDir ? `${startDir}/${e.name}` : e.name))
+	}
+	return out
+}
+
+// Expand one anchor pattern against the filesystem into the spec dirs it matches. A `*` segment globs
+// one directory level; a `**` segment globs zero or more levels (any depth); a `<project>` segment
+// globs AND captures one level as the spec name. A literal segment must exist. The matched dir is a
+// spec dir iff it holds a spec.md.
 export function expandAnchor(root: string, pattern: string): { rel: string; capturedName?: string }[] {
 	const segs = pattern
 		.replace(/\\/g, '/')
@@ -235,6 +254,13 @@ export function expandAnchor(root: string, pattern: string): { rel: string; capt
 	let frontier: { dir: string; capturedName?: string }[] = [{ dir: '' }]
 	for (const seg of segs) {
 		const next: { dir: string; capturedName?: string }[] = []
+		if (seg === '**') {
+			for (const node of frontier) {
+				for (const dir of collectDescendants(root, node.dir)) next.push({ dir, capturedName: node.capturedName })
+			}
+			frontier = next
+			continue
+		}
 		const isGlob = seg === '*' || seg === '<project>'
 		for (const node of frontier) {
 			if (isGlob) {

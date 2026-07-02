@@ -258,6 +258,26 @@ test('preview only counts a dir that holds a status-bearing spec.md', () => {
 	}
 })
 
+test('preview: a ** segment globs zero or more levels, at any depth', () => {
+	const dir = tmp()
+	try {
+		seedSpec(dir, 'archive/spec.md') // ** matches zero levels here
+		seedSpec(dir, 'archive/2024/q1/spec.md')
+		seedSpec(dir, 'archive/2024/q2/deep/spec.md')
+		seedSpec(dir, 'other/spec.md') // outside the anchor root — must not match
+		const r = previewPattern(dir, 'archive/**')
+		assert.ok(r.ok)
+		assert.deepEqual(r.ok && r.matches.map((m) => m.path), ['archive', 'archive/2024/q1', 'archive/2024/q2/deep'])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('isValidPattern accepts a ** segment', () => {
+	assert.equal(isValidPattern('archive/**'), true)
+	assert.equal(isValidPattern('archive/**/<project>'), true)
+})
+
 test('preview rejects a malformed candidate pattern', () => {
 	const dir = tmp()
 	try {

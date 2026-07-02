@@ -18,6 +18,11 @@ Feature: The spec-anchors config — declare and curate the extra anchors discov
     When discovery scans that anchor
     Then it probes <pattern>/spec.md, mirroring the fixed conventions
 
+  Scenario: a ** segment in an anchor pattern globs zero or more directory levels
+    Given an anchor pattern containing a ** segment
+    When discovery scans that anchor
+    Then it matches every dir reachable at that position, at any depth including zero
+
   Scenario: an absent config yields no extra anchors
     Given a repo with no .agents/sdd/spec-anchors.toml
     When the engine reads the config

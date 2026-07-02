@@ -40,14 +40,16 @@ Every scenario in [`spec-anchors.feature`](./spec-anchors.feature) maps to one o
 anchors = [
   "source",                          # → source/spec.md            (name: basename → guessed)
   "curriculum/sessions/*/*/<project>",  # → …/<session-id>/spec.md (name: captured <project> → derived)
+  "archive/**",                      # → any spec.md under archive/, at any depth including zero
 ]
 ```
 
 - Each entry is a **repo-relative pattern naming the directory** that holds a `spec.md` (the engine
   probes `<pattern>/spec.md`, mirroring the fixed conventions).
-- A `*` segment is a single-segment glob; a `<project>` token both globs a segment **and captures**
-  it as the spec's name (name-source `derived`). An entry with no `<project>` token names its spec by
-  folder basename (`guessed`), and a frontmatter `name` always wins (`declared`).
+- A `*` segment is a single-segment glob; `**` globs **zero or more** segments (any depth, including
+  zero); a `<project>` token both globs a segment **and captures** it as the spec's name (name-source
+  `derived`). An entry with no `<project>` token names its spec by folder basename (`guessed`), and a
+  frontmatter `name` always wins (`declared`).
 - The fixed conventions are **implicit and always scanned** — they are never listed in this file.
 
 ## Fixed vs custom — what `list` shows

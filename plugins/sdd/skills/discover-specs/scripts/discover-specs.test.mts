@@ -289,6 +289,26 @@ test('expandAnchor resolves a literal dir, a * glob, and a <project> capture', (
 	}
 })
 
+test('expandAnchor: a ** segment globs zero or more levels, at any depth', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'discover-specs-'))
+	try {
+		seed(dir, 'archive/spec.md', 'status: draft') // ** matches zero levels here
+		seed(dir, 'archive/2024/q1/spec.md', 'status: draft')
+		seed(dir, 'archive/2024/q2/deep/spec.md', 'status: draft')
+		seed(dir, 'other/spec.md', 'status: draft') // outside the anchor root — must not match
+		assert.deepEqual(
+			expandAnchor(dir, 'archive/**').sort((a, b) => (a.rel < b.rel ? -1 : 1)),
+			[
+				{ rel: 'archive/2024/q1/spec.md', capturedName: undefined },
+				{ rel: 'archive/2024/q2/deep/spec.md', capturedName: undefined },
+				{ rel: 'archive/spec.md', capturedName: undefined },
+			],
+		)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
 test('deriveName: an extra anchor with a <project> capture is derived, without one is guessed', () => {
 	assert.deepEqual(deriveName({ pattern: 'extra', locationDir: 'x/s1', capturedName: 's1' }, { approval: {} }), {
 		name: 's1',

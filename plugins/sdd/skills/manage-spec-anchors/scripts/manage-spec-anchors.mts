@@ -12,8 +12,9 @@
 //   --induce <path>         candidate patterns for a sample spec dir (literal + <project> capture)
 //   --preview <pattern>     the project(s) a candidate pattern would discover, without persisting
 //
-// A pattern is a repo-relative directory pattern; `*` globs one segment, `<project>` globs AND
-// captures a segment as the spec name. Fixed conventions are implicit and cannot be curated here.
+// A pattern is a repo-relative directory pattern; `*` globs one segment, `**` globs zero or more
+// segments (any depth), `<project>` globs AND captures a segment as the spec name. Fixed conventions
+// are implicit and cannot be curated here.
 // Pure functions are exported for node:test; running the file directly drives the CLI. No deps.
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
@@ -78,13 +79,13 @@ function writeCustomAnchors(root: string, patterns: string[]): void {
 // ── Validation ──
 
 // A pattern is well-formed iff it is repo-relative (no leading slash, no `..`) and every segment is
-// a literal, `*`, or the `<project>` capture token (no other `<…>` token, no empty segment).
+// a literal, `*`, `**`, or the `<project>` capture token (no other `<…>` token, no empty segment).
 export function isValidPattern(pattern: string): boolean {
 	const p = pattern.trim().replace(/\\/g, '/')
 	if (p === '' || p.startsWith('/') || /(^|\/)\.\.(\/|$)/.test(p)) return false
 	const segs = p.replace(/^\/+|\/+$/g, '').split('/')
 	if (segs.some((s) => s === '')) return false
-	return segs.every((s) => s === '*' || s === '<project>' || !/[<>]/.test(s))
+	return segs.every((s) => s === '*' || s === '**' || s === '<project>' || !/[<>]/.test(s))
 }
 
 // True when a pattern names one of the three fixed conventions (which are implicit, not curated).
@@ -185,6 +186,23 @@ interface PreviewMatch {
 
 export type PreviewResult = { ok: true; matches: PreviewMatch[] } | { ok: false; reason: string }
 
+// Every dir reachable from `startDir` by descending zero or more levels (startDir itself included),
+// skipping SKIP_DIRS. Backs the `**` segment (any-depth glob) below.
+function collectDescendants(root: string, startDir: string): string[] {
+	const out = [startDir]
+	let entries: import('node:fs').Dirent[]
+	try {
+		entries = readdirSync(join(root, startDir), { withFileTypes: true })
+	} catch {
+		return out
+	}
+	for (const e of entries) {
+		if (!e.isDirectory() || SKIP_DIRS.has(e.name)) continue
+		out.push(...collectDescendants(root, startDir ? `${startDir}/${e.name}` : e.name))
+	}
+	return out
+}
+
 // Expand a pattern against the filesystem (mirrors discover-specs' expandAnchor), then keep only the
 // dirs holding a spec.md whose frontmatter status is in the lifecycle enum — the specs discovery
 // would actually surface. Does NOT read or persist anything to the config.
@@ -199,6 +217,13 @@ export function previewPattern(root: string, pattern: string): PreviewResult {
 	let frontier: { dir: string; capturedName?: string }[] = [{ dir: '' }]
 	for (const seg of segs) {
 		const next: { dir: string; capturedName?: string }[] = []
+		if (seg === '**') {
+			for (const node of frontier) {
+				for (const dir of collectDescendants(root, node.dir)) next.push({ dir, capturedName: node.capturedName })
+			}
+			frontier = next
+			continue
+		}
 		const isGlob = seg === '*' || seg === '<project>'
 		for (const node of frontier) {
 			if (isGlob) {

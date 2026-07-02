@@ -23,9 +23,10 @@ A `spec.md` is a spec only when **both** hold (ADR-0017, narrowed; extra anchors
   1. `.agents/spec/spec.md` — repo-root single-project
   2. `.agents/specs/<project>/spec.md` — repo-root multi-project
   3. `<project-path>/.agents/spec/spec.md` — a nested project (the `**` is the project-path, any depth)
-  4. **extra anchors** — each config entry, a repo-relative pattern (`*` globs a segment,
-     `<project>` globs and captures a name); **opt-in and additive** (absent config ⇒ only 1–3, so
-     today's behavior is unchanged). Curated via the `manage-spec-anchors` skill.
+  4. **extra anchors** — each config entry, a repo-relative pattern (`*` globs one segment, `**`
+     globs zero or more segments at any depth, `<project>` globs and captures a name); **opt-in and
+     additive** (absent config ⇒ only 1–3, so today's behavior is unchanged). Curated via the
+     `manage-spec-anchors` skill.
 - **Shape** — its frontmatter `status` is in the lifecycle enum (`draft | approved | implemented |
   deprecated`). A `spec.md` at any recognized location with **no** lifecycle `status` is skipped (so
   the scan never grabs a stray file by accident); a status-bearing `spec.md` at neither a fixed

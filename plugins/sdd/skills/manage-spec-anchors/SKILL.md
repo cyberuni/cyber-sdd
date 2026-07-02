@@ -17,10 +17,11 @@ it carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps con
 ## The config it curates
 
 `.agents/sdd/spec-anchors.toml` carries one key — `anchors = [ … ]` — a list of repo-relative
-directory patterns. `*` globs one segment; `<project>` globs **and captures** a segment as the
-spec's name. Each pattern names a directory the engine probes for `spec.md`. The three fixed
-conventions (`.agents/spec/`, `.agents/specs/<project>/`, `<project-path>/.agents/spec/`) are
-**implicit and always scanned** — never listed here, and never curatable.
+directory patterns. `*` globs one segment; `**` globs **zero or more** segments (any depth,
+including zero); `<project>` globs **and captures** a segment as the spec's name. Each pattern names
+a directory the engine probes for `spec.md`. The three fixed conventions (`.agents/spec/`,
+`.agents/specs/<project>/`, `<project-path>/.agents/spec/`) are **implicit and always scanned** —
+never listed here, and never curatable.
 
 ## Run an operation
 
@@ -51,5 +52,5 @@ guarantee, not this engine's; this engine validates on the **write** side so a b
 persisted.
 
 When `node` is absent, an agent performs the same edits by hand: read the `anchors` array, apply the
-CRUD, validate a pattern is repo-relative with only literal / `*` / `<project>` segments, and never
+CRUD, validate a pattern is repo-relative with only literal / `*` / `**` / `<project>` segments, and never
 write a fixed convention.

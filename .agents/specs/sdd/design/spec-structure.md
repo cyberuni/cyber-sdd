@@ -67,7 +67,7 @@ A behavioral unit may carry a third durable artifact beside its spec (`README.md
 - **Not frozen, not judged.** The suite freezes at the spec gate; the solution stays live, refined as the impl is built. It is **ungated** — no solution-judge, and it **stays out of the spec-judge's view** (the cold spec-judge reads `spec.md` + the `.feature` only); the impl gate validates it transitively (`specialists-and-squads.md`).
 - **Who writes it.** The `solution-producer` role (`specialists-and-squads.md`) — run **inline in the main-session conductor** — in explore, refined in deliver.
 
-The solution is **per-unit and durable** — distinct from the per-CR execution `.plan.md`, which is **transient** mission state (todos + working method, deleted at retro; `provenance-model.md`). The split keys on scope and lifetime — see `../TERMINOLOGY.md` for the old `plan.md`/`tasks.md` → solution / execution-plan mapping.
+The solution is **per-unit and durable** — distinct from the per-CR execution `.plan.md`, which is **transient** mission state (todos + working method, deleted at retro; `provenance-model.md`). The split keys on scope and lifetime — see `../TERMINOLOGY.md` for the `plan` (execution brief) vs `solution` (durable decision record) pin.
 
 ---
 

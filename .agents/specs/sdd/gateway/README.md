@@ -52,7 +52,7 @@ Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these be
 | **headless → automaton** | with no user channel, the gateway spawns the **automaton** (the headless driver) instead of working in-session |
 | **dispatch the approved queue** | a "run the approved missions" request (or an unattended trigger) enters the **dispatch** loop (`./dispatch/README.md`) — run each `approved` brief headless in a fresh automaton, sequentially |
 | **ambiguity routes into a mission** | a request that may touch behavior but names no skill loads `start-mission` so the grill decides |
-| **escape** | a non-CR (no suite-relevant behavior) proceeds outside the lifecycle, leaving no SDD record |
+| **escape** | a non-CR (no suite-relevant behavior, or a non-durable touched artifact) proceeds outside the lifecycle, leaving no SDD record |
 | **freeze** | a request to change a frozen `.feature` loads `start-mission` to re-open it through the grill, never an in-place edit |
 
 ## Intake
@@ -112,7 +112,7 @@ flowchart TD
     CLASSIFY -->|manage: bootstrap / inspect / audit / housekeeping| MANAGE["manage<br/>(loads the corpus engine)"]
     CLASSIFY -->|retrospective / field| OUTER["outer loop → new CR → start-mission"]
     CLASSIFY -->|manage plugins / governances · planned| PLUGIN["plugin"]
-    CLASSIFY -->|no suite-relevant behavior| ESCAPE["escape · no SDD record"]
+    CLASSIFY -->|no suite-relevant behavior, or non-durable| ESCAPE["escape · no SDD record"]
     CLASSIFY -->|ambiguous| SM
     CLASSIFY -->|change a frozen .feature| SM
 ```
@@ -127,7 +127,7 @@ is re-opened through a mission, never edited in place.
 |---|---|
 | Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
 | Manage the corpus — bootstrap, inspect, audit, or housekeeping (non-mission) | **`manage`** (`./manage/README.md`) — the manage dispatcher; loads the matching corpus engine in-session |
-| A task with no suite-relevant behavior (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
+| A task with no suite-relevant behavior, or confined to a non-durable surface (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 | Manage domain plugins (install / list / remove), author a governance, or register to the marketplace | the **plugin** capability (`../plugin/README.md`) — *planned, deferred CR* |
 
@@ -174,12 +174,16 @@ headless) owns any provisional self-assertion. The gateway writes neither.
 
 ## Recognize the escape and the freeze
 
-- **Escape.** A **task that is not a CR** — no suite-relevant behavior — **escapes**: state that the
-  work is leaving the lifecycle, create no draft, invoke no gate, and **write no record** (a non-CR
-  is not SDD's to track; a spec-prose-only change is already in git). Recognition is the **grill +
-  impact analysis**, not a gateway classifier — the grill may also carve a CR out of a task and
-  escape the rest. Ambiguity defaults *into* the lifecycle and is decided during explore (see
-  `../intake/README.md`).
+- **Escape.** A **task that is not a CR** escapes: state that the work is leaving the lifecycle,
+  create no draft, invoke no gate, and **write no record** (a non-CR is not SDD's to track; a
+  spec-prose-only change is already in git). Two independent triggers make a task a non-CR: **no
+  suite-relevant behavior**, or a **non-durable** touched artifact (resolved via
+  `../intake/resolve-durability/README.md` — explicit override, then the project's
+  `.agents/sdd/durability.toml`, then a fixed agent-config location convention, then fail-closed to
+  durable). Recognition is the **grill + impact analysis**, not a gateway classifier — the grill may
+  also carve a CR out of a task and escape the rest, or carve a CR out of the durable parts of a
+  mixed request and escape the non-durable ones. Ambiguity defaults *into* the lifecycle and is
+  decided during explore (see `../intake/README.md`).
 - **Freeze.** SDD freezes the `.feature` at approval. A request to change a frozen scenario is not
   edited in place; it loads **`start-mission`**, which grills the spec back open through the
   explore phase before scenarios may be revised.

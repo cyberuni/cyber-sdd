@@ -1,0 +1,3 @@
+{"seq": 1, "kind": "leash", "cr": "local-wire-durability-into-gateway", "leash": "auto-all", "by": "derived", "blast": "medium", "approach": ["build-to-keep against already-frozen cr-lifecycle.feature scenario + one additive gateway.feature scenario", "cold spec-judge over the executable skill edits + spec docs together", "verify:specs-new structural check before and after"]}
+{"seq": 2, "kind": "gate", "cr": "local-wire-durability-into-gateway", "gate": "spec", "verdict": "approve", "by": "agent", "cause": "dimension", "frozen": ["gateway/gateway.feature"]}
+{"seq": 3, "kind": "gate", "cr": "local-wire-durability-into-gateway", "gate": "impl", "verdict": "approve", "by": "agent", "cause": "dimension", "frozen": []}

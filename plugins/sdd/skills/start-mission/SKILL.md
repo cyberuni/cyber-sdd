@@ -60,6 +60,8 @@ Build-to-keep against the **frozen** suite. The deliver **read-set is scoped** (
 
 Land per the handoff unit. First **finalize placement**: run a Warden placement pass **scoped to this mission's touched nodes**, and relocate any provisionally-placed node to its blessed home (placement-map routing table) via `git mv` — a pure rename that preserves freeze (`sdd:lifecycle-governance`), logged as a detail-adjustment, so the delivery shows every node already in the right place (no follow-up formation CR). Then land per the declared delivery shape (branch → PR where the repo is PR-flow), decomposed by **unit of work** (one co-committable change per commit), conditional `status` write-back, a distilled public summary, and follow-ups filed as **new CRs**. Introduce no new hard floor; keep the combat log in the PR; keep the plan until the CR is done/merged and doctrine-distilled.
 
+Once landed, **spawn `sdd:sdd-warden`** by name for the post-mission corpus-wide formation pass — a **detached, background** task. Do not wait on it and do not gate mission completion on its result; the Warden has no user channel and self-clears or escalates as a new CR on its own.
+
 ## Autonomy, provenance, and the hard floor (baked in)
 
 - **Initial strategy** (run start): assess blast radius + the other dimensions and emit a run-level `kind: leash` block to **your own ledger shard** (`ledger/<cr-ref>.<hash>.jsonl` — mint `<hash>` as 6 random hex **once per session** and reuse it for every line you append; `sdd:combat-log-governance`) — `leash` (`auto-none | auto-spec | auto-all`), `by: derived | user`, `approach[]`. It may be user-specified. This block is `kind: leash`, **not** `strategy` — `strategy` is the doctrine Scanner's alone. Ledger lines carry **no `ts`**.

@@ -59,6 +59,14 @@ Feature: The handoff phase — land the verified result in the declared delivery
     Then the relocation is logged as a detail-adjustment
     And the node is referenced by its stable name
 
+  # ---- Trigger the post-mission formation loop ----
+
+  Scenario: handoff spawns the formation loop after landing, detached
+    Given a mission has landed in the declared delivery shape
+    When handoff completes
+    Then it spawns the Warden by name for a corpus-wide formation pass
+    And it does not wait for that pass to return
+
   # ---- Decompose by unit of work ----
 
   Scenario: a multi-unit cycle lands as multiple units

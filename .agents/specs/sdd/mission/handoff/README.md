@@ -38,6 +38,7 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 | **distilled public summary** | append an outward-facing conclusion + follow-ups (which re-enter as new CRs) to the source — not the combat log |
 | **no new floor** | handoff raises no new mandatory escalation; earlier hard floors already fired |
 | **the plan is kept, not landed, not retired** | the `.plan.md` stays in the PR as scratch, is not landed as a delivery artifact, and is not retired early |
+| **trigger the formation loop** | spawn the corpus-wide formation loop, detached, after landing — no wait on its result |
 
 ## Inputs
 
@@ -59,12 +60,20 @@ node already in the right place — no follow-up formation CR.
   spec/suite node only — never the impl — so the impl-gate verdict is path-independent, and squad
   resolution (by `artifact-types`, not folder) is unchanged.
 - **Scoped, not corpus-wide.** This finalizes only *this mission's* placement; cross-mission structural
-  drift (node-shape audit + align across missions) stays with the post-mission formation loop (`../../formation/`).
+  drift (node-shape audit + align across missions) is the **separate** corpus-wide formation loop
+  (`../../formation/`), not this pass.
 - **Logged, keyed by name.** Each relocation is recorded as a detail-adjustment in the combat log
   (`../../design/provenance-model.md`), referencing the node by its **stable name**, so the move never
   dangles a reference.
 - **Usually a no-op.** With the routing table + `place-node` (`../../project-spec/`), explore's provisional
   pick is usually already the blessed home, so most missions relocate nothing.
+
+**Triggering the corpus-wide pass.** After landing (below), handoff **spawns** `sdd-warden` by
+name for the full corpus-wide formation pass and does **not wait** for it to return — handoff
+never reads back the Warden's findings, so the mission's own completion is not gated on a
+corpus-wide scan. This is the one place the formation loop's documented "post-mission" cadence is
+actually wired; the loop's own behavior (what the pass does once running) is owned entirely by
+`../../formation/`.
 
 ## The delivery-shape contract
 

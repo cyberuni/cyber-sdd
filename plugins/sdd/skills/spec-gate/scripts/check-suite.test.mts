@@ -284,6 +284,95 @@ test('a Then naming a rubric verdict is a boolean outcome, not a leaked grade', 
 	assert.deepEqual(checkSuite('slug', 'x.feature', text), [])
 })
 
+// ─── parseSuite / checkSuite — Scenario Outline Examples ───────────────────
+
+test('parseSuite marks a Scenario Outline and parses its Examples table', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  Scenario Outline: the config activates on a matching query',
+		'    Given a user query "<query>"',
+		'    When the agent decides whether to invoke the config',
+		'    Then invocation is "<should_trigger>"',
+		'',
+		'    Examples:',
+		'      | query            | should_trigger |',
+		'      | make a chart     | yes            |',
+		'      | book a flight    | no             |',
+	].join('\n')
+	const f = parseSuite(text)
+	assert.equal(f.scenarios[0].isOutline, true)
+	assert.deepEqual(f.scenarios[0].placeholders, ['query', 'should_trigger'])
+	assert.deepEqual(f.scenarios[0].examples?.header, ['query', 'should_trigger'])
+	assert.equal(f.scenarios[0].examples?.rows.length, 2)
+})
+
+test('a plain Scenario is not marked as an outline', () => {
+	const text = ['Feature: foo', '', '  Scenario: a', '    Given x', '    When y', '    Then z'].join('\n')
+	const f = parseSuite(text)
+	assert.equal(f.scenarios[0].isOutline, false)
+	assert.equal(f.scenarios[0].examples, null)
+})
+
+test('a well-formed Scenario Outline with covering Examples passes', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  Scenario Outline: activation',
+		'    Given a query "<query>"',
+		'    When evaluated',
+		'    Then invocation is "<should_trigger>"',
+		'    Examples:',
+		'      | query | should_trigger |',
+		'      | draw  | yes            |',
+	].join('\n')
+	assert.deepEqual(checkSuite('slug', 'x.feature', text), [])
+})
+
+test('a Scenario Outline with no Examples table is a violation', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  Scenario Outline: activation',
+		'    Given a query "<query>"',
+		'    When evaluated',
+		'    Then invocation is "<should_trigger>"',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(v.some((m) => /Scenario Outline has no non-empty Examples table/.test(m)))
+})
+
+test('a Scenario Outline with an empty Examples table (header only) is a violation', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  Scenario Outline: activation',
+		'    Given a query "<query>"',
+		'    When evaluated',
+		'    Then invocation is "<should_trigger>"',
+		'    Examples:',
+		'      | query | should_trigger |',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(v.some((m) => /Scenario Outline has no non-empty Examples table/.test(m)))
+})
+
+test('a Scenario Outline whose Examples miss a placeholder column is a violation', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  Scenario Outline: activation',
+		'    Given a query "<query>"',
+		'    When evaluated',
+		'    Then invocation is "<should_trigger>"',
+		'    Examples:',
+		'      | query |',
+		'      | draw  |',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(v.some((m) => /missing column\(s\) for placeholder\(s\): should_trigger/.test(m)))
+})
+
 // ─── checkSuite — scenario ordering / sectioning ───────────────────────────
 
 test('a feature with >6 scenarios and no section comments fails ordering', () => {

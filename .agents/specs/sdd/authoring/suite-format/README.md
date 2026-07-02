@@ -83,7 +83,7 @@ A resolved judge does **not** reject scoring lingo *inside* a `@rubric` scenario
 
 ## Mechanical enforcement (the executable form)
 
-The universal structural rules above — Gherkin validity, every untagged `Then` a boolean assertion (no hedge adverbs, no leaked rubric lingo), and scenario sectioning — have a deterministic **executable form** that runs as a mechanical pre-filter at two runtime touchpoints, not only in CI:
+The universal structural rules above — Gherkin validity, every untagged `Then` a boolean assertion (no hedge adverbs, no leaked rubric lingo), `Scenario Outline` Examples-table coverage, and scenario sectioning — have a deterministic **executable form** that runs as a mechanical pre-filter at two runtime touchpoints, not only in CI:
 
 - The **spec-producer** self-runs it after authoring a `.feature` and fixes any violation before returning (`../spec-producer/README.md`), so a mechanical defect never costs a cold-judge round.
 - The **spec gate** runs it **fail-closed over the CR's touched `.feature` files, before the cold judge is spawned** (`../spec-gate/README.md`), so the qualitative judge only ever sees well-formed suites.
@@ -94,6 +94,26 @@ A tree-wide sweep stays a CI backstop. The mechanical check settles the form; th
 
 The baseline rule "no rubric in the `.feature`" is relaxed to **"no rubric in an *untagged* scenario."**
 Rubric form is legal only inside a `@rubric`-tagged scenario; the tag is the guard that keeps the boolean gate contract intact for everything else.
+
+## Optional conventions — layer tags and enumerated cases
+
+Both are **additive** and plugin-facing (e.g. ACED for agent-config domains); untagged, plain suites are unaffected and the mechanical check ignores tags it does not recognize.
+
+- **Layer tags** — tag a scenario with the evaluation layer a resolved judge routes it through: `@trigger`, `@behavior`, `@quality`. Orthogonal to `@rubric` (a scenario may carry both, e.g. `@behavior @rubric`). The tag is metadata; it never changes the one-boolean-per-scenario contract.
+- **Enumerated cases** — when one scenario is exercised over an enumerated set (e.g. a trigger-query corpus of `{ query, should_trigger }`), use a `Scenario Outline` with an `Examples:` table — one row per case, `<placeholder>` tokens bound to columns. The mechanical check requires a non-empty `Examples:` table whose header covers every `<placeholder>` used in the steps; a bare outline with no table (or a table missing a placeholder's column) is a structural failure.
+
+```gherkin
+@trigger
+Scenario Outline: the config activates on a matching query
+  Given a user query "<query>"
+  When the agent decides whether to invoke the config
+  Then invocation is "<should_trigger>"
+
+  Examples:
+    | query        | should_trigger |
+    | make a chart | yes            |
+    | book a flight| no             |
+```
 
 ## Scenario ordering (step-down)
 

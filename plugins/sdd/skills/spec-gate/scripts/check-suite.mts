@@ -19,6 +19,11 @@ export interface ParsedScenario {
 	name: string
 	steps: string[]
 	tags: string[]
+	// A `Scenario Outline` drives its steps from an `Examples:` table; a plain
+	// `Scenario` has neither. `placeholders` are the `<name>` tokens used in steps.
+	isOutline: boolean
+	placeholders: string[]
+	examples: { header: string[]; rows: string[][] } | null
 }
 
 // ─── hedge words that signal probabilistic / rubric assertions ────────────────
@@ -68,14 +73,34 @@ export function parseSuite(text: string): ParsedSuite {
 
 		if (/^Scenario:/i.test(line) || /^Scenario Outline:/i.test(line)) {
 			if (current) scenarios.push(current)
+			const isOutline = /^Scenario Outline:/i.test(line)
 			const name = line.replace(/^Scenario(?: Outline)?:/i, '').trim()
-			current = { name, steps: [], tags: pendingTags }
+			current = { name, steps: [], tags: pendingTags, isOutline, placeholders: [], examples: null }
 			pendingTags = []
+			continue
+		}
+
+		// Examples: opens an outline's data table; the first table row is its header.
+		if (current && /^Examples:/i.test(line)) {
+			current.examples = { header: [], rows: [] }
+			continue
+		}
+
+		// A table row (`| a | b |`) fills the open Examples table — header first.
+		if (current?.examples && line.startsWith('|')) {
+			const cells = line
+				.split('|')
+				.slice(1, -1)
+				.map((c) => c.trim())
+			if (current.examples.header.length === 0) current.examples.header = cells
+			else current.examples.rows.push(cells)
 			continue
 		}
 
 		if (current && /^(Given|When|Then|And|But)\b/i.test(line)) {
 			current.steps.push(line)
+			// Collect `<placeholder>` tokens so an outline's table can be checked to cover them.
+			for (const m of line.matchAll(/<([^>]+)>/g)) current.placeholders.push(m[1])
 		}
 	}
 
@@ -138,6 +163,21 @@ export function checkSuite(slug: string, file: string, text: string): string[] {
 				v.push(
 					tag(`${label}: step embeds a rubric/score in its assertion — "${step.trim()}" (matched ${rubric.source})`),
 				)
+			}
+		}
+
+		// Scenario Outline: the Examples table must be present, non-empty, and cover
+		// every <placeholder> used in the steps. A bare outline with no table (or a
+		// table missing a placeholder's column) would silently drive nothing.
+		if (scenario.isOutline) {
+			const ex = scenario.examples
+			if (!ex || ex.header.length === 0 || ex.rows.length === 0) {
+				v.push(tag(`${label}: Scenario Outline has no non-empty Examples table`))
+			} else {
+				const missing = [...new Set(scenario.placeholders)].filter((p) => !ex.header.includes(p))
+				if (missing.length) {
+					v.push(tag(`${label}: Examples table missing column(s) for placeholder(s): ${missing.join(', ')}`))
+				}
 			}
 		}
 	}

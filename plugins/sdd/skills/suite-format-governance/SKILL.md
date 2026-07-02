@@ -72,10 +72,40 @@ rejects a malformed `@rubric` scenario (missing threshold or named dimensions) s
 scoring begins. A plugin may supply a more capable scoring judge (e.g. ACED for agent-config
 domains).
 
+## Optional conventions — layer tags and enumerated cases
+
+Both are **additive** and plugin-facing (e.g. ACED for agent-config domains); untagged, plain suites
+are unaffected and the structural check ignores tags it does not recognize.
+
+- **Layer tags** — tag a scenario with the evaluation layer a resolved judge should route it through:
+  `@trigger`, `@behavior`, `@quality`. Orthogonal to `@rubric` (a scenario may carry both, e.g.
+  `@behavior @rubric`). The tag is metadata; it never changes the one-boolean-per-scenario contract.
+- **Enumerated cases** — when one scenario is exercised over an enumerated set (e.g. a trigger-query
+  corpus of `{ query, should_trigger }`), use a `Scenario Outline` with an `Examples:` table — one row
+  per case, `<placeholder>` tokens bound to columns:
+
+  ```gherkin
+  @trigger
+  Scenario Outline: the config activates on a matching query
+    Given a user query "<query>"
+    When the agent decides whether to invoke the config
+    Then invocation is "<should_trigger>"
+
+    Examples:
+      | query        | should_trigger |
+      | make a chart | yes            |
+      | book a flight| no             |
+  ```
+
+  `check-suite` requires a non-empty `Examples:` table whose header covers every `<placeholder>` used
+  in the steps — a bare outline with no table (or a table missing a placeholder's column) is a
+  structural failure.
+
 ## The executable form — `check-suite`
 
 The universal structural rules above (Gherkin validity, every untagged `Then` a boolean assertion,
-no hedge adverbs or leaked rubric lingo, scenario sectioning) have a deterministic executable form:
+no hedge adverbs or leaked rubric lingo, `Scenario Outline` Examples-table coverage, scenario
+sectioning) have a deterministic executable form:
 the `check-suite` engine (`scripts/check-suite.mts` in the `spec-gate` skill). It runs at **two
 per-CR runtime touchpoints**, not only in CI:
 

@@ -1,0 +1,3 @@
+{"seq": 1, "kind": "leash", "cr": "local-durability-toml-override", "leash": "auto-all", "by": "derived", "blast": "low", "approach": ["additive-only edit to the frozen acceptance suite (no re-open)", "cold spec-judge before gate", "verify:specs structural check before and after"]}
+{"seq": 2, "kind": "gate", "cr": "local-durability-toml-override", "gate": "spec", "verdict": "approve", "by": "agent", "cause": "dimension", "frozen": ["acceptance/cr-lifecycle.feature"]}
+{"seq": 3, "kind": "gate", "cr": "local-durability-toml-override", "gate": "impl", "verdict": "approve", "by": "agent", "cause": "dimension", "frozen": []}

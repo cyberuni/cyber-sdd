@@ -137,28 +137,34 @@ exists to avoid. A task with real suite-relevant behavior still escapes when its
 signal** resolves non-durable. Durability resolves the way `artifact-type` does — per artifact,
 convention first (`../design/artifact-type.md`) — but unlike artifact-type's ambiguity path
 (which **asks** the user, confirm-never-guess), an unresolved durability signal never asks:
-it **fails closed to durable** (step 3 below) and the work proceeds as a normal CR. The
+it **fails closed to durable** (step 4 below) and the work proceeds as a normal CR. The
 convention differs by kind, and an explicit statement always wins:
 
 1. **Explicit override in the request wins first.** If the requester states durability
    directly ("this is a throwaway POC", "this must be public") that decides it; no further
    resolution runs.
-2. **Else resolve by the artifact's own kind:**
+2. **Else a project-declared `.agents/sdd/durability.toml` entry, if the artifact's path
+   matches.** An optional, mutable TOML map, shape `"<path-or-glob>" = "durable" |
+   "non-durable"`, the same optional / last-write-wins lookup-table convention as the
+   artifact-type tiebreaker map. This is the **universal override valve** — usable for
+   *any* artifact-type's durability, not code-only: a project whose project-private skills
+   are in fact a maintained contract for its contributors can add
+   `".agents/skills/" = "durable"` and override the agent-config default below.
+3. **Else the artifact's own kind default:**
    - **Agent-config artifact-types** (`skill`, `subagent`, `command`, `agents-section`) — a
      **fixed** location convention: user-global and project-private paths are non-durable;
-     project-public (shipped) paths are durable.
-   - **Code artifact-types** (scripts, tools, POC code, …) — a **project-declared,
-     configurable** location convention (no universal `tools/`-vs-`src/` split holds across
-     projects): an optional, mutable TOML map at `.agents/sdd/durability.toml`, shape
-     `"<path-or-glob>" = "durable" | "non-durable"`, the same optional / last-write-wins
-     lookup-table convention as the artifact-type tiebreaker map — absent is fine, only a
-     project's known non-durable paths need an entry.
-3. **No resolvable signal → durable (fail closed).** Absent an override and absent a
-   matching `durability.toml` entry, durability is **not** guessed non-durable — it defaults
-   durable and the task proceeds as a normal CR, mirroring "ambiguity defaults to a CR"
-   below. A silent false-negative (something durable escaping unrecorded) is the one failure
-   mode this hatch must never produce; a false positive (something non-durable going through
-   full SDD) only costs one CR's ceremony.
+     project-public (shipped) paths are durable. This is a low-friction default, not a
+     project-specific guess — it already matches how `define-skill` / `define-agent` /
+     `create-skill` ask placement today.
+   - **Code artifact-types** (scripts, tools, POC code, …) have **no kind default** (no
+     universal `tools/`-vs-`src/` split holds across projects); absent a matching
+     `durability.toml` entry they fall through to step 4.
+4. **No resolvable signal → durable (fail closed).** Absent an override, a matching
+   `durability.toml` entry, and a kind default, durability is **not** guessed non-durable —
+   it defaults durable and the task proceeds as a normal CR, mirroring "ambiguity defaults
+   to a CR" below. A silent false-negative (something durable escaping unrecorded) is the
+   one failure mode this hatch must never produce; a false positive (something non-durable
+   going through full SDD) only costs one CR's ceremony.
 
 A non-durable resolution **escapes outright** — no CR, no draft, no gate, no combat-log
 record — the same as a task with no suite-relevant behavior. This is deliberately **not** the
@@ -185,6 +191,7 @@ The litmus is whether the change can affect observable behavior or break the sui
 | A private (user-global / project-private) skill or agent definition | **Yes** — no record | agent-config durability resolves fixed-location non-durable |
 | A public (shipped) skill or agent definition | **No** — it is a CR | agent-config durability resolves fixed-location durable |
 | A script/tool matching the project's declared non-durable location | **Yes** — no record | code durability resolves via the project's own config |
+| A private skill/agent whose path matches a `durability.toml` "durable" entry | **No** — it is a CR | project override beats the fixed agent-config default |
 | Any of the above, explicitly declared the opposite in the request | follows the declaration | explicit override wins over the location default |
 
 The corpus-reorganization cases the original escape hatch listed — split/merge, relocate a
@@ -331,6 +338,12 @@ Scenario: a project-declared location resolves a script or tool's durability
   Given a script or tool at a path the project has declared non-durable
   When SDD resolves its durability
   Then it resolves non-durable by the project's own configured convention
+
+Scenario: a project-declared durability.toml entry overrides the agent-config fixed-location default
+  Given a skill or agent definition at a path the project's durability.toml declares durable
+  When SDD resolves its durability
+  Then the project's declaration overrides the fixed agent-config location convention
+  And the change proceeds as a change request
 
 Scenario: no resolvable durability signal defaults to durable
   Given a change whose artifact-type has neither an explicit declaration nor a project-declared convention

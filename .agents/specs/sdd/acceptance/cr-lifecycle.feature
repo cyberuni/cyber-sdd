@@ -53,6 +53,11 @@ Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → h
     When SDD intakes it
     Then it is treated as durable and proceeds as a change request
 
+  Scenario: a project-declared durability override beats an artifact-type's fixed-location default
+    Given an artifact whose location default and project-declared durability.toml disagree
+    When SDD intakes it
+    Then the project's declaration decides, not the location default
+
   # ── Explore, gates, and lifecycle independence ──
 
   Scenario: a confidently-diffable CR self-clears the grill without a human

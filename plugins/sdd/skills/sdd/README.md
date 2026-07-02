@@ -1,0 +1,7 @@
+# sdd
+
+The SDD **gateway** skill — the universal front door to a Spec-Driven-Development project. User-invocable: activates SDD, gathers missing intent, classifies what the user wants to do to the project, and **loads the handling skill in the current session** (`start-mission` for a change, the corpus tools, the outer loops), where the session works the task directly.
+
+A **thin classifier**: it holds no production logic, loads **no governance** (the macro-grill ruling), and writes no contract state. It does **not** pin a model — the skill it loads declares the model + effort its work needs. By default it **spawns nothing** — it loads the matched skill in the main session, which **is** the conductor (the user in the driver's seat). It spawns the **automaton** (the headless driver) **only** when there is no user channel (an unattended scheduler or a multi-CR fan-out).
+
+Bakes in: explicit activation (`$sdd`), the fast path (change + target → load directly), the two-level intake menu with the hard four-option rule, surface-pending-strategy (count the unratified `strategy` lines globbed from the root `ledger/` shards — never the `*.log.jsonl` combat log; never draft or ratify), the routing-table-as-capability-index (a change → `start-mission`), load-in-session-vs-headless-automaton with write-ownership preserved, and escape / freeze recognition (a non-CR escapes with no record; a frozen `.feature` re-opens through a mission).

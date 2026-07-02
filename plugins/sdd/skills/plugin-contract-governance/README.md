@@ -1,7 +1,12 @@
 # plugin-contract-governance
 
-Non-user-invocable SDD skill documenting the **SDD plugin contract**: the five delegate roles a plugin implements (`spec-producer`, `plan-producer`, `spec-judge`, `impl-producer`, `impl-judge`), which governances each role loads, and the `.agents/universal-plugin.json` registry shape the operator resolves against.
+Internal SDD governance (`user-invocable: false`). The **plugin contract** — what an SDD plugin must
+implement: the five delegate roles (closed set), the per-role governance loadout (the Model-B
+`(actor, gate)` bars + the fixed-universal set), and the `sdd-plugins[]` registry entry shape +
+resolution by `artifact-type`.
 
-Loaded via the harness (`Skill`) by `sdd-operator` (delegate resolution) and consulted by anyone authoring a new SDD plugin (e.g. `aces`, `quill`). It is the SDD-role layer on top of the universal plugin format (`plugin-design`, via `governance show universal-plugin`).
-
-Added alongside the lifecycle/ownership/gate-validation split so there is one place that answers "what does an SDD plugin implement and load" — see [ADR-0014](../../../../artifacts/adr/0014-sdd-governance-split.md) (governance-skill mechanism: [ADR-0013](../../../../artifacts/adr/0013-governance-skills.md)).
+A **single-owner** governance — its consumer family is the plugin/conductor resolution surface, so it
+lives under `plugin/`, not `common-governances/`. Loaded by the conductor and by plugin authors. The
+universal-plugin *format* is `plugin-design` (out of scope); resolution/composition mechanics are the
+`resolve-governances` skill; the actor bars are the shipped
+`sdd:{oracle,builder,architect}-{spec,impl}-governance` skills. Not triggered by users directly.

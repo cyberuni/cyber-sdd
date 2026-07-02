@@ -1,9 +1,12 @@
 # combat-log-governance
 
-Non-user-invocable SDD skill holding the **combat-log contract** — the durable, harness-agnostic record of a spec's mission that the doctrine-loop Scanner reads (alone, without transcripts) to draft strategy.
+Internal SDD governance (`user-invocable: false`). The **combat-log** contract — the shape of the
+production provenance record: the two-face record (current-state frontmatter + the durable ledger),
+the tracked combat log (in the plan) vs the durable ledger (root-spec sibling), the five entry kinds
+(`report` / `correction` / `halt` / `gate` / `strategy`), the CR-scoped `seq`, the write-time UTC
+`ts`, the pseudonymous `handle`, the safe-to-publish floor, and the matchable `cause` enum.
 
-It defines the log's **two faces** — the frontmatter *current-state* face (`produced-by` + `approval`, authoritative, overwritten) and the append-only **`log`** ledger (immutable history) — and the three ledger entry shapes: the per-subagent **report** entry, the **correction-with-cause** entry (with its closed, extensible `cause` enum — the matchable field cross-mission recurrence detection depends on), and the **strategy** entry slot.
-
-It also fixes **write ownership**: the operator appends report and correction entries (same boundary as `produced-by`); the doctrine-loop Scanner appends strategy entries; producers and judges never write the log.
-
-Loaded via the harness (`Skill`) by `sdd-operator` (appends report/correction entries), `validate-spec` (checks log entries are well-formed and corrections are on-enum), and the doctrine-loop Scanner (reads the log; appends strategy). `sdd-provenance` owns the combat-log *contract* and references this skill as the schema owner — the schema is not duplicated in the spec.
+A fixed-universal SDD governance, invariant per role. Loaded by the conductor, spec-gate, and the
+doctrine-loop Scanner. The tracked deletion of a retired plan is the `plan-retirement` skill;
+freeze/gating in `lifecycle-governance`; write-ownership in `ownership-governance`. Not triggered by
+users directly.

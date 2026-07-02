@@ -1,80 +1,98 @@
 ---
 name: lifecycle-governance
-description: "Internal skill: the SDD spec lifecycle contract — frontmatter schema, status enum, status transitions, open-marker gating, and the freeze state-transition. Loaded by sdd, validate-spec, create-spec, sdd-operator, and sdd-spec-judge — not triggered by users directly."
+description: "Internal skill: the SDD spec lifecycle contract — the root spec.md frontmatter schema, status enum, status transitions, open-marker gating, and the per-file freeze state-transition. Loaded by sdd, spec-gate, start-mission, the conductor, and the spec-judge. Not triggered by users directly."
 user-invocable: false
 ---
 
 # SDD Lifecycle Governance
 
-The state machine a `spec.md` moves through, and the frontmatter that records it. This skill is the canonical home for the lifecycle; consumers load it instead of restating it. Write-ownership of these fields lives in `ownership-governance`; legality of field combinations and gate verdicts live in `gate-validation-governance`.
+The state machine a `spec.md` moves through, and the frontmatter that records it. This skill is the
+canonical home consumers load instead of restating it. Write-ownership of these fields lives in
+`sdd:ownership-governance`; legality of field combinations and gate verdicts in
+`sdd:gate-validation-governance`; the ledger shape in `sdd:combat-log-governance`.
 
 ## Frontmatter schema
 
-`spec.md` carries YAML frontmatter:
+The **root** `spec.md` carries YAML frontmatter:
 
 ```yaml
 ---
 status: draft           # draft | approved | implemented | deprecated
-type: feature           # project | feature; omit for an untyped legacy spec
-domain-type: skill      # artifact-type axis for plugin resolution: e.g. skill | subagent | command | agents-section; omit for a plain-code domain
-aligned: false          # true once the current layer's artifacts are synced
-priority: 1             # optional integer; 1 = highest (relative within a set); omit = unprioritized
-blocked-by:             # list of spec slugs; omit or empty if none
-  - <spec-slug>
-subtasks:               # child feature slugs a project or feature owns (single-parent; features nest)
-  - <spec-slug>
-strategy:               # run-level initial evaluation (leash + approach); see sdd-stop-provenance
-  leash: auto-all       # first-evaluated reach: auto-none | auto-spec | auto-all
-  by: derived           # derived | user
-  approach: [no-spike, mocks, worktree]   # blast-radius-containment choices
-approval:               # per-gate verdict; see gate-validation-governance
+project-path: plugins/sdd-new   # repo-relative source dir this spec governs; the location mode is derivable
+name: SDD               # OPTIONAL declared project name; authoritative for name→spec resolution
+approval:               # per-gate verdict
   spec:                 # verdict: approve | pause | reject
     verdict: approve
-    by: agent           # by: agent (self-asserted, provisional) | <human name> (ratified); omitted on pause
-    why:                # four-dimension derivation (agent self-assertion or pause)
-      reversibility: <safe|risky — reason>
-      blast-radius:  <safe|risky — reason>
-      novelty:       <safe|risky — reason>
-      confidence:    <safe|risky — reason>
+    by: agent           # agent (self-asserted, provisional) | <human name> (ratified); omitted on pause
+    cause: dimension    # dimension | ceiling — what drove the verdict
+    why:                # verdict derivation (agent self-assertion or pause)
+      floor:       <none | clearance | conflict | compatibility | consent>
+      blast:       <low|high — reason>
+      novelty:     <low|high — reason>
+      confidence:  <low|high — reason>
   impl: { verdict: approve, by: <human name> }   # ratified — no why needed
-domain-plugin:          # map: domain -> owning plugin, when a domain is contested
-  <domain>: <plugin>
+produced-by:            # who produced each artifact; see sdd:combat-log-governance
+  spec-producer: <plugin>:<agent>
 ---
 ```
 
 Open input is recorded in the body as `<!-- open: ... -->` markers, not in frontmatter.
 
-`status` and `blocked-by` are the base schema; `priority` is an optional ranking hint (an integer, `1` = highest, relative within a set; omit to leave a spec unprioritized). `type`, `domain-type`, `subtasks`, `aligned`, `strategy`, `approval`, and `domain-plugin` are the SDD-workflow additions.
+The frontmatter is the **router's upfront index** (ADR-0017): the gateway scans every spec at the
+three SDD spec locations, frontmatter only (no bodies), to route, so it carries only what routing
+needs. `status` is the base schema;
+`project-path`, `approval`, and `produced-by` are the SDD-workflow additions. `project-path` records
+the repo-relative source dir the spec governs; the spec **location mode** (`colocated | hoisted |
+monorepo-member`) is *derived* from it (hoisted iff `project-path` is not the spec's own dir), never
+stored. There is **no `aligned`, `spec-layout`, or run-level `leash` field** — sync is derived
+(below), the organization strategy is declared in the body placement map, and the leash is
+session-local on the ledger/plan (the conductor's autonomy bar, `start-mission`).
 
-**`domain-type` is the resolution axis, distinct from the folder name and from `type`.** The spec **folder slug** (`governance-composition`, `sdd-operator`) is the domain *instance* — free-form, one per spec. `type` is `project | feature` (composition shape). `domain-type` is the *kind of artifact* the spec produces, and it is the **only** field a plugin's `domains[]` is matched against during delegate resolution (see `plugin-contract-governance`). A spec whose `domain-type` is one of a registered plugin's `domains[]` resolves that plugin's production-chain roles; an absent or unmatched `domain-type` degenerates every role to the SDD default. Plain-code specs omit it. `domain-type` is set once at scaffold time and is not a free-for-all string — it draws from the artifact-type vocabulary the project's registered plugins cover (for agent-configuration work: `skill | subagent | command | agents-section`).
+**A file's artifact-type is resolved per file, never stored here.** Each file's artifact-type (the
+squad key) resolves its own squad against the project's registered plugins
+(`sdd:plugin-contract-governance`); the conductor classifies it by convention, falling back to the
+optional `.agents/sdd/artifact-types.toml` tiebreaker on ambiguity. The contested-type →
+chosen-plugin disambiguation lives in `.agents/sdd/` resolution state, **distinct from
+`produced-by`**, never a frontmatter field. The project carries no root `artifact-types` summary.
 
-An `approval.<gate>` with `verdict: approve` and `by: agent` is a **provisional self-assertion** carrying its four-dimension `why`; `by: <human name>` is a **ratification**. A `verdict: pause` records why the agent halted (its `why`, no `by`); a `verdict: reject` is a scope-kill or Oracle-revert. The set of specs with any `verdict: approve` + `by: agent` is the human review queue; specs with a `verdict: pause` form the awaiting-input queue. The leash is run-level (the `strategy` block), not per-gate; its derivation and who writes each are defined in `gate-validation-governance`.
-
-## Spec typing and composition
-
-A spec carries a `type` and projects own their features:
-
-| `type` | Meaning |
-|---|---|
-| `project` | A top-level spec: a plugin/project, or a standalone model. Has no parent. Owns features via `subtasks`. |
-| `feature` | A unit of work belonging to exactly one parent (a project or another feature). Owns its detailed behavior; may itself own child features via `subtasks` (features nest). |
-
-- **`subtasks` lists children, parent is derived.** A `project` **or** a `feature` declares `subtasks` — the child feature slugs it owns (features nest under features). A child does not name its parent; the parent is whichever spec lists it, mirroring how `blocks` is derived from `blocked-by`. This keeps one source of truth.
-- **Single parent (tree invariant).** A slug appears in **at most one** spec's `subtasks`. Each `feature` is owned by exactly one parent (a project or a feature); an unparented non-`deprecated` `feature` is an orphan. This keeps composition a tree, not a tangle.
-- **Composition is orthogonal to dependency.** `subtasks` is containment (parent → feature); `blocked-by` is execution-order dependency. A feature may be `blocked-by` specs outside its parent. The two graphs are maintained and rendered separately.
-- **A composition node advances by rollup.** A spec that declares `subtasks` and owns **no `.feature` of its own** carries no behavior contract to judge — it is **exempt from the `.feature` requirement** at the gates. Its spec gate judges the composition (children present and correctly wired); it may reach `implemented` only once **every non-`deprecated` child is `implemented`** (`approved` is **not** rolled up). Enforced by `gate-validation-governance` / `check-spec-state.mts`.
+**This whole frontmatter is root-`spec.md`-only.** A capability node README (a `reference` or
+`behavioral` spec — `sdd:spec-format-governance`) carries **only** its `spec-type` marker, never a
+lifecycle field. Folders are views, never lifecycle units: the project has **one** lifecycle, on the
+root.
 
 ## Spec discovery
 
-A spec is defined by its **shape, not its location**: an SDD spec is any git-tracked `spec.md` whose frontmatter `status` is one of the lifecycle enum values below. This is the single source of truth — there is no spec registry or enumerated index to keep in sync.
+A spec is **location-bounded and shape-confirmed** (ADR-0017): an SDD spec is a git-tracked
+`spec.md` that sits at one of the three fixed SDD spec locations — **or** at an extra anchor the
+project declared (ADR-0019) — **and** whose frontmatter `status` is one of the enum values below:
 
-To locate specs, glob `**/spec.md` repo-wide, filter to git-tracked files (e.g., cross-reference with `git ls-files`), and keep those whose `status` is in the enum. A `spec.md` without a lifecycle `status` is not an SDD spec and is excluded (for example, doc-only spec folders that live outside the workflow).
+1. `.agents/spec/spec.md` — repo-root single-project
+2. `.agents/specs/<project>/spec.md` — repo-root multi-project
+3. `<project-path>/.agents/spec/spec.md` — a nested project (the `**` is the project-path, any depth)
+4. any extra anchor declared in `.agents/sdd/spec-anchors.toml` — **opt-in and additive**; absent
+   config ⇒ only 1–3 (today's behavior). The three fixed conventions need no registry; the extra
+   anchors are a declared, curated registry (`manage-spec-anchors`), not a derived hot path.
 
-To resolve a **domain name** to its spec folder, match the name against each discovered spec's folder slug — the root-relative path of the folder containing `spec.md`. A spec may be flat (`sdd-operator`) or nested (`sdd/spec-digest`); match the leaf segment or the full slug. If a name matches more than one folder, disambiguate with the user.
+To locate specs, scan the fixed conventions (plus any declared extra anchors) and keep git-tracked
+files whose `status` is in the enum. A `spec.md` at a recognized location with no lifecycle `status`
+is **not** a spec (so a stray file is never grabbed by accident); a status-bearing `spec.md` at
+neither a fixed convention nor a declared extra anchor is not a spec either. An unreadable/malformed
+`spec-anchors.toml` is ignored (fall back to the fixed conventions). The concrete engine is the
+`discover-specs` skill (frontmatter only, TOON output).
 
-Derived views (such as `graph.md`) are rendered from the discovered set and never hand-maintained — see `render-spec-graph`.
+Each spec carries a **project name** so a consumer can resolve a name → spec. The name is `declared`
+(the optional frontmatter `name`, authoritative), else `derived` (the repo-root single-project →
+`repo`; a `.agents/specs/<project>` folder names itself), else `guessed` (a nested project's folder
+basename — confirm with the user). The optional `name` field is **written at spec creation**
+(`sdd:backfill-project-spec`) — it earns its router slot because the gateway presents project names
+to the user; it is required in practice only for a nested project whose folder is not the user's name.
 
-**`aligned` and commit timing.** `aligned: false` means the current layer's artifacts are being updated or contain unresolved markers; `aligned: true` means the layer is synced (which layer depends on the gate — see `gate-validation-governance`). Do not commit SDD artifacts while their spec is `aligned: false`.
+**Sync is derived, not stored (no `aligned` flag).** "Synced" is two properties, each derived or
+judged (ADR-0017): contract-sync (`spec.md` ↔ `.feature`) is *judged* at the spec gate (Builder
+coverage lens); impl-sync is the impl gate's *runtime suite run* (advance to `implemented` only when
+every impl-judge passes); per-node settled state is the **`@frozen`** scan; what is in flux now is the
+`.plan.md` todos. Do not commit SDD artifacts while a touched `.feature` is unfrozen or the plan's
+todos are incomplete.
 
 ## Status enum
 
@@ -89,31 +107,62 @@ Derived views (such as `graph.md`) are rendered from the discovered set and neve
 
 ```mermaid
 stateDiagram-v2
-    [*] --> draft: create-spec (new or backfill)
-    draft --> approved: spec gate (validate-spec --target spec)
-    approved --> implemented: impl gate (validate-spec --target impl)
+    [*] --> draft: start-mission (new or backfill)
+    draft --> approved: spec gate (spec-gate --target spec)
+    approved --> implemented: impl gate (spec-gate --target impl)
     approved --> draft: behavior change (re-open)
     implemented --> draft: behavior change (re-open)
-    draft --> deprecated: Oracle kill decision
+    draft --> deprecated: Oracle-lens kill (scope)
     approved --> deprecated
     implemented --> deprecated
 ```
 
 - **Draft → Approved** is the **spec gate**: judges `spec.md` + the `.feature`.
 - **Approved → Implemented** is the **impl gate**: judges the implementation against the frozen `.feature`.
-- A behavior change after approval is **not** a direct edit — revert to `draft` and re-pass the spec gate.
-- Deprecation retains the spec for graph history; never treat it as implementable.
+- A behavior change after approval is **not** a direct edit — revert to `draft` and re-pass the spec
+  gate. Re-open is a lightweight "change needed" flag an auditor sets; only re-approval is the heavy
+  positional act.
+- Deprecation retains the spec as a historical record; never treat it as implementable.
 
-## Freeze (state transition)
+## Freeze (per suite file)
 
-Reaching `approved` **freezes the `.feature`**. Adding, removing, or rewriting scenarios requires reverting the spec to `draft` and passing the spec gate again. The matching write constraint ("never write a frozen `.feature`") is in `ownership-governance`.
+Reaching a spec-gate `approve` **freezes** the `.feature` files the CR *touched* — each via its own
+feature-level **`@frozen` tag** (set/cleared per file; the vocabulary is **freeze / unfreeze**, never
+lock/unlock — lock is the concurrency layer, `cr-concurrency`). Files the CR did not touch keep
+whatever state they held. "Which scenarios are the frozen contract" is answered by the set of
+`@frozen` files — a plain per-file flag, no computed baseline. The `@frozen` tag is metadata,
+excluded from the content the freeze protects; toggling it is not a scenario edit. The matching
+write constraint ("never write a frozen `.feature`") is in `sdd:ownership-governance`.
 
-**Freeze scope is the contract only.** The freeze and the gates govern `spec.md` + the `.feature` — the contract. The sibling **`combat-log.jsonl` ledger is operational provenance, not contract: it is never frozen and never gated**, and keeps appending across the whole lifecycle, including while the spec sits at `approved`. Its shape and write-ownership live in `combat-log-governance`.
+- **The unfreeze trigger is risk, not phase.** *Narrowing or rewriting* a scenario unfreezes its
+  file (in explore or deliver alike) — at the gate that is **Clearance** (the conductor's autonomy
+  bar, `start-mission`), contract narrowed → escalate. An *additive* scenario never unfreezes its file:
+  it widens the contract, cannot break existing impl, and **self-clears** — folding into the frozen
+  file under the conductor's authority, logged as a detail-adjustment.
+- **A pure move/rename preserves the freeze.** What a freeze protects is the scenario **content**,
+  not where the file sits. A *pure rename* — a `git mv` with **zero content delta** (a git `R100`) —
+  does **not** unfreeze the file and is **not** a gate-able edit; it stays `@frozen` at the same
+  baseline. This is what lets **placement be finalized at handoff** (`design/spec-layout.md`): a node
+  may be relocated to its blessed home in the same change without re-opening its contract. Only a
+  *content* change (the narrowing/rewriting trigger above) unfreezes.
+- **`spec.md` is kept in sync, never frozen** — the readable abstraction of the suite, free to be
+  reworded/restructured as long as it does not contradict a frozen scenario. Enforced by the
+  spec-judge applying the Builder (coverage) lens, not by freezing the prose.
+- **The ledger is never frozen and never gated** — it keeps appending across the whole lifecycle,
+  including while files sit `@frozen` (`sdd:combat-log-governance`).
+- **Spec owns behavior.** If the implementation disagrees with `spec.md`, the implementation is
+  wrong — fix it, or unfreeze the relevant file for a new cycle. The **impl gate** is the only place
+  a frozen file reopens — via the Oracle-lens revert (building proved the contract wrong). Rare
+  and deliberate.
 
-**Spec owns behavior.** If the implementation disagrees with `spec.md`, the implementation is wrong — fix it, or revert the spec to `draft` for a new review cycle.
-
-**Two modes.** Before `approved`, exploration may update `spec.md`, the `.feature`, `plan.md`, `tasks.md`, and spikes. After `approved`, implementation proceeds against the frozen `.feature`; every frozen scenario must pass before `implemented`.
+**Two modes.** Before a file's freeze, exploration may update `spec.md`, that `.feature`, the plan
+(brief + ordered `todos`), and spikes. After it freezes, implementation proceeds against it; every
+frozen scenario must pass the full impl-gate run before `implemented`.
 
 ## Open-marker gating
 
-Missing contributor input is recorded as `<!-- open: ... -->` in the owning artifact. Open markers must be resolved (count = 0) before a spec may advance to `approved`. `gate-validation-governance` defines how markers interact with legal state; producers emit gaps that become markers, per `ownership-governance`.
+Missing contributor input is recorded as `<!-- open: ... -->` in the owning artifact. Open markers
+must be resolved (count = 0) before a spec may advance to `approved`; they are permitted at `draft`
+(markers block only the *gate*, not the draft state). `sdd:gate-validation-governance` defines how
+markers interact with legal state; producers emit gaps that the conductor turns into markers
+(`sdd:ownership-governance`).

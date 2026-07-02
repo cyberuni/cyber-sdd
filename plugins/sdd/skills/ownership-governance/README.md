@@ -1,7 +1,10 @@
 # ownership-governance
 
-Non-user-invocable SDD skill holding the **write-ownership contract**: who may write each `spec.md` frontmatter field and each artifact, the spec-producer write boundary, and the freeze *write-constraint* ("never write a frozen `.feature`").
+Internal SDD governance (`user-invocable: false`). The **write-ownership** contract — who may write
+each `spec.md` frontmatter field and artifact: the write-ownership matrix, the producer write
+boundary, positional ratification authority, and the frozen-`.feature` write constraint.
 
-Loaded via the harness (`Skill`) by every SDD producer and judge — the SDD-default producers the Operator runs inline (`spec-`/`plan-`/`impl-producer-governance`, recorded `sdd:sdd-operator`), the cold judge agents (`sdd-spec-judge`, `sdd-implementer`), and the plugin producers/judges in `aces`/`quill` — by `sdd-operator`, and by the `create-spec` / `validate-spec` skills. It is the most broadly loaded of the lifecycle skills — most producers need only this bundle.
-
-One of three skills the SDD lifecycle/frontmatter contract was split into by Reuse — see [ADR-0014](../../../../artifacts/adr/0014-sdd-governance-split.md) for the analysis and consumer matrix, and [ADR-0013](../../../../artifacts/adr/0013-governance-skills.md) for the governance-skill mechanism. The freeze rule is split by face: the *write-constraint* is here; the *state transition* is in `lifecycle-governance`.
+A fixed-universal SDD governance, invariant per role (not face-split). Loaded by every producer,
+judge, the conductor, and the start-mission/spec-gate skills. The field definitions live in
+`lifecycle-governance`; the legality of the resulting state in `gate-validation-governance`; the
+plan/ledger write split in `combat-log-governance`. Not triggered by users directly.

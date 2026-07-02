@@ -1,0 +1,7 @@
+# start-mission
+
+The single user-facing entry for **changing an SDD project** — triggered by a general change request ("add a start-mission skill to sdd", "implement the auth capability", "work on `<github issue url>`"). User-invocable: opens a **change request** against the one durable project spec and runs the **mission loop** (intake → explore → deliver → handoff) over it.
+
+The session that runs this skill **is the conductor** — the in-session realization of the conductor role; the headless realization is the `automaton` agent. It supersedes the retired spec-as-mission entries (`create-spec` / `revise-spec`): adding, revising, or deduping part of the project spec is now an **explore-phase operation inside a CR**, not a top-level mission.
+
+Bakes in: step-1 intake (recover the request or fetch an issue URL; scaffold the `.plan.md`); explore as the live grill (classify spec-type + artifact-types, scaffold the node, seed-intent Q&A, the inline spec-producer + cold spec-judge loop with build-to-learn spikes, the iteration cap, the **freeze re-open guard**, observation routing); the internal spec gate (freeze + per-CR gate line to the conductor's own `ledger/` shard + `status: approved`); deliver (spawned impl-producer builder + the internal impl gate); handoff; and the baked autonomy bar (initial strategy, per-gate verdicts, the three hard floors). Pairs with `pause-mission` / `resume-mission`.

@@ -1,7 +1,11 @@
 # lifecycle-governance
 
-Non-user-invocable SDD skill holding the **spec lifecycle contract**: the frontmatter schema, the `status` enum, the status transitions (spec gate, impl gate, re-open, deprecate), open-marker gating, and the freeze *state transition* (`approved` freezes the `.feature`).
+Internal SDD governance (`user-invocable: false`). The **lifecycle** contract — the state machine a
+`spec.md` moves through: the root frontmatter schema, the `status` enum, the legal status
+transitions, open-marker gating, and the per-file freeze state-transition.
 
-Loaded via the harness (`Skill`) by `sdd`, `validate-spec`, `create-spec`, `sdd-operator`, and `sdd-spec-judge`.
-
-It is one of three skills the SDD lifecycle/frontmatter contract was split into — `lifecycle-governance` (states), `ownership-governance` (who writes what + the freeze write-constraint), and `gate-validation-governance` (legality + gate verdicts). The split groups the knowledge by Reuse so each consumer loads only the bundle it needs; the full analysis and the consumer matrix are in [ADR-0014](../../../../artifacts/adr/0014-sdd-governance-split.md) (mechanism: [ADR-0013](../../../../artifacts/adr/0013-governance-skills.md)).
+A fixed-universal SDD governance, invariant per role (not face-split). Loaded by `sdd`,
+`spec-gate`, `start-mission`, the conductor, and the spec-judge. Write-ownership of these fields
+lives in `ownership-governance`; legality of field combinations and gate verdicts in
+`gate-validation-governance`; the ledger shape in `combat-log-governance`. Not triggered by users
+directly.

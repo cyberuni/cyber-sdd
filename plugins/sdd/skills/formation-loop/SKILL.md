@@ -1,6 +1,6 @@
 ---
 name: formation-loop
-description: "Internal skill: the SDD formation loop — the Architect's outer loop run by the Warden. Acts corpus-wide and continuously (dedupe overlap, split monoliths, keep the spec graph sound, reconcile contradictions), distinct from the per-spec structural verdict at a gate. Invoked by the formation-loop delegate — not triggered by users directly."
+description: "Internal skill: the SDD formation loop — the Architect's outer loop run by the Warden. Fires post-mission, corpus-wide and continuous, asking one question — is what we have organized right? — and emits a finding set covering every spec (node-shape / split / reconcile), each carrying the Warden's self-clear-or-escalate verdict. Invoked by the formation-loop delegate — not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true
@@ -8,69 +8,100 @@ metadata:
 
 # SDD Formation Loop
 
-The **outer loop** of the SDD model that keeps the spec **corpus** structurally coherent. Owned by the **Architect** and run by its delegate, the **Warden** (`sdd-warden`), parallel to the Operator running the mission loop. It is **corpus-wide and continuous**, asking one question and only one — **is what we have organized right?** Where the Mission loop wins one mission, the Formation loop keeps the fleet's **order of battle** coherent.
+The **structure outer loop** of the SDD model. Owned by the **Architect** and run by its delegate,
+the **Warden** (`sdd-warden`), parallel to the conductor running the mission loop. It fires
+**post-mission**, **corpus-wide and continuous**, and asks one question and only one — **is what we
+have organized right?** Its standing subject is `corpus/` + `project-spec/` and the whole organization: it evolves how
+the corpus is **arranged**, never what it says.
 
-It acts on the corpus's *structure*, not its content. Its four corpus-wide acts:
+Load `sdd:combat-log-governance` for any provenance it touches; the floor + gradient the Warden
+renders its per-act verdict against are the conductor's autonomy bar (`start-mission`) — this skill
+defers both and never restates them.
 
-- **dedupe** overlapping specs so each behavior has exactly one home,
-- **split** monoliths that have outgrown the spec-granularity heuristic,
-- **keep the spec graph sound** — the rendered DAG stays in sync with the `blocked-by` edges, and cycles are surfaced,
-- **reconcile contradictions** between governances or between specs.
+## Corpus-wide, never the per-spec gate
 
-Load `sdd:spec-governance` for the **spec-granularity heuristic** (the split trigger) and the `## Use Cases` rule; `sdd:lifecycle-governance` for project/feature composition and the freeze re-open transition; `sdd:ownership-governance` for write-ownership and the freeze write-constraint. The split and graph acts run through stations (`sdd:split-spec`, `sdd:render-spec-graph`); dedupe/reconcile runs through `sdd:dedupe-specs`.
+This is the load-bearing distinction. The Architect appears in **two** places that must never be
+conflated:
 
-## Corpus-wide — DISTINCT from the per-spec gate judgment
-
-This is the load-bearing distinction. The Architect appears in **two** places and they must not be conflated:
-
-| | **Formation loop** (this skill) | **The gate's Architect-backward face** (`architect-governance`) |
+| | **Formation loop** (this skill) | **The gate's Architect-backward face** |
 |---|---|---|
 | Scope | the **whole corpus** | **one spec** |
 | Cadence | **continuous**, across missions | **point-in-time**, at one spec's gate |
-| Question | is the corpus **organized** right? | does **this spec** fit structurally? |
-| Acts | dedupe, split, graph soundness, reconcile | a single approve/pause/reject structural verdict |
-| Output | a finding set over every spec + proposals | one spec's structural verdict |
+| Question | is the corpus **organized** right? | does **this change** fit structurally? |
+| Acts | audit node-shape, split, reconcile | one approve/pause/reject structural verdict |
 
-The Formation loop **does not fire** as the per-spec structural check at a gate, and the per-spec gate structural judgment **is not** the Formation loop. They share the Architect's *concern* (structural fit) but operate at different altitudes. The gate's structural verdict, when recorded, advances only **that one spec** — it reshapes nothing across the corpus. Formation reads the corpus and reshapes it between missions.
+Every run produces a **finding set covering every spec in the corpus**; a structural pass scoped to
+one spec is **not** a formation run. When asked to act as the per-spec gate structural check, the
+loop **declines** and renders no per-spec gate verdict.
 
-## The Warden acts across the whole corpus
+## Input — corpus structure + discovery, never the combat log
 
-A Formation run is not scoped to one spec. The Warden reads every `spec.md` under the specs root and produces a **finding set covering every spec in the corpus** — each spec is examined for split candidacy, overlap with siblings, contradiction, and its place in the graph. A run that touched only one spec is not a Formation run.
+The Warden reads what the corpus **is**, never what a mission **did**. Its **primary** input is
+structural: the corpus **structure** and **discovery** (`corpus/` + `project-spec/`). To stay efficient rather than
+cold-scanning the whole corpus every run, it may consult the durable **public trail** (CR-source
+conclusions + changesets + git history) **forward** via a cursor to learn what shipped recently and
+prioritize the structural pass there first. It reads **never** the combat log (the doctrine loop's
+input, retired at retro) and **never** live subagent context — like the other outer loops it fires
+strictly post-mission.
 
-## The four acts — triggers and stations
+## The intra-spec structural acts
 
-| Act | Trigger | Station | Output |
+It acts on each spec's **structure**, not its content — one project is **one spec**, so structural
+maintenance is **intra-spec**. A station is **not** a dependency — formation depends on the corpus
+structure and discovery (`corpus/` + `project-spec/`), not on any given station skill.
+
+| Act | Trigger | Station (`corpus/` + `project-spec/`) | Output |
 |---|---|---|---|
-| **Split a monolith** | a spec's `.feature` exceeds the spec-granularity heuristic | `sdd:split-spec` | a project spec + feature children |
-| **Keep the graph sound** | the rendered graph is stale vs the `blocked-by` edges, or a cycle appears | `sdd:render-spec-graph` | `graph.md` back in sync; cycles surfaced |
-| **Dedupe overlap** | two specs cover overlapping behavior | `sdd:dedupe-specs` | a dedupe proposal naming the overlapping specs |
-| **Reconcile a contradiction** | two governances (or two specs) contradict | `sdd:dedupe-specs` | a reconciliation proposal naming the contradicting artifacts |
+| **Audit node-shape** | a formation pass fires post-mission | `check-spec-structure` | a finding set: untagged-node (blocking) + oversized-node (advisory), each naming the node |
+| **Split an oversized node** | a node's `.feature` trips the granularity heuristic | `check-spec-structure` | an oversized-node finding proposing a sub-node split |
+| **Reconcile drift / contradiction** | prose↔suite drift, or two nodes contradict | `align-spec` | a reconcile finding (drift fixed by direction; contradiction → align the losing side) |
 
-A station is **not** a spec dependency — the Formation loop depends on the spec **graph** and **discovery**, not on the existence of any given station skill. `dedupe-specs` was a noted gap before it was built, exactly as `split-spec` once was.
+A node **within** the granularity heuristic raises **no** oversized finding; a concept-tagged node
+raises **no** untagged finding; nodes (or governances) that **agree** raise **no** reconcile finding.
+The acts are evidence-gated, not run unconditionally.
 
-## The split trigger is the spec-granularity heuristic
+## The Warden's self-clear-vs-escalate verdict
 
-A spec is a split candidate when it trips the granularity heuristic owned by `sdd:spec-governance`: the `.feature` exceeds ~15–20 scenarios, the `## Use Cases` table spans more than one distinct behavior, or different parts change on independent cadences. A spec **within** the heuristic is **left alone** — Formation does not split for its own sake. Within-heuristic ⇒ not split.
+The Warden is **rubric-subject**, exactly as the conductor is at a gate, and has **no direct user
+channel**. For **each structural act** it applies the full floor + gradient
+(the conductor's autonomy bar, `start-mission`) — the floor (**Clearance** for a narrowing act; **Compatibility**
+when the act's semver class exceeds the ceiling; **Conflict** for a contested reconciliation) plus
+the gradient (**blast** magnitude, **novelty**, **confidence**) — and renders its own verdict:
 
-## Graph soundness
+- **Self-clear** the reversible, derivable, low-blast acts — a coverage-preserving split, a refactor
+  or consistency fix. The Warden acts **in-session** and leaves a **provisional, agent-attributed
+  marker** that is never final until the Council ratifies the trail; a Council reject unwinds it.
+- **Escalate** the narrowing, contested, or class-exceeding acts. The escalated finding re-enters as
+  a **new CR** (`intake/`) naming the artifacts; it does not land until the Council ratifies.
+  - **narrowing** — a reconcile or split that drops scenarios → **Clearance**;
+  - **contested** — a reconciliation whose winning claim is contested → **Conflict**;
+  - **class-exceeding** — a structural change whose semver class exceeds the ceiling →
+    **Compatibility**;
+  - a **destructive** act (it deprecates a node) → **escalates regardless** of contract-impact
+    class.
 
-Run `sdd:render-spec-graph` over the corpus to bring `graph.md` back in sync with the `blocked-by` edges; after a clean re-render the rendered graph matches the `blocked-by` edges. When the `blocked-by` edges contain a **cycle**, the station stops and the **cycle is surfaced** — it is not written away. Surfacing the cycle is the Formation act; resolving it is a structural change the Council ratifies.
+It is **not** true that every act is proposed-and-ratified: the reversible/derivable acts self-clear
+under the provisional marker; the narrowing/contested/class-exceeding ones emit a CR.
 
-## Dedupe and reconcile produce a PROPOSAL
+## Stations, not status — and the frozen-contract guard
 
-Overlap and contradiction are not silently rewritten. The Warden runs `sdd:dedupe-specs` to produce a **proposal that names the artifacts**:
+The Warden runs stations in-session and **never** writes a spec's `status`. The frozen-contract
+guard is keyed on **contract impact**, not the bare fact that a `.feature` is frozen:
 
-- **overlap** → a dedupe proposal naming the overlapping specs (each behavior gets one home);
-- **contradiction** → a reconciliation proposal naming the contradicting artifacts (no contradiction stands).
+- a split that **preserves every scenario verbatim narrows nothing** — it self-clears **even on a
+  frozen `.feature`**, leaving the provisional marker; no freeze re-open needed;
+- a split that **alters or drops scenario truth is a narrowing** — it shards a frozen contract only
+  with a Council-ratified freeze re-open;
+- a **deprecating act is destructive** — it **escalates regardless** of contract-impact class.
 
-The proposal is surfaced for human confirmation through the relay; the Warden does not merge or rewrite without it.
+## Altitude discipline — route, do not decide
 
-## Altitude discipline — Formation owns structure only
+Formation owns corpus **structure** only and emits **no** out-of-loop decision:
 
-Formation never decides what to build and never grows the process. It emits **no out-of-loop decision** and routes the request to the loop that owns it:
+- a **build-or-deprecate** request → routed to `campaign/` (Product); it makes no
+  build-or-deprecate decision itself;
+- a **process lesson** → routed to `doctrine/` (Process); it emits no process edit itself;
+- a **per-spec gate structural check** → **declined**; formation does not run as the gate check.
 
-- a **build-or-deprecate** proposal ("we should build feature X" / "deprecate Y") → **routed to the Campaign loop** (Oracle). Formation produces no build-or-deprecate decision.
-- a **process lesson** ("we should add cause Y to the enum" / "the team should work this way") → **routed to the Doctrine loop** (Strategist). Formation emits no governance or process edit.
-- a **per-spec gate structural check** → declined; Formation does not run as the gate check.
-
-Formation acts corpus-wide and stays inside corpus organization alone.
+Cross-capability outcome scenarios (a split or reconcile carried end-to-end) live in
+`../acceptance/`; the loop and verdict behaviors are in `formation/formation.feature`.

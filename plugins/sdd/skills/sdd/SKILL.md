@@ -1,159 +1,90 @@
 ---
 name: sdd
 description: Use this skill when the user explicitly invokes SDD or wants to work on a creation artifact with Spec-Driven Development.
-model: haiku
-effort: low
 ---
 
 # SDD
 
-Gateway skill for Spec-Driven Development. Activates SDD, gathers missing intent, reads the minimum context to classify the requested action, and hands the resolved work to the **Operator** (`sdd-operator`). This skill is a **thin relay**: it holds **no production logic**, spawns only the Operator, and carries the Council's answers down and the Operator's escalations up. It does not edit project files, register hooks, install packages, or require a CLI command.
+Gateway skill for Spec-Driven Development — the front door to the project. It **activates** SDD, gathers missing intent, classifies what the user wants to do to the project, and **loads the handling skill in the current session**, where the session works the task directly. It is a **thin classifier**: it holds **no production logic**, loads **no governance**, and writes no contract state. It does not edit project files, register hooks, install packages, or require a CLI command.
 
-## Gateway Intake
+For an attended session the gateway **spawns nothing** — it loads the matched skill (for a change to the project, `start-mission`) in the **main session** and the work proceeds there. The session itself is the **conductor** (the user in the driver's seat). The only thing the gateway spawns is the **automaton** — the headless driver — when there is **no user channel** (an unattended scheduler or a multi-CR fan-out).
 
-Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activation.
+> **Model is set by the skill you load, not here.** The gateway does not pin a model: classification is light, but the skill it loads declares the model + effort its work needs (`start-mission` advises a capable model for the live grill). The routed skill advises; the user switches manually. (Harness gap: the gateway cannot switch the session model itself.)
+
+## Gateway intake
+
+Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activation. **Most** activating requests are CRs; classification decides which source carried it and which skill handles it. A task with **no suite-relevant behavior**, or one confined to a **non-durable** surface, is **not a CR** and escapes (below); recognition is the grill, so ambiguity routes *into* the lifecycle and is decided during explore.
 
 ### Surface pending strategy
 
-When the Council re-enters through the gateway, **surface the count of pending (unratified) strategy** as an entry point — the doctrine loop's keep-or-cut. Count the unratified `strategy` lines (`"ratified": false`) across the specs' sibling `combat-log.jsonl` ledgers and state "N pending strategy" alongside the intake; if the Council picks it, route them to review those entries. The gateway is a **thin relay**: it only *surfaces* the count — it never drafts strategy (that is the Scanner's, `sdd-scanner`) nor ratifies it (that is the Council's positional act). A zero count is not surfaced.
+When the Council re-enters, **surface the count of pending (unratified) strategy** — count the `strategy` lines with `"ratified": false` globbed from the project's **root `ledger/` shards** (the durable sibling directory of the root `spec.md`; a legacy `ledger.jsonl` still counts) and state "N pending strategy" alongside the intake; if the Council picks it, route them to review those entries. Count only `kind: strategy` — the conductor's `kind: leash` run-start blocks are **not** strategy and never counted. The gateway only *surfaces* the count — it never **drafts** strategy (the Scanner's job) nor **ratifies** it (the Council's positional act). A zero count is not surfaced. (`strategy` lives in the durable `ledger/` shards, **never** in the per-mission `*.log.jsonl` combat log.)
+
+### Surface in-progress missions
+
+On re-entry, **surface the resumable missions** — run the **`discover-plans`** skill (the engine for `intake/plan-discovery`), which scans `.agents/plans/` for `*.plan.md` briefs and returns each one's CR ref, todo tally, and `## NEXT` lead as TOON. A present brief is an **unretired** mission (the doctrine loop's `plan-retirement` deletes a brief once its CR is done/merged and distilled), so each one listed is **resumable**; state them alongside the intake (e.g. "3 in-progress: `github-34` 21/34, …") and, if the user picks one, **load `resume-mission`** on it. The gateway only *surfaces* — it never **resumes** (that's `resume-mission`) nor **retires** (that's `plan-retirement`). An empty set is not surfaced. This is a **read** (the same category as counting strategy lines), so the thin-classifier rule holds.
+
+This is the **resumable-mission** sibling of surface-pending-strategy — two distinct concerns, both surfaced: pending strategy is the doctrine loop's unratified ledger lines for the **Council** to keep-or-cut; in-progress missions are **paused work** any user can continue.
 
 ### Fast path — skip the menu
 
-When the invocation already names **both** an artifact and an action — "implement the auth spec", "review X again", "deprecate the auth spec", "refresh the SDD graph" — skip the menu entirely and route directly through the Routing Table. A partially-specified request (artifact named but action ambiguous, or vice versa) resolves what it can and asks only for the missing piece, still within the four-option rule below.
+When the invocation already names **both** a change and a target — "add a start-mission skill to sdd", "implement the auth capability", "work on <issue url>" — skip the menu and load the handling skill directly. A partially-specified request resolves what it can and asks only for the missing piece, within the four-option rule.
 
 ### Two-level menu — bare invocation
 
-When `$sdd` is invoked with no work item, artifact, or action, do not guess. Conduct intake as a **two-level menu**, never a flat list. The top-level question presents **exactly four** options:
+When `$sdd` is invoked with no work item, artifact, or action, do not guess. Conduct intake as a **two-level menu**, never a flat list. **Never ask more than four options** in a single `AskUserQuestion` (the tool rejects more than four). The top-level question presents **exactly four** options:
 
 | # | Top-level option | Covers |
 |---|---|---|
-| 1 | **Create or backfill a spec** | Start a new spec; detect new-vs-backfill by whether an implementation already exists for the named work |
-| 2 | **Work on an existing spec** | List specs (folder slug + status); user picks one; route by that spec's status via the Routing Table. Single-spec deprecation lives here |
-| 3 | **Manage specs & graph** | Cross-spec operations: dedupe overlapping specs, split a large spec, cross-spec deprecate, refresh the graph |
-| 4 | **Help me choose** | Scan specs and statuses, suggest the most-actionable few, then let the user pick |
+| 1 | **Make a change to the project** | open a CR against the project spec (add a capability, revise behavior, implement, land) → `start-mission` |
+| 2 | **Manage the corpus** | bootstrap, inspect, audit, or housekeeping (non-mission) → `manage` |
+| 3 | **Review pending strategy** | the doctrine loop's unratified `strategy` lines, when any are pending |
+| 4 | **Help me choose** | scan the spec + statuses, suggest the most-actionable few (≤ 4), let the user pick |
 
-Resolve the second level by branch:
+When a derived list would exceed four, present only the most-actionable few (≤ 4) or ask the user to name the target directly; never enumerate into an over-four question and never truncate silently.
 
-- **Option 1** — collect the target work, detect mode, route to **Draft spec** (no implementation) or **Backfill spec** (implementation exists).
-- **Option 2** — enumerate specs with folder slug + status; the user picks one; route by its status via the Routing Table. A deprecation request routes to spec management.
-- **Option 3** — present the cross-spec operation set; route per Manage specs & graph below.
-- **Option 4** — present the suggested specs (≤ 4), let the user pick one, then route by its status.
+### Scan statuses with discover-specs
 
-Do not begin implementation until the route is known.
+For **Help me choose** — and whenever it needs to locate the project spec or rank the most-actionable few — the gateway runs the **`discover-specs`** skill, the frontmatter-only engine for `corpus/discovery`. It returns the TOON list of every project spec at the SDD spec locations — the three fixed conventions plus any opt-in extra anchors a project declared (ADR-0019) — with its `status`, `project-path`, and gate `approvals`; the gateway ranks from that and never opens a spec body. This is a read, not production logic — the same category as counting `ledger/` shard lines for pending strategy — so the thin-classifier rule still holds.
 
-### Never ask more than four options (hard rule)
+## The routing table is the user-skill→capability index
 
-A single `AskUserQuestion` carries **at most four** options — the intake tool rejects more than four (`too_big, maximum 4`). The top-level menu is fixed at exactly four. When a derived list exceeds four — the spec list under option 2, or the suggestions under option 4 — apply the **list-overflow fallback**: present only the most-actionable few (≤ 4) **or** ask the user to name the domain directly. Never enumerate every spec into an over-four question, and never truncate silently.
+Classification routes a request to the **skill** that handles it; the routing table doubles as the index of what a user can invoke (there is no separate `skills.md`).
 
-## Reading Files
-
-Read files in this order — stop as soon as you have enough to route:
-
-1. Read spec.md frontmatter only to get `status`. The combat-log ledger is **not** in frontmatter — it lives in the sibling `combat-log.jsonl` — so reading `status` stays cheap regardless of mission history; **never** read the ledger for routing.
-2. If status is `draft`, read tasks.md to check for unchecked items.
-3. If all tasks are checked, scan spec.md and the `.feature` for `<!-- open: ... -->` markers.
-
-Do not read plan.md or the `.feature` body for routing.
-
-To locate an existing spec for a named domain, glob `**/spec.md`, keep those with a lifecycle `status` field, and match the domain to the spec folder slug.
-
-When no spec exists, inspect local project structure to determine if implementation already exists (backfill vs. new). If inconclusive, ask.
-
-## Routing Table
-
-Route by status read from spec.md frontmatter:
-
-| Status | Workflow action |
+| User intent | Skill (handler) |
 |---|---|
-| no spec, no implementation | **Draft spec** |
-| no spec, implementation exists | **Backfill spec** |
-| `draft` | Apply draft tiebreaker below |
-| `approved` | **Review at the impl gate** (implement against frozen `.feature` first) |
-| `implemented` | Behavior changes require **Revise spec** via the draft re-open path |
-| `deprecated` | Not implementable — route to spec management |
+| Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
+| Manage the corpus — bootstrap, inspect, audit, or housekeeping (non-mission) | **`manage`** — the manage dispatcher; loads the matching corpus engine in-session |
+| A task with no suite-relevant behavior, or confined to a non-durable surface (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
+| Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 
-If lifecycle frontmatter is missing or malformed, route to **Review at the spec gate** for state validation before implementation.
+One project is one spec — routing classifies *what a user wants to do to the project*, never *which spec in a fleet*. Almost every change is one entry — `start-mission` — which runs the mission loop; whether the CR adds a capability, revises behavior, or reconciles overlap is decided during its **explore** phase, not by a separate entry skill.
 
-If a nonempty request names neither a routable artifact nor a known SDD action, report that the request is unroutable and invoke no SDD action.
+## Load the handling skill in-session
 
-**Override — Re-review at the spec gate:** When the user explicitly asks to re-review (e.g. "review the spec again", "force spec gate", "redo the spec review"), route to **Re-review at the spec gate** regardless of current status. State: "Forcing spec gate review — current status is `<status>`."
+When the route resolves, **load the matched skill in the current session** and work the task directly — spawn nothing.
 
-### Draft tiebreaker
+- **Default (a user session hosts the conductor): load in-session.** For a change to the project, load `start-mission`; it runs the mission loop over the project spec. The session **is** the conductor (the user in the driver's seat); it holds the user channel directly and spawns only the **cold judges** and the **impl-producer builder** at depth 1, where grader independence requires it.
+- **Headless (no user channel — an unattended scheduler or a multi-CR fan-out): spawn the automaton.** The **automaton** is the headless driver (the orchestrator delegate). It runs the same mission loop with no human in the seat: it self-asserts at the autonomy bar and batches `needs-input` rather than asking live, and whatever spawned it relays those questions. The automaton is **not** a separate orchestrator role — it is the driver run headless.
 
-| Signals | Route |
-|---|---|
-| All tasks checked and no open markers | **Review at the spec gate** — do not offer revise as an alternative |
-| Any unchecked task or open marker | **Revise spec** — name the open items |
-| No tasks.md and no markers (inconclusive) | Present both **Revise spec** and **Review at the spec gate** |
+### Dispatch the approved queue — the multi-CR fan-out
 
-## Manage Specs & Graph (option 3)
+When the work is a **queue of already-reviewed missions** (each brief cleared with `status: approved`), run the **dispatch loop** — entered by an attended "run the approved missions" request or an unattended trigger (cron):
 
-Route each cross-spec operation to the workflow action the Operator carries out. The named skills (`render-spec-graph`, `split-spec`, `dedupe-specs`, `create-spec`) are **stations the Operator runs in-session** — never agent types the gateway spawns:
+1. **Select the queue.** Run `discover-plans --status approved` — the approved briefs, in list order. An empty queue is a no-op.
+2. **Run sequentially, one fresh automaton per mission.** For each brief: if it has no remaining todos, **skip** it (nothing to run); otherwise **spawn a fresh `sdd-automaton` on that brief** — a cold context that reads only its own brief + on-disk artifacts. Collect its verdict packet, then move to the next. **Never run two missions in parallel on the shared working tree.**
+3. **Relay, never guess.** On a `needs-input` verdict, relay it live (attended) or batch it up the relay (unattended); never auto-accept past it. On a `halt` verdict, **stop that mission** and relay the halt (do not continue it), then move to the next brief.
 
-| Operation | Routing |
-|---|---|
-| Refresh graph | **Refresh spec graph** — the Operator runs the `render-spec-graph` station |
-| Split a spec | The Operator runs the `split-spec` station (analysis + authoring under its own human confirmations) |
-| Dedupe specs | The Operator runs the `dedupe-specs` station (analysis + authoring under its own human confirmations) |
-| Cross-spec deprecate | Spec management / deprecation path |
+The **fresh spawn per mission is deliberate** — each automaton's context dies with it, so nothing carries from one mission to the next and the dispatch session holds only the queue + small verdict packets (not compaction, which would bleed a prior mission's settled decisions into the next grill). Dispatch **spawns and relays only** — it writes no contract state; each mission's automaton self-asserts and writes its own ledger lines, and the `approved` flag is the human's (set via `pause-mission --approve`), never dispatch's.
 
-The cross-spec **analysis** — finding which specs overlap, choosing split boundaries — has dedicated stations: `split-spec` and `dedupe-specs` both exist and own the analysis-plus-authoring. The Operator routes the operation to the matching station and does **not** surface the analysis as manual.
+**Write-ownership.** The gateway writes **no** contract state. The internal spec / impl gates own the `status` write and the human ratification of `approval`; the conductor (the in-session user, or the automaton when headless) owns any provisional self-assertion. The gateway writes neither.
 
-## Hand the Work to the Operator
+## Recognize the escape and the freeze
 
-When the route is resolved, **spawn the Operator** (`subagent_type: sdd-operator`) once for this segment to carry out the downstream work. The Operator is the **only** agent this gateway ever spawns.
+- **Escape.** A task that is **not a CR** escapes: create no draft, invoke no gate, and **write no record** (a non-CR is not SDD's to track; a spec-prose-only change is already in git). Two independent triggers: **no suite-relevant behavior**, or a **non-durable** touched artifact. Escaping does not mean stopping — if the artifact-type has a producer with an escaped-request entry point (e.g. `define-skill` for `skill`), invoke it directly to do the actual work; only state "leaving the lifecycle" and stop when no such producer exists. For durability, run the `resolve-durability` skill (`intake/resolve-durability`'s concrete engine) per touched artifact:
 
-The downstream workflow skills — `create-spec`, `validate-spec`, `render-spec-graph` — are **stations the Operator runs in-session**, not agent types. **Never** spawn one as a `subagent_type` (e.g. `subagent_type: validate-spec` is illegal and fails with "Agent type not found"). The resolved workflow action tells the Operator which station to run:
+  ```bash
+  node "<resolve-durability skill>/scripts/resolve-durability.mts" --root . --path <repo-relative-path> [--artifact-type <type>] [--explicit durable|non-durable]
+  ```
 
-| Workflow action | Station the Operator runs |
-|---|---|
-| **Draft spec** / **Backfill spec** / **Revise spec** | `create-spec` |
-| **Review at the spec gate** / **Re-review at the spec gate** | `validate-spec` (spec gate) |
-| **Review at the impl gate** | `validate-spec` (impl gate) |
-| **Refresh spec graph** | `render-spec-graph` |
-
-Pass to the Operator: the resolved workflow action, the artifact domain or spec folder path, and any relevant file paths identified during routing.
-
-### The relay carries the user channel
-
-The Operator has **no user channel**. The user channel lives at the **relay ↔ Operator** boundary — this gateway *is* the relay:
-
-1. Spawn the Operator for the segment.
-2. When the Operator returns `STATUS: needs-input` with batched `QUESTIONS`, **ask the Council** (the human) those questions.
-3. **Resume the Operator** by re-spawning it with the Council's answers, so it continues the mission loop.
-4. Repeat across segments until `STATUS: complete` or `blocked`.
-
-The Operator drives **every segment** of the mission loop; the gateway holds **no production logic** of its own — it only routes, relays answers down, and carries escalations up.
-
-### Escalation boundary
-
-The Operator escalates to the Council **only at gates** (a go/no-go verdict to advance status) and at **scrub** (a kill decision). Outside a gate or scrub it does **not** escalate — it runs autonomously to the next checkpoint. The Operator **never asks the Council directly**; every escalation is carried to the Council by this relay.
-
-### Write-ownership is preserved
-
-This relay model changes *who is invoked how*, not *who writes what*. The **gate station** (`validate-spec`) still owns the `status` write and the human ratification of `approval`. The **Operator** still owns `aligned` and any provisional agent self-assertion of `approval`. The relay writes neither.
-
-## Freeze Handling
-
-When spec.md is `approved` and the user asks to change a scenario or edit the `.feature`:
-
-1. Recognize the frozen contract.
-2. Do not invoke a direct edit of the `.feature`.
-3. Route through the draft re-open path — **Revise spec**.
-
-Only after the spec returns to `draft` may scenarios be revised.
-
-## Report
-
-State the resolved route by its workflow-action name before spawning the Operator:
-
-- **Draft spec** / **Backfill spec** / **Revise spec** — contract authoring
-- **Review at the spec gate** — draft approval
-- **Review at the impl gate** — implementation approval
-- **Refresh spec graph** — dependency graph refresh
-
-Name active constraints when relevant:
-
-- `.feature` is frozen for approved specs
-- implementation cannot start until lifecycle state is legal
-- graph output is derived and must be regenerated, not hand-edited
+  `--explicit` carries a durability statement the requester made directly in the prompt/CR, when present. Pass `--artifact-type` when convention already makes it obvious (`skill` under `skills/`, `subagent` under `agents/`, …) — a full `resolve-governances` classification is not needed just to gate the escape check. A `non-durable` result escapes the same as no-suite-relevant-behavior; a `durable` result (including the fail-closed default) proceeds toward CR classification. This is a **read**, the same category as counting strategy lines or scanning specs — the thin-classifier rule still holds. Recognition is the **grill + impact analysis**, not a gateway classifier — the grill may carve a CR out of the durable parts of a mixed request and escape the non-durable ones. Ambiguity defaults *into* the lifecycle and is decided during explore.
+- **Freeze.** SDD freezes the `.feature` at approval. A request to change a frozen scenario is **not** edited in place; it loads **`start-mission`**, which grills the spec back open through the explore phase before scenarios may be revised.

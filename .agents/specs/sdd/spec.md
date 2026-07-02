@@ -1,6 +1,6 @@
 ---
 status: approved
-project-path: plugins/sdd-new
+project-path: plugins/sdd
 approval:
   spec:
     verdict: approve

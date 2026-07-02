@@ -9,7 +9,7 @@ import { basename, dirname, join } from 'node:path'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
-export interface ParsedFeature {
+export interface ParsedSuite {
 	hasFeatureLine: boolean
 	scenarios: ParsedScenario[]
 	sectionCommentCount: number
@@ -37,7 +37,7 @@ const RUBRIC_EXEMPT_RE = /\b(no|not|never|without|nor|passing|failing|pass|fail|
 
 // ─── parse ────────────────────────────────────────────────────────────────────
 
-export function parseFeature(text: string): ParsedFeature {
+export function parseSuite(text: string): ParsedSuite {
 	const lines = text.split('\n')
 	let hasFeatureLine = false
 	let sectionCommentCount = 0
@@ -86,10 +86,10 @@ export function parseFeature(text: string): ParsedFeature {
 
 // ─── checks ──────────────────────────────────────────────────────────────────
 
-export function checkFeature(slug: string, file: string, text: string): string[] {
+export function checkSuite(slug: string, file: string, text: string): string[] {
 	const tag = (msg: string) => `${slug}/${file}: ${msg}`
 	const v: string[] = []
-	const ref = parseFeature(text)
+	const ref = parseSuite(text)
 
 	// Gherkin validity: must have Feature: line
 	if (!ref.hasFeatureLine) {
@@ -160,7 +160,7 @@ export function checkFeature(slug: string, file: string, text: string): string[]
 // Discovery walks the tree recursively so nested spec folders (sdd/sdd-skill)
 // are analyzed too — a .feature is a real contract wherever it lives. Returns
 // each dir (root-relative slug) paired with its .feature files.
-export function discoverFeatureDirs(root: string): { slug: string; files: string[] }[] {
+export function discoverSuiteDirs(root: string): { slug: string; files: string[] }[] {
 	const out: { slug: string; files: string[] }[] = []
 	const walk = (dir: string, rel: string) => {
 		let entries: Dirent[]
@@ -194,7 +194,7 @@ export function checkFilePaths(paths: string[]): string[] {
 			violations.push(`${p}: cannot read file`)
 			continue
 		}
-		violations.push(...checkFeature(dirname(p), basename(p), text))
+		violations.push(...checkSuite(dirname(p), basename(p), text))
 	}
 	return violations
 }
@@ -223,11 +223,11 @@ export function main(argv: string[]): number {
 		violations = checkFilePaths(paths)
 	} else {
 		const root = argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : '.agents/specs'
-		for (const { slug, files } of discoverFeatureDirs(root)) {
+		for (const { slug, files } of discoverSuiteDirs(root)) {
 			const slugDir = join(root, slug)
 			for (const file of files) {
 				const text = readFileSync(join(slugDir, file), 'utf8')
-				violations = violations.concat(checkFeature(slug, file, text))
+				violations = violations.concat(checkSuite(slug, file, text))
 			}
 		}
 	}
@@ -236,7 +236,7 @@ export function main(argv: string[]): number {
 		for (const line of violations) console.error(`✗ ${line}`)
 		return 1
 	}
-	process.stdout.write('feature checks OK\n')
+	process.stdout.write('suite checks OK\n')
 	return 0
 }
 

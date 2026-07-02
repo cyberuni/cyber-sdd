@@ -32,10 +32,10 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
 4. **Write `<DOMAIN_PATH>/<DOMAIN>.feature`** — pure boolean Gherkin per `sdd:suite-format-governance`. **Cover every use case from the `## Use Cases` section with one-or-more scenarios** (happy path, negative mirror, boundary) — a use case with no scenario is unverified intent; a scenario with no use case is an orphan. Each `Then` is an observable boolean (the subject *does* X), never internal state, function names, or "sometimes". Order scenarios by lifecycle stage (the step-down convention). Keep the `.feature` plain; rubric form is legal only inside an `@rubric`-tagged scenario.
 
-5. **Self-check the `.feature` form before returning.** Run the deterministic form check — the `check-feature` engine (`scripts/check-feature.mts` in the `spec-gate` skill), the executable form of `sdd:suite-format-governance` — scoped to what you just authored:
+5. **Self-check the `.feature` form before returning.** Run the deterministic form check — the `check-suite` engine (`scripts/check-suite.mts` in the `spec-gate` skill), the executable form of `sdd:suite-format-governance` — scoped to what you just authored:
 
    ```bash
-   node "<spec-gate skill>/scripts/check-feature.mts" --files <the authored .feature path(s)>
+   node "<spec-gate skill>/scripts/check-suite.mts" --files <the authored .feature path(s)>
    ```
 
    Exit `0` = form clean; exit `1` prints each `✗ <file>: <reason>`. **Fix every violation** (a non-boolean/hedged `Then`, leaked rubric lingo in an untagged scenario, a missing `Feature`/`Then`, or missing section comments over the sectioning threshold) and re-run until clean **before reporting `STATUS: complete`**. Settling this mechanical bar here spends no cold-judge round on a defect a linter catches every time; the same engine runs fail-closed at the gate (`../spec-gate/`), so an unfixed violation would block there anyway. If `node` is unavailable, self-review against the suite-format bar by hand.

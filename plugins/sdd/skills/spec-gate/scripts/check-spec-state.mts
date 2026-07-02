@@ -343,7 +343,7 @@ export const discoverNodeDirs = (root: string): string[] => discoverDirsWith(roo
 // the --root tree sweep: the existing corpus's accumulated prose legitimately names
 // example/convention paths (an opt-in config not yet created, a hypothetical nested
 // project) that a blind tree-wide scan cannot distinguish from a real broken
-// reference. Scoped to a CR's own touched files, same shape as check-feature.mts.
+// reference. Scoped to a CR's own touched files, same shape as check-suite.mts.
 export function parseFilesArg(argv: string[]): string[] {
 	const idx = argv.indexOf('--files')
 	if (idx === -1) return []

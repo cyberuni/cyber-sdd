@@ -72,11 +72,11 @@ rejects a malformed `@rubric` scenario (missing threshold or named dimensions) s
 scoring begins. A plugin may supply a more capable scoring judge (e.g. ACES for agent-config
 domains).
 
-## The executable form — `check-feature`
+## The executable form — `check-suite`
 
 The universal structural rules above (Gherkin validity, every untagged `Then` a boolean assertion,
 no hedge adverbs or leaked rubric lingo, scenario sectioning) have a deterministic executable form:
-the `check-feature` engine (`scripts/check-feature.mts` in the `spec-gate` skill). It runs at **two
+the `check-suite` engine (`scripts/check-suite.mts` in the `spec-gate` skill). It runs at **two
 per-CR runtime touchpoints**, not only in CI:
 
 - The **spec-producer self-runs it** over the `.feature` it just authored (`--files <paths>`) and

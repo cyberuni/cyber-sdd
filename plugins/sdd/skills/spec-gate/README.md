@@ -22,5 +22,5 @@ References `sdd:lifecycle-governance`, `sdd:ownership-governance`, `sdd:gate-val
 
 - `check-spec-state.mts` — deterministic state validator (root tuple + per-node spec-type
   reconcile); run via `pnpm verify:specs-new`. Tested by `check-spec-state.test.mts`.
-- `check-feature.mts` — deterministic `.feature`-form validator (Gherkin validity, boolean-`Then`
-  form, scenario ordering); run via `pnpm verify:specs-new`. Tested by `check-feature.test.mts`.
+- `check-suite.mts` — deterministic `.feature`-form validator (Gherkin validity, boolean-`Then`
+  form, scenario ordering); run via `pnpm verify:specs-new`. Tested by `check-suite.test.mts`.

@@ -35,13 +35,13 @@ carrying a `.feature` or missing its `## Subject`, and a `behavioral` node missi
 **fail closed**; a descriptive node (no marker) raises no violation. If `node` is unavailable,
 perform the same checks by reading each README's frontmatter yourself.
 
-The sibling `scripts/check-feature.mts` is the **`.feature`-form** authority — Gherkin validity,
+The sibling `scripts/check-suite.mts` is the **`.feature`-form** authority — Gherkin validity,
 boolean-`Then` form (hedge-word + leaked-rubric detection), and scenario ordering/sectioning. When
 the CR touches any `.feature`, run it here **fail-closed, before spawning the cold judge**, scoped to
 the CR's touched files:
 
 ```bash
-node "<skill>/scripts/check-feature.mts" --files <the CR's touched .feature files>
+node "<skill>/scripts/check-suite.mts" --files <the CR's touched .feature files>
 ```
 
 Exit `0` = form clean; exit `1` prints each `✗ <file>: <reason>` — **advance nothing and do not

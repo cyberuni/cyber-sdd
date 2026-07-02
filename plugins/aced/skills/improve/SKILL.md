@@ -15,8 +15,8 @@ Defer when the intent is narrower than "improve this config":
 | The request is really about… | Defer to |
 |---|---|
 | scaffolding a **new** skill, agent, or governance from scratch | `define-skill` / `define-agent` / `define-governance` |
-| **scoring** a config against its existing golden set | `run` |
-| **adding** a new eval case | `add-scenario` |
+| **scoring** a config against its frozen `.feature` suite | `run` |
+| **adding** a new scenario | `add-scenario` |
 | **diffing** two versions before committing a change | `compare` |
 | auditing a `SKILL.md`'s structure/compliance specifically | `improve-skill` |
 
@@ -31,7 +31,7 @@ Check for `artifacts/specs/<feature-name>/eval.md` for this target.
 
 - **ACED-tracked (eval suite exists):** ensure a recent result exists — run `run` first if the
   latest `results/` file is stale or missing. Then load `aced-impl-producer` to identify failing
-  cases, classify them by pattern, and propose concrete before/after edits.
+  scenarios, classify them by pattern, and propose concrete before/after edits.
 - **Not yet tracked (no eval suite):** there is nothing to diagnose failures against. Do a general
   review instead:
   1. Load the fit classifier (`aced-fit`) to check whether this subject benefits from scenario→rubric
@@ -52,8 +52,8 @@ writing any changes.
 - **ACED-tracked:** run `compare` (before = previous git revision, after = current working tree) to
   confirm the edits improved scores without regressions.
 - **Not yet tracked:** offer to hand off to `sdd:start-mission` (the conductor resolves the ACED
-  roles for this artifact-type) to author a `.feature` and golden set, or `add-scenario` to start one
-  manually. Do not fabricate a pass/fail verdict without a suite to run.
+  roles for this artifact-type) to author a `.feature` (with inline `@rubric`), or `add-scenario` to
+  start one manually. Do not fabricate a pass/fail verdict without a suite to run.
 
 ## If no clear fix exists
 

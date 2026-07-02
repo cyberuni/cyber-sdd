@@ -13,20 +13,21 @@ Diagnose failing eval cases and propose targeted edits to the target agent confi
 
 ## Role: the ACED impl-producer
 
-When the conductor dispatches `define-agent`, `define-skill`, or `define-governance` as a generic builder (`produced-by sdd:automaton`) for the **impl-producer** role (implement mode, against a frozen `.feature`), it co-produces **two** things: the agent configuration **and its verification** — the scenario→rubric eval suite (`eval.md` thresholds + `golden-set/` cases, one per scenario). Authoring or refreshing that eval suite is part of that act. As impl-producer it self-aligns to `sdd:ownership-governance` plus the resolved **builder-impl + architect-impl** bars (the ACED builder-impl is `aced:aced-builder-impl`). When the **impl-judge** (`aced-impl-judge`) reports scenario failures, load this skill to run the diagnose-and-refine loop below. The impl-judge only **runs** the suite — it never authors it — so a missing or stale eval for a frozen scenario is the impl-producer's to write, not the judge's to invent. Independence holds because the evals are anchored to the frozen `.feature` and executed by a separate runner.
+When the conductor dispatches `define-agent`, `define-skill`, or `define-governance` as a generic builder (`produced-by sdd:automaton`) for the **impl-producer** role (implement mode, against a frozen `.feature`), it builds the **agent configuration** to pass the frozen suite. The **verification is the frozen `.feature` itself** — its inline `@rubric` scenarios and `@trigger` `Examples`, authored by `aced-scenario-writer` at explore and frozen at the spec gate — so the impl-producer does **not** author a separate eval suite. As impl-producer it self-aligns to `sdd:ownership-governance` plus the resolved **builder-impl + architect-impl** bars (the ACED builder-impl is `aced:aced-builder-impl`). When the **impl-judge** (`aced-impl-judge`) reports scenario failures, load this skill to run the diagnose-and-refine loop below. Independence holds because the evals are anchored to the frozen `.feature` and executed by a separate runner (`aced-case-judge`), which is not the producer.
 
 ## Load context
 
 Find `artifacts/specs/<feature-name>/`:
-- Read `eval.md` for the target agent configuration path
-- Read the target agent configuration in full
+- Read `eval.md` for the `subject` agent configuration path and the `eval:` run policy
+- Read the `subject` agent configuration in full
+- Read the frozen `<feature-name>.feature` (the eval source)
 - Read the most recent result file from `results/` (sort by filename descending, take first)
 
 If no results exist, run `run` first.
 
-## Identify failing cases
+## Identify failing scenarios
 
-From the latest results, collect all cases where `pass: false`. Read each failing test case file from `golden-set/`.
+From the latest results, collect all scenarios where `pass: false`. Read each failing scenario from the frozen `.feature` (its steps and inline `@rubric`).
 
 ## Group failures by pattern
 
@@ -64,9 +65,9 @@ After user approval, apply edits to the agent configuration. Then automatically 
 
 ## If no clear fix exists
 
-If failures are caused by inherent non-determinism (high score variance across similar cases), recommend:
+If failures are caused by inherent non-determinism (high score variance across similar scenarios), recommend:
 1. Adding more specific examples to the agent configuration
-2. Lowering the threshold in `eval.md` for that layer if the bar was set too high
+2. Lowering the bar — but a per-scenario `threshold` is **inline in the frozen `.feature`**, so lowering it is a narrowing edit that needs a **re-open + Clearance** at the spec gate, not a casual `eval.md` change (only `eval.judge.default_threshold`, the fallback, lives in `eval.md`)
 3. Splitting the agent configuration into two narrower ones
 
-Do not propose removing test cases to fix failing evals — that defeats the purpose.
+Do not propose removing scenarios to fix failing evals — that defeats the purpose.

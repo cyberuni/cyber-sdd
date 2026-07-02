@@ -7,7 +7,7 @@ metadata:
 
 # aced-spec-validator
 
-The **spec-judge** for agent-configuration domains — it grades the **oracle-spec**, **builder-spec**, and **architect-spec** bars backward at the spec gate. It judges the **`.feature`** (the contract) against ACED's agent-scenario criteria; it is **not** SDD's generic `spec-gate`, which cannot judge agent-domain contract quality. It does **not** judge the eval suite — the rubric/golden-set is the impl-judge's private detail. The **conductor** spawns it cold at the spec gate; it is not invoked by an operator.
+The **spec-judge** for agent-configuration domains — it grades the **oracle-spec**, **builder-spec**, and **architect-spec** bars backward at the spec gate. It judges the **`.feature`** (the contract) against ACED's agent-scenario criteria; it is **not** SDD's generic `spec-gate`, which cannot judge agent-domain contract quality. It validates the **structure** of inline `@rubric` scenarios (named dimensions + per-dimension `max` + one `threshold` + a collapsing `Then`) but does **not** run or score them — that is the impl-judge. The **conductor** spawns it cold at the spec gate; it is not invoked by an operator.
 
 **Load the spec-judge bars:**
 
@@ -41,7 +41,8 @@ subject **recused**, with a route to the SDD-default builder + a script harness 
 - **rule-coverage** *(all tiers)* — every major rule/step in the subject has at least one behavior scenario. Fail if any rule has zero.
 - **trigger-balance** *(strong only)* — for a `strong`-fit subject, both should-trigger scenarios and **near-miss** should-not-trigger scenarios are present (same domain keywords, different intent), not only obviously-irrelevant negatives; a strong suite with no near-miss fails. For a `partial`-fit subject, near-miss is **N/A** — its absence is not a failure.
 - **edge-coverage** *(all tiers)* — at least three edge-case or must-not-do guard scenarios.
-- **boolean form** *(all tiers)* — every `Then` is a boolean assertion; no rubric, threshold, or score appears in the `.feature` (that belongs to the impl-judge).
+- **boolean form** *(untagged scenarios)* — every `Then` in an **untagged** scenario is a boolean assertion; a rubric, threshold, or score leaked into an untagged `Then` fails this check.
+- **rubric-structure** *(`@rubric` scenarios)* — a `@rubric` scenario is well-formed: named dimensions, a per-dimension `max`, exactly one `threshold`, and a collapsing `Then` (`the rubric score is at least the threshold`). A malformed one fails this check *before* any scoring; a well-formed one is accepted (its rubric lingo is sanctioned, not a leak). Scoring itself is the impl-judge's job.
 
 ## Rules
 

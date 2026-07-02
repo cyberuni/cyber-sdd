@@ -1,15 +1,18 @@
 ---
 name: add-scenario
-description: Use this skill when adding a new test case to an ACED golden set — from a real failure, a production edge case, or a gap the user noticed.
+description: Use this skill when adding a new scenario to an ACED .feature suite — from a real failure, a production edge case, or a gap the user noticed.
 ---
 
 # ACED Add Scenario
 
-Add one or more test cases to an existing golden set.
+Add one or more scenarios to an existing frozen `.feature` suite. Adding a scenario is **additive** —
+it widens the contract and cannot break existing impl, so it **self-clears** and the `.feature` stays
+`@frozen` (per `sdd:suite-format-governance`); no re-open is needed.
 
-## Locate the eval suite
+## Locate the suite
 
-Find `artifacts/specs/<feature-name>/` from user context or ask. Read `eval.md` for threshold and target.
+Find `artifacts/specs/<feature-name>/` from user context or ask. Read `eval.md` for the `subject` and
+the `eval:` run policy (`eval.judge.default_threshold`).
 
 ## Gather input
 
@@ -32,45 +35,40 @@ If a transcript is provided, extract: what the user said, what state the system 
 
 Ask if unclear.
 
-If the resolved layer is not enabled in the suite's `eval.md` `layers`, warn that the layer is not enabled and the case will not be exercised until it is.
+If the resolved layer is not enabled in the suite's `eval.md` `eval.layers`, warn that the layer is not enabled and the scenario will not be exercised until it is.
 
-## Scaffold the test case
+## Scaffold the scenario
 
-Draft the test case using the standard format:
+Draft a Gherkin scenario for the frozen `.feature`, tagged with its layer:
 
-```markdown
----
-name: <slug>
-layer: <layer>
-threshold: <from eval.md>
----
+- **trigger** → add a row to the `@trigger` `Scenario Outline`'s `Examples` table
+  (`| <query> | <should_trigger> |`), or start one if the suite has none.
+- **behavior (deterministic)** → a boolean scenario whose `Then` asserts the observable action (a
+  must-not-do guard is a `Then` asserting the agent *does not* do the prohibited action).
+- **behavior / quality (graded)** → a `@rubric` scenario with the rubric **inline**:
 
-## Scenario
-
-<Concrete, specific situation. Include user message, repo/file state, and any relevant context.>
-
-## Expected behaviors
-
-- <Observable action>
-
-## Must NOT do
-
-- <Prohibited action if applicable>
-
-## Rubric
-
-Score 1–5:
-5 — <perfect>
-4 — <minor miss>
-3 — <partial>
-2 — <significant miss>
-1 — <failure>
+```gherkin
+@behavior @rubric
+Scenario: <name — the situation being guarded>
+  Given <concrete situation: user message, repo/file state, context>
+  When <the agent acts>
+  Then the judge evaluates the scenario against the rubric
+    """
+    dimensions:
+      - name: <criterion>
+        max: <n>
+    threshold: <from eval.judge.default_threshold>
+    """
+  And the rubric score is at least the threshold
 ```
 
 Show the draft to the user and ask for confirmation before writing. Adjust based on feedback.
 
-## Write the file
+## Write the scenario
 
-Determine the next sequence number from existing files in `artifacts/specs/<feature-name>/golden-set/`. Write the file as `NNN-<slug>.md`. If the golden set holds no numbered cases yet, start the sequence at `001-<slug>.md`.
+Append the scenario to `artifacts/specs/<feature-name>/<feature-name>.feature`, sorted into its
+lifecycle-stage section (per the scenario-ordering convention). Keep the feature-level `@frozen` tag —
+adding a scenario self-clears. Run `check-suite --files <path>` to confirm the suite is still
+well-formed.
 
-Report the file path and suggest running `run` to score the new case against the current agent configuration.
+Report the scenario name and suggest running `run` to score it against the current agent configuration.

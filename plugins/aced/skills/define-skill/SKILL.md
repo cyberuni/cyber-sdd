@@ -9,13 +9,14 @@ Create or improve a **workflow skill** — a process, tool-based, or standard SK
 to the ACED eval loop to spec and score.
 
 When the conductor dispatches this skill as a generic builder (`produced-by sdd:automaton`) for the
-ACED **impl-producer** role (implement mode, against a frozen `.feature`), it co-produces **two**
-artifacts: the SKILL.md **and its verification** — the scenario→rubric eval suite (`eval.md` +
-`golden-set/`, one eval per frozen scenario) that the impl-judge (`aced-impl-judge`) will run. As
+ACED **impl-producer** role (implement mode, against a frozen `.feature`), it builds the **SKILL.md**
+to pass the frozen suite. The **verification is the frozen `.feature` itself** — its inline `@rubric`
+scenarios and `@trigger` `Examples`, authored by `aced-scenario-writer` at explore — so no separate
+eval suite is authored here; `eval.md` carries only the `subject` binding and run policy. As
 impl-producer it self-aligns to `sdd:ownership-governance` plus the resolved **builder-impl +
-architect-impl** bars (the ACED builder-impl is `aced:aced-builder-impl`). The judge never authors
-evals, so write any missing eval here. If the impl-judge reports scenario failures, load
-`aced-impl-producer` to run the diagnose-and-refine loop rather than re-deriving it here.
+architect-impl** bars (the ACED builder-impl is `aced:aced-builder-impl`). If the impl-judge reports
+scenario failures, load `aced-impl-producer` to run the diagnose-and-refine loop rather than
+re-deriving it here.
 
 There are two other entry points, both with **no frozen `.feature`** and **only the SKILL.md**
 produced:
@@ -169,6 +170,6 @@ off to.
 
 **Standalone or impl-producer** entry: point the user at the **ACED eval loop** to spec and score
 the skill — run `sdd:start-mission` (the conductor resolves the ACED roles for the `skill`
-artifact-type) to author its `.feature` and eval suite, or `add-scenario` / `run` to grow and score a golden
-set. Do **not** embed a legacy trigger-query eval file as the test step — scoring is the ACED
-loop's job.
+artifact-type) to author its frozen `.feature` (with inline `@rubric`), or `add-scenario` / `run` to
+grow and score it. Do **not** embed a legacy trigger-query eval file as the test step — scoring is the
+ACED loop's job.

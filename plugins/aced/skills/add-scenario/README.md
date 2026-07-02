@@ -1,10 +1,10 @@
 # add-scenario
 
-Add a new test case to an existing ACED golden set — from a real failure, a production edge case, or a gap you noticed.
+Add a new scenario to an existing ACED `.feature` suite — from a real failure, a production edge case, or a gap you noticed.
 
 ## When to use
 
-Use this skill when you already have a suite (`eval.md` + `golden-set/`) and want to grow its coverage with one more scenario.
+Use this skill when you already have a suite (`eval.md` + a frozen `.feature`) and want to grow its coverage with one more scenario.
 
 Good triggers include:
 
@@ -16,7 +16,7 @@ Defer to a sibling when the request is about scoring the existing set (`run`), d
 
 ## What it does
 
-Locates the target golden set, classifies the new case's layer (trigger / behavior / quality) from how you describe the failure, drafts the case in the standard scenario/expected-behaviors/must-not-do/rubric format, confirms it with you, and writes it as the next numbered file in `golden-set/`.
+Locates the target suite, classifies the new scenario's layer (trigger / behavior / quality) from how you describe the failure, drafts a Gherkin scenario (boolean, or `@rubric` with an inline rubric, or a `@trigger` `Examples` row), confirms it with you, and appends it to the frozen `.feature` (additive — self-clears).
 
 ## Install
 

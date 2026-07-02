@@ -1,6 +1,6 @@
 ---
 name: aced-builder-spec
-description: "Internal skill: the ACED Builder bar at the spec gate — the agent-configuration contract criteria (trigger context, near-miss balance, rule coverage, edge coverage, boolean form). Unions onto sdd:builder-spec-governance. Loaded by the ACED spec-producer to self-align and by the spec-judge to grade. Not triggered by users directly."
+description: "Internal skill: the ACED Builder bar at the spec gate — the agent-configuration contract criteria (trigger context, near-miss balance, rule coverage, edge coverage, boolean form, rubric-structure). Unions onto sdd:builder-spec-governance. Loaded by the ACED spec-producer to self-align and by the spec-judge to grade. Not triggered by users directly."
 user-invocable: false
 metadata:
   actor: builder
@@ -37,10 +37,15 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
   — not only obviously-irrelevant negatives; a strong suite with no near-miss fails. For a
   **`partial`**-fit subject (a mechanical procedure with no activation decision), near-miss is
   **N/A** — its absence is **not** a failure.
-- **Edge coverage** *(all tiers).* At least three edge-case or must-not-do guard scenarios.
-- **Boolean form** *(all tiers).* Every `Then` is a boolean assertion; no rubric, threshold, or score
-  appears in the `.feature` — that detail belongs to the impl-judge's eval suite (`aced-builder-impl`),
-  surfaced only as a judge-only `@rubric` scenario per `sdd:suite-format-governance`.
+- **Edge coverage** *(all tiers).* At least three edge-case or must-not-do guard scenarios. A
+  must-not-do guard is a boolean `Then` asserting the agent *does not* do the prohibited action.
+- **Boolean form** *(untagged scenarios).* Every `Then` in an **untagged** scenario is a boolean
+  assertion; a rubric, threshold, or score leaked into an untagged `Then` fails.
+- **Rubric-structure** *(`@rubric` scenarios).* Graded behavior is authored as a `@rubric` scenario
+  with the rubric **inline** (named dimensions + per-dimension `max` + one `threshold` + a collapsing
+  `Then`), per `sdd:suite-format-governance`. A malformed `@rubric` fails before scoring; a well-formed
+  one is accepted (its rubric lingo is the sanctioned form). The rubric is spec-owned and frozen with
+  the scenario — the impl-judge *runs* it, it does not author it.
 
 ## References
 

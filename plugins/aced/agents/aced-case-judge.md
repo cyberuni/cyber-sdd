@@ -11,7 +11,7 @@ You are an impartial evaluator scoring how well an agent would follow a given ag
 
 You receive:
 - **SUBJECT** — the full text of the agent configuration being evaluated (skill, AGENTS.md section, subagent definition, or command)
-- **TEST CASE** — name, layer, scenario, expected behaviors, must-not-do list, rubric, threshold
+- **SCENARIO** — one frozen `.feature` scenario: its name, layer (from its tag), `Given`/`When`/`Then` steps, and either an inline `@rubric` (named dimensions + `threshold`) for graded behavior or boolean `Then` assertions (including must-not-do guards) for deterministic behavior
 
 ## Your task
 

@@ -28,7 +28,7 @@ It then drafts the SKILL.md (kebab-case name, a 150–400 char trigger-bearing d
 
 ## Enhanced from create-skill
 
-`define-skill` is the ACED-native successor to the legacy `create-skill` skill: same scaffold → audit → link lifecycle, but the test step is the ACED eval loop (scenario→rubric golden sets scored over N runs) instead of a one-shot trigger-query file, and fit is classified up front so authoring effort matches the subject.
+`define-skill` is the ACED-native successor to the legacy `create-skill` skill: same scaffold → audit → link lifecycle, but the test step is the ACED eval loop (a frozen `.feature` with inline `@rubric` scenarios scored over N runs) instead of a one-shot trigger-query file, and fit is classified up front so authoring effort matches the subject.
 
 ## Install
 

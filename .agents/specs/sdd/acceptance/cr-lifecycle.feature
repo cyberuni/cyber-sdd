@@ -35,6 +35,24 @@ Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → h
     Then it re-enters only as a new change request
     And nothing changes the system through any side channel
 
+  # ── Escape hatch — durability, a second escape trigger ──
+
+  Scenario: a behavioral change confined to a non-durable surface escapes intake entirely
+    Given a change with real suite-relevant behavior whose artifact's durability signal resolves non-durable
+    When SDD intakes it
+    Then it never becomes a change request
+    And it reaches no gate and leaves no combat-log record
+
+  Scenario: an explicit durability declaration in the request overrides its artifact's location default
+    Given a request that explicitly declares durability opposite to its artifact's location default
+    When SDD intakes it
+    Then the explicit declaration, not the location default, decides whether it escapes
+
+  Scenario: durability with no resolvable signal defaults to a change request
+    Given a change whose artifact-type has neither an explicit durability declaration nor a project-declared convention
+    When SDD intakes it
+    Then it is treated as durable and proceeds as a change request
+
   # ── Explore, gates, and lifecycle independence ──
 
   Scenario: a confidently-diffable CR self-clears the grill without a human

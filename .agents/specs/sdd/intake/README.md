@@ -129,13 +129,51 @@ related to** a task — then that behavioral part is carved out as a CR and the 
 escapes. There is no separate recognition machine at the door: the gateway is only the door
 (`../gateway/`); the determination is the grill.
 
+**Durability is a second, independent escape trigger.** Behavior alone is not the only
+question — SDD is built for **durable** work (a public surface, or part of the solution of
+one), and forcing spec+suite ceremony onto **non-durable** work (a private scaffold, a POC, an
+ad hoc internal tool/script) is the same empty-ceremony problem the escape hatch already
+exists to avoid. A task with real suite-relevant behavior still escapes when its **durability
+signal** resolves non-durable. Durability resolves the way `artifact-type` does — per artifact,
+convention first (`../design/artifact-type.md`) — but unlike artifact-type's ambiguity path
+(which **asks** the user, confirm-never-guess), an unresolved durability signal never asks:
+it **fails closed to durable** (step 3 below) and the work proceeds as a normal CR. The
+convention differs by kind, and an explicit statement always wins:
+
+1. **Explicit override in the request wins first.** If the requester states durability
+   directly ("this is a throwaway POC", "this must be public") that decides it; no further
+   resolution runs.
+2. **Else resolve by the artifact's own kind:**
+   - **Agent-config artifact-types** (`skill`, `subagent`, `command`, `agents-section`) — a
+     **fixed** location convention: user-global and project-private paths are non-durable;
+     project-public (shipped) paths are durable.
+   - **Code artifact-types** (scripts, tools, POC code, …) — a **project-declared,
+     configurable** location convention (no universal `tools/`-vs-`src/` split holds across
+     projects): an optional, mutable TOML map at `.agents/sdd/durability.toml`, shape
+     `"<path-or-glob>" = "durable" | "non-durable"`, the same optional / last-write-wins
+     lookup-table convention as the artifact-type tiebreaker map — absent is fine, only a
+     project's known non-durable paths need an entry.
+3. **No resolvable signal → durable (fail closed).** Absent an override and absent a
+   matching `durability.toml` entry, durability is **not** guessed non-durable — it defaults
+   durable and the task proceeds as a normal CR, mirroring "ambiguity defaults to a CR"
+   below. A silent false-negative (something durable escaping unrecorded) is the one failure
+   mode this hatch must never produce; a false positive (something non-durable going through
+   full SDD) only costs one CR's ceremony.
+
+A non-durable resolution **escapes outright** — no CR, no draft, no gate, no combat-log
+record — the same as a task with no suite-relevant behavior. This is deliberately **not** the
+trivial-CR self-clear below: durability escapes by *surface*, regardless of risk; a risky
+change confined to a non-durable surface still escapes, because the question durability
+answers is "does this ever need to stay in sync as a contract," not "how risky is this diff."
+
 **Escaped work leaves no SDD record.** A non-CR task is not SDD's to track; a change that
 touches `spec.md` prose but not the suite — a typo, a reflowed sentence — is already
 recorded by **git history**, which needs no manual journal. So escape writes **no draft, no
 gate line, no combat-log entry** — it is *stated* in the moment, then done by ordinary means.
 
-**Escape is not the trivial-CR self-clear.** A genuinely behavioral change that merely reads
-low-risk is a **CR that self-clears** the gates (with full provenance) — *not* an escape.
+**Escape is not the trivial-CR self-clear.** A genuinely behavioral, **durable-surface**
+change that merely reads low-risk is a **CR that self-clears** the gates (with full
+provenance) — *not* an escape.
 The litmus is whether the change can affect observable behavior or break the suite:
 
 | Work | Escapes? | Why |
@@ -143,7 +181,11 @@ The litmus is whether the change can affect observable behavior or break the sui
 | Fix a typo in `spec.md` prose | **Yes** — no record | no behavior; git is the record |
 | A task unrelated to the project's behavior | **Yes** — no record | not a CR; SDD never owned it |
 | **Move a folder** | **No** — it is a CR | breaks import paths → re-verified at the impl gate |
-| A small but real behavior change | **No** — it is a CR | self-clears the gates (low risk), keeps full provenance |
+| A small but real behavior change **on a durable surface** | **No** — it is a CR | self-clears the gates (low risk), keeps full provenance |
+| A private (user-global / project-private) skill or agent definition | **Yes** — no record | agent-config durability resolves fixed-location non-durable |
+| A public (shipped) skill or agent definition | **No** — it is a CR | agent-config durability resolves fixed-location durable |
+| A script/tool matching the project's declared non-durable location | **Yes** — no record | code durability resolves via the project's own config |
+| Any of the above, explicitly declared the opposite in the request | follows the declaration | explicit override wins over the location default |
 
 The corpus-reorganization cases the original escape hatch listed — split/merge, relocate a
 contract, regenerate views, reorganize folders — are **no longer escapes**: per ruling E and
@@ -156,6 +198,13 @@ escape.
 **Ambiguity defaults to a CR.** If grilling cannot positively clear a task of behavior,
 treat it as a CR and explore; the cost of a false positive is one cheap explore pass that
 finds nothing, never an untracked behavior change.
+
+<!-- open: Promotion path — when a durability-escaped artifact later moves to a durable
+surface (e.g. a project-private skill is published), nothing currently detects the missing
+spec/suite and files the backfill CR. The closest existing mechanism is `shot-before-aim`'s
+formation-owned detect-and-file-CR flow for prose-impl drift; whether that same path covers a
+placement-driven promotion, or a change to placement itself should carry the obligation, is
+undecided. -->
 
 ## Inject channel — zoom into a single inner-loop agent
 
@@ -260,6 +309,34 @@ Scenario: ambiguous work defaults to a change request
   Given a task that grilling cannot positively clear of behavior
   When SDD handles it
   Then it is treated as a change request and explored
+
+Scenario: a behavioral change confined to a non-durable surface escapes
+  Given a change with suite-relevant behavior whose artifact's durability signal resolves non-durable
+  When SDD handles it
+  Then the change proceeds outside the SDD lifecycle
+  And no change request, draft, or combat-log record is created for it
+
+Scenario: an explicit durability declaration overrides the location default
+  Given a request that explicitly declares its durability, contradicting its artifact's location default
+  When SDD resolves durability
+  Then the explicit declaration decides whether the work escapes
+  And the location convention is not consulted
+
+Scenario: a private skill or agent definition resolves non-durable by fixed location
+  Given a skill or agent definition targeting a user-global or project-private path
+  When SDD resolves its durability
+  Then it resolves non-durable by the fixed agent-config location convention
+
+Scenario: a project-declared location resolves a script or tool's durability
+  Given a script or tool at a path the project has declared non-durable
+  When SDD resolves its durability
+  Then it resolves non-durable by the project's own configured convention
+
+Scenario: no resolvable durability signal defaults to durable
+  Given a change whose artifact-type has neither an explicit declaration nor a project-declared convention
+  When SDD resolves its durability
+  Then it resolves durable
+  And the change proceeds as a change request
 ```
 
 ### Inject channel

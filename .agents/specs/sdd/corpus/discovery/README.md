@@ -78,7 +78,7 @@ flags how trustworthy it is — because a project's name is not always derivable
 
 Most of discovery is **deterministic** and node:test-verified — listing, the status filter, name
 derivation, the TOON output (which carries no body content), and the **exact-match / candidate-set**
-half of name resolution. Two scenarios are **agentic** (`@rubric`, judged by hand or by ACES when
+half of name resolution. Two scenarios are **agentic** (`@rubric`, judged by hand or by ACED when
 wired) because they assert **agent** behavior, not script output: *disambiguating an ambiguous name
 with the user*, and *an agent never learning a spec body* (the token-cost reason "frontmatter only"
 exists — the script reads the whole file but its output, hence the agent's context, excludes bodies).
@@ -91,7 +91,7 @@ self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention; an a
 `node` is absent). The script realizes **list-the-specs** (scan, status filter, name derivation,
 frontmatter-only TOON) and the **deterministic half of resolve-a-name** (`--resolve <name>` →
 exact-match spec, or the candidate set when ambiguous); the **agentic half** (disambiguating with
-the user, never learning a body) is the `@rubric` scenarios, judged by hand or by ACES once it is
+the user, never learning a body) is the `@rubric` scenarios, judged by hand or by ACED once it is
 the agent-config impl-judge. The node and its engine carry different names (capability vs mechanism)
 — this `## Delivery` link is the spec→impl pointer, as `../../gateway/` names the `sdd` skill.
 

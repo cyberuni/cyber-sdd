@@ -77,8 +77,8 @@ Loader wiring:
 | `create-spec` | lifecycle, ownership |
 | `sdd-operator` | lifecycle, ownership, gate-validation |
 | `sdd-spec-judge` | lifecycle, gate-validation |
-| spec-producers (`sdd-scenario-writer`, `aces-scenario-writer`, `quill-writer`) | ownership |
-| `sdd-planner`, impl-judges (`sdd-implementer`, `aces-implementer`, `quill-implementer`), `quill-doc-writer` | ownership |
+| spec-producers (`sdd-scenario-writer`, `aced-scenario-writer`, `quill-writer`) | ownership |
+| `sdd-planner`, impl-judges (`sdd-implementer`, `aced-implementer`, `quill-implementer`), `quill-doc-writer` | ownership |
 
 ## Rationale
 

@@ -116,7 +116,7 @@ handle) while giving the same structural guarantee.
 ## Implementation Notes
 
 - Migration: `git mv .agents/specs/<project>/ledger.jsonl .agents/specs/<project>/ledger/0000-legacy.jsonl`
-  for both the `sdd` and `aces` project specs. No re-numbering; history preserved.
+  for both the `sdd` and `aced` project specs. No re-numbering; history preserved.
 - Update the glob reader (`check-spec-state.mts` + tests) and the writer procedures in
   `start-mission`, `doctrine-loop`, and the `sdd` gateway (mint the session hash once, append to the
   own shard).

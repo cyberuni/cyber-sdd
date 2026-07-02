@@ -69,7 +69,7 @@ internal evaluation detail, judged **by hand**.
 The structural check is **universal** — every resolved judge enforces it identically. A resolved
 judge does **not** reject scoring lingo *inside* a `@rubric` scenario (the sanctioned form), and it
 rejects a malformed `@rubric` scenario (missing threshold or named dimensions) structurally, before
-scoring begins. A plugin may supply a more capable scoring judge (e.g. ACES for agent-config
+scoring begins. A plugin may supply a more capable scoring judge (e.g. ACED for agent-config
 domains).
 
 ## The executable form — `check-suite`

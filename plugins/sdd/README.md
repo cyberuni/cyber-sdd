@@ -155,5 +155,5 @@ spec-judge, impl-producer, impl-judge) and registering itself into your project'
 default. Producers run inline with the conductor; judges always spawn cold, so a grader
 never shares the author's context.
 
-This repo ships example domain plugins — **ACES** (agent-configuration domains) and
+This repo ships example domain plugins — **ACED** (agent-configuration domains) and
 **Quill** (documentation domains) — that plug into SDD this way.

@@ -39,11 +39,11 @@ Not every request changes the project's specified behavior. The gateway's second
 
 ## The escape hatch
 
-Not every request becomes a change request (CR). A request with **no suite-relevant behavior**, or one confined entirely to a **non-durable** artifact (resolved per-touched-file by the `resolve-durability` engine — explicit statement, then an optional `.agents/sdd/durability.toml` override table, then a fixed location convention, then fail-closed to durable), **escapes the lifecycle**: no CR opens, no gate runs, no SDD record is written. A mixed request carves the durable parts into a CR and escapes the rest. Escaping doesn't mean stopping — if the artifact-type has a producer with a direct escaped-request entry point (e.g. `define-skill` for the `skill` artifact-type, shipped by the ACES plugin), that producer is invoked directly to do the work.
+Not every request becomes a change request (CR). A request with **no suite-relevant behavior**, or one confined entirely to a **non-durable** artifact (resolved per-touched-file by the `resolve-durability` engine — explicit statement, then an optional `.agents/sdd/durability.toml` override table, then a fixed location convention, then fail-closed to durable), **escapes the lifecycle**: no CR opens, no gate runs, no SDD record is written. A mixed request carves the durable parts into a CR and escapes the rest. Escaping doesn't mean stopping — if the artifact-type has a producer with a direct escaped-request entry point (e.g. `define-skill` for the `skill` artifact-type, shipped by the ACED plugin), that producer is invoked directly to do the work.
 
 ## The five plugin delegate roles
 
-Every artifact-type resolves to a **production chain** of five roles, each either a plugin's agent or the SDD default. This is the contract a domain plugin (ACES for agent-configuration artifacts, Quill for documentation) implements to teach SDD a new kind of artifact.
+Every artifact-type resolves to a **production chain** of five roles, each either a plugin's agent or the SDD default. This is the contract a domain plugin (ACED for agent-configuration artifacts, Quill for documentation) implements to teach SDD a new kind of artifact.
 
 | Role | Acts | SDD default |
 |---|---|---|

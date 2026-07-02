@@ -10,7 +10,7 @@ The human is an **escalation target the bar invokes**, not a fixed checkpoint �
 
 The rubric **defines** the bar; the conductor **enacts** it.
 It is a **design/evaluation artifact**, not a runtime monolith loaded on every decision.
-At design/eval time the consumer is the eval tool (ACES), which sets and verifies each agent config's escalation posture against it.
+At design/eval time the consumer is the eval tool (ACED), which sets and verifies each agent config's escalation posture against it.
 At runtime the verdict is made by the **conductor** — the capable position that runs a loop and makes its self-clear/escalate verdicts from baked-in logic (in SDD the **main session**, or a spawned `automaton` in the headless fallback; the formation Warden is another) — authored to conform to this rubric, never by loading the document per decision.
 An agent's baked-in logic carries only the inputs its own decisions touch.
 
@@ -127,7 +127,7 @@ The rubric's verdicts are made testable (vs by-hand vibing) in three layers:
 Output: which floor cases fire (and the detected class vs the ceiling) + the blast magnitude.
 The agent judges the **Builder** class read (un-contracted change), **novelty**, and **confidence** — the helper shrinks the judgment surface to those.
 2. **Baked-in logic** (Warden / conductor) = helper output + the judged inputs, run at the relevant cadence (Warden per formation act).
-3. **An ACES golden suite** mapping `(act, risk profile) → expected verdict`, run at the doctrine cadence over the agent configs to catch posture drift mechanically.
+3. **An ACED golden suite** mapping `(act, risk profile) → expected verdict`, run at the doctrine cadence over the agent configs to catch posture drift mechanically.
 
 Backstop: provisional markers + the async review queue make "conservative + auditable" sufficient, not "infallible."
 The golden suite (deterministic helper cases + golden verdicts) colocates with this rule or in `../acceptance/`.

@@ -54,7 +54,7 @@ Example (TOON):
 
 ```
 specs[2]{path,name,nameSource,status,projectPath,approvals}:
-  .agents/specs/aces,aces,derived,implemented,plugins/aces,spec:approve;impl:approve
+  .agents/specs/aced,aced,derived,implemented,plugins/aced,spec:approve;impl:approve
   .agents/specs/sdd,sdd,derived,approved,plugins/sdd-new,spec:approve
 ```
 

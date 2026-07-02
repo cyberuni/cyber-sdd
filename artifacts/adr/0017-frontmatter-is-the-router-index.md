@@ -137,7 +137,7 @@ Migration units (committed independently): the validator + tests (`check-spec-st
 mechanical source of truth), the design docs (`lifecycle-model.md`, `spec-layout.md`), the governance
 SKILLs (lifecycle / gate-validation / ownership), the producers (backfill / start-mission /
 spec-producer), the behavioral specs that re-home `aligned` (`conductor.feature`, `acceptance/`), and
-finally the root `sdd` spec + the `aces` sibling.
+finally the root `sdd` spec + the `aced` sibling.
 
 ## Amendment — location-bounded spec recognition (discover-specs CR)
 

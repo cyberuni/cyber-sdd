@@ -85,7 +85,7 @@ test('a project-private skill resolves non-durable by kind default', () => {
 
 test('a project-public skill resolves durable by kind default', () => {
 	assert.equal(resolveKindDefault('skill', 'skills/foo'), 'durable')
-	assert.equal(resolveKindDefault('skill', 'plugins/aces/skills/foo'), 'durable')
+	assert.equal(resolveKindDefault('skill', 'plugins/aced/skills/foo'), 'durable')
 	assert.equal(resolveKindDefault('skill', 'packages/cyber-skills/skills/foo'), 'durable')
 })
 

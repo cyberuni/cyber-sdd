@@ -3,7 +3,7 @@ Feature: The discovery procedure — find specs at the SDD spec locations, named
   Unit suite for the discovery tool (the discover-specs engine). Locating specs at the three fixed
   SDD spec locations PLUS any extra anchors declared in the project's spec-anchors config, confirming
   them by status shape, naming each project, and resolving a name over the list. Deterministic
-  scenarios are node:test-verified; the two @rubric scenarios are agentic (judged by hand / by ACES
+  scenarios are node:test-verified; the two @rubric scenarios are agentic (judged by hand / by ACED
   when wired) because they assert agent behavior, not script output. Cross-capability e2e scenarios
   live in ../../acceptance/.
 
@@ -130,7 +130,7 @@ Feature: The discovery procedure — find specs at the SDD spec locations, named
     When discovery lists the specs
     Then it yields no extra anchors and still finds the specs at the three fixed conventions
 
-  # ── Agentic — judged by hand / by ACES (assert agent behavior, not script output) ──
+  # ── Agentic — judged by hand / by ACED (assert agent behavior, not script output) ──
 
   @rubric
   Scenario: an ambiguous name is disambiguated with the user

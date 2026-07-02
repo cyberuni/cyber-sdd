@@ -225,7 +225,7 @@ test('collectSpecs carries name, name-source, status, project-path, and approval
 })
 
 // The deterministic half of "reads frontmatter only, never the body": the body never reaches the
-// OUTPUT (the agentic half — the agent never knows the body — is an ACES eval, not a node:test).
+// OUTPUT (the agentic half — the agent never knows the body — is an ACED eval, not a node:test).
 test('collectSpecs output never carries spec body content', () => {
 	const dir = mkdtempSync(join(tmpdir(), 'discover-specs-'))
 	try {
@@ -437,7 +437,7 @@ test('collectSpecs is fail-safe: an unreadable config falls back to the fixed co
 // ── resolveByName (deterministic exact match; disambiguation stays agentic) ──
 
 test('resolveByName returns the single exact (case-insensitive) name match', () => {
-	const specs = [rec({ path: 'a', name: 'sdd' }), rec({ path: 'b', name: 'aces' })]
+	const specs = [rec({ path: 'a', name: 'sdd' }), rec({ path: 'b', name: 'aced' })]
 	assert.deepEqual(resolveByName(specs, 'SDD'), { kind: 'match', spec: specs[0] })
 })
 
@@ -465,11 +465,11 @@ test('toToon emits a tabular header and one row per spec', () => {
 			approvals: 'spec:approve',
 		}),
 		rec({
-			path: '.agents/specs/aces',
-			name: 'aces',
+			path: '.agents/specs/aced',
+			name: 'aced',
 			nameSource: 'derived',
 			status: 'draft',
-			projectPath: 'plugins/aces',
+			projectPath: 'plugins/aced',
 			approvals: '',
 		}),
 	])
@@ -477,7 +477,7 @@ test('toToon emits a tabular header and one row per spec', () => {
 		toon,
 		'specs[2]{path,name,nameSource,status,projectPath,approvals}:\n' +
 			'  .agents/specs/sdd,sdd,derived,approved,plugins/sdd-new,spec:approve\n' +
-			'  .agents/specs/aces,aces,derived,draft,plugins/aces,""',
+			'  .agents/specs/aced,aced,derived,draft,plugins/aced,""',
 	)
 })
 
@@ -516,11 +516,11 @@ test('main --resolve filters to the exact name matches', () => {
 	}) as typeof process.stdout.write
 	try {
 		seed(dir, '.agents/specs/sdd/spec.md', 'status: approved')
-		seed(dir, '.agents/specs/aces/spec.md', 'status: approved')
-		assert.equal(main(['--root', dir, '--resolve', 'aces']), 0)
+		seed(dir, '.agents/specs/aced/spec.md', 'status: approved')
+		assert.equal(main(['--root', dir, '--resolve', 'aced']), 0)
 		const out = writes.join('')
 		assert.match(out, /specs\[1\]/)
-		assert.match(out, /\.agents\/specs\/aces,aces/)
+		assert.match(out, /\.agents\/specs\/aced,aced/)
 		assert.doesNotMatch(out, /sdd/)
 	} finally {
 		process.stdout.write = original

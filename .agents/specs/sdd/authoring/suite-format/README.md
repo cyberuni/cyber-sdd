@@ -66,7 +66,7 @@ The rubric is internal evaluation detail.
 A plain boolean rule is **un-self-modifiable** — you cannot safely edit a frozen thing.
 A rubric rule **is** self-modifiable: a reversible, alignment-preserving, non-breaking edit self-clears against its own dimensions.
 This is what lets SDD carry gradient rules (the autonomy bar, the freeze condition) and modify its own contracts without losing the boolean gate invariant.
-Scoring is irreducibly human judgment and is judged **by hand**; the rubric form is self-contained and an automated regression harness (ACES) is a *tester*, not a prerequisite.
+Scoring is irreducibly human judgment and is judged **by hand**; the rubric form is self-contained and an automated regression harness (ACED) is a *tester*, not a prerequisite.
 
 ## Judging — structure is universal, scoring is per-resolved-judge
 
@@ -78,7 +78,7 @@ The domain's resolved spec-judge (default `sdd-spec-judge`) validates:
 | `@rubric`-tagged | **Structure (universal):** rubric block present with named dimensions + per-dimension `max` + exactly one `threshold`; collapsing `Then` present. **Scoring (per-resolved-judge):** reads the rubric, scores each dimension, applies the threshold, emits pass/fail. |
 
 The structural check is **universal** — every resolved judge enforces it identically.
-Scoring capability is **per-resolved-judge**: the default does baseline by-hand scoring; a plugin may supply a more capable judge (e.g. ACES for agent-config domains).
+Scoring capability is **per-resolved-judge**: the default does baseline by-hand scoring; a plugin may supply a more capable judge (e.g. ACED for agent-config domains).
 A resolved judge does **not** reject scoring lingo *inside* a `@rubric` scenario — that is the sanctioned form — and it rejects a malformed `@rubric` scenario (missing threshold or named dimensions) structurally, before scoring begins.
 
 ## Mechanical enforcement (the executable form)

@@ -59,7 +59,7 @@ procedure and loads these bars directly.
 
 The `sdd` gateway loads **no** governance (it only classifies and routes). The gate skill
 `spec-gate` loads `lifecycle`, `ownership`, `gate-validation`, `combat-log` (+ `spec-format` /
-`suite-format` at the spec gate). A plugin's agents inherit the universal loads — e.g. `aces`/`quill`
+`suite-format` at the spec gate). A plugin's agents inherit the universal loads — e.g. `aced`/`quill`
 spec-producers load `sdd:spec-format-governance` + `sdd:ownership-governance`, and their judges load
 `sdd:gate-validation-governance`.
 
@@ -99,7 +99,7 @@ production chain; a type appears in at most one squad per plugin (the plugin's s
 of its squads' `artifact-types`).
 
 Resolution: match each file's **`artifact-type`** (the squad key, **not** the folder name) against
-each plugin's `squads[]` — the squad whose `artifact-types` contains it serves the file (e.g. ACES's
+each plugin's `squads[]` — the squad whose `artifact-types` contains it serves the file (e.g. ACED's
 one squad covers `skill`, `subagent`, `command`, `agents-section`). An absent or unmatched
 `artifact-type` → all roles degenerate to SDD defaults. One matching squad → resolve each role and
 governance key (name = use it; `null` = SDD default; missing role key = `<plugin>-<role>`). Two or

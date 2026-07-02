@@ -1,7 +1,7 @@
 # corpus/ — corpus-level tooling
 
 The **tooling** that operates over the **corpus** — the *collection* of project-specs in a repo
-(`.agents/specs/`: `sdd`, `aces`, `universal-plugin`, …). This is the **corpus** level of
+(`.agents/specs/`: `sdd`, `aced`, `universal-plugin`, …). This is the **corpus** level of
 `corpus ⊃ project-spec ⊃ node` (`../design/spec-structure.md`): a corpus-level action ranges
 **across** project-specs. The intra-spec tier — everything that acts on **one** project-spec's
 internal structure — lives under [`../project-spec/`](../project-spec/README.md).

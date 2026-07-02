@@ -1,0 +1,11 @@
+{
+	"$schema": "https://raw.githubusercontent.com/cyberuni/marketplace/main/schema/claude/plugin.json",
+	"name": "aced",
+	"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
+	"author": { "name": "unional" },
+	"homepage": "https://github.com/cyberuni/cyber-skills",
+	"repository": "https://github.com/cyberuni/cyber-skills",
+	"commands": "./commands",
+	"skills": "./skills",
+	"agents": "./agents"
+}

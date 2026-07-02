@@ -128,7 +128,7 @@ Feature: The spec-anchors config — declare and curate the extra anchors discov
     When the engine carries it out
     Then it writes only .agents/sdd/spec-anchors.toml and no spec.md, status, approval, or freeze
 
-  # ── Agentic — judged by hand / by ACES (asserts the skill's behavior, not script output) ──
+  # ── Agentic — judged by hand / by ACED (asserts the skill's behavior, not script output) ──
 
   @rubric
   Scenario: the manage skill previews the effect and confirms before it persists a new anchor

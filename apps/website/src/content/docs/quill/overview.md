@@ -3,7 +3,7 @@ title: Quill Overview
 description: Documentation SDD plugin — spec-driven development applied to guides, tutorials, articles, reference pages, and READMEs.
 ---
 
-**Quill** is [SDD](/sdd/overview/)'s documentation-domain plugin — the sibling of [ACES](/aces/overview/), which covers the agent-configuration domain. Where ACES applies spec-driven evaluation to skills, `AGENTS.md` sections, subagents, and commands, Quill applies it to guides, tutorials, articles, reference pages, and READMEs.
+**Quill** is [SDD](/sdd/overview/)'s documentation-domain plugin — the sibling of [ACED](/aced/overview/), which covers the agent-configuration domain. Where ACED applies spec-driven evaluation to skills, `AGENTS.md` sections, subagents, and commands, Quill applies it to guides, tutorials, articles, reference pages, and READMEs.
 
 ## The problem
 
@@ -59,4 +59,4 @@ This repo dogfoods its own SDD process: Quill's own project spec (`.agents/specs
 ## Related
 
 - [SDD Overview](/sdd/overview/) — the spec-driven development process Quill plugs into
-- [ACES Overview](/aces/overview/) — SDD's sibling plugin for the agent-configuration domain
+- [ACED Overview](/aced/overview/) — SDD's sibling plugin for the agent-configuration domain

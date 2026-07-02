@@ -263,7 +263,7 @@ test('a Then expressing a boolean verdict over a score is not a violation', () =
 		'Feature: operator',
 		'',
 		'  Scenario: a graded subject still yields a boolean per scenario',
-		'    Given aces-implementer evaluates with a threshold over N runs',
+		'    Given aced-implementer evaluates with a threshold over N runs',
 		'    When the aggregate score meets or exceeds the threshold',
 		'    Then the impl-judge reports that scenario as passing',
 		'    And reports failing when the aggregate score is below the threshold',

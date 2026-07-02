@@ -242,5 +242,5 @@ loop; **gateway/** is the universal router/door (not a step). The 4 outer loops 
 
 **Scope** — IN: all `sdd-*` core + `autonomy-governance`, `governance-composition`,
 `rubric-gherkin`, `freeze-alignment`, `autonomy-rubric-harness`. OUT (own project specs):
-`aces-*`, `define-skill`, `universal-plugin`, `motive-model` (referenced, not folded).
-Dead: `sdd-orchestrator`, `aces-spec-designer-composition`.
+`aced-*`, `define-skill`, `universal-plugin`, `motive-model` (referenced, not folded).
+Dead: `sdd-orchestrator`, `aced-spec-designer-composition`.

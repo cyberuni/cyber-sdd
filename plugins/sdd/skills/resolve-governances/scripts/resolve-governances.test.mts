@@ -98,7 +98,7 @@ test('migrateEntry migrates per-squad roles and governances on a squads entry', 
 test('parseRegistry parses and migrates every entry', () => {
 	const text = JSON.stringify({
 		'sdd-plugins': [
-			{ name: 'aces', domains: ['skill'], roles: { 'plan-producer': null }, governances: { oracle: null } },
+			{ name: 'aced', domains: ['skill'], roles: { 'plan-producer': null }, governances: { oracle: null } },
 		],
 	})
 	const r = parseRegistry(text)
@@ -155,9 +155,9 @@ test('parseGovernanceFrontmatter returns null without an actor/gate', () => {
 const REG: Registry = {
 	'sdd-plugins': [
 		{
-			name: 'aces',
+			name: 'aced',
 			squads: [
-				{ 'artifact-types': ['skill', 'command'], roles: { 'spec-judge': 'aces-spec-validator' }, governances: {} },
+				{ 'artifact-types': ['skill', 'command'], roles: { 'spec-judge': 'aced-spec-validator' }, governances: {} },
 			],
 		},
 		{ name: 'quill', squads: [{ 'artifact-types': ['guide'], roles: {}, governances: {} }] },
@@ -166,7 +166,7 @@ const REG: Registry = {
 
 test('matchSquad returns the single matching squad', () => {
 	const { match, ambiguous } = matchSquad(REG, 'skill')
-	assert.equal(match?.plugin, 'aces')
+	assert.equal(match?.plugin, 'aced')
 	assert.deepEqual(match?.squad['artifact-types'], ['skill', 'command'])
 	assert.equal(ambiguous.length, 0)
 })
@@ -223,19 +223,19 @@ test('matchBar floors to the sdd default ref with empty project buckets', () => 
 
 test('matchBar buckets project + plugin + sdd without ordering or collapsing', () => {
 	const projectGovs = [gov({ path: '.agents/governances/d.md' })]
-	const match = squadMatch('aces', { 'oracle-spec': 'aces-oracle' })
+	const match = squadMatch('aced', { 'oracle-spec': 'aced-oracle' })
 	const plan = matchBar('skill', 'oracle', 'spec', { match, projectGovs })
 	assert.deepEqual(plan.candidates.project, ['.agents/governances/d.md'])
-	assert.equal(plan.candidates.plugin, 'aces:aces-oracle')
+	assert.equal(plan.candidates.plugin, 'aced:aced-oracle')
 	assert.equal(plan.candidates.sdd, 'sdd:oracle-spec-governance')
 })
 
 test('matchBar — a project replace is RETURNED, never collapses plugin/sdd', () => {
 	const projectGovs = [gov({ path: '.agents/governances/d.md', compose: 'replace' })]
-	const match = squadMatch('aces', { 'oracle-spec': 'aces-oracle' })
+	const match = squadMatch('aced', { 'oracle-spec': 'aced-oracle' })
 	const plan = matchBar('skill', 'oracle', 'spec', { match, projectGovs })
 	assert.deepEqual(plan.candidates.project, ['.agents/governances/d.md'])
-	assert.equal(plan.candidates.plugin, 'aces:aces-oracle') // not truncated
+	assert.equal(plan.candidates.plugin, 'aced:aced-oracle') // not truncated
 	assert.equal(plan.candidates.sdd, 'sdd:oracle-spec-governance')
 })
 
@@ -276,12 +276,12 @@ test('resolveAgent returns the SDD default agent when no squad matches', () => {
 })
 
 test('resolveAgent uses a named plugin delegate', () => {
-	const match = squadMatch('aces', {}, { 'spec-judge': 'aces-spec-validator' })
-	assert.deepEqual(resolveAgent('spec-judge', match), { source: 'plugin', ref: 'aces-spec-validator' })
+	const match = squadMatch('aced', {}, { 'spec-judge': 'aced-spec-validator' })
+	assert.deepEqual(resolveAgent('spec-judge', match), { source: 'plugin', ref: 'aced-spec-validator' })
 })
 
 test('resolveAgent treats an explicit null role as the SDD default', () => {
-	const match = squadMatch('aces', {}, { 'impl-judge': null })
+	const match = squadMatch('aced', {}, { 'impl-judge': null })
 	assert.deepEqual(resolveAgent('impl-judge', match), { source: 'sdd', ref: 'sdd-impl-judge' })
 })
 
@@ -323,9 +323,9 @@ test('buildLoadPlan resolves all five roles to SDD defaults for a typeless spec'
 
 test('buildLoadPlan binds the matched plugin', () => {
 	const plan = buildLoadPlan('skill', REG, [])
-	assert.equal(plan.plugin, 'aces')
+	assert.equal(plan.plugin, 'aced')
 	const judge = plan.roles.find((r) => r.role === 'spec-judge')
-	assert.deepEqual(judge?.agent, { source: 'plugin', ref: 'aces-spec-validator' })
+	assert.deepEqual(judge?.agent, { source: 'plugin', ref: 'aced-spec-validator' })
 })
 
 test('buildLoadPlan returns needs-input on an ambiguous artifact-type', () => {

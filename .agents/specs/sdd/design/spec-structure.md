@@ -14,7 +14,7 @@ recommended convention). The counterpart to `project-unit.md`, which fixes the *
 
 The spec vocabulary has **three nested levels**, and every operation is named by the level it acts upon:
 
-- **corpus** — the *collection* of project-specs in a repo (`.agents/specs/`: `sdd`, `aces`, …). A
+- **corpus** — the *collection* of project-specs in a repo (`.agents/specs/`: `sdd`, `aced`, …). A
   **noun**, kept scarce and precise — never a verb or an operation prefix. A **corpus-level** action
   ranges across projects (e.g. `corpus/discovery` lists them; nothing restructures across them).
 - **project-spec** — one project's whole durable spec (`.agents/specs/<project>/`): one `spec.md`,

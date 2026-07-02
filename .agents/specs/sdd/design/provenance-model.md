@@ -125,17 +125,17 @@ Together with `approval` (the judging twin) it gives full per-artifact provenanc
 | `produced-by` | who **made** each artifact | production role (`spec-producer`, `solution-producer`, `impl-producer`) | conductor, at production |
 | `approval` | who **judged** each gate (`verdict` + `by` + `why`) | gate (`spec`, `impl`) | conductor (self-assert) / skill (ratify) |
 
-Each `produced-by` value is the **plugin-qualified agent name** (`aces:aces-scenario-writer`, `quill:quill-doc-writer`, or `sdd:automaton` when SDD's own default chain produced it — the in-session conductor for an inline spec/solution-producer, or its spawned builder for the impl-producer; see `specialists-and-squads.md`).
+Each `produced-by` value is the **plugin-qualified agent name** (`aced:aced-scenario-writer`, `quill:quill-doc-writer`, or `sdd:automaton` when SDD's own default chain produced it — the in-session conductor for an inline spec/solution-producer, or its spawned builder for the impl-producer; see `specialists-and-squads.md`).
 Recorded **always**, on every production.
 It plays two deliberately separated roles:
 
-- a **historical record** — immutable provenance ("`X` produced this `.feature`"), the data ACES needs to measure result quality and trace a bad artifact to its producer;
+- a **historical record** — immutable provenance ("`X` produced this `.feature`"), the data ACED needs to measure result quality and trace a bad artifact to its producer;
 - a **resume cache** — on a later run the conductor reuses the recorded producer if its plugin is still installed, so resume is decisive without re-asking.
 
 ```yaml
 status: approved
 produced-by:
-  spec-producer: aces:aces-scenario-writer
+  spec-producer: aced:aced-scenario-writer
   solution-producer: sdd:automaton
   impl-producer: sdd:automaton
 approval:

@@ -15,7 +15,7 @@ the `.feature`, writes no `status` / `approval`, and renders no gate verb — it
 advises; the `spec-gate` skill turns the rollup into the verdict and the leash.
 
 It does **not** judge domain contract quality — a plugin's own spec-judge (e.g.
-`aces-spec-validator`) does that when the registry resolves one for the artifact-type.
+`aced-spec-validator`) does that when the registry resolves one for the artifact-type.
 
 ## Governances to load
 

@@ -17,7 +17,7 @@ Two pressures now make that mechanism the wrong home:
 1. **NodeJS elimination.** The SDD plugin redesign (see `artifacts/specs/sdd-orchestrator/`) aims to run its loop without `npx cyber-skills` / `npx universal-plugin`. `governance show` is a NodeJS runtime call inside the loop.
 2. **Scope.** The obvious NodeJS-free alternative — an `AGENTS.md` section — is **project-global**: it loads for *all* work in the project, including work unrelated to the plugin. A plugin exists to stay scoped; its governance should load only when that plugin's work is happening.
 
-We need a home for reference content that is harness-native (no NodeJS), plugin-scoped (not `AGENTS.md`), and loadable by other agents (the plugin's own agents and dependent plugins' agents — e.g. ACES and Quill spec-producers loading SDD's format governance).
+We need a home for reference content that is harness-native (no NodeJS), plugin-scoped (not `AGENTS.md`), and loadable by other agents (the plugin's own agents and dependent plugins' agents — e.g. ACED and Quill spec-producers loading SDD's format governance).
 
 ## Decision Drivers
 
@@ -54,7 +54,7 @@ To mark it non-user-invocable, use **both** markers:
 1. `user-invocable: false` in frontmatter — the harness field for harnesses that support it.
 2. An `Internal skill:` prefix on the `description` — the portable fallback that prevents situational activation on harnesses that do not yet honor the frontmatter field.
 
-Example: `sdd:spec-governance` carries SDD's universal `.feature` format bar and scenario-ordering convention; `aces`/`quill` spec-producers assume `sdd-plugin` exists and load it.
+Example: `sdd:spec-governance` carries SDD's universal `.feature` format bar and scenario-ordering convention; `aced`/`quill` spec-producers assume `sdd-plugin` exists and load it.
 
 ## Rationale
 

@@ -12,7 +12,7 @@ conductor, and the spec-judge; invariant per role (not face-split).
 ## Subject
 
 - **Artifact** — the `gate-validation` governance, shipped as
-  `plugins/sdd-new/skills/gate-validation-governance/` (a fixed-universal SDD governance —
+  `plugins/sdd/skills/gate-validation-governance/` (a fixed-universal SDD governance —
   `../../design/governance-resolution.md`).
 - **Contract surface** — the legal `(status, markers, .feature, approval)` tuples, the
   per-node `spec-type` checks, derived sync (no stored flag), approval attribution, the

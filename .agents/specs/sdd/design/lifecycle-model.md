@@ -20,7 +20,7 @@ if routing needs it without the body. That collapses it to two durable fields �
 ```yaml
 ---
 status: draft           # draft | approved | implemented | deprecated
-project-path: plugins/sdd-new   # repo-relative source dir this spec governs; the spec location mode is derivable (design/spec-layout.md)
+project-path: plugins/sdd   # repo-relative source dir this spec governs; the spec location mode is derivable (design/spec-layout.md)
 approval:               # per-gate verdict
   spec:                 # verdict: approve | pause | reject
     verdict: approve
@@ -135,7 +135,7 @@ If `check-spec-state.mts` changes, this list follows it — the script is the so
 - `spec-type: reference` with no `## Subject` section — illegal (the reference descriptor is required).
 - `spec-type: behavioral` with no `## Use Cases` section — illegal (a behavioral spec maps use cases to scenarios).
 
-These run wherever the helper runs; the `sdd-new` copy of `check-spec-state.mts` carries them (the baseline at `plugins/sdd/skills/spec-gate/scripts/` predates the spec-type marker).
+These run wherever the helper runs; `plugins/sdd/skills/spec-gate/scripts/check-spec-state.mts` carries them.
 
 **No-resolvable-producer fails closed.**
 A required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role.

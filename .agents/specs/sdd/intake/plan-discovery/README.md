@@ -13,7 +13,7 @@ plan-discovery scans the fixed plans location, treats each `*.plan.md` carrying 
 brief, and reports its **todo tally** and the lead line of its `## NEXT` resume anchor. The location
 is a **fixed convention**, not a hardcoded registry: no array or index of paths is ever consulted —
 discovery is a **pure derivation**, so no second place can drift. The concrete engine is the
-[`discover-plans`](../../../../plugins/sdd-new/skills/discover-plans/) skill, which parses each
+[`discover-plans`](../../../../plugins/sdd/skills/discover-plans/) skill, which parses each
 brief's frontmatter and NEXT section only and emits the list as TOON.
 
 This is the **plan** sibling of [`../../corpus/discovery/`](../../corpus/discovery/README.md):
@@ -71,7 +71,7 @@ restate them.
 ## Delivery
 
 This unit is implemented by the **`discover-plans`** skill —
-`plugins/sdd-new/skills/discover-plans/` — a non-user-invocable skill carrying a self-contained
+`plugins/sdd/skills/discover-plans/` — a non-user-invocable skill carrying a self-contained
 `.mts` script (the repo's node-≥23.6 / no-deps convention; an agent fallback when `node` is absent).
 The script realizes the **list-the-plans** entry point (scan `.agents/plans`, keep each `*.plan.md`
 with frontmatter, tally its todos, read its `## NEXT` lead, emit TOON); **resolve-a-ref** is the
@@ -81,6 +81,6 @@ caller's step over that list. The node and its engine carry different names (cap
 
 ## Source
 
-- new — no prior `plugins/sdd/` impl. First implemented under `plugins/sdd-new/` in the
+- new — no prior implementation in the retired SDD baseline. First implemented in the
   `discover-plans` CR, which also added the gateway's **surface-in-progress-plans** entry point
   (the resumable-mission sibling of the existing surface-pending-strategy behavior).

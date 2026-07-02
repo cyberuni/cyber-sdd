@@ -13,7 +13,7 @@ spec/solution at the spec gate, the implementation at the impl gate — so it sh
 ## Subject
 
 - **Artifact** — the `architect-spec` and `architect-impl` bars, shipped as
-  `plugins/sdd-new/skills/architect-spec-governance/` and `architect-impl-governance/` (SDD-default
+  `plugins/sdd/skills/architect-spec-governance/` and `architect-impl-governance/` (SDD-default
   actor governances; a plugin may bind its own per artifact-type —
   `../../design/governance-resolution.md`).
 - **Contract surface** — structural fit: no duplication, no conflict with conventions / module

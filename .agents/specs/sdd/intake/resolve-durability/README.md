@@ -14,7 +14,7 @@ default** (a fixed location convention for agent-config types; none for code), t
 to durable**. The location is a **fixed convention** plus an **optional lookup table**, never a
 hardcoded per-project registry — mirrors how `resolve-governances`' artifact-type tiebreaker map
 works, same flat-TOML/most-specific-glob-wins shape. The concrete engine is the
-[`resolve-durability`](../../../../plugins/sdd-new/skills/resolve-durability/) skill, which the
+[`resolve-durability`](../../../../plugins/sdd/skills/resolve-durability/) skill, which the
 conductor runs at intake, before a task becomes a CR.
 
 ## Use Cases

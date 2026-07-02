@@ -20,7 +20,7 @@ it is checkpointed (`pause-mission --approve`). The flag it writes is the go-sig
 `../../design/provenance-model.md`.
 
 > **This is a single behavioral unit, not an overview** — checkpoint has no sub-skills; the behavior
-> is enacted by the `pause-mission` skill (`plugins/sdd-new/skills/pause-mission/`). This spec owns
+> is enacted by the `pause-mission` skill (`plugins/sdd/skills/pause-mission/`). This spec owns
 > the **behavior + suite** ([`checkpoint.feature`](./checkpoint.feature)). (`resume-mission`, the
 > read-back sibling, is not yet noded — a standing formation observation, not this unit.)
 
@@ -84,7 +84,7 @@ complete without ever running the check that would have caught it.
 
 ## Delivery
 
-Enacted by the **`pause-mission`** skill — `plugins/sdd-new/skills/pause-mission/` — which locates
+Enacted by the **`pause-mission`** skill — `plugins/sdd/skills/pause-mission/` — which locates
 (or scaffolds) the brief, updates the todos + `## NEXT`, and commits; the `--approve` argument adds
 the single `status: approved` write. `resume-mission` reads the brief back; the gateway's `dispatch`
 loop selects on the `approved` flag this node sets.

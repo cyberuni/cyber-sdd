@@ -15,7 +15,7 @@ need no registry; **extra anchors are an opt-in override** for projects whose sp
 off-convention, read from a persistent config (`.agents/sdd/spec-anchors.toml`). That config is a
 declared second source that can drift, so it is opt-in and **curated** through the `spec-anchors`
 manage skill rather than derived. The concrete engine is the
-[`discover-specs`](../../../plugins/sdd-new/skills/discover-specs/) skill, which parses each spec's
+[`discover-specs`](../../../plugins/sdd/skills/discover-specs/) skill, which parses each spec's
 frontmatter only and emits the list as TOON.
 
 ## Use Cases
@@ -86,7 +86,7 @@ exists — the script reads the whole file but its output, hence the agent's con
 ## Delivery
 
 This unit is implemented by the **`discover-specs`** skill —
-`plugins/sdd-new/skills/discover-specs/` — a non-user-invocable skill carrying a
+`plugins/sdd/skills/discover-specs/` — a non-user-invocable skill carrying a
 self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention; an agent fallback when
 `node` is absent). The script realizes **list-the-specs** (scan, status filter, name derivation,
 frontmatter-only TOON) and the **deterministic half of resolve-a-name** (`--resolve <name>` →
@@ -97,7 +97,7 @@ the agent-config impl-judge. The node and its engine carry different names (capa
 
 ## Source
 
-- new — no prior `plugins/sdd/` impl. First implemented under `plugins/sdd-new/` in the
+- new — no prior implementation in the retired SDD baseline. First implemented in the
   `discover-specs` CR, which also narrowed spec recognition from "any `spec.md` with a
   status, anywhere" to the three location-bounded patterns (ADR-0017).
 - extended (GitHub #39, ADR-0019) — recognition widened from the three fixed conventions alone to

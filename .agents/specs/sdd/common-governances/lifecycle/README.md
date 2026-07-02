@@ -12,7 +12,7 @@ role; it is invariant per role (not face-split).
 ## Subject
 
 - **Artifact** — the `lifecycle` governance, shipped as
-  `plugins/sdd-new/skills/lifecycle-governance/` (a fixed-universal SDD governance —
+  `plugins/sdd/skills/lifecycle-governance/` (a fixed-universal SDD governance —
   `../../design/governance-resolution.md`).
 - **Contract surface** — the root `spec.md` frontmatter schema, the `status` enum, the legal status
   transitions, open-marker gating, and the per-file freeze state-transition.

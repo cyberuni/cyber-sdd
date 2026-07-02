@@ -21,7 +21,7 @@ comes back. It is entered two ways — an **attended** request ("run the approve
 
 > **This is a single behavioral unit, not an overview.** This spec owns the behavior + suite
 > ([`dispatch.feature`](./dispatch.feature)); the impl is the `sdd` gateway skill's fan-out path in
-> `plugins/sdd-new/skills/sdd/`, which spawns the `sdd-automaton` per approved brief.
+> `plugins/sdd/skills/sdd/`, which spawns the `sdd-automaton` per approved brief.
 
 ## Use Cases
 
@@ -100,7 +100,7 @@ with the gates. `dispatch` only spawns and relays.
 
 ## Delivery
 
-Realized by the **`sdd`** gateway skill — `plugins/sdd-new/skills/sdd/` — as its headless / multi-CR
+Realized by the **`sdd`** gateway skill — `plugins/sdd/skills/sdd/` — as its headless / multi-CR
 fan-out path: it runs `discover-plans --status approved` to build the queue and spawns the
 `sdd-automaton` once per approved brief, collecting each verdict packet before the next. No new
 user-facing skill is introduced; dispatch is the gateway's fan-out behavior, specced as its own node

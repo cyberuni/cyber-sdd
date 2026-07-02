@@ -19,7 +19,7 @@ edits the spec/suite itself.
 
 > **This is a single behavioral unit, not an overview** — `manage` is one skill. This spec owns the
 > **behavior + suite** ([`manage.feature`](./manage.feature)); the impl is the thin-dispatcher
-> `manage` skill in `plugins/sdd-new/skills/manage/`.
+> `manage` skill in `plugins/sdd/skills/manage/`.
 
 ## Use Cases
 

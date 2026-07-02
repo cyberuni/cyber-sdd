@@ -14,7 +14,7 @@ doctrine-loop Scanner; invariant per role.
 ## Subject
 
 - **Artifact** — the `combat-log` governance, shipped as
-  `plugins/sdd-new/skills/combat-log-governance/` (a fixed-universal SDD governance —
+  `plugins/sdd/skills/combat-log-governance/` (a fixed-universal SDD governance —
   `../../design/governance-resolution.md`).
 - **Contract surface** — the two-face record (current-state frontmatter + append-only sharded ledger
   directory), the six entry kinds (`report` / `correction` / `halt` → the combat log; `leash` / `gate` /

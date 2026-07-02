@@ -85,4 +85,4 @@ In order; the conductor runs it in-session, surfacing each choice to the user (r
 - It does **not** author any node's `## Use Cases` or `.feature` (that is the per-unit explore), render a gate
   verdict, freeze, or write `status` / `approval` / `produced-by` — those belong to the conductor
   and `../spec-gate/`.
-- The produced root passes `plugins/sdd-new/skills/spec-gate/scripts/check-spec-state.mts` (a legal root tuple).
+- The produced root passes `plugins/sdd/skills/spec-gate/scripts/check-spec-state.mts` (a legal root tuple).

@@ -13,7 +13,7 @@ plugin/conductor resolution surface), not in `common-governances/`.
 ## Subject
 
 - **Artifact** — the `plugin-contract` governance, shipped as
-  `plugins/sdd-new/skills/plugin-contract-governance/`.
+  `plugins/sdd/skills/plugin-contract-governance/`.
 - **Contract surface** — the five delegate role keys (closed set), the per-role governance loadout
   (the Model-B `(actor, gate)` bars + the fixed-universal set), and the `sdd-plugins[]` registry
   entry shape + resolution by `artifact-type`.

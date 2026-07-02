@@ -58,7 +58,7 @@ done?` mirror to merge or split. So each is **one skill**, not an `(actor, gate)
 - Each `common-governances/<name>/README.md` is a `spec-type: reference` node (`## Subject`, no
   `.feature`), **thin** — it names the bar's surface and points to its `design/` model; the model is
   not restated.
-- The skill is `plugins/sdd-new/skills/<name>-governance/` (`SKILL.md` `user-invocable: false` +
+- The skill is `plugins/sdd/skills/<name>-governance/` (`SKILL.md` `user-invocable: false` +
   `README.md`), a lean harness-loaded skill — **no `universal-plugin build` embedding** (out of scope).
 
 ### Single-owner (usage = ownership → the capability folder)

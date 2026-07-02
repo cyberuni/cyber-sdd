@@ -71,5 +71,5 @@ verdict and the leash check.
 
 > **Impl note:** the `sdd-impl-judge` **agent** that realizes this unit is built in the
 > cross-cutting `core-agents` step (it is a spawned agent that loads the same governances), after
-> the deliver governances exist in sdd-new. This unit owns the **behavior spec + suite**; the agent
+> the deliver governances exist in `plugins/sdd`. This unit owns the **behavior spec + suite**; the agent
 > file is core-agents'.

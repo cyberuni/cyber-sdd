@@ -75,7 +75,7 @@ A domain plugin teaches SDD to produce and judge a new artifact-type. It impleme
 
 A plugin covers a set of artifact-types by providing agents for these role keys (the bar is the
 single-owner reference node [`./plugin-contract/`](./plugin-contract/README.md), shipped as
-`plugins/sdd-new/skills/plugin-contract-governance/`; squad model:
+`plugins/sdd/skills/plugin-contract-governance/`; squad model:
 `../design/specialists-and-squads.md`). Any role may be `null` (degenerates to the SDD
 default) or omitted (falls back to the convention name `<plugin>-<role>`). A **producer**
 role may also name a model-tuned agent; naming any agent means the conductor **spawns** it.

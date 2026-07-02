@@ -14,7 +14,7 @@ the implementation *satisfy* it) at the impl gate — so it ships as two bars, `
 ## Subject
 
 - **Artifact** — the `builder-spec` and `builder-impl` bars, shipped as
-  `plugins/sdd-new/skills/builder-spec-governance/` and `builder-impl-governance/` (SDD-default
+  `plugins/sdd/skills/builder-spec-governance/` and `builder-impl-governance/` (SDD-default
   actor governances; a plugin may bind its own per artifact-type —
   `../../design/governance-resolution.md`).
 - **Contract surface** —

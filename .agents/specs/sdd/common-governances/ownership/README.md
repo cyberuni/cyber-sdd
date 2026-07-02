@@ -13,7 +13,7 @@ face-split).
 ## Subject
 
 - **Artifact** — the `ownership` governance, shipped as
-  `plugins/sdd-new/skills/ownership-governance/` (a fixed-universal SDD governance —
+  `plugins/sdd/skills/ownership-governance/` (a fixed-universal SDD governance —
   `../../design/governance-resolution.md`).
 - **Contract surface** — the write-ownership matrix (which role may write each field / artifact), the
   producer write boundary, positional ratification authority, and the frozen-`.feature` write

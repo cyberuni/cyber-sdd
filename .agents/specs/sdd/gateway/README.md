@@ -19,7 +19,7 @@ scheduler or a multi-CR fan-out).
 
 > **This is a single behavioral unit, not an overview** — the gateway is one skill (`sdd`). This
 > spec owns the **behavior + suite** ([`gateway.feature`](./gateway.feature)); the impl is the
-> thin-classifier `sdd` skill in `plugins/sdd-new/skills/sdd/`.
+> thin-classifier `sdd` skill in `plugins/sdd/skills/sdd/`.
 
 ## Use Cases
 

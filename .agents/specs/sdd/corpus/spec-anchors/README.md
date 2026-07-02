@@ -74,7 +74,7 @@ disk is unchanged). The complementary **read-side** guarantee — that an alread
 ## Delivery
 
 Implemented by the **`manage-spec-anchors`** skill —
-`plugins/sdd-new/skills/manage-spec-anchors/` — a non-user-invocable skill (loaded in-session by
+`plugins/sdd/skills/manage-spec-anchors/` — a non-user-invocable skill (loaded in-session by
 `manage`, `../../gateway/manage/`) carrying a self-contained `.mts` script (the repo's node-≥23.6 /
 no-deps convention). The script realizes `--list`, `--add` / `--remove` / `--edit`, `--induce <path>`,
 and `--preview <pattern>`; the config it reads/writes is the same `.agents/sdd/spec-anchors.toml` the

@@ -11,7 +11,7 @@ Oracle impl face), so it ships as a single bar, `oracle-spec`.
 
 ## Subject
 
-- **Artifact** — the `oracle-spec` bar, shipped as `plugins/sdd-new/skills/oracle-spec-governance/`
+- **Artifact** — the `oracle-spec` bar, shipped as `plugins/sdd/skills/oracle-spec-governance/`
   (an SDD-default actor governance; a plugin may bind its own per artifact-type —
   `../../design/governance-resolution.md`).
 - **Contract surface** — a `spec.md`'s scope and intent at the spec gate: one coherent outcome,

@@ -54,6 +54,7 @@ per unit**, colocated with the unit's spec in its own folder.
 | Unit | Type | Spec | Role |
 |---|---|---|---|
 | **plan-discovery** | behavioral | [`plan-discovery/`](./plan-discovery/README.md) | find the resumable missions by their plan briefs under `.agents/plans` — a present `*.plan.md` is an unretired mission; read frontmatter + the `## NEXT` lead only, tally its todos, emit a TOON list; the **gateway** runs it on entry to offer resume |
+| **resolve-durability** | behavioral | [`resolve-durability/`](./resolve-durability/README.md) | resolve one artifact's durability signal (durable/non-durable) — explicit override, then the optional `.agents/sdd/durability.toml` universal table, then the fixed agent-config kind default, then fail-closed to durable; the **conductor** runs it at intake, before a task becomes a CR |
 
 The CR **sources** adapter and the local CR **store** are deferred net-new units (see the open
 marker below); they are not yet behavioral specs.
@@ -151,14 +152,16 @@ convention differs by kind, and an explicit statement always wins:
    are in fact a maintained contract for its contributors can add
    `".agents/skills/" = "durable"` and override the agent-config default below.
 3. **Else the artifact's own kind default:**
-   - **Agent-config artifact-types** (`skill`, `subagent`, `command`, `agents-section`) — a
-     **fixed** location convention: user-global and project-private paths are non-durable;
-     project-public (shipped) paths are durable. This is a low-friction default, not a
-     project-specific guess — it already matches how `define-skill` / `define-agent` /
-     `create-skill` ask placement today.
-   - **Code artifact-types** (scripts, tools, POC code, …) have **no kind default** (no
-     universal `tools/`-vs-`src/` split holds across projects); absent a matching
-     `durability.toml` entry they fall through to step 4.
+   - **Multi-instance agent-config artifact-types** (`skill`, `subagent`, `command` — each has
+     many files across many possible locations) — a **fixed** location convention: user-global
+     and project-private paths are non-durable; project-public (shipped) paths are durable.
+     This is a low-friction default, not a project-specific guess — it already matches how
+     `define-skill` / `define-agent` / `create-skill` ask placement today.
+   - **`agents-section` and code artifact-types** (scripts, tools, POC code, …) have **no kind
+     default**: `agents-section` is a section of one AGENTS.md, not a location-varying
+     artifact-type, so no fixed convention applies to it; code has no universal
+     `tools/`-vs-`src/` split across projects. Absent a matching `durability.toml` entry, both
+     fall through to step 4.
 4. **No resolvable signal → durable (fail closed).** Absent an override, a matching
    `durability.toml` entry, and a kind default, durability is **not** guessed non-durable —
    it defaults durable and the task proceeds as a normal CR, mirroring "ambiguity defaults

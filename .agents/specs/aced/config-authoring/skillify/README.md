@@ -25,7 +25,8 @@ script-extraction candidates, validate the draft, and place and link it.
 **Non-goals** — scaffolding a skill **from scratch** (from a topic the session did not perform) is
 `define-skill`; diagnosing why an existing skill's golden-set evals fail is `improve`; authoring an
 agent definition or persona is `define-agent`; authoring a reference-only rule set is
-`define-governance`; scoring a config or adding eval cases is `run` / `add-scenario`. skillify is the
+`define-governance`; scoring a config or adding eval cases is `run` / `add-scenario`; contributing an
+already-authored installed skill back to its source repo upstream is `contribute-skill`. skillify is the
 session-extraction side of the boundary `define-skill` names from the other side — the two are two
 faces of the same routing decision and their Non-goals are mirrors.
 

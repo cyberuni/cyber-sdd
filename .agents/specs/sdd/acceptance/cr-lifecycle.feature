@@ -35,34 +35,34 @@ Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → h
     Then it re-enters only as a new change request
     And nothing changes the system through any side channel
 
-  # ── Escape hatch — durability, a second escape trigger ──
+  # ── Escape hatch — tracking, a second escape trigger ──
 
-  Scenario: a behavioral change confined to a non-durable surface escapes intake entirely
-    Given a change with real suite-relevant behavior whose artifact's durability signal resolves non-durable
+  Scenario: a behavioral change confined to an ignored surface escapes intake entirely
+    Given a change with real suite-relevant behavior whose artifact's tracking signal resolves ignored
     When SDD intakes it
     Then it never becomes a change request
     And it reaches no gate and leaves no combat-log record
 
-  Scenario: an explicit durability declaration in the request overrides its artifact's location default
-    Given a request that explicitly declares durability opposite to its artifact's location default
+  Scenario: an explicit tracking declaration in the request overrides its artifact's location default
+    Given a request that explicitly declares tracking opposite to its artifact's location default
     When SDD intakes it
     Then the explicit declaration, not the location default, decides whether it escapes
 
-  Scenario: durability with no resolvable signal defaults to a change request
-    Given a change whose artifact-type has neither an explicit durability declaration nor a project-declared convention
+  Scenario: tracking with no resolvable signal defaults to a change request
+    Given a change whose artifact-type has neither an explicit tracking declaration nor a project-declared convention
     When SDD intakes it
-    Then it is treated as durable and proceeds as a change request
+    Then it is treated as tracked and proceeds as a change request
 
-  Scenario: a project-declared durability override beats an artifact-type's fixed-location default
-    Given an artifact whose location default and project-declared durability.toml disagree
+  Scenario: a project-declared tracking override beats an artifact-type's fixed-location default
+    Given an artifact whose location default and project-declared .sddignore disagree
     When SDD intakes it
     Then the project's declaration decides, not the location default
 
-  Scenario: a mixed request carves its durable artifacts into a CR and escapes the non-durable ones
-    Given a single request touching multiple artifacts whose durability signals resolve differently — some durable, some non-durable
+  Scenario: a mixed request carves its tracked artifacts into a CR and escapes the ignored ones
+    Given a single request touching multiple artifacts whose tracking signals resolve differently — some tracked, some ignored
     When SDD intakes it
-    Then only the durable artifacts are carved into the change request
-    And the non-durable artifacts proceed outside the lifecycle, reaching no gate and leaving no combat-log record
+    Then only the tracked artifacts are carved into the change request
+    And the ignored artifacts proceed outside the lifecycle, reaching no gate and leaving no combat-log record
 
   # ── Explore, gates, and lifecycle independence ──
 

@@ -6,9 +6,9 @@ approval:
     verdict: approve
     by: agent
     why:
-      leash: within — auto-spec; additive new behavioral node config-authoring/skillify backfilled from existing impl; no existing frozen scenario narrowed (define-skill's frozen defers-to-skillify scenario already anticipates it); reversible feature branch, uncommitted
-      basis: cold aced-spec-validator graded 3-lens {oracle,builder,architect}; oracle+builder PASS, architect's one blocking finding (a ## Why rationale-prose section, banned in spec bodies and absent from sibling define-skill) removed; boundary confirmed consistent with the frozen define-skill mirror; skillify.feature frozen
-      cr: migrate-skillify-to-aced
+      leash: within — auto-spec; additive new behavioral node contribute/patch-skill backfilled from existing skill-authoring impl; no existing frozen scenario narrowed; new provisional contribute/ placement group finalized at handoff; reversible feature branch, uncommitted
+      basis: cold aced-spec-validator graded 3-lens {oracle,builder,architect} — all PASS, no blocking findings; declared fit strong (confusable trigger vs the skill-authoring family + repo-native carve-out); @trigger 4-yes/5-near-miss balanced, @rubric well-formed, Use-Cases<->scenario 1:1 (17 scenarios), Git Data API plumbing declared out of the graded suite; patch-skill.feature frozen
+      cr: migrate-patch-skill-to-aced
   impl:
     verdict: approve
     by: agent
@@ -88,6 +88,7 @@ never as a top-level folder.
 |---|---|
 | `benchmarking` | `config-authoring/manage-model-runners/` (behavior) |
 | `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/skillify/` (behavior) |
+| `contribution` | `contribute/patch-skill/` (behavior) |
 | `routing` | `manage/` (behavior) |
 
 <!-- END generated: by-concept -->

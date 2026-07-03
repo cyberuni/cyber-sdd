@@ -36,7 +36,7 @@ The gateway resolves intent to a skill via a two-level menu when the request is 
 |---|---|
 | Make any change to the project (add, revise, implement, land) | `start-mission` |
 | Manage the corpus — bootstrap, inspect, audit, housekeeping | `manage` |
-| No suite-relevant behavior, or a non-durable artifact | escape — no CR, no record |
+| No suite-relevant behavior, or an ignored artifact | escape — no CR, no record |
 | Product / structure / process retrospective, field corrections | the campaign / formation / doctrine / forge loop → a new CR (`start-mission`) |
 
 One project is one durable spec — routing classifies *what the user wants to do to the project*, never which spec in a fleet to pick.
@@ -45,7 +45,7 @@ One project is one durable spec — routing classifies *what the user wants to d
 
 A mission carries one CR from intent to a landed result, in **segments** (autonomous sittings, checkpointed via `pause-mission` / `resume-mission`) rather than one unbroken run:
 
-1. **Intake** — recover the request, locate the project spec via `discover-specs`, scaffold `.agents/plans/<cr-ref>-<what>.plan.md`, and run the escape check (no suite-relevant behavior, or non-durable via `resolve-durability`).
+1. **Intake** — recover the request, locate the project spec via `discover-specs`, scaffold `.agents/plans/<cr-ref>-<what>.plan.md`, and run the escape check (no suite-relevant behavior, or ignored via `resolve-tracking`).
 2. **Explore** — *build to learn.* Resolve each touched file's production chain (`resolve-governances`), place and classify each node, then loop: grill the user live, write the draft `spec.md` + `.feature`, spawn the cold spec-judge, spike the impl-producer builder to steer the grill. Ends at the **spec gate**.
 3. **Deliver** — *build to keep.* Spawn the impl-producer builder against the now-**frozen** suite (the read-set is scoped to the frozen `.feature`, the optional `.solution.md`, and the implementation files — not the prose spec). The **impl gate** spawns the cold impl-judge to verify every frozen scenario.
 4. **Handoff** — a Warden placement pass relocates any provisionally-placed node to its blessed home (a pure rename, freeze-preserving), then lands per the project's delivery shape (branch/PR, decomposed by unit of work), with follow-ups filed as new CRs.

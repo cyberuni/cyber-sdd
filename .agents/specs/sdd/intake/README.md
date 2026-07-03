@@ -54,7 +54,8 @@ per unit**, colocated with the unit's spec in its own folder.
 | Unit | Type | Spec | Role |
 |---|---|---|---|
 | **plan-discovery** | behavioral | [`plan-discovery/`](./plan-discovery/README.md) | find the resumable missions by their plan briefs under `.agents/plans` — a present `*.plan.md` is an unretired mission; read frontmatter + the `## NEXT` lead only, tally its todos, emit a TOON list; the **gateway** runs it on entry to offer resume |
-| **resolve-durability** | behavioral | [`resolve-durability/`](./resolve-durability/README.md) | resolve one artifact's durability signal (durable/non-durable) — explicit override, then the optional `.agents/sdd/durability.toml` universal table, then the fixed agent-config kind default, then fail-closed to durable; the **conductor** runs it at intake, before a task becomes a CR |
+| **resolve-tracking** | behavioral | [`resolve-tracking/`](./resolve-tracking/README.md) | resolve one artifact's tracking signal (tracked/ignored) — explicit override, then the optional `.agents/sdd/.sddignore` gitignore-syntax file, then the fixed agent-config kind default, then fail-closed to tracked; the **conductor** runs it at intake, before a task becomes a CR |
+| **manage-ignore** | behavioral | [`manage-ignore/`](./manage-ignore/README.md) | curate `.agents/sdd/.sddignore` — list rules, CRUD one rule, induce a pattern from a sample path, preview which paths it ignores/tracks before saving; loaded in-session by the **manage** gateway, writes only the ignore file |
 
 The CR **sources** adapter and the local CR **store** are deferred net-new units (see the open
 marker below); they are not yet behavioral specs.
@@ -130,49 +131,49 @@ related to** a task — then that behavioral part is carved out as a CR and the 
 escapes. There is no separate recognition machine at the door: the gateway is only the door
 (`../gateway/`); the determination is the grill.
 
-**Durability is a second, independent escape trigger.** Behavior alone is not the only
-question — SDD is built for **durable** work (a public surface, or part of the solution of
-one), and forcing spec+suite ceremony onto **non-durable** work (a private scaffold, a POC, an
+**Tracking is a second, independent escape trigger.** Behavior alone is not the only
+question — SDD is built to **track** work (a public surface, or part of the solution of
+one), and forcing spec+suite ceremony onto **ignored** work (a private scaffold, a POC, an
 ad hoc internal tool/script) is the same empty-ceremony problem the escape hatch already
-exists to avoid. A task with real suite-relevant behavior still escapes when its **durability
-signal** resolves non-durable. Durability resolves the way `artifact-type` does — per artifact,
-convention first (`../design/artifact-type.md`) — but unlike artifact-type's ambiguity path
-(which **asks** the user, confirm-never-guess), an unresolved durability signal never asks:
-it **fails closed to durable** (step 4 below) and the work proceeds as a normal CR. The
-convention differs by kind, and an explicit statement always wins:
+exists to avoid. A task with real suite-relevant behavior still escapes when its **tracking
+signal** resolves ignored. Like git's tracked-vs-ignored split, an ignored artifact still gets
+built — SDD just does not govern its behavior. Tracking resolves the way `artifact-type` does —
+per artifact, convention first (`../design/artifact-type.md`) — but unlike artifact-type's
+ambiguity path (which **asks** the user, confirm-never-guess), an unresolved tracking signal
+never asks: it **fails closed to tracked** (step 4 below) and the work proceeds as a normal CR.
+The convention differs by kind, and an explicit statement always wins:
 
-1. **Explicit override in the request wins first.** If the requester states durability
+1. **Explicit override in the request wins first.** If the requester states tracking
    directly ("this is a throwaway POC", "this must be public") that decides it; no further
    resolution runs.
-2. **Else a project-declared `.agents/sdd/durability.toml` entry, if the artifact's path
-   matches.** An optional, mutable TOML map, shape `"<path-or-glob>" = "durable" |
-   "non-durable"`, the same optional / last-write-wins lookup-table convention as the
-   artifact-type tiebreaker map. This is the **universal override valve** — usable for
-   *any* artifact-type's durability, not code-only: a project whose project-private skills
-   are in fact a maintained contract for its contributors can add
-   `".agents/skills/" = "durable"` and override the agent-config default below.
+2. **Else a project-declared `.agents/sdd/.sddignore` rule, if the artifact's path
+   matches.** An optional, curated **gitignore-syntax** file: a matching pattern marks the path
+   **ignored**, a `!pattern` marks it **tracked**, and the **last matching rule wins**. This is
+   the **universal override valve** — usable for *any* artifact-type, not code-only: a project
+   whose project-private skills are in fact a maintained contract for its contributors can add
+   `!.agents/skills/**` and re-track them over the agent-config default below.
 3. **Else the artifact's own kind default:**
    - **Multi-instance agent-config artifact-types** (`skill`, `subagent`, `command` — each has
      many files across many possible locations) — a **fixed** location convention: user-global
-     and project-private paths are non-durable; project-public (shipped) paths are durable.
+     and project-private paths are ignored; project-public (shipped) paths are tracked.
      This is a low-friction default, not a project-specific guess — it already matches how
      `define-skill` / `define-agent` / `create-skill` ask placement today.
    - **`agents-section` and code artifact-types** (scripts, tools, POC code, …) have **no kind
      default**: `agents-section` is a section of one AGENTS.md, not a location-varying
      artifact-type, so no fixed convention applies to it; code has no universal
-     `tools/`-vs-`src/` split across projects. Absent a matching `durability.toml` entry, both
+     `tools/`-vs-`src/` split across projects. Absent a matching `.sddignore` rule, both
      fall through to step 4.
-4. **No resolvable signal → durable (fail closed).** Absent an override, a matching
-   `durability.toml` entry, and a kind default, durability is **not** guessed non-durable —
-   it defaults durable and the task proceeds as a normal CR, mirroring "ambiguity defaults
-   to a CR" below. A silent false-negative (something durable escaping unrecorded) is the
-   one failure mode this hatch must never produce; a false positive (something non-durable
+4. **No resolvable signal → tracked (fail closed).** Absent an override, a matching
+   `.sddignore` rule, and a kind default, tracking is **not** guessed ignored —
+   it defaults tracked and the task proceeds as a normal CR, mirroring "ambiguity defaults
+   to a CR" below. A silent false-negative (something tracked escaping unrecorded) is the
+   one failure mode this hatch must never produce; a false positive (something ignorable
    going through full SDD) only costs one CR's ceremony.
 
-A non-durable resolution **escapes outright** — no CR, no draft, no gate, no combat-log
+An ignored resolution **escapes outright** — no CR, no draft, no gate, no combat-log
 record — the same as a task with no suite-relevant behavior. This is deliberately **not** the
-trivial-CR self-clear below: durability escapes by *surface*, regardless of risk; a risky
-change confined to a non-durable surface still escapes, because the question durability
+trivial-CR self-clear below: tracking escapes by *surface*, regardless of risk; a risky
+change confined to an ignored surface still escapes, because the question tracking
 answers is "does this ever need to stay in sync as a contract," not "how risky is this diff."
 
 **Escaped work leaves no SDD record.** A non-CR task is not SDD's to track; a change that
@@ -180,7 +181,7 @@ touches `spec.md` prose but not the suite — a typo, a reflowed sentence — is
 recorded by **git history**, which needs no manual journal. So escape writes **no draft, no
 gate line, no combat-log entry** — it is *stated* in the moment, then done by ordinary means.
 
-**Escape is not the trivial-CR self-clear.** A genuinely behavioral, **durable-surface**
+**Escape is not the trivial-CR self-clear.** A genuinely behavioral, **tracked-surface**
 change that merely reads low-risk is a **CR that self-clears** the gates (with full
 provenance) — *not* an escape.
 The litmus is whether the change can affect observable behavior or break the suite:
@@ -190,11 +191,11 @@ The litmus is whether the change can affect observable behavior or break the sui
 | Fix a typo in `spec.md` prose | **Yes** — no record | no behavior; git is the record |
 | A task unrelated to the project's behavior | **Yes** — no record | not a CR; SDD never owned it |
 | **Move a folder** | **No** — it is a CR | breaks import paths → re-verified at the impl gate |
-| A small but real behavior change **on a durable surface** | **No** — it is a CR | self-clears the gates (low risk), keeps full provenance |
-| A private (user-global / project-private) skill or agent definition | **Yes** — no record | agent-config durability resolves fixed-location non-durable |
-| A public (shipped) skill or agent definition | **No** — it is a CR | agent-config durability resolves fixed-location durable |
-| A script/tool matching the project's declared non-durable location | **Yes** — no record | code durability resolves via the project's own config |
-| A private skill/agent whose path matches a `durability.toml` "durable" entry | **No** — it is a CR | project override beats the fixed agent-config default |
+| A small but real behavior change **on a tracked surface** | **No** — it is a CR | self-clears the gates (low risk), keeps full provenance |
+| A private (user-global / project-private) skill or agent definition | **Yes** — no record | agent-config tracking resolves fixed-location ignored |
+| A public (shipped) skill or agent definition | **No** — it is a CR | agent-config tracking resolves fixed-location tracked |
+| A script/tool matching the project's declared ignored location | **Yes** — no record | code tracking resolves via the project's own `.sddignore` |
+| A private skill/agent whose path matches a `!` re-track rule in `.sddignore` | **No** — it is a CR | project override beats the fixed agent-config default |
 | Any of the above, explicitly declared the opposite in the request | follows the declaration | explicit override wins over the location default |
 
 The corpus-reorganization cases the original escape hatch listed — split/merge, relocate a
@@ -209,7 +210,7 @@ escape.
 treat it as a CR and explore; the cost of a false positive is one cheap explore pass that
 finds nothing, never an untracked behavior change.
 
-<!-- open: Promotion path — when a durability-escaped artifact later moves to a durable
+<!-- open: Promotion path — when an ignored artifact later moves to a tracked
 surface (e.g. a project-private skill is published), nothing currently detects the missing
 spec/suite and files the backfill CR. The closest existing mechanism is `shot-before-aim`'s
 formation-owned detect-and-file-CR flow for prose-impl drift; whether that same path covers a
@@ -320,38 +321,38 @@ Scenario: ambiguous work defaults to a change request
   When SDD handles it
   Then it is treated as a change request and explored
 
-Scenario: a behavioral change confined to a non-durable surface escapes
-  Given a change with suite-relevant behavior whose artifact's durability signal resolves non-durable
+Scenario: a behavioral change confined to an ignored surface escapes
+  Given a change with suite-relevant behavior whose artifact's tracking signal resolves ignored
   When SDD handles it
   Then the change proceeds outside the SDD lifecycle
   And no change request, draft, or combat-log record is created for it
 
-Scenario: an explicit durability declaration overrides the location default
-  Given a request that explicitly declares its durability, contradicting its artifact's location default
-  When SDD resolves durability
+Scenario: an explicit tracking declaration overrides the location default
+  Given a request that explicitly declares its tracking, contradicting its artifact's location default
+  When SDD resolves tracking
   Then the explicit declaration decides whether the work escapes
   And the location convention is not consulted
 
-Scenario: a private skill or agent definition resolves non-durable by fixed location
+Scenario: a private skill or agent definition resolves ignored by fixed location
   Given a skill or agent definition targeting a user-global or project-private path
-  When SDD resolves its durability
-  Then it resolves non-durable by the fixed agent-config location convention
+  When SDD resolves its tracking
+  Then it resolves ignored by the fixed agent-config location convention
 
-Scenario: a project-declared location resolves a script or tool's durability
-  Given a script or tool at a path the project has declared non-durable
-  When SDD resolves its durability
-  Then it resolves non-durable by the project's own configured convention
+Scenario: a project-declared location resolves a script or tool's tracking
+  Given a script or tool at a path the project has declared ignored in .sddignore
+  When SDD resolves its tracking
+  Then it resolves ignored by the project's own configured convention
 
-Scenario: a project-declared durability.toml entry overrides the agent-config fixed-location default
-  Given a skill or agent definition at a path the project's durability.toml declares durable
-  When SDD resolves its durability
+Scenario: a .sddignore re-track rule overrides the agent-config fixed-location default
+  Given a skill or agent definition at a path the project's .sddignore re-tracks with a !pattern
+  When SDD resolves its tracking
   Then the project's declaration overrides the fixed agent-config location convention
   And the change proceeds as a change request
 
-Scenario: no resolvable durability signal defaults to durable
+Scenario: no resolvable tracking signal defaults to tracked
   Given a change whose artifact-type has neither an explicit declaration nor a project-declared convention
-  When SDD resolves its durability
-  Then it resolves durable
+  When SDD resolves its tracking
+  Then it resolves tracked
   And the change proceeds as a change request
 ```
 

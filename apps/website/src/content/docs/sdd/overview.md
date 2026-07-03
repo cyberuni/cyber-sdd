@@ -39,7 +39,7 @@ Not every request changes the project's specified behavior. The gateway's second
 
 ## The escape hatch
 
-Not every request becomes a change request (CR). A request with **no suite-relevant behavior**, or one confined entirely to a **non-durable** artifact (resolved per-touched-file by the `resolve-durability` engine — explicit statement, then an optional `.agents/sdd/durability.toml` override table, then a fixed location convention, then fail-closed to durable), **escapes the lifecycle**: no CR opens, no gate runs, no SDD record is written. A mixed request carves the durable parts into a CR and escapes the rest. Escaping doesn't mean stopping — if the artifact-type has a producer with a direct escaped-request entry point (e.g. `define-skill` for the `skill` artifact-type, shipped by the ACED plugin), that producer is invoked directly to do the work.
+Not every request becomes a change request (CR). A request with **no suite-relevant behavior**, or one confined entirely to an **ignored** artifact (resolved per-touched-file by the `resolve-tracking` engine — explicit statement, then an optional `.agents/sdd/.sddignore` override table, then a fixed location convention, then fail-closed to tracked), **escapes the lifecycle**: no CR opens, no gate runs, no SDD record is written. A mixed request carves the tracked parts into a CR and escapes the rest. Escaping doesn't mean stopping — if the artifact-type has a producer with a direct escaped-request entry point (e.g. `define-skill` for the `skill` artifact-type, shipped by the ACED plugin), that producer is invoked directly to do the work.
 
 ## The five plugin delegate roles
 

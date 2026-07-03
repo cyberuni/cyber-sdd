@@ -13,7 +13,7 @@ For an attended session the gateway **spawns nothing** — it loads the matched 
 
 ## Gateway intake
 
-Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activation. **Most** activating requests are CRs; classification decides which source carried it and which skill handles it. A task with **no suite-relevant behavior**, or one confined to a **non-durable** surface, is **not a CR** and escapes (below); recognition is the grill, so ambiguity routes *into* the lifecycle and is decided during explore.
+Treat `$sdd`, "use SDD", and "use Spec-Driven Development" as explicit activation. **Most** activating requests are CRs; classification decides which source carried it and which skill handles it. A task with **no suite-relevant behavior**, or one confined to an **ignored** surface, is **not a CR** and escapes (below); recognition is the grill, so ambiguity routes *into* the lifecycle and is decided during explore.
 
 ### Surface pending strategy
 
@@ -56,7 +56,7 @@ Classification routes a request to the **skill** that handles it; the routing ta
 |---|---|
 | Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
 | Manage the corpus — setup & discovery, inspect, audit, or housekeeping (non-mission) | **`manage`** — the manage dispatcher; loads the matching corpus engine in-session |
-| A task with no suite-relevant behavior, or confined to a non-durable surface (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
+| A task with no suite-relevant behavior, or confined to an ignored surface (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 
 One project is one spec — routing classifies *what a user wants to do to the project*, never *which spec in a fleet*. Almost every change is one entry — `start-mission` — which runs the mission loop; whether the CR adds a capability, revises behavior, or reconciles overlap is decided during its **explore** phase, not by a separate entry skill.
@@ -82,11 +82,11 @@ The **fresh spawn per mission is deliberate** — each automaton's context dies 
 
 ## Recognize the escape and the freeze
 
-- **Escape.** A task that is **not a CR** escapes: create no draft, invoke no gate, and **write no record** (a non-CR is not SDD's to track; a spec-prose-only change is already in git). Two independent triggers: **no suite-relevant behavior**, or a **non-durable** touched artifact. Escaping does not mean stopping — if the artifact-type has a producer with an escaped-request entry point (e.g. `define-skill` for `skill`), invoke it directly to do the actual work; only state "leaving the lifecycle" and stop when no such producer exists. For durability, run the `resolve-durability` skill (`intake/resolve-durability`'s concrete engine) per touched artifact:
+- **Escape.** A task that is **not a CR** escapes: create no draft, invoke no gate, and **write no record** (a non-CR is not SDD's to track; a spec-prose-only change is already in git). Two independent triggers: **no suite-relevant behavior**, or an **ignored** touched artifact. Escaping does not mean stopping — if the artifact-type has a producer with an escaped-request entry point (e.g. `define-skill` for `skill`), invoke it directly to do the actual work; only state "leaving the lifecycle" and stop when no such producer exists. For tracking, run the `resolve-tracking` skill (`intake/resolve-tracking`'s concrete engine) per touched artifact:
 
   ```bash
-  node "<resolve-durability skill>/scripts/resolve-durability.mts" --root . --path <repo-relative-path> [--artifact-type <type>] [--explicit durable|non-durable]
+  node "<resolve-tracking skill>/scripts/resolve-tracking.mts" --root . --path <repo-relative-path> [--artifact-type <type>] [--explicit tracked|ignored]
   ```
 
-  `--explicit` carries a durability statement the requester made directly in the prompt/CR, when present. Pass `--artifact-type` when convention already makes it obvious (`skill` under `skills/`, `subagent` under `agents/`, …) — a full `resolve-governances` classification is not needed just to gate the escape check. A `non-durable` result escapes the same as no-suite-relevant-behavior; a `durable` result (including the fail-closed default) proceeds toward CR classification. This is a **read**, the same category as counting strategy lines or scanning specs — the thin-classifier rule still holds. Recognition is the **grill + impact analysis**, not a gateway classifier — the grill may carve a CR out of the durable parts of a mixed request and escape the non-durable ones. Ambiguity defaults *into* the lifecycle and is decided during explore.
+  `--explicit` carries a tracking statement the requester made directly in the prompt/CR, when present. Pass `--artifact-type` when convention already makes it obvious (`skill` under `skills/`, `subagent` under `agents/`, …) — a full `resolve-governances` classification is not needed just to gate the escape check. An `ignored` result escapes the same as no-suite-relevant-behavior; a `tracked` result (including the fail-closed default) proceeds toward CR classification. This is a **read**, the same category as counting strategy lines or scanning specs — the thin-classifier rule still holds. Recognition is the **grill + impact analysis**, not a gateway classifier — the grill may carve a CR out of the tracked parts of a mixed request and escape the ignored ones. Ambiguity defaults *into* the lifecycle and is decided during explore.
 - **Freeze.** SDD freezes the `.feature` at approval. A request to change a frozen scenario is **not** edited in place; it loads **`start-mission`**, which grills the spec back open through the explore phase before scenarios may be revised.

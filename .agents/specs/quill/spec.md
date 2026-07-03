@@ -51,3 +51,17 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 
 The nesting rule: capabilities at the top; any layering or doc-section structure nests *inside* a capability,
 never as a top-level folder.
+
+<!-- BEGIN generated: by-concept (project-spec/concept-index) -->
+
+## By concept
+
+> Generated from `concept:` frontmatter by `project-spec/concept-index` — do not edit by hand.
+
+| Concept | Facets |
+|---|---|
+| `doc-eval` | `design/doc-eval-model.md` (rule) · `glossary/` (reference) |
+| `plugin-registry` | `registry/` (behavior) |
+| `production-chain` | `sdd-roles/doc-writer/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/spec-writer/` (behavior) |
+
+<!-- END generated: by-concept -->

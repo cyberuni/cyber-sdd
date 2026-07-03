@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [config-authoring]
 ---
 
 # define-agent — author an agent definition

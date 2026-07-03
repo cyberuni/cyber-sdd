@@ -11,7 +11,7 @@ Creates or improves a **workflow skill** — a process, tool-based, or standard 
 
 ## What it does
 
-1. Routes away requests that belong to a sibling skill: agents/personas → [`define-agent`](/aced/define-agent/), reference-only rule sets → [`define-governance`](/aced/define-governance/), extracting the current session → `skillify`, scoring/adding cases → [`run`](/aced/run/) / [`add-scenario`](/aced/add-scenario/), diagnosing failing evals → [`improve`](/aced/improve/).
+1. Routes away requests that belong to a sibling skill: agents/personas → [`define-agent`](/aced/define-agent/), reference-only rule sets → [`define-governance`](/aced/define-governance/), extracting the current session → [`skillify`](/aced/skillify/), scoring/adding cases → [`run`](/aced/run/) / [`add-scenario`](/aced/add-scenario/), diagnosing failing evals → [`improve`](/aced/improve/).
 2. Loads the `skill-design` governance for authoring rules.
 3. Settles scope, trigger condition, output contract, quality bar, and out-of-scope before writing — asks the user to resolve anything that can't be inferred.
 4. Chooses a pattern (process / tool-based / standard) and a placement (user-global / project-private / project-public), scaffolds the file, and creates a symlink per targeted runtime (Claude Code, Cursor, Codex).

@@ -6,16 +6,16 @@ approval:
     verdict: approve
     by: agent
     why:
-      leash: within — additive CR on feature branch mission/aced-manage-model-runners; two new behavioral units (manage gateway + manage-model-runners engine), no existing frozen scenario narrowed; reversible
-      basis: cold spec-judge graded both nodes 3-lens {oracle,builder,architect}; oracle+architect PASS, builder's one blocking gap (missing Fit declaration) fixed on both plus the two advisories (atomic four-option scenario, scoring near-miss); both .feature frozen
-      cr: manage-model-runners
+      leash: within — auto-spec; additive new behavioral node config-authoring/skillify backfilled from existing impl; no existing frozen scenario narrowed (define-skill's frozen defers-to-skillify scenario already anticipates it); reversible feature branch, uncommitted
+      basis: cold aced-spec-validator graded 3-lens {oracle,builder,architect}; oracle+builder PASS, architect's one blocking finding (a ## Why rationale-prose section, banned in spec bodies and absent from sibling define-skill) removed; boundary confirmed consistent with the frozen define-skill mirror; skillify.feature frozen
+      cr: migrate-skillify-to-aced
   impl:
     verdict: approve
     by: agent
     why:
-      leash: within — agent-config impl on a feature branch, reversible
-      basis: cold impl-judge (ADR-0016, oracle re-derived per frozen scenario) graded both skills — all 24 frozen scenarios PASS, no code gaps; eval suites 1:1 with scenarios; manage stays a thin dispatcher, manage-model-runners honors every invariant (one def/model, additive-only never auto-remove, confirm-before-remove, non-invocable); audit validate green on both skills
-      cr: manage-model-runners
+      leash: within — user green-lit full aced adoption + completion (deliver→impl→handoff), raising the run's auto-spec leash to completion; agent-config impl on a feature branch, uncommitted, reversible
+      basis: cold aced-impl-judge (ADR-0016, oracle re-derived per frozen scenario) — all 18 frozen scenarios PASS; first pass caught a real gap (scenarios 003/004 — skillify could not defer session-to-agent/session-to-governance requests), fixed on the SKILL.md (added a Defer-when table naming define-agent/define-governance/improve, target-artifact tell), re-grade cleared both (3→5) with trigger accuracy 9/9; eval suite 1:1 with the frozen scenarios (17 goldens + the @trigger outline as the trigger layer); audit validate green
+      cr: migrate-skillify-to-aced
 ---
 
 # ACED — Agent Config Evaluation & Development
@@ -77,3 +77,17 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 
 The nesting rule: capabilities at the top; any layering or doc-section structure nests *inside* a capability,
 never as a top-level folder.
+
+<!-- BEGIN generated: by-concept (project-spec/concept-index) -->
+
+## By concept
+
+> Generated from `concept:` frontmatter by `project-spec/concept-index` — do not edit by hand.
+
+| Concept | Facets |
+|---|---|
+| `benchmarking` | `config-authoring/manage-model-runners/` (behavior) |
+| `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/skillify/` (behavior) |
+| `routing` | `manage/` (behavior) |
+
+<!-- END generated: by-concept -->

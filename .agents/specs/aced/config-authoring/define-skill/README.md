@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [config-authoring]
 ---
 
 # define-skill — author a workflow skill

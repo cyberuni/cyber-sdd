@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [sdd-roles]
 ---
 
 # judge — the internal scorer

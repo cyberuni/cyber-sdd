@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [eval-run]
 ---
 
 # report — project-wide eval health

@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [eval-run]
 ---
 
 # compare — diff two config versions for regressions

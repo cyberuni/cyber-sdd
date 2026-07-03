@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [registry]
 ---
 
 # registry — register ACED as the agent-config SDD plugin

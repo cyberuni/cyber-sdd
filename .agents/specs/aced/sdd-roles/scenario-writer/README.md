@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [sdd-roles]
 ---
 
 # scenario-writer — the spec-producer role

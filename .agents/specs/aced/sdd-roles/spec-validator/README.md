@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [sdd-roles]
 ---
 
 # spec-validator — the spec-judge role

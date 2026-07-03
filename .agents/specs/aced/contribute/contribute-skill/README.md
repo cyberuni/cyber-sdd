@@ -3,7 +3,7 @@ spec-type: behavioral
 concept: [contribution]
 ---
 
-# patch-skill — contribute a locally-improved installed skill back to its source repo
+# contribute-skill — contribute a locally-improved installed skill back to its source repo
 
 Take a skill you installed from another repo and improved locally, and open a pull request that lands
 your improvement in that skill's **source** repository — resolve the source from the lockfiles, map
@@ -13,7 +13,7 @@ file in one commit, and open the PR.
 
 ## Use Cases
 
-**Fit:** strong — patch-skill makes a genuine activation decision inside a confusable family
+**Fit:** strong — contribute-skill makes a genuine activation decision inside a confusable family
 (contribute-upstream vs. `define-skill` scaffolding, `skillify` session-extraction, `improve` /
 `improve-skill` eval-diagnosis) and carries a hard **repo-native carve-out** (if this repo IS the
 skill's source, it must not fire), and its invoked behavior is non-deterministic judgment
@@ -30,14 +30,14 @@ push access, land all changed files in a single commit, open the PR, and report 
 **Non-goals** — scaffolding a **new** skill from scratch is `define-skill`; generalizing the
 **current session** into a skill is `skillify`; diagnosing why a skill's evals fail or improving its
 quality is `improve` / `improve-skill`; editing a **repo-native** skill whose source IS this repo, or
-a local skill with no intent to send it upstream, is ordinary editing — none of these are patch-skill.
+a local skill with no intent to send it upstream, is ordinary editing — none of these are contribute-skill.
 The Git Data API blob→tree→commit→ref plumbing is deterministic mechanics, not a graded behavior.
 
-Every scenario in [`patch-skill.feature`](./patch-skill.feature) maps to one of these behaviors:
+Every scenario in [`contribute-skill.feature`](./contribute-skill.feature) maps to one of these behaviors:
 
 | Behavior | What it covers |
 |---|---|
-| **trigger on a contribution request** | patch-skill fires on "PR this improved skill back upstream" and defers the repo-native carve-out, a from-scratch scaffold, a session generalization, an eval diagnosis, and a no-upstream local edit |
+| **trigger on a contribution request** | contribute-skill fires on "PR this improved skill back upstream" and defers the repo-native carve-out, a from-scratch scaffold, a session generalization, an eval diagnosis, and a no-upstream local edit |
 | **map consumer paths to the source skills tree** | a local file under `.agents/skills/<name>/` (or a global install) maps to `skills/<name>/…` in the source repo even when the consumer `skillPath` points at another layout |
 | **include every changed file** | every changed file under the skill folder is contributed, not only `SKILL.md` |
 | **exclude machine-local files** | `SKILL.local.md` is never included in the contribution |
@@ -52,7 +52,7 @@ Every scenario in [`patch-skill.feature`](./patch-skill.feature) maps to one of 
 
 ## Scenarios (colocated)
 
-The behavior suite is [`patch-skill.feature`](./patch-skill.feature) — the activation decision and its
+The behavior suite is [`contribute-skill.feature`](./contribute-skill.feature) — the activation decision and its
 sibling deferrals (including the repo-native carve-out), mapping consumer paths onto the source skills
 tree, including changed files while excluding machine-local ones, the diff-and-confirm gate, the
 no-change stop, the fork fallback, the single-commit contribution, the report, the write-scope guards,

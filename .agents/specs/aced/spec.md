@@ -13,9 +13,9 @@ approval:
     verdict: approve
     by: agent
     why:
-      leash: within — user green-lit full aced adoption + completion (deliver→impl→handoff), raising the run's auto-spec leash to completion; agent-config impl on a feature branch, uncommitted, reversible
-      basis: cold aced-impl-judge (ADR-0016, oracle re-derived per frozen scenario) — all 18 frozen scenarios PASS; first pass caught a real gap (scenarios 003/004 — skillify could not defer session-to-agent/session-to-governance requests), fixed on the SKILL.md (added a Defer-when table naming define-agent/define-governance/improve, target-artifact tell), re-grade cleared both (3→5) with trigger accuracy 9/9; eval suite 1:1 with the frozen scenarios (17 goldens + the @trigger outline as the trigger layer); audit validate green
-      cr: migrate-skillify-to-aced
+      leash: within — user green-lit deliver + completion (deliver→impl→handoff) and the rename to contribute-skill, raising the run's auto-spec leash to completion; agent-config impl on a feature branch, uncommitted, reversible
+      basis: cold aced-impl-judge (ADR-0016, oracle re-derived per frozen scenario) over the moved plugins/aced/skills/contribute-skill + artifacts/specs/contribute-skill eval suite — all 17 frozen scenarios PASS on the first pass (trigger accuracy 9/9 incl. the repo-native carve-out, @quality rubric 7/7); eval suite 16:1 with the non-outline frozen scenarios + the @trigger outline as the trigger layer; single-commit asserted as observable outcome only; audit validate green, pnpm verify green. Advisory follow-ups (non-blocking): cyberplace-CLI/lockfile coupling; add an explicit When-NOT-to-use deferral list
+      cr: migrate-patch-skill-to-aced
 ---
 
 # ACED — Agent Config Evaluation & Development
@@ -50,6 +50,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report` |
 | [`config-authoring/`](./config-authoring/README.md) | descriptive index | author agent config — `define-skill`, `define-agent`, `define-governance` |
 | [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `improve` |
+| [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` |
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
 | [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
@@ -63,6 +64,7 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 
 - **a new way to *run or report* on evals** → `eval-run/` (a new behavioral unit beside `run`/`compare`/`report`).
 - **a new agent-config artifact to *author*** → `config-authoring/`.
+- **a new way to *propagate* an authored config back to its source** (contribute upstream, not author or score) → `contribute/`.
 - **a new way to *grow or fix* the golden set** → `suite-authoring/`.
 - **a new SDD delegate role** → `sdd-roles/` (matched to the plugin-contract roles).
 - **plugin registration / discovery** → `registry/`.
@@ -88,7 +90,7 @@ never as a top-level folder.
 |---|---|
 | `benchmarking` | `config-authoring/manage-model-runners/` (behavior) |
 | `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/skillify/` (behavior) |
-| `contribution` | `contribute/patch-skill/` (behavior) |
+| `contribution` | `contribute/contribute-skill/` (behavior) |
 | `routing` | `manage/` (behavior) |
 
 <!-- END generated: by-concept -->

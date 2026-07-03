@@ -166,3 +166,5 @@ Follow-up CRs (not part of this ADR):
   the architect-lens leakage guard extends judge independence to cross-project coupling.
 - [ADR-0020](0020-sharded-ledger.md) — same "make the bad state impossible over auto-resolving it"
   driver applied to the ledger.
+
+**Concept doc:** [Spec Dependencies](/concepts/spec-dependencies/) — current-state reference.

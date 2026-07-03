@@ -32,6 +32,11 @@ Feature: define-agent — author an agent definition
     When ACED routes the request
     Then define-agent does not handle it and add does
 
+  Scenario: a request to fix a failing config defers to improve
+    Given the user asks to fix the agent definition because its eval cases are failing
+    When ACED routes the request
+    Then define-agent does not handle it and improve does
+
   # ---- Selecting the mode ----
 
   Scenario: the three modes are offered before scaffolding

@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [suite-authoring]
 ---
 
 # add-scenario — add a test case to the golden set

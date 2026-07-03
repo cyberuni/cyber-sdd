@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [suite-authoring]
 ---
 
 # improve — diagnose failures and propose fixes

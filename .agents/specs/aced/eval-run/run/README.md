@@ -1,5 +1,6 @@
 ---
 spec-type: behavioral
+concept: [eval-run]
 ---
 
 # run — score the current config against its frozen .feature suite

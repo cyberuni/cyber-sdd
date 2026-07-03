@@ -1,5 +1,6 @@
 ---
 spec-type: reference
+concept: [glossary]
 ---
 
 # glossary — ACED ubiquitous language

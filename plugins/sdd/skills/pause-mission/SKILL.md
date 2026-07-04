@@ -41,14 +41,23 @@ the plan stands on its own). Capture *enough to continue, nothing to relitigate.
    Lead with the action; put history and findings *below* it. A resumer needs *what to do* first
    and *what happened* second.
 
-5. **Reference, don't restate.** Point to commits (SHAs), files (paths), design rules, and issues
-   by reference — never paste their contents. The plan is an index to the work, not a copy of it.
+5. **Reference, don't restate.** Point to commits (SHAs), files (**repo-relative paths**), design
+   rules, and issues by reference — never paste their contents. The plan is an index to the work,
+   not a copy of it. A file the brief depends on must live **in the repo**: if the source is a
+   machine-local doc (a plan-mode plan under `~/.claude/plans/…`), bring it in as a sibling
+   `<cr-ref>.design.md` and reference that, never the external absolute path.
 
-6. **Keep it commit-message-grade.** The plan is tracked and committed: no secrets, keys, prompts,
-   or PII — describe the decision or its class, not literal payloads.
+6. **Keep it commit-message-grade — the safe-to-publish floor.** The plan is tracked and committed,
+   so it carries the same floor as the combat log (`combat-log-governance`): **never committed** —
+   secrets, keys, prompts, PII, **absolute paths, OS usernames/hostnames, `$HOME`/`$USER`**, or any
+   machine-local reference outside the repo. Describe the decision or its class, not literal payloads
+   or machine-local locations.
 
-7. **Commit the checkpoint.** Commit the plan update (`docs:`) so the pause is durable in git and
-   the working tree is clean. Leave no uncommitted work behind.
+7. **Commit the checkpoint.** Before committing, run the plan-brief leak guard over the brief —
+   `node "<sdd-skills>/check-plan-safety/scripts/check-plan-safety.mts" --path <brief> --check` (the
+   `check-plan-safety` engine). A hit **blocks the commit**: scrub the machine-local reference (bring
+   the content in-repo, reference it repo-relative) and re-run. Then commit the plan update (`docs:`)
+   so the pause is durable in git and the working tree is clean. Leave no uncommitted work behind.
 
 ## Reconcile-forward checkpoint
 

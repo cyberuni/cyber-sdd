@@ -31,7 +31,7 @@ model-pinned executor at its user-global canonical path plus runtime symlinks.
 skill (`define-skill`); **auto-removing** runners a target list omits (a model this engine did not
 just create is never culled — the user may run multiple harnesses); running the skills-under-test or
 capturing token/cost (a future `eval-run` capability); varying **effort** as a def axis (one def per
-model; effort is stamped only on request). It is **not user-invokable** — it is reached via `manage`.
+model; effort is stamped only on request). It is **not user-invocable** — it is reached via `manage`.
 
 Every scenario in [`manage-model-runners.feature`](./manage-model-runners.feature) maps to one of
 these behaviors:

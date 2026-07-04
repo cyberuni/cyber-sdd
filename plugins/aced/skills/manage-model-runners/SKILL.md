@@ -11,7 +11,7 @@ metadata:
 Maintain a family of **runner agent definitions — one per model**. Each runner is a **neutral
 executor** pinned to a single model so a skill-under-test can be run as a real subagent under that
 model, giving ACED a real (not judge-simulated) signal for effectiveness and token/cost. Loaded
-in-session by the `manage` gateway; **not user-invokable**.
+in-session by the `manage` gateway; **not user-invocable**.
 
 Three operations, all **additive**: **add** the missing runners, **list** the family, **remove** only
 the runners the user explicitly names. This engine **never auto-removes** — a model missing from a

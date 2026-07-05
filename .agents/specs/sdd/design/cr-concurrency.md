@@ -13,7 +13,8 @@ So SDD does not build a CR-concurrency manager — git is it.
 - **Parallelism is separate trees.**
   Two CRs run at once by running two mission instances on two trees (e.g. git worktrees).
   SDD stays **tree-agnostic** — it does not create, track, or clean working trees; whoever invokes it supplies the tree.
-  (Owning worktree lifecycle is a later `universal-plugin` feature, not an SDD concept.)
+  (Owning worktree lifecycle — creating and tearing down ships — is the `cyberfleet` CLI's concern
+  (`spawn` / `decommission`), not an SDD concept.)
   SDD is branch-aware only at **handoff**, where it lands the result in the project-declared delivery shape (commits to `main` / branch → PR).
 - **Which tree gets which CR is settled at the source, not in git.**
   Git locks *files*; it says nothing about two trees grabbing the same *CR*.

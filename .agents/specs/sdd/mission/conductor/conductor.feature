@@ -169,6 +169,50 @@ Feature: The conductor — running one mission segment
     Then the ship-quality impl-judge does not run
     And the phase ends at the spec gate
 
+  # ---- Explore — plan-mode preview (a third drive mode) ----
+
+  Scenario: plan mode drives a preview instead of the grill loop
+    Given the harness signals plan mode
+    When the conductor enters explore
+    Then it runs the plan-mode preview rather than the live grill loop
+    And the phase ends at ExitPlanMode rather than the spec gate
+
+  Scenario: the preview renders the drafted spec and scenarios into the plan file
+    Given the conductor runs the plan-mode preview
+    When it produces the draft
+    Then it renders the drafted spec and scenario list into the plan file
+    And it writes no spec.md or .feature to the repo
+
+  Scenario: the preview keeps the cold spec-judge over the draft
+    Given the conductor runs the plan-mode preview
+    When it evaluates the draft
+    Then it spawns the cold spec-judge over the in-memory draft
+    And it surfaces the judge's open markers in the preview
+
+  Scenario: the preview does not spike the impl-producer
+    Given the conductor runs the plan-mode preview
+    When it produces the draft
+    Then it does not spike the impl-producer
+    And the preview notes that the draft is un-spiked
+
+  Scenario: the preview writes no gate state
+    Given the conductor runs the plan-mode preview
+    When the preview ends
+    Then it freezes no .feature
+    And it writes no status or approval
+
+  Scenario: plan mode is detected in-body, not from the trigger description
+    Given the start-mission skill
+    When the plan-mode preview is selected
+    Then plan mode is detected from the harness signal in the skill body
+    And the trigger description is not keyed to plan mode
+
+  Scenario: an approved preview is adopted as the settled draft
+    Given an approved plan-mode preview brought into the repo as a design doc
+    When the next non-plan-mode explore runs
+    Then it adopts the preview as the settled draft without re-grilling seed intent
+    And it resolves any failing spec-judge verdict or open markers before adopting
+
   # ---- Segment — one autonomous sitting ----
 
   Scenario: position is derived from artifacts, not a stored cursor

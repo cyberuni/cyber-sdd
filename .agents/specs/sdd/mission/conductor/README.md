@@ -170,7 +170,9 @@ Scenarios` preview) rather than to their repo paths. It **keeps the cold spec-ju
 in-memory draft (surfacing open markers) but **does not spike the impl-producer**, and it ends at
 **ExitPlanMode**, not the spec gate — no freeze, no `status`. Plan mode is detected **in-body** from
 the harness signal, never from the `start-mission` trigger `description`, so a mission fires on
-change-intent alone and the branch never re-fires per turn. On approval the **next non-plan-mode
+change-intent alone and the branch never re-fires per turn — the non-re-fire guarantee is enforced
+by the harness's skill-dispatch layer, out of this suite's scope to assert directly (the `.feature`
+tests the detection source as the closest in-domain proxy). On approval the **next non-plan-mode
 explore adopts the preview as the settled draft** (via the intake `<cr-ref>.design.md` seam) —
 writing the spec + `.feature`, validating with a build-to-learn spike, and reaching the spec gate
 without re-grilling; a preview carrying a failing spec-judge verdict or unresolved open markers is

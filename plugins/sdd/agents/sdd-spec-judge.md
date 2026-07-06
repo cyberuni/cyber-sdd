@@ -25,8 +25,11 @@ the **resolved-actor bar candidates bucketed by tier** (`project` / `project-roo
 for `<plugin>:<bar>` / `sdd:<…>`) and **compose them yourself** by precedence
 `sdd-default < plugin < project-root < project` — union the non-conflicting criteria; **on conflict
 the more-specific (higher in that chain) wins**; a governance's own `compose: replace` (read from the
-loaded file) supersedes lower-precedence candidates for its bar. The fixed-universal below are the
-SDD-default floor — they stay listed here (the matcher does not emit them):
+loaded file) supersedes lower-precedence candidates for its bar. **Load lazily** (the conductor's
+digest discipline): take the candidate *names* as a compact digest up front and pull a bar's *body*
+only when you grade against that bar — a judgment that turns on one lens never reads all of them. The
+fixed-universal below are the SDD-default floor — they stay listed here (the matcher does not emit
+them):
 
 - **Fixed-universal:** `sdd:spec-format-governance` (the required `## Use Cases` + spec.md
   enrichment), `sdd:suite-format-governance` (Gherkin form, the `@rubric` exception, scenario

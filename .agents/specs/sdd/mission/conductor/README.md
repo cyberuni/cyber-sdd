@@ -35,7 +35,7 @@ The conductor's behavior groups into nine concerns, each a section below; every 
 | **classification** | decide each file's artifact-type — convention-first, the optional `.agents/sdd/` tiebreaker on ambiguity (confirm-not-guess, write-back) |
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
-| **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill |
+| **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
 | **in-flight floor** | detail-adjustment served in-session vs the three mission hard floors (Clearance / Compatibility / Conflict) that mandate a human stop |
@@ -162,9 +162,26 @@ spec-producer, and is **judged before** it can enter the contract — never abso
 ship-quality impl-judge does not run. The phase ends at the **spec gate** (Draft → Approved).
 Explore output is **not pure waste** — a good spike cleans forward into deliver at the freeze.
 
+**Plan-mode preview (a third drive mode).** When the harness signals **plan mode** (only the plan
+file is writable), the conductor runs explore's **reasoning** but writes no repo files: it
+classifies the node, collects seed intent, and drafts the `spec.md` prose and the `.feature`
+scenario list — then **renders them into the plan file** (a `## Proposed Spec` / `## Proposed
+Scenarios` preview) rather than to their repo paths. It **keeps the cold spec-judge** over the
+in-memory draft (surfacing open markers) but **does not spike the impl-producer**, and it ends at
+**ExitPlanMode**, not the spec gate — no freeze, no `status`. Plan mode is detected **in-body** from
+the harness signal, never from the `start-mission` trigger `description`, so a mission fires on
+change-intent alone and the branch never re-fires per turn — the non-re-fire guarantee is enforced
+by the harness's skill-dispatch layer, out of this suite's scope to assert directly (the `.feature`
+tests the detection source as the closest in-domain proxy). On approval the **next non-plan-mode
+explore adopts the preview as the settled draft** (via the intake `<cr-ref>.design.md` seam) —
+writing the spec + `.feature`, validating with a build-to-learn spike, and reaching the spec gate
+without re-grilling; a preview carrying a failing spec-judge verdict or unresolved open markers is
+resolved first, never blind-adopted.
+
 `../../authoring/` owns the grilling workflow, the spec gate, and freeze; the conductor *runs* that
-capability **in-session** (the default, human-interactive through the `../../gateway/`) or
-autonomously in the headless fallback. One capability, two drive modes.
+capability **in-session** (the default, human-interactive through the `../../gateway/`),
+autonomously in the headless fallback, or as a **plan-mode preview** that reasons without writing.
+One capability, three drive modes.
 
 ## Segment — one autonomous sitting
 

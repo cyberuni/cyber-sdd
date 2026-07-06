@@ -50,3 +50,27 @@ Notes: Claude Code's separate **fork** (Agent tool with `subagent_type` omitted)
 - **Don't design for depth > 2.** Deep chains (a spawned automaton's plugin delegate spawning its own sub-delegates) only port to Claude Code; treat anything past two as Claude-Code-only.
 
 Survey current as of mid-2026; depth/version figures come from changelogs and credible writeups. Copilot CLI nesting is genuinely **unknown**, not confirmed-flat.
+
+## Naming the escape hatch: the `subagent | channel` dispatch seam (ADR-0023)
+
+The two paths above map onto a general-purpose dispatch capability's two named strategies (ADR-0023):
+the portable **depth-1 default** (main session spawns a cold judge/builder) *is* that capability's
+**subagent** strategy — cold, one-shot, no live conversation. The **"spawn a fresh top-level session
+from outside"** alternative above *is* that capability's **channel** strategy — a live peer session in
+a multiplexer pane, escaping the calling harness's nesting depth entirely rather than nesting deeper.
+A role that would need a live back-and-forth but has no pane to open resolves to that capability's
+third strategy, **run-inline** — the caller does the work itself in-session, which is exactly what
+SDD's conductor already does today.
+
+This is referenced **by intent only** — "a harness-agnostic dispatch capability with a routing brain
+that resolves an intent to `subagent`, `channel`, or `run-inline`" — never by a pinned mechanism, per
+the depend-on-intent-not-slug discipline (ADR-0021). The one load-bearing example invocation, shown
+here only to make the shape concrete (the exact pin lands in a later CR, not here):
+
+```bash
+npx cyberlegion@<version> dispatch channel --agent <role> --brief-file <brief> --wait
+```
+
+Naming this seam does not change SDD's spawning behavior described above — the depth-1 default and
+the headless depth-2 fallback still work exactly as documented; this section only gives the informal
+tmux escape hatch a real name and a real mechanism to grow into.

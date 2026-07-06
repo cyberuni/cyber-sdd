@@ -29,7 +29,9 @@ the **resolved-actor bar candidates bucketed by tier** (`project` / `project-roo
 for `<plugin>:<bar>` / `sdd:<…>`) and **compose them yourself** by precedence
 `sdd-default < plugin < project-root < project` — union the non-conflicting criteria; **on conflict
 the more-specific wins**; a governance's own `compose: replace` (read from the loaded file)
-supersedes lower-precedence candidates for its bar. The **impl-gate lens set is {builder, architect}**
+supersedes lower-precedence candidates for its bar. **Load lazily** (the conductor's digest
+discipline): take the candidate *names* as a compact digest up front and pull a bar's *body* only
+when you grade against that bar. The **impl-gate lens set is {builder, architect}**
 — there is no oracle at the impl gate (contrast the spec gate's three):
 
 - **Resolved-actor (the two backward faces):** the matched `builder-impl` and `architect-impl` bar

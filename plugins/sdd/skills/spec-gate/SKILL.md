@@ -151,7 +151,7 @@ nothing, advances no status, renders no verdict**. Fixed sections:
 | **CR** | the `cr` id + its what/why |
 | **What** | the `## What` line of each touched capability's README |
 | **Status** | the spec's `status` |
-| **Scenarios** | the **added / modified / removed** `Scenario:` names across the touched `.feature` files, from a **mechanical diff** against the committed baseline — `npx gherkin-cli@0.0.1 diff --base <baseref> <file> --format json` (its `addOnly` confirms a purely additive change; a `modified`/`removed` scenario is flagged for **semantic** narrowing review — narrowing-vs-widening within a modified scenario stays a judgment) |
+| **Scenarios** | the **added / modified / removed** `Scenario:` names across the touched `.feature` files, from a **mechanical diff** against the committed baseline — `npx gherkin-cli@0.0.1 diff --base <baseref> <file> --format json` (its `addOnly` confirms a purely additive change; a `modified`/`removed` scenario is flagged for **semantic** narrowing review — narrowing-vs-widening within a modified scenario stays a judgment). A **brand-new** suite with no committed baseline is listed with `npx gherkin-cli@0.0.1 parse <file>` (compact names / tags / counts) rather than re-tokenizing the raw file by hand |
 | **Key decisions** | the `### ` headings under `## Design decisions` in the touched prose |
 | **Open items** | every `<!-- open: ... -->` marker in the touched files |
 

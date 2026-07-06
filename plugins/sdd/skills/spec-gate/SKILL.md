@@ -126,7 +126,9 @@ self-clears.
 
 **Freeze is per `.feature` file.** Each touched file hard-freezes via its `@frozen` tag; untouched
 files keep their state. An **additive** scenario folds into a frozen file without unfreezing it
-(self-clears); a **narrowing/rewriting** edit unfreezes its file and fires **Clearance**. `spec.md`
+(self-clears) — the `addOnly` result of the mechanical diff above (`gherkin-cli diff`) confirms a
+change is purely additive with no judge round; a **narrowing/rewriting** edit (a `modified`/`removed`
+scenario) unfreezes its file and fires **Clearance** once the narrowing is confirmed semantically. `spec.md`
 / the node READMEs are **kept aligned, never frozen** — editable, but may not contradict a frozen
 scenario (enforced by the alignment check and the judge, not a flat freeze). Vocabulary is
 **freeze/unfreeze**; "lock" is the concurrency layer.
@@ -149,7 +151,7 @@ nothing, advances no status, renders no verdict**. Fixed sections:
 | **CR** | the `cr` id + its what/why |
 | **What** | the `## What` line of each touched capability's README |
 | **Status** | the spec's `status` |
-| **Scenarios** | added / modified / **narrowed** `Scenario:` names across the touched `.feature` files; a narrowing is flagged |
+| **Scenarios** | the **added / modified / removed** `Scenario:` names across the touched `.feature` files, from a **mechanical diff** against the committed baseline — `npx gherkin-cli@0.0.1 diff --base <baseref> <file> --format json` (its `addOnly` confirms a purely additive change; a `modified`/`removed` scenario is flagged for **semantic** narrowing review — narrowing-vs-widening within a modified scenario stays a judgment) |
 | **Key decisions** | the `### ` headings under `## Design decisions` in the touched prose |
 | **Open items** | every `<!-- open: ... -->` marker in the touched files |
 

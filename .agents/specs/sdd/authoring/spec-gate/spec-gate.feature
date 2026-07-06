@@ -108,6 +108,13 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the digest is produced
     Then it writes no frontmatter and renders no verdict
 
+  Scenario: scenario changes are classified mechanically from the committed baseline
+    Given a touched .feature file changed against its committed baseline
+    When the gate classifies its scenario changes for the digest
+    Then the added, modified, and removed scenario names come from a mechanical diff of the file
+    And a purely additive change is confirmed as additive without spawning a judge round
+    And a modified or removed scenario is flagged for semantic narrowing review
+
   # ---- Provenance and alignment ----
 
   Scenario: a malformed produced-by entry fails the gate closed

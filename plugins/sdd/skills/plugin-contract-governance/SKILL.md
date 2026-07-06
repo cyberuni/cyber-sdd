@@ -33,6 +33,10 @@ impl-producer is mechanical and spawned via a generic builder; an SDD-default ju
 the conductor spawns, because a grader must not share the author's context. A plugin delegate — or a
 model-tuned producer agent named for the slot — is always spawned.
 
+Any of the spawns above may instead be realized through a general-purpose dispatch capability's
+`subagent | channel` seam (ADR-0023, referenced by intent only) — an alternative realization of the
+same spawn, not a change to which roles spawn or how they are graded.
+
 > The legacy role key was `plan-producer` (writing `plan.md` + `tasks.md`); it is renamed
 > **`solution-producer`** writing `<unit>.solution.md` (`sdd:combat-log-governance`). A live registry
 > still carrying `plan-producer` is migrated on encounter.

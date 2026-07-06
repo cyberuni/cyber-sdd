@@ -77,3 +77,8 @@ that lets a subagent spawn another. On a flat harness
 the spawned automaton **cannot** spawn a cold judge — either keep the conductor in a headless main
 session, or fold judging into your context, which **forfeits grader independence** and must be recorded
 as such. Do not design for depth > 2.
+
+A cold-judge or builder dispatch **may** instead be realized through a general-purpose dispatch
+capability's `subagent | channel` seam (ADR-0023, referenced by intent — never a pinned mechanism);
+that is an alternative realization of the same spawns above, not a change to the default depth-1/
+depth-2 behavior described here.

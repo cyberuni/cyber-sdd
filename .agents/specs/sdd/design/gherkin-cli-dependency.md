@@ -19,8 +19,10 @@ Bundling a real Gherkin parser (`@cucumber/gherkin`) into a loose SDD `.mts` eng
 (the `.mts` engines carry no deps / no build). A **published, npx-pinned CLI** is the conformant
 alternative: an `npx <pkg>@<version>` reference is an **external** ref the agentskills standard
 blesses (the strict cyberplace S4 self-containment check only flags repo-local paths), so it needs
-no plugin-root shared lib and no `internal:true` hack. `build-resolve-pins` resolves and maintains
-the `@<version>` pin at plugin build.
+no plugin-root shared lib and no `internal:true` hack. `universal-plugin plugin bundle` resolves and
+maintains the `@<version>` pin at release time (`changeset version`) — relocated from `plugin build`
+by CR `build-bundle-split`, which retired the build-time, registry-based pin resolution
+`build-resolve-pins` had added.
 
 ## Boundary
 

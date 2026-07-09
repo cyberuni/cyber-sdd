@@ -15,17 +15,22 @@ tools, now that one project is **one spec**. It carries a self-contained `.mts` 
 node-≥23.6 / no-deps convention). It is the **node-shape** sibling of `align-spec` (prose↔suite
 alignment) and `concept-index` (the by-concept view).
 
-## The two deterministic checks (and one judgment arm)
+## The two deterministic checks (and two judgment arms)
 
 - **untagged-node** (blocking) — a spec-typed node README carrying no `concept:` tag, so it never
   appears in the by-concept index (`concept-index`). `--check` fails on it.
 - **oversized-node** (advisory) — a node whose sibling `.feature` scenario count exceeds the
-  granularity threshold; a sub-node split candidate. Surfaced in the audit but **never** fails
-  `--check`.
-- **intra-spec contradiction** is a **Warden judgment** (the spec's `@rubric` scenario) — the engine
-  ships no code for it. **placement-drift** is deliberately *not* a deterministic check: a concept
-  legitimately scatters across folders (that scatter is what `concept-index` re-unifies), so a
-  concept-vs-folder scan would false-positive on correctly-placed nodes.
+  granularity threshold. Carries a deterministic **shape profile** — plain scenario count, tagged
+  (`@rubric`-preceded) scenario count, and section-cluster count (comment headers of either
+  `# ── … ──` or `# ---- … ----` style) as a soft breadth hint — and prescribes **no route**.
+  Surfaced in the audit but **never** fails `--check`.
+- **breadth-vs-depth routing** and **intra-spec contradiction** are **Warden judgments** (the spec's
+  `@rubric` scenarios) — the engine ships no code for them. The Warden reads the shape profile and
+  routes: breadth (many clusters/plain scenarios) → propose a node split; depth with a deterministic
+  suite → down-level via the verify-scenarios bridge; depth with agent-behavior scenarios → redesign.
+  **placement-drift** is deliberately *not* a deterministic check: a concept legitimately scatters
+  across folders (that scatter is what `concept-index` re-unifies), so a concept-vs-folder scan would
+  false-positive on correctly-placed nodes.
 
 ## Run the scan
 

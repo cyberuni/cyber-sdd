@@ -18,7 +18,7 @@ The **root** `spec.md` carries YAML frontmatter:
 ```yaml
 ---
 status: draft           # draft | approved | implemented | deprecated
-project-path: plugins/sdd-new   # repo-relative source dir this spec governs; the location mode is derivable
+project-path: plugins/sdd   # repo-relative source dir this spec governs; the location mode is derivable
 name: SDD               # OPTIONAL declared project name; authoritative for name→spec resolution
 approval:               # per-gate verdict
   spec:                 # verdict: approve | pause | reject

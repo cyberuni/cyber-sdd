@@ -55,7 +55,7 @@ Example (TOON):
 ```
 specs[2]{path,name,nameSource,status,projectPath,approvals}:
   .agents/specs/aced,aced,derived,implemented,plugins/aced,spec:approve;impl:approve
-  .agents/specs/sdd,sdd,derived,approved,plugins/sdd-new,spec:approve
+  .agents/specs/sdd,sdd,derived,approved,plugins/sdd,spec:approve
 ```
 
 **`name-source`** flags how trustworthy the name is: **`declared`** (frontmatter `name`,

@@ -70,8 +70,8 @@ procedure above, plus one gate before declaring the plan retirement-ready:
   `status: approved` or `implemented` gets this check. A non-CR mission (the `start-mission`
   escape hatch — no suite-relevant behavior, no CR opened, no gate invoked) needs none; mark it
   complete on its own merits.
-- **Run the gate floor.** Run `checkGateFloor` (`plugins/sdd-new/skills/spec-gate/scripts/
-  check-spec-state.mts`, wired into `pnpm verify:specs-new`) before marking the plan
+- **Run the gate floor.** Run `checkGateFloor` (`plugins/sdd/skills/spec-gate/scripts/
+  check-spec-state.mts`, wired into `pnpm verify:specs`) before marking the plan
   retirement-ready. A clean floor → mark it. A violation (the status is approved/implemented but
   the ledger has no matching gate approve line) → do **not** mark the plan retirement-ready on
   git evidence alone; record the violation explicitly in `## NEXT` so a human resolves it (either

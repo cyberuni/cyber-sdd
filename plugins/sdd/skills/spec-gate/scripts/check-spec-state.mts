@@ -30,7 +30,7 @@
 // exported for node:test; running the file directly drives the CLI. No dependencies.
 
 import { type Dirent, existsSync, readdirSync, readFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 
 export interface GateVerdict {
 	verdict?: string
@@ -370,19 +370,158 @@ export function checkReferencedArtifactsInFiles(paths: string[]): string[] {
 	return violations
 }
 
+// The referenced-artifact-exists sweep is widened from the two hardcoded names
+// (spec.md/README.md) to every touched prose `.md` under the spec tree — a
+// `design/*.md` or nested node doc referencing a broken path is caught the same
+// way. This is the boundary: a `.md` the CR touched but that lies outside the
+// three fixed spec-tree roots (`.agents/spec/`, `.agents/specs/`, a nested
+// `<project-path>/.agents/spec/` — mirroring discover-specs.mts) is never swept.
+// Deliberately filters the caller-supplied `--files` list only; it is never a
+// tree-wide `--root` sweep, same rationale as checkReferencedArtifactsInFiles above.
+export function isUnderSpecTree(path: string): boolean {
+	return /(^|\/)\.agents\/specs?(\/|$)/.test(path)
+}
+
+export function filterProseMdInSpecTree(paths: string[]): string[] {
+	return paths.filter((p) => p.endsWith('.md') && isUnderSpecTree(p))
+}
+
+// ---- Use-case-coverage pre-filter ----
+// The row->scenario link (spec-format-governance): when a behavioral node's
+// "## Use Cases" section is written as a table with a `Scenario` column, each
+// row names its covering scenario in a backtick-wrapped `Scenario: <title>` (or
+// a shared `@tag`). This is non-mandating — a reference/descriptive doc with no
+// Use Cases section, or a behavioral doc whose Use Cases are prose/EARS (or a
+// table with no Scenario column) carries no row to link, so it raises nothing
+// and stays the spec-judge's coverage backstop.
+
+export interface UseCaseScenarioRefs {
+	hasSection: boolean
+	refs: string[]
+}
+
+// A markdown table row: strip the leading/trailing `|` then split on `|`, trimming each cell.
+function splitTableRow(line: string): string[] {
+	return line
+		.trim()
+		.replace(/^\|/, '')
+		.replace(/\|$/, '')
+		.split('|')
+		.map((c) => c.trim())
+}
+
+// Slices out the body between a `## <heading>` line and the next top-level `## `
+// heading (or end of text). Manual index-based slicing avoids the multiline-`$`
+// pitfall a lookahead-based regex would hit (`$` in `/m` mode matches every line end).
+function extractSection(body: string, heading: string): string | null {
+	const start = new RegExp(`(^|\\n)##\\s+${heading}\\b`).exec(body)
+	if (!start) return null
+	const rest = body.slice(start.index + start[0].length)
+	const end = /\n##\s/.exec(rest)
+	return end ? rest.slice(0, end.index) : rest
+}
+
+export function extractUseCaseScenarioRefs(text: string): UseCaseScenarioRefs {
+	// Strip fenced code blocks only (not inline `code` spans — the row->scenario
+	// link itself lives inside a backtick span, so `prose()`'s inline-span strip
+	// would erase the very refs this function extracts).
+	const body = text.replace(/```[\s\S]*?```/g, '')
+	const section = extractSection(body, 'Use Cases')
+	if (section === null) return { hasSection: false, refs: [] }
+	const lines = section.split('\n')
+	const headerIdx = lines.findIndex((l) => l.trim().startsWith('|'))
+	if (headerIdx === -1) return { hasSection: true, refs: [] } // prose or EARS — no table
+	const header = splitTableRow(lines[headerIdx])
+	const scenarioIdx = header.findIndex((c) => /^scenario$/i.test(c))
+	if (scenarioIdx === -1) return { hasSection: true, refs: [] } // table with no Scenario column
+
+	const refs: string[] = []
+	// data rows start after the header separator (`|---|---|`); stop at the first
+	// non-`|` line, which ends the contiguous table block.
+	for (let i = headerIdx + 2; i < lines.length; i++) {
+		if (!lines[i].trim().startsWith('|')) break
+		const cells = splitTableRow(lines[i])
+		const cell = cells[scenarioIdx]
+		if (!cell) continue
+		const ref = /`([^`\n]+)`/.exec(cell)
+		if (ref) refs.push(ref[1].trim())
+	}
+	return { hasSection: true, refs }
+}
+
+function escapeRegExp(s: string): string {
+	return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// A ref is either a shared `@tag` (present anywhere as a whole token in the
+// feature text) or a `Scenario: <title>` (an exact sibling `Scenario:` line).
+export function resolveScenarioRef(ref: string, featureText: string): boolean {
+	if (ref.startsWith('@')) return new RegExp(`(^|\\s)${escapeRegExp(ref)}(\\s|$)`, 'm').test(featureText)
+	const m = /^Scenario:\s*(.+)$/.exec(ref)
+	if (!m) return false
+	const title = m[1].trim()
+	return new RegExp(`^\\s*Scenario:\\s*${escapeRegExp(title)}\\s*$`, 'm').test(featureText)
+}
+
+// `dir` is the checked spec.md/README's own directory — the sibling `.feature` is
+// `<node>.feature` (named after the containing dir) or, failing that, the single
+// `.feature` file in the dir (mirrors hasFeatureFile's discovery, disambiguated by name).
+export function findSiblingFeature(dir: string): string | null {
+	let entries: string[]
+	try {
+		entries = readdirSync(dir).filter((f) => f.endsWith('.feature'))
+	} catch {
+		return null
+	}
+	if (entries.length === 0) return null
+	const named = `${basename(dir)}.feature`
+	if (entries.includes(named)) return join(dir, named)
+	return join(dir, entries[0])
+}
+
+export function checkUseCaseCoverage(slug: string, dir: string, text: string): string[] {
+	const v: string[] = []
+	const tag = (msg: string) => v.push(`${slug}: ${msg}`)
+	const { hasSection, refs } = extractUseCaseScenarioRefs(text)
+	if (!hasSection || refs.length === 0) return v
+
+	const featurePath = findSiblingFeature(dir)
+	const featureText = featurePath ? readFileSync(featurePath, 'utf8') : ''
+	for (const ref of refs) {
+		if (!resolveScenarioRef(ref, featureText))
+			tag(`Use Cases table names scenario \`${ref}\` that does not resolve in the sibling .feature`)
+	}
+	return v
+}
+
+export function checkUseCaseCoverageInFiles(paths: string[]): string[] {
+	const violations: string[] = []
+	for (const p of paths) {
+		let text: string
+		try {
+			text = readFileSync(p, 'utf8')
+		} catch {
+			continue // an unreadable file is already reported by the referenced-artifact check
+		}
+		violations.push(...checkUseCaseCoverage(p, dirname(p), text))
+	}
+	return violations
+}
+
 export function main(argv: string[]): number {
 	if (argv.includes('--files')) {
 		const paths = parseFilesArg(argv)
 		if (paths.length === 0) {
-			console.error('✗ --files requires at least one spec.md/README.md path')
+			console.error('✗ --files requires at least one .md path under the spec tree')
 			return 1
 		}
-		const violations = checkReferencedArtifactsInFiles(paths)
+		const proseFiles = filterProseMdInSpecTree(paths)
+		const violations = [...checkReferencedArtifactsInFiles(proseFiles), ...checkUseCaseCoverageInFiles(proseFiles)]
 		if (violations.length) {
 			for (const line of violations) console.error(`✗ ${line}`)
 			return 1
 		}
-		process.stdout.write('referenced-artifact checks OK\n')
+		process.stdout.write('referenced-artifact and use-case-coverage checks OK\n')
 		return 0
 	}
 

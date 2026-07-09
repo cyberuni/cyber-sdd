@@ -9,16 +9,24 @@ import {
 	checkReferencedArtifacts,
 	checkReferencedArtifactsInFiles,
 	checkSpec,
+	checkUseCaseCoverage,
+	checkUseCaseCoverageInFiles,
 	discoverNodeDirs,
 	discoverSpecDirs,
 	extractPathRefs,
+	extractUseCaseScenarioRefs,
+	filterProseMdInSpecTree,
+	findSiblingFeature,
+	isUnderSpecTree,
 	type LedgerGate,
+	main,
 	type NodeSpec,
 	parseFilesArg,
 	parseLedgerGates,
 	parseNode,
 	parseSpecState,
 	readLedgerText,
+	resolveScenarioRef,
 	type SpecState,
 } from './check-spec-state.mts'
 
@@ -443,6 +451,255 @@ test('checkReferencedArtifactsInFiles reads named files and reports their violat
 		assert.equal(v.length, 1)
 		assert.match(v[0], /references nonexistent artifact/)
 	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ── referenced-artifact-exists: sibling-prose sweep (widened beyond spec.md/README.md) ──
+
+test('isUnderSpecTree recognizes the three fixed spec-tree roots', () => {
+	assert.equal(isUnderSpecTree('.agents/spec/design/foo.md'), true)
+	assert.equal(isUnderSpecTree('.agents/specs/sdd/design/foo.md'), true)
+	assert.equal(isUnderSpecTree('plugins/sdd-new/.agents/spec/design/foo.md'), true)
+	assert.equal(isUnderSpecTree('docs/research/2026-01-foo.md'), false)
+	assert.equal(isUnderSpecTree('README.md'), false)
+})
+
+test('filterProseMdInSpecTree keeps only .md files under the spec tree', () => {
+	const paths = [
+		'.agents/specs/sdd/design/loops.md',
+		'.agents/specs/sdd/authoring/spec-gate/README.md',
+		'.agents/specs/sdd/authoring/spec-gate/spec-gate.feature', // not .md
+		'docs/research/2026-01-foo.md', // outside the spec tree
+		'README.md', // outside the spec tree
+	]
+	assert.deepEqual(filterProseMdInSpecTree(paths), [
+		'.agents/specs/sdd/design/loops.md',
+		'.agents/specs/sdd/authoring/spec-gate/README.md',
+	])
+})
+
+// Scenario: a touched design doc or nested node doc referencing a nonexistent artifact fails the gate closed
+test('main --files fails closed on a broken reference in a touched design doc', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	const cwd = process.cwd()
+	try {
+		mkdirSync(join(root, '.agents', 'specs', 'sdd', 'design'), { recursive: true })
+		writeFileSync(join(root, '.agents', 'specs', 'sdd', 'design', 'loops.md'), 'See `../nope/nope.md`.\n')
+		process.chdir(root)
+		const code = main(['--files', '.agents/specs/sdd/design/loops.md'])
+		assert.equal(code, 1)
+	} finally {
+		process.chdir(cwd)
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: the referenced-artifact sweep covers every touched prose .md under the spec tree
+test('the sweep covers a design doc and a nested node doc, not only spec.md/README.md', () => {
+	const paths = [
+		'.agents/specs/sdd/design/loops.md',
+		'.agents/specs/sdd/authoring/spec-gate/README.md',
+		'.agents/specs/sdd/spec.md',
+	]
+	assert.deepEqual(filterProseMdInSpecTree(paths), paths)
+})
+
+// Scenario: the sibling-prose sweep stays scoped to the touched files and never the whole tree
+test('main --files only checks the passed paths, never sweeps the whole tree', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	const cwd = process.cwd()
+	try {
+		mkdirSync(join(root, '.agents', 'specs', 'sdd', 'design'), { recursive: true })
+		// an untouched file with a broken reference sits in the tree...
+		writeFileSync(join(root, '.agents', 'specs', 'sdd', 'design', 'untouched.md'), 'See `../nope/nope.md`.\n')
+		// ...but the CR only touched this clean file.
+		writeFileSync(join(root, '.agents', 'specs', 'sdd', 'design', 'loops.md'), 'nothing to see here\n')
+		process.chdir(root)
+		const code = main(['--files', '.agents/specs/sdd/design/loops.md'])
+		assert.equal(code, 0)
+	} finally {
+		process.chdir(cwd)
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: a touched prose .md outside the spec tree is not swept
+test('a touched .md outside the spec tree is not swept', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	const cwd = process.cwd()
+	try {
+		mkdirSync(join(root, 'docs', 'research'), { recursive: true })
+		writeFileSync(join(root, 'docs', 'research', '2026-01-foo.md'), 'See `../../nope/nope.md`.\n')
+		process.chdir(root)
+		const code = main(['--files', 'docs/research/2026-01-foo.md'])
+		assert.equal(code, 0) // not swept, so the broken reference raises nothing
+	} finally {
+		process.chdir(cwd)
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ── use-case-coverage pre-filter ──
+
+test('extractUseCaseScenarioRefs reads backtick-wrapped Scenario titles and @tags from a table', () => {
+	const text = [
+		'## Use Cases',
+		'',
+		'**Subject** — x.',
+		'',
+		'| Trigger | Scenario |',
+		'|---|---|',
+		'| a happens | `Scenario: a happens and resolves` |',
+		'| b happens | `@shared-tag` |',
+		'',
+	].join('\n')
+	assert.deepEqual(extractUseCaseScenarioRefs(text), {
+		hasSection: true,
+		refs: ['Scenario: a happens and resolves', '@shared-tag'],
+	})
+})
+
+test('extractUseCaseScenarioRefs reports no section when absent', () => {
+	assert.deepEqual(extractUseCaseScenarioRefs('# x\n\nno use cases here\n'), { hasSection: false, refs: [] })
+})
+
+test('extractUseCaseScenarioRefs reports the section with no refs for a prose/EARS form', () => {
+	const text = '## Use Cases\n\nWhen X happens, Y results. No table here.\n'
+	assert.deepEqual(extractUseCaseScenarioRefs(text), { hasSection: true, refs: [] })
+})
+
+test('extractUseCaseScenarioRefs reports no refs for a table with no Scenario column', () => {
+	const text = ['## Use Cases', '', '| Trigger | Inputs | Outcome |', '|---|---|---|', '| a | b | c |', ''].join('\n')
+	assert.deepEqual(extractUseCaseScenarioRefs(text), { hasSection: true, refs: [] })
+})
+
+test('resolveScenarioRef matches an exact Scenario title', () => {
+	const feature = 'Feature: x\n\n  Scenario: a happens and resolves\n    Given a\n    Then b\n'
+	assert.equal(resolveScenarioRef('Scenario: a happens and resolves', feature), true)
+	assert.equal(resolveScenarioRef('Scenario: a happens and does not resolve', feature), false)
+})
+
+test('resolveScenarioRef matches a shared @tag token', () => {
+	const feature = '@shared-tag\nFeature: x\n\n  Scenario: a\n    Then b\n'
+	assert.equal(resolveScenarioRef('@shared-tag', feature), true)
+	assert.equal(resolveScenarioRef('@other-tag', feature), false)
+})
+
+test('findSiblingFeature prefers the dir-named feature, falls back to the single file', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		mkdirSync(join(root, 'spec-gate'), { recursive: true })
+		writeFileSync(join(root, 'spec-gate', 'spec-gate.feature'), 'Feature: x\n')
+		assert.equal(findSiblingFeature(join(root, 'spec-gate')), join(root, 'spec-gate', 'spec-gate.feature'))
+
+		mkdirSync(join(root, 'other'), { recursive: true })
+		writeFileSync(join(root, 'other', 'whatever.feature'), 'Feature: y\n')
+		assert.equal(findSiblingFeature(join(root, 'other')), join(root, 'other', 'whatever.feature'))
+
+		mkdirSync(join(root, 'none'), { recursive: true })
+		assert.equal(findSiblingFeature(join(root, 'none')), null)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: a Use Cases table row naming a scenario absent from the sibling feature fails the gate closed
+test('checkUseCaseCoverage flags a row naming a scenario absent from the sibling feature', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		mkdirSync(join(root, 'node'), { recursive: true })
+		writeFileSync(join(root, 'node', 'node.feature'), 'Feature: x\n\n  Scenario: the real one\n    Then y\n')
+		const text = [
+			'## Use Cases',
+			'',
+			'| Trigger | Scenario |',
+			'|---|---|',
+			'| a | `Scenario: a scenario that does not exist` |',
+			'',
+		].join('\n')
+		const v = checkUseCaseCoverage('node', join(root, 'node'), text)
+		assert.equal(v.length, 1)
+		assert.match(v[0], /does not resolve in the sibling \.feature/)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: a Use Cases table whose every row resolves to a real scenario raises no violation
+test('checkUseCaseCoverage raises nothing when every row resolves', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		mkdirSync(join(root, 'node'), { recursive: true })
+		writeFileSync(join(root, 'node', 'node.feature'), 'Feature: x\n\n  Scenario: the real one\n    Then y\n')
+		const text = [
+			'## Use Cases',
+			'',
+			'| Trigger | Scenario |',
+			'|---|---|',
+			'| a | `Scenario: the real one` |',
+			'',
+		].join('\n')
+		assert.deepEqual(checkUseCaseCoverage('node', join(root, 'node'), text), [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: a spec.md with no Use Cases section raises no use-case-coverage violation
+test('checkUseCaseCoverage raises nothing for a reference/descriptive doc with no Use Cases section', () => {
+	assert.deepEqual(checkUseCaseCoverage('sdd', '.', '---\nspec-type: reference\n---\n\n## Subject\n\nfoo\n'), [])
+})
+
+// Scenario: prose or EARS use cases carry no row to link and stay judge-checked
+test('checkUseCaseCoverage raises no mechanical violation for prose/EARS use cases', () => {
+	const text = '## Use Cases\n\nWhen X happens, Y results. No table, no Scenario cell.\n'
+	assert.deepEqual(checkUseCaseCoverage('node', '.', text), [])
+})
+
+// Scenario: the use-case-coverage check scopes to the CR's touched behavioral spec.md files
+test('checkUseCaseCoverageInFiles only checks the passed paths, never sweeps the whole tree', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		mkdirSync(join(root, 'touched'), { recursive: true })
+		mkdirSync(join(root, 'untouched'), { recursive: true })
+		writeFileSync(join(root, 'touched', 'touched.feature'), 'Feature: x\n\n  Scenario: real\n    Then y\n')
+		writeFileSync(
+			join(root, 'touched', 'README.md'),
+			['## Use Cases', '', '| Trigger | Scenario |', '|---|---|', '| a | `Scenario: real` |', ''].join('\n'),
+		)
+		// untouched carries a broken link, but the CR never touched it
+		writeFileSync(
+			join(root, 'untouched', 'README.md'),
+			['## Use Cases', '', '| Trigger | Scenario |', '|---|---|', '| a | `Scenario: does not exist` |', ''].join('\n'),
+		)
+		const v = checkUseCaseCoverageInFiles([join(root, 'touched', 'README.md')])
+		assert.deepEqual(v, [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Integration: the gate's --files entry point runs both the widened referenced-artifact
+// sweep and the use-case-coverage check together, both fail-closed.
+test('main --files fails closed on an unresolved Use Cases scenario link', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	const cwd = process.cwd()
+	try {
+		mkdirSync(join(root, '.agents', 'specs', 'sdd', 'node'), { recursive: true })
+		writeFileSync(
+			join(root, '.agents', 'specs', 'sdd', 'node', 'node.feature'),
+			'Feature: x\n\n  Scenario: the real one\n    Then y\n',
+		)
+		writeFileSync(
+			join(root, '.agents', 'specs', 'sdd', 'node', 'README.md'),
+			['## Use Cases', '', '| Trigger | Scenario |', '|---|---|', '| a | `Scenario: nope` |', ''].join('\n'),
+		)
+		process.chdir(root)
+		const code = main(['--files', '.agents/specs/sdd/node/README.md'])
+		assert.equal(code, 1)
+	} finally {
+		process.chdir(cwd)
 		rmSync(root, { recursive: true, force: true })
 	}
 })

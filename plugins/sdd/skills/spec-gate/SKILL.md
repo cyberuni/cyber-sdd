@@ -51,19 +51,31 @@ spec-judge grades form qualitatively; this engine catches it mechanically, so th
 sees a well-formed suite.
 
 The same `check-spec-state.mts` also carries **referenced-artifact-exists** — a backtick-wrapped
-path the CR's touched `spec.md`/`README.md` names (a relative `./`/`../` reference or a
-repo-root-relative one under `.agents/`, `plugins/`, `packages/`, `apps/`, `docs/`, `.claude/`)
-must resolve to a real file or dir; a template placeholder (`<project>`) or glob (`*.plan.md`) is
-exempt. Run it **fail-closed, scoped to the CR's touched `spec.md`/`README.md` files** — never the
-`--root` sweep, since the existing corpus's accumulated prose legitimately names example/convention
-paths a blind tree-wide scan cannot distinguish from a real broken reference:
+path any touched **prose `.md` under the spec tree** names (not just `spec.md`/`README.md` — a
+`design/*.md` or nested node doc too; a relative `./`/`../` reference or a repo-root-relative one
+under `.agents/`, `plugins/`, `packages/`, `apps/`, `docs/`, `.claude/`) must resolve to a real
+file or dir; a template placeholder (`<project>`) or glob (`*.plan.md`) is exempt. Run it
+**fail-closed, scoped to the CR's touched `.md` files** — never the `--root` sweep, since the
+existing corpus's accumulated prose legitimately names example/convention paths a blind tree-wide
+scan cannot distinguish from a real broken reference. Pass every touched `.md` path (the engine
+filters internally to prose `.md` files that lie under the spec tree — `.agents/spec/`,
+`.agents/specs/`, or a nested `<project-path>/.agents/spec/` — so a touched `.md` outside the spec
+tree is never swept):
 
 ```bash
-node "<skill>/scripts/check-spec-state.mts" --files <the CR's touched spec.md/README.md files>
+node "<skill>/scripts/check-spec-state.mts" --files <the CR's touched .md files>
 ```
 
 Exit `0` = clean; exit `1` prints each `✗ <file>: references nonexistent artifact ...` — **advance
 nothing and do not spawn the judge; report for the producer to fix.**
+
+Also carried in the same `--files` pass: the **use-case-coverage** pre-filter. For each touched
+file whose `## Use Cases` section is written as a **table** with a `Scenario` column, every row's
+backtick-wrapped `Scenario:` title (or shared `@tag`) must resolve to a real `Scenario:` in the
+sibling `.feature` (same directory). Unresolved → **fail closed**, judge not spawned. Non-mandating:
+no `## Use Cases` section, or a table with no `Scenario` column, or prose/EARS use cases, raise no
+violation and stay the spec-judge's coverage backstop. Exit `1` prints each `✗ <file>: Use Cases
+table names scenario ... that does not resolve in the sibling .feature`.
 
 **Provenance structural checks** (`sdd:combat-log-governance`). Read the touched files'
 `produced-by` frontmatter and the root's `ledger/` shards (globbed; a legacy `ledger.jsonl` still counts):

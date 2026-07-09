@@ -44,6 +44,16 @@ negative mirror, boundary). A scenario with no use case is an orphan test; a use
 scenarios is unverified intent. The spec-producer writes the section and covers each use case; the
 spec-judge checks the section exists and the mapping holds.
 
+**The row→scenario link (mechanically checked).** When the section is written as a **table**, each
+row names its covering scenario in a `Scenario` cell — the backtick-wrapped `Scenario:` title (or a
+shared `@tag`) that verifies it. The gate runs a deterministic pre-filter over each touched behavioral
+`spec.md`: every table row's named scenario must resolve to a real `Scenario:` in the sibling
+`.feature`, and an unresolved link **fails the gate closed before the cold judge is spawned**. This
+mechanizes the recurring coverage gap (prose asserting behavior no scenario covers, caught only at the
+cold judge). It is **non-mandating**: a use case written as prose or EARS carries no row to link, so
+the mechanical check stays silent and the spec-judge remains its coverage backstop — table form is the
+form that buys the mechanical assist, never a requirement.
+
 ## Layout & enrichment
 
 `spec.md` is a document a person reviews at the gate, so legibility is part of the bar. The

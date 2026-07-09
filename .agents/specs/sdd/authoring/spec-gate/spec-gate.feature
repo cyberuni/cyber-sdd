@@ -203,3 +203,54 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate applies its structural checks
     Then the referenced-artifact check raises no violation
     And the gate spawns the cold judge
+
+  # ---- Referenced-artifact-exists: sibling-prose sweep ----
+
+  Scenario: a touched design doc or nested node doc referencing a nonexistent artifact fails the gate closed
+    Given a touched prose .md under the spec tree other than spec.md or README naming an artifact path that does not exist on disk
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+
+  Scenario: the referenced-artifact sweep covers every touched prose .md under the spec tree
+    Given a CR that touched prose .md files beyond spec.md and README under the spec tree
+    When the gate runs the referenced-artifact check
+    Then every touched prose .md file is covered by the check
+
+  Scenario: the sibling-prose sweep stays scoped to the touched files and never the whole tree
+    Given a CR that touched a subset of the prose .md files under the spec tree
+    When the gate runs the referenced-artifact check
+    Then the check covers only the touched files, not the whole tree
+
+  Scenario: a touched prose .md outside the spec tree is not swept
+    Given a prose .md file the CR touched that lies outside the spec tree
+    When the gate runs the referenced-artifact check
+    Then that file is not covered by the sibling-prose sweep
+
+  # ---- Use-case coverage pre-filter ----
+
+  Scenario: a Use Cases table row naming a scenario absent from the sibling feature fails the gate closed
+    Given a touched behavioral spec.md whose Use Cases table row names a scenario that does not resolve in the sibling .feature
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+
+  Scenario: a Use Cases table whose every row resolves to a real scenario raises no violation
+    Given a touched behavioral spec.md whose every Use Cases table row names a scenario present in the sibling .feature
+    When the gate applies its structural checks
+    Then the use-case-coverage check raises no violation
+
+  Scenario: a spec.md with no Use Cases section raises no use-case-coverage violation
+    Given a touched reference or descriptive spec.md that carries no Use Cases section
+    When the gate applies its structural checks
+    Then the use-case-coverage check raises no violation for that file
+
+  Scenario: prose or EARS use cases carry no row to link and stay judge-checked
+    Given a touched behavioral spec.md whose Use Cases are written as prose or EARS with no Scenario cell
+    When the gate applies its structural checks
+    Then the use-case-coverage check raises no mechanical violation for that file
+
+  Scenario: the use-case-coverage check scopes to the CR's touched behavioral spec.md files
+    Given a CR that touched a subset of the project's behavioral spec.md files
+    When the gate runs the use-case-coverage check
+    Then the check covers only the touched files, not the whole tree

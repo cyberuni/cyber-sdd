@@ -15,7 +15,12 @@
 //      A node README also carries `spec-type` as its ONLY frontmatter: lifecycle
 //      (status / project-path / approval / produced-by / freeze) is root-spec.md-
 //      only (lifecycle-governance), so a stray lifecycle field on a node fails closed.
-//   3. the gate-line floor — a root spec.md at `approved`/`implemented` must have the
+//   3. referenced-artifact-exists (--files only) — diff-scoped + surface-for-
+//      judgment: a backtick path a CR *introduces* (vs its committed baseline)
+//      that does not resolve on disk is a judgment finding, not a fail-closed
+//      block; a pre-existing ref the CR left untouched is never gated. The
+//      use-case-coverage check in the same pass stays fail-closed.
+//   4. the gate-line floor — a root spec.md at `approved`/`implemented` must have the
 //      DURABLE proof of the gate in its sibling `ledger/` shards: a `gate` line with the
 //      matching `verdict: approve`. The spec.md `approval` map is the overwritten
 //      current-state twin (checked in 1); the ledger line is the immutable durable twin,
@@ -29,6 +34,7 @@
 // spec-type checks; spec types). Pure functions are
 // exported for node:test; running the file directly drives the CLI. No dependencies.
 
+import { execFileSync } from 'node:child_process'
 import { type Dirent, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 
@@ -169,7 +175,11 @@ export function checkSpec(slug: string, state: SpecState): string[] {
 // relative `./`/`../` reference, or repo-root-relative under a known top-level
 // dir) must resolve to a real file/dir. Bounded to these prefixes deliberately —
 // unprefixed slash-containing tokens ("Given / When / Then", "oracle/builder")
-// are prose, not paths, and must never false-positive.
+// are prose, not paths, and must never false-positive. Diff-scoped + surface-
+// for-judgment: only paths a CR *introduces* vs the committed baseline are
+// checked — a pre-existing reference the CR left untouched is never gated, and
+// an unresolved introduced ref is a judgment finding, not a hard fail-closed
+// block (referenced ≠ must-exist).
 const PATH_PREFIXES = ['.agents/', 'plugins/', 'packages/', 'apps/', 'docs/', '.claude/']
 
 export function extractPathRefs(text: string): string[] {
@@ -188,17 +198,29 @@ export function extractPathRefs(text: string): string[] {
 	return out
 }
 
+// Diff at the ref-token level: which of `currentText`'s path refs are absent from
+// `baselineText`'s. Empty baselineText (a brand-new file, or none supplied) means
+// every ref in currentText is introduced.
+export function introducedPathRefs(baselineText: string, currentText: string): string[] {
+	const baseRefs = new Set(extractPathRefs(baselineText))
+	return extractPathRefs(currentText).filter((ref) => !baseRefs.has(ref))
+}
+
 // `dir` is the checked file's own directory (root-relative, matching this
 // script's CWD-is-repo-root convention) — the base a `./`/`../` token resolves
 // against. A repo-root-relative token resolves against the CWD directly.
-export function checkReferencedArtifacts(slug: string, dir: string, text: string): string[] {
+// `baselineText` (default '', i.e. every ref is introduced) scopes the check to
+// the CR's own delta — a pre-existing unresolved ref the CR left untouched is
+// never gated. An unresolved introduced ref is returned as a *finding* for
+// judgment, not a hard violation.
+export function checkReferencedArtifacts(slug: string, dir: string, text: string, baselineText = ''): string[] {
 	const v: string[] = []
-	const tag = (msg: string) => v.push(`${slug}: ${msg}`)
-	for (const ref of extractPathRefs(text)) {
+	const tag = (msg: string) => v.push(`${slug}: introduces unresolved reference \`${msg}\` — surfaced for judgment`)
+	for (const ref of introducedPathRefs(baselineText, text)) {
 		const clean = ref.replace(/#.*$/, '')
 		const isRelative = clean.startsWith('./') || clean.startsWith('../')
 		const resolved = isRelative ? join(dir, clean) : clean
-		if (!existsSync(resolved)) tag(`references nonexistent artifact \`${clean}\``)
+		if (!existsSync(resolved)) tag(clean)
 	}
 	return v
 }
@@ -355,7 +377,22 @@ export function parseFilesArg(argv: string[]): string[] {
 	return paths
 }
 
-export function checkReferencedArtifactsInFiles(paths: string[]): string[] {
+// Reads a path's content at a given git ref (the committed baseline the CR diffs
+// against). Any failure (new file at base, path not tracked at base, git absent)
+// returns '' — the safe default that treats every ref in the file as introduced.
+function readBaselineFromGit(base: string, path: string): string {
+	try {
+		return execFileSync('git', ['show', `${base}:${path}`], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
+	} catch {
+		return ''
+	}
+}
+
+export function checkReferencedArtifactsInFiles(
+	paths: string[],
+	baseline: (path: string) => string = () => '',
+): { findings: string[]; violations: string[] } {
+	const findings: string[] = []
 	const violations: string[] = []
 	for (const p of paths) {
 		let text: string
@@ -365,19 +402,20 @@ export function checkReferencedArtifactsInFiles(paths: string[]): string[] {
 			violations.push(`${p}: cannot read file`)
 			continue
 		}
-		violations.push(...checkReferencedArtifacts(p, dirname(p), text))
+		findings.push(...checkReferencedArtifacts(p, dirname(p), text, baseline(p)))
 	}
-	return violations
+	return { findings, violations }
 }
 
 // The referenced-artifact-exists sweep is widened from the two hardcoded names
 // (spec.md/README.md) to every touched prose `.md` under the spec tree — a
-// `design/*.md` or nested node doc referencing a broken path is caught the same
-// way. This is the boundary: a `.md` the CR touched but that lies outside the
-// three fixed spec-tree roots (`.agents/spec/`, `.agents/specs/`, a nested
-// `<project-path>/.agents/spec/` — mirroring discover-specs.mts) is never swept.
-// Deliberately filters the caller-supplied `--files` list only; it is never a
-// tree-wide `--root` sweep, same rationale as checkReferencedArtifactsInFiles above.
+// `design/*.md` or nested node doc gets the same diff-scoped, surface-for-
+// judgment treatment. This is the boundary: a `.md` the CR touched but that lies
+// outside the three fixed spec-tree roots (`.agents/spec/`, `.agents/specs/`, a
+// nested `<project-path>/.agents/spec/` — mirroring discover-specs.mts) is never
+// swept. Deliberately filters the caller-supplied `--files` list only; it is
+// never a tree-wide `--root` sweep, same rationale as
+// checkReferencedArtifactsInFiles above.
 export function isUnderSpecTree(path: string): boolean {
 	return /(^|\/)\.agents\/specs?(\/|$)/.test(path)
 }
@@ -516,12 +554,21 @@ export function main(argv: string[]): number {
 			return 1
 		}
 		const proseFiles = filterProseMdInSpecTree(paths)
-		const violations = [...checkReferencedArtifactsInFiles(proseFiles), ...checkUseCaseCoverageInFiles(proseFiles)]
+		const base = argv.includes('--base') ? argv[argv.indexOf('--base') + 1] : undefined
+		const baseline = base ? (p: string) => readBaselineFromGit(base, p) : () => ''
+		const { findings, violations: refReadErrors } = checkReferencedArtifactsInFiles(proseFiles, baseline)
+		const ucViolations = checkUseCaseCoverageInFiles(proseFiles)
+		const violations = [...refReadErrors, ...ucViolations]
+		for (const f of findings) process.stdout.write(`⚠ ${f}\n`)
 		if (violations.length) {
 			for (const line of violations) console.error(`✗ ${line}`)
 			return 1
 		}
-		process.stdout.write('referenced-artifact and use-case-coverage checks OK\n')
+		process.stdout.write(
+			findings.length
+				? `referenced-artifact findings surfaced for judgment (${findings.length}); use-case-coverage OK\n`
+				: 'referenced-artifact and use-case-coverage checks OK\n',
+		)
 		return 0
 	}
 

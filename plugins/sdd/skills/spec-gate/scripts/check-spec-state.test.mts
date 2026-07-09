@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -17,6 +18,7 @@ import {
 	extractUseCaseScenarioRefs,
 	filterProseMdInSpecTree,
 	findSiblingFeature,
+	introducedPathRefs,
 	isUnderSpecTree,
 	type LedgerGate,
 	main,
@@ -403,10 +405,27 @@ test('extractPathRefs ignores template placeholders and globs', () => {
 	assert.deepEqual(extractPathRefs(text), [])
 })
 
-test('checkReferencedArtifacts flags a relative reference that resolves to nothing', () => {
+test('introducedPathRefs returns only the refs current adds beyond baseline', () => {
+	const baseline = 'See `../a.md`.'
+	const current = 'See `../a.md` and `../b.md`.'
+	assert.deepEqual(introducedPathRefs(baseline, current), ['../b.md'])
+})
+
+test('introducedPathRefs: empty baseline means every ref is introduced', () => {
+	assert.deepEqual(introducedPathRefs('', 'See `../a.md` and `../b.md`.'), ['../a.md', '../b.md'])
+})
+
+test('checkReferencedArtifacts surfaces an introduced unresolved reference as a finding', () => {
 	const v = checkReferencedArtifacts('sdd/foo', '.agents/specs/sdd/foo', 'See `../bar/baz.md`.')
 	assert.equal(v.length, 1)
-	assert.match(v[0], /references nonexistent artifact `\.\.\/bar\/baz\.md`/)
+	assert.match(v[0], /introduces unresolved reference `\.\.\/bar\/baz\.md`/)
+	assert.match(v[0], /surfaced for judgment/)
+})
+
+test('checkReferencedArtifacts does not gate a pre-existing unresolved reference the CR left untouched', () => {
+	const text = 'See `../nope.md`.'
+	const v = checkReferencedArtifacts('sdd/foo', '.agents/specs/sdd/foo', text, text)
+	assert.deepEqual(v, [])
 })
 
 test('checkReferencedArtifacts passes a relative reference that resolves to a real file', () => {
@@ -437,19 +456,37 @@ test('parseFilesArg stops at the next flag (spec-state)', () => {
 })
 
 test('checkReferencedArtifactsInFiles fails closed on an unreadable path', () => {
-	const v = checkReferencedArtifactsInFiles(['/nonexistent/nope.md'])
-	assert.equal(v.length, 1)
-	assert.match(v[0], /cannot read file/)
+	const { findings, violations } = checkReferencedArtifactsInFiles(['/nonexistent/nope.md'])
+	assert.deepEqual(findings, [])
+	assert.equal(violations.length, 1)
+	assert.match(violations[0], /cannot read file/)
 })
 
-test('checkReferencedArtifactsInFiles reads named files and reports their violations', () => {
+test('checkReferencedArtifactsInFiles reads named files and reports findings, not violations', () => {
 	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
 	try {
 		mkdirSync(join(root, 'sdd', 'foo'), { recursive: true })
 		writeFileSync(join(root, 'sdd', 'foo', 'README.md'), 'See `../bar/baz.md`.\n')
-		const v = checkReferencedArtifactsInFiles([join(root, 'sdd', 'foo', 'README.md')])
-		assert.equal(v.length, 1)
-		assert.match(v[0], /references nonexistent artifact/)
+		const { findings, violations } = checkReferencedArtifactsInFiles([join(root, 'sdd', 'foo', 'README.md')])
+		assert.deepEqual(violations, [])
+		assert.equal(findings.length, 1)
+		assert.match(findings[0], /introduces unresolved reference/)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkReferencedArtifactsInFiles: an injected baseline scopes findings to the introduced ref only', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		mkdirSync(join(root, 'sdd', 'foo'), { recursive: true })
+		const path = join(root, 'sdd', 'foo', 'README.md')
+		const baselineText = 'See `../old-broken.md`.\n'
+		writeFileSync(path, 'See `../old-broken.md` and `../new-broken.md`.\n')
+		const { findings, violations } = checkReferencedArtifactsInFiles([path], () => baselineText)
+		assert.deepEqual(violations, [])
+		assert.equal(findings.length, 1)
+		assert.match(findings[0], /introduces unresolved reference `\.\.\/new-broken\.md`/)
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
@@ -479,16 +516,36 @@ test('filterProseMdInSpecTree keeps only .md files under the spec tree', () => {
 	])
 })
 
-// Scenario: a touched design doc or nested node doc referencing a nonexistent artifact fails the gate closed
-test('main --files fails closed on a broken reference in a touched design doc', () => {
+// Scenario: an unresolved reference the CR introduces in a design or nested node doc is surfaced for judgment
+test('main --files surfaces a broken reference in a touched design doc as a finding, exit 0', () => {
 	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
 	const cwd = process.cwd()
 	try {
 		mkdirSync(join(root, '.agents', 'specs', 'sdd', 'design'), { recursive: true })
 		writeFileSync(join(root, '.agents', 'specs', 'sdd', 'design', 'loops.md'), 'See `../nope/nope.md`.\n')
 		process.chdir(root)
+		// no --base ⇒ every ref in the file counts as introduced (no committed baseline to diff against)
 		const code = main(['--files', '.agents/specs/sdd/design/loops.md'])
-		assert.equal(code, 1)
+		assert.equal(code, 0)
+	} finally {
+		process.chdir(cwd)
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: an introduced reference resolving in a design or nested node doc raises no finding
+test('main --files raises no finding when every introduced reference resolves', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	const cwd = process.cwd()
+	try {
+		mkdirSync(join(root, '.agents', 'specs', 'sdd', 'design'), { recursive: true })
+		writeFileSync(
+			join(root, '.agents', 'specs', 'sdd', 'design', 'loops.md'),
+			'See `.agents/specs/sdd/design/loops.md`.\n',
+		)
+		process.chdir(root)
+		const code = main(['--files', '.agents/specs/sdd/design/loops.md'])
+		assert.equal(code, 0)
 	} finally {
 		process.chdir(cwd)
 		rmSync(root, { recursive: true, force: true })
@@ -699,6 +756,46 @@ test('main --files fails closed on an unresolved Use Cases scenario link', () =>
 		const code = main(['--files', '.agents/specs/sdd/node/README.md'])
 		assert.equal(code, 1)
 	} finally {
+		process.chdir(cwd)
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Integration: exercise readBaselineFromGit / --base against a REAL git repo end-to-end
+// (the other --base-shaped tests inject the baseline callback, so a regression in the
+// `git show <base>:<path>` invocation itself would otherwise go uncaught). A ref present
+// in the committed baseline is not gated; a ref the working tree introduces is surfaced.
+test('main --base reads the committed baseline via git and diff-scopes to introduced refs', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-git-'))
+	const cwd = process.cwd()
+	const rel = join('.agents', 'specs', 'sdd', 'node', 'README.md')
+	const git = (...args: string[]) => execFileSync('git', args, { cwd: root, stdio: 'ignore' })
+	const writes: string[] = []
+	const origWrite = process.stdout.write.bind(process.stdout)
+	try {
+		mkdirSync(join(root, '.agents', 'specs', 'sdd', 'node'), { recursive: true })
+		// committed baseline already carries a broken ref — must NOT be gated later.
+		writeFileSync(join(root, rel), 'See `../pre-existing-broken.md`.\n')
+		git('init', '-q')
+		git('config', 'user.email', 't@t')
+		git('config', 'user.name', 't')
+		git('add', '-A')
+		git('commit', '-q', '-m', 'baseline')
+		// working tree introduces a SECOND broken ref.
+		writeFileSync(join(root, rel), 'See `../pre-existing-broken.md` and `../introduced-broken.md`.\n')
+		process.chdir(root)
+		process.stdout.write = ((s: string) => {
+			writes.push(String(s))
+			return true
+		}) as typeof process.stdout.write
+		const code = main(['--files', rel, '--base', 'HEAD'])
+		process.stdout.write = origWrite
+		const out = writes.join('')
+		assert.equal(code, 0) // a surfaced finding never fails the gate closed
+		assert.match(out, /introduces unresolved reference `\.\.\/introduced-broken\.md`/)
+		assert.doesNotMatch(out, /pre-existing-broken/) // pre-existing ref is diff-scoped out
+	} finally {
+		process.stdout.write = origWrite
 		process.chdir(cwd)
 		rmSync(root, { recursive: true, force: true })
 	}

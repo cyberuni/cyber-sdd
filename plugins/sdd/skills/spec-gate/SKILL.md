@@ -54,20 +54,26 @@ The same `check-spec-state.mts` also carries **referenced-artifact-exists** — 
 path any touched **prose `.md` under the spec tree** names (not just `spec.md`/`README.md` — a
 `design/*.md` or nested node doc too; a relative `./`/`../` reference or a repo-root-relative one
 under `.agents/`, `plugins/`, `packages/`, `apps/`, `docs/`, `.claude/`) must resolve to a real
-file or dir; a template placeholder (`<project>`) or glob (`*.plan.md`) is exempt. Run it
-**fail-closed, scoped to the CR's touched `.md` files** — never the `--root` sweep, since the
-existing corpus's accumulated prose legitimately names example/convention paths a blind tree-wide
-scan cannot distinguish from a real broken reference. Pass every touched `.md` path (the engine
-filters internally to prose `.md` files that lie under the spec tree — `.agents/spec/`,
-`.agents/specs/`, or a nested `<project-path>/.agents/spec/` — so a touched `.md` outside the spec
-tree is never swept):
+file or dir; a template placeholder (`<project>`) or glob (`*.plan.md`) is exempt. **Diff-scoped +
+surface-for-judgment, not fail-closed:** the check gates only paths the CR **introduces** against
+the file's committed baseline (`--base <baseref>`, absent ⇒ every ref counts as introduced) — a
+pre-existing reference a touched file already carried is never gated. An unresolved *introduced*
+ref is printed as a `⚠` finding for the cold judge to weigh, but never blocks the gate on its own;
+the judge still runs. Referenced ≠ must-exist. Never the `--root` sweep, since the existing
+corpus's accumulated prose legitimately names example/convention paths a blind tree-wide scan
+cannot distinguish from a real broken reference. Pass every touched `.md` path (the engine filters
+internally to prose `.md` files that lie under the spec tree — `.agents/spec/`, `.agents/specs/`,
+or a nested `<project-path>/.agents/spec/` — so a touched `.md` outside the spec tree is never
+swept):
 
 ```bash
-node "<skill>/scripts/check-spec-state.mts" --files <the CR's touched .md files>
+node "<skill>/scripts/check-spec-state.mts" --files <the CR's touched .md files> [--base <baseref>]
 ```
 
-Exit `0` = clean; exit `1` prints each `✗ <file>: references nonexistent artifact ...` — **advance
-nothing and do not spawn the judge; report for the producer to fix.**
+Exit `0` prints each `⚠ <file>: introduces unresolved reference ...` finding (if any) plus the
+summary line — **surface the findings for the judge's read, never a hard block by themselves.**
+An unreadable touched file still **fails closed** (`✗ <file>: cannot read file`, exit `1`) — that
+is a real error, not a can-exist judgment call.
 
 Also carried in the same `--files` pass: the **use-case-coverage** pre-filter. For each touched
 file whose `## Use Cases` section is written as a **table** with a `Scenario` column, every row's

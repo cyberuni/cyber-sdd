@@ -8,8 +8,10 @@
 //   - untagged-node (blocking)  — a spec-typed node README with no `concept:` tag, so it never
 //     appears in the by-concept index (../concept-index/). `--check` fails on it.
 //   - oversized-node (advisory) — a node whose sibling `.feature` scenario count exceeds the
-//     granularity threshold; a candidate to split into sub-nodes. Never fails `--check`.
-// Intra-spec contradiction is a Warden judgment (the @rubric scenario) — no engine code here.
+//     granularity threshold; carries a deterministic shape profile (plain/tagged counts + section-
+//     cluster count) but prescribes no route. Never fails `--check`.
+// Breadth-vs-depth routing and intra-spec contradiction are Warden judgment (the @rubric scenarios)
+// — no engine code here.
 //
 // Pure derivation from frontmatter + scenario counts: no node body reaches a finding, and the
 // engine writes nothing. No dependencies (the repo's node-≥23.6 / no-deps convention). Pure
@@ -35,6 +37,9 @@ export interface NodeRecord {
 	specType?: string
 	hasFeature: boolean
 	scenarioCount: number
+	plainCount: number
+	taggedCount: number
+	clusterCount: number
 }
 
 export interface Finding {
@@ -105,6 +110,45 @@ export function countScenarios(featureText: string): number {
 	return n
 }
 
+// ── Shape profile — the deterministic breadth-vs-depth signal for the Warden ──
+export interface ShapeProfile {
+	scenarioCount: number
+	plainCount: number
+	taggedCount: number
+	clusterCount: number
+}
+
+const SECTION_HEADER = /^\s*#\s*(?:──|-{3,})/
+
+export function profileFeature(featureText: string): ShapeProfile {
+	const lines = featureText.split('\n')
+	let scenarioCount = 0
+	let taggedCount = 0
+	let clusterCount = 0
+	let pendingRubric = false
+	for (const line of lines) {
+		if (/^\s*Scenario:/.test(line)) {
+			scenarioCount++
+			if (pendingRubric) taggedCount++
+			pendingRubric = false
+			continue
+		}
+		const trimmed = line.trim()
+		if (trimmed === '') continue
+		if (trimmed.startsWith('@')) {
+			if (/(^|\s)@rubric(\s|$)/.test(trimmed)) pendingRubric = true
+			continue
+		}
+		if (SECTION_HEADER.test(line)) {
+			clusterCount++
+			pendingRubric = false
+			continue
+		}
+		pendingRubric = false
+	}
+	return { scenarioCount, plainCount: scenarioCount - taggedCount, taggedCount, clusterCount }
+}
+
 function displayPath(relPath: string): string {
 	const p = relPath.replace(/\\/g, '/')
 	return p.endsWith('/README.md') ? p.slice(0, -'README.md'.length) : p
@@ -129,7 +173,9 @@ function walk(dir: string, specDir: string, out: NodeRecord[]): void {
 			if (fm.specType === undefined && fm.concepts.length === 0) continue
 			const features = entries.filter((e) => e.isFile() && e.name.endsWith('.feature'))
 			const hasFeature = features.length > 0
-			const scenarioCount = hasFeature ? countScenarios(readFileSync(join(dir, features[0].name), 'utf8')) : 0
+			const profile = hasFeature
+				? profileFeature(readFileSync(join(dir, features[0].name), 'utf8'))
+				: { scenarioCount: 0, plainCount: 0, taggedCount: 0, clusterCount: 0 }
 			const relPath = full.slice(specDir.length + 1).replace(/\\/g, '/')
 			out.push({
 				relPath,
@@ -138,7 +184,10 @@ function walk(dir: string, specDir: string, out: NodeRecord[]): void {
 				concepts: fm.concepts,
 				specType: fm.specType,
 				hasFeature,
-				scenarioCount,
+				scenarioCount: profile.scenarioCount,
+				plainCount: profile.plainCount,
+				taggedCount: profile.taggedCount,
+				clusterCount: profile.clusterCount,
 			})
 		}
 	}
@@ -165,7 +214,7 @@ export function checkOversized(records: NodeRecord[], maxScenarios: number): Fin
 			kind: 'oversized-node' as const,
 			severity: 'advisory' as const,
 			node: r.display,
-			detail: `${r.scenarioCount} scenarios > ${maxScenarios} — propose a sub-node split`,
+			detail: `${r.scenarioCount} scenarios > ${maxScenarios} — shape profile: plain ${r.plainCount}, tagged ${r.taggedCount}, clusters ${r.clusterCount} (soft breadth hint); the Warden routes breadth-vs-depth`,
 		}))
 }
 

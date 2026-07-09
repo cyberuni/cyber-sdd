@@ -55,7 +55,7 @@ structural maintenance is **intra-spec**:
 | Act | Trigger | Station (`corpus/` + `project-spec/`) | Output |
 |---|---|---|---|
 | **Audit node-shape** | a formation pass fires post-mission | `check-spec-structure` | a finding set: untagged-node (blocking) + oversized-node (advisory), each naming the node |
-| **Split an oversized node** | a node's `.feature` trips the granularity heuristic | `check-spec-structure` | an oversized-node finding proposing a sub-node split |
+| **Split an oversized node** | the Warden's `@rubric` breadth-vs-depth judgment routes an oversized-node's shape profile to breadth-overflow | `check-spec-structure` | a sub-node split; depth-overflow instead down-levels via the scenario→test bridge (`../mission/verify-scenarios/`) or is redesigned — the engine emits only the profile, never the route |
 | **Reconcile drift / contradiction** | prose↔suite drift, or two nodes contradict | `align-spec` | a reconcile finding (drift fixed by direction; contradiction → align the losing side) |
 
 A station is **not** a dependency — Formation depends on the corpus **structure** and **discovery**

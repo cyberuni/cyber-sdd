@@ -11,6 +11,7 @@ import {
 	hasBlocking,
 	main,
 	parseNodeFrontmatter,
+	profileFeature,
 	scanProjectSpec,
 } from './check-spec-structure.mts'
 
@@ -18,12 +19,13 @@ function mkCorpus(): string {
 	return mkdtempSync(join(tmpdir(), 'check-spec-structure-'))
 }
 
-// Seed a node folder: <cap>/<name>/README.md (+ optional <name>.feature with `scenarios` scenarios).
+// Seed a node folder: <cap>/<name>/README.md (+ optional <name>.feature with `scenarios` scenarios,
+// or verbatim `raw` feature text when the profile shape — tags / section headers — matters).
 function seedNode(
 	dir: string,
 	cap: string,
 	name: string,
-	opts: { specType?: string; concept?: string; scenarios?: number; body?: string },
+	opts: { specType?: string; concept?: string; scenarios?: number; body?: string; raw?: string },
 ): void {
 	const nodeDir = join(dir, cap, name)
 	mkdirSync(nodeDir, { recursive: true })
@@ -32,7 +34,9 @@ function seedNode(
 	if (opts.concept) fm.push(`concept: ${opts.concept}`)
 	const front = fm.length ? `---\n${fm.join('\n')}\n---\n\n` : ''
 	writeFileSync(join(nodeDir, 'README.md'), `${front}# ${name}\n\n${opts.body ?? 'body'}\n`)
-	if (opts.scenarios && opts.scenarios > 0) {
+	if (opts.raw !== undefined) {
+		writeFileSync(join(nodeDir, `${name}.feature`), opts.raw)
+	} else if (opts.scenarios && opts.scenarios > 0) {
 		let f = '@frozen\nFeature: x\n'
 		for (let i = 0; i < opts.scenarios; i++) f += `\n  Scenario: s${i}\n    Given a\n    When b\n    Then c\n`
 		writeFileSync(join(nodeDir, `${name}.feature`), f)
@@ -82,13 +86,14 @@ test('a node carrying a concept tag raises no untagged finding', () => {
 	assert.equal(checkUntagged(scanProjectSpec(d)).length, 0)
 })
 
-test('a node whose suite exceeds the granularity threshold is flagged oversized', () => {
+test('a node whose suite exceeds the granularity threshold is flagged oversized with a shape profile', () => {
 	const d = mkCorpus()
 	seedNode(d, 'corpus', 'big', { specType: 'behavioral', concept: 'spec-structure', scenarios: 12 })
 	const oversized = checkOversized(scanProjectSpec(d), 10)
 	assert.equal(oversized.length, 1)
 	assert.match(oversized[0].node, /big/)
-	assert.match(oversized[0].detail, /propose a sub-node split/)
+	assert.match(oversized[0].detail, /plain \d+/)
+	assert.match(oversized[0].detail, /clusters \d+/)
 })
 
 test('a node within the granularity threshold raises no oversized finding', () => {
@@ -102,6 +107,76 @@ test('a structurally clean project-spec produces no findings', () => {
 	seedNode(d, 'corpus', 'a', { specType: 'behavioral', concept: 'spec-structure', scenarios: 3 })
 	seedNode(d, 'corpus', 'b', { specType: 'reference', concept: 'spec-structure' })
 	assert.deepEqual(audit(scanProjectSpec(d), 40), [])
+})
+
+// ── The shape profile ──
+
+test('the shape profile reports the plain and tagged scenario counts', () => {
+	let raw = '@frozen\nFeature: x\n'
+	for (let i = 0; i < 8; i++) raw += `\n  Scenario: plain${i}\n    Given a\n    When b\n    Then c\n`
+	for (let i = 0; i < 5; i++) raw += `\n  @rubric\n  Scenario: tagged${i}\n    Given a\n    When b\n    Then c\n`
+	const profile = profileFeature(raw)
+	assert.equal(profile.scenarioCount, 13)
+	assert.equal(profile.plainCount, 8)
+	assert.equal(profile.taggedCount, 5)
+})
+
+test('the oversized finding carries the shape profile through the scan → checkOversized pipeline', () => {
+	const d = mkCorpus()
+	const raw = [
+		'@frozen',
+		'Feature: x',
+		'',
+		'  # ── First ──',
+		'  Scenario: a\n    Given a\n    When b\n    Then c',
+		'  Scenario: b\n    Given a\n    When b\n    Then c',
+		'',
+		'  # ---- Second ----',
+		'  @rubric',
+		'  Scenario: c\n    Given a\n    When b\n    Then c',
+		'  Scenario: d\n    Given a\n    When b\n    Then c',
+		'',
+	].join('\n')
+	seedNode(d, 'corpus', 'shaped', { specType: 'behavioral', concept: 'spec-structure', raw })
+	const oversized = checkOversized(scanProjectSpec(d), 3)
+	assert.equal(oversized.length, 1)
+	assert.match(oversized[0].detail, /plain 3/)
+	assert.match(oversized[0].detail, /tagged 1/)
+	assert.match(oversized[0].detail, /clusters 2/)
+})
+
+test('section clusters are counted across both comment header styles', () => {
+	const raw = [
+		'@frozen',
+		'Feature: x',
+		'',
+		'  # ── Audit ──',
+		'',
+		'  Scenario: a',
+		'    Given a',
+		'',
+		'  # ---- Classification ----',
+		'',
+		'  Scenario: b',
+		'    Given a',
+	].join('\n')
+	assert.equal(profileFeature(raw).clusterCount, 2)
+})
+
+test('a suite with no section headers reports zero clusters', () => {
+	let raw = '@frozen\nFeature: x\n'
+	for (let i = 0; i < 3; i++) raw += `\n  Scenario: s${i}\n    Given a\n    When b\n    Then c\n`
+	assert.equal(profileFeature(raw).clusterCount, 0)
+})
+
+test('the oversized finding prescribes no route', () => {
+	const d = mkCorpus()
+	let raw = '@frozen\nFeature: x\n\n  # ── Section ──\n'
+	for (let i = 0; i < 12; i++) raw += `\n  Scenario: s${i}\n    Given a\n    When b\n    Then c\n`
+	seedNode(d, 'corpus', 'big', { specType: 'behavioral', concept: 'spec-structure', raw })
+	const oversized = checkOversized(scanProjectSpec(d), 10)
+	assert.equal(oversized.length, 1)
+	assert.doesNotMatch(oversized[0].detail, /\b(split|down-?level|redesign)\b/i)
 })
 
 // ── Severity ──

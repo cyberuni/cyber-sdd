@@ -246,6 +246,15 @@ Until ratified, an off-enum `cause` still fails closed.
 
 A `cause` value that is **absent or off-enum** is a **structural error** (it breaks cross-mission matchability), not valid provenance, and **fails closed**.
 
+**Correction-line durability — a judge iteration leaves a discrete line, and a concluded mission never loses it.**
+A correction is recorded as a **discrete `correction` line**, never folded into a gate's prose alone.
+Two disciplines make it durable:
+
+- **Discrete line per judge iteration.** When the conductor self-asserts a gate reached only after a judge **FAIL** was fixed and re-judged to pass, it appends a `correction` line — `correction-kind: judge-iteration` + a matchable `cause` — **before** the gate `why` it summarizes (the correction is the evidence the `why` rests on, so it is written first, not after). A gate that passed clean, with **no** judge iteration, appends **no** such line.
+- **Finalize backstop.** A mission may conclude carrying a real correction whose combat-log line was never flushed. At finalize the conductor writes that `correction` line, **creating the combat log if absent** — so no concluded mission drops a correction that actually occurred. A mission that concluded with **no** correction or judge iteration forces **no** minimum-footprint line: the backstop recovers a real, unflushed correction, it never manufactures an empty one.
+
+The forced line stays a **combat-log `correction`**, never a ledger line — the six-kind tier split (`correction` → combat log only) holds, and **no `cause` enum value is added** for it. Its durability comes from the **Scanner distilling the committed log into `strategy`** at retro (the same path every `correction` takes), not from promoting it to the durable ledger.
+
 ### `halt` — a mid-flight stop (plan, tracked)
 
 A stop that is **not** at a gate: the agent halts mid-phase — a hard floor reached, an input it cannot supply, a blast radius it will not cross on its own.

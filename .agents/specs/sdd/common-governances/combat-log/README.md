@@ -21,7 +21,12 @@ doctrine-loop Scanner; invariant per role.
   `strategy` → the ledger — the conductor writes `leash` + self-asserted `gate`, the Scanner alone writes
   `strategy`), the per-shard `seq`, the combat-log-only write-time UTC `ts` (ledger lines carry none),
   the per-writer shard naming (`<cr-ref>.<hash>.jsonl`, ADR-0020), the pseudonymous `handle`, the
-  matchable `cause` enum, and the safe-to-publish floor.
+  matchable `cause` enum, the **correction-line durability** discipline (a judge-reject→fix→pass
+  self-assert appends a discrete `correction` line — `correction-kind: judge-iteration` + a matchable
+  `cause` — before the gate `why`, never only prose; and at finalize a mission
+  carrying an unflushed correction writes that `correction` line, creating the combat log if absent —
+  it stays a combat-log `correction`, never a ledger line, its `cause` made durable by the Scanner's
+  distillation), and the safe-to-publish floor.
 - **Conformance** — verified through consumer suites (conductor + spec-gate + Scanner), never by
   this artifact itself. A reference artifact carries this `## Subject` in place of `## Use Cases` +
   a `.feature`.

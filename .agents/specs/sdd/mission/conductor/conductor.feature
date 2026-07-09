@@ -413,3 +413,30 @@ Feature: The conductor — running one mission segment
     Given a mission still in flight
     When the conductor records a report, correction, or halt
     Then the line is flushed to the committed combat log during the mission
+
+  # ---- Correction-line durability — judge iterations leave a discrete line ----
+
+  Scenario: a self-asserted gate reached after a judge iteration appends a discrete correction line
+    Given the conductor self-asserts a gate after a judge FAIL that was fixed and re-judged to pass
+    When it records the gate verdict
+    Then it appends a correction line carrying correction-kind judge-iteration and a matchable cause
+
+  Scenario: the discrete correction line is written before the gate why it summarizes
+    Given a judge reject then fix then pass at a gate
+    When the conductor writes provenance for that gate
+    Then the correction line is appended before the gate verdict why
+
+  Scenario: a clean gate with no judge iteration appends no correction line
+    Given the conductor self-asserts a gate that passed with no judge iteration
+    When it records the gate verdict
+    Then it appends no judge-iteration correction line
+
+  Scenario: a concluding mission carrying an unflushed correction writes its correction line at finalize
+    Given a mission concluding with a real correction whose combat-log correction line was never flushed
+    When the conductor finalizes the mission
+    Then it creates the combat log if absent and appends a correction line carrying correction-kind and a matchable cause
+
+  Scenario: a concluding mission with no correction forces no minimum-footprint line
+    Given a mission that concluded with no correction or judge iteration
+    When the conductor finalizes the mission
+    Then it appends no minimum-footprint correction line

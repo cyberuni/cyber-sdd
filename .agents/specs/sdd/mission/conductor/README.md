@@ -27,7 +27,7 @@ or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
 
-The conductor's behavior groups into nine concerns, each a section below; every scenario in
+The conductor's behavior groups into ten concerns, each a section below; every scenario in
 [`conductor.feature`](./conductor.feature) maps to one of them:
 
 | Concern | What it covers |
@@ -41,6 +41,7 @@ The conductor's behavior groups into nine concerns, each a section below; every 
 | **in-flight floor** | detail-adjustment served in-session vs the three mission hard floors (Clearance / Compatibility / Conflict) that mandate a human stop |
 | **stop-provenance** | the three-layer model — `leash` block, the leash reach, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
+| **correction-line durability** | a judge-reject→fix→pass self-assert appends a discrete `correction` line (`correction-kind: judge-iteration` + a matchable `cause`) before the gate `why`, never leaving the iteration only as prose; a clean gate appends none; at finalize, a mission carrying a correction whose line was never flushed writes it — creating the combat log if absent (a combat-log `correction`, never a ledger line; a mission with no correction forces none) |
 
 ## Classification — a file's artifact-type
 
@@ -290,3 +291,18 @@ categorical `why` block; `../../design/provenance-model.md`, `combat-log-governa
 the committed `*.log.jsonl` during the mission, not at the end** — the doctrine loop reads only the
 committed log post-merge (the session may be gone, possibly on another machine), so a stop is as
 accountable, and as recoverable, as a go.
+
+**Correction-line durability.** The same "as durable as a go" rule binds gate *iterations*, not just
+halts. When the conductor self-asserts a gate it reached via a judge-reject→fix→pass, it appends a
+discrete `correction` line (`correction-kind: judge-iteration` + a matchable `cause`,
+`combat-log-governance`) **before** the gate `why` — the iteration is never left recorded only as
+prose inside the verdict `why`, because the doctrine loop's Recurring-pattern detector reads distilled
+`cause` recurrence and is blind to prose. A gate that passed clean, with no iteration, appends none.
+And because a correction can occur outside the gate self-assert path (or a mission can conclude
+having skipped the flush), the conductor runs a **finalize backstop**: a mission that ends carrying a
+real correction whose `correction` line was **never flushed** writes it now — **creating the combat
+log if none exists** and appending the `correction` line (`correction-kind` + a matchable `cause`).
+The line stays a combat-log `correction` (the six-kind tier split is invariant — `correction` never
+lands in the ledger); durability comes from the Scanner distilling the committed log into `strategy`
+ledger lines before retro deletes it, so the `cause` survives even the no-log mission class. A
+mission that concluded with **no** correction forces nothing.

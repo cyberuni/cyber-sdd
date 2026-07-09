@@ -76,7 +76,12 @@ The mission-owned **phases** (flat at `mission/`, capped at two levels):
 - **deliver (step 3)** — build **to keep** against the frozen suite, run the cold impl-judge, verify
   at the impl gate. Overview in [`delivery.md`](./delivery.md); its producer≠judge pair are direct
   mission units, [`impl-producer/`](./impl-producer/README.md) + [`impl-judge/`](./impl-judge/README.md)
-  (grouped by `concept: delivery`, not a folder).
+  (grouped by `concept: delivery`, not a folder). The
+  [`verify-scenarios/`](./verify-scenarios/README.md) bridge — the Gherkin-scenario → test-report
+  verifier that classifies each frozen scenario PASS / FAIL / UNBOUND (also `concept: delivery`) —
+  is the runnable verifier the default impl-judge **consumes** for a deterministic artifact-type,
+  reasoning by hand only over the UNBOUND set plus every high-blast-radius BOUND+PASS scenario, and
+  accepting a low-blast-radius BOUND+PASS scenario on the bridge report (`sdd-impl-judge-consume-bridge`).
 - **[`handoff/`](./handoff/README.md) (step 4)** — land step-3's verified result in the
   project-declared delivery shape (commits → `main` / branch → PR / prose).
 

@@ -43,6 +43,11 @@ The procedure runs in two **modes** — the freeze is the boundary; every scenar
   a unit-test mapping is unavoidable, the assertion's **oracle semantics come from the frozen
   scenario** (a faithful mapping), never from the builder's own sense of done — the cold impl-judge
   re-derives that oracle and checks the mapping is faithful (`../impl-judge/`, ADR-0016).
+- **Author a deterministic verification to bind via the bridge convention.** When the verification
+  is a runnable test a [`../verify-scenarios/`](../verify-scenarios/README.md) bridge will read,
+  place it under a `spec:<node>` describe namespace and give it the **verbatim scenario name** as its
+  title (or an `@id:<slug>` leaf), so the test report binds back to the frozen scenario and the
+  impl-judge can consume the bridge instead of re-verifying it by hand.
 - **The producer's own test run is a pre-filter, not a verdict.** The builder iterates to green on
   its own checks to learn it is done; that passing run **gates entry to judging, never the gate
   outcome**. The impl-judge decides. A scenario left without a verification is the gap the cold

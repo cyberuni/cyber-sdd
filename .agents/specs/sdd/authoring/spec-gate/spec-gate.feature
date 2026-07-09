@@ -182,35 +182,48 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
 
   # ---- Referenced-artifact-exists pre-filter ----
 
-  Scenario: a touched spec.md or README referencing a nonexistent artifact fails the gate closed
-    Given a touched spec.md or README naming a skill, engine, or artifact path that does not exist on disk
+  Scenario: an unresolved reference the CR introduces is surfaced for judgment, not hard-blocked
+    Given a touched spec.md or README whose CR-introduced backtick path does not resolve on disk
     When the gate applies its structural checks
-    Then the gate fails closed and advances nothing
-    And it does not spawn the cold judge
+    Then the gate surfaces the unresolved introduced reference as a judgment finding
+    And it does not fail the gate closed on that reference alone
+    And it still spawns the cold judge
 
-  Scenario: a template placeholder or glob in a referenced path is not a violation
-    Given a touched spec.md or README naming a path containing a template placeholder or a glob
+  Scenario: a pre-existing unresolved reference in a file touched for other reasons is not gated
+    Given a touched spec.md or README carrying a pre-existing backtick path, unchanged by the CR, that does not resolve on disk
     When the gate applies its structural checks
-    Then the referenced-artifact check raises no violation for that path
+    Then the referenced-artifact check raises no finding for that pre-existing path
 
-  Scenario: the referenced-artifact check scopes to the CR's touched spec.md and README files
-    Given a CR that touched a subset of the project's spec.md and README files
+  Scenario: a template placeholder or glob in an introduced path is not a finding
+    Given a touched spec.md or README whose CR-introduced path contains a template placeholder or a glob
+    When the gate applies its structural checks
+    Then the referenced-artifact check raises no finding for that path
+
+  Scenario: the referenced-artifact check scopes to the paths the CR introduced
+    Given a touched spec.md or README carrying both pre-existing and CR-introduced backtick paths
     When the gate runs the referenced-artifact check
-    Then the check covers only the touched files, not the whole tree
+    Then the check covers only the CR-introduced paths, not every path in the touched files
 
-  Scenario: every touched reference resolving passes the pre-filter and the judge runs
-    Given every artifact path named in the touched spec.md and README files resolves on disk
+  Scenario: every introduced reference resolving raises no finding and the judge runs
+    Given every backtick path the CR introduced in the touched spec.md and README files resolves on disk
     When the gate applies its structural checks
-    Then the referenced-artifact check raises no violation
+    Then the referenced-artifact check raises no finding
     And the gate spawns the cold judge
 
   # ---- Referenced-artifact-exists: sibling-prose sweep ----
 
-  Scenario: a touched design doc or nested node doc referencing a nonexistent artifact fails the gate closed
-    Given a touched prose .md under the spec tree other than spec.md or README naming an artifact path that does not exist on disk
+  Scenario: an unresolved reference the CR introduces in a design or nested node doc is surfaced for judgment
+    Given a touched prose .md under the spec tree other than spec.md or README whose CR-introduced backtick path does not resolve on disk
     When the gate applies its structural checks
-    Then the gate fails closed and advances nothing
-    And it does not spawn the cold judge
+    Then the gate surfaces the unresolved introduced reference as a judgment finding
+    And it does not fail the gate closed on that reference alone
+    And it still spawns the cold judge
+
+  Scenario: an introduced reference resolving in a design or nested node doc raises no finding
+    Given a touched prose .md under the spec tree other than spec.md or README whose CR-introduced backtick path resolves on disk
+    When the gate applies its structural checks
+    Then the referenced-artifact check raises no finding for that file
+    And the gate spawns the cold judge
 
   Scenario: the referenced-artifact sweep covers every touched prose .md under the spec tree
     Given a CR that touched prose .md files beyond spec.md and README under the spec tree

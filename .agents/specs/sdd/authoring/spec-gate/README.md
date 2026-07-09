@@ -22,7 +22,7 @@ it does not produce.
 | **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
-| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a referenced skill/engine/artifact path that resolves to nothing → **fail closed**, scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
+| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
 
 Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
@@ -127,21 +127,32 @@ gate stays verdict-only — it fixes nothing, it reports the form violation for 
 ## The referenced-artifact-exists pre-filter
 
 Alongside the suite-form check, and also **before the cold judge is spawned**, the gate runs a
-deterministic scan for **broken artifact references** in the CR's **touched** `spec.md`/`README.md`
-files: every backtick-wrapped path shaped like a relative (`./`, `../`) or repo-root-relative
-(`.agents/`, `plugins/`, `packages/`, `apps/`, `docs/`, `.claude/`) reference must resolve to a real
-file or directory; a template placeholder (`<project>`) or glob (`*.plan.md`) is exempt. It **fails
-closed**: a broken reference advances no status and the judge is not spawned. **Deliberately scoped
-to `--files`, never the tree-wide `--root` sweep** — the accumulated corpus legitimately names
-example/convention paths (an opt-in config not yet created, a hypothetical nested project) a blind
-tree-wide scan cannot distinguish from a real broken reference, so this check only ever gates a
-CR's own new/touched prose.
+deterministic scan for **broken artifact references** in the CR's **touched** prose `.md` files:
+every backtick-wrapped path shaped like a relative (`./`, `../`) or repo-root-relative (`.agents/`,
+`plugins/`, `packages/`, `apps/`, `docs/`, `.claude/`) reference; a template placeholder
+(`<project>`) or glob (`*.plan.md`) is exempt.
 
-The sweep covers **every touched prose `.md` under the spec tree** — not only `spec.md`/`README.md`
-but `design/*.md` and any nested node doc the CR touched — so a stale reference in a sibling design
-doc is caught the same way. The `--files` touched-scope is what keeps this safe; the file's name
-never gated it, only whether the CR touched it. Contradiction detection (a sibling doc *asserting*
-behavior a CR changed) stays a semantic judge concern, never this deterministic check.
+**Diff-scoped — only the refs the CR introduces.** The scan gates only the backtick paths a CR
+**adds** against the committed baseline, never the pre-existing refs a file already carried and the
+CR left untouched. Prose legitimately names **can-exist** paths — an opt-in config (`.agents/sdd/*`
+runtime-settings home, created only on opt-in), an example, a not-yet-built artifact — and touching
+a file for an unrelated reason must not pull its standing refs into scope. Non-existence there is
+correct, not a broken reference: **referenced ≠ must-exist**.
+
+**Surfaced for judgment, not failed closed.** An unresolved **introduced** ref cannot be classified
+from the path alone (a typo vs an intended-optional path), so it is **surfaced as a judgment
+finding** the gate reports — not a deterministic hard block, and the cold judge still runs.
+Adjudication follows the four-C floor: an obvious stale mistake → a conductor-served minor fix; a
+plausibly-intended-optional path → accept or escalate to the human. (The **use-case-coverage** check
+below stays fail-closed — a Use Cases row naming a missing scenario is not a can-exist case.)
+
+**Deliberately scoped to `--files`, never the tree-wide `--root` sweep** — the check only ever
+inspects a CR's own touched prose. The sweep covers **every touched prose `.md` under the spec
+tree** — not only `spec.md`/`README.md` but `design/*.md` and any nested node doc the CR touched —
+so a stale reference a CR **introduces** into a sibling design doc is surfaced the same way. The
+`--files` touched-scope plus the introduced-only diff is what keeps this safe; the file's name never
+gated it. Contradiction detection (a sibling doc *asserting* behavior a CR changed) stays a semantic
+judge concern, never this deterministic check.
 
 ## The use-case-coverage pre-filter
 

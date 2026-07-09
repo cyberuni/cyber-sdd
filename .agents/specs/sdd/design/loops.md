@@ -62,9 +62,11 @@ Each phase's mechanics live in its **home** — this file owns the topology, not
 
 ## The four outer loops — post-mission (step 5)
 
-Once a Mission cycle completes, **formation** fires automatically — handoff spawns it by name,
-detached (`../mission/handoff/README.md`). The other three outer loops (campaign, doctrine, forge)
-may fire, invoked manually today.
+Once a Mission cycle completes, the outer loops may fire **post-mission** — invoked deliberately,
+not auto-run. **formation** is run on-demand via `sdd:manage` ("audit the corpus structure" →
+`formation-loop`); handoff **nudges** it with a reminder after landing but spawns nothing
+(`../mission/handoff/README.md`). The other three (campaign, doctrine, forge) are likewise invoked
+manually today.
 They are a **complete cover** of what a retrospective can decide needs to change, and each emits its findings as a **new CR** — so the outer loops are CR-generators that close the single-intake loop.
 They are **not** part of the Mission Loop; nothing re-opens a closed cycle in place.
 

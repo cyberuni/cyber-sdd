@@ -38,7 +38,7 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 | **distilled public summary** | append an outward-facing conclusion + follow-ups (which re-enter as new CRs) to the source — not the combat log |
 | **no new floor** | handoff raises no new mandatory escalation; earlier hard floors already fired |
 | **the plan is kept, not landed, not retired** | the `.plan.md` stays in the PR as scratch, is not landed as a delivery artifact, and is not retired early |
-| **trigger the formation loop** | spawn the corpus-wide formation loop, detached, after landing — no wait on its result |
+| **nudge the formation loop** | surface a reminder after landing that a corpus-wide formation pass is due (via `sdd:manage`) — spawn nothing, gate nothing |
 
 ## Inputs
 
@@ -68,12 +68,14 @@ node already in the right place — no follow-up formation CR.
 - **Usually a no-op.** With the routing table + `place-node` (`../../project-spec/`), explore's provisional
   pick is usually already the blessed home, so most missions relocate nothing.
 
-**Triggering the corpus-wide pass.** After landing (below), handoff **spawns** `sdd-warden` by
-name for the full corpus-wide formation pass and does **not wait** for it to return — handoff
-never reads back the Warden's findings, so the mission's own completion is not gated on a
-corpus-wide scan. This is the one place the formation loop's documented "post-mission" cadence is
-actually wired; the loop's own behavior (what the pass does once running) is owned entirely by
-`../../formation/`.
+**Nudging the corpus-wide pass.** After landing (below), handoff **does not spawn** the Warden. It
+**surfaces a one-line reminder** that a corpus-wide formation pass is due, pointing to `sdd:manage`
+("audit the corpus structure" → `formation-loop`). The pass is **on-demand**, run deliberately when
+someone chooses — a full corpus scan on every mission landing is costly and noisy, and `sdd:manage`
+already owns the on-demand trigger. Handoff gates nothing on it and reads back nothing; the loop's
+own behavior (what the pass does once running) is owned entirely by `../../formation/`. The
+formation loop's documented "post-mission" cadence is unchanged — only its trigger moves from an
+auto-spawn to this nudge.
 
 ## The delivery-shape contract
 

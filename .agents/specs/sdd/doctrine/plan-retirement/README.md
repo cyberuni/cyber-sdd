@@ -21,13 +21,16 @@ and, for each cleared `<cr-ref>`, deletes `<cr-ref>.plan.md` + `<cr-ref>.log.jso
 
 **Subject** — the gated, idempotent retirement sweep: distill and delete are decoupled; the
 delete removes a plan's two files as a tracked deletion only when its source is done/merged **and**
-the plan has been distilled; everything else is a no-op.
+the plan has been distilled — the sweep **verifies the distilled half mechanically** against the
+project ledger (a `strategy` entry whose `distills` equals the `<cr-ref>` must exist) and
+fail-closes when it is absent; everything else is a no-op.
 
 **Non-goals** — it does **not** distill (the Scanner does that earlier, at `→ implemented`), does
-**not** judge source-status or distilled-ness itself (the **caller clears** a `<cr-ref>` for
-retirement — see *The clearance boundary*), does **not** touch a plan it was not explicitly
-cleared to retire, and does **not** delete from git **history** (a tracked deletion removes the
-files from the *tree* only).
+**not** judge **source-status** itself (that half needs network/`gh`/Asana — the **caller clears**
+it — see *The clearance boundary*), does **not** touch a plan it was not explicitly cleared to
+retire, and does **not** delete from git **history** (a tracked deletion removes the files from the
+*tree* only). It **does** verify the **distilled** half itself, because that signal is local and
+mechanically checkable.
 
 Every scenario in [`plan-retirement.feature`](./plan-retirement.feature) maps to one of these
 behaviors. Each asserts an **observable outcome of the sweep** over a given cleared set — the
@@ -35,24 +38,34 @@ filesystem effect — never the caller's clearance decision (which is out of thi
 
 | Behavior | What it covers |
 |---|---|
-| **delete-only, never distill** | the sweep only deletes; distill (writing `strategy`/recurrence to the ledger) is the Scanner's earlier, separate step — the sweep writes nothing to the ledger |
-| **deletes both plan files** | a cleared, present `<cr-ref>` removes `<cr-ref>.plan.md` **and** `<cr-ref>.log.jsonl` as a tracked deletion |
-| **partial pair is no-op'd** | a cleared `<cr-ref>` whose `log.jsonl` is already gone still deletes `plan.md` and no-ops the missing half |
-| **fail-closed — uncleared is untouched** | a plan the caller did not clear (its source still open, or never distilled) is left untouched; only an explicitly-cleared `<cr-ref>` is ever touched |
+| **delete-only, never distill** | the sweep only deletes; distill (writing `strategy` to the ledger) is the Scanner's earlier, separate step — the sweep only **reads** the ledger to verify distillation and writes nothing to it |
+| **distilled-gate, mechanical** | a cleared, present `<cr-ref>` is deleted only when a `strategy` entry with `distills == <cr-ref>` exists in the ledger; absence is **fail-closed** (combat log survives so it can still be distilled) |
+| **distills ≠ cross-ref** | a `strategy` that names the `<cr-ref>` only in its `evidence` (as prior cross-reference), not in `distills`, does **not** clear it — the gate keys on `distills`, never a substring mention |
+| **deletes both plan files** | a cleared, present, distilled `<cr-ref>` removes `<cr-ref>.plan.md` **and** `<cr-ref>.log.jsonl` as a tracked deletion |
+| **partial pair is no-op'd** | a cleared, distilled `<cr-ref>` whose `log.jsonl` is already gone still deletes `plan.md` and no-ops the missing half |
+| **fail-closed — uncleared is untouched** | a plan the caller did not clear (its source still open) is left untouched; only an explicitly-cleared `<cr-ref>` is ever considered |
 | **exact-stem match** | clearing a `<cr-ref>` never collateral-deletes a different `<cr-ref>` it is a prefix of |
 | **idempotent — missing plan is a no-op** | a cleared `<cr-ref>` with no plan on disk deletes nothing; the sweep is safe to re-run |
 
 ## The clearance boundary
 
-The two gating signals — **source = `done`/merged** and **distilled** — are the **caller's
-judgment**, not the script's. The source-status query (`github-NN` → GH issue, `asana-<gid>` →
-Asana, `local-<slug>` → the local store) needs network/`gh` and judgment; "distilled" means the
-Scanner's distill ran and wrote `strategy`/recurrence to the ledger for that `<cr-ref>`. The
-Scanner determines both, then **clears** the set of `<cr-ref>`s for retirement and hands them to
-the sweep. The sweep is the **mechanical, fail-closed gate + filesystem act**: given the cleared
-set, it deletes exactly those plans that exist and nothing else. Anything not cleared, missing, or
-already gone is a no-op. This keeps the deterministic deletion testable and the policy judgment
-with the agent that can make it.
+The two gating signals **split by verifiability**. **Source = `done`/merged** stays the **caller's
+judgment**: the query (`github-NN` → GH issue, `asana-<gid>` → Asana, `local-<slug>` → the local
+store) needs network/`gh` and judgment the sweep cannot make, so the Scanner determines it and
+**clears** the `<cr-ref>`. **Distilled** is **local and mechanically checkable** — it means a
+`strategy` entry with `distills == <cr-ref>` exists in the project ledger — so the sweep **verifies
+it itself** rather than trusting the caller's assertion. Keying the gate on `distills` (not a
+substring mention) is what prevents a `<cr-ref>` cited only as cross-reference `evidence` from being
+mistaken for distilled.
+
+This division is deliberate: a caller-asserted distilled half once let a plan + combat log be
+deleted before any distillation existed, destroying the evidence the distill was meant to preserve.
+Because the check is local, leaving it to the caller bought nothing but a silent data-loss hole;
+pulling it into the fail-closed sweep closes it. The sweep is the **mechanical, fail-closed gate +
+filesystem act**: given the cleared set, it deletes exactly those plans that are present **and**
+distilled, and nothing else. Anything not cleared, not distilled, missing, or already gone is a
+no-op. The deterministic deletion stays testable; only the genuinely non-local judgment (source
+status) stays with the agent that can make it.
 
 The sweep's **authoritative observable is the filesystem effect** — which plan files it deleted.
 Its printed summary of the retired `<cr-ref>`s is **advisory** (operator feedback), **not** part of

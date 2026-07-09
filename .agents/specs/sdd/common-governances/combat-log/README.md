@@ -27,6 +27,15 @@ doctrine-loop Scanner; invariant per role.
   carrying an unflushed correction writes that `correction` line, creating the combat log if absent —
   it stays a combat-log `correction`, never a ledger line, its `cause` made durable by the Scanner's
   distillation), and the safe-to-publish floor.
+- **The `strategy` subject (`distills`)** — every `strategy` entry the Scanner drafts from a Ship or
+  Kill records the **one mission it was distilled from** in a `distills` field carrying that
+  mission's `<cr-ref>` (the same identifier that names the plan and the mission's `cr` on `leash` /
+  `gate` lines). It is **distinct from the cross-referenced cr-refs in `evidence`**: `distills` names
+  the subject, `evidence` names what the recommendation leans on. This field is the machine-checkable
+  hook the retirement sweep keys on to confirm a plan was distilled before deleting its combat log
+  (`../../doctrine/plan-retirement`) — an unratified `strategy` (`ratified: false`) still counts as a
+  distillation. Milestone / drift / token-waste strategy that has no single subject mission may omit
+  it; only Ship and Kill distillations gate a retirement.
 - **Conformance** — verified through consumer suites (conductor + spec-gate + Scanner), never by
   this artifact itself. A reference artifact carries this `## Subject` in place of `## Use Cases` +
   a `.feature`.

@@ -118,6 +118,24 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Then the entry is unratified
     And it carries the driving evidence that drove it
 
+  Scenario: a Ship or Kill distillation records the mission it distills
+    Given the Scanner drafts strategy from a mission that shipped or was killed
+    When it is recorded
+    Then the entry records the distilled mission's cr-ref as what it distills
+    And that field is distinct from any cross-referenced cr-refs in its evidence
+
+  Scenario: a distillation's subject is the one mission it was drafted from, not its cross-refs
+    Given a distillation whose evidence cross-references other missions' cr-refs
+    When it is recorded
+    Then only the mission it was drafted from is recorded as what it distills
+    And the cross-referenced cr-refs stay in evidence and are never recorded as distilled
+
+  Scenario: a strategy with no single subject mission records no distilled cr-ref
+    Given the Scanner drafts milestone, drift, or token-waste strategy with no single subject mission
+    When it is recorded
+    Then the entry records no distilled cr-ref
+    And only a Ship or Kill distillation gates a plan's retirement
+
   Scenario: strategy lands append-only in the Scanner's own ledger shard
     Given a strategy entry
     When the Scanner records it

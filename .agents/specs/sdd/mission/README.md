@@ -79,9 +79,9 @@ The mission-owned **phases** (flat at `mission/`, capped at two levels):
   (grouped by `concept: delivery`, not a folder). The
   [`verify-scenarios/`](./verify-scenarios/README.md) bridge — the Gherkin-scenario → test-report
   verifier that classifies each frozen scenario PASS / FAIL / UNBOUND (also `concept: delivery`) —
-  is the runnable verifier the impl-judge is **designed to consume** to reason by hand only over the
-  UNBOUND set; that wiring is a separate CR against the impl-judge's frozen contract
-  (`sdd-impl-judge-consume-bridge`).
+  is the runnable verifier the default impl-judge **consumes** for a deterministic artifact-type,
+  reasoning by hand only over the UNBOUND set plus every high-blast-radius BOUND+PASS scenario, and
+  accepting a low-blast-radius BOUND+PASS scenario on the bridge report (`sdd-impl-judge-consume-bridge`).
 - **[`handoff/`](./handoff/README.md) (step 4)** — land step-3's verified result in the
   project-declared delivery shape (commits → `main` / branch → PR / prose).
 

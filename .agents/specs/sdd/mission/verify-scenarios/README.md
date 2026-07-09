@@ -7,15 +7,16 @@ concept: delivery
 
 The **verify-scenarios** procedure: for a frozen `.feature` and a spec-node path, report **PASS /
 FAIL / UNBOUND** per scenario by reading the reports of one or more configured test-result
-**sources**, so the impl-judge runs the project's own suite and reasons **by hand only over the
-UNBOUND set** instead of re-verifying every scenario. It is a **language/runner-agnostic** bridge
-and the SDD **default** verification path — deterministic test-running is not a plugin specialty; an
-unmatched artifact-type already falls through to SDD defaults. The concrete engine is the
-[`verify-scenarios`](../../../../plugins/sdd/skills/verify-scenarios/) skill, a self-contained
-`.mts` script. It is the bridge the impl gate is **designed to consume** — wiring the default
-[`../impl-judge/`](../impl-judge/README.md) to run it and narrow re-derivation to the UNBOUND set is
-a **separate CR** (`sdd-impl-judge-consume-bridge`) against that node's frozen contract; until then
-this engine stands on its own as the runnable verifier.
+**sources**, so the impl-judge runs the project's own suite and reasons by hand only over the set the
+run-level leash requires, instead of re-verifying every scenario. It is a **language/runner-agnostic**
+bridge and the SDD **default** verification path — deterministic test-running is not a plugin
+specialty; an unmatched artifact-type already falls through to SDD defaults. The concrete engine is
+the [`verify-scenarios`](../../../../plugins/sdd/skills/verify-scenarios/) skill, a self-contained
+`.mts` script. It is the bridge the impl gate **consumes** — the default
+[`../impl-judge/`](../impl-judge/README.md) runs it for a deterministic artifact-type and judges by
+hand only the UNBOUND set plus every high-blast-radius BOUND+PASS scenario, accepting a
+low-blast-radius BOUND+PASS scenario on the report (wired by `sdd-impl-judge-consume-bridge`); a
+domain with no bridge configured falls back to full by-hand judging.
 
 ## Use Cases
 

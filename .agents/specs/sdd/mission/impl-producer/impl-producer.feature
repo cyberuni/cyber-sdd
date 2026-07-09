@@ -65,6 +65,12 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     Then the assertion's expected outcome is derived from the frozen scenario
     And it is not derived from the builder's own sense of done
 
+  Scenario: a deterministic verification is authored to bind to its scenario via the bridge convention
+    Given the impl-producer authoring a deterministic verification a scenario bridge will read
+    When it names the test
+    Then it places the test under a spec-node describe namespace and titles it with the verbatim scenario name
+    And a report of that test binds back to the frozen scenario
+
   Scenario: a frozen scenario may be left without a verification only as a reported gap
     Given a frozen scenario the build cannot yet verify
     When the impl-producer completes

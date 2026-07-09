@@ -30,7 +30,8 @@ The procedure runs at the impl gate; every scenario in
 | Behavior | What it checks |
 |---|---|
 | **re-derive the oracle from the frozen scenario** | derive "what passing means" from the scenario's Given/When/Then, **not** from the producer's chosen assertions; confirm the authored check genuinely asserts that behavior |
-| **re-derivation is universal (not leash-scoped)** | the oracle is re-derived for **every** scenario regardless of blast radius — only the exercise backstop is leash-scoped; the producer's passing run never substitutes for re-derivation on a low-blast-radius scenario |
+| **re-derivation is universal without a bridge** | absent a scenario bridge, the oracle is re-derived for **every** scenario regardless of blast radius; the producer's passing run never substitutes for re-derivation on a low-blast-radius scenario |
+| **consume the scenario bridge (deterministic types)** | for a deterministic artifact-type with a `scenario-bridge.toml`, run [`../verify-scenarios/`](../verify-scenarios/README.md) to classify each frozen scenario PASS / FAIL / UNBOUND; then judge by hand only the set the leash requires — **UNBOUND** always re-derived + verified, **FAIL** failing, a **BOUND+PASS** scenario re-derived + backstopped at **high** blast radius but **accepted on the report** at **low** blast radius; the split reads the **run-level leash**, not a per-scenario tag. A domain with **no** bridge falls back to full by-hand judging (no regression) |
 | **map each frozen scenario to its verification** | one functional test/eval per scenario, located among the impl-producer's verification, never free-authored |
 | **a scenario passes only when its behavior is exercised** | pass only when a passing check exercises the observable behavior the scenario asserts; a check that passes without exercising it does not count |
 | **the producer's green run is a pre-filter, not the verdict** | the producer's own passing test run is necessary, never sufficient — the judge's independent re-derivation decides |
@@ -58,6 +59,15 @@ verdict is layered, cheap → expensive, scaled by the **leash** (blast radius,
   behavior the scenario names, **not** the whole codebase (the cost is bounded by the leash, not flat).
 - **Producer green = pre-filter.** The producer iterates to green on its own; that run gates entry to
   judging, never the verdict.
+
+For a **deterministic** artifact-type this scaling is mechanized by the
+[`../verify-scenarios/`](../verify-scenarios/README.md) bridge: it classifies each frozen scenario
+PASS / FAIL / UNBOUND from the project's own test reports, and the judge spends its by-hand budget
+only where the **run-level leash** says a wrong verdict costs something — every **UNBOUND** scenario
+(re-derive + verify) and every **high-blast-radius BOUND+PASS** scenario (re-derive + exercise
+backstop), while a **low-blast-radius BOUND+PASS** scenario is accepted on the bridge report (the
+same low-stakes bar that already lets the backstop be skipped). This is the deterministic path only;
+absent a bridge the judge re-derives every scenario by hand.
 
 ## Cold and advisory
 

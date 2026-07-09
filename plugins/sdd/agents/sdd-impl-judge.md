@@ -57,9 +57,13 @@ verdict is **layered, cheap → expensive, scaled by the leash** (blast radius):
 - **Re-derive from the frozen contract (primary).** Treat each frozen scenario as the **specified
   oracle**: derive the expected behavior from its `Given` / `When` / `Then`, and independently
   confirm the producer's check asserts **that** behavior — never trust the producer's chosen
-  assertion as the definition of passing. Re-derivation runs for **every** scenario **regardless of
-  blast radius** — only the exercise backstop below is leash-scoped; a low-blast-radius scenario
-  still gets its own re-derived oracle, never the producer's green run as a substitute.
+  assertion as the definition of passing. **For a scenario you judge by hand** — every scenario
+  absent a bridge, and every UNBOUND or high-blast-radius scenario under one — re-derivation runs
+  **regardless of blast radius**; only the exercise backstop below is further leash-scoped, and a
+  by-hand low-blast-radius scenario still gets its own re-derived oracle, never the producer's green
+  run as a substitute. The one place the producer's green run *does* stand in is a **low**-blast-radius
+  BOUND+PASS scenario under a scenario bridge (the deterministic carve-out below) — where the leash
+  itself says a wrong verdict is cheap.
 - **Exercise backstop (objective, leash-scoped).** For a **high-blast-radius** scenario, verify the
   passing check **fails when the named behavior breaks** — a scoped behavioral mutation applied to
   the behavior the scenario names, **not** the whole codebase (cost bounded by the leash, not flat).
@@ -67,18 +71,45 @@ verdict is **layered, cheap → expensive, scaled by the leash** (blast radius):
 - **Producer green = pre-filter.** The producer iterates to green on its own checks; that run gates
   entry to judging, **never** the verdict — your independent re-derivation decides each scenario.
 
+For a **deterministic** artifact-type this leash-scaling is mechanized by the `verify-scenarios`
+bridge: it classifies each frozen scenario PASS / FAIL / UNBOUND from the project's own test
+reports, and you re-derive by hand only the set the leash requires (every UNBOUND, every
+high-blast-radius BOUND+PASS), accepting a **low**-blast-radius BOUND+PASS scenario on the report.
+This is the deterministic path only — absent a bridge you re-derive every scenario by hand. It never
+weakens independence where blast radius is real; a bound test's *name* matching a scenario is not
+proof its *assertion* matches the oracle, so a high-blast-radius bound scenario still gets the full
+re-derivation + backstop (below).
+
 ## Map and run
 
-1. **Map each frozen scenario to its authored verification.** Read the `.feature` and locate **one
-   functional check per scenario** among `VERIFICATION_PATHS` / `IMPLEMENTATION_PATHS`, anchored to
-   the scenario — never free-author a check of your own. **Prefer the directly-executed frozen
-   scenario** (the `.feature` as the runnable check) where the producer wired it; otherwise read the
-   mapped check and confirm its oracle matches the scenario.
-2. **Run each check and confirm it exercises the asserted behavior.** A scenario passes **only when
-   a passing check exercises the observable behavior it asserts** — a check that passes without
-   exercising that behavior does not count. A scenario with **no** verification, or a **failing**
-   one, is `failing`.
-3. **Apply the exercise backstop** to each high-blast-radius scenario (above); skip it for
+0. **For a deterministic artifact-type with a scenario bridge, run the bridge first and partition.**
+   When the `ARTIFACT_TYPE` is deterministic (a runnable test suite proves it) **and** the project
+   carries a `.agents/sdd/scenario-bridge.toml`, run `verify-scenarios` (the
+   `mission/verify-scenarios` engine) over the frozen `.feature` — it classifies each scenario
+   **PASS / FAIL / UNBOUND** from the project's own test reports (a **BOUND** scenario has a bound
+   result — PASS or FAIL; **UNBOUND** has none). Then spend your by-hand budget only
+   where the **run-level leash** says a wrong verdict costs something:
+   - **UNBOUND** — no bound test proves it → **judge it by hand** (steps 1–3 below), always.
+   - **FAIL** — a bound test fails → the scenario is `failing`, mechanically.
+   - **BOUND + PASS at high blast radius** — **judge it by hand** (re-derive + exercise backstop);
+     never trust the bound test on a high-blast-radius scenario.
+   - **BOUND + PASS at low blast radius** — **accept it on the bridge report**, no by-hand
+     re-derivation (the same low-stakes bar that already lets the backstop be skipped).
+
+   The blast-radius split reads the **run-level leash** the conductor set, not a per-scenario tag.
+   Absent a bridge (no config, or a non-deterministic type), skip this step — **every** scenario is
+   judged by hand (steps 1–3), re-derived regardless of blast radius.
+
+1. **Map each by-hand scenario to its authored verification.** For each scenario in the by-hand set,
+   read the `.feature` and locate **one functional check** among `VERIFICATION_PATHS` /
+   `IMPLEMENTATION_PATHS`, anchored to the scenario — never free-author a check of your own.
+   **Prefer the directly-executed frozen scenario** (the `.feature` as the runnable check) where the
+   producer wired it; otherwise read the mapped check and confirm its oracle matches the scenario.
+2. **Run each by-hand check and confirm it exercises the asserted behavior.** A scenario passes
+   **only when a passing check exercises the observable behavior it asserts** — a check that passes
+   without exercising that behavior does not count. A scenario with **no** verification, or a
+   **failing** one, is `failing`.
+3. **Apply the exercise backstop** to each high-blast-radius by-hand scenario (above); skip it for
    low-blast-radius ones.
 4. **Fold in the orthogonal structural read** — a fit / no-duplication / no-conflict reading
    (the `architect-impl` lens), orthogonal to the builder's coverage lens. A fit / duplication /

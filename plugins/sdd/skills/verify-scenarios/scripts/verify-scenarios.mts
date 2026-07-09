@@ -322,6 +322,30 @@ function flag(argv: string[], name: string): string | undefined {
 	return i === -1 ? undefined : argv[i + 1]
 }
 
+// Resolves the source set for a run: `--report` bypasses the configured sources entirely with a
+// single ad-hoc junit source; otherwise the sources come from the (resolved) config file.
+export function resolveSources(argv: string[], root: string): SourceConfig[] {
+	const reportFlag = flag(argv, '--report')
+	if (reportFlag) {
+		return [{ adapter: 'junit', reportPath: reportFlag }]
+	}
+	const configPath = join(root, flag(argv, '--config') ?? '.agents/sdd/scenario-bridge.toml')
+	return readSourcesConfig(configPath)
+}
+
+// Renders a fold report in the requested format, defaulting to text.
+export function renderReport(report: FoldReport, format: string): string {
+	if (format === 'json') return JSON.stringify(report, null, 2)
+	if (format === 'toon') return formatToon(report)
+	return formatText(report)
+}
+
+// Non-zero exactly when any scenario is UNBOUND or FAIL; zero only when every scenario is bound
+// and passing.
+export function exitCode(report: FoldReport): number {
+	return report.unbound > 0 || report.fail > 0 ? 1 : 0
+}
+
 export function main(argv: string[]): number {
 	const root = flag(argv, '--root') ?? '.'
 	const feature = flag(argv, '--feature')
@@ -337,28 +361,15 @@ export function main(argv: string[]): number {
 		return 1
 	}
 
-	let sources: SourceConfig[]
-	const reportFlag = flag(argv, '--report')
-	if (reportFlag) {
-		sources = [{ adapter: 'junit', reportPath: reportFlag }]
-	} else {
-		const configPath = join(root, flag(argv, '--config') ?? '.agents/sdd/scenario-bridge.toml')
-		sources = readSourcesConfig(configPath)
-	}
+	const sources = resolveSources(argv, root)
 
 	const results = sources.flatMap((s) => runSource(s, root, run))
 	const scenarioKeys = getScenarioKeys(root, feature)
 	const report = foldResults(scenarioKeys, results, node)
 
-	if (format === 'json') {
-		w(JSON.stringify(report, null, 2))
-	} else if (format === 'toon') {
-		w(formatToon(report))
-	} else {
-		w(formatText(report))
-	}
+	w(renderReport(report, format))
 
-	return report.unbound > 0 || report.fail > 0 ? 1 : 0
+	return exitCode(report)
 }
 
 if (import.meta.main) process.exit(main(process.argv.slice(2)))

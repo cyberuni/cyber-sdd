@@ -1,12 +1,22 @@
 import assert from 'node:assert/strict'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { test } from 'node:test'
 import {
+	exitCode,
 	foldResults,
+	formatText,
 	formatToon,
 	junitResultsFromXml,
 	junitTestcaseToResult,
+	main,
 	parseJUnitTestcases,
 	parseSourcesToml,
+	readSourcesConfig,
+	renderReport,
+	resolveSources,
+	runSource,
 	scenarioKeysFromParse,
 	unescapeXml,
 } from './verify-scenarios.mts'
@@ -52,6 +62,23 @@ adapter = "junit"
 test('parseSourcesToml on empty/absent config yields []', () => {
 	assert.deepEqual(parseSourcesToml(''), [])
 	assert.deepEqual(parseSourcesToml('# nothing here\n'), [])
+})
+
+test('parseSourcesToml drops a block missing its adapter even when reportPath is present', () => {
+	const toml = `
+[[source]]
+reportPath = "report.xml"
+`
+	assert.deepEqual(parseSourcesToml(toml), [])
+})
+
+test('readSourcesConfig on an absent config file returns [] without throwing', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'verify-scenarios-'))
+	try {
+		assert.deepEqual(readSourcesConfig(join(dir, 'does-not-exist.toml')), [])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
 })
 
 // ── scenario keys from gherkin-cli JSON ──
@@ -282,4 +309,147 @@ test('formatToon emits the TOON header/row shape', () => {
 	const out = formatToon(report)
 	assert.match(out, /^scenarios\[1\]\{name,key,state,resultCount\}:/)
 	assert.match(out, /summary\{node,total,bound,pass,fail,unbound\}:/)
+})
+
+// ── union across sources ──
+
+test('results from every configured source are unioned before the fold', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'verify-scenarios-'))
+	try {
+		writeFileSync(
+			join(dir, 'a.xml'),
+			`<testsuite><testcase classname="c" name="spec:node/x > scenario a"/></testsuite>`,
+		)
+		writeFileSync(
+			join(dir, 'b.xml'),
+			`<testsuite><testcase classname="c" name="spec:node/x > scenario b"/></testsuite>`,
+		)
+		const sources = [
+			{ adapter: 'junit', reportPath: 'a.xml' },
+			{ adapter: 'junit', reportPath: 'b.xml' },
+		]
+		const results = sources.flatMap((s) => runSource(s, dir, false))
+		const report = foldResults(
+			[
+				{ name: 'scenario a', key: 'scenario a' },
+				{ name: 'scenario b', key: 'scenario b' },
+			],
+			results,
+			'node/x',
+		)
+		assert.equal(report.pass, 2)
+		assert.equal(report.unbound, 0)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ── resolveSources ──
+
+test('resolveSources: --report bypasses the configured sources with one ad-hoc junit source', () => {
+	const sources = resolveSources(['--report', 'x.xml'], '.')
+	assert.deepEqual(sources, [{ adapter: 'junit', reportPath: 'x.xml' }])
+})
+
+test('resolveSources: without --report it reads the sources config', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'verify-scenarios-'))
+	try {
+		writeFileSync(join(dir, 'scenario-bridge.toml'), `[[source]]\nadapter = "junit"\nreportPath = "report.xml"\n`)
+		const sources = resolveSources(['--config', 'scenario-bridge.toml'], dir)
+		assert.deepEqual(sources, [{ adapter: 'junit', command: undefined, reportPath: 'report.xml' }])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ── runSource: run flag ──
+
+test('the run flag executes each source command before reading its report', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'verify-scenarios-'))
+	try {
+		const source = {
+			adapter: 'junit',
+			command: `node -e "require('fs').writeFileSync('report.xml', '<testsuite><testcase classname=\\"c\\" name=\\"spec:node/x > scenario a\\"/></testsuite>')"`,
+			reportPath: 'report.xml',
+		}
+		const results = runSource(source, dir, true)
+		assert.deepEqual(results, [{ node: 'node/x', key: 'scenario a', outcome: 'pass' }])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('without the run flag an existing report is read as-is, without executing the command', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'verify-scenarios-'))
+	try {
+		writeFileSync(
+			join(dir, 'report.xml'),
+			`<testsuite><testcase classname="c" name="spec:node/x > scenario a"/></testsuite>`,
+		)
+		const source = { adapter: 'junit', command: 'exit 1', reportPath: 'report.xml' }
+		const results = runSource(source, dir, false)
+		assert.deepEqual(results, [{ node: 'node/x', key: 'scenario a', outcome: 'pass' }])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ── renderReport ──
+
+test('renderReport: no format or an unknown format renders formatText(report)', () => {
+	const report = foldResults([{ name: 'a', key: 'a' }], [{ node: 'x', key: 'a', outcome: 'pass' as const }], 'x')
+	assert.equal(renderReport(report, 'text'), formatText(report))
+	assert.equal(renderReport(report, 'nonsense'), formatText(report))
+})
+
+test('renderReport: json renders JSON.stringify(report, null, 2)', () => {
+	const report = foldResults([{ name: 'a', key: 'a' }], [{ node: 'x', key: 'a', outcome: 'pass' as const }], 'x')
+	assert.equal(renderReport(report, 'json'), JSON.stringify(report, null, 2))
+})
+
+test('renderReport: toon renders formatToon(report)', () => {
+	const report = foldResults([{ name: 'a', key: 'a' }], [{ node: 'x', key: 'a', outcome: 'pass' as const }], 'x')
+	assert.equal(renderReport(report, 'toon'), formatToon(report))
+})
+
+// ── exitCode ──
+
+test('exitCode: any UNBOUND scenario exits non-zero', () => {
+	const report = foldResults([{ name: 'a', key: 'a' }], [], 'x')
+	assert.equal(exitCode(report), 1)
+})
+
+test('exitCode: any FAIL scenario exits non-zero', () => {
+	const report = foldResults([{ name: 'a', key: 'a' }], [{ node: 'x', key: 'a', outcome: 'fail' as const }], 'x')
+	assert.equal(exitCode(report), 1)
+})
+
+test('exitCode: every scenario bound and passing exits zero', () => {
+	const report = foldResults([{ name: 'a', key: 'a' }], [{ node: 'x', key: 'a', outcome: 'pass' as const }], 'x')
+	assert.equal(exitCode(report), 0)
+})
+
+// ── CLI usage guard ──
+
+test('a missing feature or node argument prints usage and exits non-zero', () => {
+	assert.equal(main(['--report', 'x.xml']), 1)
+	assert.equal(main(['--feature', 'f.feature']), 1)
+	assert.equal(main(['--node', 'a/b']), 1)
+})
+
+// ── boundaries ──
+
+test('the engine writes nothing to the filesystem', () => {
+	const src = readFileSync(new URL('./verify-scenarios.mts', import.meta.url), 'utf8')
+	assert.doesNotMatch(src, /\bwriteFileSync\b/)
+	assert.doesNotMatch(src, /\bappendFileSync\b/)
+	assert.doesNotMatch(src, /\bmkdirSync\b/)
+	assert.doesNotMatch(src, /\bwriteFile\b/)
+	assert.doesNotMatch(src, /\brmSync\b/)
+})
+
+test('the scenario set comes from gherkin-cli, not a re-implemented parser', () => {
+	const src = readFileSync(new URL('./verify-scenarios.mts', import.meta.url), 'utf8')
+	assert.match(src, /npx.*gherkin-cli/)
+	assert.doesNotMatch(src, /Feature:\s|Scenario:\s/)
 })

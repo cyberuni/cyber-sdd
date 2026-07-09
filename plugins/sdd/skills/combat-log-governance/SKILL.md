@@ -128,6 +128,17 @@ the ledger's `strategy` count.
   the same Council-ratified growth, and the numeric depth stays transcript-only (the floor admits no
   raw token number).
 
+- **Durability discipline (the conductor's write duty).** A `correction` is a discrete line, never
+  left folded only into a verdict `why` (the doctrine loop matches `cause`, not prose):
+  - **At a gate reached via a judge-reject→fix→pass**, the self-asserting conductor appends the
+    `correction` line (`correction-kind: judge-iteration`, a matchable `cause`) **before** the gate
+    `why` it summarizes. A gate that passed clean with no iteration appends none.
+  - **At mission finalize**, a mission carrying a real correction whose line was **never flushed**
+    writes it now — **creating the combat log if none exists** — so the `cause` survives even the
+    no-log mission class (a mission with no correction forces nothing). The forced line stays a
+    combat-log `correction`, never a ledger line (the tier split above is invariant); its durability
+    is the retro distillation of the committed log into the ledger's `strategy` count.
+
 ### `halt` — a mid-flight stop, not at a gate (combat log)
 
 The agent halts mid-phase (a hard floor, an input it cannot supply, a blast radius it will not cross).

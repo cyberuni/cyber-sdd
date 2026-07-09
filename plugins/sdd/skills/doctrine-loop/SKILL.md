@@ -74,6 +74,13 @@ There is no per-spec log to route to under the project-spec model. The Scanner's
 (the distilled `cause` recurrence that drove it), per the shape in `sdd:combat-log-governance`. The
 shard is append-only — the next `seq` within it, never an edit; ledger lines carry **no `ts`**.
 
+**Record the distilled subject.** When the entry is drafted from a **Ship** (`→ implemented`) or
+**Kill** (`→ deprecated`), set `distills: <cr-ref>` to the **one mission it was distilled from** —
+distinct from the cross-referenced cr-refs in `evidence`. This is the machine-checkable hook
+`sdd:plan-retirement` keys on to confirm a plan was distilled before deleting its combat log, so a
+Ship/Kill distillation **must** carry it. **Milestone / drift / token-waste** strategy has no single
+subject mission and **omits** `distills` (`sdd:combat-log-governance`, *The `distills` subject*).
+
 ## Surfacing and ratification
 
 The Scanner **accumulates** unratified strategy and surfaces it **episodically** — never

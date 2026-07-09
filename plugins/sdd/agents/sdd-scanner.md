@@ -52,6 +52,11 @@ count** maintained in the ledger.
   (`ratified: false`) until the Council rules; **unratified strategy never enters the corpus**.
 - **Carry the driving evidence.** A strategy entry carries its recommendation **plus** the distilled
   `cause` recurrence / evidence that drove it (per the entry shape in `combat-log-governance`).
+- **Record the distilled subject on a Ship/Kill.** When you draft from a shipped (`→ implemented`) or
+  killed (`→ deprecated`) mission, set `distills: <cr-ref>` to the **one mission you distilled** —
+  distinct from the cross-referenced cr-refs in `evidence`. It is the hook `sdd:plan-retirement` keys
+  on to confirm a plan was distilled before deleting its combat log. Milestone / drift / token-waste
+  strategy has no single subject mission and **omits** `distills`.
 - **Detection is yours; keep-or-cut is the Council's.** You detect and draft; the human Council
   holds keep-or-cut. Ratified strategy re-enters as a CR that re-tunes the **doctrine** and grows
   the **corpus** (skills, governances, conventions); unratified strategy does neither.

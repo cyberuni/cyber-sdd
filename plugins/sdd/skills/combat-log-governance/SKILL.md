@@ -193,6 +193,22 @@ the doctrine-loop Scanner**. It carries the distilled recurrence count for a `ca
 
 `ratified: false` means the Council holds keep-or-cut — unratified strategy never enters the corpus.
 
+**The `distills` subject.** A strategy drafted from a **Ship** (`→ implemented`) or **Kill**
+(`→ deprecated`) records the **one mission it was distilled from** in a `distills` field carrying that
+mission's `<cr-ref>` — the same identifier that names the plan and the mission's `cr` on `leash` /
+`gate` lines:
+
+```jsonl
+{"seq": 2, "handle": "sdd-scanner", "kind": "strategy", "distills": "referenced-artifact-escalation", "recommendation": "...", "evidence": ["cross-ref: d2-correction-line-durability", "cross-ref: ba6a39"], "ratified": false}
+```
+
+`distills` names the **subject** (the mission the line was drafted from); the cr-refs in `evidence`
+are **cross-references** the recommendation leans on — never confuse the two. `distills` is the
+machine-checkable hook the retirement sweep keys on to confirm a plan was distilled before deleting
+its combat log (`sdd:plan-retirement` — the gate keys on `distills`, **never** an `evidence` mention,
+and an **unratified** entry still counts). Milestone / drift / token-waste strategy that has **no
+single subject mission omits `distills`** — only a Ship or Kill distillation gates a retirement.
+
 ## Write ownership
 
 Append-only; each writer adds lines to its **own shard** with the next `seq` within that shard, never

@@ -19,15 +19,17 @@ description: >
 
 ## Automated checks
 
-The mechanical subset of checks (S1–S5, Q1–Q5, Q10–Q11, E1–E2, E6, E9) can be run without an LLM:
+The mechanical subset of checks (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9) can be run without an LLM, using the self-contained engine bundled with this skill:
 
 ```bash
 # Audit all skills in the project
-npx cyberplace@<version> audit validate
+node "<skill>/scripts/validate.mts"
 
 # Audit a single skill
-npx cyberplace@<version> audit validate --path skills/my-skill
+node "<skill>/scripts/validate.mts" --path skills/my-skill
 ```
+
+Replace `<skill>` with this skill's own directory. If `node` is unavailable, read `scripts/validate.mts` and apply the same checks by hand.
 
 This command can be used in CI. Full quality review (Q6–Q16, E3–E5, E7–E8, P1–P3) still requires running this agent skill. Q12–Q16 are agent-only.
 
@@ -88,12 +90,12 @@ If you need the exact criteria for any check, read `references/check-definitions
 | S3 | Structure | `name` matches directory name | HIGH | |
 | S4 | Structure | Referenced files/subdirs exist within skill directory | HIGH | |
 | S5 | Structure | Internal markdown links resolve to real sections | MEDIUM | |
+| S6 | Structure | `skill.json` `distribution.install_via` is valid (and `package.name` set when `package_manager`) | CRITICAL | |
 | Q1 | Quality | Description contains "When to use" or "Use this skill when" | HIGH | |
 | Q2 | Quality | Description is specific (not vague / matches-everything) | HIGH | |
 | Q3 | Quality | Sub-skill has `Internal skill:` prefix in description | MEDIUM | |
 | Q4 | Quality | Skill has actionable instruction body (not just description) | MEDIUM | |
 | Q5 | Quality | `description` ≤1024 characters (spec hard limit) | HIGH | |
-| Q5a | Quality | `description` includes implicit trigger phrases or "even if they don't mention X" clause | MEDIUM | |
 | Q6 | Quality | No baked-in stack assumptions | MEDIUM | |
 | Q7 | Quality | Single workflow scope (narrow and composable) | MEDIUM | |
 | Q8 | Quality | No generic / obvious instructions the model already knows | LOW | |

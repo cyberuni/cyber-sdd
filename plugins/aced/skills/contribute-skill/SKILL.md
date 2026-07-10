@@ -44,25 +44,27 @@ Derive paths:
 
 ### 1. Identify the skill(s) to patch
 
-From context or ask the user. Look up origin using the `cyberplace` CLI, which checks the repo-local lock, the global lock, and `npx skills find` in order:
+From context or ask the user. Look up origin using this skill's own `source.mts` script, which resolves in a fixed order: the repo-local lock, then the global lock, then `npx skills find`, returning the FIRST hit:
 
 ```bash
-npx cyberplace@<version> skill source <skill-name>
+node "<this-skill's-dir>/scripts/source.mts" <skill-name> --format json
 ```
 
-Output is JSON: `{ name, source, sourceUrl, skillPath, foundIn }`. Extract `source` (`owner/repo`).
+Output is JSON: `{ name, source, sourceUrl, skillPath, foundIn }`. Extract `source` (`owner/repo`). `foundIn` tells you which rung resolved it (`repo`, `global`, or `npx-skills`).
 
-If the CLI exits non-zero (`foundIn: null`), fall back to reading the lockfiles directly:
+If the script exits non-zero (`foundIn: null`), fall back to reading the lockfiles by hand, in the same order:
 
 ```bash
-# Repo-local (committed, version 1 schema):
+# 1. Repo-local (committed, version 1 schema):
 jq '.skills["<skill-name>"]' skills-lock.json
 
-# Global (version 3 schema, has sourceUrl):
+# 2. Global (version 3 schema, has sourceUrl):
 jq '.skills["<skill-name>"]' ~/.agents/.skill-lock.json
+
+# 3. npx skills find <skill-name>
 ```
 
-If there is still no lock entry, ask for `owner/repo` and the skill folder name.
+If none of the three resolve, ask the user for `owner/repo` and the skill folder name — never guess.
 
 For multiple related skills (user confirms one PR), repeat file discovery for each `skills/<name>/` directory.
 

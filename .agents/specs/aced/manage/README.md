@@ -40,6 +40,8 @@ Every scenario in [`manage.feature`](./manage.feature) maps to one of these beha
 | **menu on bare invocation** | a bare invocation gathers intent via a menu rather than guessing |
 | **the four-option rule** | an intake question presents at most four options, never truncating silently |
 | **route → model runners** | a request to set up / list / remove per-model runner agents loads the `manage-model-runners` engine |
+| **route → list skills** | a request to list / inventory installed skills loads the `list-skills` engine |
+| **route → repair private skills** | a request to validate / repair repo-private skill metadata loads the `repair-private-skills` engine |
 | **load the engine in-session** | a resolved route loads the matched engine in the **current session** and runs it directly — `manage` spawns nothing |
 | **model advice** | `manage` picks no model; it defers the model choice to the loaded engine |
 | **non-mission guard** | `manage` opens no change request and invokes no gate |

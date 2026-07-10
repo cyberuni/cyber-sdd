@@ -54,6 +54,32 @@ Feature: contribute-skill — contribute a locally-improved installed skill back
     When ACED routes the request
     Then contribute-skill does not handle it because there is no upstream contribution intent
 
+  # ── Locating the source repo ──
+
+  @behavior
+  Scenario: the source repo is resolved from the repo-local lock before any other source
+    Given a skill listed in this repo's skills lockfile with a source entry
+    When contribute-skill looks up the skill's source
+    Then it returns the repo-local source and does not consult the global lock or npx skills find
+
+  @behavior
+  Scenario: the source repo falls back to the global lock when absent from the repo-local lock
+    Given a skill with no entry in this repo's skills lockfile but a source entry in the global skill lock
+    When contribute-skill looks up the skill's source
+    Then it returns the global-lock source and does not shell out to npx skills find
+
+  @behavior
+  Scenario: the source repo falls back to npx skills find when absent from both lockfiles
+    Given a skill with no entry in either the repo-local or the global lock
+    When contribute-skill looks up the skill's source
+    Then it resolves the source from the npx skills find output
+
+  @behavior
+  Scenario: an unresolved source repo is surfaced for the user instead of guessed
+    Given the source lookup finds no entry in either lockfile and npx skills find returns nothing
+    When contribute-skill proceeds to identify the skill to patch
+    Then it asks the user for the owner/repo and skill folder name instead of guessing
+
   # ── Mapping local files onto the source skills tree ──
 
   @behavior

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -21,6 +21,15 @@ function mkSkill(
 	writeFileSync(join(dir, 'SKILL.md'), `---\n${fm}---\n`)
 	if (opts.manifest) writeFileSync(join(dir, 'skill.json'), JSON.stringify(opts.manifest))
 }
+
+// ── reach (loaded via the manage gateway, never self-triggered) ──
+
+test('reach: the skill is declared non-user-invocable so only the manage gateway loads it', () => {
+	// Regression guard for the frozen "reached via manage gateway, not a bare user invocation"
+	// scenario: a future flip of user-invocable to true (self-triggering) must fail here.
+	const skill = readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8')
+	assert.match(skill, /^user-invocable:\s*false\s*$/m)
+})
 
 // ── source scan ──
 

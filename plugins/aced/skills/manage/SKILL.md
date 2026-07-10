@@ -1,6 +1,6 @@
 ---
 name: manage
-description: Use this skill when doing manage-level (non-mission) ACED work — inspecting or maintaining the agent-config tooling ACED evaluates, such as "set up the per-model runner agents", "list the model runners", or "remove a model runner". Routes to the matching engine; it does not author a config (define-agent / define-skill) or change what ACED specifies (start-mission).
+description: Use this skill when doing manage-level (non-mission) ACED work — inspecting or maintaining the agent-config tooling ACED evaluates, such as "set up the per-model runner agents", "list the model runners", "list the installed skills", or "validate/repair the repo-private skills". Routes to the matching engine; it does not author a config (define-agent / define-skill) or change what ACED specifies (start-mission).
 ---
 
 # manage
@@ -25,23 +25,27 @@ contract state**. It **opens no CR**, **invokes no gate**, and **performs no beh
   no menu.
 - **Menu — bare invocation.** When `manage` is invoked with **no operation named**, do not guess. Ask
   via `AskUserQuestion`, presenting **at most four options** (the tool rejects more than four) and
-  never truncating silently. Today there is one route group (**Config runners**); as more manage-level
-  engines land, group the menu so a bare invocation still resolves within the four-option rule.
+  never truncating silently. The route groups today (**Config runners**, **Skill corpus**) fit the
+  four-option rule; as more manage-level engines land, group the menu so a bare invocation still
+  resolves within it.
 
 ## The routing table — request → engine
 
 Classification routes a manage request to the **engine** that handles it. The table grows as more
-manage-level ACED engines land; today it carries one route:
+manage-level ACED engines land:
 
 | Group | Request | Engine (handler) |
 |---|---|---|
 | **Config runners** | set up / list / remove per-model runner agents used to benchmark skills | **`manage-model-runners`** — internal, non-invokable; loaded here |
+| **Skill corpus** | list / inventory the installed skills across the repo, the user-global install, and the shipped package | **`list-skills`** — internal, non-invokable; loaded here |
+| **Skill corpus** | validate / repair repo-private skill metadata under `.agents/skills` | **`repair-private-skills`** — internal, non-invokable; loaded here |
 
 ## Load the engine in-session
 
 When the route resolves, **load the matched engine in the current session** and run it directly —
 **spawn nothing**. Write-capable operations stay **owned by their engine**: `manage-model-runners`
-writes its runner agent-def files and their symlinks. `manage` only routes.
+writes its runner agent-def files and their symlinks; `repair-private-skills` writes only under
+`.agents/skills`; `list-skills` is read-only. `manage` only routes.
 
 ## Non-mission — the boundary
 

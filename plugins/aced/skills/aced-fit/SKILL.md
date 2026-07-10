@@ -16,7 +16,7 @@ it). Fit is a **judgment**, so it lives here as a governance, not a `.mts` engin
 ## The diagnostic
 
 **FIT = which of ACED's four eval layers carry real signal for this subject.** The layers:
-**Structural** (fields/format — already covered by `cyberplace audit`), **Trigger** (fires at the
+**Structural** (fields/format — already covered by `improve-skill`'s `validate.mts` engine), **Trigger** (fires at the
 right times), **Behavior** (follows the steps/rules when invoked), **Quality** (output is good). A
 subject with signal **only** at Structural is not an ACED subject.
 

@@ -8,7 +8,7 @@ concept: [config-authoring, audit]
 Audit, improve, or write a SKILL.md against the description-trigger, structure, security, and
 agentskills.io-compliance bars, then apply fixes. A **hybrid** unit: an LLM audit/quality workflow
 (agent judgment over the full check table) plus the deterministic mechanical subset of that table
-(S1–S5, Q1–Q5, Q10–Q11, E1–E2, E6, E9) ported from the cyberplace CLI's `audit validate` as a
+(S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9) ported from the cyberplace CLI's `audit validate` as a
 CI-usable engine.
 
 > **This is a single behavioral unit, not an overview** — one skill plus its ported engine. This
@@ -28,7 +28,7 @@ its behaviors are specified as plain boolean scenarios only.
 **Subject** — a skill that, given a target SKILL.md (named or discovered across all three skill
 locations), runs the full check table, reports findings with severity and remediation, blocks on any
 CRITICAL finding until the user confirms, then applies fixes in a single pass and re-verifies only
-the checks that had findings. The mechanical subset of the table (S1–S5, Q1–Q5, Q10–Q11, E1–E2, E6,
+the checks that had findings. The mechanical subset of the table (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6,
 E9) also runs standalone as a deterministic engine — single-skill via `--path` or whole-project scan
 by default — exiting non-zero only on a CRITICAL finding, so it can gate CI without an LLM.
 
@@ -52,7 +52,7 @@ Every scenario in [`improve-skill.feature`](./improve-skill.feature) maps to one
 | **fixes applied in one pass, scoped to findings** | after confirmation, fixes are applied in a single edit pass, touching only what each finding's remediation specifies |
 | **re-verify only affected checks** | after fixing, only the checks that had findings are re-run to confirm they now pass |
 | **human-judgment findings are reported, not auto-fixed** | P1–P3 supply-chain findings and E8 script findings are surfaced for the user rather than silently changed |
-| **mechanical engine runs the deterministic subset** | the engine evaluates S1–S5, Q1–Q5, Q10–Q11, E1–E2, E6, E9 without an LLM |
+| **mechanical engine runs the deterministic subset** | the engine evaluates S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9 without an LLM |
 | **`--path` scans one skill; default scans the whole project** | passing `--path` validates a single skill directory or SKILL.md; omitting it scans every configured skill location |
 | **exit code gates on CRITICAL only** | the engine exits non-zero when any scanned skill has a CRITICAL finding, and exits zero when only warnings (or nothing) are found |
 

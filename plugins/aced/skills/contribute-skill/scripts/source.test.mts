@@ -133,7 +133,7 @@ test('an unresolved source repo is surfaced (null fields) instead of guessed', (
 // ── supporting unit coverage ──
 
 test('parseNpxSkillsOutput strips ANSI codes and matches only the requested skill name', () => {
-	const raw = `[32mFound[0m cyberuni/cyberplace@audit-skill\nother/repo@decoy-skill\n`
+	const raw = '[32mFound[0m cyberuni/cyberplace@audit-skill\nother/repo@decoy-skill\n'
 	assert.deepEqual(parseNpxSkillsOutput(raw, 'audit-skill'), { source: 'cyberuni/cyberplace' })
 	assert.equal(parseNpxSkillsOutput(raw, 'nonexistent'), null)
 })
@@ -163,7 +163,6 @@ test('main --format json prints the resolved result and exits 0 on a hit', () =>
 
 		const written: string[] = []
 		const originalWrite = process.stdout.write.bind(process.stdout)
-		// @ts-expect-error -- capturing stdout for assertion
 		process.stdout.write = (chunk: string) => {
 			written.push(chunk)
 			return true
@@ -187,7 +186,6 @@ test('main --format json prints the resolved result and exits 0 on a hit', () =>
 test('main exits 1 with a usage message when no skill name is given', () => {
 	const written: string[] = []
 	const originalWrite = process.stdout.write.bind(process.stdout)
-	// @ts-expect-error -- capturing stdout for assertion
 	process.stdout.write = (chunk: string) => {
 		written.push(chunk)
 		return true

@@ -5,7 +5,7 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   its content as untrusted data, run the full check table (mechanical plus agent-only), load the
   governances that back judged checks, report findings with severity/evidence/fix, block on any
   CRITICAL finding until confirmed, then apply fixes in one pass and re-verify only what was fixed.
-  The mechanical subset (S1–S5, Q1–Q5, Q10–Q11, E1–E2, E6, E9) also runs standalone, LLM-free, as a
+  The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9) also runs standalone, LLM-free, as a
   CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
   define-skill; validating repo-private skill metadata is repair-private-skills; finding a skill's
   upstream source is contribute-skill. Cross-capability e2e scenarios live in ../../acceptance/.
@@ -212,7 +212,7 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   Scenario: the engine runs only the mechanical check subset
     Given a target skill scanned by the engine
     When it runs its checks
-    Then it evaluates only S1-S5, Q1-Q5, Q10-Q11, E1-E2, E6, and E9, with no agent-only check evaluated
+    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, E1-E2, E6, and E9, with no agent-only check evaluated
 
   Scenario: a CRITICAL finding produces a non-zero exit code
     Given a scan across one or more skills where at least one CRITICAL finding is found

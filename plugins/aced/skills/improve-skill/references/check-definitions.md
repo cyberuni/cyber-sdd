@@ -29,6 +29,13 @@ Public skills are installed in isolation, so those references break downstream. 
 **S5 — Internal links resolve (MEDIUM)**
 For every markdown link of the form `[text](#anchor)` or `[text](./file.md#anchor)`, verify the target section heading or file exists. Warn on broken anchors.
 
+**S6 — skill.json distribution.install_via is valid (CRITICAL)**
+Applies only when the skill directory contains a `skill.json` manifest with a `distribution` block. Fail if:
+- `distribution.install_via` is missing or is not one of the known values (`package_manager`)
+- `distribution.install_via` is `package_manager` but `distribution.package.name` is missing or empty
+
+Skip this check entirely when no `skill.json` is present, or when it is present without a `distribution` block.
+
 ---
 
 ## Quality
@@ -48,8 +55,8 @@ Warn if the skill appears to be a sub-skill (no situational trigger, description
 **Q4 — Instruction body (MEDIUM)**
 Warn if the skill body contains only a description and no actionable steps, numbered instructions, or decision logic. A skill with no instructions gives the agent nothing to execute.
 
-**Q5 — Description length (MEDIUM)**
-Fail if the `description` frontmatter value exceeds 120 characters. Long descriptions are truncated in the agent context window, which defeats the purpose of the trigger phrase. Drop trailing example phrases ("Use when asked to 'foo', 'bar'...") — those belong in the skill body, not the description.
+**Q5 — Description length (HIGH)**
+Fail if the `description` frontmatter value exceeds 1024 characters — the agentskills spec hard limit. Drop trailing example phrases ("Use when asked to 'foo', 'bar'...") — those belong in the skill body, not the description.
 
 **Q6 — No baked-in stack assumptions (MEDIUM)**
 

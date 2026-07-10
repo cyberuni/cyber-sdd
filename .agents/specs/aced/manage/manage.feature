@@ -29,6 +29,16 @@ Feature: manage — classify an ACED manage-level request and load the engine in
     When manage classifies it
     Then it loads the manage-model-runners engine in the current session
 
+  Scenario: a skill-inventory request loads the list-skills engine
+    Given a request to list or inventory the installed skills
+    When manage classifies it
+    Then it loads the list-skills engine in the current session
+
+  Scenario: a private-skill repair request loads the repair-private-skills engine
+    Given a request to validate or repair repo-private skill metadata under .agents/skills
+    When manage classifies it
+    Then it loads the repair-private-skills engine in the current session
+
   # ---- Loading the engine ----
 
   Scenario: a resolved route loads the engine in-session and runs directly

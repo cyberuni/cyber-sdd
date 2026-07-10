@@ -1,21 +1,18 @@
 ---
-status: implemented
+status: approved
 project-path: plugins/aced
 approval:
   spec:
     verdict: approve
     by: agent
+    cause: dimension
     why:
-      leash: within — auto-spec; additive new behavioral node contribute/patch-skill backfilled from existing skill-authoring impl; no existing frozen scenario narrowed; new provisional contribute/ placement group finalized at handoff; reversible feature branch, uncommitted
-      basis: cold aced-spec-validator graded 3-lens {oracle,builder,architect} — all PASS, no blocking findings; declared fit strong (confusable trigger vs the skill-authoring family + repo-native carve-out); @trigger 4-yes/5-near-miss balanced, @rubric well-formed, Use-Cases<->scenario 1:1 (17 scenarios), Git Data API plumbing declared out of the graded suite; patch-skill.feature frozen
-      cr: migrate-patch-skill-to-aced
-  impl:
-    verdict: approve
-    by: agent
-    why:
-      leash: within — user green-lit deliver + completion (deliver→impl→handoff) and the rename to contribute-skill, raising the run's auto-spec leash to completion; agent-config impl on a feature branch, uncommitted, reversible
-      basis: cold aced-impl-judge (ADR-0016, oracle re-derived per frozen scenario) over the moved plugins/aced/skills/contribute-skill + artifacts/specs/contribute-skill eval suite — all 17 frozen scenarios PASS on the first pass (trigger accuracy 9/9 incl. the repo-native carve-out, @quality rubric 7/7); eval suite 16:1 with the non-outline frozen scenarios + the @trigger outline as the trigger layer; single-commit asserted as observable outcome only; audit validate green, pnpm verify green. Advisory follow-ups (non-blocking): cyberplace-CLI/lockfile coupling; add an explicit When-NOT-to-use deferral list
-      cr: migrate-patch-skill-to-aced
+      floor: none
+      blast: low — additive: 3 new config-authoring engine nodes (improve-skill, list-skills, repair-private-skills) plus additive scenarios on 2 already-frozen files (contribute-skill source-lookup ×4, manage routing ×2); no existing frozen scenario narrowed; cross-package impl blast (removing the cyberplace audit/skill commands) is un-spec'd legacy deletion, deferred to deliver
+      novelty: low — backfill of proven cyberplace CLI engine behavior into aced; capability-first placement (screaming architecture) matches the manage-model-runners engine-via-manage precedent
+      confidence: high — cold aced-spec-validator 3-lens {oracle,builder,architect} all PASS on all 5 touched nodes, no blocking findings; check-spec-structure clean; two non-blocking wording fixes (Fit label, source count) applied pre-freeze
+produced-by:
+  spec-producer: aced:aced-scenario-writer
 ---
 
 # ACED — Agent Config Evaluation & Development
@@ -48,7 +45,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | Folder | Type | What |
 |---|---|---|
 | [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report` |
-| [`config-authoring/`](./config-authoring/README.md) | descriptive index | author agent config — `define-skill`, `define-agent`, `define-governance`, `skillify`, `manage-model-runners` |
+| [`config-authoring/`](./config-authoring/README.md) | descriptive index | author + maintain agent config — `define-skill`, `define-agent`, `define-governance`, `skillify`, `improve-skill`, `manage-model-runners`, `list-skills`, `repair-private-skills` |
 | [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `improve` |
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` |
@@ -88,8 +85,9 @@ never as a top-level folder.
 
 | Concept | Facets |
 |---|---|
+| `audit` | `config-authoring/improve-skill/` (behavior) |
 | `benchmarking` | `config-authoring/manage-model-runners/` (behavior) |
-| `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/skillify/` (behavior) |
+| `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/improve-skill/` (behavior) · `config-authoring/list-skills/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/repair-private-skills/` (behavior) · `config-authoring/skillify/` (behavior) |
 | `contribution` | `contribute/contribute-skill/` (behavior) |
 | `eval-run` | `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
 | `glossary` | `glossary/` (reference) |

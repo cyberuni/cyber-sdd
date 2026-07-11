@@ -1,6 +1,6 @@
 ---
 name: plan-retirement
-description: "Internal skill: the SDD Doctrine loop's last retro step — the gated, idempotent tracked deletion of a retired mission plan. For each cr-ref the caller cleared for source (done/merged), retire-plans.mts deletes <cr-ref>.plan.md + <cr-ref>.log.jsonl when the plan was distilled (a strategy entry with distills==cr-ref in the project ledger) OR has no combat log to distill (no <cr-ref>.log.jsonl on disk); a cleared cr-ref whose log exists but is undistilled fails closed. Invoked by the doctrine-loop Scanner — not triggered by users directly."
+description: "Internal skill: the SDD Doctrine loop's last retro step — the gated, idempotent tracked deletion of a retired mission plan. Invoked by the doctrine-loop Scanner, not user-triggered; the clearance contract lives in the body + README."
 user-invocable: false
 metadata:
   internal: true

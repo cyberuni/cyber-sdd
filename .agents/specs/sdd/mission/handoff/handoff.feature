@@ -93,7 +93,7 @@ Feature: The handoff phase — land the verified result in the declared delivery
     Then the pull request body includes no closing reference
 
   Scenario: a merged PR closes the source without a separate close
-    Given handoff delivered the work as a pull request
+    Given handoff delivered the work as a pull request whose source supports closing by reference
     When the pull request merges
     Then the source is closed by the merge
     And handoff adds no separate close

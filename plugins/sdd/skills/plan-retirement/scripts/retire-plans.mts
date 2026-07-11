@@ -9,13 +9,18 @@
 // local-<slug> -> the local store) needs network/gh, so the Scanner (doctrine-loop delegate)
 // determines it and passes the CLEARED set via --retire. Distilled is local and mechanically
 // checkable, so the sweep VERIFIES IT ITSELF against the project ledger (--ledger <dir>): a
-// `strategy` entry whose `distills` field equals the <cr-ref> must exist. This is the
+// `strategy` entry whose `distills` field equals the <cr-ref> must exist. The distilled gate
+// only guards a cr-ref whose combat log EXISTS — there is something on disk it could still
+// distill from, so retirement without a distilling entry would be data loss. A cr-ref whose
+// <cr-ref>.log.jsonl was never written has nothing to distill from in the first place, so it
+// retires on clearance + presence alone, no distilling entry required. This is the
 // mechanical, fail-closed gate + filesystem act:
-//   - it deletes the two files only for a cr-ref that is cleared AND present on disk AND
-//     distilled per the ledger;
-//   - a missing/unreadable --ledger yields an empty distilled set, so nothing is deleted;
-//   - anything not cleared, not distilled, missing, or already gone is a no-op (idempotent,
-//     safe to re-run);
+//   - it deletes the two files for a cr-ref that is cleared AND present on disk AND
+//     (distilled per the ledger OR has no log.jsonl to distill from);
+//   - a missing/unreadable --ledger skips retirement for ALL cr-refs (the no-log branch only
+//     applies once a ledger is actually present to consult);
+//   - anything not cleared, not present, or already gone is a no-op (idempotent, safe to
+//     re-run);
 //   - it never touches a plan it was not explicitly cleared to retire (fail-closed).
 //
 // Pure functions are exported for node:test; running the file directly drives the CLI.
@@ -52,6 +57,17 @@ export function discoverPlans(root: string): string[] {
 		return []
 	}
 	return entries.filter((f) => f.endsWith(PLAN_SUFFIX)).map((f) => f.slice(0, -PLAN_SUFFIX.length))
+}
+
+// The cr-refs that have a <cr-ref>.log.jsonl on disk under `root`.
+export function discoverLogs(root: string): string[] {
+	let entries: string[]
+	try {
+		entries = readdirSync(root)
+	} catch {
+		return []
+	}
+	return entries.filter((f) => f.endsWith(LOG_SUFFIX)).map((f) => f.slice(0, -LOG_SUFFIX.length))
 }
 
 // The cr-refs the project ledger records as DISTILLED — a `strategy` entry whose `distills`
@@ -95,14 +111,21 @@ export function distilledCrRefs(ledgerDir: string): Set<string> {
 }
 
 // Fail-closed, idempotent decision: retire exactly the cr-refs that are cleared by the caller,
-// present on disk, AND distilled per the ledger. An uncleared, absent, or undistilled plan is
-// never retired. Order follows the cleared list for stable reporting.
-export function decideRetirements(cleared: string[], existing: string[], distilled: Set<string>): string[] {
+// present on disk, AND either distilled per the ledger OR have no combat log to distill from
+// (log.jsonl absent). An uncleared or absent plan is never retired; a present plan whose log
+// DOES exist still requires a distilling entry (data-loss guard, unchanged). Order follows the
+// cleared list for stable reporting.
+export function decideRetirements(
+	cleared: string[],
+	existing: string[],
+	distilled: Set<string>,
+	logPresent: Set<string>,
+): string[] {
 	const present = new Set(existing)
 	const seen = new Set<string>()
 	const out: string[] = []
 	for (const ref of cleared) {
-		if (present.has(ref) && distilled.has(ref) && !seen.has(ref)) {
+		if (present.has(ref) && (distilled.has(ref) || !logPresent.has(ref)) && !seen.has(ref)) {
 			seen.add(ref)
 			out.push(ref)
 		}
@@ -116,14 +139,17 @@ export function main(argv: string[]): number {
 	const cleared = parseCleared(argv.includes('--retire') ? argv[argv.indexOf('--retire') + 1] : undefined)
 	const dryRun = argv.includes('--dry-run')
 
+	let retiring: string[]
 	if (!ledgerArg || !existsSync(ledgerArg)) {
 		process.stdout.write(
 			`no verifiable ledger (${ledgerArg ? `--ledger ${ledgerArg} unreadable` : '--ledger not given'}): distillation cannot be checked, so retirement is skipped for all cr-refs\n`,
 		)
+		retiring = []
+	} else {
+		const distilled = distilledCrRefs(ledgerArg)
+		const logPresent = new Set(discoverLogs(root))
+		retiring = decideRetirements(cleared, discoverPlans(root), distilled, logPresent)
 	}
-	const distilled = ledgerArg ? distilledCrRefs(ledgerArg) : new Set<string>()
-
-	const retiring = decideRetirements(cleared, discoverPlans(root), distilled)
 	const deleted: string[] = []
 
 	for (const ref of retiring) {

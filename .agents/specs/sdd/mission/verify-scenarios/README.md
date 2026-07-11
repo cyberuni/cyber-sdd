@@ -42,6 +42,7 @@ behaviors:
 | **junit adapter → results** | a testcase binds to the **node** named by its `spec:<node>` name-segment (at any depth); a testcase with no such segment binds to **no node**; the **key** is the leaf's `@id:<slug>` else the leaf verbatim; the **outcome** is fail / skip / pass from the child element; `classname` / `name` are read **by attribute name** and XML-unescaped, and a name carrying a literal `>` is not truncated |
 | **union + fold** | results from **every** configured source are unioned, then folded by `(node, key)` against the scenario set: **UNBOUND** (no result), **PASS** (≥1, none fail), **FAIL** (any fail); a result bound to another node is excluded; a bound key matching no scenario is an **EXTRA**, not a failure |
 | **the CLI surface** | `--report` bypasses the config for a single ad-hoc junit source; `--run` executes each source's `command` before reading its report (else the existing report is read as-is); output renders as text by default, or `json` / `toon` on request; a missing `--feature` / `--node` prints usage and exits non-zero |
+| **path resolution** | a path argument (`--feature` / `--report` / `--config`, and each source's `reportPath`) resolves **beneath `--root`** (which defaults to the current directory) when **relative**, and is used **verbatim** when **absolute** — never double-prefixed under `--root` |
 | **exit status** | the tool exits **non-zero** when any scenario is UNBOUND or FAIL, and **zero** only when every scenario is bound and passing |
 
 ## Binding convention

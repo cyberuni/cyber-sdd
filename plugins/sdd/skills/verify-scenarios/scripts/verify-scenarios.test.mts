@@ -18,6 +18,7 @@ import {
 	resolveSources,
 	runSource,
 	scenarioKeysFromParse,
+	underRoot,
 	unescapeXml,
 } from './verify-scenarios.mts'
 
@@ -391,6 +392,56 @@ test('without the run flag an existing report is read as-is, without executing t
 		assert.deepEqual(results, [{ node: 'node/x', key: 'scenario a', outcome: 'pass' }])
 	} finally {
 		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ── path resolution ──
+
+test('underRoot: a relative path joins beneath root', () => {
+	assert.equal(underRoot('/a/b', 'c/d.feature'), join('/a/b', 'c/d.feature'))
+	assert.equal(underRoot('.', 'report.xml'), join('.', 'report.xml'))
+})
+
+test('underRoot: an absolute path is used verbatim, not double-prefixed under root', () => {
+	assert.equal(underRoot('/a/b', '/x/y.feature'), '/x/y.feature')
+	assert.equal(underRoot('some/other/root', '/x/y.feature'), '/x/y.feature')
+})
+
+test('runSource: an absolute reportPath is read even when root differs, not double-prefixed', () => {
+	const reportDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-report-'))
+	const rootDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-root-'))
+	try {
+		const absReport = join(reportDir, 'report.xml')
+		writeFileSync(absReport, `<testsuite><testcase classname="c" name="spec:node/x > scenario a"/></testsuite>`)
+		// root points elsewhere; a naive join(root, absReport) would double-prefix and find nothing.
+		const results = runSource({ adapter: 'junit', reportPath: absReport }, rootDir, false)
+		assert.deepEqual(results, [{ node: 'node/x', key: 'scenario a', outcome: 'pass' }])
+	} finally {
+		rmSync(reportDir, { recursive: true, force: true })
+		rmSync(rootDir, { recursive: true, force: true })
+	}
+})
+
+test('every root-relative resolution goes through underRoot — no bare join(root, …) survives at a call site', () => {
+	// underRoot is the only sanctioned place to join a path against root; a call site (getScenarioKeys /
+	// runJunitSource / resolveSources) regressing to a bare join(root, …) reintroduces the #108
+	// double-prefix bug. getScenarioKeys shells gherkin-cli, so this source-scan guards it too.
+	const src = readFileSync(new URL('./verify-scenarios.mts', import.meta.url), 'utf8')
+	const bareJoins = src.match(/join\(\s*root\b/g) ?? []
+	assert.equal(bareJoins.length, 1, 'join(root, …) must appear only inside underRoot')
+})
+
+test('resolveSources: an absolute --config is read even when root differs, not double-prefixed', () => {
+	const configDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-config-'))
+	const rootDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-root-'))
+	try {
+		const absConfig = join(configDir, 'scenario-bridge.toml')
+		writeFileSync(absConfig, `[[source]]\nadapter = "junit"\nreportPath = "report.xml"\n`)
+		const sources = resolveSources(['--config', absConfig], rootDir)
+		assert.deepEqual(sources, [{ adapter: 'junit', command: undefined, reportPath: 'report.xml' }])
+	} finally {
+		rmSync(configDir, { recursive: true, force: true })
+		rmSync(rootDir, { recursive: true, force: true })
 	}
 })
 

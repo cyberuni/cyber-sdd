@@ -67,6 +67,14 @@ Feature: The handoff phase — land the verified result in the declared delivery
     Then it surfaces a reminder that a corpus-wide formation pass is due, pointing to manage
     And it spawns no Warden
 
+  # ---- Reset the mission's warm units ----
+
+  Scenario: handoff resets the mission's warm units
+    Given a mission that dispatched warm units
+    When the mission hands off
+    Then each warm unit is reset to a fresh context or torn down
+    And no warm unit carries this mission's context into the next
+
   # ---- Decompose by unit of work ----
 
   Scenario: a multi-unit cycle lands as multiple units

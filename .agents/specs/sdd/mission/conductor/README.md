@@ -35,6 +35,7 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **classification** | decide each file's artifact-type — convention-first, the optional `.agents/sdd/` tiebreaker on ambiguity (confirm-not-guess, write-back) |
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
+| **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (`/new` reset per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
@@ -125,6 +126,22 @@ flowchart TD
 The two live-grill producers run **inline** (in-session); the impl-producer is **mechanical and
 spawned**; every judge is **spawned cold** in a context the author cannot reach. All spawns are
 **depth 1** from the main session — collapsing the old `caller → automaton → judge` (depth 2) tree.
+
+**Dispatch transport — the spawn seam is transport-abstract.** "Spawn" names an **outcome** — the
+role runs in a **separate context** (a builder for the impl-producer; a **fresh cold** context the
+author cannot reach for a judge) — not a transport. The conductor states a **dispatch intent**
+(role, brief, expected verdict schema) and never pins a literal command, per the depend-on-intent
+discipline (`../../design/harness-spawning.md`, ADR-0023). When a **harness-agnostic dispatch
+capability** is available (e.g. cyberlegion), the conductor routes the spawn through its
+`subagent | channel | run-inline` seam and **prefers a warm unit**; when none is available it
+**falls back** to a portable cold subagent spawn — the ported default. Warmth is a property of the
+**unit/process**, coldness of the **context**: a judge's fresh cold context is realized **either** by
+a newly spawned subagent **or** by **resetting a warm unit** (issue `/new`) before each judgment —
+both satisfy grader independence, so a warm judge unit never weakens it. A **warm producer**
+(the impl-producer builder) instead **keeps** its context across explore spikes and the deliver
+build (no reset between uses) so its learning carries. Warm units live **no longer than one
+mission** — reused within the mission, then reset (`/new`) or torn down at handoff (`../handoff/`),
+never shared into another mission's context.
 
 The five roles apply three **lenses** (governances, not agents): **Oracle** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the

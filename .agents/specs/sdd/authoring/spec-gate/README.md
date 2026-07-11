@@ -164,3 +164,29 @@ judge spawn. This mechanizes the recurring coverage gap (`../spec-format/README.
 **non-mandating**: a reference/descriptive spec.md carries no Use Cases section and a prose/EARS use
 case carries no row to link, so both stay silent and the spec-judge remains the coverage backstop for
 the un-tabled forms.
+
+## Structural edit-class classification (freeze integrity)
+
+The gate routes a touched `.feature`'s change by its **edit class** — an *additive* scenario
+**self-clears** (folds into the frozen file, stays `@frozen`); a *narrowing/rewrite* of an existing
+scenario **unfreezes the file and fires Clearance** (`../../design/autonomy-rubric.md` — a hard floor,
+**pre-authorizable** in the CR, else escalated); a *pure `git mv` rename* (zero content delta) is not a
+gate-able edit. That routing is only as trustworthy as the **classification** feeding it, and the
+classification must be **structural — a per-named-`Scenario` diff of the file against its committed
+baseline (the pinned `gherkin-cli diff` the freeze model and digest already consume,
+`../../design/gherkin-cli-dependency.md` — its `addOnly` / per-scenario `change`), never a raw git
+line-diff.**
+
+A **raw line-diff misclassifies a narrowing as additive**: a trailing step orphaned off a frozen
+scenario onto a newly added adjacent scenario shows **no `-` line** and reads as purely additive, so the
+narrowing **self-clears silently and Clearance never fires** — the suite quietly guarantees less. The
+structural diff is not fooled: it reports the losing scenario as `modified` (`addOnly: false`), so the
+change is correctly classified as a **narrowing** and takes the **existing** unfreeze-and-fire-Clearance
+path (self-clearing only when the CR pre-authorized Clearance). This closes the recurring
+freeze-integrity gap; it **adds no new verdict** — it makes the edit-class signal that the freeze model
+(`../../design/lifecycle-model.md`) and the Clearance floor already consume **reliable**, so a
+context-line reassignment can no longer route a narrowing down the additive path.
+
+The classification is scoped to the CR's **touched** `.feature` files. A whole-scenario addition stays
+additive and self-clears; only a baseline scenario that is genuinely `modified`/`removed` is a narrowing,
+and its outcome is Clearance (per the floor), not a bare block.

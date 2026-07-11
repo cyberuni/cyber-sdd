@@ -1,0 +1,1 @@
+{"kind":"leash","cr":"verify-scenarios-path-resolution","leash":"auto-all","by":"derived","approach":["deterministic .mts engine bugfix; additive path-resolution scenarios (self-clear, no re-open); isAbsolute guard at 3 join sites; no capability removed; read-only advisory tool unaffected"]}

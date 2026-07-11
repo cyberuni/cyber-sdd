@@ -152,6 +152,18 @@ Feature: The verify-scenarios procedure — bridge frozen scenarios to test repo
     When verify-scenarios runs
     Then it prints usage and exits non-zero
 
+  # ── Path resolution ──
+
+  Scenario: an absolute path argument is used verbatim, not double-prefixed under root
+    Given a --feature, --report, or --config given as an absolute path
+    When verify-scenarios resolves it against --root
+    Then the absolute path is used as-is rather than joined beneath --root
+
+  Scenario: a relative path argument resolves beneath root
+    Given a --feature, --report, or --config given as a path relative to --root
+    When verify-scenarios resolves it against --root
+    Then it resolves beneath --root, which defaults to the current directory
+
   # ── Boundaries ──
 
   Scenario: the engine writes nothing

@@ -173,8 +173,9 @@ scenario **unfreezes the file and fires Clearance** (`../../design/autonomy-rubr
 **pre-authorizable** in the CR, else escalated); a *pure `git mv` rename* (zero content delta) is not a
 gate-able edit. That routing is only as trustworthy as the **classification** feeding it, and the
 classification must be **structural — a per-named-`Scenario` diff of the file against its committed
-baseline (`npx gherkin-cli@0.0.1 diff --base <baseref> --format json` — its `addOnly` / per-scenario
-`change`), never a raw git line-diff.**
+baseline (the pinned `gherkin-cli diff` the freeze model and digest already consume,
+`../../design/gherkin-cli-dependency.md` — its `addOnly` / per-scenario `change`), never a raw git
+line-diff.**
 
 A **raw line-diff misclassifies a narrowing as additive**: a trailing step orphaned off a frozen
 scenario onto a newly added adjacent scenario shows **no `-` line** and reads as purely additive, so the

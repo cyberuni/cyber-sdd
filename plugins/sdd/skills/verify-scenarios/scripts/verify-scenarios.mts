@@ -36,7 +36,13 @@
 
 import { execFileSync, execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { isAbsolute, join } from 'node:path'
+
+// Resolves a path argument against `--root`: relative paths join beneath root (which defaults to the
+// current directory); an absolute path is used verbatim, never double-prefixed under root.
+export function underRoot(root: string, p: string): string {
+	return isAbsolute(p) ? p : join(root, p)
+}
 
 // ── Config (a minimal TOML: `[[source]]` array-of-tables) ──
 
@@ -107,7 +113,7 @@ export function scenarioKeysFromParse(parsed: GherkinParseOutput): ScenarioKey[]
 }
 
 export function getScenarioKeys(root: string, featurePath: string): ScenarioKey[] {
-	const abs = join(root, featurePath)
+	const abs = underRoot(root, featurePath)
 	const stdout = execFileSync('npx', ['gherkin-cli@0.0.1', 'parse', abs, '--format', 'json'], {
 		encoding: 'utf8',
 		cwd: root,
@@ -214,7 +220,7 @@ function runJunitSource(source: SourceConfig, root: string, run: boolean): Bound
 	if (run && source.command) {
 		execSync(source.command, { cwd: root, stdio: ['ignore', 'pipe', 'inherit'] })
 	}
-	const reportPath = join(root, source.reportPath)
+	const reportPath = underRoot(root, source.reportPath)
 	if (!existsSync(reportPath)) return []
 	return junitResultsFromXml(readFileSync(reportPath, 'utf8'))
 }
@@ -329,7 +335,7 @@ export function resolveSources(argv: string[], root: string): SourceConfig[] {
 	if (reportFlag) {
 		return [{ adapter: 'junit', reportPath: reportFlag }]
 	}
-	const configPath = join(root, flag(argv, '--config') ?? '.agents/sdd/scenario-bridge.toml')
+	const configPath = underRoot(root, flag(argv, '--config') ?? '.agents/sdd/scenario-bridge.toml')
 	return readSourcesConfig(configPath)
 }
 

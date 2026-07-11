@@ -95,10 +95,12 @@ mission picks the same CR. This is the CR-granularity complement to git's file-g
 locking (`../design/cr-concurrency.md`): git keeps two trees from colliding on the
 same *file*; the source-claim keeps two trees from grabbing the same *CR*.
 
-**Write-back at handoff is conditional, never bookkeeping.** When delivery is a **PR** (the
-common case), the PR closes the source on merge (`Closes #N`) — SDD adds no separate close.
-When work lands **directly on `main`**, the mission transitions the source to `done` on
-push. Either way the mission may **report back** to the source — findings, and **follow-up
+**Write-back at handoff is conditional, never bookkeeping.** When delivery is a **PR** and the
+source **closes by reference** (a same-forge issue — GitHub, GitLab), handoff writes the
+auto-close reference (`Closes #N`) into the PR body so the source closes on merge — SDD adds no
+separate close; a source that does not close by reference (a bare prompt, or a cross-system source
+like Asana/Jira) gets none and is moved natively. When work lands **directly on `main`**, the
+mission transitions the source to `done` on push. Either way the mission may **report back** to the source — findings, and **follow-up
 tasks**, which re-enter SDD as **new CRs** (the same outer-loop → intake closure).
 Report-back is outward, human-facing provenance, distinct from the internal combat-log
 `report` lines.

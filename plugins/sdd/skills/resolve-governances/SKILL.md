@@ -1,6 +1,6 @@
 ---
 name: resolve-governances
-description: "Internal skill: the SDD governance matcher. A self-contained .mts script that, for a touched file's artifact-type, names per production-chain role the agent that runs it plus the resolved-actor bar candidates it loads — matching governances across the caller-passed project anchors, the matched plugin squad, and the sdd defaults, returned bucketed by tier (project / project-root / plugin / sdd). Run by the conductor (start-mission) and the cold spec/impl judges, which compose the buckets by precedence; not triggered by users directly."
+description: "Internal skill: the SDD governance matcher, resolving which actor-bar governances apply to a touched file — run by the conductor and the cold spec/impl judges, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

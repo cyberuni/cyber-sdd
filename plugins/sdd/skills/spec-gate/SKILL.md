@@ -1,6 +1,6 @@
 ---
 name: spec-gate
-description: "Internal skill: the SDD spec gate (Draft → Approved) — the verdict on a CR's spec + suite diff, freezing each touched .feature on approve. Run by the conductor (start-mission) inside the mission loop; not triggered by users directly."
+description: "Internal skill: the SDD spec gate (Draft → Approved), the verdict on a CR's spec + suite diff — run by the conductor inside the mission loop, not triggered by users directly."
 user-invocable: false
 ---
 

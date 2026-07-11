@@ -1,6 +1,6 @@
 ---
 name: manage-model-runners
-description: "Internal skill: the ACED manage-model-runners engine. Maintains a per-model family of neutral runner agent definitions at user-global ~/.agents/agents/model-runner-<model>.md — add the missing runners, list the family, remove only the runners the user names — used to run a skill-under-test as a real subagent under a specific model for cost/quality benchmarking. Loaded in-session by the ACED manage gateway; additive only (never auto-removes). Not triggered by users directly."
+description: "Internal skill: the ACED manage-model-runners engine — loaded in-session by the ACED manage gateway, not user-triggered."
 user-invocable: false
 metadata:
   internal: true

@@ -1,6 +1,6 @@
 ---
 name: gate-validation-governance
-description: "Internal skill: the SDD gate-legality contract — legal frontmatter-state tuples, per-node spec-type checks, derived sync (no aligned flag), approval attribution, and the no-resolvable-producer fail-closed rule. Loaded by spec-gate, the conductor, and the spec-judge. Not triggered by users directly."
+description: "Internal skill: the SDD gate-legality contract. Loaded by spec-gate, the conductor, and the spec-judge, not user-triggered."
 user-invocable: false
 ---
 

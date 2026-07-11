@@ -1,6 +1,6 @@
 ---
 name: doctrine-loop
-description: "Internal skill: the SDD doctrine loop — the Strategist's outer loop run by the Scanner. Fires at lifecycle granularity (terminal transition, milestone retro, recurring pattern, drift, token-waste), drafts unratified strategy to the durable ledger, and surfaces it for the Council's keep-or-cut. Invoked by the doctrine-loop delegate — not triggered by users directly."
+description: "Internal skill: the SDD doctrine loop, the Strategist's outer loop run by the Scanner — invoked by the doctrine-loop delegate, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

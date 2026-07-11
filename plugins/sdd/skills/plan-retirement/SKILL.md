@@ -1,6 +1,6 @@
 ---
 name: plan-retirement
-description: "Internal skill: the SDD Doctrine loop's last retro step — the gated, idempotent tracked deletion of a retired mission plan. For each cr-ref the caller cleared for source (done/merged), retire-plans.mts verifies the plan was distilled (a strategy entry with distills==cr-ref in the project ledger) and only then deletes <cr-ref>.plan.md + <cr-ref>.log.jsonl, fail-closed. Invoked by the doctrine-loop Scanner — not triggered by users directly."
+description: "Internal skill: the SDD Doctrine loop's last retro step — the gated, idempotent tracked deletion of a retired mission plan. For each cr-ref the caller cleared for source (done/merged), retire-plans.mts deletes <cr-ref>.plan.md + <cr-ref>.log.jsonl when the plan was distilled (a strategy entry with distills==cr-ref in the project ledger) OR has no combat log to distill (no <cr-ref>.log.jsonl on disk); a cleared cr-ref whose log exists but is undistilled fails closed. Invoked by the doctrine-loop Scanner — not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true
@@ -32,8 +32,11 @@ The two gating signals split by what the sweep can check itself:
   <cr-ref>` must exist in the project ledger (`--ledger`). The sweep keys on the structured
   `distills` field, **never** a `<cr-ref>` that appears only in a strategy's `evidence`
   cross-references, and an **unratified** distilling entry still counts
-  (`sdd:combat-log-governance`). Its absence is **fail-closed** — the plan is left intact so its
-  distillation can still be drafted.
+  (`sdd:combat-log-governance`). Its absence is **fail-closed** — but only when a combat log
+  **exists**: a cr-ref whose `<cr-ref>.log.jsonl` was never written (a non-gated mission — hand-run,
+  chore-tracked, investigation — runs no gate cycle and emits no correction) has **nothing to
+  distill**, so it retires on clearance + presence alone. The fail-closed leaves an existing,
+  undistilled log's plan intact so its distillation can still be drafted.
 
 Leaving the distilled half to the caller once let a plan + combat log be deleted before any
 distillation existed (the evidence the distill was meant to preserve). Because the check is local,
@@ -50,16 +53,18 @@ node "<skill>/scripts/retire-plans.mts" \
 
 - **`--ledger <dir>`** points at the project's ledger directory (the `ledger/` sibling of the root
   `spec.md`). **Required for any deletion** — omit it (or an unreadable dir) and the sweep
-  fail-closes: no `<cr-ref>` can be verified distilled, so nothing is deleted.
+  fail-closes: nothing is deleted (the no-log branch only applies once a ledger is present to consult).
 - Deletes the two files only for a `<cr-ref>` that is cleared (`--retire`) **and** present on disk
-  **and** distilled (a `strategy` with `distills == <cr-ref>` in `--ledger`).
-- **Fail-closed** — a plan not named in `--retire`, or with no distilling ledger entry, is never
-  touched.
+  **and** either distilled (a `strategy` with `distills == <cr-ref>` in `--ledger`) **or** has no
+  combat log to distill (no `<cr-ref>.log.jsonl` on disk).
+- **Fail-closed** — a plan not named in `--retire`, or whose combat log **exists** but has no
+  distilling ledger entry, is never touched.
 - **Idempotent** — a cleared `<cr-ref>` with no plan on disk (already retired, or an open CR the
   caller declined to clear) is a no-op; the sweep is safe to re-run.
 - `--dry-run` prints the planned deletions without touching the tree.
 
-When `node` is absent, an agent performs the same decision by hand: for each cleared `<cr-ref>`,
-**first confirm a `strategy` entry with `distills == <cr-ref>` exists in the project ledger** (not a
-mere `evidence` mention; unratified still counts) — if none, skip it. Only then delete
-`<cr-ref>.plan.md` and `<cr-ref>.log.jsonl` if present, touching nothing else.
+When `node` is absent, an agent performs the same decision by hand: for each cleared `<cr-ref>`, if
+its `<cr-ref>.log.jsonl` **exists**, **first confirm a `strategy` entry with `distills == <cr-ref>`
+exists in the project ledger** (not a mere `evidence` mention; unratified still counts) — if none,
+skip it. A cr-ref with **no** `log.jsonl` has nothing to distill and needs no such entry. Only then
+delete `<cr-ref>.plan.md` and `<cr-ref>.log.jsonl` if present, touching nothing else.

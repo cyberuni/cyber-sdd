@@ -3,7 +3,15 @@ import { existsSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { decideRetirements, discoverPlans, distilledCrRefs, main, parseCleared, planFiles } from './retire-plans.mts'
+import {
+	decideRetirements,
+	discoverLogs,
+	discoverPlans,
+	distilledCrRefs,
+	main,
+	parseCleared,
+	planFiles,
+} from './retire-plans.mts'
 
 // A throwaway plans dir seeded with the given cr-refs, each getting plan.md (+ log.jsonl
 // unless noLog lists it). Returns the dir; the caller rms it.
@@ -57,6 +65,20 @@ test('discoverPlans lists cr-refs with a plan.md and ignores other files', () =>
 
 test('discoverPlans returns [] for a missing root', () => {
 	assert.deepEqual(discoverPlans(join(tmpdir(), 'does-not-exist-retire')), [])
+})
+
+test('discoverLogs lists cr-refs with a log.jsonl and ignores other files', () => {
+	const dir = plansDir(['github-34', 'local-foo'], ['local-foo']) // local-foo has no log.jsonl
+	writeFileSync(join(dir, 'stray.txt'), 'x')
+	try {
+		assert.deepEqual(discoverLogs(dir), ['github-34'])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('discoverLogs returns [] for a missing root', () => {
+	assert.deepEqual(discoverLogs(join(tmpdir(), 'does-not-exist-retire')), [])
 })
 
 test('distilledCrRefs picks up the distills field from a strategy line', () => {
@@ -116,15 +138,23 @@ test('distilledCrRefs counts an unratified distilling entry (ratified is not req
 
 test('decideRetirements retires only cleared-and-present-and-distilled cr-refs, fail-closed', () => {
 	const distilled = new Set(['a', 'b'])
+	const logPresent = new Set(['a', 'b', 'uncleared', 'missing'])
 	// uncleared-but-present is left out; cleared-but-absent is left out; order follows cleared
-	assert.deepEqual(decideRetirements(['b', 'a', 'missing'], ['a', 'b', 'uncleared'], distilled), ['b', 'a'])
-	assert.deepEqual(decideRetirements([], ['a'], distilled), [])
-	assert.deepEqual(decideRetirements(['a', 'a'], ['a'], distilled), ['a'])
+	assert.deepEqual(decideRetirements(['b', 'a', 'missing'], ['a', 'b', 'uncleared'], distilled, logPresent), ['b', 'a'])
+	assert.deepEqual(decideRetirements([], ['a'], distilled, logPresent), [])
+	assert.deepEqual(decideRetirements(['a', 'a'], ['a'], distilled, logPresent), ['a'])
 })
 
-test('decideRetirements excludes a cleared-and-present cr-ref that is not distilled', () => {
-	assert.deepEqual(decideRetirements(['github-34'], ['github-34'], new Set()), [])
-	assert.deepEqual(decideRetirements(['github-34'], ['github-34'], new Set(['other-cr'])), [])
+test('decideRetirements excludes a cleared-and-present cr-ref that is not distilled but has a log (data-loss guard)', () => {
+	const logPresent = new Set(['github-34'])
+	assert.deepEqual(decideRetirements(['github-34'], ['github-34'], new Set(), logPresent), [])
+	assert.deepEqual(decideRetirements(['github-34'], ['github-34'], new Set(['other-cr']), logPresent), [])
+})
+
+test('decideRetirements retires a cleared-and-present cr-ref with no log to distill from, even if undistilled', () => {
+	// the frozen scenario: "a cleared cr-ref whose combat log was never written is retired
+	// without a distillation" — logPresent does not contain the ref, so the no-log branch fires.
+	assert.deepEqual(decideRetirements(['github-34'], ['github-34'], new Set(), new Set()), ['github-34'])
 })
 
 test('the sweep deletes both files for a cleared, present, distilled cr-ref (tracked deletion of the tree)', () => {
@@ -288,6 +318,35 @@ test('--dry-run deletes nothing', () => {
 	} finally {
 		rmSync(dir, { recursive: true, force: true })
 		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+test('a cleared cr-ref whose combat log was never written is retired without a distillation', () => {
+	const dir = plansDir(['github-34'], ['github-34']) // no log.jsonl on disk
+	const ledger = ledgerDir([]) // ledger present but no strategy distills github-34
+	try {
+		const code = main(['--root', dir, '--ledger', ledger, '--retire', 'github-34'])
+		assert.equal(code, 0)
+		assert.ok(!existsSync(join(dir, 'github-34.plan.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.log.jsonl'))) // already absent, no-op, no error
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+// The data-loss guard invariant (log.jsonl present + undistilled => NOT retired) is already
+// covered above by 'a cleared, present cr-ref with no distillation in the ledger is not
+// deleted (fail-closed)' — plansDir seeds both plan.md and log.jsonl by default, so that test
+// already exercises the log-present branch of decideRetirements unchanged.
+
+test('no --ledger given still skips the no-log branch (missing ledger, not just missing log)', () => {
+	const dir = plansDir(['github-34'], ['github-34']) // no log.jsonl, but no ledger given either
+	try {
+		main(['--root', dir, '--retire', 'github-34'])
+		assert.ok(existsSync(join(dir, 'github-34.plan.md')))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
 	}
 })
 

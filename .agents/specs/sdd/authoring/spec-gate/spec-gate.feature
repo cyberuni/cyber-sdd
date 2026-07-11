@@ -267,3 +267,46 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Given a CR that touched a subset of the project's behavioral spec.md files
     When the gate runs the use-case-coverage check
     Then the check covers only the touched files, not the whole tree
+
+  # ---- Structural edit-class classification (freeze integrity) ----
+
+  Scenario: the edit class of a touched frozen file comes from a per-scenario structural diff, not a raw line diff
+    Given a touched frozen .feature changed against its committed baseline
+    When the gate classifies its edit class
+    Then the added, modified, and removed scenarios come from a per-named-scenario structural diff
+    And the classification does not rely on the raw line diff
+
+  Scenario: a step reassigned off a frozen scenario onto a new scenario is classified as a narrowing
+    Given a frozen .feature whose baseline scenario loses a step reassigned onto a newly added adjacent scenario
+    When the gate classifies its edit class
+    Then the losing baseline scenario is classified as modified
+    And the change is not classified as purely additive
+
+  Scenario: a narrowing detected on a frozen file fires Clearance rather than self-clearing
+    Given the edit class of a touched frozen file is a narrowing of a baseline scenario
+    When the gate evaluates the diff
+    Then the gate unfreezes the file and fires Clearance for the narrowing
+    And the narrowing does not self-clear as an additive change
+
+  Scenario: a narrowing the CR pre-authorized for Clearance self-clears within the leash
+    Given a narrowing of a frozen scenario that the CR pre-authorized for Clearance
+    When the gate evaluates the diff
+    Then the narrowing self-clears within the run leash
+    And the gate escalates no hard floor for it
+
+  Scenario: a whole additive scenario on a frozen file is classified as additive and self-clears
+    Given a frozen .feature whose only change is whole added scenarios
+    When the gate classifies its edit class
+    Then the change is classified as purely additive
+    And it self-clears without firing Clearance
+
+  Scenario: a pure rename of a frozen file is classified as no content change
+    Given a touched frozen .feature relocated by a pure rename with no content delta
+    When the gate classifies its edit class
+    Then the change is classified as no content change
+    And the file stays frozen and fires no Clearance
+
+  Scenario: the structural edit-class classification scopes to the CR's touched feature files
+    Given a CR that touched a subset of the project's .feature files
+    When the gate classifies edit classes
+    Then it classifies only the touched files, not the whole tree

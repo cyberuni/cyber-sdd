@@ -82,6 +82,16 @@ Feature: The handoff phase — land the verified result in the declared delivery
 
   # ---- Conditional status write-back ----
 
+  Scenario: a PR-flow handoff writes the source's auto-close reference into the PR
+    Given a CR whose source supports closing by reference
+    When handoff opens the pull request
+    Then the pull request body includes a closing reference naming the source
+
+  Scenario: a CR with no close-by-reference source gets no closing reference
+    Given a CR whose source does not support closing by reference
+    When handoff opens the pull request
+    Then the pull request body includes no closing reference
+
   Scenario: a merged PR closes the source without a separate close
     Given handoff delivered the work as a pull request
     When the pull request merges

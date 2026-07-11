@@ -34,7 +34,7 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 | **finalize placement** | relocate this mission's provisionally-placed nodes to their blessed home via a pure rename (freeze survives), scoped to the touched nodes, logged — in the same change |
 | **land in the declared shape** | detect the project's single declared shape and land accordingly (commit-to-main / branch+PR / deploy / chapter) |
 | **decompose by unit of work** | a multi-unit cycle lands as multiple commits / a unit-split PR, never one blob, never two unrelated concerns together |
-| **conditional status write-back** | a PR closes the source on merge (`Closes #N`); direct-to-`main` work transitions the source to `done` on push |
+| **conditional status write-back** | when the source closes by reference, handoff writes the auto-close reference (`Closes #N`) into the PR body so the source closes on merge; a non-close-capable source gets none; direct-to-`main` work transitions the source to `done` on push |
 | **distilled public summary** | append an outward-facing conclusion + follow-ups (which re-enter as new CRs) to the source — not the combat log |
 | **no new floor** | handoff raises no new mandatory escalation; earlier hard floors already fired |
 | **the plan is kept, not landed, not retired** | the `.plan.md` stays in the PR as scratch, is not landed as a delivery artifact, and is not retired early |
@@ -127,9 +127,12 @@ already firmed.
 Handoff is where the CR's **public conclusion** is written back to its source (the mechanics
 live in `../../intake/README.md`):
 
-- **Status.** Conditional, never bookkeeping: a **PR** closes the source on merge
-  (`Closes #N`) — SDD adds no separate close; work landed **directly on `main`** transitions
-  the source to `done` on push.
+- **Status.** Conditional, never bookkeeping: when the source **supports closing by reference**
+  (a same-forge issue — GitHub, GitLab), handoff **writes the auto-close reference** (`Closes #N`,
+  naming the source) **into the PR body**, so the source auto-closes on merge — SDD adds no
+  separate close. A CR with **no close-by-reference source** (a bare prompt, or a cross-system
+  source such as Asana/Jira) gets **no closing reference**; work landed **directly on `main`**
+  transitions the source to `done` on push, and a cross-system source is moved natively (`../intake/README.md`).
 - **Distilled summary.** A short, **public-worthy** conclusion — what shipped, in what shape,
   and any **follow-up tasks** (which re-enter SDD as new CRs) — is appended to the source. This
   is deliberately the *outward* distillate, not the internal combat log: it is part of the

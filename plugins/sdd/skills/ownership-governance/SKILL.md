@@ -1,6 +1,6 @@
 ---
 name: ownership-governance
-description: "Internal skill: the SDD write-ownership contract — who may write each spec.md frontmatter field and artifact, plus the freeze write-constraint. Loaded by every SDD producer, judge, the conductor, and the start-mission/spec-gate skills. Not triggered by users directly."
+description: "Internal skill: the SDD write-ownership contract. Loaded by every SDD producer, judge, the conductor, and the start-mission/spec-gate skills, not user-triggered."
 user-invocable: false
 ---
 

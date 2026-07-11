@@ -1,6 +1,6 @@
 ---
 name: verify-scenarios
-description: "Internal skill: the Gherkin-scenario -> test-report bridge verifier. A self-contained .mts script that reads a frozen .feature's scenario set, unions the results of one or more configured test-result sources (junit today; tap/aced later), and reports PASS/FAIL/UNBOUND per scenario so an impl-judge reasons by hand only over the UNBOUND set. Invoked at the impl gate for deterministic artifact-types; not triggered by users directly."
+description: "Internal skill: the Gherkin-scenario-to-test-report bridge verifier — invoked by the impl-judge at the impl gate, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

@@ -1,6 +1,6 @@
 ---
 name: place-node
-description: "Internal skill: project-spec/place-node's concrete engine. A self-contained .mts script that, given a new node's concept (and optional name), suggests a provisional capability home (derived from where that concept's facets already sit) and surfaces possible duplicates by name — so explore places a node in one lookup instead of holding the tree in its head. Read-only and advisory; placement is finalized at handoff. Not triggered by users directly."
+description: "Internal skill: project-spec/place-node's engine that suggests a capability home and surfaces duplicates for a new node — used by explore, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

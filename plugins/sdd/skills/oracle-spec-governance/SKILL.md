@@ -1,6 +1,6 @@
 ---
 name: oracle-spec-governance
-description: "Internal skill: the Oracle actor bar at the spec gate — scope and kill-or-ship. Loaded by the spec-producer to self-align and by the cold spec-judge to grade scope. The SDD default for the oracle bar; a plugin may bind its own per artifact-type. Not triggered by users directly."
+description: "Internal skill: the Oracle actor bar at the spec gate — scope and kill-or-ship. Loaded by the spec-producer and the cold spec-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: oracle

@@ -1,6 +1,6 @@
 ---
 name: lifecycle-governance
-description: "Internal skill: the SDD spec lifecycle contract — the root spec.md frontmatter schema, status enum, status transitions, open-marker gating, and the per-file freeze state-transition. Loaded by sdd, spec-gate, start-mission, the conductor, and the spec-judge. Not triggered by users directly."
+description: "Internal skill: the SDD spec lifecycle contract. Loaded by sdd, spec-gate, start-mission, the conductor, and the spec-judge, not user-triggered."
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: builder-impl-governance
-description: "Internal skill: the Builder actor bar at the impl gate — does the implementation meet the frozen contract. Loaded by the impl-producer to self-align and by the impl-judge to verify. The SDD default for the builder impl bar; a plugin may bind its own per artifact-type. Not triggered by users directly."
+description: "Internal skill: the Builder actor bar at the impl gate — does the implementation meet the frozen contract. Loaded by the impl-producer and the impl-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: builder

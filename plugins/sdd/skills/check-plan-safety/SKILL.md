@@ -1,6 +1,6 @@
 ---
 name: check-plan-safety
-description: "Internal skill: plan-brief/check-plan-safety's concrete guard engine. A self-contained .mts script that scans .agents/plans for the tracked handoff artifacts (the *.plan.md brief + sibling design docs) and flags any machine-local reference — a home-directory absolute path or a $HOME/$USER expansion — that would leak an OS username or break portability if committed. --check is the CI guard. Read-only. Not triggered by users directly."
+description: "Internal skill: plan-brief/check-plan-safety's guard engine against machine-local path leaks in tracked plan artifacts — the CI guard, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

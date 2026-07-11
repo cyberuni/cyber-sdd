@@ -1,6 +1,6 @@
 ---
 name: check-spec-structure
-description: "Internal skill: project-spec/check-spec-structure's concrete engine. A self-contained .mts script that audits one project spec's internal node-shape — untagged-node orphans (blocking) and oversized nodes (advisory) — and emits a finding set for the formation Warden. The intra-spec successor to the retired cross-spec dedupe/split tools; read-only and advisory. Not triggered by users directly."
+description: "Internal skill: project-spec/check-spec-structure's engine that audits a project spec's internal node-shape — feeds the formation Warden, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

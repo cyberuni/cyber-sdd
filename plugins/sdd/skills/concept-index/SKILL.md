@@ -1,6 +1,6 @@
 ---
 name: concept-index
-description: "Internal skill: project-spec/concept-index's concrete engine. A self-contained .mts script that scans one project-spec for every node's concept: frontmatter and renders the by-concept view (concept → its nodes across every folder, each annotated by facet kind), then maintains that view as a generated block in the root spec.md. --write refreshes the block, --check guards against drift; pure derivation, frontmatter only. Used to re-unify a cross-cutting concern the capability folder tree scatters; not triggered by users directly."
+description: "Internal skill: project-spec/concept-index's engine that derives the by-concept view of a project spec into spec.md — used to re-unify a cross-cutting concern the capability folder tree scatters, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

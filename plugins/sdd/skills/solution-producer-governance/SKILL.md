@@ -1,6 +1,6 @@
 ---
 name: solution-producer-governance
-description: "Internal skill: the SDD default solution-producer procedure — how to record a unit's <unit>.solution.md (chosen approach + rejected alternatives) for a domain no plugin covers, only when the unit carries durable design rationale. Loaded in-session by the conductor when it runs the solution-producer role inline (produced-by sdd:automaton); not triggered by users directly."
+description: "Internal skill: the SDD default solution-producer procedure. Loaded in-session by the conductor when it runs the solution-producer role inline, not user-triggered."
 user-invocable: false
 ---
 

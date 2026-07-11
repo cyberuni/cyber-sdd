@@ -136,7 +136,11 @@ function detectPureRename(base: string, path: string, cwd: string): boolean {
 // "no baseline", matching check-spec-state.mts's readBaselineFromGit convention.
 function readGitShow(base: string, path: string, cwd: string): string {
 	try {
-		return execFileSync('git', ['show', `${base}:${path}`], { encoding: 'utf8', cwd, stdio: ['ignore', 'pipe', 'ignore'] })
+		return execFileSync('git', ['show', `${base}:${path}`], {
+			encoding: 'utf8',
+			cwd,
+			stdio: ['ignore', 'pipe', 'ignore'],
+		})
 	} catch {
 		return ''
 	}

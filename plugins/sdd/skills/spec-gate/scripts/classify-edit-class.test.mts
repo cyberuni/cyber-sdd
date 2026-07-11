@@ -131,10 +131,7 @@ describe('spec:authoring/spec-gate', () => {
 	})
 
 	test('classifyFromDiff reports narrowing only when a baseline scenario is modified/removed', () => {
-		assert.equal(
-			classifyFromDiff({ addOnly: true, scenarios: [{ name: 'gamma', change: 'added' }] }),
-			'additive',
-		)
+		assert.equal(classifyFromDiff({ addOnly: true, scenarios: [{ name: 'gamma', change: 'added' }] }), 'additive')
 		assert.equal(
 			classifyFromDiff({
 				addOnly: false,
@@ -146,7 +143,10 @@ describe('spec:authoring/spec-gate', () => {
 			'mixed',
 		)
 		assert.equal(classifyFromDiff({ addOnly: false, scenarios: [{ name: 'beta', change: 'modified' }] }), 'narrowing')
-		assert.equal(classifyFromDiff({ addOnly: true, scenarios: [{ name: 'alpha', change: 'unchanged' }] }), 'no-content-change')
+		assert.equal(
+			classifyFromDiff({ addOnly: true, scenarios: [{ name: 'alpha', change: 'unchanged' }] }),
+			'no-content-change',
+		)
 	})
 
 	// ── the 7 frozen scenarios (real git + gherkin-cli fixtures) ──
@@ -264,7 +264,7 @@ describe('spec:authoring/spec-gate', () => {
 		}
 	})
 
-	test('the structural edit-class classification scopes to the CR\'s touched feature files', () => {
+	test("the structural edit-class classification scopes to the CR's touched feature files", () => {
 		const dir = initRepo()
 		try {
 			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)

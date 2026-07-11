@@ -1,6 +1,6 @@
 ---
 name: impl-producer-governance
-description: "Internal skill: the SDD default impl-producer procedure — how to build the implementation AND its verification (one per frozen scenario) against the frozen .feature for a domain no plugin covers. Loaded by the spawned generic builder the conductor dispatches for the impl-producer role (produced-by sdd:automaton); not triggered by users directly."
+description: "Internal skill: the SDD default impl-producer procedure. Loaded by the spawned generic builder the conductor dispatches for the impl-producer role, not user-triggered."
 user-invocable: false
 ---
 

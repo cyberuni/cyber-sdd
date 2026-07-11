@@ -1,6 +1,6 @@
 ---
 name: repair-private-skills
-description: "Internal skill: the ACED manage-gateway engine that validates and repairs repo-private skill hygiene under .agents/skills — flags (validate) or fixes (repair) a stray symlink resolving into the public skills tree and a SKILL.md missing metadata.internal: true. Loaded in-session by the ACED manage gateway; validate is read-only, repair writes/deletes only under .agents/skills, never the public skills tree. Not triggered by users directly."
+description: "Internal skill: the ACED manage-gateway engine that validates and repairs repo-private skill hygiene — loaded in-session by the ACED manage gateway, not user-triggered."
 user-invocable: false
 metadata:
   internal: true

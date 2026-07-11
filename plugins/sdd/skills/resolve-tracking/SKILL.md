@@ -1,6 +1,6 @@
 ---
 name: resolve-tracking
-description: "Internal skill: intake/resolve-tracking's concrete engine. A self-contained .mts script that resolves one artifact's tracking signal (tracked or ignored) — explicit override, then the optional .agents/sdd/.sddignore override file (gitignore syntax, last-match-wins), then a fixed agent-config location convention, then fail-closed to tracked. Run by the conductor at intake, before a task becomes a CR. Not triggered by users directly."
+description: "Internal skill: intake/resolve-tracking's engine that resolves an artifact's tracked-or-ignored signal — run by the conductor at intake, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

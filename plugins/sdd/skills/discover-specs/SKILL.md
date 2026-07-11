@@ -1,6 +1,6 @@
 ---
 name: discover-specs
-description: "Internal skill: corpus/discovery's concrete frontmatter engine. A self-contained .mts script that scans the three fixed SDD spec locations (.agents/spec, .agents/specs/<project>, <project-path>/.agents/spec) plus any opt-in extra anchors declared in .agents/sdd/spec-anchors.toml (ADR-0019), filters candidates by the lifecycle status shape, parses each spec.md's frontmatter ONLY, and emits a TOON list of the specs with their project name + name-source, status, project-path, and approvals; --resolve <name> filters to the exact name matches. Used by the sdd gateway to scan statuses and by start-mission to locate the project spec; not triggered by users directly."
+description: "Internal skill: corpus/discovery's frontmatter-scanning engine across the SDD spec locations — used by the sdd gateway to scan statuses and by start-mission to locate the project spec, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

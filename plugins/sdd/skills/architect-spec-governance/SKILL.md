@@ -1,6 +1,6 @@
 ---
 name: architect-spec-governance
-description: "Internal skill: the Architect actor bar at the spec gate — structural fit of the spec and solution. Loaded by the solution-producer to self-align (forward) and by the cold spec-judge to grade (backward, from spec + .feature only). The SDD default for the architect spec bar; a plugin may bind its own per artifact-type. Not triggered by users directly."
+description: "Internal skill: the Architect actor bar at the spec gate — structural fit of the spec and solution. Loaded by the solution-producer and the cold spec-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: architect

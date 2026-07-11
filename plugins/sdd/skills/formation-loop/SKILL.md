@@ -1,6 +1,6 @@
 ---
 name: formation-loop
-description: "Internal skill: the SDD formation loop — the Architect's outer loop run by the Warden. Fires post-mission, corpus-wide and continuous, asking one question — is what we have organized right? — and emits a finding set covering every spec (node-shape / split / reconcile), each carrying the Warden's self-clear-or-escalate verdict. Invoked by the formation-loop delegate — not triggered by users directly."
+description: "Internal skill: the SDD formation loop, the Architect's outer loop run by the Warden — invoked by the formation-loop delegate, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

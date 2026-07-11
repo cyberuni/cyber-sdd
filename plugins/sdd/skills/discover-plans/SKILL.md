@@ -1,6 +1,6 @@
 ---
 name: discover-plans
-description: "Internal skill: intake/plan-discovery's concrete frontmatter engine. A self-contained .mts script that scans .agents/plans for *.plan.md mission briefs, parses each brief's frontmatter (name + the todos tally) plus its ## NEXT lead, and emits a TOON list of the unretired / resumable missions. Used by the sdd gateway to surface resumable missions on entry; not triggered by users directly."
+description: "Internal skill: intake/plan-discovery's engine that surfaces resumable mission plan briefs — used by the sdd gateway on entry, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

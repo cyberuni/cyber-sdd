@@ -1,6 +1,6 @@
 ---
 name: list-skills
-description: "Internal skill: the ACED manage-gateway skill-inventory engine. A self-contained .mts script that scans the four fixed skill sources — repo-private (.agents/skills), repo-public (skills/), user-global (~/.agents/skills), and the cyberplace package's shipped skills directory — dedupes by name (repo takes precedence), applies an optional --grep glob filter, and reports each surviving skill's name, foundIn source, description, and package-managed status. Loaded in-session by the manage gateway so users see what skills are installed without hand-scanning directories; read-only, writes nothing. Not triggered by users directly."
+description: "Internal skill: the ACED manage-gateway skill-inventory engine — loaded in-session by the manage gateway, not user-triggered."
 user-invocable: false
 metadata:
   internal: true

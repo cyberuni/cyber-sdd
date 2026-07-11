@@ -1,6 +1,6 @@
 ---
 name: manage-ignore
-description: "Internal skill: intake/manage-ignore's concrete curation engine. A self-contained .mts script that lists / adds / removes rules in .agents/sdd/.sddignore (gitignore syntax, order-preserving / last-match-wins), induces a pattern from a sample path, and previews which working-tree paths a candidate would ignore or re-track before saving. Loaded in-session by the manage gateway (Housekeeping) so users curate the ignore rules resolve-tracking reads without hand-editing the file; writes only .sddignore, never spec content. Not triggered by users directly."
+description: "Internal skill: intake/manage-ignore's curation engine for the SDD ignore rules — loaded by the manage gateway (Housekeeping), not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

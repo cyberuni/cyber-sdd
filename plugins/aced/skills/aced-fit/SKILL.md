@@ -1,6 +1,6 @@
 ---
 name: aced-fit
-description: "Internal skill: the ACED fit classifier — strong | partial | wrong-squad, i.e. which of ACED's four eval layers carry real signal for a subject. Loaded by the ACED spec-producer (to classify + declare fit in explore) and the spec-judge (to enforce it at the gate). Not triggered by users directly."
+description: "Internal skill: the ACED fit classifier — which of ACED's eval layers carry real signal for a subject. Loaded by the ACED spec-producer and the spec-judge. Not triggered by users directly."
 user-invocable: false
 metadata:
   type: governance

@@ -1,6 +1,6 @@
 ---
 name: manage-spec-anchors
-description: "Internal skill: corpus/spec-anchors' concrete curation engine. A self-contained .mts script that lists the three fixed spec anchors (each explained) plus the opt-in custom anchors, performs CRUD on the custom ones in .agents/sdd/spec-anchors.toml, induces an anchor pattern from a sample path, and previews which project(s) a pattern would discover before saving. Loaded in-session by the manage gateway (Housekeeping) so users curate discovery's extra anchors without hand-editing config; writes only the config, never spec content. Not triggered by users directly."
+description: "Internal skill: corpus/spec-anchors' curation engine for SDD's extra spec-discovery anchors — loaded by the manage gateway (Housekeeping), not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

@@ -40,6 +40,16 @@ Feature: Plan retirement — the gated, idempotent tracked deletion of a retired
     Then it deletes the cr-ref's plan files
     And the gate keys on the distills subject, not on ratification status
 
+  # ---- No combat log to distill: the distilled gate guards an existing log only ----
+
+  Scenario: a cleared cr-ref whose combat log was never written is retired without a distillation
+    Given a cr-ref cleared for retirement
+    And its plan.md exists on disk but no log.jsonl was ever written
+    And no strategy entry in the ledger distills the cr-ref
+    When the sweep runs
+    Then it deletes the cr-ref's plan.md
+    And no combat log is lost because none existed to distill
+
   # ---- The sweep deletes both plan files ----
 
   Scenario: a cleared cr-ref with its distillation present deletes both its plan files

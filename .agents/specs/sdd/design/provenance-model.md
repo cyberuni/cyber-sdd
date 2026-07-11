@@ -370,8 +370,8 @@ The committed plan is **retired** in two decoupled acts, both owned by the **doc
 - **Distill (early).**
   At `→ implemented` (before the PR exists), the Scanner reads the concluded combat log and distills recurring `cause`s into the ledger's `strategy` lines.
 - **Delete (late).**
-  The plan files (`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`) are removed from the tree as a **tracked deletion** — git history preserves them — only when **both** hold: the source is `done`/merged **and** the plan has been distilled.
-  Never delete an un-distilled plan (the retro never ran).
+  The plan files (`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`) are removed from the tree as a **tracked deletion** — git history preserves them — only when **both** hold: the source is `done`/merged **and** the plan has been distilled **or there was no combat log to distill**.
+  Never delete an un-distilled combat log (the retro never ran); the distilled gate guards an **existing** log, so a plan whose `log.jsonl` was never written (a non-gated mission — hand-run, chore-tracked, investigation — runs no gate cycle and emits no correction) has nothing to distill and is cleared to retire on the source half alone.
   Deletion runs as doctrine's **last retro step**, after the distill writes to the ledger.
   The act is idempotent: a missing plan or an open CR is a no-op, so the retirement sweep is safe to re-run.
 

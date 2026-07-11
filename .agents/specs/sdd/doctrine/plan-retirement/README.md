@@ -23,7 +23,10 @@ and, for each cleared `<cr-ref>`, deletes `<cr-ref>.plan.md` + `<cr-ref>.log.jso
 delete removes a plan's two files as a tracked deletion only when its source is done/merged **and**
 the plan has been distilled — the sweep **verifies the distilled half mechanically** against the
 project ledger (a `strategy` entry whose `distills` equals the `<cr-ref>` must exist) and
-fail-closes when it is absent; everything else is a no-op.
+fail-closes when it is absent. The distilled gate guards an **existing combat log**: a `<cr-ref>`
+whose `log.jsonl` was never written (a non-gated mission — hand-run, chore-tracked, investigation)
+has **nothing to distill**, so the gate does not apply and the source half alone clears it.
+Everything else is a no-op.
 
 **Non-goals** — it does **not** distill (the Scanner does that earlier, at `→ implemented`), does
 **not** judge **source-status** itself (that half needs network/`gh`/Asana — the **caller clears**
@@ -39,7 +42,8 @@ filesystem effect — never the caller's clearance decision (which is out of thi
 | Behavior | What it covers |
 |---|---|
 | **delete-only, never distill** | the sweep only deletes; distill (writing `strategy` to the ledger) is the Scanner's earlier, separate step — the sweep only **reads** the ledger to verify distillation and writes nothing to it |
-| **distilled-gate, mechanical** | a cleared, present `<cr-ref>` is deleted only when a `strategy` entry with `distills == <cr-ref>` exists in the ledger; absence is **fail-closed** (combat log survives so it can still be distilled) |
+| **distilled-gate, mechanical** | a cleared, present `<cr-ref>` **whose combat log exists** is deleted only when a `strategy` entry with `distills == <cr-ref>` exists in the ledger; absence is **fail-closed** (combat log survives so it can still be distilled) |
+| **no combat log to distill** | a cleared, present `<cr-ref>` whose `log.jsonl` was **never written** is retired (its `plan.md` deleted) **without** a distilling `strategy` — there is nothing to distill, so the fail-closed gate, which guards an existing log, does not apply |
 | **distills ≠ cross-ref** | a `strategy` that names the `<cr-ref>` only in its `evidence` (as prior cross-reference), not in `distills`, does **not** clear it — the gate keys on `distills`, never a substring mention |
 | **deletes both plan files** | a cleared, present, distilled `<cr-ref>` removes `<cr-ref>.plan.md` **and** `<cr-ref>.log.jsonl` as a tracked deletion |
 | **partial pair is no-op'd** | a cleared, distilled `<cr-ref>` whose `log.jsonl` is already gone still deletes `plan.md` and no-ops the missing half |
@@ -61,7 +65,12 @@ mistaken for distilled.
 This division is deliberate: a caller-asserted distilled half once let a plan + combat log be
 deleted before any distillation existed, destroying the evidence the distill was meant to preserve.
 Because the check is local, leaving it to the caller bought nothing but a silent data-loss hole;
-pulling it into the fail-closed sweep closes it. The sweep is the **mechanical, fail-closed gate +
+pulling it into the fail-closed sweep closes it. The invariant it protects is precise — **never
+delete an undistilled combat log** — so it binds only when a combat log **exists**: a `<cr-ref>`
+whose `log.jsonl` was never written (a non-gated mission runs no gate cycle and emits no correction,
+so no combat log is ever created) has nothing to distill and nothing to lose, and the source
+clearance alone retires it. Fail-closing there would strand a whole mission class as un-retirable
+cruft to guard evidence that never existed. The sweep is the **mechanical, fail-closed gate +
 filesystem act**: given the cleared set, it deletes exactly those plans that are present **and**
 distilled, and nothing else. Anything not cleared, not distilled, missing, or already gone is a
 no-op. The deterministic deletion stays testable; only the genuinely non-local judgment (source

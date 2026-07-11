@@ -6,7 +6,7 @@ Is Gherkin (Given/When/Then, Cucumber-style) a good fit for UI-based (end-to-end
 
 ## Scope
 
-In scope: BDD/Gherkin applied to browser/UI end-to-end test automation specifically (not general acceptance-criteria writing, not the user's own SDD agent-behavior Gherkin usage which is a different domain — see note in conclusion).
+In scope: BDD/Gherkin applied to browser/UI end-to-end test automation specifically (not general acceptance-criteria writing, not the user's own SDD agent-behavior Gherkin usage which is a different domain — see note in conclusion). Extended scope (2026-07-11): concrete tooling that bridges Gherkin `.feature` files to Playwright and to Vitest Browser Mode specifically.
 Out of scope: mobile-native/desktop UI testing tooling detail; deep cost/ROI modeling.
 
 ## Source angles
@@ -84,6 +84,24 @@ Independent sources converge on the same shape of tradeoff, described from three
 
 **Decision heuristic that recurs across independent sources:** pick based on where the suite will be in ~6 months, not where it is today. A small, single-team, UI-only suite: POM is fine and lower-cost. A suite spanning multiple modules/APIs, a growing QA team, or genuinely multi-actor/role-based flows: Screenplay's upfront abstraction cost pays for itself. (E18, E19)
 
+### Bridging Gherkin to Playwright and Vitest Browser Mode (2026-07-11)
+
+Yes — there are several concrete, actively maintained bridges, and they split into two fundamentally different architectures depending on which test runner stays in control. This matters because it determines whether you keep the target runner's native features (fixtures, parallelism, trace viewer) or trade them away for the BDD layer.
+
+**Architecture A — Gherkin compiles down to native runner tests (runner keeps control):**
+
+- **playwright-bdd** (Vitaliy Potapov/vitalets) — a `bddgen` step compiles `.feature` files into real Playwright Test spec files ahead of time; `playwright test` then runs those generated files as ordinary Playwright tests. Because the generated tests *are* Playwright tests, you get full native Playwright fixtures, parallelism/sharding, and built-in trace/video/screenshot capture with no compatibility shim — this is explicitly the architectural difference from running Cucumber.js on top of Playwright, where Cucumber stays the runner and Playwright is just a library called from step defs. Step definitions can be written as functions or as class-method decorators. (E21, E24)
+- **Serenity/JS + Playwright Test** (`@serenity-js/playwright-test`) — Gherkin/Cucumber is **optional** here, not required. Serenity/JS's primary Playwright integration works directly inside plain Playwright Test files via dedicated fixtures, giving you the Screenplay Pattern APIs (actors, tasks, interactions) without any Gherkin at all. A separate template (`serenity-js-cucumber-playwright-template`) exists for teams that specifically want Gherkin + Screenplay + Playwright together, layering Cucumber.js as the Gherkin parser/runner on top while Serenity/JS supplies the Screenplay abstraction and reporting. So Serenity/JS answers "bridge Gherkin to Playwright" only if you opt into the Cucumber-flavored template; its more idiomatic/native path skips Gherkin entirely. (E22, E4/E15/E20 from prior research)
+- **QuickPickle + `@quickpickle/playwright`** — QuickPickle itself is Vitest-native (see Architecture B), but `@quickpickle/playwright` is a companion package that gives QuickPickle's Gherkin step-runner access to a real Playwright browser instance (via a "World" object) for full end-to-end browser testing, with built-in step definitions for common actions/assertions (`@quickpickle/playwright/actions`, `/outcomes`) and multi-browser support (Chromium/Firefox/WebKit). Explicitly flagged by the maintainer as **not yet stable** — the step-definition API is still changing, which is why the package hasn't reached a full release. Test execution here still runs under Vitest, not Playwright's own runner — Playwright is the browser driver, not the test framework. (E23, E26)
+
+**Architecture B — Gherkin runs natively inside Vitest (Vitest keeps control), with Vitest Browser Mode as the browser layer:**
+
+- **QuickPickle + `@quickpickle/vitest-browser`** — QuickPickle parses `.feature` files with the official Gherkin parser and executes scenarios as genuine Vitest tests via Vite's own transform pipeline (no separate Cucumber runner, no separate config format — it's configured in `vite.config.ts` like any other Vitest plugin). `@quickpickle/vitest-browser` is the specific companion for running those Gherkin scenarios inside **Vitest Browser Mode** itself (real browser, not jsdom), aimed at component-level UI testing rather than full E2E navigation. This is architecturally the closest thing to "Gherkin natively inside Vitest Browser Mode" — no Playwright involved at all unless Vitest Browser Mode itself is configured with a Playwright provider. (E23)
+- **vitest-cucumber** (amiceli) — a competing, more established Vitest+Gherkin tool (inspired by `jest-cucumber`) that also ships browser-mode support (`@amiceli/vitest-cucumber/browser`, available since v4.3.0). Setup requires configuring a browser provider in `vitest.config.js` (commonly Playwright+Chromium) plus `globals: true`; once configured, `.feature` files load via the `/browser` import and scenarios run as Vitest Browser Mode tests with full Gherkin feature parity (Background, tags, data tables, hooks). Here Playwright is one possible *browser provider* underneath Vitest Browser Mode, not the test runner or even a required dependency (Vitest Browser Mode also supports WebdriverIO as a provider). (E25)
+- **`@deepracticex/vitest-cucumber`** — a newer, less-established alternative aiming for a more "native Cucumber API" feel inside Vitest; found in search results but not independently verified here (no primary source fetched — flagged as an open question).
+
+**Practical implication of the split:** "bridge Gherkin to Playwright" and "bridge Gherkin to Vitest Browser Mode" are not quite the same question, because Playwright shows up in two different roles across these tools — as the **test runner** (playwright-bdd, Serenity/JS's native path) or merely as the **browser automation driver/provider** underneath a different runner (QuickPickle's Vitest-based core, vitest-cucumber's browser mode, Vitest Browser Mode generally). Pick based on which runner's native tooling (trace viewer + fixtures vs. Vite's dev-server-speed re-runs + component testing) matters more for the suite in question.
+
 ### Extensions that address the maintainability failure
 
 - **Declarative Gherkin** (business language, no selectors/CSS in steps) — direct fix for the imperative-style trap. (E1, E2)
@@ -114,6 +132,9 @@ Independent sources converge on the same shape of tradeoff, described from three
 - Whether Serenity/JS's actor/task/interaction layer materially outperforms a well-disciplined POM in practice, or whether the gap only appears on large suites — now partially addressed: E18/E19/E20 are independent of the Serenity ecosystem and corroborate the E4/E15 claims, raising confidence, but no source provides quantitative/benchmarked evidence (e.g. defect rates, time-to-add-a-scenario) either way — all comparisons remain qualitative/anecdotal.
 - No source found benchmarks Screenplay's claimed runtime/memory overhead (E4) against POM — treat that specific claim as unverified.
 - No independent quantitative source found on how many scenarios/features is "too many" before the Cucumber Test Trap (E3) actually bites — guidance is directional (~12 scenarios/feature per E10/E11) rather than validated against real project data.
+- `@quickpickle/playwright`'s step-definition API is explicitly marked unstable by its own maintainer (E26) — not yet safe to depend on for anything beyond experimentation; worth re-checking for a stable release later.
+- `@deepracticex/vitest-cucumber` was surfaced only in aggregated search results, no primary source read — maturity, maintenance status, and feature completeness are unverified.
+- No source directly benchmarks playwright-bdd's `bddgen` codegen step against classic Cucumber.js-on-Playwright for actual CI runtime/DX — the "keeps Playwright in control" architectural claim is well-documented, but no head-to-head performance data was found.
 
 ## Sources consulted
 
@@ -137,3 +158,9 @@ Independent sources converge on the same shape of tradeoff, described from three
 - E18: [Page Object vs Screenplay Pattern — Which One Scales Better for Large Teams? (Medium)](https://medium.com/@gunashekarr11/page-object-vs-screenplay-pattern-which-one-scales-better-for-large-teams-3fe007b80d49)
 - E19: [Screenplay Pattern vs The Page Object Model — alice, bob & eve have lunch](https://jberri.gitlab.io/jgb/posts/2021-11-26-screenplay-vs-page-object-model/)
 - E20: [Understanding Screenplay (part #1) — Cucumber blog](https://cucumber.io/blog/bdd/understanding-screenplay-part-1/)
+- E21: [playwright-bdd — npm](https://www.npmjs.com/package/playwright-bdd) / [vitalets/playwright-bdd — GitHub](https://github.com/vitalets/playwright-bdd)
+- E22: [Serenity/JS Playwright Test integration handbook](https://serenity-js.org/handbook/test-runners/playwright-test/); [serenity-js-cucumber-playwright-template — GitHub](https://github.com/serenity-js/serenity-js-cucumber-playwright-template)
+- E23: [QuickPickle — GitHub (dnotes/quickpickle)](https://github.com/dnotes/quickpickle); [@quickpickle/playwright — npm](https://www.npmjs.com/package/@quickpickle/playwright)
+- E24: [Playwright BDD: Setup, Gherkin & E2E Testing Guide — TestDino](https://testdino.com/blog/playwright-bdd)
+- E25: [Browser mode — vitest-cucumber docs](https://vitest-cucumber.miceli.click/get-started/browser-mode/)
+- E26: search-result summary only for @quickpickle/playwright stability note and @deepracticex/vitest-cucumber (no primary page independently fetched for the latter)

@@ -2,7 +2,7 @@
 
 ## Last updated
 
-July 2026 (Screenplay-vs-POM deep dive added same month)
+July 2026 (Screenplay-vs-POM deep dive + Gherkin/Playwright/Vitest-Browser-Mode bridging tooling added same month)
 
 ## Question
 
@@ -86,3 +86,20 @@ Note the Screenplay evidence (E4, E15) traces to one ecosystem (Serenity), not i
 - Small, single-team, UI-only suite → POM; lower cost, faster to start, ecosystem support is larger.
 - Suite spanning multiple modules/APIs, a growing QA team, or genuinely multi-actor/role-based flows → Screenplay's upfront abstraction cost pays for itself.
 - Splitting the difference is legitimate: start with POM, refactor page objects into Screenplay Tasks/Interactions once the "page-method explosion" or role-duplication pain actually shows up — none of the sources argue Screenplay must be chosen upfront.
+
+## Bridging Gherkin to Playwright / Vitest Browser Mode — verdict
+
+**Yes, and there are real, actively maintained options — but "which runner stays in control" is the decision that matters more than "which one has Gherkin support."**
+
+**If you want Playwright's runner to stay in control** (native fixtures, parallelism/sharding, trace viewer, video/screenshot capture with zero glue code):
+- **playwright-bdd** — compiles `.feature` files into real Playwright Test files via a `bddgen` step, then `playwright test` runs them as genuine Playwright tests. This is the most direct, lowest-friction answer to "bridge Gherkin to Playwright" specifically. Mature enough to be independently corroborated by a second source (E21, E24).
+- **Serenity/JS** — but note Gherkin is *optional* here, not the point. Serenity/JS's idiomatic path is plain Playwright Test files plus the Screenplay Pattern, with no Gherkin at all. Only reach for its Cucumber-flavored template if you specifically need Gherkin *and* Screenplay *and* Playwright together — that's a real, supported combination (E22), just a narrower use case than the marketing framing of "Serenity/JS = Gherkin BDD" would suggest.
+
+**If you want Vitest to stay in control** (Vite's fast dev-server re-runs, native component testing, single toolchain with your unit tests):
+- **QuickPickle + `@quickpickle/vitest-browser`** — Gherkin parsed by the official parser, executed as native Vitest tests via Vite's transform pipeline, running inside Vitest Browser Mode for component-level UI testing. No Playwright involved unless Vitest Browser Mode itself is configured with a Playwright provider underneath.
+- **vitest-cucumber (amiceli)**, browser mode — a more established, independently-built alternative to QuickPickle with equivalent intent; explicitly supports Playwright as one browser provider (also supports WebdriverIO) configured in `vitest.config.js`. Two independently maintained tools converging on the same architecture is a decent signal this is a real, repeated pattern rather than one project's one-off.
+- **`@quickpickle/playwright`** sits in between: it keeps Vitest as the test runner but gives QuickPickle a real Playwright browser instance for full E2E rather than component testing — useful if you want Vitest's toolchain but Playwright's full-page navigation model. **Caveat: explicitly marked unstable by its own maintainer** — don't commit to it beyond experimentation yet.
+
+**What's not supported:** no source suggests any of these tools is a drop-in, zero-cost replacement for classic Cucumber.js-on-Playwright — each is a real architectural choice trading Cucumber's ecosystem/maturity for tighter native-runner integration (Playwright's reporting/tracing, or Vitest's speed and unit-test toolchain unification). No head-to-head performance/DX benchmark was found for any of these pairings.
+
+**Recommendation:** if the suite is Playwright-first (E2E, full browser navigation, existing Playwright config) and you want Gherkin specifically, use **playwright-bdd** — it's the most mature, most corroborated, lowest-architectural-risk choice. If the suite is Vitest-first (already using Vitest for unit + component tests, want one toolchain) and you want Gherkin inside Vitest Browser Mode, use **vitest-cucumber**'s browser mode over QuickPickle for now, purely because QuickPickle's Playwright-adjacent package is self-flagged unstable — re-evaluate QuickPickle once it reaches a stable release, since its Vite-native architecture is otherwise the more elegant fit for a Vitest-centric project. Skip Serenity/JS specifically *for the Gherkin-bridging question* unless you also want the Screenplay pattern — it solves a different problem (test-code architecture) that happens to have a Gherkin-compatible template, not "how do I run Gherkin against Playwright."

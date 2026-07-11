@@ -199,3 +199,63 @@
 - source URL: https://cucumber.io/blog/bdd/understanding-screenplay-part-1/
 - source type: official blog (Cucumber, written by Matt Wynne, a Cucumber co-creator)
 - notes: Authoritative on *why* the pattern exists and its relationship to BDD's maintainability goals generally; doesn't itself provide a POM comparison in depth (that's E18/E19).
+
+## E21
+- date: 2026-07-11
+- status: active
+- confidence: medium-high
+- claim: playwright-bdd compiles Gherkin `.feature` files into native Playwright Test spec files via a `bddgen` codegen step, then runs them under Playwright's own test runner — giving full native fixtures, parallelism/sharding, and built-in trace/video/screenshot capture with no compatibility shim, unlike running Cucumber.js on top of Playwright where Cucumber stays the runner.
+- source label: vitalets/playwright-bdd (GitHub)
+- source URL: https://github.com/vitalets/playwright-bdd
+- source type: official project repo (maintainer: Vitaliy Potapov)
+- notes: Primary source for the tool's own architecture claim; corroborated by an independent write-up (E24).
+
+## E22
+- date: 2026-07-11
+- status: active
+- confidence: medium-high
+- claim: Serenity/JS's Playwright Test integration (`@serenity-js/playwright-test`) does not require Gherkin/Cucumber — it works directly inside plain Playwright Test files via dedicated fixtures, exposing the Screenplay Pattern APIs. A separate official template (`serenity-js-cucumber-playwright-template`) exists specifically for teams wanting Gherkin + Screenplay + Playwright together, with Cucumber.js supplying the Gherkin parsing/runner layer underneath.
+- source label: Serenity/JS Playwright Test handbook + serenity-js-cucumber-playwright-template
+- source URL: https://serenity-js.org/handbook/test-runners/playwright-test/ ; https://github.com/serenity-js/serenity-js-cucumber-playwright-template
+- source type: official framework docs + official template repo
+- notes: Confirms Gherkin is optional in Serenity/JS's primary/idiomatic integration path, contrary to an assumption that Serenity/JS = Gherkin-based testing.
+
+## E23
+- date: 2026-07-11
+- status: active
+- confidence: medium
+- claim: QuickPickle parses `.feature` files with the official Gherkin parser and runs scenarios as native Vitest tests via Vite's transform pipeline (configured in vite.config.ts, no separate Cucumber runner/config). `@quickpickle/vitest-browser` runs those scenarios inside Vitest Browser Mode for component-level UI testing. `@quickpickle/playwright` is a separate companion giving the Vitest-run scenarios a real Playwright browser instance (via a "World" object) for full E2E, with built-in step definitions (`/actions`, `/outcomes`) and multi-browser support — but its step-definition API is explicitly marked NOT STABLE by the maintainer, which is why the package hasn't reached a full release.
+- source label: dnotes/quickpickle (GitHub) + @quickpickle/playwright (npm)
+- source URL: https://github.com/dnotes/quickpickle ; https://www.npmjs.com/package/@quickpickle/playwright
+- source type: official project repo + official npm package page
+- notes: Primary source for QuickPickle's own architecture and stability claims about its own package — this is the maintainer's own stability disclosure, high-trust for that specific claim.
+
+## E24
+- date: 2026-07-11
+- status: active
+- confidence: medium
+- claim: playwright-bdd's `bddgen` step converts .feature files into executable Playwright test files ahead of test execution; supports step decorators for class methods and scoped step definitions; provides native access to Playwright's fixtures, parallelism, trace/video/screenshot capture, and reporting "out of the box" because generated tests are genuine Playwright tests.
+- source label: Playwright BDD: Setup, Gherkin & E2E Testing Guide
+- source URL: https://testdino.com/blog/playwright-bdd
+- source type: vendor/aggregator blog (TestDino)
+- notes: Independent corroboration of E21's architectural claim from a different (vendor-adjacent) source — consistent, raises confidence in the core "compiles to native Playwright tests" claim specifically.
+
+## E25
+- date: 2026-07-11
+- status: active
+- confidence: medium
+- claim: vitest-cucumber (amiceli) ships browser-mode support (`@amiceli/vitest-cucumber/browser`, since v4.3.0) requiring a browser provider configured in vitest.config.js (commonly Playwright+Chromium) plus `globals: true`; once set up, .feature files load via the `/browser` import and run as Vitest Browser Mode tests with full Gherkin feature parity (Background, tags, data tables, hooks). Playwright here is one possible browser provider underneath Vitest Browser Mode, not the test runner, and not a required dependency (WebdriverIO is also a supported provider for Vitest Browser Mode generally).
+- source label: Browser mode — vitest-cucumber docs
+- source URL: https://vitest-cucumber.miceli.click/get-started/browser-mode/
+- source type: official project docs
+- notes: Primary source; independent tool/maintainer from QuickPickle (E23), giving two separate implementations of the same "Gherkin inside Vitest Browser Mode" architecture — corroborates that this pattern is a real, repeated approach rather than one project's idiosyncrasy.
+
+## E26
+- date: 2026-07-11
+- status: active
+- confidence: low
+- claim: @deepracticex/vitest-cucumber exists as another Vitest+Gherkin integration aiming for a "native Cucumber API" feel; @quickpickle/playwright's step-definition API instability was self-reported by its maintainer as the reason the package hasn't reached a full release (this second claim is folded into E23 at higher confidence since it was corroborated by the primary npm page directly).
+- source label: search-result aggregation (no primary page fetched for @deepracticex/vitest-cucumber)
+- source URL: n/a — search summary only
+- source type: aggregated search snippet
+- notes: Confidence deliberately low for the @deepracticex/vitest-cucumber portion specifically — no independent verification of maturity, maintenance activity, or actual feature completeness.

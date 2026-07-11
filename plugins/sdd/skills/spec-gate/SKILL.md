@@ -146,7 +146,23 @@ self-clears.
 files keep their state. An **additive** scenario folds into a frozen file without unfreezing it
 (self-clears) — the `addOnly` result of the mechanical diff above (`gherkin-cli diff`) confirms a
 change is purely additive with no judge round; a **narrowing/rewriting** edit (a `modified`/`removed`
-scenario) unfreezes its file and fires **Clearance** once the narrowing is confirmed semantically. `spec.md`
+scenario) unfreezes its file and fires **Clearance** once the narrowing is confirmed semantically.
+The edit-class classification itself — additive / no-content-change / narrowing / mixed — comes from
+`scripts/classify-edit-class.mts` (`--files <paths> [--base <ref>]`): a **structural** per-named-`Scenario`
+diff via the pinned `gherkin-cli@0.0.1 diff`, plus git rename detection for a pure `git mv`, **never a raw
+line diff** (a step orphaned off a frozen scenario onto a new adjacent scenario shows no `-` line and
+would read as additive to a line-diff; the structural diff correctly reports the losing scenario as
+`modified`). It only classifies — additive / no-content-change self-clear, narrowing / mixed take the
+Clearance path above; it fires no verdict itself. Run it over the CR's touched frozen `.feature` files
+to read the edit class before applying the verb:
+
+```bash
+node "<skill>/scripts/classify-edit-class.mts" --files <the CR's touched .feature files> [--base <baseref>]
+```
+
+A `narrowing`/`mixed` result on a still-`@frozen` file routes to **Clearance** (escalated unless the CR
+pre-authorized it); `additive`/`no-content-change` self-clears; `unfrozen-skip` needs no edit-class gate.
+`spec.md`
 / the node READMEs are **kept aligned, never frozen** — editable, but may not contradict a frozen
 scenario (enforced by the alignment check and the judge, not a flat freeze). Vocabulary is
 **freeze/unfreeze**; "lock" is the concurrency layer.

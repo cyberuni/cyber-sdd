@@ -85,7 +85,7 @@ depth-2 behavior described here.
 
 **Same dispatch-transport wiring as the in-session conductor.** State intent, never a pinned command;
 when a capability is available, prefer its **warm** unit over a cold one-shot, else fall back to a
-portable cold subagent. `/new`-reset a warm judge to a fresh context before **each** judgment; a warm
+portable cold subagent. context-clear a warm judge (`cyberlegion unit clear <ref>`) to a fresh context before **each** judgment; a warm
 impl-producer builder **keeps** its context across the mission. Reset or tear down every warm unit at
 handoff. Full model: `start-mission`'s "Dispatch transport" note and
 `.agents/specs/sdd/design/harness-spawning.md`.

@@ -71,7 +71,7 @@ here only to make the shape concrete:
 npx cyberlegion@<version> dispatch channel --agent <role> --brief-file <brief> --wait
 ```
 
-### Wiring the seam — warm units, one mission, `/new` reset
+### Wiring the seam — warm units, one mission, `unit clear` reset
 
 The conductor **wires this seam when the capability is available** (detected at runtime), else keeps
 the ported cold-subagent default above:
@@ -83,16 +83,19 @@ the ported cold-subagent default above:
   for roles that reuse context. **Warmth is a property of the unit/process; coldness of the
   context.** A judge's fresh cold context — the grader-independence invariant (ADR-0016) — is
   transport-agnostic: it is satisfied **either** by a newly spawned cold subagent **or** by a warm
-  unit **reset to a fresh context** (`/new`) before each judgment. So a judge may run on a warm
+  unit **cleared to a fresh context** before each judgment. So a judge may run on a warm
   *pane* yet still judge cold. A **warm producer** (the impl-producer builder) instead **keeps** its
-  context across explore spikes and the deliver build (no reset between uses) so its learning carries.
+  context across explore spikes and the deliver build (no clear between uses) so its learning carries.
 - **One mission's lifetime.** Warm units stay warm for **one mission** — reused within it, then
-  **reset (`/new`) or torn down at handoff**, never carrying one mission's context into the next.
+  **cleared or torn down at handoff**, never carrying one mission's context into the next.
 - **Fallback preserves everything.** With no capability present, every spawn is the portable cold
   subagent (depth-1) default — grader independence intact, no warmth.
 
 Wiring the seam does **not** change the *outcomes* SDD's spawning guarantees — the impl-producer
 still runs in a separate builder and every judge still runs in a fresh cold context the author
 cannot reach; the seam only makes the **transport** swappable and lets an available capability keep
-units warm. `/new` is the harness realization of the context-reset intent; the frozen contract
+units warm. The context-reset intent is realized by the capability's own primitive —
+`cyberlegion unit clear <ref>`, which injects the harness's fresh-context command (`/clear` on
+Claude/Codex/Copilot, `/new-chat` on Cursor, fail-loud where no honest reset exists) while keeping
+the pane warm — never a bare harness command the conductor cannot issue itself; the frozen contract
 (`mission/conductor`) states the reset intent, not the command.

@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/aced
 approval:
   spec:
@@ -11,6 +11,15 @@ approval:
       blast: medium — improve-skill validate engine (configurable scan locations + E1 severity split) + new manage-skill-dirs node + manage route scenario; the CI flip (impl phase) enforces the mechanical subset repo-wide on 40+ never-scanned plugin skills
       novelty: low — mirrors SDD spec-anchors (ADR-0019) config + curation grammar and the #133 kind-aware engine pattern; E1 severity split is a bounded blast-radius refinement
       confidence: high — cold SDD spec-judge 3-lens {oracle,builder,architect} over all three touched units — round-2 ALIGNED, all PASS, 0 open markers; build-to-learn confirmed the E1 discriminator (15/15) and glob-matcher reuse; gherkin + check-suite clean
+  impl:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — implementation built against the frozen suite; the 3 frozen .feature files are the contract, code changed to meet them (never the reverse)
+      blast: medium — the CI flip now enforces the mechanical subset over 93 discovered skills; the E1 severity refine cleared the lone pre-existing CRITICAL so the gate lands green (26 non-blocking WARNs remain)
+      novelty: low — glob/CRUD engine ports the SDD manage-spec-anchors precedent; E1 split is a bounded shape-based refinement with no bypass path
+      confidence: high — cold SDD impl-judge re-derived every frozen scenario independently (11 config + 4 E1 + 24 manage-skill-dirs + @rubric + route) → all PASS, no regression on the pre-existing rm-rf→CRITICAL scenario, adversarial spot-checks confirmed; pnpm verify 20/20 green
 produced-by:
   spec-producer: sdd:sdd-automaton
   impl-producer: sdd:sdd-automaton

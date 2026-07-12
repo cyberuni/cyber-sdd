@@ -35,9 +35,10 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **classification** | decide each file's artifact-type — convention-first, the optional `.agents/sdd/` tiebreaker on ambiguity (confirm-not-guess, write-back) |
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
+| **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
-| **impl gate** | Approved → Implemented — the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
+| **impl gate** | Approved → Implemented — the rebase-onto-target last deliver act, the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
 | **in-flight floor** | detail-adjustment served in-session vs the three mission hard floors (Clearance / Compatibility / Conflict) that mandate a human stop |
 | **stop-provenance** | the three-layer model — `leash` block, the leash reach, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
@@ -125,6 +126,22 @@ flowchart TD
 The two live-grill producers run **inline** (in-session); the impl-producer is **mechanical and
 spawned**; every judge is **spawned cold** in a context the author cannot reach. All spawns are
 **depth 1** from the main session — collapsing the old `caller → automaton → judge` (depth 2) tree.
+
+**Dispatch transport — the spawn seam is transport-abstract.** "Spawn" names an **outcome** — the
+role runs in a **separate context** (a builder for the impl-producer; a **fresh cold** context the
+author cannot reach for a judge) — not a transport. The conductor states a **dispatch intent**
+(role, brief, expected verdict schema) and never pins a literal command, per the depend-on-intent
+discipline (`../../design/harness-spawning.md`, ADR-0023). When a **harness-agnostic dispatch
+capability** is available (e.g. cyberlegion), the conductor routes the spawn through its
+`subagent | channel | run-inline` seam and **prefers a warm unit**; when none is available it
+**falls back** to a portable cold subagent spawn — the ported default. Warmth is a property of the
+**unit/process**, coldness of the **context**: a judge's fresh cold context is realized **either** by
+a newly spawned subagent **or** by **clearing a warm unit** (`npx cyberlegion@<version> unit clear <ref>`) before each judgment —
+both satisfy grader independence, so a warm judge unit never weakens it. A **warm producer**
+(the impl-producer builder) instead **keeps** its context across explore spikes and the deliver
+build (no reset between uses) so its learning carries. Warm units live **no longer than one
+mission** — reused within the mission, then cleared (`npx cyberlegion@<version> unit clear`) or torn down at handoff (`../handoff/`),
+never shared into another mission's context.
 
 The five roles apply three **lenses** (governances, not agents): **Oracle** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the
@@ -229,6 +246,39 @@ writes no setup frontmatter.
   **not** modified); **reject** → redo the implementation, *or* a **Oracle-lens revert**
   (building proved a frozen scenario fatal → **unfreeze** the `.feature` and return to `draft`).
   The impl gate is the **only** place a frozen `.feature` reopens.
+
+### Rebase onto the target before the gate
+
+The impl gate must judge **the tree that will actually land**, not the tree as it stood at branch
+point. So the conductor's **last deliver act, before running the impl gate**, is to **rebase the CR
+branch onto the current tip of the declared target** (for a commit-to-main project, the equivalent
+`pull --rebase` onto the latest `main`). The impl gate then runs the frozen suite against that
+**merged** tree — keeping a clean linear history and guaranteeing impl-sync holds on what lands, so
+**handoff stays a pure consumer that never re-verifies** (`../handoff/`).
+
+- **Clean or conflicted, the gate always follows the rebase.** A textual conflict is resolved as
+  **deliver code work** against the frozen `.feature` (never a `.feature` edit) and the gate then
+  runs on the resolved tree; a clean replay proceeds straight to the gate. Either way the frozen
+  suite re-runs on the merged tree, which also catches a semantic conflict git could not detect.
+- **A conflict the conductor cannot resolve *confidently* halts — it is never guess-resolved.** The
+  frozen suite covers *this CR's* behavior, not the incoming target change's, so a wrongly-resolved
+  conflict on the other side's code could still pass the gate and land broken. So a low-confidence
+  resolution is a **confidence-dimension stop**, not an autonomous act: the conductor **stops and
+  escalates** (in-session it asks the user; headless it returns `needs-input` up the relay) and
+  records a `halt` entry (`../../design/provenance-model.md`), rather than guessing and landing.
+- **No new hard floor.** Rebasing an *unmerged* CR branch is git-reversible (reflog), so the rebase
+  itself is **not** a gated or escalated act — consistent with the handoff-layer's rejected
+  irreversible-execution floor (`../handoff/`). A conflict resolution that would **narrow** a frozen
+  scenario still fires the existing **Clearance** floor, a semver class over the ceiling the existing
+  **Compatibility** floor, and a genuine contradiction **Conflict** — no *new* floor is introduced.
+- **The push must win against a moving target.** The rebase-then-gate is optimistic: if the target
+  **advances again** between the passing gate and the push (another CR merged in the window), the
+  conductor **re-rebases onto the new tip and re-runs the impl gate** — it **does not push until the
+  gate passes on the re-rebased tree**, looping until the push wins. So what lands is always a tree
+  the gate saw green, even under concurrent merges. **The loop is bounded, not forced:** a target
+  that keeps advancing past a small cap of attempts is a **liveness stop**, not an infinite spin —
+  the conductor **stops and escalates** (records a `halt`) rather than retrying indefinitely, the same
+  confidence-dimension stop the unconfident conflict takes.
 
 **Verdict, not station.** The gate is not a fixed checkpoint; it dissolves into the autonomy bar.
 The conductor **derives the leash** for the gate (the dimension assessment in

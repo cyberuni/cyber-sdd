@@ -55,17 +55,21 @@ Every scenario in [`manage.feature`](./manage.feature) maps to one of these beha
 
 Classification routes a manage request to the engine that handles it. The table is structured to grow
 as more manage-level ACED engines land (e.g. a project-wide eval-health inspect could later route
-here); today it carries one route:
+here); today it carries three routes:
 
 | Group | Request | Engine (handler) |
 |---|---|---|
 | **Config runners** | set up / list / remove per-model runner agents used to benchmark skills | **`manage-model-runners`** (`../config-authoring/manage-model-runners/`) — internal, non-invokable; loaded here |
+| **Skill inventory** | list or inventory the installed skills | **`list-skills`** (`../config-authoring/list-skills/`) — internal, non-invokable; loaded here |
+| **Private-skill hygiene** | validate or repair repo-private skill metadata under `.agents/skills` | **`repair-private-skills`** (`../config-authoring/repair-private-skills/`) — internal, non-invokable; loaded here |
 
 ## Load the engine in-session
 
 When the route resolves, `manage` **loads the matched engine in the current session** and the session
 runs it directly — it **spawns nothing**. Write-capable operations stay **owned by their engine**:
-`manage-model-runners` writes its runner agent-def files and their symlinks. `manage` only routes.
+`manage-model-runners` writes its runner agent-def files and their symlinks, and `repair-private-skills`
+writes any metadata fixes it applies under `.agents/skills`; `list-skills` is read-only. `manage` only
+routes.
 
 **Manage picks no model.** The model + effort a piece of work needs is determined by the **engine
 `manage` loads**. The loaded engine advises; the user switches manually.
@@ -80,6 +84,6 @@ or to **add or revise** ACED's specified behavior is **not** a manage operation 
 ## Scenarios (colocated)
 
 The behavior suite is [`manage.feature`](./manage.feature) — intake (fast path / four-option menu),
-the model-runners route, loading the engine in-session, and the boundaries (non-mission,
-write-ownership, thin-classifier, authoring redirect). Cross-capability e2e scenarios live in
-`../acceptance/`.
+the three routes (model-runners, list-skills, repair-private-skills), loading the engine in-session,
+and the boundaries (non-mission, write-ownership, thin-classifier, authoring redirect). Cross-capability
+e2e scenarios live in `../acceptance/`.

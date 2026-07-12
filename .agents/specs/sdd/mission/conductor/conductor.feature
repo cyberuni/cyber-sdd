@@ -143,6 +143,67 @@ Feature: The conductor — running one mission segment
     When it writes the artifacts it owns
     Then it does not write the status frontmatter field
 
+  # ---- Dispatch transport — the spawn seam, warm units, context reset ----
+
+  Scenario: the conductor states a dispatch intent, never a pinned command
+    Given a production-chain role the conductor must run in a separate context
+    When the conductor dispatches that role
+    Then it states the intent as the role, its brief, and the expected verdict schema
+    And it names no literal dispatch command bound to one mechanism
+
+  Scenario: an available dispatch capability routes the spawn through the intent seam
+    Given a harness-agnostic dispatch capability is available
+    When the conductor dispatches an impl-producer or a judge
+    Then it routes the dispatch through that capability's spawn seam
+    And the capability picks the mechanism rather than the conductor pinning one
+
+  Scenario: an absent dispatch capability falls back to a portable subagent spawn
+    Given no dispatch capability is available
+    When the conductor dispatches an impl-producer or a judge
+    Then it spawns the role as a portable cold subagent in a fresh context
+    And the fallback preserves grader independence
+
+  Scenario: the conductor prefers a warm unit for a role that may reuse its context
+    Given a dispatch capability that can fulfill a role as a warm unit
+    When the conductor dispatches the impl-producer builder
+    Then it prefers a warm unit over a cold one-shot spawn
+
+  Scenario: a judge's fresh cold context is transport-agnostic
+    Given a judge must run in a fresh context the author cannot reach
+    When the conductor realizes that context
+    Then a newly spawned cold subagent and a reset warm unit each satisfy it
+    And neither realization lets the judge share the author's context
+
+  Scenario: the spawned-cold-judge guarantee is met by a reset warm unit
+    Given the guarantee that a judge runs in a spawned cold context the author cannot reach
+    When a dispatch capability realizes that guarantee by resetting a warm unit
+    Then the guarantee holds without a new process being started
+    And the realized context is still fresh, cold, and unreachable by the author
+
+  Scenario: the conductor prefers a warm unit for a judge role too
+    Given a dispatch capability that can fulfill a judge role as a warm unit
+    When the conductor dispatches a judge
+    Then it prefers that warm unit over a cold one-shot spawn
+    And each judgment still runs in a context reset fresh for it
+
+  Scenario: a warm judge unit is reset to a fresh context before each judgment
+    Given a warm unit reused for a judge role
+    When the conductor runs a judgment on it
+    Then it resets the unit to a fresh context before the judgment
+    And the judge re-derives its oracle without carrying a prior round's context
+
+  Scenario: a warm producer unit keeps its context across the mission
+    Given a warm unit fulfilling the impl-producer builder
+    When the conductor reuses it across explore spikes and the deliver build
+    Then it does not reset the unit between those uses
+    And the builder retains what it learned earlier in the mission
+
+  Scenario: warm units stay warm for reuse within the mission
+    Given warm units dispatched during a mission
+    When the mission is still in flight
+    Then the units stay warm for reuse within that mission
+    And the conductor does not tear them down between uses in the mission
+
   # ---- Explore — build to learn (step 2) ----
 
   Scenario: explore spikes the impl-producer against the non-frozen suite
@@ -242,6 +303,62 @@ Feature: The conductor — running one mission segment
     When the segment continues
     Then the observation is routed to the plan
     And it is not folded into the contract
+
+  # ---- Rebase onto the target before the impl gate ----
+
+  Scenario: the conductor rebases onto the target as its last deliver act before the impl gate
+    Given a CR branch whose target branch has advanced since the branch point
+    When the conductor finishes building in deliver
+    Then it rebases the branch onto the current target tip before running the impl gate
+
+  Scenario: the impl gate is judged against the rebased tree
+    Given the conductor has rebased the branch onto the current target
+    When it runs the impl gate
+    Then the frozen suite is verified against the merged tree that will land
+
+  Scenario: a rebase conflict is resolved as deliver work before the gate runs
+    Given rebasing onto the target produces a merge conflict the conductor can resolve confidently
+    When the conductor resolves the conflict
+    Then the resolution is deliver code work against the frozen feature
+    And the impl gate then runs against the resolved tree
+
+  Scenario: a rebase conflict that cannot be confidently resolved halts the mission
+    Given rebasing onto the target produces a conflict the conductor cannot resolve confidently
+    When the conductor reaches that conflict
+    Then it does not guess-resolve the conflict and land
+    And it stops and escalates to the human
+    And it records the stop as a halt entry
+
+  Scenario: a conflict resolution that narrows a frozen scenario fires the Clearance floor
+    Given resolving a rebase conflict would narrow a frozen scenario
+    When the conductor reaches that change
+    Then it fires the existing Clearance floor
+    And it raises no new handoff-layer floor
+
+  Scenario: a clean rebase introduces no new hard floor
+    Given the conductor rebases the CR branch onto the target
+    And the rebase entails no narrowing and no over-ceiling semver class
+    When the rebase completes
+    Then it self-clears without a new mandatory human stop
+
+  Scenario: a commit-to-main project rebases onto latest main before the gate
+    Given a project whose declared shape is commit-to-main
+    When the conductor prepares to land the work in deliver
+    Then it updates the work onto the latest main before running the impl gate
+
+  Scenario: a target that advances before the push triggers a re-rebase and re-verify
+    Given the impl gate has passed on the rebased tree
+    And the target advances again before the work is pushed
+    And the conductor is still within its bounded push attempts
+    When the conductor attempts to push
+    Then it rebases again onto the new target tip
+    And it does not push until the impl gate passes on the re-rebased tree
+
+  Scenario: the push-race loop is bounded, not forced
+    Given the target keeps advancing past the conductor's bounded push attempts
+    When the conductor exhausts its bounded attempts
+    Then it stops instead of retrying indefinitely
+    And it escalates to the human and records a halt entry
 
   # ---- The impl gate — Approved to Implemented ----
 

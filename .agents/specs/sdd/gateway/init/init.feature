@@ -80,6 +80,58 @@ Feature: The init onboarding skill — wire SDD's opt-in conveniences into the r
     When init wires the mission statusline
     Then it creates a statusLine command that renders the mission status
 
+  # ---- Global statusline detection ----
+
+  Scenario: a global statusLine is detected before wiring, read-only
+    Given the global settings define a statusLine
+    When init prepares to wire the reader
+    Then it detects the global statusLine command
+    And it does not modify the global settings file
+
+  Scenario: a fresh wire with no project statusLine composes the global command as the base
+    Given the project settings define no statusLine
+    And the global settings define a statusLine
+    When init wires the reader
+    Then the wired command wraps the global command as the base
+    And the global command's output is preserved in the rendered status line
+
+  Scenario: the wrapped base receives the piped status input
+    Given the wired command wraps a base command that reads stdin
+    When the status line renders with piped input
+    Then the wrapped base consumes that same piped input
+
+  Scenario: the global shadow is surfaced before wiring
+    Given the project settings define no statusLine
+    And the global settings define a statusLine
+    When init reaches the wiring step
+    Then it tells the user the project statusLine will shadow the global one
+    And it asks whether to compose the global command as the base
+
+  Scenario: declining the global base wires without wrapping it
+    Given the user declines composing the global command as the base
+    When init wires the reader
+    Then the wired command wraps no base
+
+  Scenario: a project statusLine wins over the global as the wrapped base
+    Given the project settings already define a statusLine
+    And the global settings define a statusLine
+    When init wires the mission statusline
+    Then the wired command wraps the project command as the base
+    And the global command is not composed
+
+  Scenario: a re-run never re-consults the global settings
+    Given the statusline is already wired
+    And the global settings define a statusLine
+    When the user runs init again and re-enables it
+    Then the re-wire recovers the base from the wired command
+    And it does not adopt the global command as a new base
+
+  Scenario: a malformed global settings file is treated as no global statusLine
+    Given the global settings file is malformed
+    When init prepares to wire the reader
+    Then it detects no global statusLine
+    And wiring proceeds as if the global settings defined none
+
   # ---- Gitignore ----
 
   Scenario: init ignores the status file when the folder is a git repo

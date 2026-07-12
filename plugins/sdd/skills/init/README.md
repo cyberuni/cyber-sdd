@@ -11,13 +11,17 @@ and invokes no gate.
 - **Tests:** [`scripts/wire-statusline.test.mts`](./scripts/wire-statusline.test.mts) (`node:test`)
 
 ```bash
+node scripts/wire-statusline.mts --root . --detect
 node scripts/wire-statusline.mts --root . --wire --mode own-line
-node scripts/wire-statusline.mts --root . --wire --mode same-line
+node scripts/wire-statusline.mts --root . --wire --mode same-line   # --no-global-base to shadow deliberately
 ```
 
 The engine writes only project `.claude/settings.json` (never the global settings file) and, in a
 git repo, `.gitignore`. It composes with — never replaces — an existing `statusLine` command, and
-re-running it is idempotent (no duplicated segment, no duplicated gitignore entry). The reader it
+re-running it is idempotent (no duplicated segment, no duplicated gitignore entry). Because a
+project `statusLine` replaces the global one in Claude Code, `--detect` reads the global settings
+(read-only) for a command the wiring would shadow, and a fresh wire wraps that global command as
+the composed base by default. The reader it
 wires falls through to nothing beyond the composed base when `.agents/sdd/statusline` is absent —
 the conductor (realized by `../start-mission/`) is the only writer of that file's value, during the
 mission loop.

@@ -20,6 +20,11 @@ to **learn** against the still-draft contract; deliver builds to **keep** agains
 contract. The **freeze is the boundary**. Implementation happens in both — deliver is the one whose
 output is kept.
 
+**The last deliver act is a rebase onto the target.** Before the impl gate runs, the conductor
+rebases the CR branch onto the current target tip (`conductor/README.md`, *Rebase onto the target
+before the gate*), so the gate judges the **merged tree that will land** — keeping history linear
+and leaving handoff a pure consumer that never re-verifies.
+
 ## The deliver read-set — the frozen suite is the contract
 
 At deliver the contract is **the frozen `.feature`**, not the prose. So the read-set is scoped, not

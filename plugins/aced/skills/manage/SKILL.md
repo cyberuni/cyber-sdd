@@ -39,13 +39,15 @@ manage-level ACED engines land:
 | **Config runners** | set up / list / remove per-model runner agents used to benchmark skills | **`manage-model-runners`** — internal, non-invokable; loaded here |
 | **Skill corpus** | list / inventory the installed skills across the repo, the user-global install, and the shipped package | **`list-skills`** — internal, non-invokable; loaded here |
 | **Skill corpus** | validate / repair repo-private skill metadata under `.agents/skills` | **`repair-private-skills`** — internal, non-invokable; loaded here |
+| **Skill corpus** | list / add / remove / preview the extra skill-scan locations the validate engine uses | **`manage-skill-dirs`** — internal, non-invokable; loaded here |
 
 ## Load the engine in-session
 
 When the route resolves, **load the matched engine in the current session** and run it directly —
 **spawn nothing**. Write-capable operations stay **owned by their engine**: `manage-model-runners`
 writes its runner agent-def files and their symlinks; `repair-private-skills` writes only under
-`.agents/skills`; `list-skills` is read-only. `manage` only routes.
+`.agents/skills`; `manage-skill-dirs` writes only `.agents/aced/skill-dirs.toml`; `list-skills` is
+read-only. `manage` only routes.
 
 ## Non-mission — the boundary
 

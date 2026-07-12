@@ -9,8 +9,13 @@
 //
 // CLI:
 //   --path <path>    validate a single skill directory or SKILL.md file (default: whole-project scan)
+//   --dir <glob>     add a one-off scan location for this run (repeatable; ignored when --path is set)
 //   --root <path>    repo root to scan from (default: cwd)
 //   --format <fmt>   text (default, human-readable) or json (machine-readable findings)
+//
+// Whole-project scans (no --path) union the built-in defaults (skills/, .agents/skills/) with any
+// extra locations declared in .agents/aced/skill-dirs.toml's `anchors` array (ADR-0019-style, opt-in)
+// plus --dir globs. * globs one path segment; ** globs zero or more segments at any depth.
 //
 // Exit codes: 0 = no CRITICAL findings (including "no SKILL.md files found"); 1 = at least one
 // CRITICAL finding, OR --path named a target with no SKILL.md.
@@ -61,6 +66,96 @@ function readSkillManifest(skillDir: string): SkillManifest | null {
 
 export const SKILL_DIRS = ['skills', '.agents/skills']
 
+const SKILL_DIRS_CONFIG = '.agents/aced/skill-dirs.toml'
+const SCAN_SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.turbo', '.next', 'coverage'])
+
+// Minimal `anchors = [ … ]` TOML string-array parser (mirrors manage-spec-anchors.mts'
+// parseAnchorsToml — no toml dependency). Malformed/absent config => no extra locations.
+export function parseSkillDirsToml(text: string): string[] {
+	const m = /(^|\n)\s*anchors\s*=\s*\[([\s\S]*?)\]/.exec(text)
+	if (!m) return []
+	const out: string[] = []
+	for (const q of m[2]!.matchAll(/"([^"]*)"|'([^']*)'/g)) out.push((q[1] ?? q[2] ?? '').trim())
+	return out.filter((s) => s !== '')
+}
+
+// Read .agents/aced/skill-dirs.toml's `anchors` array. Absent/unreadable/malformed => [] so the
+// scan falls back to the built-in defaults unchanged; never throws.
+export function readSkillDirsConfig(cwd: string): string[] {
+	const file = path.join(cwd, SKILL_DIRS_CONFIG)
+	if (!fs.existsSync(file)) return []
+	try {
+		return parseSkillDirsToml(fs.readFileSync(file, 'utf8'))
+	} catch {
+		return []
+	}
+}
+
+// Every dir reachable from `startDir` by descending zero or more levels (startDir itself
+// included), skipping SCAN_SKIP_DIRS. Backs the `**` segment (any-depth glob) below.
+function collectDescendants(cwd: string, startDir: string): string[] {
+	const out = [startDir]
+	let entries: fs.Dirent[]
+	try {
+		entries = fs.readdirSync(path.join(cwd, startDir), { withFileTypes: true })
+	} catch {
+		return out
+	}
+	for (const entry of entries) {
+		if (!entry.isDirectory() || SCAN_SKIP_DIRS.has(entry.name)) continue
+		out.push(...collectDescendants(cwd, startDir ? `${startDir}/${entry.name}` : entry.name))
+	}
+	return out
+}
+
+// Expand one skill-dir pattern against the filesystem under cwd. `*` globs exactly one path
+// segment; `**` globs zero or more segments at any depth; every other segment is literal. Returns
+// concrete repo-relative directories (no <project> capture token here — only * and **).
+export function expandSkillDirPattern(cwd: string, pattern: string): string[] {
+	const segs = pattern
+		.trim()
+		.replace(/\\/g, '/')
+		.replace(/^\/+|\/+$/g, '')
+		.split('/')
+		.filter(Boolean)
+
+	let frontier: string[] = ['']
+	for (const seg of segs) {
+		const next: string[] = []
+		if (seg === '**') {
+			for (const dir of frontier) next.push(...collectDescendants(cwd, dir))
+		} else if (seg === '*') {
+			for (const dir of frontier) {
+				let entries: fs.Dirent[]
+				try {
+					entries = fs.readdirSync(path.join(cwd, dir), { withFileTypes: true })
+				} catch {
+					continue
+				}
+				for (const entry of entries) {
+					if (!entry.isDirectory() || SCAN_SKIP_DIRS.has(entry.name)) continue
+					next.push(dir ? `${dir}/${entry.name}` : entry.name)
+				}
+			}
+		} else {
+			for (const dir of frontier) next.push(dir ? `${dir}/${seg}` : seg)
+		}
+		frontier = next
+	}
+	return frontier
+}
+
+// The scan locations for a whole-project run: the two built-in defaults, unioned with the
+// configured .agents/aced/skill-dirs.toml anchors and any --dir globs, each expanded against the
+// filesystem. A glob matching nothing contributes no locations and never errors.
+export function resolveScanDirs(cwd: string, dirGlobs: string[] = []): string[] {
+	const dirs = new Set<string>(SKILL_DIRS)
+	for (const pattern of [...readSkillDirsConfig(cwd), ...dirGlobs]) {
+		for (const dir of expandSkillDirPattern(cwd, pattern)) dirs.add(dir)
+	}
+	return [...dirs]
+}
+
 export function findSkillFiles(dirs: string[], cwd: string): string[] {
 	const seen = new Set<string>()
 	const results: string[] = []
@@ -97,17 +192,49 @@ const GENERIC_PHRASES = [
 	'does things',
 ]
 
-const E1_PATTERNS: RegExp[] = [
-	/rm\s+-[rRf]*f[rRf]*\s+/,
-	/sudo\s+rm/,
-	/curl[^|\n]*\|\s*(ba)?sh/,
-	/wget[^|\n]*\|\s*(ba)?sh/,
+// Catastrophic command shapes: always CRITICAL regardless of an `rm` flag/target analysis. `rm`
+// itself is graded separately below by recursion flag and target shape (classifyRmSeverity).
+const E1_CRITICAL_PATTERNS: RegExp[] = [
+	/\bsudo\s+rm\b/,
+	/(curl|wget)[^|\n]*\|\s*(ba|z)?sh\b/,
 	/\bdd\s+if=/,
 	/\b(mkfs|fdisk|parted)\b/,
 	/kill\s+-9\s+1\b/,
 	/:\(\)\{\s*:\|:&\s*\}/,
 	/chmod\s+-R\s+777\s+/,
 ]
+
+// Grade an `rm` invocation by blast radius. Not flagged at all (no -r/-R, no -f) => null (E1
+// doesn't fire). Any recursion flag => CRITICAL. A forced (-f), non-recursive remove is CRITICAL
+// when any target token escapes a single named relative file (glob, absolute, or home/var path),
+// else HIGH (scoped forced delete of named relative file(s) — surfaced, not blocking).
+export function classifyRmSeverity(line: string): 'CRITICAL' | 'HIGH' | null {
+	const m = /\brm\s+(.+)/.exec(line)
+	if (!m) return null
+	const tokens = m[1]!.trim().split(/\s+/)
+	const flagTokens = tokens.filter((t) => /^-\w+$/.test(t))
+	const targetTokens = tokens.filter((t) => !t.startsWith('-'))
+	const flags = flagTokens.join('')
+	const hasRecursion = /[rR]/.test(flags)
+	const hasForce = /f/.test(flags)
+
+	if (!hasRecursion && !hasForce) return null
+	if (hasRecursion) return 'CRITICAL'
+
+	const escapesScope =
+		targetTokens.length === 0 ||
+		targetTokens.some((t) => /[*?[]/.test(t) || t.startsWith('/') || t.startsWith('~') || t.includes('$'))
+	return escapesScope ? 'CRITICAL' : 'HIGH'
+}
+
+// Classify one line for E1. Checks the unconditional-CRITICAL patterns first, then falls back to
+// the rm-specific flag/target grading.
+function classifyE1Line(line: string): 'CRITICAL' | 'HIGH' | null {
+	for (const pat of E1_CRITICAL_PATTERNS) {
+		if (pat.test(line)) return 'CRITICAL'
+	}
+	return classifyRmSeverity(line)
+}
 
 const E2_PATTERNS: RegExp[] = [
 	/[Ii]gnore (previous|all|prior) instructions/,
@@ -565,17 +692,26 @@ export function runChecks(filePath: string): CheckResult {
 		}
 	}
 
-	for (const pat of E1_PATTERNS) {
-		const hit = codeBlocks.split('\n').find((l) => pat.test(l))
-		if (hit) {
+	for (const line of codeBlocks.split('\n')) {
+		const severity = classifyE1Line(line)
+		if (!severity) continue
+		if (severity === 'CRITICAL') {
 			crit(
 				'E1',
 				'Dangerous shell command (in code block)',
-				hit.trim(),
+				line.trim(),
 				'Remove or rewrite; never embed destructive commands in a skill',
 			)
-			break
+		} else {
+			warn(
+				'HIGH',
+				'E1',
+				'Dangerous shell command (in code block)',
+				line.trim(),
+				'Remove or rewrite; never embed destructive commands in a skill',
+			)
 		}
+		break
 	}
 
 	for (const pat of E2_PATTERNS) {
@@ -659,6 +795,15 @@ function flag(argv: string[], name: string): string | undefined {
 	return i === -1 ? undefined : argv[i + 1]
 }
 
+// Every value passed for a repeatable flag (e.g. --dir <glob> --dir <glob>).
+function flagAll(argv: string[], name: string): string[] {
+	const out: string[] = []
+	for (let i = 0; i < argv.length; i++) {
+		if (argv[i] === name && argv[i + 1] !== undefined) out.push(argv[i + 1]!)
+	}
+	return out
+}
+
 export interface ScanOutcome {
 	ok: boolean
 	exitCode: number
@@ -670,7 +815,7 @@ export interface ScanOutcome {
 // run the mechanical check subset over each resolved SKILL.md, and roll up the exit code:
 // a --path target with no SKILL.md errors non-zero; a project scan with zero SKILL.md files
 // exits zero; any CRITICAL finding anywhere exits non-zero; otherwise exits zero.
-export function scan(cwd: string, pathArg?: string): ScanOutcome {
+export function scan(cwd: string, pathArg?: string, dirGlobs: string[] = []): ScanOutcome {
 	let skillFiles: string[]
 
 	if (pathArg) {
@@ -681,7 +826,7 @@ export function scan(cwd: string, pathArg?: string): ScanOutcome {
 		}
 		skillFiles = [skillMd]
 	} else {
-		skillFiles = findSkillFiles(SKILL_DIRS, cwd)
+		skillFiles = findSkillFiles(resolveScanDirs(cwd, dirGlobs), cwd)
 	}
 
 	if (skillFiles.length === 0) {
@@ -742,11 +887,12 @@ function printReport(w: (s: string) => void, outcome: ScanOutcome): void {
 	}
 }
 
-const HELP = `usage: validate.mts [--path <path>] [--root <path>] [--format text|json]
+const HELP = `usage: validate.mts [--path <path>] [--dir <glob>]... [--root <path>] [--format text|json]
 
 Validate skills against the mechanical check subset (S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
 
   --path <path>    validate a single skill directory or SKILL.md file (default: whole-project scan)
+  --dir <glob>     add a one-off scan location for this run (repeatable; ignored when --path is set)
   --root <path>    repo root to scan from (default: cwd)
   --format <fmt>   text (default) or json
   --help           show this message
@@ -760,9 +906,10 @@ export function main(argv: string[]): number {
 
 	const cwd = path.resolve(flag(argv, '--root') ?? '.')
 	const pathArg = flag(argv, '--path')
+	const dirGlobs = flagAll(argv, '--dir')
 	const format = flag(argv, '--format') ?? (argv.includes('--json') ? 'json' : 'text')
 
-	const outcome = scan(cwd, pathArg)
+	const outcome = scan(cwd, pathArg, dirGlobs)
 
 	if (format === 'json') {
 		process.stdout.write(`${JSON.stringify(outcome, null, 2)}\n`)

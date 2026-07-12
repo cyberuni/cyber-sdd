@@ -18,7 +18,7 @@ The **manage-level** front door to an SDD project — the user-facing handler fo
 
 | # | Operation group | Covers |
 |---|---|---|
-| 1 | **Setup & discovery** | scaffold a project's spec envelope for the first time → `backfill-project-spec`; curate discovery's extra spec anchors → `manage-spec-anchors`; curate the ignore file → `manage-ignore` (all are prerequisites for a project being found and usable, not routine cleanup) |
+| 1 | **Setup & discovery** | scaffold a project's spec envelope for the first time → `backfill-project-spec`; curate discovery's extra spec anchors → `manage-spec-anchors`; curate the ignore file → `manage-ignore`; set up or configure the mission statusline → `init` (all are prerequisites for a project being found and usable, not routine cleanup) |
 | 2 | **Inspect** | list / navigate the corpus → `discover-specs`, `concept-index`, `place-node`, `discover-plans` |
 | 3 | **Audit & align** | audit node-shape, drift, structure → `check-spec-structure`, `formation-loop`, `align-spec` *(planned)*; scan plan briefs for machine-local path leaks → `check-plan-safety` |
 | 4 | **Housekeeping** | retire completed mission plans → `plan-retirement` |
@@ -27,13 +27,14 @@ When a group's engine list would exceed four at the second level, present only t
 
 ## The routing table — group → engine
 
-Classification routes a manage request to the **engine** that handles it; every engine already exists (all `user-invocable: false`, loaded here).
+Classification routes a manage request to the **handler** that handles it; every handler already exists and is loaded here — most are `user-invocable: false` engines, except `init`, which stays independently user-invocable.
 
 | Group | Request | Engine (handler) |
 |---|---|---|
 | **Setup & discovery** | set up / backfill a project's spec for the first time | **`backfill-project-spec`** — scaffolds the spec envelope + stub nodes |
 | **Setup & discovery** | list / change discovery's extra spec anchors | **`manage-spec-anchors`** — list fixed + custom anchors, CRUD the custom ones, induce a pattern from a path, preview its match (writes only `.agents/sdd/spec-anchors.toml`) |
 | **Setup & discovery** | curate the ignore file | **`manage-ignore`** — curate `.agents/sdd/.sddignore` (list / add / remove / induce / preview); writes only the ignore file |
+| **Setup & discovery** | set up / configure the mission statusline | **`init`** — user-invocable onboarding skill; offers the opt-in statusline, wires the reader into project `.claude/settings.json` |
 | **Inspect** | list the specs + statuses | **`discover-specs`** — frontmatter-only corpus scan |
 | **Inspect** | render / refresh the by-concept view | **`concept-index`** — `--check` (read) / `--write` (refresh block) |
 | **Inspect** | where does a new concept belong | **`place-node`** — provisional home + duplicate catch |

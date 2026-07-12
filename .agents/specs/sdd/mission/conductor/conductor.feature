@@ -557,3 +557,45 @@ Feature: The conductor — running one mission segment
     Given a mission that concluded with no correction or judge iteration
     When the conductor finalizes the mission
     Then it appends no minimum-footprint correction line
+
+  # ---- Mission statusline — write the value during the loop (opt-in surface) ----
+
+  Scenario: the conductor writes the phase to the statusline file on each phase transition
+    Given the conductor is running a mission
+    When it enters a new mission phase
+    Then it overwrites the statusline file with the current phase
+
+  Scenario: each statusline write replaces the prior value
+    Given the conductor has written a phase to the statusline file
+    When it writes the next phase
+    Then the statusline file holds only the latest value
+
+  Scenario: the conductor clears the statusline file on handoff
+    Given the conductor completes a mission at handoff
+    When it finalizes the mission
+    Then it clears the statusline file
+
+  Scenario: the conductor clears the statusline file when the mission is paused
+    Given the conductor suspends a mission
+    When it pauses
+    Then it clears the statusline file
+
+  Scenario: the conductor clears the statusline file when the mission aborts
+    Given the conductor halts a mission mid-flight
+    When it records the halt
+    Then it clears the statusline file
+
+  Scenario: the statusline file is written only during a mission
+    Given no mission is in flight
+    When the conductor is idle
+    Then it writes no statusline file
+
+  Scenario: the conductor runs no statusline heartbeat
+    Given the conductor is in a long-running phase
+    When time passes without a phase transition
+    Then it starts no background process to refresh the statusline file
+
+  Scenario: the statusline value is separate from the lifecycle status field
+    Given the conductor writes the statusline file
+    When it writes the current phase
+    Then it does not write the status frontmatter field

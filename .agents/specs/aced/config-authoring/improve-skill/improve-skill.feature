@@ -185,6 +185,50 @@ Feature: improve-skill — audit and improve an existing SKILL.md
       """
     And the rubric score is at least the threshold
 
+  # ---- Mechanical validate engine: kind-aware description checks ----
+
+  Scenario: an internal skill is recognized by its top-level user-invocable marker
+    Given a skill whose frontmatter sets user-invocable: false at the top level and has no metadata.internal: true
+    When the engine classifies the skill
+    Then it treats the skill as internal
+
+  Scenario: an internal skill is recognized by its metadata.internal marker
+    Given a skill whose frontmatter sets metadata.internal: true and does not set user-invocable: false
+    When the engine classifies the skill
+    Then it treats the skill as internal
+
+  Scenario: the trigger-language and trigger-specificity checks are public-only
+    Given an internal skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it does not flag the missing trigger language or the trigger-specificity word count on that internal skill
+
+  Scenario: the trigger-language check still applies to a public skill
+    Given a public skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it flags the missing trigger language on that public skill
+
+  Scenario Outline: an internal description carrying an operational-detail marker is flagged
+    Given an internal skill whose description contains <marker>
+    When the engine runs its description checks
+    Then it flags the description as carrying operational detail that belongs in the body or README
+
+    Examples:
+      | marker                                              |
+      | a slashed file path like config/load.mts           |
+      | an .agents/ or scripts/ directory reference         |
+      | a check-ID like S1-S6 or E9                          |
+      | a named artifact file like improve-skill.feature    |
+
+  Scenario: an identity-and-caller internal description passes the operational-detail check
+    Given an internal skill whose description is identity plus named caller with no paths, directories, check-IDs, or artifact filenames
+    When the engine runs its description checks
+    Then it does not flag that description for operational detail
+
+  Scenario: the operational-detail check does not apply to public skills
+    Given a public skill whose description names a file path or directory as part of its trigger guidance
+    When the engine runs its description checks
+    Then it does not flag that public description for operational detail
+
   # ---- Mechanical validate engine: scan scope ----
 
   Scenario: --path validates a single skill directory or SKILL.md file
@@ -212,7 +256,7 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   Scenario: the engine runs only the mechanical check subset
     Given a target skill scanned by the engine
     When it runs its checks
-    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, E1-E2, E6, and E9, with no agent-only check evaluated
+    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, Q17, E1-E2, E6, and E9, with no agent-only check evaluated
 
   Scenario: a CRITICAL finding produces a non-zero exit code
     Given a scan across one or more skills where at least one CRITICAL finding is found

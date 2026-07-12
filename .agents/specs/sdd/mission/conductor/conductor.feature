@@ -349,9 +349,16 @@ Feature: The conductor — running one mission segment
   Scenario: a target that advances before the push triggers a re-rebase and re-verify
     Given the impl gate has passed on the rebased tree
     And the target advances again before the work is pushed
+    And the conductor is still within its bounded push attempts
     When the conductor attempts to push
     Then it rebases again onto the new target tip
     And it does not push until the impl gate passes on the re-rebased tree
+
+  Scenario: the push-race loop is bounded, not forced
+    Given the target keeps advancing past the conductor's bounded push attempts
+    When the conductor exhausts its bounded attempts
+    Then it stops instead of retrying indefinitely
+    And it escalates to the human and records a halt entry
 
   # ---- The impl gate — Approved to Implemented ----
 

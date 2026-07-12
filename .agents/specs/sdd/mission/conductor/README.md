@@ -275,7 +275,10 @@ branch onto the current tip of the declared target** (for a commit-to-main proje
   **advances again** between the passing gate and the push (another CR merged in the window), the
   conductor **re-rebases onto the new tip and re-runs the impl gate** — it **does not push until the
   gate passes on the re-rebased tree**, looping until the push wins. So what lands is always a tree
-  the gate saw green, even under concurrent merges.
+  the gate saw green, even under concurrent merges. **The loop is bounded, not forced:** a target
+  that keeps advancing past a small cap of attempts is a **liveness stop**, not an infinite spin —
+  the conductor **stops and escalates** (records a `halt`) rather than retrying indefinitely, the same
+  confidence-dimension stop the unconfident conflict takes.
 
 **Verdict, not station.** The gate is not a fixed checkpoint; it dissolves into the autonomy bar.
 The conductor **derives the leash** for the gate (the dimension assessment in

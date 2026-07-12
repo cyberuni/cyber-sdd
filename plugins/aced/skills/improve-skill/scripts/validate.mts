@@ -145,7 +145,7 @@ const INVISIBLE_UNICODE = new Map<number, string>([
 	[0xfeff, 'ZERO WIDTH NO-BREAK SPACE / BOM'],
 ])
 
-// Q17 — objective operational-detail markers in an internal skill description.
+// Q17 — objective operational-detail markers in a partial-skill description.
 // A named/pathed artifact file (stem required so bare domain-noun ".feature" is not flagged):
 const OP_DETAIL_FILEREF = /[\w-]+\.(?:mts|mjs|feature|jsonl|toml|sddignore)\b|[\w.-]+\/[\w./-]+\.(?:md|js|ts|json|sh)\b/
 // A known operational directory reference:
@@ -346,7 +346,7 @@ export function runChecks(filePath: string): CheckResult {
 	const codeBlocks = extractCodeBlocks(content)
 	const stripped = stripExamples(content)
 	const invisibleInSkill = findInvisibleUnicode(content)
-	const isInternalSkill = fmInternal
+	const isPartialSkill = fmInternal
 	const isPublicShippedSkill = parent === 'skills' && skillBaseParent !== '.agents' && !fmInternal
 
 	if (parent !== 'skills') {
@@ -435,7 +435,7 @@ export function runChecks(filePath: string): CheckResult {
 		}
 	}
 
-	if (!isInternalSkill && fmDesc && !/use this skill when|when to use/i.test(fmDesc)) {
+	if (!isPartialSkill && fmDesc && !/use this skill when|when to use/i.test(fmDesc)) {
 		warn(
 			'HIGH',
 			'Q1',
@@ -446,7 +446,7 @@ export function runChecks(filePath: string): CheckResult {
 	}
 
 	if (fmDesc) {
-		if (!isInternalSkill) {
+		if (!isPartialSkill) {
 			const wordCount = fmDesc.split(/\s+/).filter(Boolean).length
 			if (wordCount < 12) {
 				warn(
@@ -471,36 +471,36 @@ export function runChecks(filePath: string): CheckResult {
 	}
 
 	if (
-		isInternalSkill &&
+		isPartialSkill &&
 		fmDesc &&
 		(OP_DETAIL_FILEREF.test(fmDesc) || OP_DETAIL_DIR.test(fmDesc) || OP_DETAIL_CHECKID.test(fmDesc))
 	) {
 		warn(
 			'MEDIUM',
 			'Q17',
-			'Internal skill description carries operational detail',
+			'Partial skill description carries operational detail',
 			`description: ${fmDesc}`,
 			'Trim to identity + named caller only; move paths, directories, check-IDs, and artifact filenames to the body or README',
 		)
 	}
 
-	if (isInternalSkill && fmDesc && !/^Internal skill: by name only\b/i.test(fmDesc)) {
+	if (isPartialSkill && fmDesc && !/^Partial Skill:/i.test(fmDesc)) {
 		warn(
 			'MEDIUM',
 			'Q3',
-			'Internal skill description missing the by-name-only prefix',
+			'Partial skill description missing the "Partial Skill:" prefix',
 			`description: ${fmDesc}`,
-			'Lead the description with "Internal skill: by name only — <identity>. <caller>."',
+			'Lead the description with "Partial Skill: invoke by name only — <identity>. <caller>."',
 		)
 	}
 
-	if (isInternalSkill && fmDesc && /use this skill when|when to use/i.test(fmDesc)) {
+	if (isPartialSkill && fmDesc && /use this skill when|when to use/i.test(fmDesc)) {
 		warn(
 			'MEDIUM',
 			'Q18',
-			'Trigger language on a by-name callee',
+			'Trigger language on a partial (by-name) skill',
 			`description: ${fmDesc}`,
-			'Remove "Use this skill when"/"when to use" phrasing — a by-name callee is invoked explicitly, and trigger-shaped text invites spurious harness auto-matching',
+			'Remove "Use this skill when"/"when to use" phrasing — a partial skill is invoked by name, and trigger-shaped text invites spurious harness auto-matching',
 		)
 	}
 

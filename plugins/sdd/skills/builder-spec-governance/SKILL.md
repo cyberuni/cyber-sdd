@@ -1,6 +1,6 @@
 ---
 name: builder-spec-governance
-description: "Internal skill: by name only — the Builder actor bar at the spec gate — testability and coverage of the .feature. Loaded by the spec-producer and the cold spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the Builder actor bar at the spec gate — testability and coverage of the .feature. Loaded by the spec-producer and the cold spec-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: builder

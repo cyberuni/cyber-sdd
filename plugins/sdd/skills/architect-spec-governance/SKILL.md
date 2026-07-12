@@ -1,6 +1,6 @@
 ---
 name: architect-spec-governance
-description: "Internal skill: by name only — the Architect actor bar at the spec gate — structural fit of the spec and solution. Loaded by the solution-producer and the cold spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the Architect actor bar at the spec gate — structural fit of the spec and solution. Loaded by the solution-producer and the cold spec-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: architect

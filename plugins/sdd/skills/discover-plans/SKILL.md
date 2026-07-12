@@ -1,6 +1,6 @@
 ---
 name: discover-plans
-description: "Internal skill: by name only — intake/plan-discovery's engine that surfaces resumable mission plan briefs — used by the sdd gateway on entry, not triggered by users directly."
+description: "Partial Skill: invoke by name only — intake/plan-discovery's engine that surfaces resumable mission plan briefs — used by the sdd gateway on entry, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

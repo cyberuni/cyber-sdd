@@ -1,6 +1,6 @@
 ---
 name: builder-impl-governance
-description: "Internal skill: by name only — the Builder actor bar at the impl gate — does the implementation meet the frozen contract. Loaded by the impl-producer and the impl-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the Builder actor bar at the impl gate — does the implementation meet the frozen contract. Loaded by the impl-producer and the impl-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: builder

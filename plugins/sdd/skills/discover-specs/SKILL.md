@@ -1,6 +1,6 @@
 ---
 name: discover-specs
-description: "Internal skill: by name only — corpus/discovery's frontmatter-scanning engine across the SDD spec locations — used by the sdd gateway to scan statuses and by start-mission to locate the project spec, not triggered by users directly."
+description: "Partial Skill: invoke by name only — corpus/discovery's frontmatter-scanning engine across the SDD spec locations — used by the sdd gateway to scan statuses and by start-mission to locate the project spec, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

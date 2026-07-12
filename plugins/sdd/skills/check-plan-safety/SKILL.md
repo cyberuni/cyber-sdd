@@ -1,6 +1,6 @@
 ---
 name: check-plan-safety
-description: "Internal skill: by name only — plan-brief/check-plan-safety's guard engine against machine-local path leaks in tracked plan artifacts — the CI guard, not triggered by users directly."
+description: "Partial Skill: invoke by name only — plan-brief/check-plan-safety's guard engine against machine-local path leaks in tracked plan artifacts — the CI guard, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

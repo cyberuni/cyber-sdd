@@ -1,6 +1,6 @@
 ---
 name: spec-gate
-description: "Internal skill: by name only — the SDD spec gate (Draft → Approved), the verdict on a CR's spec + suite diff — run by the conductor inside the mission loop, not triggered by users directly."
+description: "Partial Skill: invoke by name only — the SDD spec gate (Draft → Approved), the verdict on a CR's spec + suite diff — run by the conductor inside the mission loop, not triggered by users directly."
 user-invocable: false
 ---
 

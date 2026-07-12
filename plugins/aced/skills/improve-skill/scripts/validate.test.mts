@@ -400,7 +400,7 @@ description: "Use this skill when it helps with general purpose tasks."
 	}
 })
 
-test('Q3: internal description without the "Internal skill: by name only" prefix warns MEDIUM', () => {
+test('Q3: partial-skill description without the "Partial Skill:" prefix warns MEDIUM', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
@@ -409,7 +409,7 @@ test('Q3: internal description without the "Internal skill: by name only" prefix
 			`---
 name: sample-skill
 user-invocable: false
-description: "Internal skill: the parent-called cleanup helper. Loaded by the orchestrator."
+description: "The parent-called cleanup helper. Loaded by the orchestrator."
 ---
 
 # Sample
@@ -704,9 +704,9 @@ function skillFixture(opts: { internal?: boolean; metadataInternal?: boolean; de
 	return lines.join('\n')
 }
 
-const BY_NAME_PREFIX = 'Internal skill: by name only'
+const PARTIAL_PREFIX = 'Partial Skill: invoke by name only'
 
-test('an internal skill is classified by its top-level user-invocable marker', () => {
+test('a partial skill is classified by its top-level user-invocable marker', () => {
 	const root = tmpRoot()
 	try {
 		// user-invocable:false + no trigger language → Q1 must NOT fire (proves internal classification)
@@ -715,7 +715,7 @@ test('an internal skill is classified by its top-level user-invocable marker', (
 			'skills/sample-skill',
 			skillFixture({
 				internal: true,
-				description: `${BY_NAME_PREFIX} — the downstream callee. Loaded by the orchestrator.`,
+				description: `${PARTIAL_PREFIX} — the downstream callee. Loaded by the orchestrator.`,
 			}),
 		)
 		const result = runChecks(file)
@@ -725,7 +725,7 @@ test('an internal skill is classified by its top-level user-invocable marker', (
 	}
 })
 
-test('metadata.internal alone does not classify a skill as internal (treated public)', () => {
+test('metadata.internal alone does not classify a skill as partial (treated public)', () => {
 	const root = tmpRoot()
 	try {
 		// metadata.internal:true but NOT user-invocable:false, no trigger language → Q1 MUST fire (public path)
@@ -750,7 +750,7 @@ test('the trigger-language and trigger-specificity checks are public-only', () =
 		const file = writeSkill(
 			root,
 			'skills/sample-skill',
-			skillFixture({ internal: true, description: `${BY_NAME_PREFIX} — short callee.` }),
+			skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — short callee.` }),
 		)
 		const result = runChecks(file)
 		assert.equal(result.warnings.filter((f) => f.checkId === 'Q1').length, 0)
@@ -788,7 +788,7 @@ test('the specificity word-count check still applies to a public skill', () => {
 
 // ---- Q18: internal trigger-language inverse check ----
 
-test('an internal description carrying user-facing trigger language is flagged', () => {
+test('a partial-skill description carrying user-facing trigger language is flagged', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
@@ -796,7 +796,7 @@ test('an internal description carrying user-facing trigger language is flagged',
 			'skills/sample-skill',
 			skillFixture({
 				internal: true,
-				description: `${BY_NAME_PREFIX} — the callee. Use this skill when the orchestrator dispatches work.`,
+				description: `${PARTIAL_PREFIX} — the callee. Use this skill when the orchestrator dispatches work.`,
 			}),
 		)
 		const result = runChecks(file)
@@ -806,13 +806,13 @@ test('an internal description carrying user-facing trigger language is flagged',
 	}
 })
 
-test('an internal description with no trigger language is not flagged for trigger language', () => {
+test('a partial-skill description with no trigger language is not flagged for trigger language', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
 			root,
 			'skills/sample-skill',
-			skillFixture({ internal: true, description: `${BY_NAME_PREFIX} — the callee. Loaded by the orchestrator.` }),
+			skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — the callee. Loaded by the orchestrator.` }),
 		)
 		const result = runChecks(file)
 		assert.equal(result.warnings.filter((f) => f.checkId === 'Q18').length, 0)
@@ -821,15 +821,15 @@ test('an internal description with no trigger language is not flagged for trigge
 	}
 })
 
-// ---- Q3: internal by-name-only prefix ----
+// ---- Q3: partial-skill Partial Skill prefix ----
 
-test('an internal description not leading with the by-name-only prefix is flagged', () => {
+test('a partial-skill description not leading with the Partial Skill prefix is flagged', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
 			root,
 			'skills/sample-skill',
-			skillFixture({ internal: true, description: 'Internal skill: the callee. Loaded by the orchestrator.' }),
+			skillFixture({ internal: true, description: 'The callee, loaded by the orchestrator.' }),
 		)
 		const result = runChecks(file)
 		assert.ok(result.warnings.some((f) => f.checkId === 'Q3'))
@@ -838,13 +838,13 @@ test('an internal description not leading with the by-name-only prefix is flagge
 	}
 })
 
-test('an internal description leading with the by-name-only prefix passes the prefix check', () => {
+test('a partial-skill description leading with the Partial Skill prefix passes the prefix check', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
 			root,
 			'skills/sample-skill',
-			skillFixture({ internal: true, description: `${BY_NAME_PREFIX} — the callee. Loaded by the orchestrator.` }),
+			skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — the callee. Loaded by the orchestrator.` }),
 		)
 		const result = runChecks(file)
 		assert.equal(result.warnings.filter((f) => f.checkId === 'Q3').length, 0)
@@ -863,13 +863,13 @@ const Q17_CASES: Array<{ label: string; marker: string }> = [
 ]
 
 for (const { label, marker } of Q17_CASES) {
-	test(`an internal description carrying an operational-detail marker is flagged: ${label}`, () => {
+	test(`a partial-skill description carrying an operational-detail marker is flagged: ${label}`, () => {
 		const root = tmpRoot()
 		try {
 			const file = writeSkill(
 				root,
 				'skills/sample-skill',
-				skillFixture({ internal: true, description: `${BY_NAME_PREFIX} — the identity classifier. ${marker}` }),
+				skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — the identity classifier. ${marker}` }),
 			)
 			const result = runChecks(file)
 			assert.ok(
@@ -882,7 +882,7 @@ for (const { label, marker } of Q17_CASES) {
 	})
 }
 
-test('an identity-and-caller internal description passes the operational-detail check', () => {
+test('an identity-and-caller partial-skill description passes the operational-detail check', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
@@ -890,7 +890,7 @@ test('an identity-and-caller internal description passes the operational-detail 
 			'skills/sample-skill',
 			skillFixture({
 				internal: true,
-				description: `${BY_NAME_PREFIX} — the ACED fit classifier which layers carry signal. Loaded by the spec-producer and the spec-judge.`,
+				description: `${PARTIAL_PREFIX} — the ACED fit classifier which layers carry signal. Loaded by the spec-producer and the spec-judge.`,
 			}),
 		)
 		const result = runChecks(file)

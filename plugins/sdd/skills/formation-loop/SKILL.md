@@ -1,6 +1,6 @@
 ---
 name: formation-loop
-description: "Internal skill: by name only — the SDD formation loop, the Architect's outer loop run by the Warden — invoked by the formation-loop delegate, not triggered by users directly."
+description: "Partial Skill: invoke by name only — the SDD formation loop, the Architect's outer loop run by the Warden — invoked by the formation-loop delegate, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

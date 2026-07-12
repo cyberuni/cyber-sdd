@@ -1,6 +1,6 @@
 ---
 name: aced-fit
-description: "Internal skill: by name only — the ACED fit classifier — which of ACED's eval layers carry real signal for a subject. Loaded by the ACED spec-producer and the spec-judge. Not triggered by users directly."
+description: "Partial Skill: invoke by name only — the ACED fit classifier — which of ACED's eval layers carry real signal for a subject. Loaded by the ACED spec-producer and the spec-judge. Not triggered by users directly."
 user-invocable: false
 metadata:
   type: governance

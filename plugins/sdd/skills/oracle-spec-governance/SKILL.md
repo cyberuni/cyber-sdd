@@ -1,6 +1,6 @@
 ---
 name: oracle-spec-governance
-description: "Internal skill: by name only — the Oracle actor bar at the spec gate — scope and kill-or-ship. Loaded by the spec-producer and the cold spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the Oracle actor bar at the spec gate — scope and kill-or-ship. Loaded by the spec-producer and the cold spec-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: oracle

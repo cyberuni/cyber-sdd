@@ -1,6 +1,6 @@
 ---
 name: aced-builder-spec
-description: "Internal skill: by name only — the ACED Builder bar at the spec gate — the agent-configuration contract criteria. Loaded by the ACED spec-producer to self-align and by the spec-judge to grade. Not triggered by users directly."
+description: "Partial Skill: invoke by name only — the ACED Builder bar at the spec gate — the agent-configuration contract criteria. Loaded by the ACED spec-producer to self-align and by the spec-judge to grade. Not triggered by users directly."
 user-invocable: false
 metadata:
   actor: builder

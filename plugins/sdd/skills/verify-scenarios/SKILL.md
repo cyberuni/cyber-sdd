@@ -1,6 +1,6 @@
 ---
 name: verify-scenarios
-description: "Internal skill: by name only — the Gherkin-scenario-to-test-report bridge verifier — invoked by the impl-judge at the impl gate, not triggered by users directly."
+description: "Partial Skill: invoke by name only — the Gherkin-scenario-to-test-report bridge verifier — invoked by the impl-judge at the impl gate, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

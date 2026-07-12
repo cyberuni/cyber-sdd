@@ -1,6 +1,6 @@
 ---
 name: manage-ignore
-description: "Internal skill: by name only — intake/manage-ignore's curation engine for the SDD ignore rules — loaded by the manage gateway (Housekeeping), not triggered by users directly."
+description: "Partial Skill: invoke by name only — intake/manage-ignore's curation engine for the SDD ignore rules — loaded by the manage gateway (Housekeeping), not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

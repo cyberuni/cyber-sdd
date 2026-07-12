@@ -1,6 +1,6 @@
 ---
 name: gate-validation-governance
-description: "Internal skill: by name only — the SDD gate-legality contract. Loaded by spec-gate, the conductor, and the spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the SDD gate-legality contract. Loaded by spec-gate, the conductor, and the spec-judge, not user-triggered."
 user-invocable: false
 ---
 

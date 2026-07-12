@@ -1,6 +1,6 @@
 ---
 name: resolve-tracking
-description: "Internal skill: by name only — intake/resolve-tracking's engine that resolves an artifact's tracked-or-ignored signal — run by the conductor at intake, not triggered by users directly."
+description: "Partial Skill: invoke by name only — intake/resolve-tracking's engine that resolves an artifact's tracked-or-ignored signal — run by the conductor at intake, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

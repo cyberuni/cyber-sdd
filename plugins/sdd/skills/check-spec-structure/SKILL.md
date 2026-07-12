@@ -1,6 +1,6 @@
 ---
 name: check-spec-structure
-description: "Internal skill: by name only — project-spec/check-spec-structure's engine that audits a project spec's internal node-shape — feeds the formation Warden, not triggered by users directly."
+description: "Partial Skill: invoke by name only — project-spec/check-spec-structure's engine that audits a project spec's internal node-shape — feeds the formation Warden, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

@@ -27,7 +27,7 @@ When a group's engine list would exceed four at the second level, present only t
 
 ## The routing table — group → engine
 
-Classification routes a manage request to the **engine** that handles it; every engine already exists (all `user-invocable: false`, loaded here).
+Classification routes a manage request to the **handler** that handles it; every handler already exists and is loaded here — most are `user-invocable: false` engines, except `init`, which stays independently user-invocable.
 
 | Group | Request | Engine (handler) |
 |---|---|---|

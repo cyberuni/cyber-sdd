@@ -1,3 +1,7 @@
+---
+concept: orchestration
+---
+
 # The gherkin-cli dependency
 
 SDD's mission loop delegates mechanical `.feature` **parse** and **diff** work to the published

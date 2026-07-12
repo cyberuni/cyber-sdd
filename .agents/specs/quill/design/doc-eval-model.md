@@ -23,7 +23,7 @@ assertions. Every scenario a doc `.feature` carries must be checkable by one of 
 The impl-producer (`quill-doc-writer`) authors both the documents **and** their per-scenario acceptance
 checks; the impl-judge (`quill-judge`) only **runs** the checks against the **frozen** `.feature`. Independence
 comes from the frozen anchor plus the separate-runner split — the judge never authors a document, and a
-behavior-changing gap is a `BLOCKER`, never a judge edit (`../../sdd/design/ownership-governance` — the
+behavior-changing gap is a `BLOCKER`, never a judge edit (`../../sdd/common-governances/ownership/` — the
 write-ownership matrix).
 
 ## Fit

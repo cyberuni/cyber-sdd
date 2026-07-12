@@ -43,6 +43,7 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **stop-provenance** | the three-layer model — `leash` block, the leash reach, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
 | **correction-line durability** | a judge-reject→fix→pass self-assert appends a discrete `correction` line (`correction-kind: judge-iteration` + a matchable `cause`) before the gate `why`, never leaving the iteration only as prose; a clean gate appends none; at finalize, a mission carrying a correction whose line was never flushed writes it — creating the combat log if absent (a combat-log `correction`, never a ledger line; a mission with no correction forces none) |
+| **mission statusline** | during the loop only, overwrite the statusline file (`.agents/sdd/statusline`) with the current phase on each transition and clear it on every exit (handoff / pause / halt); written only while a mission is in flight, no heartbeat (static staleness), distinct from the lifecycle `status` field — the opt-in reader is wired by `../../gateway/init/` |
 
 ## Classification — a file's artifact-type
 
@@ -356,3 +357,19 @@ The line stays a combat-log `correction` (the six-kind tier split is invariant �
 lands in the ledger); durability comes from the Scanner distilling the committed log into `strategy`
 ledger lines before retro deletes it, so the `cause` survives even the no-log mission class. A
 mission that concluded with **no** correction forces nothing.
+
+## Mission statusline — surface the phase during the loop
+
+An **opt-in** surface: while a mission runs, the conductor overwrites a single-line statusline file
+(`.agents/sdd/statusline`) with the **current phase** on each phase transition, so an enabled Claude
+Code status line shows what the mission is working on. The write happens **only during the loop** —
+at rest no file is written — and each write **overwrites** the prior value (a single value, never
+appended). The conductor **clears** the file on **every exit path**: a clean **handoff**, a **pause**
+(the conductor owns the clear — `../checkpoint/` stays boundaried to *writes only the plan brief*),
+and an **abort/halt**. There is **no heartbeat** — the SDD loop is turn-based, so the conductor
+starts no background process to refresh the file; a slow-but-alive phase simply shows its last-written
+phase, and a hard crash that bypasses the clear leaves a **stale** value until the next mission
+overwrites it (**static staleness**, accepted). This statusline value is **distinct from the
+lifecycle `status` frontmatter field** — writing it is not a `status` write. The conductor writes the
+**value**; the opt-in **reader** (the `statusLine` command in project `.claude/settings.json`) is
+wired separately by `../../gateway/init/`, which also gitignores the file.

@@ -34,6 +34,11 @@ Feature: The manage dispatcher — classify a manage-level request and load the 
     When manage classifies it
     Then it loads the manage-spec-anchors engine in the current session
 
+  Scenario: a setup request to configure the statusline loads init
+    Given a request to set up or configure the mission statusline
+    When manage classifies it
+    Then it loads the init skill in the current session
+
   Scenario: an inspect request loads the matching read-only engine
     Given a request to list the project's specs and their statuses
     When manage classifies it

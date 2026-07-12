@@ -145,6 +145,7 @@ description: "helps with"
 			'Q5',
 			'Q10',
 			'Q11',
+			'Q17',
 			'E1',
 			'E2',
 			'E6',
@@ -684,6 +685,186 @@ test('S6 fails when install_via is package_manager but package.name is missing',
 		const s6 = result.criticals.filter((f) => f.checkId === 'S6')
 		assert.equal(s6.length, 1)
 		assert.match(s6[0]?.name ?? '', /package\.name/)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ---- kind-aware description checks: internal vs public skills ----
+
+const INTERNAL_BY_USER_INVOCABLE = `---
+name: sample-skill
+user-invocable: false
+description: "The identity classifier for a downstream caller. Loaded by the parent orchestrator."
+---
+
+# Sample
+
+## Steps
+`
+
+const INTERNAL_BY_METADATA = `---
+name: sample-skill
+description: "The identity classifier for a downstream caller. Loaded by the parent orchestrator."
+metadata:
+  internal: true
+---
+
+# Sample
+
+## Steps
+`
+
+test('an internal skill is recognized by its top-level user-invocable marker', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(root, 'skills/sample-skill', INTERNAL_BY_USER_INVOCABLE)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q1').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('an internal skill is recognized by its metadata.internal marker', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(root, 'skills/sample-skill', INTERNAL_BY_METADATA)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q1').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the trigger-language and trigger-specificity checks are public-only', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			`---
+name: sample-skill
+user-invocable: false
+description: "Short internal desc."
+---
+
+# Sample
+
+## Steps
+`,
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q1').length, 0)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q2' && /Description too short/.test(f.name)).length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the trigger-language check still applies to a public skill', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			`---
+name: sample-skill
+description: "Does something with skills and other repository content over time."
+---
+
+# Sample
+
+## Steps
+`,
+		)
+		const result = runChecks(file)
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q1'))
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ---- Q17: internal-skill operational-detail check ----
+
+const Q17_CASES: Array<{ label: string; marker: string }> = [
+	{ label: 'slashed file path', marker: 'See config/load.mts for the loader.' },
+	{ label: 'operational directory reference', marker: 'Configured under .agents/ or scripts/ at runtime.' },
+	{ label: 'check-ID reference', marker: 'Enforces S1-S6 and E9 at the gate.' },
+	{ label: 'named artifact file', marker: 'Reads improve-skill.feature for the frozen contract.' },
+]
+
+for (const { label, marker } of Q17_CASES) {
+	test(`an internal description carrying an operational-detail marker is flagged: ${label}`, () => {
+		const root = tmpRoot()
+		try {
+			const file = writeSkill(
+				root,
+				'skills/sample-skill',
+				`---
+name: sample-skill
+user-invocable: false
+description: "Internal skill: the identity classifier. ${marker}"
+---
+
+# Sample
+
+## Steps
+`,
+			)
+			const result = runChecks(file)
+			assert.ok(
+				result.warnings.some((f) => f.checkId === 'Q17'),
+				`expected Q17 for marker: ${label}`,
+			)
+		} finally {
+			fs.rmSync(root, { recursive: true, force: true })
+		}
+	})
+}
+
+test('an identity-and-caller internal description passes the operational-detail check', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			`---
+name: sample-skill
+user-invocable: false
+description: "Internal skill: the ACED fit classifier — which layers carry signal. Loaded by the spec-producer and the spec-judge. Not triggered by users directly."
+---
+
+# Sample
+
+## Steps
+`,
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q17').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the operational-detail check does not apply to public skills', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			`---
+name: sample-skill
+description: "Use this skill when working under .agents/ or scripts/ directories and referencing S1-S6 checks in a public regression fixture."
+---
+
+# Sample
+
+## Steps
+`,
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q17').length, 0)
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}

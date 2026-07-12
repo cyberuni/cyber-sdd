@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/aced
 approval:
   spec:
@@ -11,6 +11,15 @@ approval:
       blast: low — single deterministic engine node (config-authoring/improve-skill); 7 additive @frozen scenarios + 1 ratified enumeration widening; no other node touched; impl is one file (validate.mts) + engine tests, deferred to deliver
       novelty: low — kind-aware description checks: fix internal detection to read top-level user-invocable:false (24/43 shipped internal skills mis-classified today), gate Q1+Q2-words public-only, add mechanical Q17 operational-detail guard; marker set validated 0-FP on 43 shipped internal skills, 10 pre-sweep drift caught (build-to-learn spike)
       confidence: high — cold SDD spec-judge 3-lens {oracle,builder,architect} all PASS, ALIGNED, no open markers; Builder coverage gap (metadata.internal OR-arm untested) fixed pre-freeze + re-confirmed; one style observation (marker Scenario Outline) adopted pre-freeze
+  impl:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — CR #133 deliver: frozen .feature untouched by the impl commit; parseFrontmatter + Q1/Q2 gating + new Q17 in validate.mts only
+      blast: low — one deterministic engine file (validate.mts) + its node:test; +224/-14 lines; whole-project scan clean (0 Q17 false positives, aced-fit no longer trips Q1); reversible feature branch
+      novelty: low — kind-aware gating threaded through two pre-existing conditionals + one new Q17 block with validated 0-FP marker regexes; no new coupling, no existing check regressed
+      confidence: high — cold SDD impl-judge re-derived all 8 frozen scenarios' oracles (ADR-0016), each mapped to a genuine non-tautological node:test — 49/49 tests pass, APPROVE; full pnpm verify 19/19 green
 produced-by:
   spec-producer: aced:aced-scenario-writer
   impl-producer: sdd:automaton

@@ -7,19 +7,19 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — CR #149 is additive (no frozen scenario narrowed or rewritten); re-open implemented→draft→approved for a widening, no Clearance floor
-      blast: medium — improve-skill validate engine (configurable scan locations + E1 severity split) + new manage-skill-dirs node + manage route scenario; the CI flip (impl phase) enforces the mechanical subset repo-wide on 40+ never-scanned plugin skills
-      novelty: low — mirrors SDD spec-anchors (ADR-0019) config + curation grammar and the #133 kind-aware engine pattern; E1 severity split is a bounded blast-radius refinement
-      confidence: high — cold SDD spec-judge 3-lens {oracle,builder,architect} over all three touched units — round-2 ALIGNED, all PASS, 0 open markers; build-to-learn confirmed the E1 discriminator (15/15) and glob-matcher reuse; gherkin + check-suite clean
+      floor: none — CR s1-scan-root is additive (2 new scenarios on the already-frozen improve-skill.feature, self-clearing; no scenario narrowed); re-open implemented→approved for a widening, no Clearance floor
+      blast: low — one deterministic engine check (S1) hardened to key on the recognized scan root instead of a literal 'skills' dirname; follow-up to #149's configurable scan locations; strictly fewer false positives
+      novelty: low — additive refinement threading resolved scan roots into runChecks; legacy 'skills' convention preserved as fallback
+      confidence: high — cold SDD judge additive-only confirmed, both new scenarios PASS, no open markers; gherkin + check-suite clean
   impl:
     verdict: approve
     by: agent
     cause: dimension
     why:
-      floor: none — implementation built against the frozen suite; the 3 frozen .feature files are the contract, code changed to meet them (never the reverse)
-      blast: medium — the CI flip now enforces the mechanical subset over 93 discovered skills; the E1 severity refine cleared the lone pre-existing CRITICAL so the gate lands green (26 non-blocking WARNs remain)
-      novelty: low — glob/CRUD engine ports the SDD manage-spec-anchors precedent; E1 split is a bounded shape-based refinement with no bypass path
-      confidence: high — cold SDD impl-judge re-derived every frozen scenario independently (11 config + 4 E1 + 24 manage-skill-dirs + @rubric + route) → all PASS, no regression on the pre-existing rm-rf→CRITICAL scenario, adversarial spot-checks confirmed; pnpm verify 20/20 green
+      floor: none — implementation built against the frozen suite; the frozen improve-skill.feature is the contract, code changed to meet it
+      blast: low — S1 firing condition widened to accept a recognized configured scan root; isPublicShippedSkill (public/private classification) left byte-for-byte untouched; whole-repo scan still 0 CRITICAL
+      novelty: low — new recognizedScanRoots helper + optional scanRoots param on runChecks (backward-compatible; omitted param keeps legacy behavior)
+      confidence: high — cold SDD judge re-derived both scenarios independently + 4 adversarial no-regression fixtures (normal skill, external --path skills/ audit, direct-at-root fires, configured non-skills passes) → all PASS; 71/71 engine tests, pnpm verify 20/20 green
 produced-by:
   spec-producer: sdd:sdd-automaton
   impl-producer: sdd:sdd-automaton

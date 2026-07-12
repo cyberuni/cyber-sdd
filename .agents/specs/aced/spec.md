@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: approved
 project-path: plugins/aced
 approval:
   spec:
@@ -7,22 +7,13 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — ratified re-open #3 (by:unional): pure terminology reconcile "Internal skill:" → "Partial Skill:" across the define-skill + define-governance authoring nodes (3 frozen boolean scenarios reworded), no acceptance behavior changed
-      blast: low — two aced authoring nodes' scenarios + impls; plus non-spec'd corpus edits (6 subagent descriptions, improve-skill agent-half, skill-design.md, AGENTS.md, 3 website mirrors, 2 cyberlegion README leads)
-      novelty: low — naming lockstep with the Partial Skill category already approved on the improve-skill node earlier this CR
-      confidence: high — cold SDD spec-judge over both nodes 3-lens all PASS, ALIGNED, 0 residual "Internal skill:" wording in either node; gherkin diff = clean terminology swap
-  impl:
-    verdict: approve
-    by: agent
-    cause: dimension
-    why:
-      floor: none — frozen .feature files are the contract (reworded under ratification, not by an impl step); impls are the SKILL.md authoring guidance
-      blast: low — SKILL.md terminology edits (define-skill guidance, define-governance template/rules/G1) + corpus doc edits; reversible feature branch
-      novelty: low — string/terminology substitution; no structural change
-      confidence: high — cold SDD impl-judge re-derived all frozen scenarios for both nodes (22 define-skill, 18 define-governance) → all PASS, no residual contradiction; full pnpm verify 19/19 (verify:specs 540/540)
+      floor: none — CR #149 is additive (no frozen scenario narrowed or rewritten); re-open implemented→draft→approved for a widening, no Clearance floor
+      blast: medium — improve-skill validate engine (configurable scan locations + E1 severity split) + new manage-skill-dirs node + manage route scenario; the CI flip (impl phase) enforces the mechanical subset repo-wide on 40+ never-scanned plugin skills
+      novelty: low — mirrors SDD spec-anchors (ADR-0019) config + curation grammar and the #133 kind-aware engine pattern; E1 severity split is a bounded blast-radius refinement
+      confidence: high — cold SDD spec-judge 3-lens {oracle,builder,architect} over all three touched units — round-2 ALIGNED, all PASS, 0 open markers; build-to-learn confirmed the E1 discriminator (15/15) and glob-matcher reuse; gherkin + check-suite clean
 produced-by:
-  spec-producer: aced:aced-scenario-writer
-  impl-producer: sdd:automaton
+  spec-producer: sdd:sdd-automaton
+  impl-producer: sdd:sdd-automaton
 ---
 
 # ACED — Agent Config Evaluation & Development

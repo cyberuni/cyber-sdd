@@ -39,6 +39,11 @@ Feature: manage — classify an ACED manage-level request and load the engine in
     When manage classifies it
     Then it loads the repair-private-skills engine in the current session
 
+  Scenario: a skill-dirs curation request loads the manage-skill-dirs engine
+    Given a request to list, add, or preview the extra skill-scan locations the validate engine uses
+    When manage classifies it
+    Then it loads the manage-skill-dirs engine in the current session
+
   # ---- Loading the engine ----
 
   Scenario: a resolved route loads the engine in-session and runs directly

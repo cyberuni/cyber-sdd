@@ -95,7 +95,7 @@ Wiring the seam does **not** change the *outcomes* SDD's spawning guarantees —
 still runs in a separate builder and every judge still runs in a fresh cold context the author
 cannot reach; the seam only makes the **transport** swappable and lets an available capability keep
 units warm. The context-reset intent is realized by the capability's own primitive —
-`cyberlegion unit clear <ref>`, which injects the harness's fresh-context command (`/clear` on
+`npx cyberlegion@<version> unit clear <ref>`, which injects the harness's fresh-context command (`/clear` on
 Claude/Codex/Copilot, `/new-chat` on Cursor, fail-loud where no honest reset exists) while keeping
 the pane warm — never a bare harness command the conductor cannot issue itself; the frozen contract
 (`mission/conductor`) states the reset intent, not the command.

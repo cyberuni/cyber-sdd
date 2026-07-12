@@ -223,13 +223,14 @@ Cross-mission recurrence is therefore tracked by the *distilled* count, not by s
   This names the *occasion* of a correction, not its cause; do not conflate the two.
 - **`cause`** — a **minimal, discovered enum**.
   The matchable category of *why* a correction happened, not free text.
-  Three are grounded so far:
+  Four are grounded so far:
 
   | Cause | Means | Grounded in |
   |---|---|---|
   | `coverage-gap` | a use case or operation lacked a covering scenario | a gate rejection for a missing scenario was observed |
   | `design-overreach` | the design added a mechanism the architecture did not need (e.g. an unnecessary sentinel / path) | a Council rejection of a design that introduced a superfluous sentinel |
   | `spec-feature-contradiction` | the `spec.md` body and the `.feature` asserted contradictory behavior | a judge-iteration where the spec narrative and a scenario disagreed (sdd-warden) |
+  | `prose-impl-contradiction` | a skill's own operating docs or a sibling design doc asserted behavior the shipped implementation no longer has | plan-retirement-distill-gate's impl gate — SKILL.md/README.md framed the retirement gate as caller-judgment, contradicting the delivered mechanical engine |
 
 **Growth principle.**
 The enum is **closed at any point in time** but **discovered from usage, not designed up front**: a new value is **added** only when a real, recurring correction has no existing category.

@@ -131,8 +131,10 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
 
 - **Description** — the only field loaded at startup; it carries the whole triggering burden. Target
   150–400 characters (≤1024 hard limit): capability + "Use when…" + an implicit phrasing. For a
-  **sub-skill** other skills call (not user-triggered), prefix the description with `"Internal skill:"`
-  so it does not self-activate.
+  **partial skill** (a reusable part other skills call by name, not user-triggered), set
+  `user-invocable: false` and lead the description with the `"Partial Skill:"` prefix (recommended
+  form `"Partial Skill: invoke by name only — <identity>. <caller>."`), kept minimal and
+  non-trigger-shaped so it does not self-activate.
 - **Body** — step-by-step, under 500 lines. Keep the *when* here; move any **deterministic,
   fixed-output** step to a `scripts/` file or an existing CLI and have the body only say when to run
   it.

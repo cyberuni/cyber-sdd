@@ -1,6 +1,6 @@
 ---
 name: aced-impl-judge
-description: "Internal skill: the ACED impl-judge for agent-configuration domains. Runs the frozen .feature suite over N runs — reading each @rubric scenario's inline rubric and each @trigger Scenario Outline's Examples — and collapses score-vs-threshold to a boolean per frozen scenario. Spawned cold by the conductor at the impl gate — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the ACED impl-judge for agent-configuration domains. Runs the frozen .feature suite over N runs — reading each @rubric scenario's inline rubric and each @trigger Scenario Outline's Examples — and collapses score-vs-threshold to a boolean per frozen scenario. Spawned cold by the conductor at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---

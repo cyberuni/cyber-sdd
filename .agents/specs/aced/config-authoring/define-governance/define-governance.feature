@@ -68,10 +68,10 @@ Feature: define-governance — author a reference-only governance
     When define-governance writes the canonical file
     Then the body opens with an Apply-when scope line and lists the checklist items
 
-  Scenario: the description carries the Internal-skill prefix
+  Scenario: the description carries the Partial Skill prefix
     Given a gathered name, topic, and rules
     When define-governance writes the canonical file
-    Then the frontmatter description begins with the Internal-skill prefix
+    Then the frontmatter description begins with the "Partial Skill:" prefix
 
   Scenario: the file is marked non-invokable and typed as governance
     Given a gathered name, topic, and rules
@@ -98,7 +98,7 @@ Feature: define-governance — author a reference-only governance
   # ---- Quality and report ----
 
   Scenario: a high-severity quality failure is fixed before the file is presented
-    Given a drafted governance whose description omits the Internal-skill prefix
+    Given a drafted governance whose description omits the "Partial Skill:" prefix
     When define-governance finishes drafting
     Then it fixes the failing check before presenting the file
 

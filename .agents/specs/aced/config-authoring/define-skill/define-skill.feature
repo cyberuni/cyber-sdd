@@ -112,10 +112,10 @@ Feature: define-skill — author a workflow skill
     When define-skill writes the SKILL.md
     Then the frontmatter name is kebab-case and matches the directory and the description carries a capability, a "Use when" trigger, and an implicit-phrasing example
 
-  Scenario: an internal sub-skill description is prefixed to prevent accidental activation
-    Given the skill is a sub-skill other skills call rather than a user-triggered one
+  Scenario: a partial skill's description carries the Partial Skill prefix to prevent accidental activation
+    Given the skill is a partial skill other skills call by name rather than a user-triggered one
     When define-skill writes the SKILL.md
-    Then the description is prefixed to mark it internal so it does not self-activate
+    Then the description begins with the "Partial Skill:" prefix so it does not self-activate
 
   Scenario: deterministic fixed-output logic is extracted to a script rather than baked into the body
     Given a gathered workflow whose core step produces a fixed, assertable output

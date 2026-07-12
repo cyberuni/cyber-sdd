@@ -7,19 +7,19 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — ratified re-open #2 (by:unional in-session): pure terminology finalization, no acceptance behavior changed; the frozen scenarios were reworded internal→partial and the Q3 prefix string changed under ratification, immediately re-frozen
-      blast: low — same single node; rename "internal/by-name-callee" → "partial skill"; Q3 prefix "Internal skill: by name only" → "Partial Skill:"; engine var + 41 descriptions re-migrated
-      novelty: low — naming; category = a decomposed reusable part loaded/invoked by name (distinct from metadata.internal project-local-internal)
-      confidence: high — cold SDD spec-judge 3-lens all PASS, ALIGNED, no open markers, 0 residual "internal skill" wording; gherkin diff = clean 8-for-8 rename
+      floor: none — ratified re-open #3 (by:unional): pure terminology reconcile "Internal skill:" → "Partial Skill:" across the define-skill + define-governance authoring nodes (3 frozen boolean scenarios reworded), no acceptance behavior changed
+      blast: low — two aced authoring nodes' scenarios + impls; plus non-spec'd corpus edits (6 subagent descriptions, improve-skill agent-half, skill-design.md, AGENTS.md, 3 website mirrors, 2 cyberlegion README leads)
+      novelty: low — naming lockstep with the Partial Skill category already approved on the improve-skill node earlier this CR
+      confidence: high — cold SDD spec-judge over both nodes 3-lens all PASS, ALIGNED, 0 residual "Internal skill:" wording in either node; gherkin diff = clean terminology swap
   impl:
     verdict: approve
     by: agent
     cause: dimension
     why:
-      floor: none — frozen .feature re-frozen this pass; engine + 41-description re-migration only
-      blast: low — validate.mts rename (isInternalSkill→isPartialSkill, Q3 regex ^Partial Skill:, messages) + test rename + 41 SKILL.md prefix rewrites; reversible feature branch
-      novelty: low — mechanical rename; behavior identical to the prior impl-judge APPROVE
-      confidence: high — cold SDD impl-judge re-derived all 13 frozen scenarios (ADR-0016) → genuine node:tests, 54/54 pass, APPROVE; re-scanned all 41 partial skills (0 Q3/Q17/Q18); no isInternalSkill leftover; full pnpm verify 19/19
+      floor: none — frozen .feature files are the contract (reworded under ratification, not by an impl step); impls are the SKILL.md authoring guidance
+      blast: low — SKILL.md terminology edits (define-skill guidance, define-governance template/rules/G1) + corpus doc edits; reversible feature branch
+      novelty: low — string/terminology substitution; no structural change
+      confidence: high — cold SDD impl-judge re-derived all frozen scenarios for both nodes (22 define-skill, 18 define-governance) → all PASS, no residual contradiction; full pnpm verify 19/19 (verify:specs 540/540)
 produced-by:
   spec-producer: aced:aced-scenario-writer
   impl-producer: sdd:automaton

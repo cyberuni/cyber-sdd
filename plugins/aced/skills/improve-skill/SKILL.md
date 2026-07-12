@@ -93,7 +93,7 @@ If you need the exact criteria for any check, read `references/check-definitions
 | S6 | Structure | `skill.json` `distribution.install_via` is valid (and `package.name` set when `package_manager`) | CRITICAL | |
 | Q1 | Quality | Description contains "When to use" or "Use this skill when" | HIGH | |
 | Q2 | Quality | Description is specific (not vague / matches-everything) | HIGH | |
-| Q3 | Quality | Sub-skill has `Internal skill:` prefix in description | MEDIUM | |
+| Q3 | Quality | Partial skill (`user-invocable: false`) has `Partial Skill:` prefix in description | MEDIUM | |
 | Q4 | Quality | Skill has actionable instruction body (not just description) | MEDIUM | |
 | Q5 | Quality | `description` ≤1024 characters (spec hard limit) | HIGH | |
 | Q6 | Quality | No baked-in stack assumptions | MEDIUM | |

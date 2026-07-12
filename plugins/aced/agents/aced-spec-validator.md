@@ -1,6 +1,6 @@
 ---
 name: aced-spec-validator
-description: "Internal skill: the ACED spec-judge. Judges an agent-config .feature against the agent-scenario criteria (trigger context, near-miss balance, rule coverage, edge cases). Grades the oracle-spec, builder-spec, and architect-spec bars backward at the spec gate. Spawned cold by the conductor as the spec-judge role — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the ACED spec-judge. Judges an agent-config .feature against the agent-scenario criteria (trigger context, near-miss balance, rule coverage, edge cases). Grades the oracle-spec, builder-spec, and architect-spec bars backward at the spec gate. Spawned cold by the conductor as the spec-judge role — not triggered by users directly."
 metadata:
   internal: true
 ---

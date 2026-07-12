@@ -317,7 +317,7 @@ Feature: The conductor — running one mission segment
     Then the frozen suite is verified against the merged tree that will land
 
   Scenario: a rebase conflict is resolved as deliver work before the gate runs
-    Given rebasing onto the target produces a merge conflict
+    Given rebasing onto the target produces a merge conflict the conductor can resolve confidently
     When the conductor resolves the conflict
     Then the resolution is deliver code work against the frozen feature
     And the impl gate then runs against the resolved tree
@@ -345,6 +345,20 @@ Feature: The conductor — running one mission segment
     Given a project whose declared shape is commit-to-main
     When the conductor prepares to land the work in deliver
     Then it updates the work onto the latest main before running the impl gate
+
+  Scenario: a target that advances before the push triggers a re-rebase and re-verify
+    Given the impl gate has passed on the rebased tree
+    And the target advances again before the work is pushed
+    And the conductor is still within its bounded push attempts
+    When the conductor attempts to push
+    Then it rebases again onto the new target tip
+    And it does not push until the impl gate passes on the re-rebased tree
+
+  Scenario: the push-race loop is bounded, not forced
+    Given the target keeps advancing past the conductor's bounded push attempts
+    When the conductor exhausts its bounded attempts
+    Then it stops instead of retrying indefinitely
+    And it escalates to the human and records a halt entry
 
   # ---- The impl gate — Approved to Implemented ----
 

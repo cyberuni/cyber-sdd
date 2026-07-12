@@ -65,12 +65,37 @@ SDD's conductor already does today.
 This is referenced **by intent only** — "a harness-agnostic dispatch capability with a routing brain
 that resolves an intent to `subagent`, `channel`, or `run-inline`" — never by a pinned mechanism, per
 the depend-on-intent-not-slug discipline (ADR-0021). The one load-bearing example invocation, shown
-here only to make the shape concrete (the exact pin lands in a later CR, not here):
+here only to make the shape concrete:
 
 ```bash
 npx cyberlegion@<version> dispatch channel --agent <role> --brief-file <brief> --wait
 ```
 
-Naming this seam does not change SDD's spawning behavior described above — the depth-1 default and
-the headless depth-2 fallback still work exactly as documented; this section only gives the informal
-tmux escape hatch a real name and a real mechanism to grow into.
+### Wiring the seam — warm units, one mission, `unit clear` reset
+
+The conductor **wires this seam when the capability is available** (detected at runtime), else keeps
+the ported cold-subagent default above:
+
+- **State intent, never a command.** The conductor hands the capability a **dispatch intent** —
+  role, brief, expected verdict schema — and lets the capability's routing brain pick
+  `subagent | channel | run-inline`. It pins no literal command (ADR-0021).
+- **Prefer warm; warmth ≠ coldness.** The conductor **prefers a warm unit** (the `channel` peer)
+  for roles that reuse context. **Warmth is a property of the unit/process; coldness of the
+  context.** A judge's fresh cold context — the grader-independence invariant (ADR-0016) — is
+  transport-agnostic: it is satisfied **either** by a newly spawned cold subagent **or** by a warm
+  unit **cleared to a fresh context** before each judgment. So a judge may run on a warm
+  *pane* yet still judge cold. A **warm producer** (the impl-producer builder) instead **keeps** its
+  context across explore spikes and the deliver build (no clear between uses) so its learning carries.
+- **One mission's lifetime.** Warm units stay warm for **one mission** — reused within it, then
+  **cleared or torn down at handoff**, never carrying one mission's context into the next.
+- **Fallback preserves everything.** With no capability present, every spawn is the portable cold
+  subagent (depth-1) default — grader independence intact, no warmth.
+
+Wiring the seam does **not** change the *outcomes* SDD's spawning guarantees — the impl-producer
+still runs in a separate builder and every judge still runs in a fresh cold context the author
+cannot reach; the seam only makes the **transport** swappable and lets an available capability keep
+units warm. The context-reset intent is realized by the capability's own primitive —
+`npx cyberlegion@<version> unit clear <ref>`, which injects the harness's fresh-context command (`/clear` on
+Claude/Codex/Copilot, `/new-chat` on Cursor, fail-loud where no honest reset exists) while keeping
+the pane warm — never a bare harness command the conductor cannot issue itself; the frozen contract
+(`mission/conductor`) states the reset intent, not the command.

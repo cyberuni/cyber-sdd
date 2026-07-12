@@ -143,6 +143,67 @@ Feature: The conductor — running one mission segment
     When it writes the artifacts it owns
     Then it does not write the status frontmatter field
 
+  # ---- Dispatch transport — the spawn seam, warm units, context reset ----
+
+  Scenario: the conductor states a dispatch intent, never a pinned command
+    Given a production-chain role the conductor must run in a separate context
+    When the conductor dispatches that role
+    Then it states the intent as the role, its brief, and the expected verdict schema
+    And it names no literal dispatch command bound to one mechanism
+
+  Scenario: an available dispatch capability routes the spawn through the intent seam
+    Given a harness-agnostic dispatch capability is available
+    When the conductor dispatches an impl-producer or a judge
+    Then it routes the dispatch through that capability's spawn seam
+    And the capability picks the mechanism rather than the conductor pinning one
+
+  Scenario: an absent dispatch capability falls back to a portable subagent spawn
+    Given no dispatch capability is available
+    When the conductor dispatches an impl-producer or a judge
+    Then it spawns the role as a portable cold subagent in a fresh context
+    And the fallback preserves grader independence
+
+  Scenario: the conductor prefers a warm unit for a role that may reuse its context
+    Given a dispatch capability that can fulfill a role as a warm unit
+    When the conductor dispatches the impl-producer builder
+    Then it prefers a warm unit over a cold one-shot spawn
+
+  Scenario: a judge's fresh cold context is transport-agnostic
+    Given a judge must run in a fresh context the author cannot reach
+    When the conductor realizes that context
+    Then a newly spawned cold subagent and a reset warm unit each satisfy it
+    And neither realization lets the judge share the author's context
+
+  Scenario: the spawned-cold-judge guarantee is met by a reset warm unit
+    Given the guarantee that a judge runs in a spawned cold context the author cannot reach
+    When a dispatch capability realizes that guarantee by resetting a warm unit
+    Then the guarantee holds without a new process being started
+    And the realized context is still fresh, cold, and unreachable by the author
+
+  Scenario: the conductor prefers a warm unit for a judge role too
+    Given a dispatch capability that can fulfill a judge role as a warm unit
+    When the conductor dispatches a judge
+    Then it prefers that warm unit over a cold one-shot spawn
+    And each judgment still runs in a context reset fresh for it
+
+  Scenario: a warm judge unit is reset to a fresh context before each judgment
+    Given a warm unit reused for a judge role
+    When the conductor runs a judgment on it
+    Then it resets the unit to a fresh context before the judgment
+    And the judge re-derives its oracle without carrying a prior round's context
+
+  Scenario: a warm producer unit keeps its context across the mission
+    Given a warm unit fulfilling the impl-producer builder
+    When the conductor reuses it across explore spikes and the deliver build
+    Then it does not reset the unit between those uses
+    And the builder retains what it learned earlier in the mission
+
+  Scenario: warm units stay warm for reuse within the mission
+    Given warm units dispatched during a mission
+    When the mission is still in flight
+    Then the units stay warm for reuse within that mission
+    And the conductor does not tear them down between uses in the mission
+
   # ---- Explore — build to learn (step 2) ----
 
   Scenario: explore spikes the impl-producer against the non-frozen suite

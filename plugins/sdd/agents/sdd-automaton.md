@@ -82,3 +82,10 @@ A cold-judge or builder dispatch **may** instead be realized through a general-p
 capability's `subagent | channel` seam (ADR-0023, referenced by intent — never a pinned mechanism);
 that is an alternative realization of the same spawns above, not a change to the default depth-1/
 depth-2 behavior described here.
+
+**Same dispatch-transport wiring as the in-session conductor.** State intent, never a pinned command;
+when a capability is available, prefer its **warm** unit over a cold one-shot, else fall back to a
+portable cold subagent. context-clear a warm judge (`npx cyberlegion@<version> unit clear <ref>`) to a fresh context before **each** judgment; a warm
+impl-producer builder **keeps** its context across the mission. Reset or tear down every warm unit at
+handoff. Full model: `start-mission`'s "Dispatch transport" note and
+`.agents/specs/sdd/design/harness-spawning.md`.

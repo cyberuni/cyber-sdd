@@ -304,6 +304,48 @@ Feature: The conductor — running one mission segment
     Then the observation is routed to the plan
     And it is not folded into the contract
 
+  # ---- Rebase onto the target before the impl gate ----
+
+  Scenario: the conductor rebases onto the target as its last deliver act before the impl gate
+    Given a CR branch whose target branch has advanced since the branch point
+    When the conductor finishes building in deliver
+    Then it rebases the branch onto the current target tip before running the impl gate
+
+  Scenario: the impl gate is judged against the rebased tree
+    Given the conductor has rebased the branch onto the current target
+    When it runs the impl gate
+    Then the frozen suite is verified against the merged tree that will land
+
+  Scenario: a rebase conflict is resolved as deliver work before the gate runs
+    Given rebasing onto the target produces a merge conflict
+    When the conductor resolves the conflict
+    Then the resolution is deliver code work against the frozen feature
+    And the impl gate then runs against the resolved tree
+
+  Scenario: a rebase conflict that cannot be confidently resolved halts the mission
+    Given rebasing onto the target produces a conflict the conductor cannot resolve confidently
+    When the conductor reaches that conflict
+    Then it does not guess-resolve the conflict and land
+    And it stops and escalates to the human
+    And it records the stop as a halt entry
+
+  Scenario: a conflict resolution that narrows a frozen scenario fires the Clearance floor
+    Given resolving a rebase conflict would narrow a frozen scenario
+    When the conductor reaches that change
+    Then it fires the existing Clearance floor
+    And it raises no new handoff-layer floor
+
+  Scenario: a clean rebase introduces no new hard floor
+    Given the conductor rebases the CR branch onto the target
+    And the rebase entails no narrowing and no over-ceiling semver class
+    When the rebase completes
+    Then it self-clears without a new mandatory human stop
+
+  Scenario: a commit-to-main project rebases onto latest main before the gate
+    Given a project whose declared shape is commit-to-main
+    When the conductor prepares to land the work in deliver
+    Then it updates the work onto the latest main before running the impl gate
+
   # ---- The impl gate — Approved to Implemented ----
 
   Scenario: approve at the impl gate advances to implemented

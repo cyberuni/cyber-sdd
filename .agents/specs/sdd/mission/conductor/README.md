@@ -38,7 +38,7 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
-| **impl gate** | Approved → Implemented — the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
+| **impl gate** | Approved → Implemented — the rebase-onto-target last deliver act, the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
 | **in-flight floor** | detail-adjustment served in-session vs the three mission hard floors (Clearance / Compatibility / Conflict) that mandate a human stop |
 | **stop-provenance** | the three-layer model — `leash` block, the leash reach, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
@@ -246,6 +246,31 @@ writes no setup frontmatter.
   **not** modified); **reject** → redo the implementation, *or* a **Oracle-lens revert**
   (building proved a frozen scenario fatal → **unfreeze** the `.feature` and return to `draft`).
   The impl gate is the **only** place a frozen `.feature` reopens.
+
+### Rebase onto the target before the gate
+
+The impl gate must judge **the tree that will actually land**, not the tree as it stood at branch
+point. So the conductor's **last deliver act, before running the impl gate**, is to **rebase the CR
+branch onto the current tip of the declared target** (for a commit-to-main project, the equivalent
+`pull --rebase` onto the latest `main`). The impl gate then runs the frozen suite against that
+**merged** tree — keeping a clean linear history and guaranteeing impl-sync holds on what lands, so
+**handoff stays a pure consumer that never re-verifies** (`../handoff/`).
+
+- **Clean or conflicted, the gate always follows the rebase.** A textual conflict is resolved as
+  **deliver code work** against the frozen `.feature` (never a `.feature` edit) and the gate then
+  runs on the resolved tree; a clean replay proceeds straight to the gate. Either way the frozen
+  suite re-runs on the merged tree, which also catches a semantic conflict git could not detect.
+- **A conflict the conductor cannot resolve *confidently* halts — it is never guess-resolved.** The
+  frozen suite covers *this CR's* behavior, not the incoming target change's, so a wrongly-resolved
+  conflict on the other side's code could still pass the gate and land broken. So a low-confidence
+  resolution is a **confidence-dimension stop**, not an autonomous act: the conductor **stops and
+  escalates** (in-session it asks the user; headless it returns `needs-input` up the relay) and
+  records a `halt` entry (`../../design/provenance-model.md`), rather than guessing and landing.
+- **No new hard floor.** Rebasing an *unmerged* CR branch is git-reversible (reflog), so the rebase
+  itself is **not** a gated or escalated act — consistent with the handoff-layer's rejected
+  irreversible-execution floor (`../handoff/`). A conflict resolution that would **narrow** a frozen
+  scenario still fires the existing **Clearance** floor, a semver class over the ceiling the existing
+  **Compatibility** floor, and a genuine contradiction **Conflict** — no *new* floor is introduced.
 
 **Verdict, not station.** The gate is not a fixed checkpoint; it dissolves into the autonomy bar.
 The conductor **derives the leash** for the gate (the dimension assessment in

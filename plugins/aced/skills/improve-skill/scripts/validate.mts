@@ -3,7 +3,7 @@
 // from the cyberplace CLI's `audit validate` (packages/cyberplace/src/audit/{validate,cli}.ts +
 // skill/manifest.ts, inlined here for self-containment).
 //
-// Runs ONLY the mechanical check subset: S1-S6, Q1-Q5, Q10-Q11, Q17, E1-E2, E6, E9. Everything
+// Runs ONLY the mechanical check subset: S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9. Everything
 // else (Q6-Q9, Q12-Q16, E3-E5, E7-E8, P1-P3) is agent-only quality review and is NOT run here —
 // that is judged separately by the improve-skill agent skill / the ACED impl-judge.
 //
@@ -176,7 +176,6 @@ function parseFrontmatter(content: string): { name: string; description: string;
 	let fmCount = 0
 	let name = ''
 	let description = ''
-	let metadataIndent: number | null = null
 	let internal = false
 
 	for (const line of lines) {
@@ -195,21 +194,6 @@ function parseFrontmatter(content: string): { name: string; description: string;
 
 		if (/^user-invocable:\s*false\s*$/i.test(line)) {
 			internal = true
-		}
-
-		const metadataMatch = line.match(/^(\s*)metadata:\s*$/)
-		if (metadataMatch) {
-			metadataIndent = metadataMatch[1]!.length
-			continue
-		}
-
-		if (metadataIndent !== null) {
-			const indent = line.match(/^(\s*)/)?.[1]?.length ?? 0
-			if (line.trim() && indent <= metadataIndent) {
-				metadataIndent = null
-			} else if (/^\s*internal:\s*true\s*$/i.test(line)) {
-				internal = true
-			}
 		}
 	}
 
@@ -337,7 +321,7 @@ function findPublicSkillExternalRefs(
 	return Array.from(findings, ([ref, reason]) => ({ ref, reason }))
 }
 
-// ── the mechanical check engine: S1-S6, Q1-Q5, Q10-Q11, Q17, E1-E2, E6, E9 ──
+// ── the mechanical check engine: S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9 ──
 
 export function runChecks(filePath: string): CheckResult {
 	const criticals: Finding[] = []
@@ -500,13 +484,23 @@ export function runChecks(filePath: string): CheckResult {
 		)
 	}
 
-	if (fmDesc && /called by\b|^internal\b/i.test(fmDesc) && !/^Internal skill:/i.test(fmDesc)) {
+	if (isInternalSkill && fmDesc && !/^Internal skill: by name only\b/i.test(fmDesc)) {
 		warn(
 			'MEDIUM',
 			'Q3',
-			"Sub-skill missing 'Internal skill:' prefix",
+			'Internal skill description missing the by-name-only prefix',
 			`description: ${fmDesc}`,
-			"Prefix description with 'Internal skill: ' to prevent unintended activation",
+			'Lead the description with "Internal skill: by name only — <identity>. <caller>."',
+		)
+	}
+
+	if (isInternalSkill && fmDesc && /use this skill when|when to use/i.test(fmDesc)) {
+		warn(
+			'MEDIUM',
+			'Q18',
+			'Trigger language on a by-name callee',
+			`description: ${fmDesc}`,
+			'Remove "Use this skill when"/"when to use" phrasing — a by-name callee is invoked explicitly, and trigger-shaped text invites spurious harness auto-matching',
 		)
 	}
 
@@ -743,14 +737,14 @@ function printReport(w: (s: string) => void, outcome: ScanOutcome): void {
 	if (totalCriticals > 0) {
 		w('❌ Fix all CRITICAL findings before merging.')
 	} else {
-		w('✅ All checks passed (S1–S6, Q1–Q5, Q10–Q11, Q17, E1–E2, E6, E9).')
+		w('✅ All checks passed (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9).')
 		w('   Run the improve-skill agent skill for full quality review (Q6–Q16, E3–E5, E7–E8, P1–P3).')
 	}
 }
 
 const HELP = `usage: validate.mts [--path <path>] [--root <path>] [--format text|json]
 
-Validate skills against the mechanical check subset (S1-S6, Q1-Q5, Q10-Q11, Q17, E1-E2, E6, E9).
+Validate skills against the mechanical check subset (S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
 
   --path <path>    validate a single skill directory or SKILL.md file (default: whole-project scan)
   --root <path>    repo root to scan from (default: cwd)

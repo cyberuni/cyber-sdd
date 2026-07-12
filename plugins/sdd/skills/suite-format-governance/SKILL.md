@@ -1,6 +1,6 @@
 ---
 name: suite-format-governance
-description: "Internal skill: the SDD suite-format bar for how a .feature behavior suite is written and judged. Loaded by the spec-producer and the spec-judge, not user-triggered."
+description: "Internal skill: by name only — the SDD suite-format bar for how a .feature behavior suite is written and judged. Loaded by the spec-producer and the spec-judge, not user-triggered."
 user-invocable: false
 ---
 

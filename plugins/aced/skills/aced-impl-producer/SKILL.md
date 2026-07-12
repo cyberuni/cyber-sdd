@@ -1,6 +1,6 @@
 ---
 name: aced-impl-producer
-description: "Internal skill: the ACED impl-producer's diagnose-and-refine loop — loaded by define-agent, define-skill, and define-governance, and by the public improve skill for ACED-tracked targets, not user-triggered."
+description: "Internal skill: by name only — the ACED impl-producer's diagnose-and-refine loop — loaded by define-agent, define-skill, and define-governance, and by the public improve skill for ACED-tracked targets, not user-triggered."
 user-invocable: false
 metadata:
   actor: producer

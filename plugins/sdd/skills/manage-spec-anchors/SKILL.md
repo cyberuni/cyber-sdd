@@ -1,6 +1,6 @@
 ---
 name: manage-spec-anchors
-description: "Internal skill: corpus/spec-anchors' curation engine for SDD's extra spec-discovery anchors — loaded by the manage gateway (Housekeeping), not triggered by users directly."
+description: "Internal skill: by name only — corpus/spec-anchors' curation engine for SDD's extra spec-discovery anchors — loaded by the manage gateway (Housekeeping), not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

@@ -1,6 +1,6 @@
 ---
 name: combat-log-governance
-description: "Internal skill: the SDD combat-log contract, the durable provenance record's shape. Loaded by the conductor, spec-gate, and the doctrine-loop Scanner, not user-triggered."
+description: "Internal skill: by name only — the SDD combat-log contract, the durable provenance record's shape. Loaded by the conductor, spec-gate, and the doctrine-loop Scanner, not user-triggered."
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: spec-format-governance
-description: "Internal skill: the SDD spec-format bar for spec.md structure. Loaded by the spec-producer and the spec-judge, not user-triggered."
+description: "Internal skill: by name only — the SDD spec-format bar for spec.md structure. Loaded by the spec-producer and the spec-judge, not user-triggered."
 user-invocable: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: concept-index
-description: "Internal skill: project-spec/concept-index's engine that derives the by-concept view of a project spec into spec.md — used to re-unify a cross-cutting concern the capability folder tree scatters, not triggered by users directly."
+description: "Internal skill: by name only — project-spec/concept-index's engine that derives the by-concept view of a project spec into spec.md — used to re-unify a cross-cutting concern the capability folder tree scatters, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

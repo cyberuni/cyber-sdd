@@ -1,6 +1,6 @@
 ---
 name: ownership-governance
-description: "Internal skill: the SDD write-ownership contract. Loaded by every SDD producer, judge, the conductor, and the start-mission/spec-gate skills, not user-triggered."
+description: "Internal skill: by name only — the SDD write-ownership contract. Loaded by every SDD producer, judge, the conductor, and the start-mission/spec-gate skills, not user-triggered."
 user-invocable: false
 ---
 

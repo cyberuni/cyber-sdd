@@ -1,6 +1,6 @@
 ---
 name: plan-retirement
-description: "Internal skill: the SDD Doctrine loop's last retro step — the gated, idempotent tracked deletion of a retired mission plan. Invoked by the doctrine-loop Scanner, not user-triggered; the clearance contract lives in the body + README."
+description: "Internal skill: by name only — the SDD Doctrine loop's last retro step — the gated, idempotent tracked deletion of a retired mission plan. Invoked by the doctrine-loop Scanner, not user-triggered; the clearance contract lives in the body + README."
 user-invocable: false
 metadata:
   internal: true

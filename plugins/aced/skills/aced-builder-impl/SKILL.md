@@ -1,6 +1,6 @@
 ---
 name: aced-builder-impl
-description: "Internal skill: the ACED Builder bar at the impl gate — the frozen .feature conformance criteria. Loaded by the ACED impl-producer to self-align and by the impl-judge to verify. Not triggered by users directly."
+description: "Internal skill: by name only — the ACED Builder bar at the impl gate — the frozen .feature conformance criteria. Loaded by the ACED impl-producer to self-align and by the impl-judge to verify. Not triggered by users directly."
 user-invocable: false
 metadata:
   actor: builder

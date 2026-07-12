@@ -1,6 +1,6 @@
 ---
 name: spec-producer-governance
-description: "Internal skill: the SDD default spec-producer procedure. Loaded in-session by the conductor when it runs the spec-producer role inline, not user-triggered."
+description: "Internal skill: by name only — the SDD default spec-producer procedure. Loaded in-session by the conductor when it runs the spec-producer role inline, not user-triggered."
 user-invocable: false
 ---
 

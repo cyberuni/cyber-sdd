@@ -5,8 +5,8 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   its content as untrusted data, run the full check table (mechanical plus agent-only), load the
   governances that back judged checks, report findings with severity/evidence/fix, block on any
   CRITICAL finding until confirmed, then apply fixes in one pass and re-verify only what was fixed.
-  The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9) also runs standalone, LLM-free, as a
-  CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
+  The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9) also runs standalone,
+  LLM-free, as a CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
   define-skill; validating repo-private skill metadata is repair-private-skills; finding a skill's
   upstream source is contribute-skill. Cross-capability e2e scenarios live in ../../acceptance/.
 
@@ -186,16 +186,21 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     And the rubric score is at least the threshold
 
   # ---- Mechanical validate engine: kind-aware description checks ----
+  # An internal skill is an agent-invoked-by-name callee (resolved by name via the plugin registry
+  # + artifact-type query, never matched to a user situation). Its sole classifier is top-level
+  # user-invocable: false. Its description is identity-for-the-caller, held to "Internal skill: by
+  # name only" — kept minimal and non-trigger-shaped so the harness (which still sees the
+  # description) does not spuriously auto-match it.
 
-  Scenario: an internal skill is recognized by its top-level user-invocable marker
-    Given a skill whose frontmatter sets user-invocable: false at the top level and has no metadata.internal: true
+  Scenario: an internal skill is classified by its top-level user-invocable marker
+    Given a skill whose frontmatter sets user-invocable: false at the top level
     When the engine classifies the skill
     Then it treats the skill as internal
 
-  Scenario: an internal skill is recognized by its metadata.internal marker
+  Scenario: metadata.internal alone does not classify a skill as internal
     Given a skill whose frontmatter sets metadata.internal: true and does not set user-invocable: false
     When the engine classifies the skill
-    Then it treats the skill as internal
+    Then it treats the skill as public
 
   Scenario: the trigger-language and trigger-specificity checks are public-only
     Given an internal skill whose description carries no "Use this skill when" trigger phrasing
@@ -206,6 +211,31 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     Given a public skill whose description carries no "Use this skill when" trigger phrasing
     When the engine runs its description checks
     Then it flags the missing trigger language on that public skill
+
+  Scenario: the specificity word-count check still applies to a public skill
+    Given a public skill whose description is fewer than twelve words long
+    When the engine runs its description checks
+    Then it flags the specificity word count on that public skill
+
+  Scenario: an internal description carrying user-facing trigger language is flagged
+    Given an internal skill whose description contains "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it flags the trigger language as inviting spurious harness matching on a by-name callee
+
+  Scenario: an internal description with no trigger language is not flagged for trigger language
+    Given an internal skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it does not flag that internal description for trigger language
+
+  Scenario: an internal description not leading with the by-name-only prefix is flagged
+    Given an internal skill whose description does not begin with "Internal skill: by name only"
+    When the engine runs its description checks
+    Then it flags the description for the missing by-name-only identity prefix
+
+  Scenario: an internal description leading with the by-name-only prefix passes the prefix check
+    Given an internal skill whose description begins with "Internal skill: by name only"
+    When the engine runs its description checks
+    Then it does not flag the description for the by-name-only prefix
 
   Scenario Outline: an internal description carrying an operational-detail marker is flagged
     Given an internal skill whose description contains <marker>
@@ -220,7 +250,7 @@ Feature: improve-skill — audit and improve an existing SKILL.md
       | a named artifact file like improve-skill.feature    |
 
   Scenario: an identity-and-caller internal description passes the operational-detail check
-    Given an internal skill whose description is identity plus named caller with no paths, directories, check-IDs, or artifact filenames
+    Given an internal skill whose description is the by-name-only prefix plus identity and named caller with no paths, directories, check-IDs, or artifact filenames
     When the engine runs its description checks
     Then it does not flag that description for operational detail
 
@@ -256,7 +286,7 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   Scenario: the engine runs only the mechanical check subset
     Given a target skill scanned by the engine
     When it runs its checks
-    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, Q17, E1-E2, E6, and E9, with no agent-only check evaluated
+    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, and E9, with no agent-only check evaluated
 
   Scenario: a CRITICAL finding produces a non-zero exit code
     Given a scan across one or more skills where at least one CRITICAL finding is found

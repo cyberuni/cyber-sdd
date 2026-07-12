@@ -1,6 +1,6 @@
 ---
 name: quill-doc-writer
-description: "Internal skill: the Quill impl-producer. Writes the documentation against the frozen .feature for doc domains. Invoked by the SDD conductor in implement mode — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the Quill impl-producer. Writes the documentation against the frozen .feature for doc domains. Invoked by the SDD conductor in implement mode — not triggered by users directly."
 metadata:
   internal: true
 ---

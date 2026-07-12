@@ -1,6 +1,6 @@
 ---
 name: architect-impl-governance
-description: "Internal skill: the Architect actor bar at the impl gate — structural fit of the implementation. Loaded by the impl-producer and the impl-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the Architect actor bar at the impl gate — structural fit of the implementation. Loaded by the impl-producer and the impl-judge, not user-triggered."
 user-invocable: false
 metadata:
   actor: architect

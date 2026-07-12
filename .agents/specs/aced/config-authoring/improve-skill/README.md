@@ -8,8 +8,8 @@ concept: [config-authoring, audit]
 Audit, improve, or write a SKILL.md against the description-trigger, structure, security, and
 agentskills.io-compliance bars, then apply fixes. A **hybrid** unit: an LLM audit/quality workflow
 (agent judgment over the full check table) plus the deterministic mechanical subset of that table
-(S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9) ported from the cyberplace CLI's `audit validate` as a
-CI-usable engine.
+(S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9) ported from the cyberplace CLI's `audit validate`
+as a CI-usable engine.
 
 > **This is a single behavioral unit, not an overview** — one skill plus its ported engine. This
 > spec owns the behavior + suite ([`improve-skill.feature`](./improve-skill.feature)); the impl is
@@ -28,9 +28,40 @@ its behaviors are specified as plain boolean scenarios only.
 **Subject** — a skill that, given a target SKILL.md (named or discovered across all three skill
 locations), runs the full check table, reports findings with severity and remediation, blocks on any
 CRITICAL finding until the user confirms, then applies fixes in a single pass and re-verifies only
-the checks that had findings. The mechanical subset of the table (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6,
-E9) also runs standalone as a deterministic engine — single-skill via `--path` or whole-project scan
-by default — exiting non-zero only on a CRITICAL finding, so it can gate CI without an LLM.
+the checks that had findings. The mechanical subset of the table (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18,
+E1–E2, E6, E9) also runs standalone as a deterministic engine — single-skill via `--path` or
+whole-project scan by default — exiting non-zero only on a CRITICAL finding, so it can gate CI
+without an LLM.
+
+Description checks are **kind-aware**. A skill is a **partial skill** when its frontmatter sets
+top-level `user-invocable: false` — a real SKILL.md that is a **decomposed, reusable part of a larger
+capability**: the orchestrator loads or invokes it **by name** (via the plugin registry +
+`artifact-type` query), never matched to a user situation and never offered as a `/` command. This is
+a category Claude Code models with no single field: a partial skill is `user-invocable: false` (not
+user-listed), usually `metadata.internal: true` (not marketplace-discoverable — a *distinct*
+"project-local internal" concern, orthogonal to being a partial), and must stay
+`disable-model-invocation: false` (default) so the orchestrator can still invoke it by name.
+**`metadata.internal: true` alone does not make a skill partial** — it is a marketplace-visibility
+flag, so a marketplace-hidden but user-facing skill stays public.
+
+Because a partial skill stays `disable-model-invocation: false`, the harness still holds its
+`description` in context and *could* spuriously auto-match it. So the description is held to
+**identity for the caller, kept minimal and non-trigger-shaped**:
+
+- **Q1 / Q2 are public-only** — a partial skill needs no `"Use this skill when"` trigger, and its
+  specificity word-count is not judged.
+- **Q18 flags trigger language** — a partial skill whose description carries `"Use this skill when"` /
+  `"when to use"` phrasing is flagged, because trigger-shaped text on a by-name part invites the
+  spurious harness matching we are trying to avoid.
+- **Q3 requires the `"Partial Skill:"` prefix** — the explicit self-declaration of the category (the
+  recommended full form is `"Partial Skill: invoke by name only — <identity>. <caller>."`); a partial
+  description not leading with it is flagged.
+- **Q17 flags operational-detail markers** — a file path, an `.agents/` / `scripts/` directory, a
+  check-ID (`S1`–`E9`), or a named artifact file (`x.mts`, `x.feature`) — detail that belongs in the
+  body + README and drifts stale when duplicated into the description. Q17 deliberately detects only
+  those four **objective** markers; it does not judge subtler prose overhang — an intentional
+  mechanical-vs-judgment boundary, since prose overhang is not mechanically separable from legitimate
+  identity-plus-caller prose without false positives.
 
 **Non-goals** — authoring a new skill from scratch (`define-skill`); validating repo-private skill
 metadata (`repair-private-skills`); finding a skill's upstream source repo (`contribute-skill`).
@@ -52,7 +83,8 @@ Every scenario in [`improve-skill.feature`](./improve-skill.feature) maps to one
 | **fixes applied in one pass, scoped to findings** | after confirmation, fixes are applied in a single edit pass, touching only what each finding's remediation specifies |
 | **re-verify only affected checks** | after fixing, only the checks that had findings are re-run to confirm they now pass |
 | **human-judgment findings are reported, not auto-fixed** | P1–P3 supply-chain findings and E8 script findings are surfaced for the user rather than silently changed |
-| **mechanical engine runs the deterministic subset** | the engine evaluates S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9 without an LLM |
+| **kind-aware description checks** | a partial skill (a by-name-invoked part of a larger capability, classified by top-level `user-invocable: false`; `metadata.internal: true` alone does not classify) is exempt from the trigger-language (Q1) and specificity word-count (Q2) checks and instead held to identity for the caller — Q18 flags trigger language, Q3 requires the `"Partial Skill:"` prefix, and Q17 flags operational-detail markers (paths, `.agents/`/`scripts/` dirs, check-IDs, named artifact files) |
+| **mechanical engine runs the deterministic subset** | the engine evaluates S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9 without an LLM |
 | **`--path` scans one skill; default scans the whole project** | passing `--path` validates a single skill directory or SKILL.md; omitting it scans every configured skill location |
 | **exit code gates on CRITICAL only** | the engine exits non-zero when any scanned skill has a CRITICAL finding, and exits zero when only warnings (or nothing) are found |
 

@@ -1,6 +1,6 @@
 ---
 name: quill-judge
-description: "Internal skill: the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, reporting pass/fail per scenario. Invoked by the SDD conductor at the impl gate — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, reporting pass/fail per scenario. Invoked by the SDD conductor at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---

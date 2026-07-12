@@ -1,6 +1,6 @@
 ---
 name: aced-scenario-writer
-description: "Internal skill: the ACED spec-producer for agent-configuration domains. Writes the spec.md body and the .feature (boolean scenarios, @rubric for graded behavior, @trigger Scenario Outline for activation, rubric authored inline) for a skill, subagent, command, or AGENTS.md section. Dispatched by the conductor in explore mode (the headless automaton in a non-interactive run) — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the ACED spec-producer for agent-configuration domains. Writes the spec.md body and the .feature (boolean scenarios, @rubric for graded behavior, @trigger Scenario Outline for activation, rubric authored inline) for a skill, subagent, command, or AGENTS.md section. Dispatched by the conductor in explore mode (the headless automaton in a non-interactive run) — not triggered by users directly."
 metadata:
   internal: true
 ---

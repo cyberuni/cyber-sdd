@@ -1,6 +1,6 @@
 ---
 name: backfill-project-spec
-description: "Internal skill: backfill SDD project-spec"
+description: "Partial Skill: invoke by name only — backfill SDD project-spec"
 user-invocable: false
 ---
 

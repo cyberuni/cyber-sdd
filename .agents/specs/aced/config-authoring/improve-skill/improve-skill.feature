@@ -5,8 +5,8 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   its content as untrusted data, run the full check table (mechanical plus agent-only), load the
   governances that back judged checks, report findings with severity/evidence/fix, block on any
   CRITICAL finding until confirmed, then apply fixes in one pass and re-verify only what was fixed.
-  The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9) also runs standalone, LLM-free, as a
-  CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
+  The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9) also runs standalone,
+  LLM-free, as a CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
   define-skill; validating repo-private skill metadata is repair-private-skills; finding a skill's
   upstream source is contribute-skill. Cross-capability e2e scenarios live in ../../acceptance/.
 
@@ -185,6 +185,82 @@ Feature: improve-skill — audit and improve an existing SKILL.md
       """
     And the rubric score is at least the threshold
 
+  # ---- Mechanical validate engine: kind-aware description checks ----
+  # A partial skill is a decomposed, reusable part of a larger capability: a real SKILL.md the
+  # orchestrator loads or invokes BY NAME (resolved via the plugin registry + artifact-type query),
+  # never matched to a user situation. Its sole classifier is top-level user-invocable: false. Its
+  # description is identity-for-the-caller, led by the "Partial Skill:" prefix and kept minimal and
+  # non-trigger-shaped — because the skill stays disable-model-invocation:false so it CAN be called
+  # by name, which means the harness still sees the description and could otherwise spuriously
+  # auto-match it. The opposite is a public (standalone) skill.
+
+  Scenario: a partial skill is classified by its top-level user-invocable marker
+    Given a skill whose frontmatter sets user-invocable: false at the top level
+    When the engine classifies the skill
+    Then it treats the skill as a partial skill
+
+  Scenario: metadata.internal alone does not classify a skill as partial
+    Given a skill whose frontmatter sets metadata.internal: true and does not set user-invocable: false
+    When the engine classifies the skill
+    Then it treats the skill as public
+
+  Scenario: the trigger-language and trigger-specificity checks are public-only
+    Given a partial skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it does not flag the missing trigger language or the trigger-specificity word count on that partial skill
+
+  Scenario: the trigger-language check still applies to a public skill
+    Given a public skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it flags the missing trigger language on that public skill
+
+  Scenario: the specificity word-count check still applies to a public skill
+    Given a public skill whose description is fewer than twelve words long
+    When the engine runs its description checks
+    Then it flags the specificity word count on that public skill
+
+  Scenario: a partial-skill description carrying user-facing trigger language is flagged
+    Given a partial skill whose description contains "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it flags the trigger language as inviting spurious harness matching on a by-name part
+
+  Scenario: a partial-skill description with no trigger language is not flagged for trigger language
+    Given a partial skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it does not flag that partial-skill description for trigger language
+
+  Scenario: a partial-skill description not leading with the Partial Skill prefix is flagged
+    Given a partial skill whose description does not begin with "Partial Skill:"
+    When the engine runs its description checks
+    Then it flags the description for the missing Partial Skill identity prefix
+
+  Scenario: a partial-skill description leading with the Partial Skill prefix passes the prefix check
+    Given a partial skill whose description begins with "Partial Skill:"
+    When the engine runs its description checks
+    Then it does not flag the description for the Partial Skill prefix
+
+  Scenario Outline: a partial-skill description carrying an operational-detail marker is flagged
+    Given a partial skill whose description contains <marker>
+    When the engine runs its description checks
+    Then it flags the description as carrying operational detail that belongs in the body or README
+
+    Examples:
+      | marker                                              |
+      | a slashed file path like config/load.mts           |
+      | an .agents/ or scripts/ directory reference         |
+      | a check-ID like S1-S6 or E9                          |
+      | a named artifact file like improve-skill.feature    |
+
+  Scenario: an identity-and-caller partial-skill description passes the operational-detail check
+    Given a partial skill whose description is the Partial Skill prefix plus identity and named caller with no paths, directories, check-IDs, or artifact filenames
+    When the engine runs its description checks
+    Then it does not flag that description for operational detail
+
+  Scenario: the operational-detail check does not apply to public skills
+    Given a public skill whose description names a file path or directory as part of its trigger guidance
+    When the engine runs its description checks
+    Then it does not flag that public description for operational detail
+
   # ---- Mechanical validate engine: scan scope ----
 
   Scenario: --path validates a single skill directory or SKILL.md file
@@ -212,7 +288,7 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   Scenario: the engine runs only the mechanical check subset
     Given a target skill scanned by the engine
     When it runs its checks
-    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, E1-E2, E6, and E9, with no agent-only check evaluated
+    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, and E9, with no agent-only check evaluated
 
   Scenario: a CRITICAL finding produces a non-zero exit code
     Given a scan across one or more skills where at least one CRITICAL finding is found

@@ -1,6 +1,6 @@
 ---
 name: quill-spec-writer
-description: "Internal skill: the Quill spec-producer for documentation domains. Writes the spec.md body and a boolean .feature for guides, tutorials, articles, and reference docs. Invoked by the SDD conductor in explore mode — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the Quill spec-producer for documentation domains. Writes the spec.md body and a boolean .feature for guides, tutorials, articles, and reference docs. Invoked by the SDD conductor in explore mode — not triggered by users directly."
 metadata:
   internal: true
 ---

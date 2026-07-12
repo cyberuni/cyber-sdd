@@ -3,7 +3,7 @@
 // from the cyberplace CLI's `audit validate` (packages/cyberplace/src/audit/{validate,cli}.ts +
 // skill/manifest.ts, inlined here for self-containment).
 //
-// Runs ONLY the mechanical check subset: S1-S6, Q1-Q5, Q10-Q11, E1-E2, E6, E9. Everything
+// Runs ONLY the mechanical check subset: S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9. Everything
 // else (Q6-Q9, Q12-Q16, E3-E5, E7-E8, P1-P3) is agent-only quality review and is NOT run here —
 // that is judged separately by the improve-skill agent skill / the ACED impl-judge.
 //
@@ -145,6 +145,14 @@ const INVISIBLE_UNICODE = new Map<number, string>([
 	[0xfeff, 'ZERO WIDTH NO-BREAK SPACE / BOM'],
 ])
 
+// Q17 — objective operational-detail markers in a partial-skill description.
+// A named/pathed artifact file (stem required so bare domain-noun ".feature" is not flagged):
+const OP_DETAIL_FILEREF = /[\w-]+\.(?:mts|mjs|feature|jsonl|toml|sddignore)\b|[\w.-]+\/[\w./-]+\.(?:md|js|ts|json|sh)\b/
+// A known operational directory reference:
+const OP_DETAIL_DIR = /\.agents\/|\.github\/|(?<![\w.])scripts\//
+// A validate-engine check-ID (S1, Q5, E9, P1-P3, S1-S6):
+const OP_DETAIL_CHECKID = /\b[SQEP]\d{1,2}(?:[-–]\d{1,2})?\b/
+
 const STDOUT_AS_DATA_PATTERNS: RegExp[] = [
 	/\bparse (?:the )?(?:script )?output\b/i,
 	/\bread (?:the )?(?:summary )?table\b/i,
@@ -168,7 +176,6 @@ function parseFrontmatter(content: string): { name: string; description: string;
 	let fmCount = 0
 	let name = ''
 	let description = ''
-	let metadataIndent: number | null = null
 	let internal = false
 
 	for (const line of lines) {
@@ -185,19 +192,8 @@ function parseFrontmatter(content: string): { name: string; description: string;
 		const descMatch = line.match(/^description:\s*(.+)/)
 		if (descMatch) description = descMatch[1]!.trim().replace(/^["']|["']$/g, '')
 
-		const metadataMatch = line.match(/^(\s*)metadata:\s*$/)
-		if (metadataMatch) {
-			metadataIndent = metadataMatch[1]!.length
-			continue
-		}
-
-		if (metadataIndent !== null) {
-			const indent = line.match(/^(\s*)/)?.[1]?.length ?? 0
-			if (line.trim() && indent <= metadataIndent) {
-				metadataIndent = null
-			} else if (/^\s*internal:\s*true\s*$/i.test(line)) {
-				internal = true
-			}
+		if (/^user-invocable:\s*false\s*$/i.test(line)) {
+			internal = true
 		}
 	}
 
@@ -325,7 +321,7 @@ function findPublicSkillExternalRefs(
 	return Array.from(findings, ([ref, reason]) => ({ ref, reason }))
 }
 
-// ── the mechanical check engine: S1-S6, Q1-Q5, Q10-Q11, E1-E2, E6, E9 ──
+// ── the mechanical check engine: S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9 ──
 
 export function runChecks(filePath: string): CheckResult {
 	const criticals: Finding[] = []
@@ -350,6 +346,7 @@ export function runChecks(filePath: string): CheckResult {
 	const codeBlocks = extractCodeBlocks(content)
 	const stripped = stripExamples(content)
 	const invisibleInSkill = findInvisibleUnicode(content)
+	const isPartialSkill = fmInternal
 	const isPublicShippedSkill = parent === 'skills' && skillBaseParent !== '.agents' && !fmInternal
 
 	if (parent !== 'skills') {
@@ -438,7 +435,7 @@ export function runChecks(filePath: string): CheckResult {
 		}
 	}
 
-	if (fmDesc && !/use this skill when|when to use/i.test(fmDesc)) {
+	if (!isPartialSkill && fmDesc && !/use this skill when|when to use/i.test(fmDesc)) {
 		warn(
 			'HIGH',
 			'Q1',
@@ -449,15 +446,17 @@ export function runChecks(filePath: string): CheckResult {
 	}
 
 	if (fmDesc) {
-		const wordCount = fmDesc.split(/\s+/).filter(Boolean).length
-		if (wordCount < 12) {
-			warn(
-				'HIGH',
-				'Q2',
-				'Description too short (specificity)',
-				`${wordCount} words: ${fmDesc}`,
-				'Expand the description to at least 12 words with specific trigger conditions',
-			)
+		if (!isPartialSkill) {
+			const wordCount = fmDesc.split(/\s+/).filter(Boolean).length
+			if (wordCount < 12) {
+				warn(
+					'HIGH',
+					'Q2',
+					'Description too short (specificity)',
+					`${wordCount} words: ${fmDesc}`,
+					'Expand the description to at least 12 words with specific trigger conditions',
+				)
+			}
 		}
 		const genericHit = GENERIC_PHRASES.find((p) => new RegExp(p, 'i').test(fmDesc))
 		if (genericHit) {
@@ -471,13 +470,37 @@ export function runChecks(filePath: string): CheckResult {
 		}
 	}
 
-	if (fmDesc && /called by\b|^internal\b/i.test(fmDesc) && !/^Internal skill:/i.test(fmDesc)) {
+	if (
+		isPartialSkill &&
+		fmDesc &&
+		(OP_DETAIL_FILEREF.test(fmDesc) || OP_DETAIL_DIR.test(fmDesc) || OP_DETAIL_CHECKID.test(fmDesc))
+	) {
+		warn(
+			'MEDIUM',
+			'Q17',
+			'Partial skill description carries operational detail',
+			`description: ${fmDesc}`,
+			'Trim to identity + named caller only; move paths, directories, check-IDs, and artifact filenames to the body or README',
+		)
+	}
+
+	if (isPartialSkill && fmDesc && !/^Partial Skill:/i.test(fmDesc)) {
 		warn(
 			'MEDIUM',
 			'Q3',
-			"Sub-skill missing 'Internal skill:' prefix",
+			'Partial skill description missing the "Partial Skill:" prefix',
 			`description: ${fmDesc}`,
-			"Prefix description with 'Internal skill: ' to prevent unintended activation",
+			'Lead the description with "Partial Skill: invoke by name only — <identity>. <caller>."',
+		)
+	}
+
+	if (isPartialSkill && fmDesc && /use this skill when|when to use/i.test(fmDesc)) {
+		warn(
+			'MEDIUM',
+			'Q18',
+			'Trigger language on a partial (by-name) skill',
+			`description: ${fmDesc}`,
+			'Remove "Use this skill when"/"when to use" phrasing — a partial skill is invoked by name, and trigger-shaped text invites spurious harness auto-matching',
 		)
 	}
 
@@ -714,14 +737,14 @@ function printReport(w: (s: string) => void, outcome: ScanOutcome): void {
 	if (totalCriticals > 0) {
 		w('❌ Fix all CRITICAL findings before merging.')
 	} else {
-		w('✅ All checks passed (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9).')
+		w('✅ All checks passed (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9).')
 		w('   Run the improve-skill agent skill for full quality review (Q6–Q16, E3–E5, E7–E8, P1–P3).')
 	}
 }
 
 const HELP = `usage: validate.mts [--path <path>] [--root <path>] [--format text|json]
 
-Validate skills against the mechanical check subset (S1-S6, Q1-Q5, Q10-Q11, E1-E2, E6, E9).
+Validate skills against the mechanical check subset (S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
 
   --path <path>    validate a single skill directory or SKILL.md file (default: whole-project scan)
   --root <path>    repo root to scan from (default: cwd)

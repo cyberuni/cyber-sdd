@@ -1,6 +1,6 @@
 ---
 name: lifecycle-governance
-description: "Internal skill: the SDD spec lifecycle contract. Loaded by sdd, spec-gate, start-mission, the conductor, and the spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the SDD spec lifecycle contract. Loaded by sdd, spec-gate, start-mission, the conductor, and the spec-judge, not user-triggered."
 user-invocable: false
 ---
 

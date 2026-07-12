@@ -1,6 +1,6 @@
 ---
 name: plugin-contract-governance
-description: "Internal skill: the SDD plugin contract for what a plugin implements. Loaded by the conductor and by plugin authors, not user-triggered."
+description: "Partial Skill: invoke by name only — the SDD plugin contract for what a plugin implements. Loaded by the conductor and by plugin authors, not user-triggered."
 user-invocable: false
 ---
 

@@ -145,6 +145,8 @@ description: "helps with"
 			'Q5',
 			'Q10',
 			'Q11',
+			'Q17',
+			'Q18',
 			'E1',
 			'E2',
 			'E6',
@@ -398,7 +400,7 @@ description: "Use this skill when it helps with general purpose tasks."
 	}
 })
 
-test('Q3: sub-skill description without "Internal skill:" prefix warns MEDIUM', () => {
+test('Q3: partial-skill description without the "Partial Skill:" prefix warns MEDIUM', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
@@ -406,7 +408,8 @@ test('Q3: sub-skill description without "Internal skill:" prefix warns MEDIUM', 
 			'skills/sample-skill',
 			`---
 name: sample-skill
-description: "Called by the parent skill to do internal cleanup work on demand."
+user-invocable: false
+description: "The parent-called cleanup helper. Loaded by the orchestrator."
 ---
 
 # Sample
@@ -684,6 +687,232 @@ test('S6 fails when install_via is package_manager but package.name is missing',
 		const s6 = result.criticals.filter((f) => f.checkId === 'S6')
 		assert.equal(s6.length, 1)
 		assert.match(s6[0]?.name ?? '', /package\.name/)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ---- kind-aware description checks: internal (by-name callee) vs public ----
+
+// Helper: build a SKILL.md fixture. `internal` sets top-level user-invocable:false.
+function skillFixture(opts: { internal?: boolean; metadataInternal?: boolean; description: string }): string {
+	const lines = ['---', 'name: sample-skill']
+	if (opts.internal) lines.push('user-invocable: false')
+	lines.push(`description: ${JSON.stringify(opts.description)}`)
+	if (opts.metadataInternal) lines.push('metadata:', '  internal: true')
+	lines.push('---', '', '# Sample', '', '## Steps', '')
+	return lines.join('\n')
+}
+
+const PARTIAL_PREFIX = 'Partial Skill: invoke by name only'
+
+test('a partial skill is classified by its top-level user-invocable marker', () => {
+	const root = tmpRoot()
+	try {
+		// user-invocable:false + no trigger language → Q1 must NOT fire (proves internal classification)
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({
+				internal: true,
+				description: `${PARTIAL_PREFIX} — the downstream callee. Loaded by the orchestrator.`,
+			}),
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q1').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('metadata.internal alone does not classify a skill as partial (treated public)', () => {
+	const root = tmpRoot()
+	try {
+		// metadata.internal:true but NOT user-invocable:false, no trigger language → Q1 MUST fire (public path)
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({
+				metadataInternal: true,
+				description: 'Does something with skills and other repository content over time.',
+			}),
+		)
+		const result = runChecks(file)
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q1'))
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the trigger-language and trigger-specificity checks are public-only', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — short callee.` }),
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q1').length, 0)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q2' && /Description too short/.test(f.name)).length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the trigger-language check still applies to a public skill', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({ description: 'Does something with skills and other repository content over time.' }),
+		)
+		const result = runChecks(file)
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q1'))
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the specificity word-count check still applies to a public skill', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(root, 'skills/sample-skill', skillFixture({ description: 'Use this skill for cleanup.' }))
+		const result = runChecks(file)
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q2' && /Description too short/.test(f.name)))
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ---- Q18: internal trigger-language inverse check ----
+
+test('a partial-skill description carrying user-facing trigger language is flagged', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({
+				internal: true,
+				description: `${PARTIAL_PREFIX} — the callee. Use this skill when the orchestrator dispatches work.`,
+			}),
+		)
+		const result = runChecks(file)
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q18'))
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('a partial-skill description with no trigger language is not flagged for trigger language', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — the callee. Loaded by the orchestrator.` }),
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q18').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ---- Q3: partial-skill Partial Skill prefix ----
+
+test('a partial-skill description not leading with the Partial Skill prefix is flagged', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({ internal: true, description: 'The callee, loaded by the orchestrator.' }),
+		)
+		const result = runChecks(file)
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q3'))
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('a partial-skill description leading with the Partial Skill prefix passes the prefix check', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — the callee. Loaded by the orchestrator.` }),
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q3').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ---- Q17: internal-skill operational-detail check ----
+
+const Q17_CASES: Array<{ label: string; marker: string }> = [
+	{ label: 'slashed file path', marker: 'See config/load.mts for the loader.' },
+	{ label: 'operational directory reference', marker: 'Configured under .agents/ or scripts/ at runtime.' },
+	{ label: 'check-ID reference', marker: 'Enforces S1-S6 and E9 at the gate.' },
+	{ label: 'named artifact file', marker: 'Reads improve-skill.feature for the frozen contract.' },
+]
+
+for (const { label, marker } of Q17_CASES) {
+	test(`a partial-skill description carrying an operational-detail marker is flagged: ${label}`, () => {
+		const root = tmpRoot()
+		try {
+			const file = writeSkill(
+				root,
+				'skills/sample-skill',
+				skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — the identity classifier. ${marker}` }),
+			)
+			const result = runChecks(file)
+			assert.ok(
+				result.warnings.some((f) => f.checkId === 'Q17'),
+				`expected Q17 for marker: ${label}`,
+			)
+		} finally {
+			fs.rmSync(root, { recursive: true, force: true })
+		}
+	})
+}
+
+test('an identity-and-caller partial-skill description passes the operational-detail check', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({
+				internal: true,
+				description: `${PARTIAL_PREFIX} — the ACED fit classifier which layers carry signal. Loaded by the spec-producer and the spec-judge.`,
+			}),
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q17').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the operational-detail check does not apply to public skills', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			skillFixture({
+				description:
+					'Use this skill when working under .agents/ or scripts/ directories and referencing S1-S6 checks in a public regression fixture.',
+			}),
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q17').length, 0)
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}

@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/aced
 approval:
   spec:
@@ -11,6 +11,15 @@ approval:
       blast: low — same single node (config-authoring/improve-skill); detection re-keyed to user-invocable:false, Q3 sharpened to "by name only", new Q18; companion deliver migrates 41 shipped descriptions (mechanical); one combined PR #144
       novelty: medium — corrects the internal-skill category model (agent-invoked-by-name callee, disable-model-invocation:false); root-caused vs Claude Code skills docs
       confidence: high — cold SDD spec-judge 3-lens all PASS, ALIGNED, no open markers; two blockers (stale docstring, missing public-Q2 scenario) + one advisory fixed pre-freeze and re-confirmed; check-suite.mts clean
+  impl:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — frozen .feature untouched by the impl commit (verified git diff empty vs the spec-gate commit); engine + 41-description migration only
+      blast: low — one engine file (validate.mts) + its node:test + 41 mechanical SKILL.md description rewrites (identity+caller, prefix-led); reversible feature branch
+      novelty: low — three straightforward if-blocks (Q3-sharpen, Q18, detection re-key) + three regex constants; migration is a prefix prepend on already-clean descriptions
+      confidence: high — cold SDD impl-judge re-derived all 13 frozen scenarios' oracles (ADR-0016) → each mapped to a genuine node:test, 54/54 pass, APPROVE; independently re-scanned the whole repo (90 SKILL.md) — 0 Q3/Q17/Q18 hits, all 41 migrated skills clean, no public mis-flag; full pnpm verify 19/19
 produced-by:
   spec-producer: aced:aced-scenario-writer
   impl-producer: sdd:automaton

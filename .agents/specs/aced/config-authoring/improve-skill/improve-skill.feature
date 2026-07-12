@@ -336,6 +336,23 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     When the engine enumerates targets across all configured locations
     Then it deduplicates by real path and validates that skill only once
 
+  # ---- Mechanical validate engine: S1 scan-root nesting ----
+  # S1 requires a SKILL.md to sit in its own named subdirectory directly under a recognized skill-scan
+  # root — the recognized roots being the built-in defaults plus any configured skill-dir location, not
+  # a directory that happens to be literally named "skills". So a skill discovered under a configured
+  # scan location whose final segment is not "skills" is correctly nested and passes S1; a SKILL.md that
+  # sits directly at a scan root, in no named subdirectory of its own, still fails S1.
+
+  Scenario: S1 passes a skill nested in its own subdirectory under a configured non-skills scan location
+    Given a SKILL.md at <root>/<name>/SKILL.md where <root> is a configured scan location whose final segment is not literally "skills"
+    When the engine runs the S1 check
+    Then it does not flag S1, because the skill is correctly nested one named directory below a recognized scan root
+
+  Scenario: S1 still flags a SKILL.md sitting directly at a scan root rather than in its own subdirectory
+    Given a SKILL.md placed directly in a recognized scan root with no named subdirectory of its own
+    When the engine runs the S1 check
+    Then it flags S1 as CRITICAL
+
   # ---- Mechanical validate engine: severity split and exit code ----
 
   Scenario: the engine runs only the mechanical check subset

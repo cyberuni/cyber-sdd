@@ -156,6 +156,21 @@ export function resolveScanDirs(cwd: string, dirGlobs: string[] = []): string[] 
 	return [...dirs]
 }
 
+// The recognized scan roots as absolute realpaths — a directory a correctly-nested skill sits one
+// named level below. S1 keys on membership here (in addition to the universal `skills` convention),
+// so a skill under a configured non-`skills` scan location is still recognized as correctly placed.
+export function recognizedScanRoots(cwd: string, dirGlobs: string[] = []): Set<string> {
+	const roots = new Set<string>()
+	for (const dir of resolveScanDirs(cwd, dirGlobs)) {
+		try {
+			roots.add(fs.realpathSync(path.join(cwd, dir)))
+		} catch {
+			// a configured location that does not exist on disk contributes no root
+		}
+	}
+	return roots
+}
+
 export function findSkillFiles(dirs: string[], cwd: string): string[] {
 	const seen = new Set<string>()
 	const results: string[] = []
@@ -450,7 +465,7 @@ function findPublicSkillExternalRefs(
 
 // ── the mechanical check engine: S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9 ──
 
-export function runChecks(filePath: string): CheckResult {
+export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResult {
 	const criticals: Finding[] = []
 	const warnings: Finding[] = []
 
@@ -476,12 +491,23 @@ export function runChecks(filePath: string): CheckResult {
 	const isPartialSkill = fmInternal
 	const isPublicShippedSkill = parent === 'skills' && skillBaseParent !== '.agents' && !fmInternal
 
-	if (parent !== 'skills') {
+	// S1: the SKILL.md must sit in its own named subdirectory directly under a recognized scan root.
+	// "Recognized" is the universal `skills` convention (holds anywhere, incl. an external/temp skill
+	// audited via --path) OR any configured scan root passed in — never a literal-`skills`-dirname
+	// requirement, which would false-positive a skill under a configured non-`skills` location (#149).
+	let containerReal = skillBaseDir
+	try {
+		containerReal = fs.realpathSync(skillBaseDir)
+	} catch {
+		// unresolvable container (e.g. broken symlink) — fall back to the raw path
+	}
+	const nestedUnderScanRoot = parent === 'skills' || (scanRoots?.has(containerReal) ?? false)
+	if (!nestedUnderScanRoot) {
 		crit(
 			'S1',
 			'SKILL.md in own directory',
 			`path: ${filePath}`,
-			'Move SKILL.md into its own named subdirectory under a skills/ directory',
+			'Move SKILL.md into its own named subdirectory directly under a recognized skill-scan root',
 		)
 	}
 
@@ -833,10 +859,11 @@ export function scan(cwd: string, pathArg?: string, dirGlobs: string[] = []): Sc
 		return { ok: true, exitCode: 0, message: 'No SKILL.md files found.', results: [] }
 	}
 
+	const scanRoots = recognizedScanRoots(cwd, dirGlobs)
 	const results = skillFiles.map((filePath) => ({
 		filePath,
 		dirName: path.basename(path.dirname(filePath)),
-		...runChecks(filePath),
+		...runChecks(filePath, scanRoots),
 	}))
 
 	const totalCriticals = results.reduce((n, r) => n + r.criticals.length, 0)

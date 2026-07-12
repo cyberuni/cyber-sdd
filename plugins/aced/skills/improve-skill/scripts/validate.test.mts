@@ -15,6 +15,7 @@ import {
 	classifyRmSeverity,
 	expandSkillDirPattern,
 	findSkillFiles,
+	recognizedScanRoots,
 	resolveScanDirs,
 	runChecks,
 	SKILL_DIRS,
@@ -238,6 +239,41 @@ test('scan locations: a skill reached through two configured locations is scanne
 		writeSkillDirsConfig(root, ['skills'])
 		const outcome = scan(root)
 		assert.equal(outcome.results.length, 1)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ---- Mechanical validate engine: S1 scan-root nesting ----
+
+test('S1: passes a skill nested in its own subdir under a configured non-skills scan location', () => {
+	const root = tmpRoot()
+	try {
+		// A configured scan location whose final segment is NOT literally "skills".
+		writeSkillDirsConfig(root, ['tools/*/mods'])
+		writeSkill(root, 'tools/pkg/mods/foo', GOOD_FRONTMATTER)
+		const outcome = scan(root)
+		const foo = outcome.results.find((r) => r.filePath.includes(`${path.sep}foo${path.sep}`))
+		assert.ok(foo, 'the skill under the configured non-skills location was discovered')
+		const s1 = [...foo!.criticals, ...foo!.warnings].filter((f) => f.checkId === 'S1')
+		assert.equal(s1.length, 0, 'S1 must not fire for a skill correctly nested under a recognized scan root')
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('S1: still flags a SKILL.md sitting directly at a scan root rather than in its own subdirectory', () => {
+	const root = tmpRoot()
+	try {
+		// SKILL.md placed directly in the scan root `tools/pkg/mods`, with no named subdir of its own.
+		const dir = path.join(root, 'tools', 'pkg', 'mods')
+		fs.mkdirSync(dir, { recursive: true })
+		const file = path.join(dir, 'SKILL.md')
+		fs.writeFileSync(file, GOOD_FRONTMATTER)
+		const scanRoots = recognizedScanRoots(root, ['tools/pkg/mods'])
+		const result = runChecks(file, scanRoots)
+		const s1 = result.criticals.filter((f) => f.checkId === 'S1')
+		assert.equal(s1.length, 1, 'S1 must fire when a SKILL.md is not in its own subdir under a scan root')
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}

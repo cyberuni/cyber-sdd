@@ -322,6 +322,13 @@ Feature: The conductor — running one mission segment
     Then the resolution is deliver code work against the frozen feature
     And the impl gate then runs against the resolved tree
 
+  Scenario: a rebase conflict that cannot be confidently resolved halts the mission
+    Given rebasing onto the target produces a conflict the conductor cannot resolve confidently
+    When the conductor reaches that conflict
+    Then it does not guess-resolve the conflict and land
+    And it stops and escalates to the human
+    And it records the stop as a halt entry
+
   Scenario: a conflict resolution that narrows a frozen scenario fires the Clearance floor
     Given resolving a rebase conflict would narrow a frozen scenario
     When the conductor reaches that change

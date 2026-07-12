@@ -260,6 +260,12 @@ branch onto the current tip of the declared target** (for a commit-to-main proje
   **deliver code work** against the frozen `.feature` (never a `.feature` edit) and the gate then
   runs on the resolved tree; a clean replay proceeds straight to the gate. Either way the frozen
   suite re-runs on the merged tree, which also catches a semantic conflict git could not detect.
+- **A conflict the conductor cannot resolve *confidently* halts — it is never guess-resolved.** The
+  frozen suite covers *this CR's* behavior, not the incoming target change's, so a wrongly-resolved
+  conflict on the other side's code could still pass the gate and land broken. So a low-confidence
+  resolution is a **confidence-dimension stop**, not an autonomous act: the conductor **stops and
+  escalates** (in-session it asks the user; headless it returns `needs-input` up the relay) and
+  records a `halt` entry (`../../design/provenance-model.md`), rather than guessing and landing.
 - **No new hard floor.** Rebasing an *unmerged* CR branch is git-reversible (reflog), so the rebase
   itself is **not** a gated or escalated act — consistent with the handoff-layer's rejected
   irreversible-execution floor (`../handoff/`). A conflict resolution that would **narrow** a frozen

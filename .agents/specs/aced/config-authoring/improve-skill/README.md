@@ -86,7 +86,9 @@ Every scenario in [`improve-skill.feature`](./improve-skill.feature) maps to one
 | **kind-aware description checks** | a partial skill (a by-name-invoked part of a larger capability, classified by top-level `user-invocable: false`; `metadata.internal: true` alone does not classify) is exempt from the trigger-language (Q1) and specificity word-count (Q2) checks and instead held to identity for the caller — Q18 flags trigger language, Q3 requires the `"Partial Skill:"` prefix, and Q17 flags operational-detail markers (paths, `.agents/`/`scripts/` dirs, check-IDs, named artifact files) |
 | **mechanical engine runs the deterministic subset** | the engine evaluates S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9 without an LLM |
 | **`--path` scans one skill; default scans the whole project** | passing `--path` validates a single skill directory or SKILL.md; omitting it scans every configured skill location |
+| **configurable scan locations** | on top of the two built-in defaults (`skills/`, `.agents/skills/`), an opt-in `.agents/aced/skill-dirs.toml` `anchors` array adds extra scan locations (glob `*` one segment, `**` any depth); a repeatable `--dir <glob>` flag adds one-off locations; an absent config leaves behavior unchanged; skills reached through more than one location dedupe by real path (curated via `manage-skill-dirs`) |
 | **exit code gates on CRITICAL only** | the engine exits non-zero when any scanned skill has a CRITICAL finding, and exits zero when only warnings (or nothing) are found |
+| **E1 severity graded by blast radius** | a catastrophic destructive command (`rm -rf`/recursive `rm`, `sudo rm`, `curl`/`wget` piped to a shell, `dd`, `mkfs`, fork bomb, or `rm -f` targeting a glob/absolute/home path) is CRITICAL and blocks; a scoped `rm -f <single named relative file>` is a WARN — surfaced, never blocking, with no per-skill ratify/allowlist bypass |
 
 ## Scenarios (colocated)
 

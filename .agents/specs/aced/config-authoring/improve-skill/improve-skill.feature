@@ -283,6 +283,59 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     When it runs the scan
     Then it reports that no SKILL.md files were found and exits zero
 
+  # ---- Mechanical validate engine: configurable scan locations ----
+  # The engine's default scan locations are the two agentskills-standard skill roots (skills/ and
+  # .agents/skills/), scanned one directory level deep. A repo may declare EXTRA skill-dir patterns —
+  # opt-in and additive — in .agents/aced/skill-dirs.toml under a single `anchors` key, mirroring
+  # SDD's spec-anchors config (ADR-0019). This is what lets a whole-project scan reach the partial
+  # skills nested under plugins/<plugin>/skills/<name>/SKILL.md that the defaults never see. No
+  # monorepo layout is baked into the engine; an absent config leaves behavior unchanged.
+
+  Scenario: the config declares extra skill-dir patterns under a single anchors key
+    Given a .agents/aced/skill-dirs.toml with an anchors array of repo-relative directory patterns
+    When the engine reads the config
+    Then each array entry is added as one extra skill-scan location on top of the built-in defaults
+
+  Scenario: an absent skill-dirs config leaves the scan at the default locations
+    Given a repo with no .agents/aced/skill-dirs.toml
+    When the engine resolves its scan locations
+    Then it scans only the built-in skills/ and .agents/skills/ defaults and its behavior is unchanged
+
+  Scenario: an extra skill-dir pattern is scanned in addition to, not instead of, the defaults
+    Given a config declaring one extra skill-dir pattern
+    When the engine resolves its scan locations
+    Then it scans that extra location together with the built-in defaults
+
+  Scenario: a * segment in a skill-dir pattern globs exactly one directory segment
+    Given an extra skill-dir pattern containing a * segment
+    When the engine expands the pattern
+    Then it matches every directory reachable by replacing that * with exactly one path segment, and scans each for a SKILL.md one level below
+
+  Scenario: a ** segment in a skill-dir pattern globs zero or more directory levels
+    Given an extra skill-dir pattern containing a ** segment
+    When the engine expands the pattern
+    Then it matches every directory reachable at that position at any depth including zero
+
+  Scenario: a repeatable --dir flag adds a one-off scan location for a single run
+    Given the engine is invoked with one or more --dir <glob> flags and no --path
+    When it resolves its scan locations
+    Then it scans the built-in defaults, the configured anchors, and each --dir glob, all for that run
+
+  Scenario: --path takes precedence over --dir and scans only the single target
+    Given the engine is invoked with both --path and --dir
+    When it resolves its scan target
+    Then it validates only the --path target and ignores the --dir globs
+
+  Scenario: a --dir glob that matches no directory contributes no targets and does not error
+    Given the engine is invoked with a --dir glob that matches no directory on disk
+    When it resolves its scan locations
+    Then that glob contributes no SKILL.md targets and the scan proceeds over the remaining locations
+
+  Scenario: a skill reached through more than one configured location is scanned once
+    Given a SKILL.md whose real path is reachable under two different configured scan locations
+    When the engine enumerates targets across all configured locations
+    Then it deduplicates by real path and validates that skill only once
+
   # ---- Mechanical validate engine: severity split and exit code ----
 
   Scenario: the engine runs only the mechanical check subset
@@ -304,3 +357,39 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     Given a scan where every scanned skill has no findings at all
     When the engine finishes the scan
     Then it exits zero
+
+  # ---- Mechanical validate engine: destructive-command severity (E1) ----
+  # E1 flags shell commands embedded in a skill body. Severity is graded by blast radius: a
+  # catastrophic command (recursive/forced-recursive delete, sudo delete, piped-to-shell download,
+  # raw-device write, filesystem format, fork bomb) is CRITICAL and blocks. A scoped forced delete of
+  # a single named relative file (rm -f <file>, no recursion, no glob, no absolute/home path) is a
+  # WARN — surfaced, never blocking — because a skill that legitimately documents removing a named
+  # build artifact should not be forced to hide the command. There is deliberately NO per-skill
+  # ratify/allowlist to downgrade a CRITICAL: an in-repo bypass of a security check is itself an
+  # attack surface, so the severity is decided by the command's shape alone.
+
+  Scenario: a recursive or forced-recursive delete is a CRITICAL finding
+    Given a skill body embedding a recursive delete such as rm -rf or rm -r
+    When the engine runs the E1 check
+    Then it reports a CRITICAL finding
+
+  Scenario: a scoped forced delete of a single named file is a warning, not a CRITICAL
+    Given a skill body embedding rm -f pointed at a single named relative file with no recursion, glob, or absolute path
+    When the engine runs the E1 check
+    Then it reports the command at warning severity and does not report it as CRITICAL
+
+  Scenario Outline: a forced delete whose target escapes a single named relative file stays CRITICAL
+    Given a skill body embedding rm -f whose target is <target_kind>
+    When the engine runs the E1 check
+    Then it reports a CRITICAL finding
+
+    Examples:
+      | target_kind          |
+      | a glob such as *.json |
+      | an absolute path      |
+      | a home-directory path |
+
+  Scenario: the other catastrophic command patterns remain CRITICAL
+    Given a skill body embedding sudo rm, a curl-or-wget piped to a shell, a raw dd device write, a filesystem format, or a fork bomb
+    When the engine runs the E1 check
+    Then it reports each as a CRITICAL finding

@@ -43,7 +43,8 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 |---|---|
 | **Mission** | one deliverable piece of work — roughly one branch / one pull request; it gets built and tested on its own |
 | **Operation** | a group of Missions that together deliver something shippable |
-| **node** | one item written in the list — a Mission or an Operation |
+| **node** | a **vertex of this graph** — a Mission or an Operation (do not confuse with a *spec-node*, below) |
+| **spec-node** | SDD's own term (not this graph's) — the capability atom a Mission owns: `project + capability + artifact-type`, contract = its frozen `.feature` |
 | **edge** | a one-way link between two items (e.g. "A must finish before B") |
 | **dependency** (RAW) | B needs something A produces → **A must finish before B can start** |
 | **collision** (WAW) | two Missions would change the *same thing* → they **must not run at the same time** |
@@ -147,8 +148,10 @@ Key points:
 - **What each answer carries** — for each ready Mission: its id, its **kind** (`node` — Mission or
   Operation), its Operation, its blast, whether it needs-a-human or runs-on-its-own, its model tier, a
   pointer to its brief, and *why* it is ready. (Ranking and finer overlap detail are left for later.
-  The `node` field's meaning is a known follow-up — the word collides with SDD's "spec-node"; to be
-  disambiguated at the Op1.M2 distillation.)
+  **Terminology, settled:** in *this* graph **node** = a vertex (Mission/Operation); SDD's **spec-node**
+  — the capability atom a Mission owns — is always written in full, so the two never collide. The
+  `node` *field* here carries the vertex kind; enriching it to instead carry the mission's **owned
+  spec-node** is a follow-up **engine** change, tracked in issue #184.)
 
 ## `cycles` — "did the plan tie itself in a knot?"
 
@@ -208,6 +211,9 @@ later move (to a shared, branch-independent store) never disturbs the two views.
 
 - **new** — no prior version. First built as the **cyberfleet-batch** change request (Op1.M1), the
   hand-made seed of a larger system that turns requests into a scheduled set of Missions. The name
-  "mission graph" and the wording **Campaign > Operation > Mission > Task** are settled; the broader
-  system name and its permanent design write-ups (project spec + decision records) are finalized at the
-  Op1.M2 handoff.
+  "mission graph" and the wording **Campaign > Operation > Mission > Task** are settled.
+- **Why (design records):** the model — CR-parallelism as an optimizing-compiler + CPU-scheduler — is
+  [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md); the store
+  choice (SDD-native/per-repo/git-tracked; beads/Dolt/global-hub rejected; v1-in-tree → F3 orphan-ref)
+  is [ADR-0026](../../../../artifacts/adr/0026-mission-graph-store.md); the prior-art background is the
+  [work-decomposition survey](../../../../docs/research/2026-07-work-decomposition.md).

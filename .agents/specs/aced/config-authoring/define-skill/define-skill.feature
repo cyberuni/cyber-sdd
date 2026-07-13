@@ -112,10 +112,10 @@ Feature: define-skill — author a workflow skill
     When define-skill writes the SKILL.md
     Then the frontmatter name is kebab-case and matches the directory and the description carries a capability, a "Use when" trigger, and an implicit-phrasing example
 
-  Scenario: an internal sub-skill description is prefixed to prevent accidental activation
-    Given the skill is a sub-skill other skills call rather than a user-triggered one
+  Scenario: a partial skill's description carries the Partial Skill prefix to prevent accidental activation
+    Given the skill is a partial skill other skills call by name rather than a user-triggered one
     When define-skill writes the SKILL.md
-    Then the description is prefixed to mark it internal so it does not self-activate
+    Then the description begins with the "Partial Skill:" prefix so it does not self-activate
 
   Scenario: deterministic fixed-output logic is extracted to a script rather than baked into the body
     Given a gathered workflow whose core step produces a fixed, assertable output
@@ -157,6 +157,28 @@ Feature: define-skill — author a workflow skill
     Given a completed skill
     When define-skill reports
     Then it does not embed a legacy trigger-query eval file as the test step and defers scoring to the ACED eval loop
+
+  # ---- Gate-role naming ----
+
+  Scenario: a gate-scorer subagent is named by the gate and scope it serves
+    Given the subagent's role is to score or verify a named gate for a domain, realized as a partial skill
+    When define-skill names the subagent
+    Then it names the subagent by its gate and scope in the domain-gate-judge form, like aced-impl-judge, not a bare action verb
+
+  Scenario: a case-scorer subagent takes the case-judge form
+    Given the subagent's role is to score individual cases within a scope
+    When define-skill names the subagent
+    Then it names the subagent in the domain-case-judge form, like aces-case-judge, not a bare judge
+
+  Scenario: a gate-scorer subagent drafted with a bare action-verb name is flagged and corrected before handoff
+    Given a drafted partial-skill subagent that scores a gate but is named with a bare action verb like implementer, judge, or validator
+    When define-skill runs its quality checks
+    Then the gate-role naming check flags the name at HIGH severity and define-skill renames it to the gate-and-scope form before presenting the skill
+
+  Scenario: a non-scorer producer subagent keeps its action-oriented name
+    Given the subagent's role is to produce an artifact rather than score a gate or case, named like scenario-writer or doc-writer
+    When define-skill runs its quality checks
+    Then the gate-role naming check does not fire and define-skill keeps the action-oriented name
 
   # ---- Impl-producer dual mode ----
 

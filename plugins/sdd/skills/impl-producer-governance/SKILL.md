@@ -1,6 +1,6 @@
 ---
 name: impl-producer-governance
-description: "Internal skill: the SDD default impl-producer procedure. Loaded by the spawned generic builder the conductor dispatches for the impl-producer role, not user-triggered."
+description: "Partial Skill: invoke by name only — the SDD default impl-producer procedure. Loaded by the spawned generic builder the conductor dispatches for the impl-producer role, not user-triggered."
 user-invocable: false
 ---
 

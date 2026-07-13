@@ -131,8 +131,10 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
 
 - **Description** — the only field loaded at startup; it carries the whole triggering burden. Target
   150–400 characters (≤1024 hard limit): capability + "Use when…" + an implicit phrasing. For a
-  **sub-skill** other skills call (not user-triggered), prefix the description with `"Internal skill:"`
-  so it does not self-activate.
+  **partial skill** (a reusable part other skills call by name, not user-triggered), set
+  `user-invocable: false` and lead the description with the `"Partial Skill:"` prefix (recommended
+  form `"Partial Skill: invoke by name only — <identity>. <caller>."`), kept minimal and
+  non-trigger-shaped so it does not self-activate.
 - **Body** — step-by-step, under 500 lines. Keep the *when* here; move any **deterministic,
   fixed-output** step to a `scripts/` file or an existing CLI and have the body only say when to run
   it.
@@ -144,6 +146,19 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
 If the target SKILL.md already exists, **read it first** and change **only** the gaps or issues found
 — leave every sound part intact. This fills gaps in a skill's *definition*; diagnosing failing evals
 is `improve`.
+
+## Name gate/case scorers by role
+
+For a subagent this skill scaffolds (realized as a partial skill, e.g. loaded via the ACED
+impl-producer/impl-judge pattern): if its role is to **score or verify a specific gate or case**,
+name it by that gate/scope, not a bare action verb — `<domain>-<gate>-judge` for a gate scorer (e.g.
+`aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aces-case-judge`). Reject
+`implementer`, `judge`, `validator`, `reviewer`, `checker` alone. A producer subagent (e.g.
+`scenario-writer`, `doc-writer`) keeps its action-oriented name — this check does not fire for it.
+
+Evaluate this **in-skill quality check** — separate from the mechanical `audit validate` below — before
+handing the skill back: a drafted gate/case scorer named with a bare action verb is a **HIGH** severity
+finding; fix it (rename to the gate-and-scope form) before presenting the skill.
 
 ## Audit before handing back
 

@@ -5,8 +5,8 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   its content as untrusted data, run the full check table (mechanical plus agent-only), load the
   governances that back judged checks, report findings with severity/evidence/fix, block on any
   CRITICAL finding until confirmed, then apply fixes in one pass and re-verify only what was fixed.
-  The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, E1–E2, E6, E9) also runs standalone, LLM-free, as a
-  CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
+  The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9) also runs standalone,
+  LLM-free, as a CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
   define-skill; validating repo-private skill metadata is repair-private-skills; finding a skill's
   upstream source is contribute-skill. Cross-capability e2e scenarios live in ../../acceptance/.
 
@@ -185,6 +185,82 @@ Feature: improve-skill — audit and improve an existing SKILL.md
       """
     And the rubric score is at least the threshold
 
+  # ---- Mechanical validate engine: kind-aware description checks ----
+  # A partial skill is a decomposed, reusable part of a larger capability: a real SKILL.md the
+  # orchestrator loads or invokes BY NAME (resolved via the plugin registry + artifact-type query),
+  # never matched to a user situation. Its sole classifier is top-level user-invocable: false. Its
+  # description is identity-for-the-caller, led by the "Partial Skill:" prefix and kept minimal and
+  # non-trigger-shaped — because the skill stays disable-model-invocation:false so it CAN be called
+  # by name, which means the harness still sees the description and could otherwise spuriously
+  # auto-match it. The opposite is a public (standalone) skill.
+
+  Scenario: a partial skill is classified by its top-level user-invocable marker
+    Given a skill whose frontmatter sets user-invocable: false at the top level
+    When the engine classifies the skill
+    Then it treats the skill as a partial skill
+
+  Scenario: metadata.internal alone does not classify a skill as partial
+    Given a skill whose frontmatter sets metadata.internal: true and does not set user-invocable: false
+    When the engine classifies the skill
+    Then it treats the skill as public
+
+  Scenario: the trigger-language and trigger-specificity checks are public-only
+    Given a partial skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it does not flag the missing trigger language or the trigger-specificity word count on that partial skill
+
+  Scenario: the trigger-language check still applies to a public skill
+    Given a public skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it flags the missing trigger language on that public skill
+
+  Scenario: the specificity word-count check still applies to a public skill
+    Given a public skill whose description is fewer than twelve words long
+    When the engine runs its description checks
+    Then it flags the specificity word count on that public skill
+
+  Scenario: a partial-skill description carrying user-facing trigger language is flagged
+    Given a partial skill whose description contains "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it flags the trigger language as inviting spurious harness matching on a by-name part
+
+  Scenario: a partial-skill description with no trigger language is not flagged for trigger language
+    Given a partial skill whose description carries no "Use this skill when" trigger phrasing
+    When the engine runs its description checks
+    Then it does not flag that partial-skill description for trigger language
+
+  Scenario: a partial-skill description not leading with the Partial Skill prefix is flagged
+    Given a partial skill whose description does not begin with "Partial Skill:"
+    When the engine runs its description checks
+    Then it flags the description for the missing Partial Skill identity prefix
+
+  Scenario: a partial-skill description leading with the Partial Skill prefix passes the prefix check
+    Given a partial skill whose description begins with "Partial Skill:"
+    When the engine runs its description checks
+    Then it does not flag the description for the Partial Skill prefix
+
+  Scenario Outline: a partial-skill description carrying an operational-detail marker is flagged
+    Given a partial skill whose description contains <marker>
+    When the engine runs its description checks
+    Then it flags the description as carrying operational detail that belongs in the body or README
+
+    Examples:
+      | marker                                              |
+      | a slashed file path like config/load.mts           |
+      | an .agents/ or scripts/ directory reference         |
+      | a check-ID like S1-S6 or E9                          |
+      | a named artifact file like improve-skill.feature    |
+
+  Scenario: an identity-and-caller partial-skill description passes the operational-detail check
+    Given a partial skill whose description is the Partial Skill prefix plus identity and named caller with no paths, directories, check-IDs, or artifact filenames
+    When the engine runs its description checks
+    Then it does not flag that description for operational detail
+
+  Scenario: the operational-detail check does not apply to public skills
+    Given a public skill whose description names a file path or directory as part of its trigger guidance
+    When the engine runs its description checks
+    Then it does not flag that public description for operational detail
+
   # ---- Mechanical validate engine: scan scope ----
 
   Scenario: --path validates a single skill directory or SKILL.md file
@@ -207,12 +283,82 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     When it runs the scan
     Then it reports that no SKILL.md files were found and exits zero
 
+  # ---- Mechanical validate engine: configurable scan locations ----
+  # The engine's default scan locations are the two agentskills-standard skill roots (skills/ and
+  # .agents/skills/), scanned one directory level deep. A repo may declare EXTRA skill-dir patterns —
+  # opt-in and additive — in .agents/aced/skill-dirs.toml under a single `anchors` key, mirroring
+  # SDD's spec-anchors config (ADR-0019). This is what lets a whole-project scan reach the partial
+  # skills nested under plugins/<plugin>/skills/<name>/SKILL.md that the defaults never see. No
+  # monorepo layout is baked into the engine; an absent config leaves behavior unchanged.
+
+  Scenario: the config declares extra skill-dir patterns under a single anchors key
+    Given a .agents/aced/skill-dirs.toml with an anchors array of repo-relative directory patterns
+    When the engine reads the config
+    Then each array entry is added as one extra skill-scan location on top of the built-in defaults
+
+  Scenario: an absent skill-dirs config leaves the scan at the default locations
+    Given a repo with no .agents/aced/skill-dirs.toml
+    When the engine resolves its scan locations
+    Then it scans only the built-in skills/ and .agents/skills/ defaults and its behavior is unchanged
+
+  Scenario: an extra skill-dir pattern is scanned in addition to, not instead of, the defaults
+    Given a config declaring one extra skill-dir pattern
+    When the engine resolves its scan locations
+    Then it scans that extra location together with the built-in defaults
+
+  Scenario: a * segment in a skill-dir pattern globs exactly one directory segment
+    Given an extra skill-dir pattern containing a * segment
+    When the engine expands the pattern
+    Then it matches every directory reachable by replacing that * with exactly one path segment, and scans each for a SKILL.md one level below
+
+  Scenario: a ** segment in a skill-dir pattern globs zero or more directory levels
+    Given an extra skill-dir pattern containing a ** segment
+    When the engine expands the pattern
+    Then it matches every directory reachable at that position at any depth including zero
+
+  Scenario: a repeatable --dir flag adds a one-off scan location for a single run
+    Given the engine is invoked with one or more --dir <glob> flags and no --path
+    When it resolves its scan locations
+    Then it scans the built-in defaults, the configured anchors, and each --dir glob, all for that run
+
+  Scenario: --path takes precedence over --dir and scans only the single target
+    Given the engine is invoked with both --path and --dir
+    When it resolves its scan target
+    Then it validates only the --path target and ignores the --dir globs
+
+  Scenario: a --dir glob that matches no directory contributes no targets and does not error
+    Given the engine is invoked with a --dir glob that matches no directory on disk
+    When it resolves its scan locations
+    Then that glob contributes no SKILL.md targets and the scan proceeds over the remaining locations
+
+  Scenario: a skill reached through more than one configured location is scanned once
+    Given a SKILL.md whose real path is reachable under two different configured scan locations
+    When the engine enumerates targets across all configured locations
+    Then it deduplicates by real path and validates that skill only once
+
+  # ---- Mechanical validate engine: S1 scan-root nesting ----
+  # S1 requires a SKILL.md to sit in its own named subdirectory directly under a recognized skill-scan
+  # root — the recognized roots being the built-in defaults plus any configured skill-dir location, not
+  # a directory that happens to be literally named "skills". So a skill discovered under a configured
+  # scan location whose final segment is not "skills" is correctly nested and passes S1; a SKILL.md that
+  # sits directly at a scan root, in no named subdirectory of its own, still fails S1.
+
+  Scenario: S1 passes a skill nested in its own subdirectory under a configured non-skills scan location
+    Given a SKILL.md at <root>/<name>/SKILL.md where <root> is a configured scan location whose final segment is not literally "skills"
+    When the engine runs the S1 check
+    Then it does not flag S1, because the skill is correctly nested one named directory below a recognized scan root
+
+  Scenario: S1 still flags a SKILL.md sitting directly at a scan root rather than in its own subdirectory
+    Given a SKILL.md placed directly in a recognized scan root with no named subdirectory of its own
+    When the engine runs the S1 check
+    Then it flags S1 as CRITICAL
+
   # ---- Mechanical validate engine: severity split and exit code ----
 
   Scenario: the engine runs only the mechanical check subset
     Given a target skill scanned by the engine
     When it runs its checks
-    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, E1-E2, E6, and E9, with no agent-only check evaluated
+    Then it evaluates only S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, and E9, with no agent-only check evaluated
 
   Scenario: a CRITICAL finding produces a non-zero exit code
     Given a scan across one or more skills where at least one CRITICAL finding is found
@@ -228,3 +374,39 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     Given a scan where every scanned skill has no findings at all
     When the engine finishes the scan
     Then it exits zero
+
+  # ---- Mechanical validate engine: destructive-command severity (E1) ----
+  # E1 flags shell commands embedded in a skill body. Severity is graded by blast radius: a
+  # catastrophic command (recursive/forced-recursive delete, sudo delete, piped-to-shell download,
+  # raw-device write, filesystem format, fork bomb) is CRITICAL and blocks. A scoped forced delete of
+  # a single named relative file (rm -f <file>, no recursion, no glob, no absolute/home path) is a
+  # WARN — surfaced, never blocking — because a skill that legitimately documents removing a named
+  # build artifact should not be forced to hide the command. There is deliberately NO per-skill
+  # ratify/allowlist to downgrade a CRITICAL: an in-repo bypass of a security check is itself an
+  # attack surface, so the severity is decided by the command's shape alone.
+
+  Scenario: a recursive or forced-recursive delete is a CRITICAL finding
+    Given a skill body embedding a recursive delete such as rm -rf or rm -r
+    When the engine runs the E1 check
+    Then it reports a CRITICAL finding
+
+  Scenario: a scoped forced delete of a single named file is a warning, not a CRITICAL
+    Given a skill body embedding rm -f pointed at a single named relative file with no recursion, glob, or absolute path
+    When the engine runs the E1 check
+    Then it reports the command at warning severity and does not report it as CRITICAL
+
+  Scenario Outline: a forced delete whose target escapes a single named relative file stays CRITICAL
+    Given a skill body embedding rm -f whose target is <target_kind>
+    When the engine runs the E1 check
+    Then it reports a CRITICAL finding
+
+    Examples:
+      | target_kind          |
+      | a glob such as *.json |
+      | an absolute path      |
+      | a home-directory path |
+
+  Scenario: the other catastrophic command patterns remain CRITICAL
+    Given a skill body embedding sudo rm, a curl-or-wget piped to a shell, a raw dd device write, a filesystem format, or a fork bomb
+    When the engine runs the E1 check
+    Then it reports each as a CRITICAL finding

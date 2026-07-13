@@ -1,6 +1,6 @@
 ---
 name: resolve-governances
-description: "Internal skill: the SDD governance matcher, resolving which actor-bar governances apply to a touched file — run by the conductor and the cold spec/impl judges, not triggered by users directly."
+description: "Partial Skill: invoke by name only — the SDD governance matcher, resolving which actor-bar governances apply to a touched file — run by the conductor and the cold spec/impl judges, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

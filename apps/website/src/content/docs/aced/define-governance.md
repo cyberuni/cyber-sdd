@@ -23,7 +23,7 @@ If the content is *what to enforce*, it's a governance file; if it's *how to do 
 
 1. Determines placement (user-global, project, or inside a plugin).
 2. Gathers name, topic, consumers, and content type (rubric, constraint set, checklist, decision table, or mixed).
-3. Drafts the file with `description: "Internal skill: …"`, `user-invocable: false`, and `metadata: type: governance` — no `## Why`/`## Rationale` section, atomic and independently falsifiable rules.
+3. Drafts the file with `description: "Partial Skill: invoke by name only — …"`, `user-invocable: false`, and `metadata: type: governance` — no `## Why`/`## Rationale` section, atomic and independently falsifiable rules.
 4. Creates symlinks per targeted runtime.
 5. Runs quality checks (description prefix, `user-invocable` flag, no rationale prose, `Apply when:` scope line) and fixes CRITICAL/HIGH failures before presenting the file.
 

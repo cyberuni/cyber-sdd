@@ -1,6 +1,6 @@
 ---
 name: doctrine-loop
-description: "Internal skill: the SDD doctrine loop, the Strategist's outer loop run by the Scanner — invoked by the doctrine-loop delegate, not triggered by users directly."
+description: "Partial Skill: invoke by name only — the SDD doctrine loop, the Strategist's outer loop run by the Scanner — invoked by the doctrine-loop delegate, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

@@ -112,6 +112,28 @@ Feature: define-agent — author an agent definition
     When define-agent reports
     Then it states the canonical path, the runtime symlinks, and points the user at start-mission to spec and eval it
 
+  # ---- Gate-role naming ----
+
+  Scenario: a gate-scorer agent is named by the gate and scope it serves
+    Given the agent's role is to score or verify a named gate for a domain
+    When define-agent names the agent
+    Then it names the agent by its gate and scope in the domain-gate-judge form, like sdd-impl-judge, not a bare action verb
+
+  Scenario: a case-scorer agent takes the case-judge form
+    Given the agent's role is to score individual cases within a scope
+    When define-agent names the agent
+    Then it names the agent in the domain-case-judge form, like aces-case-judge, not a bare judge
+
+  Scenario: a gate scorer drafted with a bare action-verb name is flagged and corrected before the file is presented
+    Given a drafted gate-scorer agent named with a bare action verb like implementer, judge, or validator
+    When define-agent runs its quality checks
+    Then the gate-role naming check flags the name at HIGH severity and define-agent renames it to the gate-and-scope form before presenting the file
+
+  Scenario: a non-scorer producer agent keeps its action-oriented name
+    Given the agent's role is to produce an artifact rather than score a gate or case, named like scenario-writer or doc-writer
+    When define-agent runs its quality checks
+    Then the gate-role naming check does not fire and define-agent keeps the action-oriented name
+
   # ---- Impl-producer dual mode ----
 
   Scenario: dispatched against a frozen suite it co-produces the eval suite

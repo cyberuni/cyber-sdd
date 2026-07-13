@@ -1,6 +1,6 @@
 ---
 name: place-node
-description: "Internal skill: project-spec/place-node's engine that suggests a capability home and surfaces duplicates for a new node — used by explore, not triggered by users directly."
+description: "Partial Skill: invoke by name only — project-spec/place-node's engine that suggests a capability home and surfaces duplicates for a new node — used by explore, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true

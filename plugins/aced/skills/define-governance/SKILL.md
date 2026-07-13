@@ -57,7 +57,7 @@ Write the file at the canonical path using this structure:
 ```markdown
 ---
 name: <name>
-description: "Internal skill: <one sentence — what domain this governs and who loads it>"
+description: "Partial Skill: invoke by name only — <one sentence: what domain this governs and who loads it>"
 user-invocable: false
 metadata:
   type: governance
@@ -77,8 +77,8 @@ Apply when: <one-line scope — the situation or artifact type this governs>
 ```
 
 Rules for the body:
-- Use `description: "Internal skill: …"` prefix — suppresses auto-triggering in all harnesses
-- Set `user-invocable: false` — future harnesses use this field; current harnesses fall back to the prefix
+- Set `user-invocable: false` — the classifier for a partial skill (a governance is loaded by name, never user-triggered)
+- Lead `description` with the `"Partial Skill:"` prefix (recommended form `"Partial Skill: invoke by name only — …"`) — a self-declaration for the reader; keep it minimal and non-trigger-shaped so the harness (which still sees the description) does not auto-match it
 - Do not include `## Why`, `## Rationale`, or causal prose — put that in ADRs
 - Encode decisions and criteria, not facts the model already knows
 - Keep each rule atomic and independently falsifiable
@@ -101,7 +101,7 @@ After writing, evaluate the governance file against these checks:
 
 | # | Check | Severity |
 |---|-------|----------|
-| G1 | `description` starts with `"Internal skill:"` | CRITICAL |
+| G1 | `description` starts with `"Partial Skill:"` | CRITICAL |
 | G2 | `user-invocable: false` present | HIGH |
 | G3 | `metadata.type: governance` present | HIGH |
 | G4 | No `## Why` or `## Rationale` section | HIGH |

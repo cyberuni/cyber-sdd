@@ -42,6 +42,7 @@ Every scenario in [`manage.feature`](./manage.feature) maps to one of these beha
 | **route → model runners** | a request to set up / list / remove per-model runner agents loads the `manage-model-runners` engine |
 | **route → list skills** | a request to list / inventory installed skills loads the `list-skills` engine |
 | **route → repair private skills** | a request to validate / repair repo-private skill metadata loads the `repair-private-skills` engine |
+| **route → skill-dirs curation** | a request to list / add / preview the extra skill-scan locations the validate engine uses loads the `manage-skill-dirs` engine |
 | **load the engine in-session** | a resolved route loads the matched engine in the **current session** and runs it directly — `manage` spawns nothing |
 | **model advice** | `manage` picks no model; it defers the model choice to the loaded engine |
 | **non-mission guard** | `manage` opens no change request and invokes no gate |
@@ -55,17 +56,22 @@ Every scenario in [`manage.feature`](./manage.feature) maps to one of these beha
 
 Classification routes a manage request to the engine that handles it. The table is structured to grow
 as more manage-level ACED engines land (e.g. a project-wide eval-health inspect could later route
-here); today it carries one route:
+here); today it carries four routes:
 
 | Group | Request | Engine (handler) |
 |---|---|---|
 | **Config runners** | set up / list / remove per-model runner agents used to benchmark skills | **`manage-model-runners`** (`../config-authoring/manage-model-runners/`) — internal, non-invokable; loaded here |
+| **Skill inventory** | list or inventory the installed skills | **`list-skills`** (`../config-authoring/list-skills/`) — internal, non-invokable; loaded here |
+| **Private-skill hygiene** | validate or repair repo-private skill metadata under `.agents/skills` | **`repair-private-skills`** (`../config-authoring/repair-private-skills/`) — internal, non-invokable; loaded here |
+| **Skill-scan locations** | list / add / remove / preview the extra skill-dir patterns the validate engine scans | **`manage-skill-dirs`** (`../config-authoring/manage-skill-dirs/`) — internal, non-invokable; loaded here |
 
 ## Load the engine in-session
 
 When the route resolves, `manage` **loads the matched engine in the current session** and the session
 runs it directly — it **spawns nothing**. Write-capable operations stay **owned by their engine**:
-`manage-model-runners` writes its runner agent-def files and their symlinks. `manage` only routes.
+`manage-model-runners` writes its runner agent-def files and their symlinks, `repair-private-skills`
+writes any metadata fixes it applies under `.agents/skills`, and `manage-skill-dirs` writes only
+`.agents/aced/skill-dirs.toml`; `list-skills` is read-only. `manage` only routes.
 
 **Manage picks no model.** The model + effort a piece of work needs is determined by the **engine
 `manage` loads**. The loaded engine advises; the user switches manually.
@@ -80,6 +86,6 @@ or to **add or revise** ACED's specified behavior is **not** a manage operation 
 ## Scenarios (colocated)
 
 The behavior suite is [`manage.feature`](./manage.feature) — intake (fast path / four-option menu),
-the model-runners route, loading the engine in-session, and the boundaries (non-mission,
-write-ownership, thin-classifier, authoring redirect). Cross-capability e2e scenarios live in
-`../acceptance/`.
+the four routes (model-runners, list-skills, repair-private-skills, skill-dirs), loading the engine in-session,
+and the boundaries (non-mission, write-ownership, thin-classifier, authoring redirect). Cross-capability
+e2e scenarios live in `../acceptance/`.

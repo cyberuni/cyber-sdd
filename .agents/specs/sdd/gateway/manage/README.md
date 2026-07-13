@@ -41,6 +41,7 @@ Every scenario in [`manage.feature`](./manage.feature) maps to one of these beha
 | **the four-option rule** | an intake question presents at most four options, never truncating silently |
 | **setup → backfill** | a "set up the project spec for the first time" request loads `backfill-project-spec` |
 | **setup → spec anchors** | a "list or change discovery's extra spec anchors" request loads `manage-spec-anchors` |
+| **setup → init** | a "set up / configure the mission statusline" request loads the `init` skill |
 | **inspect → read-only engine** | an inspect request loads the matching read-only engine (`discover-specs` / `concept-index` / `place-node` / `discover-plans`) |
 | **audit → engine** | an audit request loads `check-spec-structure` / `align-spec` / `formation` |
 | **housekeeping → engine** | a housekeeping request loads `plan-retirement` (retire completed mission plans) |
@@ -61,7 +62,7 @@ flowchart TD
     REQ["request → manage"] --> BARE{"names an operation?"}
     BARE -->|no| GROUPS["group menu<br/>(≤ 4: Setup &amp; discovery · Inspect · Audit &amp; align · Housekeeping)"] --> PICK{pick engine}
     BARE -->|yes · fast path| PICK
-    PICK -->|Setup &amp; discovery| SD["backfill-project-spec · manage-spec-anchors"]
+    PICK -->|Setup &amp; discovery| SD["backfill-project-spec · manage-spec-anchors · init"]
     PICK -->|Inspect| INS["discover-specs · concept-index · place-node · discover-plans"]
     PICK -->|Audit &amp; align| AUD["check-spec-structure · align-spec · formation"]
     PICK -->|Housekeeping| HK["plan-retirement"]
@@ -69,7 +70,7 @@ flowchart TD
 
 | Group | Operations (engines it loads) |
 |---|---|
-| **Setup & discovery** | `backfill-project-spec` — scaffold a project's spec envelope for the first time (`../../authoring/backfill-project-spec/`) · `manage-spec-anchors` — list / CRUD / induce / preview discovery's extra spec anchors (`../../corpus/spec-anchors/`); both are prerequisites for a project being found and usable, not routine cleanup |
+| **Setup & discovery** | `backfill-project-spec` — scaffold a project's spec envelope for the first time (`../../authoring/backfill-project-spec/`) · `manage-spec-anchors` — list / CRUD / induce / preview discovery's extra spec anchors (`../../corpus/spec-anchors/`) · `init` — the onboarding front door; wire SDD's opt-in conveniences, v1 the mission statusline (`../init/`); these are prerequisites for a project being found and usable, not routine cleanup |
 | **Inspect** | `discover-specs` (list specs + statuses) · `concept-index` (by-concept view) · `place-node` (where a concept belongs) · `discover-plans` (in-progress missions) — the read-only engines (`../../corpus/`, `../../project-spec/`, `../../intake/plan-discovery/`) |
 | **Audit & align** | `check-spec-structure` (node-shape) · `align-spec` (prose↔suite drift) · `formation` (corpus-wide audit/split/reconcile) — an audit that needs a behavior change hands off to `start-mission` (`../../corpus/`, `../../formation/`) |
 | **Housekeeping** | `plan-retirement` (retire completed mission plans) (`../../doctrine/plan-retirement/`) — reviewing pending strategy stays gateway-owned (the gateway's episodic pending-count, option 3), not a manage engine |

@@ -1,0 +1,6 @@
+# Extra skill-scan locations for the improve-skill mechanical validate engine.
+# Opt-in and additive: these are unioned ONTO the two built-in defaults (skills/, .agents/skills/).
+# Patterns are repo-relative directory globs — `*` matches one path segment, `**` any depth.
+# Each matched directory's immediate children are scanned for <child>/SKILL.md.
+# Curate via the manage-skill-dirs engine (reached through the aced `manage` gateway).
+anchors = ["plugins/*/skills", "packages/*/skills"]

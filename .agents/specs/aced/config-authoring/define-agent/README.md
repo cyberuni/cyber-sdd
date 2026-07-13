@@ -9,6 +9,11 @@ Scaffold a delegated / dual-mode / in-context agent definition + companion comma
 
 ## Use Cases
 
+**Fit:** strong — `define-agent` makes a genuine activation decision (a "create an agent / persona"
+request vs. the same config vocabulary carried by `define-skill`, `define-governance`, `run`, or
+`add-scenario`) and has non-deterministic judgment (mode selection, placement, and description
+authoring), so all four eval layers carry signal.
+
 **Subject** — authoring or improving an agent definition (a named reusable role) in delegated,
 invokable dual-mode, or in-context-only form, scaffolding its canonical file, runtime symlinks, and
 companion command.

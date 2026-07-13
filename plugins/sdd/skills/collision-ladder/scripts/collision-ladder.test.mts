@@ -2,10 +2,15 @@
 // .agents/specs/sdd/collision-ladder/collision-ladder.feature (18 scenarios). Each test title is
 // prefixed `scenario:` followed by the VERBATIM frozen scenario name, so the mapping is
 // grep-auditable against the .feature. Every fixture here is CONSTRUCTED (hand-built MissionTouch /
-// ClassifyInput) — never a live git diff or the live mission-graph store; only the pure functions
-// (classify, classifyFile, hunksDisjoint, isFeature, isCode, confidenceRank, plus the render helper)
-// are exercised.
+// ClassifyInput) — never a live git diff or the live mission-graph store; the pure functions
+// (classify, classifyFile, hunksDisjoint, isFeature, isCode, confidenceRank, the render helper) are
+// exercised directly. The ONE exception is the TOON/JSON emission scenario, which drives `main()`
+// end-to-end (writing a constructed ClassifyInput to a temp file, capturing stdout) so the
+// `--format` flag path is actually bound — the pure render helpers alone do not exercise it.
 import assert from 'node:assert/strict'
+import { mkdtempSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { test } from 'node:test'
 import {
 	type ClassifyInput,
@@ -13,8 +18,27 @@ import {
 	confidenceRank,
 	type FileTouch,
 	type MissionTouch,
+	main,
 	renderVerdictToon,
 } from './collision-ladder.mts'
+
+/** Drives the CLI `main()` capturing its stdout — the only way to bind the `--format` flag path
+ *  (a render-helper call alone would not catch a `main()` that ignores the flag). */
+function runMain(argv: string[]): { out: string; code: number } {
+	const chunks: string[] = []
+	const orig = process.stdout.write.bind(process.stdout)
+	process.stdout.write = (s: string | Uint8Array) => {
+		chunks.push(String(s))
+		return true
+	}
+	let code: number
+	try {
+		code = main(argv)
+	} finally {
+		process.stdout.write = orig
+	}
+	return { out: chunks.join(''), code }
+}
 
 // ── Fixture builders (constructed only — see file banner) ──
 
@@ -281,19 +305,28 @@ test('scenario: classification is deterministic and stably ordered for a fixed p
 })
 
 test('scenario: the verdict is emitted as TOON by default and as JSON on request', () => {
-	const v = classify(
-		input({
-			x: mission('X', [file(CODE, { hunks: [{ start: 1, end: 10 }] })]),
-			y: mission('Y', [file(CODE, { hunks: [{ start: 40, end: 50 }] })]),
-		}),
-	)
-	const toon = renderVerdictToon(v)
-	assert.match(toon, /^collision: soft$/m)
-	assert.match(toon, /^rung: region$/m)
-	assert.match(toon, /sharedFiles\[1\]\{path,collision,rung,reason,sharedThin\}:/)
-	// JSON carries the same verdict
-	const json = JSON.parse(JSON.stringify(v))
-	assert.equal(json.collision, v.collision)
-	assert.equal(json.rung, v.rung)
-	assert.deepEqual(json.sharedFiles, v.sharedFiles)
+	const src = input({
+		x: mission('X', [file(CODE, { hunks: [{ start: 1, end: 10 }] })]),
+		y: mission('Y', [file(CODE, { hunks: [{ start: 40, end: 50 }] })]),
+	})
+	const expected = classify(src)
+	// Drive the CLI so the --format flag path in main() is bound (not just the render helpers).
+	const dir = mkdtempSync(join(tmpdir(), 'collision-ladder-'))
+	const inputFile = join(dir, 'input.json')
+	writeFileSync(inputFile, JSON.stringify(src))
+
+	// no format flag ⇒ TOON by default (main writes exactly `${render}\n`)
+	const dflt = runMain(['--input', inputFile])
+	assert.equal(dflt.code, 0)
+	assert.equal(dflt.out, `${renderVerdictToon(expected)}\n`)
+	assert.match(dflt.out, /^collision: soft$/m)
+	assert.match(dflt.out, /^rung: region$/m)
+
+	// --format json ⇒ JSON carrying the same verdict
+	const asJson = runMain(['--input', inputFile, '--format', 'json'])
+	assert.equal(asJson.code, 0)
+	const parsed = JSON.parse(asJson.out)
+	assert.deepEqual(parsed, expected)
+	// and the two renderings differ (default is not JSON) — binds that the flag actually switches
+	assert.notEqual(dflt.out, asJson.out)
 })

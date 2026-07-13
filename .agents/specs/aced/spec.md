@@ -7,22 +7,22 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — CR s1-scan-root is additive (2 new scenarios on the already-frozen improve-skill.feature, self-clearing; no scenario narrowed); re-open implemented→approved for a widening, no Clearance floor
-      blast: low — one deterministic engine check (S1) hardened to key on the recognized scan root instead of a literal 'skills' dirname; follow-up to #149's configurable scan locations; strictly fewer false positives
-      novelty: low — additive refinement threading resolved scan roots into runChecks; legacy 'skills' convention preserved as fallback
-      confidence: high — cold SDD judge additive-only confirmed, both new scenarios PASS, no open markers; gherkin + check-suite clean
+      floor: none — CR github-140 is additive (4 new boolean scenarios per suite on the already-frozen define-agent.feature + define-skill.feature, self-clearing; no scenario narrowed); no Clearance floor
+      blast: low — advisory gate-role naming convention in ACED define-agent + define-skill; two spec suites + two READMEs widened, no impl behavior change yet
+      novelty: low — encodes a doctrine-ratified naming rule (role+scope not bare verb) already applied reactively 3× across 2 plugins; canonical forms only
+      confidence: high — cold aced-spec-validator ALIGNED, all bars PASS, BLOCKER null; near-miss discriminates; gherkin parse clean
   impl:
     verdict: approve
     by: agent
     cause: dimension
     why:
-      floor: none — implementation built against the frozen suite; the frozen improve-skill.feature is the contract, code changed to meet it
-      blast: low — S1 firing condition widened to accept a recognized configured scan root; isPublicShippedSkill (public/private classification) left byte-for-byte untouched; whole-repo scan still 0 CRITICAL
-      novelty: low — new recognizedScanRoots helper + optional scanRoots param on runChecks (backward-compatible; omitted param keeps legacy behavior)
-      confidence: high — cold SDD judge re-derived both scenarios independently + 4 adversarial no-regression fixtures (normal skill, external --path skills/ audit, direct-at-root fires, configured non-skills passes) → all PASS; 71/71 engine tests, pnpm verify 20/20 green
+      floor: none — impl built against the frozen suite; the two SKILL.md bodies changed to meet it, no .feature/README/frontmatter/script touched
+      blast: low — in-skill HIGH gate-role naming check added to define-agent (checks-table row B9) and define-skill (in-skill subsection, explicitly separate from mechanical audit validate)
+      novelty: low — advisory authoring guidance, native to each host skill's existing quality mechanism; no new script or validate.mts check
+      confidence: high — cold aced-impl-judge re-derived all 8 frozen scenarios independently → 8/8 PASS, in-skill-not-mechanical constraint met, clean gate (no correction iteration); pnpm verify 20/20 green
 produced-by:
-  spec-producer: sdd:sdd-automaton
-  impl-producer: sdd:sdd-automaton
+  spec-producer: aced-scenario-writer
+  impl-producer: aced-impl-producer
 ---
 
 # ACED — Agent Config Evaluation & Development

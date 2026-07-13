@@ -64,11 +64,14 @@ SDD's conductor already does today.
 
 This is referenced **by intent only** — "a harness-agnostic dispatch capability with a routing brain
 that resolves an intent to `subagent`, `channel`, or `run-inline`" — never by a pinned mechanism, per
-the depend-on-intent-not-slug discipline (ADR-0021). The one load-bearing example invocation, shown
-here only to make the shape concrete:
+the depend-on-intent-not-slug discipline (ADR-0021). The routing brain is the Legate's
+`dispatch-governance`; the CLI carries **no** `dispatch` verb (ADR-0024). The one load-bearing
+realization, shown here only to make the shape concrete — `dispatch-governance` composing the CLI
+primitives for the `channel` strategy:
 
 ```bash
-npx cyberlegion@<version> dispatch channel --agent <role> --brief-file <brief> --wait
+npx cyberlegion@<version> unit spawn --agent <role> --brief-file <brief> --at <placement>
+npx cyberlegion@<version> mail await --thread <thread-id> --max-wait <s>
 ```
 
 ### Wiring the seam — warm units, one mission, `unit clear` reset

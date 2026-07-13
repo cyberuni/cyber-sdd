@@ -52,9 +52,17 @@ export interface FileEntry {
 	changedScenarios: string[]
 }
 
+/** One changed file under a node, with the artifact-type resolved for it (best-effort — `unknown`
+ *  when it does not resolve). The per-file annotation the frozen "carries the artifact-type"
+ *  contract requires observable in the output. */
+export interface NodeFile {
+	path: string
+	artifactType: string
+}
+
 export interface NodeDetail {
 	node: string
-	files: string[]
+	files: NodeFile[]
 	changedScenarios: string[]
 }
 
@@ -151,9 +159,16 @@ export function assembleCorrection(declared: string[], files: ChangedFile[], pro
 
 	const nodes: NodeDetail[] = actual.map((node) => {
 		const nodeEntries = entries.filter((e) => e.node === node)
+		// One NodeFile per distinct path (first artifact-type wins on the rare duplicate path), sorted
+		// by path — so the per-file artifact-type rides through into the returned record, deterministically.
+		const byPath = new Map<string, string>()
+		for (const e of nodeEntries) if (!byPath.has(e.path)) byPath.set(e.path, e.artifactType)
+		const files: NodeFile[] = [...byPath.entries()]
+			.map(([path, artifactType]) => ({ path, artifactType }))
+			.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
 		return {
 			node,
-			files: sortedUnique(nodeEntries.map((e) => e.path)),
+			files,
 			changedScenarios: sortedUnique(nodeEntries.flatMap((e) => e.changedScenarios)),
 		}
 	})
@@ -305,7 +320,8 @@ export function renderCorrectionToon(correction: Correction): string {
 	lines.push(`overDeclared[${correction.overDeclared.length}]: ${correction.overDeclared.map(toonQuote).join(';')}`)
 	lines.push(`nodes[${correction.nodes.length}]{node,files,changedScenarios}:`)
 	for (const n of correction.nodes) {
-		lines.push(`  ${toonQuote(n.node)},"${n.files.join(';')}","${n.changedScenarios.join(';')}"`)
+		const files = n.files.map((f) => `${f.path}(${f.artifactType})`).join(';')
+		lines.push(`  ${toonQuote(n.node)},"${files}","${n.changedScenarios.join(';')}"`)
 	}
 	lines.push(`unmapped[${correction.unmapped.length}]: ${correction.unmapped.map(toonQuote).join(';')}`)
 	return lines.join('\n')

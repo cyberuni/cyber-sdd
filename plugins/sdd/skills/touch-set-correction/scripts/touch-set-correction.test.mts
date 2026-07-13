@@ -101,9 +101,11 @@ test('scenario: each changed file carries the artifact-type resolved for it', ()
 		[SDD_LAYOUT],
 	)
 	assert.equal(correction.nodes[0].node, 'sdd/mission-graph')
-	// The per-file artifactType annotation lives on the FileEntry; assembleCorrection derives node
-	// membership from the path (never the artifact-type) but must carry the resolved type through —
-	// verified indirectly here via a node that only maps because of the path, with the type set.
+	// The resolved artifact-type must ride through into the output — the file entry carries it
+	// (node membership still derives from the path, never the type).
+	assert.deepEqual(correction.nodes[0].files, [
+		{ path: 'plugins/sdd/skills/mission-graph/scripts/mission-graph.mts', artifactType: 'sdd-engine' },
+	])
 	assert.equal(correction.unmapped.length, 0)
 })
 
@@ -113,7 +115,14 @@ test('scenario: a changed file whose artifact-type does not resolve still counts
 		[changedFile('plugins/sdd/skills/mission-graph/scripts/mission-graph.mts', { artifactType: 'unknown' })],
 		[SDD_LAYOUT],
 	)
+	// still a touched node …
 	assert.deepEqual(correction.corrected, ['sdd/mission-graph'])
+	// … and the file entry carries the unknown artifact-type
+	const node = correction.nodes.find((n) => n.node === 'sdd/mission-graph')
+	assert.ok(node)
+	assert.deepEqual(node.files, [
+		{ path: 'plugins/sdd/skills/mission-graph/scripts/mission-graph.mts', artifactType: 'unknown' },
+	])
 })
 
 test('scenario: the scenario rung is gated by the feature extension, not the resolved artifact-type', () => {
@@ -199,7 +208,7 @@ test('scenario: the correction carries the corrected set, the three-way split, a
 	assert.deepEqual(correction.overDeclared, [])
 	assert.equal(correction.nodes.length, 2)
 	assert.deepEqual(correction.nodes.find((n) => n.node === 'sdd/mission-graph')?.files, [
-		'plugins/sdd/skills/mission-graph/scripts/mission-graph.mts',
+		{ path: 'plugins/sdd/skills/mission-graph/scripts/mission-graph.mts', artifactType: 'unknown' },
 	])
 })
 
@@ -247,4 +256,14 @@ test('isFeature is true only for a .feature extension', () => {
 	assert.equal(isFeature('a/b/x.feature'), true)
 	assert.equal(isFeature('a/b/x.mts'), false)
 	assert.equal(isFeature('a/b/x.feature.md'), false)
+})
+
+test('fileToNode matches the longest root prefix when roots nest', () => {
+	// With a shallow and a deep root of the same project both matching, the DEEPER root wins so the
+	// capability is read after `skills`, not after the plugin folder.
+	const nested: ProjectLayout[] = [{ project: 'sdd', roots: ['plugins/sdd', 'plugins/sdd/skills'] }]
+	assert.equal(fileToNode('plugins/sdd/skills/mission-graph/x.mts', nested), 'sdd/mission-graph')
+	// order of roots must not change the answer
+	const reversed: ProjectLayout[] = [{ project: 'sdd', roots: ['plugins/sdd/skills', 'plugins/sdd'] }]
+	assert.equal(fileToNode('plugins/sdd/skills/mission-graph/x.mts', reversed), 'sdd/mission-graph')
 })

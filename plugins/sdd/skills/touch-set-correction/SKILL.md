@@ -53,7 +53,9 @@ node "<skill>/scripts/touch-set-correction.mts" --base <ref> --declared a,b,c \
   via `discover-specs` (each project's spec-path plus an impl-root convention: `plugins/<p>` also
   gets `plugins/<p>/skills`; `packages/<p>` also gets `packages/<p>/src`; anything else falls back
   to the project-path itself).
-- Default output is **TOON**; `--format json` emits the full `Correction` record.
+- Default output is **TOON**; `--format json` emits the full `Correction` record: `corrected`,
+  the `confirmed`/`missed`/`overDeclared` split, `unmapped`, and per-node `files` (each `{ path,
+  artifactType }`) + `changedScenarios`.
 
 ## Boundaries
 

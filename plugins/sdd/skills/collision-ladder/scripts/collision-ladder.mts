@@ -23,10 +23,13 @@
 //
 // This tool is READ-ONLY with respect to the mission graph: it never writes to it, never detects a
 // collision (that is the mission-graph WAW-mutex's job — this runs only AFTER one is found), and
-// never schedules (it returns a verdict; the scheduler consumes it). It does NOT do ★ SSA lowering
-// or symbol-level dependency inference (issue #189's third-bullet capstone): an overlapping-region
-// CODE file stays HARD, flagged `symbol-rung-deferred`. It descends only to DOWNGRADE a suspected
-// false-hard — conservative-first, relax-on-evidence — never to raise a new collision.
+// never schedules (it returns a verdict; the scheduler consumes it). It descends a CODE collision to
+// the SYMBOL rung — produced/consumed symbols classify it disjoint(soft) / write-write(hard,
+// `symbol-waw`) / read-after-write(hard, `symbol-raw`); when the symbols cannot be inferred it stays
+// hard, flagged `symbol-rung-deferred`. It does NOT do the ★ SSA-lowering doctrine (issue #189's
+// third-bullet capstone: partitioning a change into missions, versioning a write-write into an ordered
+// dependency) — that stays deferred. It descends only to DOWNGRADE a suspected false-hard —
+// conservative-first, relax-on-evidence — never to raise a new collision.
 //
 // No dependencies (the repo's node-≥23.6 / no-deps convention). Pure functions are exported for
 // node:test; running the file directly drives the CLI.
@@ -48,14 +51,26 @@ export interface LineRange {
 	end: number
 }
 
+/** The produced (written) and consumed (read) symbol names a code file's diff yields — the symbol
+ *  rung's grain. */
+export interface SymbolSet {
+	produced: string[]
+	consumed: string[]
+}
+
 /** One changed file of one mission under the colliding node. `hunks: null` means the line-hunks
  *  were not recorded (disjointness cannot be proven — the region rung must not clear it). `[]` means
- *  recorded-but-empty. `changedScenarios` is meaningful only for a `.feature` (the semantic rung). */
+ *  recorded-but-empty. `changedScenarios` is meaningful only for a `.feature` (the semantic rung).
+ *  `symbols` is meaningful only for code (the symbol rung): `null` or `undefined` (both treated
+ *  identically — un-inferable) means the produced/consumed detail could not be extracted, so the
+ *  symbol rung stays hard, flagged `symbol-rung-deferred`. Optional so existing constructed fixtures
+ *  that predate the symbol rung stay valid. */
 export interface FileTouch {
 	path: string
 	artifactType: string
 	hunks: LineRange[] | null
 	changedScenarios: string[]
+	symbols?: SymbolSet | null
 }
 
 /** One mission's touched detail for the single colliding node. */
@@ -76,7 +91,7 @@ export interface ClassifyInput {
 }
 
 export type Collision = 'hard' | 'soft'
-export type Rung = 'file' | 'region' | 'semantic' | 'node'
+export type Rung = 'file' | 'region' | 'semantic' | 'symbol' | 'node'
 export type Confidence = 'high' | 'medium' | 'low'
 
 /** The per-shared-file verdict — the atom the node rollup is folded from. */
@@ -160,10 +175,11 @@ const RUNG_CONFIDENCE: Record<Rung, Confidence> = {
 	file: 'high',
 	region: 'medium',
 	semantic: 'low',
+	symbol: 'low',
 	node: 'low',
 }
 
-const RUNG_DEPTH: Record<Rung, number> = { file: 1, region: 2, semantic: 3, node: 4 }
+const RUNG_DEPTH: Record<Rung, number> = { file: 1, region: 2, semantic: 3, symbol: 4, node: 5 }
 const CONFIDENCE_RANK: Record<Confidence, number> = { low: 1, medium: 2, high: 3 }
 
 /**
@@ -171,7 +187,7 @@ const CONFIDENCE_RANK: Record<Confidence, number> = { low: 1, medium: 2, high: 3
  * both sides' hunks are known and disjoint ⇒ SOFT at `region`. Else descend to the semantic rung,
  * split by artifact-type (keyed structurally off the path):
  *   - `.feature` (behavioral prose) ⇒ the SCENARIO: different scenarios ⇒ SOFT, the same scenario ⇒ HARD.
- *   - code ⇒ the SYMBOL — DEFERRED (★ #189 capstone): stays HARD, reason `symbol-rung-deferred`.
+ *   - code ⇒ descend further to the SYMBOL rung (see `classifySymbols`).
  *   - non-behavioral prose (no suite to anchor) ⇒ do NOT descend, stay node-serial: HARD, reason `no-anchor`.
  * The shared-thin flag rides along (degree ≥ threshold) — the descent above IS its hard→soft downgrade.
  */
@@ -194,9 +210,41 @@ export function classifyFile(fx: FileTouch, fy: FileTouch, degree: number, thres
 			: { ...base, collision: 'soft', rung: 'semantic', reason: 'disjoint-scenarios' }
 	}
 	if (isCode(path)) {
-		return { ...base, collision: 'hard', rung: 'semantic', reason: 'symbol-rung-deferred' }
+		return classifySymbols(fx, fy, base)
 	}
 	return { ...base, collision: 'hard', rung: 'node', reason: 'no-anchor' }
+}
+
+/**
+ * classifySymbols — the symbol rung, a code collision's finest grain (★ #189, first half). Compares
+ * each side's produced (written) and consumed (read) symbol names, in precedence order:
+ *   1. either side's `symbols` is `null`/`undefined` (un-inferable) ⇒ HARD, `symbol-rung-deferred`
+ *      (conservative-first — a parse gap must never relax a real clash).
+ *   2. the two `produced` sets intersect (both write the same symbol) ⇒ HARD, `symbol-waw`.
+ *   3. one side's `consumed` intersects the other side's `produced` (either direction) ⇒ HARD,
+ *      `symbol-raw`.
+ *   4. no symbol in common ⇒ SOFT, `disjoint-symbols`.
+ * Pure — no fs/network access; deterministic.
+ */
+export function classifySymbols(
+	fx: FileTouch,
+	fy: FileTouch,
+	base: { path: string; sharedThin: boolean },
+): FileVerdict {
+	if (fx.symbols === null || fx.symbols === undefined || fy.symbols === null || fy.symbols === undefined) {
+		return { ...base, collision: 'hard', rung: 'symbol', reason: 'symbol-rung-deferred' }
+	}
+	const xProduced = new Set(fx.symbols.produced)
+	const yProduced = new Set(fy.symbols.produced)
+	if (fx.symbols.produced.some((s) => yProduced.has(s))) {
+		return { ...base, collision: 'hard', rung: 'symbol', reason: 'symbol-waw' }
+	}
+	const rawClash =
+		fx.symbols.consumed.some((s) => yProduced.has(s)) || fy.symbols.consumed.some((s) => xProduced.has(s))
+	if (rawClash) {
+		return { ...base, collision: 'hard', rung: 'symbol', reason: 'symbol-raw' }
+	}
+	return { ...base, collision: 'soft', rung: 'symbol', reason: 'disjoint-symbols' }
 }
 
 function bySharedThenPath(a: FileVerdict, b: FileVerdict): number {
@@ -304,10 +352,139 @@ export function readFileHunks(base: string, head: string, path: string, cwd: str
 	return ranges
 }
 
+// TS/JS-family extensions the symbol extractor attempts — a reasonable heuristic subset of
+// CODE_EXTENSIONS. Any other code language (.py .go .rs etc.) always defers (returns null).
+const JS_TS_EXTENSIONS = ['.mts', '.ts', '.tsx', '.cts', '.mjs', '.js', '.jsx', '.cjs']
+
+const JS_KEYWORDS = new Set([
+	'const',
+	'let',
+	'var',
+	'function',
+	'class',
+	'return',
+	'if',
+	'else',
+	'for',
+	'while',
+	'do',
+	'switch',
+	'case',
+	'break',
+	'continue',
+	'default',
+	'new',
+	'this',
+	'super',
+	'import',
+	'export',
+	'from',
+	'as',
+	'async',
+	'await',
+	'try',
+	'catch',
+	'finally',
+	'throw',
+	'typeof',
+	'instanceof',
+	'in',
+	'of',
+	'null',
+	'undefined',
+	'true',
+	'false',
+	'void',
+	'delete',
+	'yield',
+	'extends',
+	'implements',
+	'interface',
+	'type',
+	'enum',
+	'namespace',
+	'public',
+	'private',
+	'protected',
+	'readonly',
+	'static',
+	'get',
+	'set',
+])
+
+const IDENTIFIER_RE = /\b[A-Za-z_$][A-Za-z0-9_$]*\b/g
+
+/** Best-effort, CONSERVATIVE symbol extraction for a TS/JS-family code file's `base..head` diff (the
+ *  symbol rung's thin IO seam, mirroring `readFileHunks`). Shells `git diff <base>..<head> -- <path>`;
+ *  from ADDED lines (`+`) derives `produced` (declared names — `function NAME`, `class NAME`,
+ *  `(export )?(const|let|var) NAME`, a method/assignment head `NAME(` or `NAME =`, `export function
+ *  NAME`) and `consumed` (other referenced identifiers minus the produced set and minus JS keywords).
+ *  Only attempted for TS/JS-family extensions — any other code language, or any failure, returns
+ *  `null` (defer — a parse gap must never relax a real clash). Untested (fs/binary boundary). */
+export function extractSymbols(base: string, head: string, path: string, cwd: string): SymbolSet | null {
+	if (!JS_TS_EXTENSIONS.some((ext) => path.endsWith(ext))) return null
+	let out: string
+	try {
+		out = execFileSync('git', ['diff', `${base}..${head}`, '--', path], {
+			encoding: 'utf8',
+			cwd,
+			stdio: ['ignore', 'pipe', 'ignore'],
+		})
+	} catch {
+		return null
+	}
+
+	const produced = new Set<string>()
+	const consumed = new Set<string>()
+	const declPatterns = [
+		/^\s*export\s+function\s+([A-Za-z_$][A-Za-z0-9_$]*)/,
+		/^\s*function\s+([A-Za-z_$][A-Za-z0-9_$]*)/,
+		/^\s*export\s+class\s+([A-Za-z_$][A-Za-z0-9_$]*)/,
+		/^\s*class\s+([A-Za-z_$][A-Za-z0-9_$]*)/,
+		/^\s*export\s+(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)/,
+		/^\s*(?:const|let|var)\s+([A-Za-z_$][A-Za-z0-9_$]*)/,
+		/^\s*([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/, // method/function-call head
+		/^\s*([A-Za-z_$][A-Za-z0-9_$]*)\s*=[^=]/, // plain assignment head
+	]
+
+	let sawAddedLine = false
+	for (const rawLine of out.split('\n')) {
+		if (!rawLine.startsWith('+') || rawLine.startsWith('+++')) continue
+		const line = rawLine.slice(1)
+		if (line.trim() === '') continue
+		sawAddedLine = true
+
+		let declared: string | null = null
+		for (const re of declPatterns) {
+			const m = re.exec(line)
+			if (m?.[1]) {
+				declared = m[1]
+				break
+			}
+		}
+		if (declared) produced.add(declared)
+
+		const ids = line.match(IDENTIFIER_RE) ?? []
+		for (const id of ids) {
+			if (id === declared) continue
+			if (JS_KEYWORDS.has(id)) continue
+			if (/^\d/.test(id)) continue
+			consumed.add(id)
+		}
+	}
+
+	if (!sawAddedLine) return null
+	for (const p of produced) consumed.delete(p)
+	if (produced.size === 0 && consumed.size === 0) return null
+
+	return { produced: [...produced].sort(), consumed: [...consumed].sort() }
+}
+
 /** Sources one mission's MissionTouch for the colliding node from a `base..head` range: REUSES the
  *  sibling touch-set-correction's `collectChangedFiles` (git diff + resolve-governances + gherkin-cli
  *  diff) for each file's artifact-type + changed scenarios, keeps only the files that map to `node`
- *  (via the shared `fileToNode`), and layers the region hunks on top. Thin IO — not unit-tested. */
+ *  (via the shared `fileToNode`), and layers the region hunks + (for code) produced/consumed symbols
+ *  on top. Thin IO — not unit-tested. */
 export function collectMissionTouch(
 	mission: string,
 	node: string,
@@ -325,6 +502,7 @@ export function collectMissionTouch(
 			artifactType: f.artifactType,
 			hunks: readFileHunks(base, head, f.path, cwd),
 			changedScenarios: f.changedScenarios,
+			symbols: isCode(f.path) ? extractSymbols(base, head, f.path, cwd) : null,
 		}))
 	return { mission, files }
 }

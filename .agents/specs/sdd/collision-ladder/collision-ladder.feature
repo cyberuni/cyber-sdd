@@ -5,9 +5,11 @@ Feature: The finer-than-node ladder — classify a node collision hard or soft b
   artifact-type, touched line-hunks, and — for a .feature — changed scenarios) — never a live git diff or
   the live mission-graph store. Invoked ONLY at a known node-level collision (the mission-graph WAW-mutex
   found it); it descends the ladder to justify DOWNGRADING a suspected false-hard to soft — never to
-  detect a collision. The ★ symbol rung (SSA lowering, symbol-level dep inference) is out of scope (issue
-  #189 capstone): an overlapping-region code file stays hard, flagged deferred. It never writes to the
-  mission graph. Cross-capability e2e scenarios live in ../acceptance/.
+  detect a collision. A code collision descends to the SYMBOL rung — produced/consumed symbols classify
+  it disjoint(soft) / write-write(hard) / read-after-write(hard); when the symbols cannot be inferred it
+  stays hard, flagged deferred. The ★ SSA-lowering doctrine (partitioning a change into missions,
+  versioning a write-write into an ordered dependency) stays out of scope (issue #189 capstone). It never
+  writes to the mission graph. Cross-capability e2e scenarios live in ../acceptance/.
 
   # ── The ladder: descend only until classifiable, then stop ──
 
@@ -58,17 +60,34 @@ Feature: The finer-than-node ladder — classify a node collision hard or soft b
     When both collisions are classified
     Then the file-rung verdict carries higher confidence than the semantic-rung verdict
 
-  # ── The semantic rung splits by artifact-type; the ★ symbol rung is deferred ──
+  # ── The semantic rung splits by artifact-type: prose has no anchor, code descends to symbols ──
 
   Scenario: a shared non-behavioral-prose file with overlapping hunks stays hard with no finer anchor
     Given two missions changing the same non-behavioral-prose file under the node in overlapping hunks
     When the collision is classified
     Then that file is hard and the reason is that non-behavioral prose has no finer anchor to descend to
 
-  Scenario: a shared code file needing symbol analysis to downgrade is held hard and flagged deferred
-    Given two missions changing the same code file under the node in overlapping hunks
+  # ── The symbol rung: a code collision descends to produced/consumed symbols (★ #189, first half) ──
+
+  Scenario: a shared code file changed in disjoint symbols classifies soft at the symbol rung
+    Given two missions changing the same code file under the node that touch no symbol in common
     When the collision is classified
-    Then that file stays hard and is flagged symbol-rung-deferred, not classified by symbol
+    Then the collision is soft and the decisive rung is symbol
+
+  Scenario: a shared code file where both missions produce the same symbol classifies hard at the symbol rung
+    Given two missions that both produce the same symbol in the same code file under the node
+    When the collision is classified
+    Then that file is hard at the symbol rung and the reason is a write-write clash on the shared symbol
+
+  Scenario: a shared code file where one mission consumes a symbol the other produces classifies hard at the symbol rung
+    Given two missions changing the same code file under the node where one consumes a symbol the other produces
+    When the collision is classified
+    Then that file is hard at the symbol rung and the reason is a read-after-write dependency on the shared symbol
+
+  Scenario: a shared code file whose symbols cannot be inferred stays hard and flagged deferred
+    Given two missions changing the same code file under the node whose symbol detail cannot be inferred
+    When the collision is classified
+    Then that file stays hard at the symbol rung and is flagged symbol-rung-deferred
 
   # ── Shared-thin file: the hard→soft downgrade that avoids over-serializing ──
 

@@ -1,5 +1,5 @@
 // collision-ladder — one test per scenario in the frozen
-// .agents/specs/sdd/collision-ladder/collision-ladder.feature (18 scenarios). Each test title is
+// .agents/specs/sdd/collision-ladder/collision-ladder.feature (21 scenarios). Each test title is
 // prefixed `scenario:` followed by the VERBATIM frozen scenario name, so the mapping is
 // grep-auditable against the .feature. Every fixture here is CONSTRUCTED (hand-built MissionTouch /
 // ClassifyInput) — never a live git diff or the live mission-graph store; the pure functions
@@ -48,6 +48,7 @@ function file(path: string, over: Partial<FileTouch> = {}): FileTouch {
 		artifactType: over.artifactType ?? 'unknown',
 		hunks: over.hunks ?? null,
 		changedScenarios: over.changedScenarios ?? [],
+		symbols: over.symbols,
 	}
 }
 
@@ -187,7 +188,7 @@ test('scenario: confidence decays down the ladder', () => {
 	assert.ok(confidenceRank(fileRung.confidence) > confidenceRank(semanticRung.confidence))
 })
 
-// ── The semantic rung splits by artifact-type; the ★ symbol rung is deferred ──
+// ── The semantic rung splits by artifact-type: prose has no anchor, code descends to symbols ──
 
 test('scenario: a shared non-behavioral-prose file with overlapping hunks stays hard with no finer anchor', () => {
 	const v = classify(
@@ -200,7 +201,74 @@ test('scenario: a shared non-behavioral-prose file with overlapping hunks stays 
 	assert.equal(v.sharedFiles[0].reason, 'no-anchor')
 })
 
-test('scenario: a shared code file needing symbol analysis to downgrade is held hard and flagged deferred', () => {
+// ── The symbol rung: a code collision descends to produced/consumed symbols (★ #189, first half) ──
+
+test('scenario: a shared code file changed in disjoint symbols classifies soft at the symbol rung', () => {
+	const v = classify(
+		input({
+			x: mission('X', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['foo'], consumed: [] } }),
+			]),
+			y: mission('Y', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['bar'], consumed: [] } }),
+			]),
+		}),
+	)
+	assert.equal(v.collision, 'soft')
+	assert.equal(v.rung, 'symbol')
+	assert.equal(v.sharedFiles[0].reason, 'disjoint-symbols')
+})
+
+test('scenario: a shared code file where both missions produce the same symbol classifies hard at the symbol rung', () => {
+	const v = classify(
+		input({
+			x: mission('X', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['foo'], consumed: [] } }),
+			]),
+			y: mission('Y', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['foo'], consumed: [] } }),
+			]),
+		}),
+	)
+	assert.equal(v.collision, 'hard')
+	assert.equal(v.rung, 'symbol')
+	assert.equal(v.sharedFiles[0].reason, 'symbol-waw')
+})
+
+test('scenario: a shared code file where one mission consumes a symbol the other produces classifies hard at the symbol rung', () => {
+	// The read-after-write dependency is direction-agnostic (the frozen scenario says "one consumes a
+	// symbol the other produces") — pin BOTH directions so a one-directional regression cannot pass.
+	const yConsumesXProduces = classify(
+		input({
+			x: mission('X', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['foo'], consumed: [] } }),
+			]),
+			y: mission('Y', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: [], consumed: ['foo'] } }),
+			]),
+		}),
+	)
+	assert.equal(yConsumesXProduces.collision, 'hard')
+	assert.equal(yConsumesXProduces.rung, 'symbol')
+	assert.equal(yConsumesXProduces.sharedFiles[0].reason, 'symbol-raw')
+
+	// reverse: X consumes what Y produces — same RAW verdict
+	const xConsumesYProduces = classify(
+		input({
+			x: mission('X', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: [], consumed: ['bar'] } }),
+			]),
+			y: mission('Y', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['bar'], consumed: [] } }),
+			]),
+		}),
+	)
+	assert.equal(xConsumesYProduces.collision, 'hard')
+	assert.equal(xConsumesYProduces.rung, 'symbol')
+	assert.equal(xConsumesYProduces.sharedFiles[0].reason, 'symbol-raw')
+})
+
+test('scenario: a shared code file whose symbols cannot be inferred stays hard and flagged deferred', () => {
 	const v = classify(
 		input({
 			x: mission('X', [file(CODE, { artifactType: 'skill', hunks: [{ start: 1, end: 10 }] })]),
@@ -209,6 +277,7 @@ test('scenario: a shared code file needing symbol analysis to downgrade is held 
 	)
 	assert.equal(v.collision, 'hard')
 	assert.equal(v.sharedFiles[0].reason, 'symbol-rung-deferred')
+	assert.equal(v.sharedFiles[0].rung, 'symbol')
 	assert.deepEqual(v.deferrals, [CODE])
 })
 
@@ -264,7 +333,7 @@ test('scenario: the verdict records the collision, the decisive rung, and per-sh
 	)
 	assert.equal(v.node, 'sdd/mission-graph')
 	assert.ok(v.collision === 'hard' || v.collision === 'soft')
-	assert.ok(['file', 'region', 'semantic', 'node'].includes(v.rung))
+	assert.ok(['file', 'region', 'semantic', 'symbol', 'node'].includes(v.rung))
 	assert.ok(['high', 'medium', 'low'].includes(v.confidence))
 	assert.equal(v.sharedFiles.length, 1)
 	assert.deepEqual(Object.keys(v.sharedFiles[0]).sort(), ['collision', 'path', 'reason', 'rung', 'sharedThin'])

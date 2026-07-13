@@ -147,6 +147,19 @@ If the target SKILL.md already exists, **read it first** and change **only** the
 — leave every sound part intact. This fills gaps in a skill's *definition*; diagnosing failing evals
 is `improve`.
 
+## Name gate/case scorers by role
+
+For a subagent this skill scaffolds (realized as a partial skill, e.g. loaded via the ACED
+impl-producer/impl-judge pattern): if its role is to **score or verify a specific gate or case**,
+name it by that gate/scope, not a bare action verb — `<domain>-<gate>-judge` for a gate scorer (e.g.
+`aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aces-case-judge`). Reject
+`implementer`, `judge`, `validator`, `reviewer`, `checker` alone. A producer subagent (e.g.
+`scenario-writer`, `doc-writer`) keeps its action-oriented name — this check does not fire for it.
+
+Evaluate this **in-skill quality check** — separate from the mechanical `audit validate` below — before
+handing the skill back: a drafted gate/case scorer named with a bare action verb is a **HIGH** severity
+finding; fix it (rename to the gate-and-scope form) before presenting the skill.
+
 ## Audit before handing back
 
 Run the structural audit and fix any CRITICAL or HIGH finding **before** presenting the skill:

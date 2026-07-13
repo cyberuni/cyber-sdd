@@ -158,6 +158,28 @@ Feature: define-skill — author a workflow skill
     When define-skill reports
     Then it does not embed a legacy trigger-query eval file as the test step and defers scoring to the ACED eval loop
 
+  # ---- Gate-role naming ----
+
+  Scenario: a gate-scorer subagent is named by the gate and scope it serves
+    Given the subagent's role is to score or verify a named gate for a domain, realized as a partial skill
+    When define-skill names the subagent
+    Then it names the subagent by its gate and scope in the domain-gate-judge form, like aced-impl-judge, not a bare action verb
+
+  Scenario: a case-scorer subagent takes the case-judge form
+    Given the subagent's role is to score individual cases within a scope
+    When define-skill names the subagent
+    Then it names the subagent in the domain-case-judge form, like aces-case-judge, not a bare judge
+
+  Scenario: a gate-scorer subagent drafted with a bare action-verb name is flagged and corrected before handoff
+    Given a drafted partial-skill subagent that scores a gate but is named with a bare action verb like implementer, judge, or validator
+    When define-skill runs its quality checks
+    Then the gate-role naming check flags the name at HIGH severity and define-skill renames it to the gate-and-scope form before presenting the skill
+
+  Scenario: a non-scorer producer subagent keeps its action-oriented name
+    Given the subagent's role is to produce an artifact rather than score a gate or case, named like scenario-writer or doc-writer
+    When define-skill runs its quality checks
+    Then the gate-role naming check does not fire and define-skill keeps the action-oriented name
+
   # ---- Impl-producer dual mode ----
 
   Scenario: dispatched against a frozen suite it co-produces the eval suite

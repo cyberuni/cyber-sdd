@@ -57,8 +57,8 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **release floor** | the smallest set of Missions that must finish before that Operation can ship |
 | **tombstone** | a "this was removed" marker — we never delete history, we mark an item/link retracted |
 | **cycle** | a loop in the plan (A waits for B, B waits for A) — always a mistake to surface, never to run |
-| **needs-a-human** (HITL) | this step must be approved by a person before it proceeds |
-| **runs-on-its-own** (AFK) | this step is safe to run automatically, no person needed |
+| **needs-a-human** (HITL — "human in the loop") | a person must approve this step before it proceeds |
+| **runs-on-its-own** (AFK — "away from keyboard") | safe to run automatically, with no person present |
 | **blast** | how much of the project a Mission could disturb — its risk / reach |
 | **schema version** | a version number stamped on every entry so the format can grow later without breaking old entries |
 
@@ -198,8 +198,8 @@ Built as the **`mission-graph`** engine — `plugins/sdd/skills/mission-graph/` 
 dependency-free script (the repo's node-≥23.6 / no-extra-tools convention, with a by-hand fallback when
 `node` is absent) plus its tests over the hand-built examples. It offers the two read-only views (`ready`
 and `cycles`) and the separate write path (add an item / link / status change / removal, with the gentle
-loop-guard). How the files are reached is kept behind a small seam, so a later move (to a shared,
-branch-independent store) never disturbs the two views. The capability and its engine share the
+loop-guard). How the files are reached is kept behind a small internal boundary (a **seam**), so a
+later move (to a shared, branch-independent store) never disturbs the two views. The capability and its engine share the
 `mission-graph` name.
 
 ## Source

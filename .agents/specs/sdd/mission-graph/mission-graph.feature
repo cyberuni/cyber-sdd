@@ -1,3 +1,4 @@
+@frozen
 Feature: The mission-graph kernel — the git-tracked store and the ready/cycles fold
   Unit suite for the mission-graph engine: the append-only store (nodes, edges, status, tombstones,
   schema v:1), the read-only ready frontier fold (RAW satisfaction + the node-level WAW-mutex), the

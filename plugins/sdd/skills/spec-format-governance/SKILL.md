@@ -39,12 +39,19 @@ scenarios; the judge checks the section exists and the mapping holds.
 
 ## Layout & enrichment
 
-`spec.md` is a document a person reviews at the gate, so legibility is part of the bar. Enrich it —
-never a wall of prose:
+`spec.md` is a document a person reviews at the gate — including a **non-engineer** (a PM, a
+stakeholder) — so legibility is part of the bar. Enrich it — never a wall of prose:
 
 - **Draw the picture** where a diagram carries the idea better than words (architecture, sequence,
   state, data flow, decision tree) — a fenced Mermaid (or equivalent) diagram.
 - **Format for humans** — clear heading hierarchy, tables for structured comparisons, short
   paragraphs, callouts for the load-bearing decisions.
+- **Readable vocabulary — assume the reader does not know the jargon.** Never leave a specialized
+  term undefined — an acronym, a domain or computer-science term, a framework noun, an internal
+  codename. Lead with the **plain word** and keep the specialized term as a **parenthetical** for the
+  reader who already knows it — e.g. "the step is **safe to repeat** (idempotent)". When a spec leans
+  on more than a couple of such terms, carry a short **Key terms** glossary near the top, defining —
+  one plain sentence each — every term the `spec.md` *and its `.feature`* rely on. A spec a
+  non-engineer cannot follow fails legibility.
 
 Enrichment applies to `spec.md` only; the `.feature` stays plain boolean Gherkin (`sdd:suite-format-governance`).

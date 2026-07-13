@@ -4,14 +4,17 @@
 // grep-auditable against the .feature. Every fixture here is a CONSTRUCTED event list / folded
 // graph — never the live store, which mutates on every retirement.
 import assert from 'node:assert/strict'
-import { mkdtempSync, rmSync } from 'node:fs'
+import { execFileSync } from 'node:child_process'
+import { appendFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import {
 	appendEdgeChecked,
 	appendEvent,
+	appendOrphanEvent,
 	checkOperation,
+	commitOrphan,
 	compareIds,
 	computeSCCs,
 	cycles,
@@ -20,15 +23,19 @@ import {
 	fold,
 	listOperations,
 	main,
+	migrate,
 	type NodeEvent,
 	operationOf,
+	orphanHead,
 	proposeEdge,
 	quarantinedIds,
 	readEvents,
+	readOrphanLines,
 	ready,
 	renderCyclesToon,
 	renderFrontierToon,
 	renderOperationToon,
+	resolveBackend,
 	type TombstoneEvent,
 	wouldCloseCycle,
 } from './mission-graph.mts'
@@ -564,4 +571,191 @@ test('main append node then ready reflects it', () => {
 
 test('main with an unrecognized command returns 1', () => {
 	assert.equal(main(['nonesuch']), 1)
+})
+
+// ── F3 — the orphan-ref store backend (real, constructed temp git repos) ──
+
+function initGitRepo(): string {
+	const dir = mkdtempSync(join(tmpdir(), 'mission-graph-git-'))
+	execFileSync('git', ['init', '-q', '-b', 'main'], { cwd: dir })
+	execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir })
+	execFileSync('git', ['config', 'user.name', 'Test'], { cwd: dir })
+	writeFileSync(join(dir, 'README.md'), 'dummy\n')
+	execFileSync('git', ['add', '.'], { cwd: dir })
+	execFileSync('git', ['commit', '-q', '-m', 'init'], { cwd: dir })
+	return dir
+}
+
+// Writes the in-tree JSONL store directly, bypassing backend resolution — used to construct a
+// "pre-migrate" fixture (an in-tree store, no orphan ref) without appendEvent's own backend
+// selection picking the orphan-ref backend on a fresh repo.
+function writeInTreeEventDirect(dir: string, event: NodeEvent): void {
+	const path = join(dir, '.agents', 'mission-graph', 'events.jsonl')
+	mkdirSync(join(dir, '.agents', 'mission-graph'), { recursive: true })
+	appendFileSync(path, `${JSON.stringify(event)}\n`)
+}
+
+test('scenario: an append to the orphan-ref store leaves the working tree clean', () => {
+	const dir = initGitRepo()
+	try {
+		appendOrphanEvent(dir, node('A'))
+		const events = readOrphanLines(dir).map((l) => JSON.parse(l))
+		assert.equal(events.length, 1)
+		assert.equal(events[0].id, 'A')
+		const status = execFileSync('git', ['status', '--porcelain'], { cwd: dir, encoding: 'utf8' }).trim()
+		assert.equal(status, '')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: an event appended on one branch is visible when read from another branch', () => {
+	const dir = initGitRepo()
+	try {
+		appendOrphanEvent(dir, node('A'))
+		execFileSync('git', ['checkout', '-q', '-b', 'feature'], { cwd: dir })
+		const events = readOrphanLines(dir).map((l) => JSON.parse(l))
+		assert.ok(events.some((e) => e.id === 'A'))
+
+		appendOrphanEvent(dir, node('B'))
+		execFileSync('git', ['checkout', '-q', 'main'], { cwd: dir })
+		const eventsOnMain = readOrphanLines(dir).map((l) => JSON.parse(l))
+		assert.ok(eventsOnMain.some((e) => e.id === 'B'))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: an absent orphan ref reads as the empty log', () => {
+	const dir = initGitRepo()
+	try {
+		assert.deepEqual(readOrphanLines(dir), [])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: a write against a stale ref value is rejected', () => {
+	const dir = initGitRepo()
+	try {
+		appendOrphanEvent(dir, node('A')) // ref = H1
+		const stale = orphanHead(dir)
+		appendOrphanEvent(dir, node('B')) // ref = H2
+		const current = orphanHead(dir)
+		assert.notEqual(stale, current)
+
+		assert.throws(() => commitOrphan(dir, [...readOrphanLines(dir), JSON.stringify(node('C'))], stale))
+		assert.equal(orphanHead(dir), current) // unchanged after the rejected CAS
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: migrate seeds the orphan ref from an existing in-tree store', () => {
+	const dir = initGitRepo()
+	try {
+		writeInTreeEventDirect(dir, node('A'))
+		writeInTreeEventDirect(dir, node('B'))
+		assert.equal(resolveBackend(dir, {}), 'in-tree') // pre-migrate: in-tree store exists, no orphan ref
+		const before = readEvents(dir)
+
+		const result = migrate(dir)
+		assert.equal(result.migrated, true)
+		assert.equal(result.count, 2)
+
+		const seeded = readOrphanLines(dir).map((l) => JSON.parse(l))
+		assert.deepEqual(
+			seeded.map((e) => e.id),
+			before.map((e) => (e as NodeEvent).id),
+		)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: migrate is idempotent when the orphan ref is already seeded', () => {
+	const dir = initGitRepo()
+	try {
+		writeInTreeEventDirect(dir, node('A'))
+		migrate(dir)
+		const head1 = orphanHead(dir)
+
+		const second = migrate(dir)
+		assert.equal(second.migrated, false)
+		assert.equal(second.reason, 'orphan ref already seeded')
+		assert.equal(orphanHead(dir), head1)
+		assert.equal(readOrphanLines(dir).length, 1)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: migrate with no in-tree store to seed from creates no ref', () => {
+	const dir = initGitRepo()
+	try {
+		const result = migrate(dir)
+		assert.equal(result.migrated, false)
+		assert.equal(result.reason, 'no in-tree store to seed from')
+		assert.equal(orphanHead(dir), null)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// Precedence guard for "an existing orphan ref selects the orphan-ref backend": pins that the ref
+// wins over a LEFTOVER in-tree file — the exact steady state after migrate(), which intentionally
+// never deletes the in-tree file. Without this, a resolveBackend precedence regression that silently
+// reverted every post-migrate repo to the stale in-tree file would pass the whole suite (impl-judge
+// coexistence-gap, #190).
+test('resolveBackend: an existing orphan ref wins over a leftover in-tree file (post-migrate coexistence)', () => {
+	const dir = initGitRepo()
+	try {
+		writeInTreeEventDirect(dir, node('A'))
+		migrate(dir) // seeds the ref; leaves the in-tree file in place
+		assert.notEqual(orphanHead(dir), null) // ref now exists
+		assert.equal(resolveBackend(dir, {}), 'orphan-ref') // ref present + in-tree file present -> ref wins
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ── Backend selection ──
+
+test('scenario: a git work-tree with no in-tree store selects the orphan-ref backend', () => {
+	const dir = initGitRepo()
+	try {
+		assert.equal(resolveBackend(dir, {}), 'orphan-ref')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: an existing orphan ref selects the orphan-ref backend', () => {
+	const dir = initGitRepo()
+	try {
+		appendOrphanEvent(dir, node('A'))
+		assert.equal(resolveBackend(dir, {}), 'orphan-ref')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: an in-tree store with no orphan ref keeps the in-tree backend before migration', () => {
+	const dir = initGitRepo()
+	try {
+		writeInTreeEventDirect(dir, node('A'))
+		assert.equal(resolveBackend(dir, {}), 'in-tree')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: an explicit store override selects the named backend', () => {
+	const dir = initGitRepo()
+	try {
+		assert.equal(resolveBackend(dir, { MISSION_GRAPH_STORE: 'in-tree' }), 'in-tree')
+		assert.equal(resolveBackend(dir, { MISSION_GRAPH_STORE: 'orphan-ref' }), 'orphan-ref')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
 })

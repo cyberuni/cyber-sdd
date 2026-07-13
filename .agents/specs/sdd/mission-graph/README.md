@@ -62,6 +62,8 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **runs-on-its-own** (AFK — "away from keyboard") | safe to run automatically, with no person present |
 | **blast** | how much of the project a Mission could disturb — its risk / reach |
 | **schema version** | a version number stamped on every entry so the format can grow later without breaking old entries |
+| **orphan ref** | a git storage slot that holds *only* the work list (not a copy of the code) and is shared by every working copy of the repo, so the list reads the same no matter which branch you are on |
+| **branch-independent** | the same list is seen from every branch — because it lives in the shared orphan ref, not in the files of whatever branch you happen to have checked out |
 
 ## Use Cases
 
@@ -188,24 +190,55 @@ disagree about whether a Mission is finished, **the list wins** — it is the au
 status. A brief left lying around after its Mission is finished is just cleanup debt, never a second
 version of the truth.
 
+## Where the list physically lives — the shared orphan ref
+
+The two views never care *how* the list is stored — reaching the files is kept behind a small internal
+boundary (a **seam**). That lets the physical home move without touching a single line of `ready` or
+`cycles`. There are two homes:
+
+- **In-tree files (the first version).** The list is an ordinary git-tracked file in the working copy
+  (`.agents/mission-graph/events.jsonl`). Fine when one person works one branch at a time — but the file
+  rides *whatever branch you are on*, so once several Missions run on **separate branches at once**, each
+  branch sees a different copy and they collide at merge.
+- **The shared orphan ref (for a fleet).** The list moves into a dedicated **orphan ref**
+  (`refs/sdd/mission-graph`) — a git slot holding *only* the list, shared by every working copy of the
+  repo, belonging to **no branch**. Every Mission, on any branch, reads and appends the **same** list.
+  Reads and writes go through plain git plumbing (hash a new version of the file, record it as a tiny
+  commit on the ref), so the list **never shows up as a change in anyone's working files** — the working
+  tree stays clean. Writing checks the ref hasn't moved since it was read (a compare-and-swap), so the
+  rare case of two writers at once is **refused loudly**, never silently overwritten.
+
+**Which home is used** is worked out at run time: an explicit setting wins; otherwise the shared orphan
+ref is used inside a git repository that has no in-tree list yet (and whenever the ref already exists);
+otherwise the in-tree file — so a project that still has an in-tree list, and hasn't migrated yet, keeps
+reading *that* list and is never silently orphaned onto an empty ref. A one-time **migrate** step copies
+an existing in-tree list into the orphan ref, so an early adopter is never stranded; running it again
+once the ref is seeded is a **no-op** (idempotent — it never double-copies), and running it when there
+is no in-tree list to copy simply creates nothing. This is the move ADR-0026 calls **v1 → F3**: same seam, same
+views, a branch-independent home once a fleet runs.
+
 ## How it's tested
 
 The frozen behavior file describes each rule as a small **made-up example list** ("given a list with a
 dependency from A to B where A is finished, B can start") — checked against **hand-built examples**,
 **never against the real live list** (which changes every time a Mission finishes, so pinning exact
 answers to it would be flaky). The real-world example **#135/#136/#137** (three linked GitHub issues in
-this repo) is boiled down into one such example. The ultimate proof is **dogfooding**: the system must be
-able to plan its *own* remaining work — checked once at the end (Op1.M2), not as a frozen example.
+this repo) is boiled down into one such example. The store-home rules (the orphan ref) are checked the
+same constructed way — over a throwaway **temporary git repository** created just for the test, never the
+project's real list. The ultimate proof is **dogfooding**: the system must be able to plan its *own*
+remaining work — checked once at the end (Op1.M2), not as a frozen example.
 
 ## Delivery
 
 Built as the **`mission-graph`** engine — `plugins/sdd/skills/mission-graph/` — a self-contained,
 dependency-free script (the repo's node-≥23.6 / no-extra-tools convention, with a by-hand fallback when
 `node` is absent) plus its tests over the hand-built examples. It offers the two read-only views (`ready`
-and `cycles`) and the separate write path (add an item / link / status change / removal, with the gentle
-loop-guard). How the files are reached is kept behind a small internal boundary (a **seam**), so a
-later move (to a shared, branch-independent store) never disturbs the two views. The capability and its engine share the
-`mission-graph` name.
+and `cycles`), the separate write path (add an item / link / status change / removal, with the gentle
+loop-guard), and a one-time **`migrate`** command that copies an in-tree list into the orphan ref. How
+the files are reached is kept behind a small internal boundary (a **seam**) with **two backends** — the
+in-tree file and the shared **orphan ref** (`refs/sdd/mission-graph`, reached by git plumbing) — chosen
+at run time (see *Where the list physically lives*); moving between them never disturbs the two views.
+The capability and its engine share the `mission-graph` name.
 
 ## Source
 

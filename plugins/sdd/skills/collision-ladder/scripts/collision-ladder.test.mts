@@ -1,5 +1,5 @@
 // collision-ladder — one test per scenario in the frozen
-// .agents/specs/sdd/collision-ladder/collision-ladder.feature (18 scenarios). Each test title is
+// .agents/specs/sdd/collision-ladder/collision-ladder.feature (21 scenarios). Each test title is
 // prefixed `scenario:` followed by the VERBATIM frozen scenario name, so the mapping is
 // grep-auditable against the .feature. Every fixture here is CONSTRUCTED (hand-built MissionTouch /
 // ClassifyInput) — never a live git diff or the live mission-graph store; the pure functions
@@ -236,7 +236,9 @@ test('scenario: a shared code file where both missions produce the same symbol c
 })
 
 test('scenario: a shared code file where one mission consumes a symbol the other produces classifies hard at the symbol rung', () => {
-	const v = classify(
+	// The read-after-write dependency is direction-agnostic (the frozen scenario says "one consumes a
+	// symbol the other produces") — pin BOTH directions so a one-directional regression cannot pass.
+	const yConsumesXProduces = classify(
 		input({
 			x: mission('X', [
 				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['foo'], consumed: [] } }),
@@ -246,9 +248,24 @@ test('scenario: a shared code file where one mission consumes a symbol the other
 			]),
 		}),
 	)
-	assert.equal(v.collision, 'hard')
-	assert.equal(v.rung, 'symbol')
-	assert.equal(v.sharedFiles[0].reason, 'symbol-raw')
+	assert.equal(yConsumesXProduces.collision, 'hard')
+	assert.equal(yConsumesXProduces.rung, 'symbol')
+	assert.equal(yConsumesXProduces.sharedFiles[0].reason, 'symbol-raw')
+
+	// reverse: X consumes what Y produces — same RAW verdict
+	const xConsumesYProduces = classify(
+		input({
+			x: mission('X', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: [], consumed: ['bar'] } }),
+			]),
+			y: mission('Y', [
+				file(CODE, { artifactType: 'skill', hunks: null, symbols: { produced: ['bar'], consumed: [] } }),
+			]),
+		}),
+	)
+	assert.equal(xConsumesYProduces.collision, 'hard')
+	assert.equal(xConsumesYProduces.rung, 'symbol')
+	assert.equal(xConsumesYProduces.sharedFiles[0].reason, 'symbol-raw')
 })
 
 test('scenario: a shared code file whose symbols cannot be inferred stays hard and flagged deferred', () => {

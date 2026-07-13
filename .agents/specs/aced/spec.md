@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/aced
 approval:
   spec:
@@ -11,6 +11,15 @@ approval:
       blast: low — advisory gate-role naming convention in ACED define-agent + define-skill; two spec suites + two READMEs widened, no impl behavior change yet
       novelty: low — encodes a doctrine-ratified naming rule (role+scope not bare verb) already applied reactively 3× across 2 plugins; canonical forms only
       confidence: high — cold aced-spec-validator ALIGNED, all bars PASS, BLOCKER null; near-miss discriminates; gherkin parse clean
+  impl:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — impl built against the frozen suite; the two SKILL.md bodies changed to meet it, no .feature/README/frontmatter/script touched
+      blast: low — in-skill HIGH gate-role naming check added to define-agent (checks-table row B9) and define-skill (in-skill subsection, explicitly separate from mechanical audit validate)
+      novelty: low — advisory authoring guidance, native to each host skill's existing quality mechanism; no new script or validate.mts check
+      confidence: high — cold aced-impl-judge re-derived all 8 frozen scenarios independently → 8/8 PASS, in-skill-not-mechanical constraint met, clean gate (no correction iteration); pnpm verify 20/20 green
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer

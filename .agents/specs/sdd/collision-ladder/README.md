@@ -12,15 +12,15 @@ and the two Missions usually touch **different** ones, or the same file in **dif
 those wastes the parallelism worktrees exist to provide.
 
 **collision-ladder** is the disambiguator. Given a **known** node collision between two Missions, it
-**descends a ladder of finer grains** — file → region → semantic — and stops at the first grain that can
-tell a **hard** clash (must serialize) from a **soft** one (can run together, reconciled by rebase). It
-runs **rarely**, only on the colliding pair, only to justify **downgrading a suspected false-hard** — never
-as the baseline signal, never to find a collision (that is the work list's job).
+**descends a ladder of finer grains** — file → region → semantic → symbol — and stops at the first grain
+that can tell a **hard** clash (must serialize) from a **soft** one (can run together, reconciled by
+rebase). It runs **rarely**, only on the colliding pair, only to justify **downgrading a suspected
+false-hard** — never as the baseline signal, never to find a collision (that is the work list's job).
 
-- **hard** — the two Missions change the *same thing* (same scenario, or a code overlap that needs symbol
-  analysis to clear) → they **must not run together**.
+- **hard** — the two Missions change the *same thing* (same scenario, both write the same symbol, or one
+  reads a symbol the other writes) → they **must not run together**.
 - **soft** — they touch the same area but provably **disjoint** parts (different files, disjoint line-hunks,
-  or different scenarios) → they **can** run together.
+  different scenarios, or no symbol in common) → they **can** run together.
 
 The verdict is **data**: the ladder *returns* a hard-or-soft classification with the rung it was decided at
 and a confidence; the scheduler consumes it. Like [`touch-set-correction`](../touch-set-correction/README.md),
@@ -35,8 +35,12 @@ flowchart TD
   region -- "no / unknown" --> sem{semantic anchor}
   sem -- ".feature: different scenarios" --> soft3["SOFT · rung=semantic"]
   sem -- ".feature: same scenario" --> hard1["HARD · rung=semantic"]
-  sem -- "code: needs symbols" --> hard2["HARD · symbol-rung-deferred (★ #189)"]
   sem -- "non-behavioral prose: no anchor" --> hard3["HARD · no-anchor"]
+  sem -- "code" --> sym{produced/consumed symbols}
+  sym -- "no symbol in common" --> soft4["SOFT · rung=symbol"]
+  sym -- "both write same symbol (WAW)" --> hard4["HARD · symbol-waw"]
+  sym -- "one reads, one writes (RAW)" --> hard5["HARD · symbol-raw"]
+  sym -- "symbols un-inferable" --> hard2["HARD · symbol-rung-deferred"]
 ```
 
 ## Key terms
@@ -50,32 +54,36 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **node collision** (WAW) | two Missions change the same work area — the work list holds them apart by default |
 | **hard clash** | a *real* conflict on the same thing → the two Missions must not run at the same time |
 | **soft clash** (WAR) | an overlap on *disjoint* parts → the two Missions can run together, reconciled by rebase |
-| **the ladder** | the ordered finer grains the classifier descends: **file → region → semantic** |
+| **the ladder** | the ordered finer grains the classifier descends: **file → region → semantic → symbol** |
 | **rung** | the grain a collision was decided at — the ladder stops at the first rung that classifies it |
 | **region** (line-hunk) | the set of line ranges a Mission changed in a file — two disjoint ranges are a soft overlap |
 | **scenario** | the `.feature` unit the semantic rung anchors on (freeze-stable) — same scenario is hard, different is soft |
+| **symbol** (produced/consumed) | a named thing a code change *writes* (produces) or *reads* (consumes) — the code rung's grain |
+| **write-write** (WAW) | both Missions produce the same symbol — an order-less co-write → **hard** |
+| **read-after-write** (RAW) | one Mission consumes a symbol the other produces — a true data dependency → **hard** |
 | **shared-thin file** | a file touched by *many* Missions (a CLI router / barrel / registry) — the case the downgrade protects from over-serializing |
 | **confidence** | how much to trust a soft verdict — **decays down the ladder** (node stable → scenario/hunk churny) |
-| **artifact-type** | what *kind* of thing a changed file is — chooses the semantic-rung behavior (prose has no anchor; code needs the deferred symbol rung) |
+| **artifact-type** | what *kind* of thing a changed file is — chooses the semantic-rung behavior (prose has no anchor; code descends to the symbol rung) |
 
 ## Use Cases
 
 **Subject** — a **read-only, pairwise collision classifier**: given two Missions' per-node touched detail
 for **one shared (colliding) node** — each changed file with its artifact-type, its touched line-hunks, and
-(for a `.feature`) its changed scenarios — descend the ladder **file → region → semantic** and return a
-**hard-or-soft** verdict per shared file plus a node rollup (hard if **any** shared file is hard), each
-carrying the **rung** it was decided at and a **confidence** that decays with depth. It reuses the
+(for a `.feature`) its changed scenarios, and (for code) its produced/consumed symbols — descend the ladder
+**file → region → semantic → symbol** and return a **hard-or-soft** verdict per shared file plus a node
+rollup (hard if **any** shared file is hard), each carrying the **rung** it was decided at and a
+**confidence** that decays with depth. It reuses the
 [`touch-set-correction`](../touch-set-correction/README.md) composition — `gherkin-cli diff` (changed
-scenarios) and `resolve-governances` (artifact-type) — and adds one finer source, `git diff -U0` line-hunks
-(the region rung).
+scenarios) and `resolve-governances` (artifact-type) — and adds two finer sources: `git diff -U0` line-hunks
+(the region rung) and produced/consumed symbols extracted from a code file's diff (the symbol rung).
 
 **Non-goals** — it does **not** detect a collision (the [`mission-graph`](../mission-graph/README.md)
 WAW-mutex does — the ladder runs only *after* a collision is found), **write** the verdict into the mission
 graph or **schedule** anything (it *returns* the verdict; the scheduler consumes it), do **★ SSA lowering**
-or **symbol-level** produce/consume dependency inference (issue #189's capstone — an overlapping-region
-**code** file stays **hard**, flagged `symbol-rung-deferred`), descend past the scenario grain, or decide
-whether to **split** a shared-thin file (it *surfaces* the smell; the architect decides). It classifies; it
-does not schedule.
+— partitioning a change into missions or versioning a write-write into an ordered dependency (issue #189's
+capstone, still deferred; a code file whose symbols cannot be inferred stays **hard**, flagged
+`symbol-rung-deferred`), or decide whether to **split** a shared-thin file (it *surfaces* the smell; the
+architect decides). It classifies; it does not schedule.
 
 | What you want | What you give it | What you get back | Scenario |
 |---|---|---|---|
@@ -83,8 +91,11 @@ does not schedule.
 | **clear a same-file clash** — same file, different spots | each side's line-hunks for the file | a **soft** verdict at the **region** rung | `Scenario: a shared file changed in disjoint line-hunks classifies soft at the region rung` |
 | **clear a same-suite clash** — same `.feature`, different scenarios | each side's changed scenarios | a **soft** verdict at the **semantic** rung | `Scenario: a shared .feature changed in different scenarios classifies soft at the semantic rung` |
 | **hold a real clash** — same scenario of the same suite | each side's changed scenarios | a **hard** verdict at the **semantic** rung | `Scenario: a shared .feature changed in the same scenario classifies hard at the semantic rung` |
-| **stay conservative** — a code overlap only symbols could clear | the shared code file + overlapping hunks | **hard**, flagged `symbol-rung-deferred` (the ★ capstone) | `Scenario: a shared code file needing symbol analysis to downgrade is held hard and flagged deferred` |
 | **hold a no-anchor clash** — non-behavioral prose has no finer grain | the shared governance/reference file + overlapping hunks | **hard**, reason `no-anchor` (do not descend) | `Scenario: a shared non-behavioral-prose file with overlapping hunks stays hard with no finer anchor` |
+| **clear a code clash** — same code file, but disjoint symbols | each side's produced/consumed symbols | a **soft** verdict at the **symbol** rung | `Scenario: a shared code file changed in disjoint symbols classifies soft at the symbol rung` |
+| **hold a co-write** — both write the same symbol | each side's produced symbols | **hard**, reason `symbol-waw` | `Scenario: a shared code file where both missions produce the same symbol classifies hard at the symbol rung` |
+| **hold a data dependency** — one reads what the other writes | each side's produced/consumed symbols | **hard**, reason `symbol-raw` | `Scenario: a shared code file where one mission consumes a symbol the other produces classifies hard at the symbol rung` |
+| **stay conservative** — a code overlap whose symbols can't be read | the shared code file, symbols un-inferable | **hard**, flagged `symbol-rung-deferred` | `Scenario: a shared code file whose symbols cannot be inferred stays hard and flagged deferred` |
 | **protect a shared-thin file** — a router touched by many, in disjoint spots | the shared-thin file + disjoint hunks | the collision **downgrades hard→soft** instead of serializing | `Scenario: a shared-thin file changed in disjoint regions downgrades hard to soft` |
 | **flag the smell** — a file touched by many is an architectural smell | the file's touching-mission degree | the file flagged **shared-thin**, surfaced to consider splitting | `Scenario: a file touched by at least the shared-thin degree threshold is flagged and surfaced as a smell` |
 | **read the verdict** — data, not a schedule | any colliding pair | the hard-or-soft collision, decisive rung, confidence, per-file detail — never a graph write | `Scenario: classifying a collision does not write to the mission graph` |
@@ -109,13 +120,20 @@ project-wide):
      `touch-set-correction` uses) → the **scenario**: different scenarios ⇒ **soft**, the **same** scenario
      ⇒ **hard**. The scenario is freeze-stable, so this rung is the freeze-anchored bottom for entangled
      same-suite work.
-   - **code impl** → the **symbol** — but symbol-level analysis is the **★ deferred capstone** (issue #189).
-     The file stays **hard**, flagged `symbol-rung-deferred`: conservative until the capstone lands.
+   - **code impl** → descend to the **symbol rung** (next step).
    - **non-behavioral prose** (governance / reference — no suite to anchor) → **no finer anchor**; stay
      **hard**, reason `no-anchor` (these are rarer, often shared-thin indexes).
-4. **node rollup** — the node collision is **hard if any shared file is hard**, else **soft**. The recorded
+4. **symbol rung** (code only) — each side's diff yields the symbols it **produces** (writes) and
+   **consumes** (reads). Then: no symbol in common ⇒ **soft** (`disjoint-symbols`); both sides produce the
+   **same** symbol ⇒ **hard** (`symbol-waw`, an order-less co-write); one side **consumes** a symbol the
+   other **produces** ⇒ **hard** (`symbol-raw`, a true data dependency — B needs A's output, so they cannot
+   run together). When the symbols **cannot be inferred** (dynamic dispatch, a parse failure, or no symbol
+   detail recorded) the file stays **hard**, flagged `symbol-rung-deferred` — conservative-first, the same
+   default the ★ SSA-lowering capstone will later refine. The `symbol-waw` / `symbol-raw` distinction is
+   recorded for that capstone (a `symbol-waw` an order can be imposed on becomes a versioned dependency).
+5. **node rollup** — the node collision is **hard if any shared file is hard**, else **soft**. The recorded
    rung is the decisive one and the **confidence decays down the ladder** (a `file`-rung soft outranks a
-   `semantic`-rung soft), so the scheduler treats a low-rung soft conservatively.
+   `symbol`-rung soft), so the scheduler treats a low-rung soft conservatively.
 
 **The shared-thin-file downgrade.** A file touched by **many** Missions (a CLI router, a barrel, a
 registry) is the case the work list most over-serializes: every Mission that touches it would be held
@@ -140,9 +158,9 @@ scheduler consumes the verdict.
 ## Why the ladder is a downgrade-only disambiguator (not a primary signal)
 
 The mission graph's primary atom is the **spec-node** — stable, cheap, artifact-neutral — and a same-node
-collision serializes by default. Finer grains (file, region, scenario) are **less stable and arrive later**
-(monadic: Explore reveals scenarios, the diff reveals hunks), so they are used **only** to relax a suspected
-false-hard, **never** to raise a new collision. This keeps the schedule **conservative-first**: it starts
+collision serializes by default. Finer grains (file, region, scenario, symbol) are **less stable and arrive
+later** (monadic: Explore reveals scenarios, the diff reveals hunks and the symbols a change produces and
+consumes), so they are used **only** to relax a suspected false-hard, **never** to raise a new collision. This keeps the schedule **conservative-first**: it starts
 node-serial and relaxes to parallel as finer evidence arrives. Design:
 [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md) (the RAW/WAW/WAR hazard
 model — soft = same file / different region, hard = same symbol's semantics) and the cyberfleet-batch design
@@ -153,19 +171,26 @@ not derived, the shared-thin-file hard→soft downgrade).
 
 Built as the **`collision-ladder`** engine — `plugins/sdd/skills/collision-ladder/` — a self-contained,
 dependency-free script (the repo's node-≥23.6 / no-extra-tools convention). Pure derivations (the ladder
-descent, the node rollup, the shared-thin flagging) take and return plain data — no fs/network access — kept
-apart from a thin seam that sources each Mission's touched detail (`git diff -U0` line-hunks, and the
-[`touch-set-correction`](../touch-set-correction/README.md) composition for changed scenarios +
-artifact-type), so the derivations are unit-tested over **constructed** pairwise details, never a live diff
-or the live store.
+descent including the symbol-rung produced/consumed classification, the node rollup, the shared-thin
+flagging) take and return plain data — no fs/network access — kept apart from a thin seam that sources each
+Mission's touched detail (`git diff -U0` line-hunks; produced/consumed symbols extracted from a code file's
+diff; and the [`touch-set-correction`](../touch-set-correction/README.md) composition for changed scenarios +
+artifact-type). The symbol-extraction seam is **best-effort and conservative**: when it cannot confidently
+read a file's symbols (an unparsed language, dynamic dispatch, no detail recorded) it yields **null**, which
+the symbol rung treats as `symbol-rung-deferred` (stays hard) — so a parse gap never relaxes a real clash.
+The derivations are unit-tested over **constructed** pairwise details (including constructed symbol sets),
+never a live diff or the live store.
 
 ## Source
 
-- **new** — no prior version. The **Op2** deferral of the **cyberfleet-batch** self-hosting-kernel
-  (GitHub issue #189, **second bullet** — the finer-than-node ladder + shared-thin-file hard→soft
-  downgrade). Builds on [`touch-set-correction`](../touch-set-correction/README.md) (PR #199, merged),
-  reusing its composition. The **★ SSA-lowering / symbol-level** capstone (issue #189's third bullet)
-  remains deferred — the PR references #189, it does not close it.
+- **revise** — the **symbol rung** was added on top of the original ladder (GitHub issue #189, the
+  **first half** of the ★ third-bullet capstone — symbol-level produce/consume dependency inference). The
+  original node was the **second bullet** — the finer-than-node ladder (file → region → semantic) +
+  shared-thin-file hard→soft downgrade (PR #200). Builds on
+  [`touch-set-correction`](../touch-set-correction/README.md) (PR #199, merged), reusing its composition.
+  The **★ SSA-lowering** doctrine (the third bullet's second half — partitioning a change into missions,
+  versioning a write-write into an ordered dependency) remains deferred — the PR references #189, it does
+  not close it.
 - **Why (design records):** [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md)
   (the WAW/WAR hard-soft hazard model) and the cyberfleet-batch design brief's **Finer-than-node
   granularity** section (the collision-time ladder + the shared-thin-file downgrade).

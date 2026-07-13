@@ -144,9 +144,11 @@ Key points:
   (The list itself changes over time as work is added and finished; each reading of a *given* list is
   steady.)
 - **Read-only.** `ready` never changes the list; writing is a separate path.
-- **What each answer carries** — for each ready Mission: its id, its Operation, its blast, whether it
-  needs-a-human or runs-on-its-own, its model tier, a pointer to its brief, and *why* it is ready.
-  (Ranking and finer overlap detail are left for later.)
+- **What each answer carries** — for each ready Mission: its id, its **kind** (`node` — Mission or
+  Operation), its Operation, its blast, whether it needs-a-human or runs-on-its-own, its model tier, a
+  pointer to its brief, and *why* it is ready. (Ranking and finer overlap detail are left for later.
+  The `node` field's meaning is a known follow-up — the word collides with SDD's "spec-node"; to be
+  disambiguated at the Op1.M2 distillation.)
 
 ## `cycles` — "did the plan tie itself in a knot?"
 

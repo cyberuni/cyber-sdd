@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import {
 	type Candidate,
 	detect,
@@ -167,4 +168,37 @@ test('no title or prose difference suppresses an exact-duplicate candidate', () 
 
 test('normalize collapses whitespace and lowercases', () => {
 	assert.equal(normalize('  Foo   BAR  '), 'foo bar')
+})
+
+// Guards frozen scenarios #12/#16 ("writes no artifact" / "writes no file") two ways:
+// (1) static — the engine imports no fs WRITE API (a stray write mutation would have to add one);
+// (2) behavioral — the spec dir is byte-identical after audit + check over a colliding corpus.
+function snapshotDir(dir: string): Record<string, string> {
+	const out: Record<string, string> = {}
+	const walk = (d: string) => {
+		for (const e of readdirSync(d, { withFileTypes: true })) {
+			const full = join(d, e.name)
+			if (e.isDirectory()) walk(full)
+			else out[full] = readFileSync(full, 'utf8')
+		}
+	}
+	walk(dir)
+	return out
+}
+
+test('the engine imports no fs write API (static write-boundary guard)', () => {
+	const src = readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'check-scenario-overlap.mts'), 'utf8')
+	for (const api of ['writeFileSync', 'appendFileSync', 'mkdirSync', 'rmSync', 'unlinkSync', 'writeSync']) {
+		assert.ok(!src.includes(api), `engine must not reference fs.${api}`)
+	}
+})
+
+test('audit and check leave the spec dir byte-identical (behavioral write-boundary guard)', () => {
+	const dir = mkCorpus()
+	seedNode(dir, 'cap', 'nodeA', MAIL_DELIVERED)
+	seedNode(dir, 'cap', 'nodeB', MAIL_DELIVERED_VARIANT)
+	const before = snapshotDir(dir)
+	main(['--spec-dir', dir]) // audit mode
+	main(['--spec-dir', dir, '--check']) // check mode (exact-duplicate present)
+	assert.deepEqual(snapshotDir(dir), before)
 })

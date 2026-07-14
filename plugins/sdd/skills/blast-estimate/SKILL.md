@@ -52,10 +52,12 @@ not the exact numbers):
 Sum the three, then `score>=3` → `high`, `score>=1` → `medium`, `score==0` → `low`. A touch-set that
 resolves to **zero** known areas (including the empty touch-set) computes `unknown` — never `low`.
 
-The **≥2 work areas** guard on coverage is load-bearing. In a corpus holding exactly one work area,
-"a single peripheral work area" (→`low`) and "a touch-set reaching across every work area of its
-project" (→`high`) would describe the same input with opposite answers; the two stay disjoint only
-because a corpus has more than one work area, so coverage never fires on a 1-area project.
+The **≥2 work areas** guard on coverage is load-bearing, and it is keyed per **project**, not per
+corpus: a 1-area project inside a larger multi-project corpus is still never project-wide. The
+contract states the precondition itself — the project-wide scenario requires a project holding more
+than one work area, and *"a lone work area is its whole project but is not project-wide reach"* pins
+the 1-area answer to `low`. Coverage is reach **relative** to a project, and a project of one has
+none to cover, so coverage never fires there and only absolute count speaks.
 
 Two exclusions are structural, not just documented: there is no compatibility/breaking-change input
 at all (no seam for it to enter the score), and centrality is **measured** fan-in only — a work

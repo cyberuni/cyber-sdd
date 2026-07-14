@@ -8,7 +8,7 @@
 // the frozen suite is STRUCTURALLY BLIND to the only question that decides whether this node is
 // worth anything: does it measure real reach on a real tree?
 //
-// Three separate defects reached an impl gate green-on-all-21-scenarios, each invisible to the
+// Three separate defects reached an impl gate green on every one of the frozen scenarios, each invisible to the
 // constructed corpora by construction:
 //   1. work-area recovery invented a path-shape rule; on the real repo it produced 25 garbage atoms
 //      and could not find `sdd/mission-graph` at all (fixtures collapse a node's two roots into one);

@@ -278,11 +278,17 @@ export function readSensitivePaths(corpusRoot: string): SensitiveResult {
 //   - sensitivity any touched area marked → +2 (a single marking is enough to move the level)
 // score >= 3 → high; score >= 1 → medium; score 0 → low.
 //
-// The `>= 2 work areas` guard on coverage is load-bearing, not a nicety. In a corpus holding exactly
-// ONE work area, "a single peripheral work area" (→ low) and "a touch-set reaching across every work
-// area of its project" (→ high) describe the SAME input with opposite Thens. The suite's two
-// scenarios are only disjoint because a "corpus" has more than one work area, so coverage must not
-// fire on a 1-area project — there, only absolute count speaks.
+// The `>= 2 work areas` guard on coverage is load-bearing, not a nicety, and since #238 it is the
+// CONTRACT rather than this engine's private tiebreaker. It is keyed per PROJECT, not per corpus: a
+// 1-area project inside a larger multi-project corpus is still never project-wide.
+//
+// Before #238 the frozen suite was self-contradictory here — on a 1-area project "a single
+// peripheral work area" (→ low) and "a touch-set reaching across every work area of its project"
+// (→ high) described the SAME input with opposite Thens, and this guard silently picked the winner.
+// The suite now states the precondition itself: the project-wide scenario requires a project holding
+// more than one work area, and "a lone work area is its whole project but is not project-wide reach"
+// pins the 1-area answer to low. Coverage is reach RELATIVE to a project, and a project of one has
+// none to cover — there, only absolute count speaks.
 
 function countScore(n: number): number {
 	if (n <= 1) return 0

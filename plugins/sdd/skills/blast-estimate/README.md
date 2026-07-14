@@ -2,10 +2,15 @@
 
 The concrete engine for **blast-estimate** — a read-only estimate of how much of the project a
 Mission could disturb, computed from its touch-set and the project corpus instead of the hand-typed
-guess: `count` (how many work areas), `centrality` (dependency fan-in — how many other work areas
-reference a touched one), and `sensitivity` (declared, never inferred, in the opt-in
-`.agents/sdd/sensitive-paths.toml`). Lines the computed level up against the Mission's declared blast
-(`agrees` / `under-called` / `over-called`).
+guess: **breadth** (how many work areas, *and* whether the touch-set covers a project entirely),
+`centrality` (dependency fan-in — how many other work areas reference a touched one), and
+`sensitivity` (declared, never inferred, in the opt-in `.agents/sdd/sensitive-paths.toml`). Lines the
+computed level up against the Mission's declared blast (`agrees` / `under-called` / `over-called`).
+
+Breadth is `max(countScore, coverageScore)` — reach measured absolutely *and* relatively, whichever
+says more — so a fully-covered project computes `high` at **any** project size (≥2 areas), not only
+once the raw count crosses a bucket. See [`SKILL.md`](./SKILL.md) for the full rule and the
+load-bearing ≥2-area guard that keeps the project-wide and single-peripheral scenarios disjoint.
 
 ```bash
 node scripts/blast-estimate.mts --root <corpus> --touch-set sdd/mission-graph,sdd/blast-estimate --declared medium

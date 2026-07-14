@@ -10,6 +10,7 @@ import {
 	estimateBlast,
 	lineUp,
 	main,
+	readSensitivePaths,
 	renderResultToon,
 } from './blast-estimate.mts'
 
@@ -197,6 +198,30 @@ test('scenario: an absent sensitive-paths file is not an error', () => {
 	assert.equal(r.error, undefined)
 	assert.deepEqual(r.reasons?.sensitiveAreas, [])
 	assert.ok(r.computed !== null, 'the estimate still returns on count and centrality alone')
+})
+
+// Guards the ONLY-ENOENT-is-benign rule the absent/unparseable pair rests on. A present-but-
+// unreadable file (permissions, or a directory at the path) must fail loud like an unparseable one
+// — never read as "no markings", which silently UNDER-calls blast on exactly the areas a project
+// marked as needing care. Regression: a bare catch around statSync/readFileSync swallowed both.
+test('a present-but-unreadable sensitive-paths file fails loud, like an unparseable one', () => {
+	const dir = mkCorpus()
+	seedArea(dir, 'sdd', 'area1', { 'README.md': 'x' })
+	seedFiller(dir, 2)
+	mkdirSync(join(dir, '.agents', 'sdd', 'sensitive-paths.toml'), { recursive: true })
+	const res = readSensitivePaths(dir)
+	assert.equal(res.ok, false, 'a directory at the path is not evidence of no markings')
+	const r = estimateBlast(['sdd/area1'], dir)
+	assert.equal(r.computed, null, 'it computes no level rather than silently under-calling')
+	assert.ok(r.error, 'and it names the unreadable file')
+})
+
+test('an absent sensitive-paths file is distinguished from an unreadable one by ENOENT alone', () => {
+	const dir = mkCorpus()
+	seedArea(dir, 'sdd', 'area1', { 'README.md': 'x' })
+	seedFiller(dir, 2)
+	const res = readSensitivePaths(dir)
+	assert.deepEqual(res, { ok: true, marked: [] }, 'absent stays the one benign read')
 })
 
 test('scenario: a malformed sensitive-paths file fails loud rather than reading as no markings', () => {

@@ -17,21 +17,40 @@ hand-typed **declared** blast (`agrees` / `under-called` / `over-called`). See
 
 ## The three inputs
 
-- **count** — how many of the touch-set's areas resolve to a known work area in the corpus.
+- **count** — how many of the touch-set's areas resolve to a known work area in the corpus, plus
+  **coverage**: whether the touch-set covers *every* work area of a touched project. Together these
+  are **breadth** — absolute reach and relative reach.
 - **centrality** (dependency fan-in) — for each resolved area, how many *other* work areas' files
   reference it (a literal, word-bounded mention of its `project/capability` id). The `max` across the
   resolved areas is used.
 - **sensitivity** — whether a resolved area is **marked** in the opt-in
   `.agents/sdd/sensitive-paths.toml` (a `sensitive = [ "id", ... ]` string array — the same shape
-  `manage-spec-anchors` uses for `anchors = [...]`). Absent file = no area sensitive, not an error. A
-  present-but-unparseable file **fails loud**: the estimate returns `computed: null` and an `error`
-  naming the file, rather than silently reading it as "nothing marked".
+  `manage-spec-anchors` uses for `anchors = [...]`). **Only an absent file (`ENOENT`) is benign** —
+  no area is sensitive, not an error. **Every other read failure fails loud** — unparseable,
+  unreadable (permissions), or not a regular file — returning `computed: null` and an `error` naming
+  the file. The narrow ENOENT test is deliberate: swallowing the rest into "nothing marked" fails in
+  the **dangerous direction**, silently under-calling blast on exactly the areas a project marked as
+  needing care. An unreadable marking is not evidence of no markings.
 
 The arithmetic is bucketed and deliberately simple (the rubric fixes only the ordering properties,
-not the exact numbers): `count` 1→0, 2-3→1, 4+→3; `centrality` 0→0, 1-2→1, 3+→2; `sensitivity` any
-marked area →+2. Sum the three, then `score>=3` → `high`, `score>=1` → `medium`, `score==0` → `low`.
-A touch-set that resolves to **zero** known areas (including the empty touch-set) computes `unknown`
-— never `low`.
+not the exact numbers):
+
+- **breadth** = `max(countScore, coverageScore)` — reach measured two ways, whichever says more:
+  - `countScore`: 1→0, 2-3→1, 4+→3 (absolute reach — touching many areas is broad even in a large
+    project the touch-set nowhere near covers)
+  - `coverageScore`: 3 iff the touch-set covers **every** work area of a touched project holding
+    **≥2** work areas, else 0 (relative reach — a 3-area project touched entirely *is* project-wide;
+    the barrier agreement must hold at every project size, not only at 4+)
+- **centrality**: 0→0, 1-2→1, 3+→2
+- **sensitivity**: any marked area →+2
+
+Sum the three, then `score>=3` → `high`, `score>=1` → `medium`, `score==0` → `low`. A touch-set that
+resolves to **zero** known areas (including the empty touch-set) computes `unknown` — never `low`.
+
+The **≥2 work areas** guard on coverage is load-bearing. In a corpus holding exactly one work area,
+"a single peripheral work area" (→`low`) and "a touch-set reaching across every work area of its
+project" (→`high`) would describe the same input with opposite answers; the two stay disjoint only
+because a corpus has more than one work area, so coverage never fires on a 1-area project.
 
 Two exclusions are structural, not just documented: there is no compatibility/breaking-change input
 at all (no seam for it to enter the score), and centrality is **measured** fan-in only — a work
@@ -49,7 +68,7 @@ node "<skill>/scripts/blast-estimate.mts" --root <corpus> --touch-set a,b,c [--d
   returns on its own.
 - Default output is **TOON**; `--format json` emits the full `EstimateResult`: `resolved`,
   `unresolved` (surfaced, never dropped), `computed`, `reasons` (`count`, `maxFanIn`,
-  `sensitiveAreas`), and `lineUp`.
+  `sensitiveAreas`, `projectWide`), and `lineUp`.
 
 ## Boundaries
 

@@ -115,17 +115,26 @@ export function parseSensitivePaths(text: string): string[] {
 
 export type SensitiveResult = { ok: true; marked: string[] } | { ok: false; error: string }
 
-/** Reads the opt-in sensitive-paths file. Absent = `{ ok: true, marked: [] }` — no area is
- *  sensitive, and that is NOT an error. Present-but-unparseable = `{ ok: false, error }` — fails
- *  loud so the caller computes no level rather than silently proceeding. */
+/** Reads the opt-in sensitive-paths file. **Absent** (ENOENT) = `{ ok: true, marked: [] }` — no area
+ *  is sensitive, and that is NOT an error. Anything else — present-but-unparseable, unreadable
+ *  (permissions), or not a regular file — = `{ ok: false, error }`, and the caller computes no level.
+ *
+ *  ONLY ENOENT is benign. A bare `catch` here would swallow EACCES and a directory-at-the-path into
+ *  "no markings", which fails in the DANGEROUS direction: the estimate silently UNDER-calls blast on
+ *  exactly the areas a project took the trouble to mark. A read that cannot classify must fail loud,
+ *  never default to the safe-looking answer — the same duty the absent-vs-unparseable scenarios draw:
+ *  an unreadable marking is not evidence of no markings. */
 export function readSensitivePaths(corpusRoot: string): SensitiveResult {
 	const file = join(corpusRoot, SENSITIVE_PATHS_FILE)
 	let text: string
 	try {
-		if (!statSync(file).isFile()) return { ok: true, marked: [] }
+		if (!statSync(file).isFile()) {
+			return { ok: false, error: `${SENSITIVE_PATHS_FILE} is not a regular file` }
+		}
 		text = readFileSync(file, 'utf8')
-	} catch {
-		return { ok: true, marked: [] }
+	} catch (err) {
+		if ((err as NodeJS.ErrnoException).code === 'ENOENT') return { ok: true, marked: [] }
+		return { ok: false, error: `${SENSITIVE_PATHS_FILE} is unreadable: ${(err as Error).message}` }
 	}
 	try {
 		return { ok: true, marked: parseSensitivePaths(text) }

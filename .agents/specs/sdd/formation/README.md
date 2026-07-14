@@ -27,6 +27,7 @@ only **cross-mission** structural drift.
 | Trigger | Inputs | Outcome |
 |---|---|---|
 | **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/` + `project-spec/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: node-shape / split / reconcile candidates, each carrying the Warden's self-clear-or-escalate verdict |
+| **an escalated act reaches across the whole project** — a fence, not a node-owning change | the escalated structural finding + its reach | a CR **called out explicitly as a barrier**, stating it is to be **hoisted early** and **naming the project it fences**; it escalates on reach alone, whatever its contract impact |
 
 A formation pass exercises the three acts under the verdict discipline below; the per-act verdict,
 the frozen-contract guard, and the altitude routing are cross-cutting guarantees. Every scenario in
@@ -110,6 +111,46 @@ it has **no direct user channel**:
 
 It is **not** true that every act is proposed-and-ratified: the reversible/derivable acts
 self-clear under the provisional marker; the narrowing/contested/class-exceeding ones emit a CR.
+
+### Barriers — the fences formation produces
+
+Formation is the **home of barrier missions**. An architecture / project-wide refactor **owns no single
+node — it cross-cuts many**, so it can never be scheduled as a normal node-owning Mission; in scheduler
+terms it is a **fence**, partitioning the schedule into a before and an after. Structural CRs are largely
+where such fences come from, so the Warden marks them at the point it emits one:
+
+- an escalated finding whose act **reaches across the whole project** is **called out explicitly as a
+  barrier** in the CR it emits — the call-out is a **judgment made at escalation**, not a property read
+  off a wide touch-set;
+- the CR states the barrier is to be **hoisted early** (a refactor done *after* parallel fan-out forces
+  a fleet-wide rebase; the cost only grows with delay) and **names the project it fences** — a barrier in
+  one project of a monorepo does not fence another's Missions;
+- a node-scoped finding is **not** a barrier; the call-out is reserved for genuinely project-wide acts.
+
+A project-wide act **escalates regardless of its contract-impact class** — like a deprecating act, it
+never self-clears even when it preserves every scenario verbatim. Its **reach** is the reason
+(near-whole-project blast → HITL), not what it does to any one contract.
+
+**Two nodes judge barriers, at different moments — this is the seam.** Formation calls one out **when it
+escalates a structural finding** (a fence it is *producing*); [`../ssa-lowering/`](../ssa-lowering/README.md)
+recognizes one **when it lowers a CR into Missions** (a fence it is *receiving*), and hoists it early there.
+Both are sanctioned, and they are not duplicates: same judgment, different producer and trigger. A
+formation-emitted barrier CR is therefore called out here **and** recognized again when it is lowered —
+belt and braces on the judgment that matters most.
+
+The call-out is a **declaration, not a scheduling act**. Formation names the barrier and states that it is
+to be hoisted early; a lowering run already honors that (`ssa-lowering`), and the HITL escalation puts it
+in front of a human. What is **not** built is the **shared work list** modeling fences — so nothing holds
+the rest of the project back automatically while a barrier runs
+([`../mission-graph/README.md`](../mission-graph/README.md) has no barrier semantics; issue #224). Calling
+it out is what makes that possible later: a barrier never called out cannot be honored by anything
+downstream.
+
+This does **not** disturb the self-clearing split above, and the two can never both fire: a **split** is
+by definition scoped to **one oversized node** (→ sub-nodes), so it never reaches across the project,
+while a barrier act reaches across the project **rather than** one node. The two Givens are disjoint on
+**reach**, and the suite pins that disjointness rather than leaving it to this prose — a coverage-preserving
+split of a single node still self-clears exactly as before.
 
 ## Stations, not status — and the frozen-contract guard
 

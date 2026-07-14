@@ -69,6 +69,59 @@ Feature: Plan retirement — the gated, idempotent tracked deletion of a retired
     Then it deletes the plan.md
     And it makes no change for the already-missing log.jsonl
 
+  # ---- Transient CR artifacts retire with the plan ----
+  # The design / operations / evidence briefs are cr-ref-scoped transient planning artifacts with
+  # the plan's lifetime. They RIDE ALONG with the plan's retirement decision: they do not widen the
+  # distilled gate (unlike the combat log, they owe no distillation — their content was consumed by
+  # the mission itself), and they do not anchor presence (the plan.md does).
+
+  Scenario: a cleared, distilled cr-ref deletes its transient briefs along with its plan files
+    Given a cr-ref cleared for retirement
+    And its plan.md, log.jsonl, design.md, operations.md, and evidence.md all exist on disk
+    And a strategy entry that distills the cr-ref exists in the ledger
+    When the sweep runs
+    Then it deletes the cr-ref's design.md
+    And it deletes the cr-ref's operations.md
+    And it deletes the cr-ref's evidence.md
+    And it deletes the cr-ref's plan.md and log.jsonl
+
+  Scenario: a cleared cr-ref with transient briefs but no combat log retires them without a distillation
+    Given a cr-ref cleared for retirement
+    And its plan.md and design.md exist on disk but no log.jsonl was ever written
+    And no strategy entry in the ledger distills the cr-ref
+    When the sweep runs
+    Then it deletes the cr-ref's plan.md
+    And it deletes the cr-ref's design.md
+
+  Scenario: a fail-closed cr-ref keeps its transient briefs alongside its undistilled combat log
+    Given a cr-ref cleared for retirement
+    And its plan.md, log.jsonl, and design.md exist on disk
+    And no strategy entry in the ledger distills the cr-ref
+    When the sweep runs
+    Then it deletes none of the cr-ref's transient briefs
+    And the combat log survives so its distillation can still be drafted
+
+  Scenario: a cleared cr-ref deletes the transient briefs it has and no-ops the ones it lacks
+    Given a cr-ref cleared for retirement
+    And a strategy entry that distills the cr-ref exists in the ledger
+    And its plan.md and operations.md exist but it has no design.md or evidence.md
+    When the sweep runs
+    Then it deletes the operations.md
+    And it makes no change for the absent design.md and evidence.md
+
+  Scenario: clearing a cr-ref does not delete a different cr-ref's transient brief it is a prefix of
+    Given a cr-ref is cleared for retirement
+    And a different cr-ref whose name begins with the cleared one has a design.md on disk
+    When the sweep runs
+    Then it does not delete the different cr-ref's design.md
+
+  Scenario: a cleared cr-ref with a transient brief but no plan.md is a no-op
+    Given a cr-ref cleared for retirement
+    And a strategy entry that distills the cr-ref exists in the ledger
+    And it has a design.md on disk but no plan.md
+    When the sweep runs
+    Then it does not delete the design.md
+
   # ---- Fail-closed: only an explicitly-cleared cr-ref is touched ----
 
   Scenario: a plan the caller did not clear is left untouched

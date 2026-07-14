@@ -52,7 +52,8 @@ SDD's own **`init`** skill (distinct from a domain plugin's `init-<plugin>`) pre
 workspace for mission plans (`../design/provenance-model.md`):
 
 - **Ensure the plan directory.** Create `.agents/plans/` (the tool-agnostic, **tracked** home
-  for each mission's `<cr-ref>.plan.md` + `<cr-ref>.log.jsonl` combat log — committed with the
+  for each mission's transient CR artifact set — `<cr-ref>.plan.md` + `<cr-ref>.log.jsonl` combat
+  log, plus any `.design.md` / `.operations.md` / `.evidence.md` planning brief — committed with the
   work, not gitignored).
 - **Symlink for Cursor.** Cursor only reads its own `.cursor/plans`, so init makes
   `.cursor/plans` a **symlink → `.agents/plans`** — `.agents/plans` stays the real folder, and

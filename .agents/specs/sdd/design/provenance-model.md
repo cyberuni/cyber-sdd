@@ -17,7 +17,7 @@ Mid-flight working detail is per-mission and committed with the work, then remov
 
 | Tier | Home | Holds | Lifetime |
 |---|---|---|---|
-| **Private scratch — the plan** | `.agents/plans/<cr-ref>.plan.md` (brief) + `.agents/plans/<cr-ref>.log.jsonl` (**the combat log**) | grill analysis + task DAG + progress; the append-only `report` / `correction` lines + a **CR-scoped `seq`** | **transient in the tree, durable in history** — tracked, distilled then deleted at retro |
+| **Private scratch — the plan** | the **transient CR artifact set** (below): `.agents/plans/<cr-ref>.plan.md` (brief) + `.agents/plans/<cr-ref>.log.jsonl` (**the combat log**), plus the optional planning briefs `<cr-ref>.design.md` / `.operations.md` / `.evidence.md` | grill analysis + task DAG + progress; the append-only `report` / `correction` lines + a **CR-scoped `seq`**; the briefs' design reasoning, operations plan, and decision evidence | **transient in the tree, durable in history** — tracked, distilled then deleted at retro |
 | **Durable internal — the ledger** | `ledger/` directory sibling to the **root** `spec.md`, holding one `<cr-ref>.<hash>.jsonl` shard per CR per writer | the conductor's run-start `leash` block, `gate` (verdict + `frozen[]`), and `strategy` (incl. the distilled recurrence) | durable |
 | **Durable public — the trail** | the CR source conclusion + changesets + git history | what shipped, for the outer loops to read forward | durable, external |
 
@@ -36,6 +36,24 @@ The shard name is `<cr-ref>.<hash>.jsonl` (Scanner strategy lines, often CR-less
 The plan is also a **portable handoff artifact**: a self-contained Markdown brief, co-located with the worktree (not a home-dir session), readable by any agent or model that picks up the mission.
 `<cr-ref>` is the source-qualified CR id (`github-34`, `asana-<gid>`, `local-<slug>`).
 The `.agents/plans/` tree is **tracked** (committed with the work, kept in the PR — the `report`/`correction` trail is the decision + failure history reviewers want).
+
+## The transient CR artifact set
+
+The private-scratch tier is **not just the plan pair**. A CR accumulates up to five `<cr-ref>`-scoped files under `.agents/plans/`, all sharing one lifetime — **tracked in the tree, transient there, durable in git history**:
+
+| File | Holds | Written by | Owes a distillation? |
+|---|---|---|---|
+| `<cr-ref>.plan.md` | the brief: grill analysis, task DAG, progress, the `## NEXT` anchor | intake (`start-mission`), updated by `pause-mission` | — (it is the presence anchor) |
+| `<cr-ref>.log.jsonl` | **the combat log** — the `report` / `correction` / `halt` lines | the conductor, mid-mission | **yes** — its recurring `cause`s are owed to the ledger's `strategy` |
+| `<cr-ref>.design.md` | design reasoning brought into the repo (the intake seam for a machine-local plan-mode doc) | intake / explore | no |
+| `<cr-ref>.operations.md` | the operations plan — the mission DAG, its Operations and side-quests | explore, for a multi-mission CR | no |
+| `<cr-ref>.evidence.md` | decision evidence — sources, judgments, alternatives, adversarial verification | explore | no |
+
+The last three are the **transient planning briefs**. They are **optional** (most CRs have none) and **`<cr-ref>`-scoped by construction** — the stem is the CR id, exactly as the plan pair's is.
+
+**Why the distinction is load-bearing.** All five retire together (*Plan retirement*, below), but only the **combat log owes a distillation**, so only it can gate. The briefs' content is **consumed by the mission itself** — a design brief becomes the spec — so at retirement nothing is waiting to extract from them and there is no evidence to lose. This is why the distilled gate keys on the **combat log's** presence and not on the brief set: a hand-run mission with a design brief and no combat log is never distilled, so gating on its brief would strand it as permanently un-retirable cruft — the exact failure the no-log branch exists to prevent.
+
+The briefs are subject to the same **safe-to-publish floor** as the rest of the tracked plan tree (repo-relative paths only, no machine-local locations) — the reason `start-mission` brings machine-local design content **into** the repo as a `<cr-ref>.design.md` rather than linking it.
 Concurrent missions never collide on it because each plan is keyed by `<cr-ref>` (source-qualified) and a CR is claimed by exactly one worktree at a time (the source-claim lock, `../intake/README.md`) — **not** because of gitignore.
 `.agents/plans` is the real, tool-agnostic home; for Cursor interop the SDD `init` skill symlinks `.cursor/plans → .agents/plans` so a plan written by either tool is seen by both (setup + migration: `../plugin/README.md`).
 The two faces below describe the **durable** record; the chatty mid-flight lines live in the plan.
@@ -359,7 +377,7 @@ Forge reads the distilled `correction`-with-`cause` from the ledger; campaign / 
 | `<name>.feature` | contract scenarios | **per file**, via its own `@frozen` tag, set on a spec-gate `approve` that touched it (see `lifecycle-model.md`) | yes |
 | `ledger/` (root sibling dir) | durable ledger — `leash` + `gate` + `strategy` only, one `<cr-ref>.<hash>.jsonl` shard per CR per writer (append-only; conflict-free by construction, no merge driver) | **never** | **never** |
 
-The mid-flight **plan** (`.agents/plans/<cr-ref>.plan.md` + `.log.jsonl`) is **not** part of the spec folder: it is **tracked** per-worktree scratch (committed with the work, kept in the PR), removed from the tree at retro once distilled and its source is done/merged (ADR-0015).
+The mid-flight **transient CR artifact set** (`.agents/plans/<cr-ref>.plan.md` + `.log.jsonl`, plus any `.design.md` / `.operations.md` / `.evidence.md`) is **not** part of the spec folder: it is **tracked** per-worktree scratch (committed with the work, kept in the PR), removed from the tree at retro once distilled and its source is done/merged (ADR-0015).
 
 Freeze is **per suite file**, not a single project-wide baseline: each `.feature` carries its own `@frozen` tag.
 The standing `approval` in `spec.md` says the contract was last cleared; the set of `@frozen` files says *which* scenarios are currently the frozen contract; the `gate` ledger lines say *which CR* froze each.
@@ -371,8 +389,9 @@ The committed plan is **retired** in two decoupled acts, both owned by the **doc
 - **Distill (early).**
   At `→ implemented` (before the PR exists), the Scanner reads the concluded combat log and distills recurring `cause`s into the ledger's `strategy` lines.
 - **Delete (late).**
-  The plan files (`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`) are removed from the tree as a **tracked deletion** — git history preserves them — only when **both** hold: the source is `done`/merged **and** the plan has been distilled **or there was no combat log to distill**.
+  The CR's whole **transient artifact set** (*above*) — `<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`, plus any `<cr-ref>.design.md` / `.operations.md` / `.evidence.md` — is removed from the tree as a **tracked deletion** — git history preserves them — only when **both** hold: the source is `done`/merged **and** the plan has been distilled **or there was no combat log to distill**.
   Never delete an un-distilled combat log (the retro never ran); the distilled gate guards an **existing** log, so a plan whose `log.jsonl` was never written (a non-gated mission — hand-run, chore-tracked, investigation — runs no gate cycle and emits no correction) has nothing to distill and is cleared to retire on the source half alone.
+  The **planning briefs ride along** with that one decision — they neither widen the gate (they owe no distillation) nor anchor presence (the `plan.md` does); retiring the plan while leaving them behind is what stranded them as orphans before.
   Deletion runs as doctrine's **last retro step**, after the distill writes to the ledger.
   The act is idempotent: a missing plan or an open CR is a no-op, so the retirement sweep is safe to re-run.
 

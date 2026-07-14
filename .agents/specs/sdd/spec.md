@@ -4,7 +4,11 @@ project-path: plugins/sdd
 approval:
   spec:
     verdict: approve
-    by: unional
+    by: agent
+    why: >-
+      github-193 (SQ-F4) — codified the transient CR artifact set and extended the retirement sweep
+      to it; 6 additive scenarios on doctrine/plan-retirement (suite self-cleared, stays @frozen).
+      Round-2 cold spec-judge ALIGNED true. Self-asserted within the auto-all leash.
 ---
 
 # Spec-Driven Development (SDD)

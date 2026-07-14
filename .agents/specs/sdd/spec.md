@@ -142,6 +142,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | [`touch-set-correction/`](./touch-set-correction/README.md) | post-hoc correct a mission's declared touch-set against its real `git diff` (feeds the mission graph) | — (consumed at retirement) |
 | [`collision-ladder/`](./collision-ladder/README.md) | at a known node collision, descend the finer-than-node ladder (file → region → semantic → symbol) to classify it hard or soft | — (consumed by the scheduler) |
 | [`ssa-lowering/`](./ssa-lowering/README.md) | the reasoning front-end: lower one-or-more CRs into a partitioned set of Missions (one owning Mission per spec-node) via the Oracle + Architect lenses | — (run at intake/Explore) |
+| [`blast-estimate/`](./blast-estimate/README.md) | compute a mission's blast from its touch-set (count × centrality × sensitivity) and line it up against the hand-asserted `blast:` (feeds the mission graph) | — (consumed by the graph's writer) |
 | [`plugin/`](./plugin/README.md) | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
 | [`acceptance/`](./acceptance/README.md) | e2e behavior suite | — |
 
@@ -160,7 +161,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
 | `intake` | `intake/manage-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
 | `lifecycle` | `acceptance/` (e2e) · `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) |
-| `orchestration` | `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
+| `orchestration` | `blast-estimate/` (behavior) · `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
 | `plugin` | `plugin/` (behavior) · `plugin/plugin-contract/` (reference) |
 | `provenance` | `acceptance/` (e2e) · `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) |
 | `resolution` | `acceptance/` (e2e) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) |

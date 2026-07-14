@@ -58,6 +58,34 @@ Feature: The formation loop — keep the spec corpus structurally organized
     When the Warden renders its dedup verdict
     Then it assigns the behavior to a single owning node
 
+  # ── Barrier call-out — the fences formation produces ──
+
+  Scenario: an escalated project-wide structural finding is called out as a barrier
+    Given a structural finding whose act reaches across the whole project
+    When the Warden escalates the finding as a new CR
+    Then the CR is called out explicitly as a barrier
+
+  Scenario: a node-scoped structural finding is not called out as a barrier
+    Given a structural finding whose act is scoped to a single node
+    When the Warden escalates the finding as a new CR
+    Then the CR is not called out as a barrier
+
+  Scenario: a project-wide structural act escalates regardless of contract impact
+    Given a structural act that reaches across the whole project rather than one node
+    And the act preserves every scenario verbatim
+    When the Warden renders its verdict
+    Then it escalates the act regardless of its contract-impact class
+
+  Scenario: a barrier CR states that it is to be hoisted early
+    Given an escalated project-wide structural finding
+    When its CR is emitted
+    Then the CR states the barrier is to be hoisted early
+
+  Scenario: a barrier CR names the project it fences
+    Given an escalated project-wide structural finding in one project of a monorepo
+    When its CR is emitted
+    Then the CR names the project the barrier fences
+
   # ── Layout-quality signal (F1) ──
 
   Scenario: a formation pass surfaces a layout-quality signal

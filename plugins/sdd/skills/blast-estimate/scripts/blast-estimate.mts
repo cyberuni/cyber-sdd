@@ -433,8 +433,13 @@ export function estimateBlast(
 	const root = opts.root ?? '.'
 	const byNode = discoverWorkAreas(layouts, root)
 	const known = new Set(byNode.keys())
-	const resolved = touchSet.filter((a) => known.has(a))
-	const unresolved = touchSet.filter((a) => !known.has(a))
+	// A touch-set is a SET of work areas: dedupe before counting. `count` measures how many distinct
+	// areas are disturbed, so naming one area twice must not read as twice the reach — otherwise the
+	// same change scores a higher level for being typed redundantly. The sibling touch-set-correction
+	// dedupes its own output, but the mission-graph store does not, so a duplicate genuinely arrives.
+	const unique = [...new Set(touchSet)]
+	const resolved = unique.filter((a) => known.has(a))
+	const unresolved = unique.filter((a) => !known.has(a))
 
 	const sensitive = readSensitivePaths(root)
 	if (!sensitive.ok) {
@@ -529,11 +534,28 @@ export function parseLayoutFlag(value: string): ProjectLayout | null {
 	return { project, roots }
 }
 
+/** The legal `--declared` values, exactly. Returns `null` for anything else so the CLI can fail loud
+ *  rather than let an unranked value masquerade as "below everything". Case-sensitive on purpose: the
+ *  store writes these lowercase, and quietly accepting `High` would invite a second spelling. */
+export function parseDeclared(raw: string): DeclaredBlast | null {
+	return raw === 'low' || raw === 'medium' || raw === 'high' || raw === 'unknown' ? raw : null
+}
+
 export function main(argv: string[]): number {
 	const root = flag(argv, '--root') ?? '.'
 	const touchSet = splitCsv(flag(argv, '--touch-set'))
 	const declaredRaw = flag(argv, '--declared')
-	const declared = declaredRaw === undefined ? undefined : (declaredRaw as DeclaredBlast)
+	// Validate rather than cast. `lineUp` ranks via ORDER.indexOf, so an unrecognized value scores -1
+	// and reads as "below every computed level" — silently fabricating the `under-called` finding this
+	// tool exists to raise, out of nothing but a typo. Fail loud instead: the same duty the
+	// sensitive-paths reader honors, and the dangerous direction is the one to refuse.
+	const declared = declaredRaw === undefined ? undefined : parseDeclared(declaredRaw)
+	if (declared === null) {
+		process.stderr.write(
+			`blast-estimate: --declared must be one of low, medium, high, unknown (got "${declaredRaw}")\n`,
+		)
+		return 1
+	}
 	const format = flag(argv, '--format') === 'json' ? 'json' : 'toon'
 
 	// Layouts come from `--layout` when given, else from discover-specs via discoverLayouts — the

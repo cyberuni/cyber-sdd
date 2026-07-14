@@ -11,6 +11,7 @@ import {
 	lineUp,
 	main,
 	type ProjectLayout,
+	parseDeclared,
 	parseSensitivePaths,
 	readSensitivePaths,
 	renderResultToon,
@@ -448,4 +449,41 @@ test('fan-in counts a reference from an IMPLEMENTATION file, not spec prose alon
 	seedRootedArea(dir, 'impl', 'consumer', { 'consumer.mts': "import { x } from 'sdd/hub'" })
 	const r = estimateBlast(['sdd/hub'], TWO_ROOT_LAYOUT, { root: dir })
 	assert.equal(r.reasons?.maxFanIn, 1, 'the impl-side reference must count toward centrality')
+})
+
+// ── Regressions: two ways the tool manufactured a false finding ──
+// Both were found by driving the REAL CLI, not by any fixture — every fixture passes distinct areas
+// and a valid --declared, so the constructed corpus is structurally blind to each.
+
+test('a touch-set is a set: naming one area twice does not inflate its reach', () => {
+	const dir = mkCorpus()
+	seedArea(dir, 'sdd', 'area1', { 'README.md': 'x' })
+	seedFiller(dir, 4)
+	const once = estimateBlast(['sdd/area1'], SDD_LAYOUT, { root: dir })
+	const thrice = estimateBlast(['sdd/area1', 'sdd/area1', 'sdd/area1'], SDD_LAYOUT, { root: dir })
+	assert.equal(thrice.reasons?.count, once.reasons?.count, 'count is distinct areas, not list length')
+	assert.equal(thrice.computed, once.computed, 'the same change must not score higher for being typed twice')
+})
+
+test('a duplicated unresolved area is reported once, not once per mention', () => {
+	const dir = mkCorpus()
+	seedArea(dir, 'sdd', 'area1', { 'README.md': 'x' })
+	seedFiller(dir, 2)
+	const r = estimateBlast(['sdd/ghost', 'sdd/ghost'], SDD_LAYOUT, { root: dir })
+	assert.deepEqual(r.unresolved, ['sdd/ghost'])
+})
+
+test('parseDeclared accepts exactly the legal levels and rejects the rest', () => {
+	for (const ok of ['low', 'medium', 'high', 'unknown']) assert.equal(parseDeclared(ok), ok)
+	// `-1` from ORDER.indexOf would read as "below everything" and fabricate an under-called finding
+	for (const bad of ['bogus', 'High', 'LOW', '', 'critical'])
+		assert.equal(parseDeclared(bad), null, `${bad} must be rejected`)
+})
+
+test('an invalid --declared fails loud rather than fabricating an under-called finding', () => {
+	const dir = mkCorpus()
+	seedArea(dir, 'sdd', 'area1', { 'README.md': 'x' })
+	seedFiller(dir, 2)
+	const code = main(['--root', dir, '--layout', 'sdd:sdd', '--touch-set', 'sdd/area1', '--declared', 'bogus'])
+	assert.equal(code, 1, 'an unrecognized level must exit non-zero, never report under-called')
 })

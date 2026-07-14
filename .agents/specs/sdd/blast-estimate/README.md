@@ -44,6 +44,7 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **declared blast** | the **hand-typed** blast already on the Mission — the guess being checked |
 | **computed blast** | the level this tool works out from the project itself |
 | **centrality** (dependency fan-in) | how many *other* work areas lean on a touched one — a hub disturbs more than a leaf |
+| **coverage** (project-wide reach) | whether a touch-set reaches **every** work area of a project — reach measured *relative* to that project, as against **count**, which is reach in absolute terms. A project holding a single work area has no coverage to measure: there is nothing for the touch-set to cover *the rest of*. |
 | **sensitive** | a work area a project has explicitly **marked** as needing extra care |
 | **agrees / under-called / over-called** | the three-way line-up of the hand-typed guess against the computed level |
 
@@ -69,6 +70,7 @@ decides on its own). It estimates; it does not schedule and it does not gate.
 | **keep an honest over-guess harmless** | a declared blast above the computed one | `over-called` — surfaced, never an error | `Scenario: a declared blast above the computed level is reported over-called` |
 | **trust the same input twice** | the same touch-set + project | the same level, every time | `Scenario: the estimate is deterministic for a fixed input` |
 | **never lose an area it cannot place** | a touch-set naming an unknown area | the area is surfaced as unresolved, never dropped | `Scenario: a touch-set area that resolves to no known work area is surfaced` |
+| **corroborate a barrier on reach alone** | a touch-set covering **every** work area of a project holding more than one | `high` — so a called-out barrier and the estimate agree by construction. On a project of **one** there is no coverage to measure, so reach adds nothing and the lone area scores on centrality and sensitivity alone — `low` when peripheral and unmarked, higher when not | `Scenario: a project-wide touch-set computes high blast` · `Scenario: a lone work area is its whole project but is not project-wide reach` |
 
 Every scenario in [`blast-estimate.feature`](./blast-estimate.feature) maps to one of these entries or
 to a cross-cutting guarantee (read-only, deterministic, reports-never-writes).
@@ -112,8 +114,15 @@ The estimate **sharpens** the hand-typed field; it does not seize it.
   how much evidence a self-clear needs; it never escalates on its own, and it never sets a hard floor.
 - A **barrier** — a project-wide act called out by the formation loop
   ([`../formation/README.md`](../formation/README.md)) — reaches across its whole project by definition,
-  so its computed blast is `high`. The call-out and the estimate agree by construction rather than by
-  hand, which is why a barrier escalates on reach alone.
+  so on a project holding **more than one** work area its computed blast is `high`. The call-out and the
+  estimate agree by construction rather than by hand, which is why a barrier escalates on reach alone.
+  On a project holding **exactly one** work area the estimate does **not** corroborate the call-out
+  **on reach**: coverage is reach *relative* to a project, and a project of one has none to cover, so
+  coverage never fires and breadth stays flat. The lone area still scores on **centrality** and
+  **sensitivity** — so it computes `low` only when it is peripheral *and* unmarked, and `medium` or
+  `high` when it is not. The agreement is simply not guaranteed at that size, in either direction.
+  That costs the barrier nothing — the call-out escalates on the formation loop's **own** reach
+  finding, and the estimate only **corroborates** it. Nothing is gated on the agreement.
 
 ## Boundaries
 

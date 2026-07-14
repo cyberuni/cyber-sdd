@@ -43,7 +43,7 @@ not the exact numbers):
     project the touch-set nowhere near covers)
   - `coverageScore`: 3 iff the touch-set covers **every** work area of a touched project holding
     **≥2** work areas, else 0 (relative reach — a 3-area project touched entirely *is* project-wide;
-    the barrier agreement must hold at every project size, not only at 4+)
+    the barrier agreement must hold at every project size **≥2**, not only at 4+)
 - **centrality**: 0→0, 1-2→1, 3-6→2, 7+→3 (a genuine hub: touching an area a large share of the
   project leans on is project-scale reach even at count 1). Calibrated against **real** fan-in, which
   spans roughly 0–17 on a corpus of this size.
@@ -52,10 +52,14 @@ not the exact numbers):
 Sum the three, then `score>=3` → `high`, `score>=1` → `medium`, `score==0` → `low`. A touch-set that
 resolves to **zero** known areas (including the empty touch-set) computes `unknown` — never `low`.
 
-The **≥2 work areas** guard on coverage is load-bearing. In a corpus holding exactly one work area,
-"a single peripheral work area" (→`low`) and "a touch-set reaching across every work area of its
-project" (→`high`) would describe the same input with opposite answers; the two stay disjoint only
-because a corpus has more than one work area, so coverage never fires on a 1-area project.
+The **≥2 work areas** guard on coverage is load-bearing, and it is keyed per **project**, not per
+corpus: a 1-area project inside a larger multi-project corpus is still never project-wide. The
+contract states the precondition itself — the project-wide scenario requires a project holding more
+than one work area, and *"a lone work area is its whole project but is not project-wide reach"* pins
+the 1-area answer to `low` **for a lone area with no fan-in and no marking**. Coverage is reach
+**relative** to a project, and a project of one has none to cover, so coverage never fires there and
+**breadth** rests on absolute count alone — centrality and sensitivity still score, so a lone area
+that is central or marked computes `medium` or `high`.
 
 Two exclusions are structural, not just documented: there is no compatibility/breaking-change input
 at all (no seam for it to enter the score), and centrality is **measured** fan-in only — a work

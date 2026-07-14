@@ -56,8 +56,10 @@ The **≥2 work areas** guard on coverage is load-bearing, and it is keyed per *
 corpus: a 1-area project inside a larger multi-project corpus is still never project-wide. The
 contract states the precondition itself — the project-wide scenario requires a project holding more
 than one work area, and *"a lone work area is its whole project but is not project-wide reach"* pins
-the 1-area answer to `low`. Coverage is reach **relative** to a project, and a project of one has
-none to cover, so coverage never fires there and only absolute count speaks.
+the 1-area answer to `low` **for a lone area with no fan-in and no marking**. Coverage is reach
+**relative** to a project, and a project of one has none to cover, so coverage never fires there and
+**breadth** rests on absolute count alone — centrality and sensitivity still score, so a lone area
+that is central or marked computes `medium` or `high`.
 
 Two exclusions are structural, not just documented: there is no compatibility/breaking-change input
 at all (no seam for it to enter the score), and centrality is **measured** fan-in only — a work

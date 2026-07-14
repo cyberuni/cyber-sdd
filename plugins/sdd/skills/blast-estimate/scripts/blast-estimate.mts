@@ -287,8 +287,10 @@ export function readSensitivePaths(corpusRoot: string): SensitiveResult {
 // (→ high) described the SAME input with opposite Thens, and this guard silently picked the winner.
 // The suite now states the precondition itself: the project-wide scenario requires a project holding
 // more than one work area, and "a lone work area is its whole project but is not project-wide reach"
-// pins the 1-area answer to low. Coverage is reach RELATIVE to a project, and a project of one has
-// none to cover — there, only absolute count speaks.
+// pins the 1-area answer to low FOR A LONE AREA WITH NO FAN-IN AND NO MARKING. Coverage is reach
+// RELATIVE to a project, and a project of one has none to cover, so coverage never fires there and
+// BREADTH rests on absolute count alone — centrality and sensitivity still score, so a lone area that
+// is central or marked computes medium or high.
 
 function countScore(n: number): number {
 	if (n <= 1) return 0

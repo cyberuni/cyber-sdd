@@ -9,7 +9,10 @@ concept: [doctrine, provenance]
 `../../design/provenance-model.md` — *Plan retirement*). Because plans are now **tracked**
 (committed with the work, not gitignored), a retired plan leaves the tree by a deliberate, gated
 **tracked deletion** — never a gitignore side effect. The sweep globs `.agents/plans/*.plan.md`
-and, for each cleared `<cr-ref>`, deletes `<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`.
+and, for each cleared `<cr-ref>`, deletes that CR's whole **transient artifact set**: the plan pair
+(`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`) plus its **transient CR-level planning briefs**
+(`<cr-ref>.design.md`, `<cr-ref>.operations.md`, `<cr-ref>.evidence.md`) — so a retired CR leaves no
+orphan behind (`../../design/provenance-model.md` — *The transient CR artifact set*).
 
 > **This is a single behavioral unit, not an overview** — retirement is one skill carrying a
 > self-contained `.mts` script. This spec owns the **behavior + suite**
@@ -20,8 +23,9 @@ and, for each cleared `<cr-ref>`, deletes `<cr-ref>.plan.md` + `<cr-ref>.log.jso
 ## Use Cases
 
 **Subject** — the gated, idempotent retirement sweep: distill and delete are decoupled; the
-delete removes a plan's two files as a tracked deletion only when its source is done/merged **and**
-the plan has been distilled — the sweep **verifies the distilled half mechanically** against the
+delete removes a CR's transient artifact set as a tracked deletion only when its source is
+done/merged **and** the plan has been distilled — the sweep **verifies the distilled half
+mechanically** against the
 project ledger (a `strategy` entry whose `distills` equals the `<cr-ref>` must exist) and
 fail-closes when it is absent. The distilled gate guards an **existing combat log**: a `<cr-ref>`
 whose `log.jsonl` was never written (a non-gated mission — hand-run, chore-tracked, investigation)
@@ -47,6 +51,9 @@ filesystem effect — never the caller's clearance decision (which is out of thi
 | **distills ≠ cross-ref** | a `strategy` that names the `<cr-ref>` only in its `evidence` (as prior cross-reference), not in `distills`, does **not** clear it — the gate keys on `distills`, never a substring mention |
 | **deletes both plan files** | a cleared, present, distilled `<cr-ref>` removes `<cr-ref>.plan.md` **and** `<cr-ref>.log.jsonl` as a tracked deletion |
 | **partial pair is no-op'd** | a cleared, distilled `<cr-ref>` whose `log.jsonl` is already gone still deletes `plan.md` and no-ops the missing half |
+| **transient briefs ride along** | the same retirement also deletes `<cr-ref>.design.md` / `.operations.md` / `.evidence.md` — the CR's transient planning briefs share the plan's lifetime, so they leave with it and strand no orphan; each absent one is no-op'd, same as the missing log half |
+| **briefs do not widen the gate** | the distilled gate keys on the **combat log** only — a `<cr-ref>` with briefs but no `log.jsonl` still retires without a distilling `strategy`; unlike the log, a brief **owes no distillation**, so gating on one would strand the no-log mission class to guard evidence nothing is waiting to extract |
+| **briefs do not anchor presence** | presence is the **`plan.md`**'s alone — the brief set is swept only for a `<cr-ref>` whose `plan.md` is present, never on its own |
 | **fail-closed — uncleared is untouched** | a plan the caller did not clear (its source still open) is left untouched; only an explicitly-cleared `<cr-ref>` is ever considered |
 | **exact-stem match** | clearing a `<cr-ref>` never collateral-deletes a different `<cr-ref>` it is a prefix of |
 | **idempotent — missing plan is a no-op** | a cleared `<cr-ref>` with no plan on disk deletes nothing; the sweep is safe to re-run |
@@ -80,6 +87,33 @@ The sweep's **authoritative observable is the filesystem effect** — which plan
 Its printed summary of the retired `<cr-ref>`s is **advisory** (operator feedback), **not** part of
 the frozen contract; the impl-judge re-derives its oracle from the on-disk deletions, not the
 stdout.
+
+## The transient brief set — riding along, never gating
+
+`<cr-ref>.design.md` / `.operations.md` / `.evidence.md` are **transient CR-level planning artifacts**
+(`../../design/provenance-model.md` — *The transient CR artifact set*): cr-ref-scoped, tracked,
+committed with the work, and carrying the plan's lifetime. Before this, the sweep knew only the plan
+pair, so a retired CR's briefs **stranded in the tree** with no automated path out — the orphan this
+unit now closes.
+
+They **ride along** with the plan's retirement decision; they do not participate in it. Two
+boundaries, both deliberate:
+
+- **They do not widen the distilled gate.** The gate exists to protect a specific invariant — *never
+  delete an undistilled combat log* — because the log **owes a distillation**: its recurring `cause`s
+  are still owed to the ledger's `strategy`, and deleting it destroys evidence nothing has extracted
+  yet. A design or operations brief owes nothing: its content was **consumed by the mission itself**
+  (it became the spec), so at retirement there is no pending extraction to guard. Gating on a brief
+  would re-strand the very mission class the no-log branch exists to rescue — a hand-run mission with
+  a design brief and no combat log is never distilled, so it could never retire.
+- **They do not anchor presence.** The `plan.md` is the CR's presence marker; the brief set is swept
+  only for a `<cr-ref>` whose `plan.md` is present. A brief without its `plan.md` is out of scope —
+  the idempotency contract (*a cleared `<cr-ref>` with no plan on disk deletes nothing*) is the
+  stronger guarantee, and no such orphan exists to collect.
+
+`.evidence.md` is transient **as it stands today** — a cr-ref-scoped brief in `.agents/plans/`. Should
+decision-evidence later earn a durable home, the change that gives it one carves it back out; until
+then, leaving it unswept would preserve exactly the orphan this unit closes.
 
 ## Delivery
 

@@ -41,7 +41,7 @@ here.
 | Unit | Type | Spec | Role |
 |---|---|---|---|
 | **scanner** | behavioral | [`scanner/`](./scanner/README.md) | the Scanner detect-and-draft loop — the six lifecycle triggers, sole-writer of `strategy`, observe-not-write, post-hoc inputs (the combat log alone, transcripts additive), episodic surfacing; realized by the `sdd-scanner` agent loading the `doctrine-loop` skill |
-| **plan-retirement** | behavioral | [`plan-retirement/`](./plan-retirement/README.md) | doctrine's last retro step — the gated, idempotent **tracked deletion** of a retired plan (`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`) once its source is done/merged **and** distilled; realized by the `plan-retirement` `.mts` skill |
+| **plan-retirement** | behavioral | [`plan-retirement/`](./plan-retirement/README.md) | doctrine's last retro step — the gated, idempotent **tracked deletion** of a retired CR's transient artifact set (`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`, plus any `.design.md` / `.operations.md` / `.evidence.md`) once its source is done/merged **and** distilled; realized by the `plan-retirement` `.mts` skill |
 
 ## Strategy → doctrine → corpus
 

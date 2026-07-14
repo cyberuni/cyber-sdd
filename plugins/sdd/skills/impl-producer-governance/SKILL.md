@@ -19,9 +19,17 @@ MODE: explore | implement
 
 ## Procedure
 
-1. **Read the contract.** Read the `.feature`. In `implement` (deliver) mode it is **frozen** — the sealed orders; build against it as the fixed bar. In `explore` mode it is a **draft** — spike against it to probe the contract; a discovery (the chosen solution needs a behavior the `.feature` omits) returns as a `CONTENT_GAP` / `OBSERVATIONS`, never written into `spec.md` or the `.feature`. The ship-quality impl-judge does not run during explore.
+1. **Read the contract.** Read the `.feature` — **every scenario in full, `Given` steps included**; no part of it is excluded from what you read. In `implement` (deliver) mode it is **frozen** — the sealed orders; build against it as the fixed bar. In `explore` mode it is a **draft** — spike against it to probe the contract; a discovery (the chosen solution needs a behavior the `.feature` omits) returns as a `CONTENT_GAP` / `OBSERVATIONS`, never written into `spec.md` or the `.feature`. The ship-quality impl-judge does not run during explore.
 
 2. **Build the implementation** against the `.feature`, applying the **builder** + **architect** bars (testability/coverage; structural fit — no duplication or conflict). The product/test split is a private detail — it is not surfaced.
+
+   **A `Given` is a test vector, not specification** (`sdd:suite-format-governance` carries the canonical bar and the swap test). Conform to each scenario's `Then`; owe nothing to its `Given`'s apparatus.
+
+   - The `Given`'s **precondition** — the state the `Then` is asserted under — is **contract**: the implementation handles it.
+   - The `Given`'s **apparatus** — its domain, entities, names, framing — **binds nothing**: no illustration or worked example you author reuses it, and no branch special-cases a literal it names.
+   - **Draw every illustration from a domain the suite does not probe.** An artifact whose illustrations share no apparatus with any `Given` is the required end state, not drift.
+
+   Self-check with the **swap test**: substituting a scenario's apparatus for an unrelated domain leaves your implementation unchanged. Apply it per element — one `Given` routinely carries both a precondition and its apparatus.
 
 3. **Author the verification** — one functional test/eval per frozen scenario, anchored to the frozen scenarios, **not** free-authored from your own sense of done. **Prefer executing the frozen scenario directly** (the `.feature` itself as the runnable check) over mapping it to a hand-written unit test — direct execution keeps the **oracle spec-owned** and only the glue producer-authored. Where a unit-test mapping is unavoidable, the assertion's **expected outcome (oracle) comes from the frozen scenario** (a faithful mapping), never from your own sense of done — the cold impl-judge re-derives that oracle and checks the mapping is faithful (ADR-0016). Any rubric/threshold/score is a validation detail — it never appears in the `.feature`. The impl-judge **runs** this verification; this role does not run it as the gate. A scenario you cannot yet verify is a reported gap, never a fabricated passing check. **When the verification is a runnable test a `verify-scenarios` bridge will read** (a deterministic artifact-type with a `.agents/sdd/scenario-bridge.toml`), author it to bind: place the test under a `spec:<node>` describe namespace and title it with the **verbatim frozen scenario name** (or an `@id:<slug>` leaf) so its report binds back to the scenario and the impl-judge can consume the bridge instead of re-verifying it by hand.
 

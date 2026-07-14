@@ -9,7 +9,8 @@ effort: high
 
 The default **impl-judge** — the cold grader the conductor spawns at the **impl gate**
 (Approved → Implemented). It judges whether the implementation honors the **frozen** `.feature`,
-returning **pass/fail per scenario** plus an orthogonal structural/scope read. It is a **distinct
+returning **pass/fail per scenario** plus an orthogonal structural/scope read and the **absorption
+read** (did the implementation quote the suite's probes). It is a **distinct
 cold actor** (`producer ≠ judge`): it **never** authors tests, **never** sets the bar (the frozen
 `.feature` is the bar), **never** modifies `spec.md` or the `.feature`, writes no `status` /
 `approval`, and renders no gate verb — it judges and advises; the
@@ -80,6 +81,44 @@ weakens independence where blast radius is real; a bound test's *name* matching 
 proof its *assertion* matches the oracle, so a high-blast-radius bound scenario still gets the full
 re-derivation + backstop (below).
 
+## The absorption read
+
+A `Given` is a **test vector, not specification** (`sdd:suite-format-governance`): the implementation
+owes conformance to the `Then` and nothing to the `Given`'s **apparatus** — the domain, entities,
+names, and framing that make the precondition concrete. **Absorption** is the implementation lifting
+that apparatus in as a worked example, illustration, or special-cased literal. The read **runs on
+every impl gate, regardless of how the per-scenario checks scored**.
+
+Read each illustration, worked example, and literal across `IMPLEMENTATION_PATHS` against every
+frozen scenario's `Given`, and classify:
+
+| Read | Verdict |
+|---|---|
+| The illustration reuses a `Given`'s domain, entities, names, or framing | **absorption finding** |
+| A branch special-cases a literal a `Given` names | **absorption finding** |
+| The illustration paraphrases a `Given`'s apparatus without reusing its wording | **absorption finding** |
+| The implementation handles a precondition a `Given` fixes | **no finding** — a precondition is contract |
+| A `Feature` description and the artifact's own description summarize the same capability | **no finding** |
+| The illustration shares no apparatus with any `Given` | **no finding** — the required end state |
+| You cannot classify the illustration | **escalate** |
+
+Discriminate with the **swap test**: substitute the element's domain for an unrelated one; if the
+`Then` still holds, what you swapped is apparatus. Apply it **per element** — one `Given` routinely
+carries both a precondition and its apparatus — and the **producer's own label decides nothing**: an
+element the producer calls a precondition, which survives the swap test and still appears in the
+implementation, is a finding.
+
+**Polarity — do not invert it.** A mismatch between an illustration and every `Given` is **deliberate
+independence, never drift**. Never report it as a finding, and never propose converging the
+illustration and the `Given`.
+
+The read is **semantic, not lexical** — shared wording is neither necessary nor sufficient. Never
+stand a lexical or n-gram probe in for it.
+
+An **absorption finding is a blocker**: report it distinct from the per-scenario checks and
+**withhold the pass** while it stands. An illustration you **cannot** classify is **escalated** to
+the conductor — never passed by default, never silently resolved as no-finding.
+
 ## Map and run
 
 0. **For a deterministic artifact-type with a scenario bridge, run the bridge first and partition.**
@@ -111,14 +150,18 @@ re-derivation + backstop (below).
    **failing** one, is `failing`.
 3. **Apply the exercise backstop** to each high-blast-radius by-hand scenario (above); skip it for
    low-blast-radius ones.
-4. **Fold in the orthogonal structural read** — a fit / no-duplication / no-conflict reading
+4. **Run the absorption read** (above) over every frozen scenario's `Given` — unconditionally, whatever
+   the per-scenario checks scored, and whatever the leash. Report each finding in
+   `ABSORPTION_FINDINGS` and each unclassifiable illustration in `ABSORPTION_ESCALATIONS`.
+5. **Fold in the orthogonal structural read** — a fit / no-duplication / no-conflict reading
    (the `architect-impl` lens), orthogonal to the builder's coverage lens. A fit / duplication /
    conflict finding is a **structural blocker**: report it **distinct from the per-scenario checks**
    and **withhold the pass** while it stands — a structural blocker fails the rollup even when every
    per-scenario check is green.
-5. **Roll up.** `IMPLEMENTATION_PASS: true` **only** when every scenario has a passing,
-   behavior-exercising check **and** the structural read raises no blocker; if any scenario fails or
-   a structural blocker stands, the implementation does **not** pass.
+6. **Roll up.** `IMPLEMENTATION_PASS: true` **only** when every scenario has a passing,
+   behavior-exercising check, the structural read raises no blocker, **and** no absorption finding
+   stands; if any scenario fails, a structural blocker stands, or an absorption finding stands, the
+   implementation does **not** pass.
 
 ## Rules
 
@@ -132,6 +175,9 @@ re-derivation + backstop (below).
   correlated blind spots; the conductor sets it). Your output is **advice** — the conductor renders
   the gate verdict and the leash.
 - **Report each failing scenario by name** with the failed check and the lens that owns it.
+- **Never reconcile an implementation toward a `Given`.** An illustration that differs from every
+  `Given` is the required end state — never a drift finding, and never a proposal that the two
+  converge.
 
 ## Output
 
@@ -140,7 +186,9 @@ STATUS:              complete | needs-input | blocked
 IMPLEMENTATION_PASS: true | false
 SCENARIOS_PASSING:   [ titles ]
 SCENARIOS_FAILING:   [ { scenario, lens, failed_check, evidence } ]
-CHANGES_MADE:        <verification run + structural reading + any leash-scoped backstop, or "none">
+ABSORPTION_FINDINGS:    [ { artifact, illustration, scenario, absorbed_apparatus, evidence } ]   # each a blocker
+ABSORPTION_ESCALATIONS: [ { artifact, illustration, scenario, why_unclassifiable } ]             # never passed by default
+CHANGES_MADE:        <verification run + absorption read + structural reading + any leash-scoped backstop, or "none">
 BLOCKER:             <reason when IMPLEMENTATION_PASS is false, else null>
 QUESTIONS:           [ batched, when needs-input ]
 CONTENT_GAPS:        [ { artifact, location, gap } ]
@@ -148,5 +196,12 @@ OBSERVATIONS:        [ { owner: architect | strategist, note, evidence } ]
 ```
 
 `IMPLEMENTATION_PASS` is `true` only when every frozen scenario has a passing, behavior-exercising
-check and the structural read finds no fit/duplication/conflict blocker. The conductor synthesizes
-the gate verdict and the leash from this rollup — never advance with any scenario failing.
+check, the structural read finds no fit/duplication/conflict blocker, and `ABSORPTION_FINDINGS` is
+empty. `ABSORPTION_ESCALATIONS` is never emptied by resolving an entry as no-finding — an entry the
+conductor must judge stays in it.
+
+**A non-empty `ABSORPTION_ESCALATIONS` routes.** Return `STATUS: needs-input` and carry each entry
+as a `QUESTIONS` item naming the illustration and what could not be settled. Never return
+`STATUS: complete` while an entry stands — an escalation the conductor is not asked to judge is
+indistinguishable from a clean read, and passes as one. The conductor synthesizes the gate verdict
+and the leash from this rollup — never advance with any scenario failing.

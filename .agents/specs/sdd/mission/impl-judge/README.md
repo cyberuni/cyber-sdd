@@ -37,6 +37,10 @@ The procedure runs at the impl gate; every scenario in
 | **the producer's green run is a pre-filter, not the verdict** | the producer's own passing test run is necessary, never sufficient — the judge's independent re-derivation decides |
 | **an uncovered scenario fails** | a frozen scenario with no verification, or a failing one, is `failing` |
 | **behavioral-exercise backstop (leash-scoped)** | for a high-blast-radius scenario, confirm a passing check **fails when the named behavior is broken** (a scoped mutation of the asserted behavior) |
+| **absorption read — a probe match is a finding** | read each illustration / worked example / special-cased literal in the implementation against the **apparatus** of every scenario's `Given`; a match is an **absorption finding** — the artifact quotes the probe it is graded against (`../../authoring/suite-format/README.md`) |
+| **independence is health, never drift** | an illustration that shares no apparatus with any `Given` is the **required** end state, not a gap: the judge never reports it as drift and never reconciles the two toward each other |
+| **the absorption read is semantic** | a paraphrase that shares no wording with a `Given` is still a match; shared wording between a `Feature` description and the artifact's own description is **not** — both legitimately summarize the same capability |
+| **an unclassifiable illustration escalates** | an illustration the judge cannot classify as absorbed or independent is **escalated, never passed by default** (escalate-don't-exempt) |
 | **orthogonal structural read** | fold in a fit / no-duplication / no-conflict reading, orthogonal to the builder's lens |
 | **a structural finding is a blocker that withholds the pass** | a fit / duplication / conflict finding from the structural read is raised as a **structural blocker** distinct from the per-scenario checks; the implementation is not reported passing while it stands |
 | **roll up** | implementation passes **only** when every scenario has a passing, behavior-exercising check |
@@ -68,6 +72,46 @@ only where the **run-level leash** says a wrong verdict costs something — ever
 backstop), while a **low-blast-radius BOUND+PASS** scenario is accepted on the bridge report (the
 same low-stakes bar that already lets the backstop be skipped). This is the deterministic path only;
 absent a bridge the judge re-derives every scenario by hand.
+
+## The absorption read — passing is not evidence of reasoning
+
+Every layer above asks *"does the implementation satisfy the scenario?"*. An implementation that
+**absorbed** the scenario satisfies it maximally, so those layers cannot see it — a suite the
+artifact quotes grades nothing, and the gate reads that silence as a pass. The absorption read is
+the layer that asks the different question: **did the artifact earn the pass, or copy the probe?**
+It is **orthogonal to the per-scenario checks** and runs regardless of how they scored.
+
+A scenario's `Given` fixes a **precondition** (contract) and the **apparatus** that makes it
+concrete — domain, entities, names, framing (a test vector that binds nothing,
+`../../authoring/suite-format/README.md`). The read compares the implementation's illustrations,
+worked examples, and special-cased literals against that **apparatus** only. An implementation
+handling a `Given`'s precondition is conformance, never absorption.
+
+Classify an ambiguous element with the **swap test** (`../../authoring/suite-format/README.md`):
+substitute the `Given`'s domain for an unrelated one; if the `Then` still holds, what you swapped was
+apparatus. An element that survives the swap and still appears in the artifact is absorbed — the
+producer's own label for it decides nothing. Where the swap test does not settle it, **escalate**.
+
+**Polarity — this is the trap.** Absorption inverts the usual reconcile instinct, and reading it
+backward re-contaminates the node on the first pass:
+
+| The implementation's illustration | Verdict |
+|---|---|
+| **matches** a scenario's `Given` apparatus | **absorption finding** — a blocker |
+| **differs** from every scenario's `Given` | **healthy** — the required end state |
+| the judge **cannot classify** it | **escalate** — never passed by default |
+
+A mismatch between the suite's probes and the artifact's examples is **deliberate independence, not
+drift**. The judge never proposes converging them; a loop that "heals" that gap re-creates the
+defect it was built to catch.
+
+**Semantic, not lexical.** Apparatus is usually lifted by **paraphrase**, so a wording match is
+neither necessary nor sufficient. A shared-n-gram probe both over-fires (a `Feature` description and
+the artifact's description legitimately summarize the same capability) and under-fires (it misses
+every paraphrase). The read is a judgment, and where the judgment does not land, it **escalates**.
+
+The finding is a **blocker**: while an absorption finding stands, the implementation is not reported
+passing — the same discipline as a structural finding.
 
 ## Cold and advisory
 

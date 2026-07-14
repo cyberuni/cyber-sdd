@@ -1,6 +1,6 @@
 ---
 name: suite-format-governance
-description: "Partial Skill: invoke by name only — the SDD suite-format bar for how a .feature behavior suite is written and judged. Loaded by the spec-producer and the spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only — the SDD suite-format bar for how a .feature behavior suite is written and judged. Loaded by the spec-producer and the spec-judge, and named by the impl-producer and impl-judge bars for the test-vector rule; not user-triggered."
 user-invocable: false
 ---
 
@@ -58,6 +58,49 @@ Scenario: <name>
 
 The final `Then` yields exactly one boolean — the gate sees pass/fail, not a score. The rubric is
 internal evaluation detail, judged **by hand**.
+
+## A `Given` is a test vector, not specification
+
+The implementation owes conformance to the `Then`. It owes nothing to the `Given`'s apparatus.
+
+A `Given` fixes two separable things:
+
+| Element | Status | Binds |
+|---|---|---|
+| **Precondition** — the state the `Then` is asserted under | contract | the implementation must handle it |
+| **Apparatus** — the domain, entities, names, and framing that make the precondition concrete | test vector | nothing |
+
+**The swap test** discriminates: substitute the `Given`'s domain for an unrelated one; if the `Then`
+still holds, what was swapped is apparatus. Apply it **per element** — one `Given` routinely carries
+both — and the producer's own label for an element decides nothing.
+
+> A `Given` reads *"a purchase order whose shipping address is in a country the tax table does not
+> list"*. Swap the domain — *"a sensor reading whose unit is absent from the conversion table"* — and
+> the `Then` (*the operation halts and names the missing entry*) still holds. Purchase orders,
+> addresses, and tax tables are **apparatus**; *a lookup key absent from its table* is the
+> **precondition**. The implementation handles the missing key; it never ships purchase orders as its
+> illustration.
+
+**Absorption** is lifting apparatus into an artifact as a worked example, illustration, or
+special-cased literal. An element that survives the swap test and still appears in the artifact is
+absorbed. Both copying directions are barred:
+
+- **spec-producer** — a `Given`'s apparatus is never lifted from the artifact's own worked examples
+  (revise) or from the illustrations read out of source (backfill).
+- **impl-producer** — an artifact's illustrations are never lifted from a `Given`; each is drawn from
+  a domain the suite does not probe.
+
+The rule constrains what a producer **quotes**, never what it **reads**: every producer reads the
+whole `.feature`, `Given` steps included — the `.feature` is the contract, and no part of it is
+excluded from the read.
+
+A decoupled artifact — illustrations sharing no apparatus with any `Given` — is the **required end
+state**, never drift to reconcile.
+
+Independence is **judged, not linted** — semantic, not lexical. Apparatus is usually lifted by
+paraphrase, so shared wording is neither necessary nor sufficient: shared wording between a `Feature`
+description and the artifact's own description is not absorption, and a paraphrase sharing no wording
+is. No lexical or n-gram probe stands in for the read; `check-suite` does not check it.
 
 ## Judging — structure is universal, scoring is per-resolved-judge
 

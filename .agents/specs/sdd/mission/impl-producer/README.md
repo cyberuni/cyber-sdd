@@ -52,6 +52,18 @@ The procedure runs in two **modes** — the freeze is the boundary; every scenar
   its own checks to learn it is done; that passing run **gates entry to judging, never the gate
   outcome**. The impl-judge decides. A scenario left without a verification is the gap the cold
   impl-judge later reports failing.
+- **Owe the `Then`, not the `Given`'s apparatus.** A `Given` is a **test vector**, not specification
+  (`../../authoring/suite-format/README.md`). It fixes a **precondition** — contract, which the
+  implementation must handle — and the **apparatus** that makes it concrete (domain, entities,
+  names, framing) — a probe, which binds nothing. Separate them with the **swap test**: substitute
+  the `Given`'s domain for an unrelated one; if the `Then` still holds, what you swapped was
+  apparatus. **Read every scenario, including its `Given`: the whole `.feature` is the contract.**
+  The rule constrains what you **quote**, not what you read.
+  Never lift a `Given`'s apparatus into the artifact as a worked example or illustration, and never
+  special-case a `Given`'s literal input. An artifact that quotes the probes it is graded against is
+  **teaching to the test**: it passes those scenarios maximally while demonstrating no reasoning,
+  and the impl gate cannot tell the difference from a scenario's pass alone. Where the artifact
+  needs an illustration, draw it from a domain the suite does not probe.
 - **Never edit the contract.** The builder does not set its own bar (four-eyes). A behavior-changing
   gap is a `CONTENT_GAP` / `BLOCKER`, never an in-place edit of `spec.md` or the `.feature`.
 

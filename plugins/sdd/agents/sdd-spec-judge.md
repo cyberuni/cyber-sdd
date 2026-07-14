@@ -58,9 +58,11 @@ The `<unit>.solution.md` is **not** in view — do not request or read it.
     ```bash
     node "<spec-gate skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
     ```
-  - Gherkin validity, boolean form, and scenario ordering/sectioning:
+  - Gherkin validity, boolean form, and scenario ordering/sectioning — scope it to the CR's
+    touched `.feature` files with `--files`; `--root` sweeps the whole corpus:
     ```bash
-    node "<spec-gate skill>/scripts/check-feature.mts" [--root <specs-dir>]
+    node "<spec-gate skill>/scripts/check-suite.mts" --files <feature> [<feature> ...]
+    node "<spec-gate skill>/scripts/check-suite.mts" [--root <specs-dir>]
     ```
 - **Non-deterministic agent reasoning** — the three lenses' coverage, scope, and structural-fit
   judgment, and the contradiction checks that need reading.

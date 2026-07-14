@@ -81,6 +81,34 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     When the impl-producer completes
     Then it reports the unverified part as a gap rather than claiming full verification
 
+  Scenario: an authored illustration does not reuse a scenario's Given
+    Given a frozen scenario whose Given sets up a domain to probe the rule
+    When the impl-producer authors an illustration or worked example in the artifact
+    Then the illustration does not reuse that Given's domain, entities, names, or framing
+    And it is drawn from a domain the suite does not probe
+
+  Scenario: the implementation conforms to the Then and not to the Given's apparatus
+    Given a frozen scenario the impl-producer must satisfy
+    When it builds against that scenario
+    Then the implementation conforms to the scenario's Then
+    And substituting that scenario's apparatus for an unrelated domain leaves the implementation unchanged
+
+  Scenario: a Given's precondition is contract the implementation must handle
+    Given a frozen scenario whose Given fixes a precondition the implementation runs under
+    When the impl-producer builds against that scenario
+    Then the implementation handles that precondition
+
+  Scenario: the test-vector rule does not stop the producer reading the Given
+    Given a frozen feature whose scenarios carry Givens
+    When the impl-producer builds against it
+    Then it reads every scenario including its Given as the contract
+    And it excludes no Given from what it reads
+
+  Scenario: the implementation does not special-case a Given's literal input
+    Given a frozen scenario whose Given names a literal input
+    When the impl-producer builds the implementation
+    Then the implementation contains no branch special-casing that literal
+
   Scenario: a rubric or threshold stays out of the feature
     Given a scenario whose verification uses a rubric or threshold
     When the impl-producer authors that verification

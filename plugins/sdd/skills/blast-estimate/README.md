@@ -12,6 +12,13 @@ says more — so a fully-covered project computes `high` at **any** project size
 once the raw count crosses a bucket. See [`SKILL.md`](./SKILL.md) for the full rule and the
 load-bearing ≥2-area guard that keeps the project-wide and single-peripheral scenarios disjoint.
 
+Work-area recovery reuses [`touch-set-correction`](../touch-set-correction/SKILL.md)'s pure
+`fileToNode` over `discoverLayouts`' declared `ProjectLayout[]` — never a path-shape guess. A work
+area spans its **spec root and its impl root** (`sdd/mission-graph` lives at both
+`.agents/specs/sdd/mission-graph/` and `plugins/sdd/skills/mission-graph/`), and fan-in is measured
+across **both**, so centrality counts implementation dependency rather than spec prose alone.
+Layouts are injected, so tests construct them as fixtures.
+
 ```bash
 node scripts/blast-estimate.mts --root <corpus> --touch-set sdd/mission-graph,sdd/blast-estimate --declared medium
 ```

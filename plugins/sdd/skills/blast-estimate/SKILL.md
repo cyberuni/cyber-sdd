@@ -21,8 +21,9 @@ hand-typed **declared** blast (`agrees` / `under-called` / `over-called`). See
   **coverage**: whether the touch-set covers *every* work area of a touched project. Together these
   are **breadth** — absolute reach and relative reach.
 - **centrality** (dependency fan-in) — for each resolved area, how many *other* work areas' files
-  reference it (a literal, word-bounded mention of its `project/capability` id). The `max` across the
-  resolved areas is used.
+  reference it (a literal, word-bounded mention of its `project/capability` id), measured across the
+  area's **full root set** — implementation files count exactly as spec prose does. The `max` across
+  the resolved areas is used.
 - **sensitivity** — whether a resolved area is **marked** in the opt-in
   `.agents/sdd/sensitive-paths.toml` (a `sensitive = [ "id", ... ]` string array — the same shape
   `manage-spec-anchors` uses for `anchors = [...]`). **Only an absent file (`ENOENT`) is benign** —
@@ -56,13 +57,36 @@ Two exclusions are structural, not just documented: there is no compatibility/br
 at all (no seam for it to enter the score), and centrality is **measured** fan-in only — a work
 area's name never enters the computation.
 
+## Work-area recovery — declared layouts, never a path shape
+
+Node recovery is **not this engine's to invent**: it reuses `touch-set-correction`'s pure
+**`fileToNode(path, layouts)`** over `discoverLayouts`' declared `ProjectLayout[]` (the same
+cross-skill reuse `collision-ladder` does). This is load-bearing — a work area spans **multiple
+declared roots**, a spec root *and* an impl root:
+
+```
+project "sdd" -> roots [".agents/specs/sdd", "plugins/sdd/skills"]
+  .agents/specs/sdd/mission-graph/README.md  -> sdd/mission-graph
+  plugins/sdd/skills/mission-graph/SKILL.md  -> sdd/mission-graph   # SAME node, two roots
+```
+
+A node's file set is every file under **any** of its roots, so fan-in measures the project's real
+lean on an area rather than spec-prose cross-reference. `estimateBlast` takes layouts **injected**
+(`fileToNode` is pure, so tests construct them as fixtures); the CLI sources them from
+`discoverLayouts`, overridable with `--layout`.
+
 ## Run it
 
 ```bash
-node "<skill>/scripts/blast-estimate.mts" --root <corpus> --touch-set a,b,c [--declared low|medium|high|unknown] [--format toon|json]
+node "<skill>/scripts/blast-estimate.mts" --root <repo> --touch-set a,b,c \
+  [--layout 'sdd:.agents/specs/sdd,plugins/sdd/skills']... \
+  [--declared low|medium|high|unknown] [--format toon|json]
 ```
 
-- `--root` defaults to `.` (the corpus to scan for work areas + `.agents/sdd/sensitive-paths.toml`).
+- `--root` defaults to `.` (the repo root the layouts' roots and
+  `.agents/sdd/sensitive-paths.toml` resolve against).
+- `--layout` is repeatable (`<project>:<root1>,<root2>`, the same shape `touch-set-correction`
+  accepts). Omit it to auto-discover via `discover-specs`.
 - `--touch-set` is a comma-separated list of `project/capability` ids.
 - `--declared` is optional; omitted or `unknown` lines up as `no-declared` — the computed level still
   returns on its own.
@@ -75,5 +99,6 @@ node "<skill>/scripts/blast-estimate.mts" --root <corpus> --touch-set a,b,c [--d
 Read-only: it composes a corpus scan and the touch-set it is handed, and **returns** an estimate — it
 writes no file and mutates no store. It does **not** judge compatibility/breakage (a separate
 dimension), rank by surface location, decide HITL vs AFK, render a self-clear-or-escalate verdict (it
-only *modulates* a conductor's judgment), or *produce* a touch-set (it consumes one — pre-work
-declared, or `touch-set-correction`'s post-work corrected one).
+only *modulates* a conductor's judgment), *produce* a touch-set (it consumes one — pre-work declared,
+or `touch-set-correction`'s post-work corrected one), or **reimplement node recovery** (it imports
+`fileToNode`; it never reinvents or shells out to it).

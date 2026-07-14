@@ -19,77 +19,121 @@
 // touch-set — or one that resolves to zero known areas — computes `unknown`, never `low` ("nothing
 // touched is not evidence of low reach").
 //
+// Work-area recovery is NOT this engine's to invent: it REUSES the sibling touch-set-correction's
+// pure `fileToNode(path, layouts)` over `discoverLayouts`' declared `ProjectLayout[]` — the same
+// cross-skill reuse collision-ladder does (which imports `fileToNode` + `collectChangedFiles` from
+// the same module). This matters and is not cosmetic: a work area spans MULTIPLE declared roots — a
+// spec root AND an impl root (`sdd/mission-graph` lives at BOTH `.agents/specs/sdd/mission-graph/`
+// and `plugins/sdd/skills/mission-graph/`) — so a node's identity comes from the declared layout,
+// never from a path's shape. Any local walk that keyed on "first two segments" would split one node
+// in two, miss it entirely from the repo root, and measure fan-in over spec prose alone.
+//
 // Read-only: only readdirSync/readFileSync/statSync ever run here. It RETURNS the estimate; the
-// mission-graph's single writer records it. No dependencies (the repo's node->=22 / no-deps
-// convention). Pure functions are exported for node:test; running the file directly drives the CLI.
+// mission-graph's single writer records it. Pure functions are exported for node:test; running the
+// file directly drives the CLI.
 
 import { readdirSync, readFileSync, statSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
+import {
+	discoverLayouts,
+	fileToNode,
+	type ProjectLayout,
+} from '../../touch-set-correction/scripts/touch-set-correction.mts'
 
-const SKIP_DIRS = new Set(['node_modules', '.git', '.agents', 'dist', '.turbo', '.next', 'coverage'])
+export type { ProjectLayout }
+
+const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.turbo', '.next', 'coverage'])
 const SENSITIVE_PATHS_FILE = '.agents/sdd/sensitive-paths.toml'
 
 export type BlastLevel = 'low' | 'medium' | 'high'
 export type DeclaredBlast = BlastLevel | 'unknown'
 
-// ── Corpus scan — work-area discovery (capability-first: <project>/<capability>/…, mirrors
-//    touch-set-correction's fileToNode) ──
+// ── Corpus scan — work-area discovery over the DECLARED layouts (never a path-shape guess) ──
 
-/** Every file under `corpusRoot`, grouped by its owning work area (`project/capability`). A file
- *  needs at least two path segments below the root to name a work area; anything shallower (loose
- *  files at the corpus root) is not attributed to any area. */
-export function discoverWorkAreas(corpusRoot: string): Map<string, string[]> {
-	const byNode = new Map<string, string[]>()
-	walk(corpusRoot, corpusRoot, byNode)
-	return byNode
-}
-
-function walk(dir: string, root: string, out: Map<string, string[]>): void {
+/** Every repo-relative file path under `dir` (recursively), skipping build/vendor noise. Paths are
+ *  made relative with `path.relative`, never string-sliced: `join('.', x)` normalizes the `./` away,
+ *  so slicing by `root.length` silently corrupts every path under a RELATIVE root (`--root .`, the
+ *  CLI's default) while working fine under an absolute one. */
+function walkFiles(dir: string, root: string, out: string[]): void {
 	let entries: import('node:fs').Dirent[]
 	try {
 		entries = readdirSync(dir, { withFileTypes: true })
 	} catch {
-		return
+		return // an undeclared or absent root contributes nothing
 	}
 	for (const entry of entries) {
-		if (entry.name.startsWith('.') || SKIP_DIRS.has(entry.name)) continue
+		if (SKIP_DIRS.has(entry.name)) continue
 		const full = join(dir, entry.name)
-		if (entry.isDirectory()) {
-			walk(full, root, out)
-			continue
-		}
-		const rel = full.slice(root.length + 1).replace(/\\/g, '/')
-		const segs = rel.split('/')
-		if (segs.length < 3) continue // needs project/capability/file
-		const node = `${segs[0]}/${segs[1]}`
-		const files = out.get(node)
-		if (files) files.push(full)
-		else out.set(node, [full])
+		if (entry.isDirectory()) walkFiles(full, root, out)
+		else out.push(relative(root, full).replace(/\\/g, '/'))
 	}
+}
+
+/**
+ * discoverWorkAreas — the corpus's work areas, grouped by node id, over the DECLARED layouts. Walks
+ * every root of every project, maps each file through touch-set-correction's pure `fileToNode`, and
+ * groups by the node it names. Because a node's roots include BOTH its spec root and its impl root,
+ * one node's file set spans both trees — which is exactly what makes fan-in measure real dependency
+ * rather than spec-prose cross-reference. A file that maps to no node (`fileToNode` returns null —
+ * the existing "unmapped" concept) is dropped from the area map, never invented into an atom.
+ *
+ * Values are repo-relative paths; `root` is the repo root they are resolved against.
+ */
+export function discoverWorkAreas(layouts: ProjectLayout[], root: string): Map<string, string[]> {
+	const byNode = new Map<string, string[]>()
+	const seen = new Set<string>()
+	for (const layout of layouts) {
+		for (const rawRoot of layout.roots) {
+			const rel = rawRoot.replace(/\/+$/, '')
+			const files: string[] = []
+			walkFiles(join(root, rel), root, files)
+			for (const path of files) {
+				if (seen.has(path)) continue // a path under two declared roots is counted once
+				seen.add(path)
+				const node = fileToNode(path, layouts)
+				if (node === null) continue // unmapped — surfaced by touch-set-correction, not an atom here
+				const bucket = byNode.get(node)
+				if (bucket) bucket.push(path)
+				else byNode.set(node, [path])
+			}
+		}
+	}
+	return byNode
 }
 
 function escapeRegExp(s: string): string {
 	return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-/** Centrality (dependency fan-in) of `nodeId`: the count of OTHER work areas at least one of whose
- *  files references `nodeId` as a literal, word-bounded string. Reference-by-mention, not by name —
- *  a work area's own name never counts toward its own fan-in. */
-export function computeFanIn(nodeId: string, byNode: Map<string, string[]>): number {
-	const pattern = new RegExp(`(^|[^\\w/-])${escapeRegExp(nodeId)}($|[^\\w/-])`)
-	let count = 0
-	for (const [other, files] of byNode) {
-		if (other === nodeId) continue
-		const referenced = files.some((f) => {
+/**
+ * computeFanInMap — centrality for every known area in one pass: area A's fan-in is the number of
+ * OTHER areas holding at least one file that mentions A's id as a literal, word-bounded string.
+ * Because a node's file set spans its spec AND impl roots, a reference from an implementation file
+ * counts exactly as a reference from spec prose does — fan-in measures the project's real lean on an
+ * area. An area's own files never count toward its own fan-in.
+ *
+ * Each file is read at most once (the map is built file-major), so this stays cheap on a real repo.
+ */
+export function computeFanInMap(byNode: Map<string, string[]>, root: string): Map<string, number> {
+	const ids = [...byNode.keys()]
+	const patterns = new Map(ids.map((id) => [id, new RegExp(`(^|[^\\w/-])${escapeRegExp(id)}($|[^\\w/-])`)]))
+	const referencers = new Map<string, Set<string>>(ids.map((id) => [id, new Set<string>()]))
+	for (const [owner, files] of byNode) {
+		for (const rel of files) {
+			let text: string
 			try {
-				return pattern.test(readFileSync(f, 'utf8'))
+				text = readFileSync(join(root, rel), 'utf8')
 			} catch {
-				return false
+				continue
 			}
-		})
-		if (referenced) count++
+			for (const id of ids) {
+				if (id === owner) continue
+				if (referencers.get(id)?.has(owner)) continue // this owner already counted for `id`
+				if (patterns.get(id)?.test(text)) referencers.get(id)?.add(owner)
+			}
+		}
 	}
-	return count
+	return new Map(ids.map((id) => [id, referencers.get(id)?.size ?? 0]))
 }
 
 // ── Sensitivity — declared, never inferred ──
@@ -206,6 +250,10 @@ function projectOf(nodeId: string): string {
  * projects holding >= 2 work areas. Coverage is relative reach: it asks what fraction of a project
  * is disturbed, where `count` only asks how many areas in absolute terms. A project with a single
  * work area never qualifies (see the guard note above).
+ *
+ * "Every work area of its project" means every area the LAYOUTS declare — `byNode` is the discovered
+ * area map keyed by node id, so a project's area set is its nodes across all of its declared roots
+ * (spec + impl), not whatever a directory walk happened to find.
  */
 export function projectsCoveredEntirely(resolved: string[], byNode: Map<string, string[]>): string[] {
 	const areasByProject = new Map<string, string[]>()
@@ -273,21 +321,39 @@ export interface EstimateResult {
 	error?: string
 }
 
+/** What `estimateBlast` needs beyond the touch-set and the layouts. `root` is the repo root the
+ *  layouts' repo-relative roots (and the opt-in sensitive-paths file) resolve against. */
+export interface EstimateOptions {
+	root?: string
+	declared?: DeclaredBlast
+}
+
 /**
- * estimateBlast — the whole derivation. Resolves the touch-set against the corpus's known work
- * areas (unresolved areas are surfaced, never dropped), reads the opt-in sensitive-paths file
- * (fails loud on a malformed one — computed/reasons/lineUp all come back null, `error` names why),
- * and — when at least one area resolved — scores count × centrality × sensitivity and lines the
- * result up against `declared`. A touch-set that resolves to zero known areas (including the empty
- * touch-set) computes `unknown`: nothing touched is not evidence of low reach.
+ * estimateBlast — the whole derivation, over INJECTED layouts. Discovers the corpus's work areas by
+ * mapping every file under every declared root through touch-set-correction's pure `fileToNode`,
+ * resolves the touch-set against those areas (unresolved areas are surfaced, never dropped), reads
+ * the opt-in sensitive-paths file (fails loud on a malformed one — computed/reasons/lineUp all come
+ * back null, `error` names why), and — when at least one area resolved — scores
+ * breadth × centrality × sensitivity and lines the result up against `opts.declared`. A touch-set
+ * that resolves to zero known areas (including the empty touch-set) computes `unknown`: nothing
+ * touched is not evidence of low reach.
+ *
+ * Layouts are INJECTED rather than discovered here: `fileToNode` is pure, so tests construct layouts
+ * as fixtures over a constructed corpus (the frozen suite's "never the live corpus" preamble holds),
+ * while the CLI sources them from `discoverLayouts`.
  */
-export function estimateBlast(touchSet: string[], corpusRoot: string, declared?: DeclaredBlast): EstimateResult {
-	const byNode = discoverWorkAreas(corpusRoot)
+export function estimateBlast(
+	touchSet: string[],
+	layouts: ProjectLayout[],
+	opts: EstimateOptions = {},
+): EstimateResult {
+	const root = opts.root ?? '.'
+	const byNode = discoverWorkAreas(layouts, root)
 	const known = new Set(byNode.keys())
 	const resolved = touchSet.filter((a) => known.has(a))
 	const unresolved = touchSet.filter((a) => !known.has(a))
 
-	const sensitive = readSensitivePaths(corpusRoot)
+	const sensitive = readSensitivePaths(root)
 	if (!sensitive.ok) {
 		return { touchSet, resolved, unresolved, computed: null, reasons: null, lineUp: null, error: sensitive.error }
 	}
@@ -304,13 +370,13 @@ export function estimateBlast(touchSet: string[], corpusRoot: string, declared?:
 	}
 
 	const markedSet = new Set(sensitive.marked)
-	const fanIns = resolved.map((a) => computeFanIn(a, byNode))
-	const maxFanIn = Math.max(...fanIns)
+	const fanInMap = computeFanInMap(byNode, root)
+	const maxFanIn = Math.max(...resolved.map((a) => fanInMap.get(a) ?? 0))
 	const sensitiveAreas = resolved.filter((a) => markedSet.has(a))
 	const projectWide = projectsCoveredEntirely(resolved, byNode)
 	const { level, reasons } = scoreBlast(resolved.length, maxFanIn, sensitiveAreas, projectWide)
 
-	return { touchSet, resolved, unresolved, computed: level, reasons, lineUp: lineUp(level, declared) }
+	return { touchSet, resolved, unresolved, computed: level, reasons, lineUp: lineUp(level, opts.declared) }
 }
 
 // ── Render (TOON — the token-efficient tabular form the repo's other sdd engines emit) ──
@@ -352,12 +418,31 @@ function flag(argv: string[], name: string): string | undefined {
 	return i === -1 ? undefined : argv[i + 1]
 }
 
+function allFlags(argv: string[], name: string): string[] {
+	const out: string[] = []
+	for (let i = 0; i < argv.length; i++) {
+		if (argv[i] === name && argv[i + 1] !== undefined) out.push(argv[i + 1])
+	}
+	return out
+}
+
 function splitCsv(v: string | undefined): string[] {
 	if (v === undefined || v === '') return []
 	return v
 		.split(',')
 		.map((s) => s.trim())
 		.filter((s) => s.length > 0)
+}
+
+/** Parses one `--layout '<project>:<root1>,<root2>'` flag value into a ProjectLayout (the same shape
+ *  and flag touch-set-correction accepts, so the two tools take identical layout overrides). */
+export function parseLayoutFlag(value: string): ProjectLayout | null {
+	const idx = value.indexOf(':')
+	if (idx === -1) return null
+	const project = value.slice(0, idx).trim()
+	const roots = splitCsv(value.slice(idx + 1))
+	if (project === '' || roots.length === 0) return null
+	return { project, roots }
 }
 
 export function main(argv: string[]): number {
@@ -367,7 +452,15 @@ export function main(argv: string[]): number {
 	const declared = declaredRaw === undefined ? undefined : (declaredRaw as DeclaredBlast)
 	const format = flag(argv, '--format') === 'json' ? 'json' : 'toon'
 
-	const result = estimateBlast(touchSet, root, declared)
+	// Layouts come from `--layout` when given, else from discover-specs via discoverLayouts — the
+	// same resolution order touch-set-correction uses.
+	const layoutFlags = allFlags(argv, '--layout')
+	const layouts =
+		layoutFlags.length > 0
+			? layoutFlags.map(parseLayoutFlag).filter((l): l is ProjectLayout => l !== null)
+			: discoverLayouts(root, root)
+
+	const result = estimateBlast(touchSet, layouts, { root, declared })
 
 	process.stdout.write(`${format === 'json' ? JSON.stringify(result, null, 2) : renderResultToon(result)}\n`)
 	return result.error ? 1 : 0

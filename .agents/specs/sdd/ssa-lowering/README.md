@@ -266,9 +266,12 @@ mistake a narrow pass for a comfortable one:
 
   So it goes where an unloseable assertion belongs: a **boolean guard**. That is honest — it stops
   claiming to *grade* a judgment it cannot grade, and asserts the invariant it can actually check.
-  Grading real cohesion judgment needs a situation planting a genuine **over-merge temptation** (a
-  second node the cut could wrongly absorb), which is a Given edit and out of #221's scope — filed as
-  [#250](https://github.com/cyberuni/cyberplace/issues/250).
+  Grading real cohesion judgment needs a situation planting an **over-split temptation** — coupled
+  work whose seams read as separable capabilities — which is a Given edit and out of #221's scope,
+  filed as [#250](https://github.com/cyberuni/cyberplace/issues/250). Note the direction: cohesion's
+  miss is **over-split** (scattering one node into fragments). An *over-merge* temptation would not
+  de-entail the assertion — single-writer still forces the coupled node into one mission however many
+  other nodes exist — and over-merge is already graded by `disjoint-nodes-not-fused`.
 
   **Method note for the next pass, which cost this one a cycle:** the pre-registered trigger here was
   *"if the impl gate measures `cohesion-preserved` below a 3.0 mean → demote."* It could never fire.

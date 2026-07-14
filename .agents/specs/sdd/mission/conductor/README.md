@@ -353,7 +353,7 @@ And because a correction can occur outside the gate self-assert path (or a missi
 having skipped the flush), the conductor runs a **finalize backstop**: a mission that ends carrying a
 real correction whose `correction` line was **never flushed** writes it now — **creating the combat
 log if none exists** and appending the `correction` line (`correction-kind` + a matchable `cause`).
-The line stays a combat-log `correction` (the six-kind tier split is invariant — `correction` never
+The line stays a combat-log `correction` (the seven-kind tier split is invariant — `correction` never
 lands in the ledger); durability comes from the Scanner distilling the committed log into `strategy`
 ledger lines before retro deletes it, so the `cause` survives even the no-log mission class. A
 mission that concluded with **no** correction forces nothing.

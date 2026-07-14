@@ -58,9 +58,10 @@ sibling `ledger/` directory. They are never the same store.
 One JSON object per line (JSON Lines). Every line carries a **`seq`** (append order *within its shard* —
 its shard's own line count, restarting per shard, never a global counter), an optional pseudonymous
 **`handle`**, and a `kind`. **Combat-log** lines additionally carry a **write-time UTC `ts`**; **ledger**
-lines carry **no wall-clock time** (below). Six kinds, split by tier: `report` / `correction` / `halt`
-→ the combat log; `leash` / `gate` / `strategy` → the ledger. Every line carries an optional `cr` (the one
-project ledger spans many CRs against the one durable spec; outer-loop `strategy` lines may omit it).
+lines carry **no wall-clock time** (below). Seven kinds, split by tier: `report` / `correction` / `halt`
+→ the combat log; `leash` / `gate` / `strategy` / `followup` → the ledger. Every line carries an optional
+`cr` (the one project ledger spans many CRs against the one durable spec; outer-loop `strategy` lines may
+omit it).
 
 **Safe-to-publish floor (committed-record rule).** The combat log is committed → every line is
 **published to git history permanently** ("deleted at retro" is tree-only) and a distilled line may
@@ -210,6 +211,32 @@ its combat log (`sdd:plan-retirement` — the gate keys on `distills`, **never**
 and an **unratified** entry still counts). Milestone / drift / token-waste strategy that has **no
 single subject mission omits `distills`** — only a Ship or Kill distillation gates a retirement.
 
+### `followup` — a recorded follow-up (ledger)
+
+The durable record of work handoff identified but held out of scope. Written by the **conductor at
+handoff**, unconditionally — no permission, no forge, no human — and **before any filing to the forge
+is attempted**. It is a ledger kind, never a combat-log kind: the combat log is deleted from the tree
+at retro, and a follow-up must outlive its mission.
+
+```jsonl
+{"seq": 4, "kind": "followup", "cr": "github-237-handoff-followups", "class": "blocking", "summary": "Operator's admission (proposeEdge) has no dedupe against RAW cycles for follow-up edges", "contradicts": "handoff proposes follow-ups; nothing yet admits them", "evidence": ["cyberfleet-plugin/operator README claims single-writer admission, unimplemented"]}
+```
+
+- **`class`** — `blocking` (the follow-up **contradicts a completion claim the mission already made**;
+  the line **names that claim** in `contradicts`) or `backlog` (genuinely new territory — `contradicts`
+  is omitted). A finding that the mission's own **frozen contract** was wrong is **not** a `followup` at
+  all — it is an Oracle-lens revert inside that mission, never routed here.
+- **`contradicts`** — required when `class: blocking`; names the completion claim the follow-up
+  contradicts.
+- **`evidence`** — the categorical support for the classification, commit-message-grade (the same floor
+  as every other field).
+- **No filed-state, ever.** The line is never edited to mark it filed — the ledger is append-only. What
+  is still outstanding is **re-derived** at each drain by deduping against the forge's existing issues,
+  **open or closed** (matching only open ones would re-file a duplicate for a follow-up already filed
+  and resolved).
+- **A proposal, not a verdict.** Recording a `followup` line grants nothing on its own — admission to
+  the mission graph is the graph's single writer's act; the conductor writes no node or edge here.
+
 ## Write ownership
 
 Append-only; each writer adds lines to its **own shard** with the next `seq` within that shard, never
@@ -221,6 +248,7 @@ editing another writer's shard, and never editing or deleting a prior line. Full
 | **conductor** | `report`, `correction`, `halt` | the **combat log** (plan `*.log.jsonl`) |
 | **conductor** | run-start `leash` block (leash reach + `approach[]`) | the **ledger** |
 | **conductor** | self-asserted `gate` (`by: agent`) | the **ledger** |
+| **conductor** | `followup` (record, at handoff, unconditionally) | the **ledger** |
 | **gate skill (`spec-gate`), in-session** | human-ratified `gate` (`by: <name>`) | the **ledger** |
 | **doctrine-loop Scanner** | `strategy` | the **ledger** |
 | producers / judges | nothing | — |

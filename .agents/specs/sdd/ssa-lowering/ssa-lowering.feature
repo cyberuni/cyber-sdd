@@ -106,9 +106,7 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
           max: 3          # recognizes the rename cross-cuts the whole project and owns no single node, so it is not modeled as one node-owning mission among peers
         - name: hoisted-early
           max: 3          # schedules the barrier before the feature missions that would rebase onto it
-        - name: fleet-rebase-reasoned
-          max: 2          # the feature missions are planned against the post-rename world they rebase onto after the fence retires, not against the pre-rename world they were filed against
-      threshold: 7
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -117,6 +115,7 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
     When the coordinator applies the SSA-lowering doctrine and lowers it
     Then the produced partition marks the refactor as a barrier
     And no other lowered mission is scheduled to start before the barrier retires
+    And the produced partition's decision-evidence records that the fleet rebases onto the new world after the fence, then fans out
 
   @behavior @rubric
   Scenario: the cut places each new capability in its own node

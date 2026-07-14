@@ -206,13 +206,24 @@ more than the one point of slack every threshold allows.
 **Where the margin is thin.** Three rubrics bind, but only just — stated so a future pass does not
 mistake a narrow pass for a comfortable one:
 
-- **`misaligned` has the smallest *measured* margin in the suite.** It is the only cell whose slack
-  is known from a real run rather than estimated: a **correct** doctrine scored 2.33/3 on
-  `catches-misalignment`, giving 2.33 + 3 = 5.33 against a threshold of 5 — a margin of **0.33**.
-  This pass also *added* load to that dimension, folding `not-mistaken-for-stale` into it (it must now
-  judge on direction-fit *rather than* supersession), so the dimension that already measured lowest
-  carries one more way to lose a point. If any cell false-reds against a correct doctrine, expect this
-  one first.
+- **`catches-misalignment` has been measured twice and the two disagree — 2.33/3 and 3.00/3, both
+  against a *correct* doctrine.** The 2.33 is what `threshold = combined max − 1` was calibrated on,
+  and it **did not reproduce**: a later run measured 3.00/3 with zero variance, clearing the
+  threshold of 5 by a full point rather than the 0.33 the 2.33 implied. Treat the one-point slack as
+  calibrated on a value that does not replicate — a sample of two, not a measurement. This pass also
+  *added* load to that dimension (folding `not-mistaken-for-stale` into it, so it must now judge on
+  direction-fit *rather than* supersession), which is a reason to keep the slack rather than tighten
+  it, but the slack is **not** evidence-backed and must not be reported as though it were.
+- **`barrier`'s margin is now *unmeasured*, and that is a change from what was once measured.** The
+  only dimension this suite has ever measured with real run-to-run variance was
+  `fleet-rebase-reasoned` (1, 1, 2 against a *correct* doctrine). That variance was **instrument
+  error, not signal** — the dimension graded a rule the doctrine never states — so it was removed
+  (see the coverage note). Removing it was right, and it leaves `barrier` at two dimensions both of
+  which have only ever measured at ceiling. So `barrier`'s slack is **reasoned, not measured**: a
+  doctrine lacking step 2's rule earns roughly 4 against a threshold of 5, and the binding is carried
+  almost entirely by `barrier-detected` (naming a fence that *owns no single node* is the doctrine's
+  own concept, not something the situation hands over), because `hoisted-early` — "do the sweeping
+  rename first" — is reachable from generic engineering sense. The impl gate measures this.
 - **`irreducible` is the weakest rubric.** Its situation states that the two concerns *"must both
   write the same spec-node with no order that avoids rework either way"* — which hands over **both**
   answers the rubric grades (the irreducibility *and* the rework). A doctrine lacking step 4's rule
@@ -222,10 +233,10 @@ mistake a narrow pass for a comfortable one:
   it is held down only by the fold of `serialized-not-parallel` into `irreducible-recognized`, which
   adds an *act* the situation does not hand over. Treat this cell as not yet trustworthy. Closing it
   needs a situation that withholds the answer, i.e. a Given edit — out of scope here.
-- **`barrier` is the tightest cell** — three dimensions (3+3+2) share the same one point of slack
-  against a threshold of 7. A correct doctrine that scores partial credit on *two* of them reds
-  (2.33+2.33+2 = 6.66 < 7). The same applies in weaker form to `contention`/`order-imposed` and
-  `far-horizon`/`re-checked-not-trusted`, whose situations also cue part of the answer.
+- **`contention`/`order-imposed` and `far-horizon`/`re-checked-not-trusted` are cued** — their
+  situations hand over part of the answer (the order's existence; that the ground has shifted), so a
+  doctrine lacking the rule starts above zero. Both still bind, but with less room than the
+  arithmetic suggests.
 
 ### Calibration — and what the impl gate should measure
 
@@ -252,10 +263,20 @@ mistake a narrow pass for a comfortable one:
   disjointness) rather than its emission. It is the dimension closest to the presence-grading this
   pass removed; if it measures at ceiling with zero variance across runs, re-examine it next.
 
-**Coverage note.** `fleet-rebase-reasoned` (max 2, barrier scenario) is the **only** assertion
-covering step 2's *"the fleet rebases onto the new world after the fence, then fans out"* rule — the
-boolean guard covers hoisting only. If a later pass drops that dimension, the rule reaches **zero**
-scenarios.
+**Coverage note — step 2's fleet-rebase rule is a boolean guard, not a dimension.** This rule states
+that *"the fleet rebases onto the new world after the fence, then fans out"*. Grading it as a rubric
+dimension was tried and **reverted**: a first pass at this rework kept `fleet-rebase-reasoned` (max 2)
+and, in trying to lift it out of presence-grading, restated it as *"the feature missions are planned
+against the post-rename world"* — a requirement **the doctrine does not state**. Measured against the
+correct doctrine it scored 1, 1, 2, docked precisely because the rubric asked for something the
+subject was never told to do. A dimension that grades an unstated rule reds a correct doctrine; it
+does not measure it.
+
+The rule is presence, not judgment — the doctrine says the rebase happens, and the plan either records
+it or does not — so it now lives where presence belongs: as a clause on the barrier boolean guard,
+worded to the doctrine's own words. The rule keeps its coverage; `barrier` keeps two orthogonal graded
+dimensions at a threshold of 5. If a rubric dimension for this rule is ever wanted, the doctrine must
+first say what the dimension would grade.
 
 ## Delivery
 

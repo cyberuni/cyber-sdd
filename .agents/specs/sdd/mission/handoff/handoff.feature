@@ -128,6 +128,139 @@ Feature: The handoff phase — land the verified result in the declared delivery
     When the follow-up is filed
     Then it re-enters SDD as a new change request
 
+  # ---- Follow-ups: record, unconditionally ----
+
+  Scenario: every identified follow-up is recorded durably before anything else
+    Given a mission that identified follow-up work at handoff
+    When handoff processes the follow-ups
+    Then each follow-up is appended as a followup line to the CR's own ledger shard
+    And the record is written before any filing is attempted
+
+  Scenario: recording a follow-up needs no permission, no forge, and no human
+    Given a mission running with no human present and no issue forge
+    When handoff records an identified follow-up
+    Then the follow-up is still recorded in the ledger shard
+
+  Scenario: the follow-up record outlives the mission
+    Given handoff recorded a follow-up
+    When the mission plan is retired later
+    Then the follow-up record survives in the ledger
+    And it was not written only to the combat log
+
+  # ---- Follow-ups: classify as a proposal ----
+
+  Scenario: a follow-up contradicting a completion claim is classified blocking
+    Given an identified follow-up that contradicts a completion claim the mission already made
+    When handoff classifies it
+    Then it is recorded with the blocking classification
+    And the record names the completion claim it contradicts
+
+  Scenario: a follow-up on genuinely new territory is classified backlog
+    Given an identified follow-up that contradicts no completion claim
+    When handoff classifies it
+    Then it is recorded with the backlog classification
+
+  Scenario: a finding that the frozen contract was wrong is not a follow-up
+    Given a finding that the mission's own frozen contract was wrong
+    When handoff processes the mission's findings
+    Then the finding is routed to an Oracle-lens revert inside this mission
+    And it is not recorded as a follow-up
+
+  # ---- Follow-ups: propose, never admit ----
+
+  Scenario: a classified follow-up is emitted as a proposal carrying its evidence
+    Given handoff classified a follow-up as blocking
+    When handoff completes
+    Then the proposal it emits carries the classification and the evidence for it
+    And the proposal is not recorded as admitted to the mission graph
+
+  Scenario: handoff never writes the mission graph
+    Given handoff classified follow-ups for this mission
+    When handoff completes
+    Then it appends no node or edge to the mission graph
+    And admission is left to the graph's single writer
+
+  Scenario: handoff dispatches no follow-up work
+    Given handoff recorded a blocking follow-up
+    When handoff completes
+    Then it spawns no mission for the follow-up
+
+  Scenario: a filed follow-up re-enters SDD only through a later mission
+    Given handoff filed a follow-up issue
+    When handoff completes
+    Then handoff opens no change request for the follow-up
+    And the follow-up re-enters SDD only when a later mission is started from it
+
+  # ---- Follow-ups: drain the record to the forge ----
+
+  Scenario: the drain files one issue per unmatched follow-up
+    Given several recorded follow-ups that no open issue covers
+    When handoff drains the record to the forge
+    Then it files one issue per follow-up
+
+  Scenario: a mixed follow-up set files only the unmatched follow-ups
+    Given several recorded follow-ups where some match existing issues and some do not
+    When handoff drains the record to the forge
+    Then it files an issue only for the follow-ups with no match
+    And it files no duplicate for the matched ones
+
+  Scenario: a blocking follow-up is filed like any other
+    Given a recorded follow-up classified blocking that no existing issue covers
+    When handoff drains the record to the forge
+    Then it files an issue for the follow-up
+    And the classification does not exempt it from the drain
+
+  Scenario: a project with no issue forge files nothing and keeps the record
+    Given a project whose source has no issue forge
+    When handoff drains the record
+    Then it files no issue
+    And the follow-up records still stand
+
+  Scenario: the record carries no filed-state, so a later drain re-derives it
+    Given a recorded follow-up
+    When handoff drains the record
+    Then the followup line is not edited to mark it filed
+    And a later drain re-derives what is outstanding by deduping against the forge's existing issues
+
+  Scenario: a follow-up whose filed issue was later closed is not filed again
+    Given a recorded follow-up whose filed issue has since been closed
+    When handoff drains the record again
+    Then it files no duplicate for that follow-up
+    And the follow-up record still stands
+
+  # ---- Follow-ups: the drain can be refused ----
+
+  Scenario: a refused drain leaves the record standing and fails loudly
+    Given handoff recorded its follow-ups
+    When the filing act is refused
+    Then the ledger records still stand
+    And handoff reports the refusal
+    And it does not report the follow-ups as filed
+
+  Scenario: a refused drain is retryable from the durable record
+    Given a drain that was refused
+    When the drain runs again with filing permitted
+    Then the outstanding follow-ups are filed from the durable record
+
+  # ---- Follow-ups: the outward-publish floor and the agent-filed marker ----
+
+  Scenario: a filed follow-up body meets the outward-publish floor
+    Given a follow-up to be filed
+    When handoff composes the issue body
+    Then the body states the finding in terms a reader outside the mission can act on
+    And it carries no ledger shard filename, combat-log reference, or plan-brief path
+
+  Scenario: the outward floor excludes a reference the committed-record floor permits
+    Given a production-artifact reference the committed-record floor permits because it is repo-relative
+    When handoff composes the issue body
+    Then the reference is excluded from the body
+
+  Scenario: a filed follow-up is marked as agent-filed
+    Given handoff files a follow-up issue
+    When the issue is created
+    Then it carries a marker identifying it as agent-filed
+    And it names the mission it was discovered from
+
   # ---- No new floor, and the plan ----
 
   Scenario: handoff introduces no new mandatory escalation

@@ -47,9 +47,15 @@ own every rule below — never restate their schemas, only obey them headless.
   confirmation, so you write no `by: <name>` verdict and advance no `status`. You write only what the
   conductor's write boundary allows headless: `project-path`, the `produced-by` map, your inline
   producers' outputs, the sibling `*.log.jsonl` (`report` / `correction` / `halt` lines), the durable
-  `leash` / `gate` lines in **your own shard** in the root `ledger/` directory (`strategy` there is the
-  Scanner's alone), and your own `approve`/`by: agent` and `pause`
+  `leash` / `gate` / `followup` lines in **your own shard** in the root `ledger/` directory (`strategy`
+  there is the Scanner's alone), and your own `approve`/`by: agent` and `pause`
   verdicts. Never `status`; never a human ratification verdict.
+- **Record the follow-ups even though you cannot file them.** At handoff, the `followup` record is
+  **unconditional and yours to write** — it needs no permission, no forge, and no human, so headless is
+  no excuse to skip it. The **drain** (filing to the forge) is the part you often cannot serve: with no
+  user channel there is no one to grant the filing act. When it is refused, the ledger records **stand**,
+  you **report the refusal loudly** in your relay batch, and you **never** report the follow-ups as
+  filed — the drain retries later from the durable record.
 - **Record why you halted, not just why you went.** A stop **at a gate** is the `approval.<gate>`
   verdict (`pause`, `by` omitted, with its durable `why`). A stop **not at a gate** (a hard-floor
   escalation, a `blocked` structural failure) appends a `kind: halt` line to the plan's `*.log.jsonl`

@@ -46,7 +46,7 @@ count** maintained in the ledger.
   mint `<hash>` as 6 random hex once per session) in the `ledger/` directory sibling of the root `spec.md`,
   so two concurrent Scanner runs write distinct shards and never contend. The conductor
   writes `report` / `correction` / `halt` to the combat log and its run-start `kind: leash` block +
-  self-asserted `gate` to its own shard — never `strategy`; producers and judges write nothing. The ledger is append-only (one JSON object per line, never in
+  self-asserted `gate` + `followup` to its own shard — never `strategy`; producers and judges write nothing. The ledger is append-only (one JSON object per line, never in
   `spec.md` frontmatter): you append a new line with the next `seq`, never editing or removing a
   prior one. Every strategy line carries your `handle` (`sdd-scanner`) and is **unratified**
   (`ratified: false`) until the Council rules; **unratified strategy never enters the corpus**.

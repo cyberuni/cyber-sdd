@@ -25,6 +25,7 @@ is in `sdd:gate-validation-governance`; the plan/ledger write split is in `sdd:c
 | combat-log `report` / `correction` / `halt` lines | the **conductor** (append-only, to the plan's `*.log.jsonl`) | producers, judges, the gate skill |
 | ledger `gate` line — self-asserted (`by: agent`) | the **conductor** (append-only, to its own ledger shard) | producers, judges |
 | ledger `gate` line — human-ratified (`by: <name>`) | the gate skill (`spec-gate`), **in-session position only** | the conductor, producers, judges |
+| ledger `followup` line — the durable follow-up record (`class: blocking`/`backlog`) | the **conductor** (append-only, to its own ledger shard, at handoff, **unconditionally** — no permission, no forge, no human) | producers, judges, the gate skill |
 | ledger `strategy` lines | the doctrine-loop Scanner (append-only) | the conductor, producers, judges |
 | `spec.md` body + the `.feature` | the **spec-producer** | the conductor, judges, solution/impl producers |
 | `<unit>.solution.md` | the **solution-producer** | the spec-producer, judges |

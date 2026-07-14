@@ -55,10 +55,18 @@ structure and discovery (`corpus/` + `project-spec/`), not on any given station 
 | **Audit node-shape** | a formation pass fires post-mission | `check-spec-structure` | a finding set: untagged-node (blocking) + oversized-node (advisory), each naming the node |
 | **Split an oversized node** | the Warden's `@rubric` breadth-vs-depth judgment routes an oversized-node's shape profile to breadth-overflow | `check-spec-structure` | a sub-node split; depth-overflow instead down-levels via the scenario→test bridge (`verify-scenarios`) or is redesigned — the engine emits only the profile, never the route |
 | **Reconcile drift / contradiction** | prose↔suite drift, or two nodes contradict | `align-spec` | a reconcile finding (drift fixed by direction; contradiction → align the losing side) |
+| **Dedupe cross-node scenario overlap** | the same behavior is specified in two nodes' suites — a hard collision the scenario rung cannot see (spec-level SSA) | `check-scenario-overlap` | a dedup finding naming both nodes; the Warden's `@rubric` arm confirms real overlap and **assigns a single owning node** (one behavior = one scenario in one node) |
 
 A node **within** the granularity heuristic raises **no** oversized finding; a concept-tagged node
-raises **no** untagged finding; nodes (or governances) that **agree** raise **no** reconcile finding.
-The acts are evidence-gated, not run unconditionally.
+raises **no** untagged finding; nodes (or governances) that **agree** raise **no** reconcile finding;
+two nodes that specify **no** shared behavior raise **no** dedup finding. The acts are evidence-gated,
+not run unconditionally.
+
+Alongside its findings a pass surfaces an **advisory layout-quality signal** — the scheduler's
+**false-conflict rate** doubles as a **code-partition-quality metric** (capability-first keeps
+node↔folder clean and the rate low; a layered / framework-first layout scatters a capability and
+drives it up). The signal is **advisory** — it **gates no mission**; it points the Warden and Council
+at a degrading partition so the capability-first recommendation can be re-asserted.
 
 ## The Warden's self-clear-vs-escalate verdict
 

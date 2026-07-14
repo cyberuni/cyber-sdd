@@ -50,16 +50,27 @@ structural maintenance is **intra-spec**:
 
 - **audit node-shape** — untagged orphans and oversized nodes within a spec,
 - **split** an oversized node that has outgrown the granularity heuristic into sub-nodes,
-- **reconcile** prose↔suite drift, or a contradiction between two nodes or two governances.
+- **reconcile** prose↔suite drift, or a contradiction between two nodes or two governances,
+- **dedupe cross-node scenario overlap** — the same behavior specified in two nodes (spec-level SSA).
 
 | Act | Trigger | Station (`corpus/` + `project-spec/`) | Output |
 |---|---|---|---|
 | **Audit node-shape** | a formation pass fires post-mission | `check-spec-structure` | a finding set: untagged-node (blocking) + oversized-node (advisory), each naming the node |
 | **Split an oversized node** | the Warden's `@rubric` breadth-vs-depth judgment routes an oversized-node's shape profile to breadth-overflow | `check-spec-structure` | a sub-node split; depth-overflow instead down-levels via the scenario→test bridge (`../mission/verify-scenarios/`) or is redesigned — the engine emits only the profile, never the route |
 | **Reconcile drift / contradiction** | prose↔suite drift, or two nodes contradict | `align-spec` | a reconcile finding (drift fixed by direction; contradiction → align the losing side) |
+| **Dedupe cross-node scenario overlap** | the same behavior is specified in two nodes' suites — a hard collision the scenario rung cannot see | `check-scenario-overlap` | a dedup finding naming both nodes; the Warden's `@rubric` arm confirms real overlap and **assigns a single owning node** (one behavior = one scenario in one node) |
 
 A station is **not** a dependency — Formation depends on the corpus **structure** and **discovery**
 (`corpus/` + `project-spec/`), not on any given station skill.
+
+### The layout-quality signal (code-partition health)
+
+Alongside its findings, a formation pass surfaces an **advisory layout-quality signal** — the
+scheduler's **false-conflict rate** doubles as a **partition-quality metric**: a capability-first
+corpus keeps node↔folder clean and the false-conflict rate low, while a layered / framework-first
+layout scatters a capability across nodes and drives it up. The signal is **advisory** — it **gates
+no mission**; it points the Warden (and the Council) at a degrading code partition so the
+capability-first recommendation (`../design/spec-layout.md` S1) can be re-asserted.
 
 ## Corpus-wide — DISTINCT from the per-spec gate judgment
 

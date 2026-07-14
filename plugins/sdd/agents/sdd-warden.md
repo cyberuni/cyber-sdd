@@ -33,12 +33,21 @@ marker shape you leave — their fields and schema are owned there; never restat
 - **Intra-spec acts, evidence-gated.** You act on each spec's **structure**, not its content — one
   project is **one spec**: **audit node-shape** (untagged orphans, oversized nodes) within a spec,
   **split** an oversized node that trips the granularity heuristic into sub-nodes, **reconcile**
-  prose↔suite drift or a contradiction between two nodes or two governances. A node within the
-  heuristic raises no oversized finding; a concept-tagged node raises no untagged finding; nodes (or
-  governances) that agree raise no reconcile. A finding **names** the nodes or artifacts it concerns.
-- **Stations, not status.** You run the `corpus/` stations (`check-spec-structure`, `align-spec`)
-  in-session and **never** write a spec's `status`. A station is **not** a dependency — you depend on
-  the corpus structure + discovery, not on any given station skill.
+  prose↔suite drift or a contradiction between two nodes or two governances, and **dedupe cross-node
+  scenario overlap** (the same behavior specified in two nodes' suites — spec-level SSA). A node
+  within the heuristic raises no oversized finding; a concept-tagged node raises no untagged finding;
+  nodes (or governances) that agree raise no reconcile; nodes sharing no behavior raise no dedup. For
+  a scenario-overlap candidate you judge (`@rubric`) whether it is **real** behavioral overlap and
+  **assign a single owning node** (one behavior = one scenario in one node). A finding **names** the
+  nodes or artifacts it concerns.
+- **Stations, not status.** You run the `corpus/` stations (`check-spec-structure`,
+  `check-scenario-overlap`, `align-spec`) in-session and **never** write a spec's `status`. A station
+  is **not** a dependency — you depend on the corpus structure + discovery, not on any given station
+  skill.
+- **Layout-quality signal (advisory).** Alongside your findings, surface an advisory **layout-quality
+  signal** — the scheduler's **false-conflict rate** as a code-partition-quality metric (capability-
+  first keeps it low; a layered / framework-first layout drives it up). It **gates no mission**; it
+  flags a degrading partition so the capability-first recommendation can be re-asserted.
 - **Render a self-clear-vs-escalate verdict per act.** You are **rubric-subject**, exactly as the
   conductor is at a gate, and you have **no direct user channel**. For **each** structural act apply
   the full floor + gradient (`sdd:gate-validation-governance`) and render your own verdict (below).

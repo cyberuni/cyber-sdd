@@ -41,6 +41,36 @@ Feature: The formation loop — keep the spec corpus structurally organized
     When the formation pass runs
     Then it produces a reconcile finding naming the contradicting governances
 
+  # ── Cross-node scenario overlap — spec-level SSA (F2) ──
+
+  Scenario: the same behavior specified in two nodes produces a dedup finding
+    Given two nodes whose suites specify the same behavior
+    When the formation pass runs
+    Then it produces a scenario-overlap dedup finding naming both nodes
+
+  Scenario: nodes with no cross-node scenario overlap produce no dedup finding
+    Given nodes whose suites share no behavior across nodes
+    When the formation pass runs
+    Then it produces no scenario-overlap dedup finding for them
+
+  Scenario: a scenario-overlap dedup assigns a single owning node
+    Given a confirmed cross-node scenario overlap between two nodes
+    When the Warden renders its dedup verdict
+    Then it assigns the behavior to a single owning node
+
+  # ── Layout-quality signal (F1) ──
+
+  Scenario: a formation pass surfaces a layout-quality signal
+    Given a formation pass over the corpus
+    When it reports layout quality
+    Then it surfaces a layout-quality signal derived from the false-conflict rate
+
+  Scenario: the layout-quality signal is advisory and never blocks a mission
+    Given a formation pass that surfaces a layout-quality signal
+    When the signal is read
+    Then the signal is advisory
+    And it gates no mission
+
   # ── Corpus-wide, not the gate ──
 
   Scenario: a formation pass produces a finding set covering every spec

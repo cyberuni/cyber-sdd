@@ -26,8 +26,11 @@ node "<skill>/scripts/place-node.mts" --spec-dir <spec> --concept <c> [--name <n
 - `--name` — surfaces existing nodes whose path overlaps the name ("belongs near X" duplicate-catch).
 
 The home is **derived** from the project-spec's own `concept:` tags, never a stored routing list (the
-`corpus/discovery` no-drift rule). For genuinely contested overlaps, the human tie-break rules live in
-the placement-map routing table (root `spec.md`), which this tool points to rather than re-deriving.
+`corpus/discovery` no-drift rule). Homes are **capability folders** — the capability-first partition is
+**strongly recommended** (a layered / framework-first top level scatters a capability across folders and
+is discouraged). For genuinely contested
+overlaps, the human tie-break rules live in the placement-map routing table (root `spec.md`), which this
+tool points to rather than re-deriving.
 
 ## Boundaries
 

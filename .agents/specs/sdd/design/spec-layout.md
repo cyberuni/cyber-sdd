@@ -50,10 +50,12 @@ Strategies differ only in **how the body — the capability / behavioral nodes �
 
 ## The strategy menu
 
-**Shipped (in the v1 compass): S1 (default) + S2.** The rest are recorded here as **alternatives under
-investigation** — full pros/cons preserved so they can be promoted without re-deriving them.
+**Shipped (in the v1 compass): S1 (strongly recommended) + S2.** The rest are recorded here as
+**alternatives under investigation** — full pros/cons preserved so they can be promoted without
+re-deriving them. **S4 (layered) is discouraged as a top-level strategy** and survives only as the
+nest-inside-a-capability rule.
 
-### S1 — Capability-first (Screaming Architecture) — *default*
+### S1 — Capability-first (Screaming Architecture) — *strongly recommended*
 
 Top-level folders = what the project *does*, in domain language; the folder names scream the capability.
 
@@ -64,6 +66,16 @@ Top-level folders = what the project *does*, in domain language; the folder name
   source-org*).
 - **Fits:** domain-rich projects where legibility outweighs spec↔source divergence (including plugins, with
   that divergence accepted as a known cost).
+
+**Why strongly recommended, not merely default (the partition stake).** Capability-first is the code-side
+**partition** the mission scheduler depends on: node ↔ capability-folder is a clean 1:1, so a mission owns
+one node and its collisions are legible. A **layered / framework-first** top level (S4, or `src/`
+by technical role) **scatters one capability across many folders** — the node↔folder mapping breaks, a
+single behavior smears across nodes, collisions explode, and the scheduler degrades toward serial. So
+S1 is not one option among equals: **layered / framework-first as the *top* level is discouraged**
+(it survives only as the nest-*inside*-a-capability rule below). The scheduler's **false-conflict rate**
+is the standing metric of this partition's quality — a layout-quality signal the Warden surfaces
+(`../formation/`).
 
 ### S2 — Mirror-the-source-tree
 
@@ -159,13 +171,16 @@ divergence *is* the maintenance tradeoff the layout step must surface:
 After auto-detecting signals — monorepo (`apps/`+`packages/`), framework markers, whether `src/` is feature-
 or layer-organized, plugin shape (`.plugin/`+`skills/`+`agents/`), owners (`CODEOWNERS`), size — route:
 
-1. a discernible capability/domain decomposition → **S1** (default);
+1. a discernible capability/domain decomposition → **S1** (strongly recommended — the default route);
 2. code already well-organized **and** navigated-by **and** feature-first → **S2**;
 3. layering / arc42 sections never become the *top* level — they are the **nest-inside-a-capability** rule
-   regardless of the primary chosen.
+   regardless of the primary chosen, and **a layered / framework-first top level is discouraged** (it
+   scatters capabilities → breaks node↔folder → degrades the scheduler).
 
-Always present **one recommended strategy + rationale**, show the alternative, let the user choose. The
-deferred strategies (S3/S4/S5) are reachable via "show more options," pointing at this doc.
+Always present **S1 as the recommended strategy + rationale** and show the alternative (S2), letting the
+user choose; **steer away from a layered / framework-first top level** unless the project genuinely *is*
+its layering. The deferred strategies (S3/S4/S5) are reachable via "show more options," pointing at this
+doc — with S4 carrying the top-level discouragement.
 
 ## Declared organization — the body placement map
 

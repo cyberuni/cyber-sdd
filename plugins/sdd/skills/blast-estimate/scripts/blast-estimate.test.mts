@@ -381,6 +381,50 @@ test('scenario: a project-wide touch-set computes high blast', () => {
 	}
 })
 
+test('scenario: a lone work area is its whole project but is not project-wide reach', () => {
+	// The size-1 case the frozen suite was SELF-CONTRADICTORY on until #238: a touch-set naming the
+	// only area of a 1-area project satisfied both "a single peripheral work area" (-> low) and "a
+	// touch-set reaching across every work area of its project" (-> high). The contract now states
+	// the >= 2 precondition on the project-wide scenario and pins this case here.
+	//
+	// This test exists because EVERY other fixture in this file structurally avoids size 1 —
+	// `seedFiller` was written precisely to keep a corpus "a real multi-area project rather than the
+	// degenerate 1-area shape". Without it the frozen scenario reads UNBOUND and never runs.
+	//
+	// A project of one has no coverage to measure: the touch-set IS its whole project, but coverage
+	// is reach RELATIVE to a project, so it must not fire. Only absolute count speaks, and 1 is low.
+	const dir = mkCorpus()
+	seedArea(dir, 'sdd', 'lone', { 'README.md': 'the only area of its project; references nothing' })
+	const r = estimateBlast(['sdd/lone'], SDD_LAYOUT, { root: dir })
+	assert.equal(r.computed, 'low')
+	assert.deepEqual(r.reasons?.projectWide, [], 'a project of one has none to cover — coverage must not fire')
+})
+
+test('the >= 2 coverage guard is keyed per PROJECT, not on the touch-set size', () => {
+	// Not a frozen-scenario binding — a regression test defending the per-project keying that the
+	// engine header and SKILL.md assert as contract since #238. Every OTHER fixture in this file is
+	// single-project, which leaves that claim undefended: keying the guard on the TOUCH-SET's size
+	// (`resolved.length < 2`) instead of the touched project's area count passes the entire suite
+	// while being wrong — it would name a 1-area project project-wide whenever the touch-set happens
+	// to reach >= 2 areas anywhere in the corpus.
+	const layouts: ProjectLayout[] = [
+		{ project: 'atlas', roots: ['atlas'] },
+		{ project: 'borealis', roots: ['borealis'] },
+	]
+	const dir = mkCorpus()
+	seedArea(dir, 'atlas', 'only', { 'README.md': 'the lone area of a 1-area project; references nothing' })
+	seedArea(dir, 'borealis', 'one', { 'README.md': 'references nothing' })
+	seedArea(dir, 'borealis', 'two', { 'README.md': 'references nothing' })
+	// A 3-area touch-set: `borealis` is covered entirely (2 of 2); `atlas` holds a single area and so
+	// is never project-wide, however many areas the touch-set names elsewhere.
+	const r = estimateBlast(['atlas/only', 'borealis/one', 'borealis/two'], layouts, { root: dir })
+	assert.deepEqual(
+		r.reasons?.projectWide,
+		['borealis'],
+		'only the >= 2-area project is project-wide — the 1-area project is never covered',
+	)
+})
+
 test('scenario: a project-wide touch-set computes high blast (a partly-covered project is not project-wide)', () => {
 	// The negative half of the coverage rule: touching all but one area of a project is NOT
 	// project-wide, so coverage must not fire. Keeps the rule from collapsing into "any touch-set".

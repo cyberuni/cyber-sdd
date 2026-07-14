@@ -121,6 +121,11 @@ Feature: blast-estimate — compute a Mission's blast from its touch-set instead
   # ── The barrier agreement ──
 
   Scenario: a project-wide touch-set computes high blast
-    Given a constructed corpus and a touch-set reaching across every work area of its project
+    Given a constructed corpus whose project holds more than one work area, and a touch-set reaching across every one of them
     When the blast is estimated
     Then the computed blast is high, so a called-out barrier and the estimate agree by construction
+
+  Scenario: a lone work area is its whole project but is not project-wide reach
+    Given a constructed corpus whose project holds exactly one work area, with no fan-in and no sensitive marking, and a touch-set naming that area
+    When the blast is estimated
+    Then the computed blast is low and the report names no project as covered, because coverage is reach relative to a project and a project of one has none to cover

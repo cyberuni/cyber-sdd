@@ -1,0 +1,278 @@
+@frozen
+Feature: The SSA-lowering doctrine — cut a change request into one owning mission per spec-node
+  Behavior suite for the SSA-lowering doctrine (a skill the coordinator runs during intake/Explore) — the
+  reasoning front-end that lowers one-or-more change requests into a partitioned set of Missions. It applies
+  two judgment lenses (Oracle: should we do this? / Architect: where does each piece belong, is it a
+  barrier?) and cuts the write-set toward SSA — one owning Mission per spec-node — resolving same-node
+  contention by versioning it into an ordered RAW dependency, and lowering only the frontier deeply.
+  The judgment CANNOT be unit-tested (it is a call, not a pure function), so the graded behaviors are
+  @rubric scenarios; the structural invariants a valid cut must never break (single-writer, a killed CR
+  lowers to nothing, a barrier is never a normal node) are plain boolean guards over the produced partition.
+  It DECIDES the cut; it does not build the missions (the mission loop does), record the plan (the
+  mission-graph store does), classify a collision (collision-ladder does), or emit its decision-evidence
+  automatically (SQ-F5 #194, deferred). Working node name only — the final name is SQ-name #195.
+
+  # ── Activation: fires when a change request must be partitioned ──
+
+  @trigger
+  Scenario Outline: the lowering doctrine activates only when a change request must be cut into missions
+    Given the situation "<situation>"
+    When the coordinator decides whether to apply the SSA-lowering doctrine
+    Then applying the doctrine is "<should_apply>"
+
+    Examples:
+      | situation                                                                                          | should_apply |
+      | a change request spanning three capabilities must be decomposed into missions during intake        | yes          |
+      | two open change requests overlap on a shared capability and must be regrouped into missions         | yes          |
+      | a far-horizon change request has reached the frontier and must be lowered before work starts        | yes          |
+      | a change request describes a project-wide rename that must be planned as fleet work                 | yes          |
+      | a single-capability change to one artifact-type needs no partition and goes straight to the mission loop | no       |
+      | a request to add one scenario to an existing mission-graph feature file, within one node            | no           |
+      | running the ready and cycles views over the existing mission-graph store                            | no           |
+      | classifying an already-detected node collision as hard or soft with the collision-ladder            | no           |
+
+  # ── Oracle gate: judge legitimacy before lowering ──
+
+  @behavior @rubric
+  Scenario: a stale change request is killed or reshaped before any lowering
+    Given a change request filed months ago asking to add retry logic to the mailer
+    And a shipped change has since replaced the mailer with a queue that already retries
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: catches-staleness
+          max: 3          # recognizes the shipped queue already covers the CR's goal
+        - name: kill-or-reshape-before-lowering
+          max: 3          # kills or reshapes the CR up front rather than partitioning dead work
+        - name: reasoning-recorded
+          max: 2          # states why (the legitimacy verdict) as shown-work
+        - name: no-dead-missions
+          max: 2          # does not emit missions that build the superseded retry logic
+      threshold: 8
+      """
+    And the rubric score is at least the threshold
+
+  @behavior @rubric
+  Scenario: a misaligned change request is reshaped or killed before any lowering
+    Given a change request asking to add a per-user telemetry tracker to the CLI
+    And nothing has superseded it, yet the product direction is explicitly zero-telemetry, local-only
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: catches-misalignment
+          max: 3          # recognizes the CR fits the product direction poorly, though it is technically doable and not stale
+        - name: reshape-or-kill-before-lowering
+          max: 3          # reshapes toward the product direction or kills the CR up front rather than partitioning it
+        - name: not-mistaken-for-stale
+          max: 2          # judges it on direction-fit, not on being superseded (nothing supersedes it)
+        - name: reasoning-recorded
+          max: 2          # states the misalignment verdict as shown-work
+      threshold: 8
+      """
+    And the rubric score is at least the threshold
+
+  Scenario: a killed change request lowers to zero missions
+    Given a change request whose goal a shipped change has fully superseded
+    When the coordinator applies the SSA-lowering doctrine and kills the change request
+    Then the produced partition contains no missions
+
+  @behavior @rubric
+  Scenario: a far-horizon change request is re-validated when it reaches the frontier
+    Given a change request judged legitimate at filing and parked on the far horizon
+    And the ground has shifted while it was parked so its goal may no longer improve the product
+    When the change request reaches the frontier and the coordinator applies the SSA-lowering doctrine
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: re-checked-not-trusted
+          max: 3          # re-runs the Oracle legitimacy check on frontier arrival rather than trusting the filing-time verdict
+        - name: verdict-reflects-current-state
+          max: 3          # the re-confirm or newly-kill decision reflects the shifted ground, not the stale filing verdict
+        - name: reasoning-recorded
+          max: 2          # states the re-validation verdict as shown-work
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  # ── Architect's say: placement and barriers ──
+
+  @behavior @rubric
+  Scenario: a project-wide refactor is recognized as a barrier and hoisted early
+    Given a change request that renames a core type used across every capability of the project
+    And several unrelated feature change requests are also waiting to be lowered
+    When the coordinator applies the SSA-lowering doctrine across all the change requests
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: barrier-detected
+          max: 3          # recognizes the rename cross-cuts the whole project, owns no single node
+        - name: hoisted-early
+          max: 3          # schedules the barrier before the feature missions that would rebase onto it
+        - name: not-a-normal-node
+          max: 2          # does not model the refactor as one node-owning mission among peers
+        - name: fleet-rebase-reasoned
+          max: 2          # notes the feature work rebases onto the new world after the fence
+      threshold: 8
+      """
+    And the rubric score is at least the threshold
+
+  Scenario: a barrier mission is not scheduled as a normal node-owning mission
+    Given a change request that is a project-wide refactor cross-cutting most capabilities
+    When the coordinator applies the SSA-lowering doctrine and lowers it
+    Then the produced partition marks the refactor as a barrier
+    And no other lowered mission is scheduled to start before the barrier retires
+
+  @behavior @rubric
+  Scenario: the cut places each new capability in its own node
+    Given a change request that introduces both a rate-limiter and an audit-log, two distinct new capabilities
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: distinct-nodes
+          max: 3          # the rate-limiter and the audit-log land in separate spec-nodes
+        - name: screaming-placement
+          max: 3          # each node's placement reflects the capability it owns, not a layer
+        - name: no-conflation
+          max: 2          # the two unrelated capabilities are not fused into one mission
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  # ── The SSA cut: one owning mission per spec-node ──
+
+  Scenario: every spec-node in the write-set is owned by exactly one mission
+    Given a change request whose write-set touches four distinct spec-nodes
+    When the coordinator applies the SSA-lowering doctrine and lowers it
+    Then each spec-node in the write-set is owned by exactly one mission in the produced partition
+    And no spec-node is assigned to two missions at the same time
+
+  @quality @rubric
+  Scenario: coupled work in one spec-node stays in a single cohesive mission
+    Given a change request whose changes to one spec-node are tightly coupled and cannot be verified apart
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: cohesion-preserved
+          max: 3          # the coupled work stays in one mission, verifiable as a unit
+        - name: no-over-split
+          max: 3          # the node is not scattered into thin fragments across missions
+        - name: single-writer-held
+          max: 2          # the one node still has exactly one owning mission
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  @behavior @rubric
+  Scenario: two change requests regroup by ownership into missions that cross CR boundaries
+    Given two change requests that each touch the shared authentication spec-node from a different angle
+    And each also touches a spec-node the other does not
+    When the coordinator applies the SSA-lowering doctrine across both change requests together
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: regroup-by-ownership
+          max: 3          # the shared node is owned by one mission drawing on both CRs, not split per CR
+        - name: crosses-cr-boundaries
+          max: 3          # missions are cut by ownership (N CRs to M missions), not one-per-CR
+        - name: provenance-kept
+          max: 2          # each mission records its originating change request(s)
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  Scenario: a mission drawn from two change requests records both as provenance and mints its ref locally
+    Given two change requests that both write the shared billing spec-node
+    When the coordinator applies the SSA-lowering doctrine and cuts one owning mission for that node
+    Then that mission records both originating change requests as provenance
+    And that mission carries a locally-minted mission-ref rather than a tracker ticket ref
+
+  # ── Contention: resolve write-after-write by versioning into an ordered dependency ──
+
+  @behavior @rubric
+  Scenario: a same-node contention is resolved by imposing an order into a versioned-RAW edge
+    Given two concerns that both need to write the same reporting spec-node
+    And one concern can sensibly go first with the other rebasing onto its result
+    When the coordinator applies the SSA-lowering doctrine to the two concerns
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: order-imposed
+          max: 3          # picks a do-first concern and a rebase/rework-second concern
+        - name: versioned-raw-edge
+          max: 3          # emits a RAW dependency between them rather than two concurrent writers
+        - name: not-flagged-irreducible
+          max: 2          # does not call an order-imposable contention an irreducible hard collision
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  Scenario: an order-imposable contention does not emit two concurrent writers of one node
+    Given two concerns writing the same spec-node where one can go first and the other rebase onto it
+    When the coordinator applies the SSA-lowering doctrine and resolves the contention
+    Then the produced partition does not contain two missions writing that spec-node concurrently
+    And it contains a RAW edge ordering the second mission after the first
+
+  @behavior @rubric
+  Scenario: an order-less concurrent co-write is left as an irreducible hard collision
+    Given two concerns that must both write the same spec-node with no order that avoids rework either way
+    When the coordinator applies the SSA-lowering doctrine to the two concerns
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: irreducible-recognized
+          max: 3          # recognizes no clean order exists, so a versioned-RAW would not resolve it
+        - name: serialized-not-parallel
+          max: 3          # the two writes are serialized, not started concurrently
+        - name: rework-flagged
+          max: 2          # flags that the second write needs real rework, not a clean replay
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  # ── Monadic lowering and conservative-first defaults ──
+
+  @behavior @rubric
+  Scenario: only the frontier is deeply lowered while far work is left coarse
+    Given a change request with a knowable near-term frontier and a fuzzy far horizon of speculative work
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: frontier-lowered-deeply
+          max: 3          # the frontier is cut into concrete, verifiable missions
+        - name: far-work-left-coarse
+          max: 3          # far work is left as coarse Operations, not prematurely partitioned
+        - name: commit-near-speculate-far
+          max: 2          # commitment decays with distance rather than scheduling the far horizon
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  @behavior @rubric
+  Scenario: a low-confidence touch-set is treated as a hard collision
+    Given two missions whose predicted touch-sets overlap on a node but the overlap is only partially known
+    When the coordinator applies the SSA-lowering doctrine and there is no finer evidence of disjointness
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: conservative-default
+          max: 3          # treats the unproven overlap as a hard collision and serializes
+        - name: not-optimistic
+          max: 3          # does not optimistically parallelize the two missions on a guess
+        - name: relax-on-evidence
+          max: 2          # notes it would relax to parallel only when finer evidence proves disjointness
+      threshold: 6
+      """
+    And the rubric score is at least the threshold
+
+  # ── Guard against over-serializing a clean split ──
+
+  Scenario: independent spec-nodes are lowered without a fabricated dependency between them
+    Given a change request whose write-set is a set of genuinely independent spec-nodes with no shared writes
+    When the coordinator applies the SSA-lowering doctrine and lowers it
+    Then the produced partition contains no RAW or collision edge between the independent missions
+    And those missions are allowed to run in parallel

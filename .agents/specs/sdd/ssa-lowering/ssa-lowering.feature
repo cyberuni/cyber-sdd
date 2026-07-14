@@ -1,12 +1,18 @@
+@frozen
 Feature: The SSA-lowering doctrine — cut a change request into one owning mission per spec-node
   Behavior suite for the SSA-lowering doctrine (a skill the coordinator runs during intake/Explore) — the
   reasoning front-end that lowers one-or-more change requests into a partitioned set of Missions. It applies
   two judgment lenses (Oracle: should we do this? / Architect: where does each piece belong, is it a
   barrier?) and cuts the write-set toward SSA — one owning Mission per spec-node — resolving same-node
   contention by versioning it into an ordered RAW dependency, and lowering only the frontier deeply.
-  The judgment CANNOT be unit-tested (it is a call, not a pure function), so the graded behaviors are
-  @rubric scenarios; the structural invariants a valid cut must never break (single-writer, a killed CR
-  lowers to nothing, a barrier is never a normal node) are plain boolean guards over the produced partition.
+  The judgment CANNOT be unit-tested (it is a call, not a pure function), so the graded behaviors
+  are rubric-tagged scenarios; the structural invariants a valid cut must never break (single-writer,
+  a killed CR lowers to nothing, a barrier is never a normal node, the decision-evidence record
+  accompanies the partition) are plain boolean guards over the produced partition. Each graded
+  scenario carries two-or-more independently-loseable dimensions and a threshold one point below
+  their combined max, so losing a whole dimension fails the scenario — except cohesion, which is
+  single-dimension by design (its situation admits one judgment) and so is forced to a threshold at
+  max; see the README's Calibration note.
   It DECIDES the cut; it does not build the missions (the mission loop does), record the plan (the
   mission-graph store does), classify a collision (collision-ladder does), or emit its decision-evidence
   automatically (SQ-F5 #194, deferred). Working node name only — the final name is SQ-name #195.
@@ -43,13 +49,9 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       dimensions:
         - name: catches-staleness
           max: 3          # derives that the shipped change dissolved the problem the re-invite flow existed to solve; no step of the situation states that the CR's goal is covered
-        - name: kill-or-reshape-before-lowering
-          max: 3          # kills the CR up front, or reshapes it down to the one remnant the situation leaves genuinely uncovered (the billing-method decliners who are never followed up), rather than partitioning the dead bulk-chase as filed
-        - name: reasoning-recorded
-          max: 2          # states why (the legitimacy verdict) as shown-work
-        - name: no-dead-missions
-          max: 2          # does not emit missions that build the superseded re-invite flow
-      threshold: 8
+        - name: kill-or-reshape
+          max: 3          # acts correctly on the verdict, and emits no mission that builds the superseded bulk re-invite flow. 3 = reshapes the CR down to the one remnant the situation leaves genuinely uncovered (the billing-method decliners who are never followed up); 1 = kills the CR whole, discarding that live remnant; 0 = partitions the dead bulk-chase as filed
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -62,14 +64,10 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: catches-misalignment
-          max: 3          # infers the product's non-mutating direction from how the tool ships (read-only, no write credentials, the no-PR promise) and finds the CR contradicts it; no step declares the direction as a slogan
-        - name: reshape-or-kill-before-lowering
-          max: 3          # reshapes toward the product direction or kills the CR up front rather than partitioning it
-        - name: not-mistaken-for-stale
-          max: 2          # judges it on direction-fit; nothing in the situation supersedes the CR, so a staleness verdict is unsupported
-        - name: reasoning-recorded
-          max: 2          # states the misalignment verdict as shown-work
-      threshold: 8
+          max: 3          # infers the product's non-mutating direction from how the tool ships (read-only, no write credentials, the no-PR promise) and finds the CR contradicts it, on direction-fit rather than supersession; no step declares the direction as a slogan, and nothing in the situation supersedes the CR
+        - name: reshape-or-kill
+          max: 3          # acts on the verdict: reshapes the CR toward the product direction or kills it, rather than partitioning it as filed
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -90,9 +88,7 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
           max: 3          # re-runs the Oracle legitimacy check on frontier arrival rather than trusting the filing-time verdict
         - name: verdict-reflects-current-state
           max: 3          # the re-confirm or newly-kill decision reflects the shifted ground, not the stale filing verdict
-        - name: reasoning-recorded
-          max: 2          # states the re-validation verdict as shown-work
-      threshold: 6
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -107,14 +103,12 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: barrier-detected
-          max: 3          # recognizes the rename cross-cuts the whole project, owns no single node
+          max: 3          # recognizes the rename cross-cuts the whole project and owns no single node, so it is not modeled as one node-owning mission among peers
         - name: hoisted-early
           max: 3          # schedules the barrier before the feature missions that would rebase onto it
-        - name: not-a-normal-node
-          max: 2          # does not model the refactor as one node-owning mission among peers
         - name: fleet-rebase-reasoned
-          max: 2          # notes the feature work rebases onto the new world after the fence
-      threshold: 8
+          max: 2          # the feature missions are planned against the post-rename world they rebase onto after the fence retires, not against the pre-rename world they were filed against
+      threshold: 7
       """
     And the rubric score is at least the threshold
 
@@ -132,12 +126,10 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: distinct-nodes
-          max: 3          # the scheduled export and the webhook delivery land in separate spec-nodes
+          max: 3          # the scheduled export and the webhook delivery land in separate spec-nodes, neither fused into one mission nor pooled into a single node named for the outbound edge they share
         - name: screaming-placement
           max: 3          # each node's placement reflects the capability it owns, not a layer — the shared outbound edge is not a placement
-        - name: no-conflation
-          max: 2          # the two capabilities are not fused into one mission, nor pooled into a single node named for the outbound edge they share
-      threshold: 6
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -149,6 +141,12 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
     Then each spec-node in the write-set is owned by exactly one mission in the produced partition
     And no spec-node is assigned to two missions at the same time
 
+  # Single dimension by design, so this threshold is forced to max. The situation admits exactly one
+  # judgment — the coupled node is kept whole or it is not — and plants no second node to wrongly
+  # absorb, so there is no over-merge counterpart to grade. Padding it with an unloseable second
+  # dimension would reintroduce the defect #221 filed. Unlike the inferential dimensions, this is a
+  # clear-cut structural call over the produced partition, where low variance is expected; the impl
+  # gate measures it. See "Calibration" in README.md.
   @quality @rubric
   Scenario: coupled work in one spec-node stays in a single cohesive mission
     Given a change request whose changes to one spec-node are tightly coupled and cannot be verified apart
@@ -157,12 +155,8 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: cohesion-preserved
-          max: 3          # the coupled work stays in one mission, verifiable as a unit
-        - name: no-over-split
-          max: 3          # the node is not scattered into thin fragments across missions
-        - name: single-writer-held
-          max: 2          # the one node still has exactly one owning mission
-      threshold: 6
+          max: 3          # the coupled work stays in one mission verifiable as a unit, rather than being scattered into thin fragments across missions
+      threshold: 3
       """
     And the rubric score is at least the threshold
 
@@ -175,12 +169,10 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: regroup-by-ownership
-          max: 3          # the shared node is owned by one mission drawing on both CRs, not split per CR
-        - name: crosses-cr-boundaries
-          max: 3          # missions are cut by ownership (N CRs to M missions), not one-per-CR
-        - name: provenance-kept
-          max: 2          # each mission records its originating change request(s)
-      threshold: 6
+          max: 3          # the shared authentication node is owned by one mission drawing on both CRs rather than split per CR — missions cut by ownership (N CRs to M missions), not one-per-CR
+        - name: disjoint-nodes-not-fused
+          max: 3          # the two nodes only one CR touches stay their own missions; regrouping the shared node does not pull the disjoint work into it, which would trade the under-merge error for an over-merge that serializes independent writes
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -203,10 +195,8 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
         - name: order-imposed
           max: 3          # picks a do-first concern and a rebase/rework-second concern
         - name: versioned-raw-edge
-          max: 3          # emits a RAW dependency between them rather than two concurrent writers
-        - name: not-flagged-irreducible
-          max: 2          # does not call an order-imposable contention an irreducible hard collision
-      threshold: 6
+          max: 3          # encodes that order as a RAW dependency between them, rather than as two concurrent writers or as an irreducible hard collision
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -224,12 +214,10 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: irreducible-recognized
-          max: 3          # recognizes no clean order exists, so a versioned-RAW would not resolve it
-        - name: serialized-not-parallel
-          max: 3          # the two writes are serialized, not started concurrently
+          max: 3          # recognizes no clean order exists so a versioned-RAW would not resolve it, and serializes the two writes rather than starting them concurrently
         - name: rework-flagged
-          max: 2          # flags that the second write needs real rework, not a clean replay
-      threshold: 6
+          max: 2          # flags that the second write needs real rework because the first moved the ground, not a clean replay
+      threshold: 4
       """
     And the rubric score is at least the threshold
 
@@ -245,10 +233,8 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
         - name: frontier-lowered-deeply
           max: 3          # the frontier is cut into concrete, verifiable missions
         - name: far-work-left-coarse
-          max: 3          # far work is left as coarse Operations, not prematurely partitioned
-        - name: commit-near-speculate-far
-          max: 2          # commitment decays with distance rather than scheduling the far horizon
-      threshold: 6
+          max: 3          # far work is left as coarse Operations, neither prematurely partitioned nor scheduled
+      threshold: 5
       """
     And the rubric score is at least the threshold
 
@@ -260,12 +246,10 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: conservative-default
-          max: 3          # treats the unproven overlap as a hard collision and serializes
-        - name: not-optimistic
-          max: 3          # does not optimistically parallelize the two missions on a guess
+          max: 3          # treats the unproven overlap as a hard collision and serializes, rather than optimistically parallelizing the two missions on a guess
         - name: relax-on-evidence
-          max: 2          # notes it would relax to parallel only when finer evidence proves disjointness
-      threshold: 6
+          max: 2          # gets the relaxation condition right — parallel becomes available only once finer evidence proves the writes disjoint, not on elapsed time, mission size, or a re-guess
+      threshold: 4
       """
     And the rubric score is at least the threshold
 
@@ -276,3 +260,13 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
     When the coordinator applies the SSA-lowering doctrine and lowers it
     Then the produced partition contains no RAW or collision edge between the independent missions
     And those missions are allowed to run in parallel
+
+  # ── Decision-evidence: the shown-work that accompanies the partition ──
+
+  Scenario: the produced partition is accompanied by a decision-evidence record
+    Given one change request the coordinator kills and a second the coordinator lowers across three spec-nodes, one of them a barrier
+    When the coordinator applies the SSA-lowering doctrine across both change requests
+    Then a decision-evidence record accompanies the produced partition
+    And that record states an Oracle verdict of ship, reshape, or kill for each change request, with the cause of that verdict
+    And that record states an Architect verdict for each spec-node in the partition, naming its placement and the barrier's fence reasoning
+    And that record names the sources the cut drew on

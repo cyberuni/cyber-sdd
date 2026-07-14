@@ -205,3 +205,67 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
     Given the #135/#136/#137 fixture
     When the Operations are read
     Then #135 and #136 form one Operation with capstone #136 and #137 is its own Mission
+
+  # ── The store home — the orphan ref (F3, branch-independent) ──
+  # These exercise the store-IO SEAM over a CONSTRUCTED temporary git repository (git init in a
+  # temp dir), never the project's live store — the same constructed-fixture discipline the
+  # derivation scenarios above follow. F3 moves the store off the branch-coupled in-tree file onto
+  # the orphan ref refs/sdd/mission-graph, read/written by git plumbing behind the same seam, so
+  # the fold/ready/cycles derivations never change.
+
+  Scenario: an append to the orphan-ref store leaves the working tree clean
+    Given a git repository using the orphan-ref store
+    When a mission node is appended
+    Then the event is readable back from the store and the working tree has no uncommitted change
+
+  Scenario: an event appended on one branch is visible when read from another branch
+    Given a mission node appended to the orphan-ref store while one branch is checked out
+    When the store is read after a different branch is checked out
+    Then the appended event is present, because the orphan ref is branch-independent
+
+  Scenario: an absent orphan ref reads as the empty log
+    Given a git repository whose orphan ref has not yet been written
+    When the store is read
+    Then the log is empty
+
+  Scenario: a write against a stale ref value is rejected
+    Given an orphan-ref store whose ref advanced after a writer captured its value
+    When that writer appends against the stale ref value
+    Then the compare-and-swap update is rejected and the ref is left unchanged
+
+  Scenario: migrate seeds the orphan ref from an existing in-tree store
+    Given an in-tree store holding events and no orphan ref
+    When the store is migrated
+    Then the orphan ref holds the same events in the same order
+
+  Scenario: migrate is idempotent when the orphan ref is already seeded
+    Given an orphan ref already seeded from an in-tree store
+    When migrate is run a second time
+    Then the orphan ref is left unchanged and no events are duplicated
+
+  Scenario: migrate with no in-tree store to seed from creates no ref
+    Given a git work-tree with no in-tree store and no orphan ref
+    When the store is migrated
+    Then no orphan ref is created, because there is nothing to seed
+
+  # ── Backend selection behind the seam ──
+
+  Scenario: a git work-tree with no in-tree store selects the orphan-ref backend
+    Given a git work-tree with no in-tree store and no override
+    When the store backend is resolved
+    Then the orphan-ref backend is selected
+
+  Scenario: an existing orphan ref selects the orphan-ref backend
+    Given a git work-tree whose orphan ref already exists and no override
+    When the store backend is resolved
+    Then the orphan-ref backend is selected
+
+  Scenario: an in-tree store with no orphan ref keeps the in-tree backend before migration
+    Given a git work-tree holding an in-tree store, no orphan ref, and no override
+    When the store backend is resolved
+    Then the in-tree backend is selected, so an unmigrated store is never silently orphaned
+
+  Scenario: an explicit store override selects the named backend
+    Given the store override names the in-tree backend
+    When the store backend is resolved inside a git work-tree
+    Then the in-tree backend is selected

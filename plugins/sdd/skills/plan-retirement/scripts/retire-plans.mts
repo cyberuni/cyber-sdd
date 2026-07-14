@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Plan retirement — the Doctrine loop's last retro step (see sdd:combat-log-governance,
 // "Plan retirement"). A retired plan leaves the tree by a deliberate, gated TRACKED
-// DELETION, never a gitignore side effect: for each cleared <cr-ref>, the sweep deletes
-// <cr-ref>.plan.md AND <cr-ref>.log.jsonl from `.agents/plans`.
+// DELETION, never a gitignore side effect: for each cleared <cr-ref>, the sweep deletes that
+// CR's whole TRANSIENT ARTIFACT SET — the plan pair (<cr-ref>.plan.md + <cr-ref>.log.jsonl)
+// plus its transient CR-level planning briefs (<cr-ref>.design.md, <cr-ref>.operations.md,
+// <cr-ref>.evidence.md) — from `.agents/plans`.
 //
 // The two gating signals split by verifiability. Source = done/merged stays the CALLER's
 // judgment: the source-status query (github-NN -> GH issue, asana-<gid> -> Asana,
@@ -15,13 +17,24 @@
 // <cr-ref>.log.jsonl was never written has nothing to distill from in the first place, so it
 // retires on clearance + presence alone, no distilling entry required. This is the
 // mechanical, fail-closed gate + filesystem act:
-//   - it deletes the two files for a cr-ref that is cleared AND present on disk AND
-//     (distilled per the ledger OR has no log.jsonl to distill from);
+//   - it deletes the transient artifact set for a cr-ref that is cleared AND present on disk
+//     AND (distilled per the ledger OR has no log.jsonl to distill from);
 //   - a missing/unreadable --ledger skips retirement for ALL cr-refs (the no-log branch only
 //     applies once a ledger is actually present to consult);
 //   - anything not cleared, not present, or already gone is a no-op (idempotent, safe to
 //     re-run);
 //   - it never touches a plan it was not explicitly cleared to retire (fail-closed).
+//
+// Two invariants on the transient briefs (design.md / operations.md / evidence.md), both
+// deliberate:
+//   - THEY DO NOT WIDEN THE DISTILLED GATE. The gate keys on the combat log's presence only
+//     (discoverLogs / logPresent) — a cr-ref with briefs but no log.jsonl still retires
+//     without a distilling strategy. A brief owes no distillation (its content was consumed
+//     by the mission itself, not extracted into the ledger), so gating on one would re-strand
+//     the no-log mission class the no-log branch exists to rescue.
+//   - THEY DO NOT ANCHOR PRESENCE. discoverPlans (keyed on .plan.md) stays the sole presence
+//     signal. A cr-ref with a design.md but no plan.md is a no-op — the idempotency contract
+//     (a cleared cr-ref with no plan on disk deletes nothing) is the stronger guarantee.
 //
 // Pure functions are exported for node:test; running the file directly drives the CLI.
 // No dependencies. Use --dry-run to print the planned deletions without touching the tree.
@@ -31,10 +44,23 @@ import { join } from 'node:path'
 
 const PLAN_SUFFIX = '.plan.md'
 const LOG_SUFFIX = '.log.jsonl'
+const DESIGN_SUFFIX = '.design.md'
+const OPERATIONS_SUFFIX = '.operations.md'
+const EVIDENCE_SUFFIX = '.evidence.md'
 
-// The two files a retired plan owns, in deletion order (the brief, then the combat log).
-export function planFiles(crRef: string): string[] {
-	return [`${crRef}${PLAN_SUFFIX}`, `${crRef}${LOG_SUFFIX}`]
+// The full transient artifact set a retired cr-ref owns, in deletion order: the plan pair
+// (plan.md, log.jsonl) then the optional transient CR-level planning briefs (design.md,
+// operations.md, evidence.md). The briefs are optional — the per-file existsSync guard in
+// main() no-ops any that are absent, which is what lets a cr-ref with only some briefs retire
+// cleanly.
+export function transientArtifactFiles(crRef: string): string[] {
+	return [
+		`${crRef}${PLAN_SUFFIX}`,
+		`${crRef}${LOG_SUFFIX}`,
+		`${crRef}${DESIGN_SUFFIX}`,
+		`${crRef}${OPERATIONS_SUFFIX}`,
+		`${crRef}${EVIDENCE_SUFFIX}`,
+	]
 }
 
 // Parse a --retire value (comma-separated cr-refs) into a clean, de-duplicated list.
@@ -153,7 +179,7 @@ export function main(argv: string[]): number {
 	const deleted: string[] = []
 
 	for (const ref of retiring) {
-		for (const file of planFiles(ref)) {
+		for (const file of transientArtifactFiles(ref)) {
 			const path = join(root, file)
 			if (!existsSync(path)) continue // the log may be absent; delete what is there
 			if (!dryRun) unlinkSync(path)

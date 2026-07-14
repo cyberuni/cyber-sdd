@@ -10,7 +10,7 @@ import {
 	distilledCrRefs,
 	main,
 	parseCleared,
-	planFiles,
+	transientArtifactFiles,
 } from './retire-plans.mts'
 
 // A throwaway plans dir seeded with the given cr-refs, each getting plan.md (+ log.jsonl
@@ -22,6 +22,12 @@ function plansDir(refs: string[], noLog: string[] = []): string {
 		if (!noLog.includes(ref)) writeFileSync(join(dir, `${ref}.log.jsonl`), `{"seq":1}\n`)
 	}
 	return dir
+}
+
+// Writes the given transient brief suffixes (e.g. ['.design.md', '.operations.md']) for a
+// cr-ref into an existing dir.
+function writeBriefs(dir: string, ref: string, suffixes: string[]): void {
+	for (const suffix of suffixes) writeFileSync(join(dir, `${ref}${suffix}`), `# ${suffix} ${ref}\n`)
 }
 
 // A throwaway ledger dir seeded with one shard containing the given raw JSONL lines (each
@@ -41,8 +47,14 @@ function distillsLine(crRef: string, opts: { ratified?: boolean; evidence?: stri
 	})
 }
 
-test('planFiles returns the plan brief and the combat log', () => {
-	assert.deepEqual(planFiles('github-34'), ['github-34.plan.md', 'github-34.log.jsonl'])
+test('transientArtifactFiles returns the full five-file transient artifact set in deletion order', () => {
+	assert.deepEqual(transientArtifactFiles('github-34'), [
+		'github-34.plan.md',
+		'github-34.log.jsonl',
+		'github-34.design.md',
+		'github-34.operations.md',
+		'github-34.evidence.md',
+	])
 })
 
 test('parseCleared handles absent, empty, whitespace, and duplicate values', () => {
@@ -356,6 +368,95 @@ test('the plan.md is deleted even when the log.jsonl is absent (partial pair, di
 	try {
 		main(['--root', dir, '--ledger', ledger, '--retire', 'github-34'])
 		assert.ok(!existsSync(join(dir, 'github-34.plan.md')))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+// ---- Transient CR artifacts retire with the plan ----
+
+test('a cleared, distilled cr-ref deletes its transient briefs along with its plan files', () => {
+	const dir = plansDir(['github-34'])
+	writeBriefs(dir, 'github-34', ['.design.md', '.operations.md', '.evidence.md'])
+	const ledger = ledgerDir([distillsLine('github-34')])
+	try {
+		main(['--root', dir, '--ledger', ledger, '--retire', 'github-34'])
+		assert.ok(!existsSync(join(dir, 'github-34.design.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.operations.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.evidence.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.plan.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.log.jsonl')))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+test('a cleared cr-ref with transient briefs but no combat log retires them without a distillation (gate not widened)', () => {
+	const dir = plansDir(['github-34'], ['github-34']) // no log.jsonl
+	writeBriefs(dir, 'github-34', ['.design.md'])
+	const ledger = ledgerDir([]) // no strategy distills github-34
+	try {
+		main(['--root', dir, '--ledger', ledger, '--retire', 'github-34'])
+		assert.ok(!existsSync(join(dir, 'github-34.plan.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.design.md')))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+test('a fail-closed cr-ref keeps its transient briefs alongside its undistilled combat log', () => {
+	const dir = plansDir(['github-34']) // plan.md + log.jsonl present
+	writeBriefs(dir, 'github-34', ['.design.md'])
+	const ledger = ledgerDir([]) // no distilling entry
+	try {
+		main(['--root', dir, '--ledger', ledger, '--retire', 'github-34'])
+		assert.ok(existsSync(join(dir, 'github-34.plan.md')))
+		assert.ok(existsSync(join(dir, 'github-34.log.jsonl')))
+		assert.ok(existsSync(join(dir, 'github-34.design.md')))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+test('a cleared, distilled cr-ref deletes the transient briefs it has and no-ops the ones it lacks', () => {
+	const dir = plansDir(['github-34'])
+	writeBriefs(dir, 'github-34', ['.operations.md']) // no design.md or evidence.md
+	const ledger = ledgerDir([distillsLine('github-34')])
+	try {
+		main(['--root', dir, '--ledger', ledger, '--retire', 'github-34'])
+		assert.ok(!existsSync(join(dir, 'github-34.operations.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.design.md')))
+		assert.ok(!existsSync(join(dir, 'github-34.evidence.md')))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+test('clearing a cr-ref does not delete a different cr-ref whose name it is a prefix of (design.md)', () => {
+	const dir = plansDir(['github-3', 'github-34'])
+	writeBriefs(dir, 'github-34', ['.design.md'])
+	const ledger = ledgerDir([distillsLine('github-3'), distillsLine('github-34')])
+	try {
+		main(['--root', dir, '--ledger', ledger, '--retire', 'github-3']) // exact stem only
+		assert.ok(existsSync(join(dir, 'github-34.design.md')))
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(ledger, { recursive: true, force: true })
+	}
+})
+
+test('a cleared cr-ref with a transient brief but no plan.md is a no-op (presence not anchored on briefs)', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'retire-plans-'))
+	writeFileSync(join(dir, 'github-34.design.md'), '# design github-34\n') // no plan.md
+	const ledger = ledgerDir([distillsLine('github-34')])
+	try {
+		main(['--root', dir, '--ledger', ledger, '--retire', 'github-34'])
+		assert.ok(existsSync(join(dir, 'github-34.design.md')))
 	} finally {
 		rmSync(dir, { recursive: true, force: true })
 		rmSync(ledger, { recursive: true, force: true })

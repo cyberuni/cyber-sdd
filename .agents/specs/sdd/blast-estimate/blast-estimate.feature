@@ -1,3 +1,4 @@
+@frozen
 Feature: blast-estimate — compute a Mission's blast from its touch-set instead of hand-asserting it
   Unit suite for the blast estimator: the count × centrality × sensitivity computation, the line-up of
   the computed level against the hand-declared one (agrees / under-called / over-called), the two

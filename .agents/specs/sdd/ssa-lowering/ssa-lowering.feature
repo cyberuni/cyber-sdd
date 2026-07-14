@@ -1,4 +1,3 @@
-@frozen
 Feature: The SSA-lowering doctrine — cut a change request into one owning mission per spec-node
   Behavior suite for the SSA-lowering doctrine (a skill the coordinator runs during intake/Explore) — the
   reasoning front-end that lowers one-or-more change requests into a partitioned set of Missions. It applies
@@ -35,38 +34,39 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
 
   @behavior @rubric
   Scenario: a stale change request is killed or reshaped before any lowering
-    Given a change request filed months ago asking to add retry logic to the mailer
-    And a shipped change has since replaced the mailer with a queue that already retries
+    Given a change request filed months ago asking to add a bulk re-invite flow that chases users who never confirmed their email address
+    And a shipped change has since made accounts fully usable without confirmation, which is now asked for only at the point a user first adds a billing method
+    And a user who declines to confirm at that point is never followed up
     When the coordinator applies the SSA-lowering doctrine to the change request
     Then the judge evaluates the produced plan against the rubric
       """
       dimensions:
         - name: catches-staleness
-          max: 3          # recognizes the shipped queue already covers the CR's goal
+          max: 3          # derives that the shipped change dissolved the problem the re-invite flow existed to solve; no step of the situation states that the CR's goal is covered
         - name: kill-or-reshape-before-lowering
-          max: 3          # kills or reshapes the CR up front rather than partitioning dead work
+          max: 3          # kills the CR up front, or reshapes it down to the one remnant the situation leaves genuinely uncovered (the billing-method decliners who are never followed up), rather than partitioning the dead bulk-chase as filed
         - name: reasoning-recorded
           max: 2          # states why (the legitimacy verdict) as shown-work
         - name: no-dead-missions
-          max: 2          # does not emit missions that build the superseded retry logic
+          max: 2          # does not emit missions that build the superseded re-invite flow
       threshold: 8
       """
     And the rubric score is at least the threshold
 
   @behavior @rubric
   Scenario: a misaligned change request is reshaped or killed before any lowering
-    Given a change request asking to add a per-user telemetry tracker to the CLI
-    And nothing has superseded it, yet the product direction is explicitly zero-telemetry, local-only
+    Given a change request asking to add an autofix mode that rewrites the user's source files in place to clear findings
+    And the tool ships as a read-only CI check that runs with no write credentials, and its README promises it will never open a pull request or touch a branch
     When the coordinator applies the SSA-lowering doctrine to the change request
     Then the judge evaluates the produced plan against the rubric
       """
       dimensions:
         - name: catches-misalignment
-          max: 3          # recognizes the CR fits the product direction poorly, though it is technically doable and not stale
+          max: 3          # infers the product's non-mutating direction from how the tool ships (read-only, no write credentials, the no-PR promise) and finds the CR contradicts it; no step declares the direction as a slogan
         - name: reshape-or-kill-before-lowering
           max: 3          # reshapes toward the product direction or kills the CR up front rather than partitioning it
         - name: not-mistaken-for-stale
-          max: 2          # judges it on direction-fit, not on being superseded (nothing supersedes it)
+          max: 2          # judges it on direction-fit; nothing in the situation supersedes the CR, so a staleness verdict is unsupported
         - name: reasoning-recorded
           max: 2          # states the misalignment verdict as shown-work
       threshold: 8
@@ -126,17 +126,17 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
 
   @behavior @rubric
   Scenario: the cut places each new capability in its own node
-    Given a change request that introduces both a rate-limiter and an audit-log, two distinct new capabilities
+    Given a change request that introduces both a scheduled CSV export and outbound webhook delivery, two distinct new capabilities that both sit on the product's outbound edge
     When the coordinator applies the SSA-lowering doctrine to the change request
     Then the judge evaluates the produced plan against the rubric
       """
       dimensions:
         - name: distinct-nodes
-          max: 3          # the rate-limiter and the audit-log land in separate spec-nodes
+          max: 3          # the scheduled export and the webhook delivery land in separate spec-nodes
         - name: screaming-placement
-          max: 3          # each node's placement reflects the capability it owns, not a layer
+          max: 3          # each node's placement reflects the capability it owns, not a layer — the shared outbound edge is not a placement
         - name: no-conflation
-          max: 2          # the two unrelated capabilities are not fused into one mission
+          max: 2          # the two capabilities are not fused into one mission, nor pooled into a single node named for the outbound edge they share
       threshold: 6
       """
     And the rubric score is at least the threshold

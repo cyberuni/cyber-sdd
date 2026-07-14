@@ -5,10 +5,11 @@ approval:
   spec:
     verdict: approve
     by: agent
-    why: >-
-      github-193 (SQ-F4) — codified the transient CR artifact set and extended the retirement sweep
-      to it; 6 additive scenarios on doctrine/plan-retirement (suite self-cleared, stays @frozen).
-      Round-2 cold spec-judge ALIGNED true. Self-asserted within the auto-all leash.
+    why:
+      floor: none
+      blast: medium — additive only (21 added / 0 modified / 0 removed), freeze self-clears, no re-open
+      novelty: medium — a 7th ledger kind and a stricter outward-publish floor, both on settled owner-argued design
+      confidence: high — round 4 ALIGNED on an independently re-derived oracle after three blocked rounds, each defect closed additively and none refuted by a later round
 ---
 
 # Spec-Driven Development (SDD)

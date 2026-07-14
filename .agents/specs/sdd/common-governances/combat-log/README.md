@@ -17,9 +17,10 @@ doctrine-loop Scanner; invariant per role.
   `plugins/sdd/skills/combat-log-governance/` (a fixed-universal SDD governance —
   `../../design/governance-resolution.md`).
 - **Contract surface** — the two-face record (current-state frontmatter + append-only sharded ledger
-  directory), the six entry kinds (`report` / `correction` / `halt` → the combat log; `leash` / `gate` /
-  `strategy` → the ledger — the conductor writes `leash` + self-asserted `gate`, the Scanner alone writes
-  `strategy`), the per-shard `seq`, the combat-log-only write-time UTC `ts` (ledger lines carry none),
+  directory), the seven entry kinds (`report` / `correction` / `halt` → the combat log; `leash` / `gate` /
+  `strategy` / `followup` → the ledger — the conductor writes `leash` + self-asserted `gate` + `followup`,
+  the Scanner alone writes `strategy`), the per-shard `seq`, the combat-log-only write-time UTC `ts`
+  (ledger lines carry none),
   the per-writer shard naming (`<cr-ref>.<hash>.jsonl`, ADR-0020), the pseudonymous `handle`, the
   matchable `cause` enum, the **correction-line durability** discipline (a judge-reject→fix→pass
   self-assert appends a discrete `correction` line — `correction-kind: judge-iteration` + a matchable
@@ -36,6 +37,20 @@ doctrine-loop Scanner; invariant per role.
   (`../../doctrine/plan-retirement`) — an unratified `strategy` (`ratified: false`) still counts as a
   distillation. Milestone / drift / token-waste strategy that has no single subject mission may omit
   it; only Ship and Kill distillations gate a retirement.
+- **The `followup` record (`class`)** — the durable record of a follow-up the mission identified but
+  held out of scope, written by the **conductor at handoff** to its own ledger shard, **unconditionally**
+  (no permission, no forge, no human) and **before any filing is attempted**. It carries a `class` —
+  **`blocking`** (it contradicts a completion claim the mission already made; the line names that claim)
+  or **`backlog`** (genuinely new territory) — plus the evidence for the classification. It is a
+  **ledger** line, not a combat-log line: the combat log is deleted from the tree at retro, and a
+  follow-up must outlive its mission. It carries **no filed-state** — the ledger is append-only, so
+  what is still outstanding is **re-derived** at each drain by deduping against the forge's existing
+  issues — **open or closed**, since matching only open ones would re-file a duplicate for a follow-up
+  already filed and resolved — never written back onto the line. A finding that the mission's own **frozen contract** was wrong is
+  **not** a `followup` (it is an Oracle-lens revert inside that mission). The classification is a
+  **proposal**: recording one grants nothing — admission to the mission graph is the graph's single
+  writer's act (`../../mission-graph/`); handoff's side of it is `../../mission/handoff/`.
+
 - **Conformance** — verified through consumer suites (conductor + spec-gate + Scanner), never by
   this artifact itself. A reference artifact carries this `## Subject` in place of `## Use Cases` +
   a `.feature`.

@@ -273,7 +273,7 @@ export function readSensitivePaths(corpusRoot: string): SensitiveResult {
 //         in a large project the touch-set nowhere near covers)
 //       * coverageScore 3 iff the touch-set covers EVERY work area of a touched project that has
 //         >= 2 work areas, else 0 (relative reach: a 3-area project touched entirely IS
-//         project-wide — the barrier agreement holds at every project size, not just 4+)
+//         project-wide — the barrier agreement holds at every project size >= 2, not just 4+)
 //   - centrality  0 → 0; 1-2 → 1; 3+ → 2
 //   - sensitivity any touched area marked → +2 (a single marking is enough to move the level)
 // score >= 3 → high; score >= 1 → medium; score 0 → low.

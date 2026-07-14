@@ -43,7 +43,7 @@ not the exact numbers):
     project the touch-set nowhere near covers)
   - `coverageScore`: 3 iff the touch-set covers **every** work area of a touched project holding
     **≥2** work areas, else 0 (relative reach — a 3-area project touched entirely *is* project-wide;
-    the barrier agreement must hold at every project size, not only at 4+)
+    the barrier agreement must hold at every project size **≥2**, not only at 4+)
 - **centrality**: 0→0, 1-2→1, 3-6→2, 7+→3 (a genuine hub: touching an area a large share of the
   project leans on is project-scale reach even at count 1). Calibrated against **real** fan-in, which
   spans roughly 0–17 on a corpus of this size.

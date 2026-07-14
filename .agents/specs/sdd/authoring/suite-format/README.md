@@ -10,7 +10,7 @@ A **reference artifact**: the `suite-format` governance — how behavior-suite s
 ## Subject
 
 - **Artifact** — the `suite-format` governance, shipped as the `suite-format-governance` skill (a fixed-universal SDD governance; `../../design/governance-resolution.md`).
-- **Contract surface** — every `.feature` in any SDD project: its Gherkin form, the `@rubric` exception, scenario ordering, and the `@frozen` marker.
+- **Contract surface** — every `.feature` in any SDD project: its Gherkin form, the `@rubric` exception, the normative status of a `Given` vs a `Then`, scenario ordering, and the `@frozen` marker.
 - **Conformance** — verified by the **spec-judge** at the spec gate. A reference artifact carries this `## Subject` in place of a `## Use Cases` section and a `.feature`.
 - **Boundary** — the `spec.md` structure (the required `## Use Cases` section, enrichment) belongs to `../spec-format/`; the freeze/unfreeze *model* (triggers, the gate, iteration economy) belongs to `../../design/lifecycle-model.md`. This bar owns the `.feature` form.
 
@@ -60,6 +60,55 @@ Scenario: <name>
 
 The final `Then` yields exactly one boolean — the gate sees pass/fail, not a score.
 The rubric is internal evaluation detail.
+
+## A Given is a test vector, not specification
+
+The `Then` is the **contract surface** — what the gate collapses to a boolean, and what an
+implementation owes conformance to. A `Given` carries two separable things, and only one of them is
+contract:
+
+| The `Given` fixes | Status | The implementation |
+|---|---|---|
+| the **precondition** the `Then` is asserted under | **contract** | must handle it |
+| the **apparatus** that makes the precondition concrete — domain, entities, names, framing | **test vector** | owes it nothing |
+
+The apparatus is chosen to *probe* the rule, never to *illustrate* it. Freezing a suite freezes the
+probes; it does not publish a set of examples any artifact must adopt.
+
+**The swap test** settles which is which: substitute the `Given`'s domain for an unrelated one. If
+the `Then` still holds unchanged, what you swapped was **apparatus**. If the `Then` stops making
+sense, it was a **precondition**. Apply it per element — one `Given` routinely carries both
+(`Given a mailer that retries on 500` in a scenario about lowering: `mailer` is apparatus, *that a
+retry exists to lower* is the precondition). An element that survives the swap and still appears in
+the artifact is absorbed, whatever it is called; the label a producer puts on it decides nothing.
+
+### Choose probes the artifact would not choose for itself
+
+A `Given` whose apparatus matches the artifact's own worked examples **grades nothing**: an artifact
+that merely echoes its own illustration passes that scenario maximally, so the scenario cannot
+discriminate a reasoner from a copier. It is **dead weight** — it counts toward the suite's nominal
+size and adds nothing to its effective size.
+
+- **Draw each probe from a domain the artifact does not illustrate**, and vary the apparatus when a
+  scenario is re-authored.
+- **On a `revise` or `backfill` CR the artifact already exists** — its worked examples sit in the
+  producer's context. Never lift them into a `Given`.
+- The bar is **entanglement, not direction**: a `Given` and an artifact illustration that share
+  apparatus are dead weight whichever one was written first.
+
+The mirror duty — the impl-producer must not lift a `Given`'s apparatus into the artifact — is
+`../../mission/impl-producer/README.md`; detection at the impl gate is
+`../../mission/impl-judge/README.md`.
+
+### Probe independence is judged, not linted
+
+The resolved spec-judge grades probe independence **semantically**, as a qualitative bar: it reads
+each `Given`'s apparatus against the artifact's illustrations and asks whether the probe could
+discriminate. It has **no deterministic form** and is deliberately **not** part of the mechanical
+pre-filter below — a lexical or n-gram match both over- and under-fires. It flags legitimate
+overlap (a `Feature` description and the artifact's description summarize the same capability —
+both should) and misses paraphrase, which is how apparatus is usually lifted. A judge that cannot
+classify a probe **escalates it rather than passing it**.
 
 ## Why a rubric, and why by-hand
 

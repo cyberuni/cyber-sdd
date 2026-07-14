@@ -89,6 +89,29 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then the rubric form never appears in an untagged scenario
     And every untagged scenario stays a pure boolean assertion
 
+  Scenario: a revise-mode Given does not reuse the existing artifact's worked examples
+    Given a revise CR whose artifact already carries worked examples
+    When the spec-producer authors a scenario's Given
+    Then the Given's apparatus does not reuse those worked examples
+    And the apparatus is drawn from a domain the artifact does not illustrate
+
+  Scenario: a backfill-mode Given does not reuse the illustrations read from source
+    Given a backfill CR whose implementation carries illustrations the producer read from source
+    When the spec-producer authors a scenario's Given
+    Then the Given's apparatus does not reuse those illustrations
+
+  Scenario: the test-vector rule does not stop the producer reading the artifact
+    Given a backfill CR whose behavior already exists in code
+    When the spec-producer infers the specification from source
+    Then it reads the artifact's worked examples as evidence of the behavior
+    And it excludes them only from the apparatus it authors into a Given
+
+  Scenario: a green mechanical form check does not clear an entangled Given
+    Given the spec-producer has authored a .feature whose Given reuses the artifact's worked examples
+    When it runs the mechanical feature-form check
+    Then the check reports no form violation
+    And the producer rewrites the Given's apparatus before returning
+
   Scenario: the producer self-checks the authored feature form before returning
     Given the spec-producer has authored a .feature
     When it finishes writing the suite

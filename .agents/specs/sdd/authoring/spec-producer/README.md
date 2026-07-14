@@ -68,6 +68,15 @@ Phase 2 — the suite:
   scenarios for removed behavior.
 - Each scenario stays a pure boolean `Given`/`When`/`Then` (or the rubric form per
   `../suite-format/README.md`); tighten any that drifted.
+- **Author each `Given`'s apparatus independent of the artifact** (`../suite-format/README.md`). A
+  `Given` is a **test vector**: its apparatus (domain, entities, names, framing) is a probe, not an
+  illustration. On **revise** and **backfill** the artifact already exists and its worked examples
+  sit in your context — **never lift them into a `Given`.** A probe that echoes the artifact's own
+  example cannot discriminate a reasoner from a copier, so the scenario grades nothing and is dead
+  weight. Read the artifact freely (backfill *requires* it — the examples are evidence of the
+  behavior); the rule excludes them only from the apparatus you author. This is **not** settled by
+  the mechanical form check below — probe independence has no deterministic form, so a green form
+  check never clears an entangled `Given`.
 - Step-down ordering and stage grouping still hold after the edits.
 - **Self-check the form before returning** — run the deterministic `.feature`-form check (the
   executable form of `../suite-format/README.md`) over the authored suite and fix any violation (a

@@ -96,6 +96,67 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     When the impl-judge judges the implementation
     Then it judges every frozen scenario by hand rather than consuming a bridge report
 
+  # ---- The absorption read ----
+
+  Scenario: an implementation illustration reusing a scenario's Given apparatus is a finding
+    Given a frozen scenario whose Given sets up a domain to probe the rule
+    When the judge reads an illustration in the implementation that reuses that domain
+    Then it raises the match as an absorption finding
+
+  Scenario: an implementation special-casing a Given's literal input is a finding
+    Given a frozen scenario whose Given names a literal input
+    When the judge reads an implementation branch special-casing that literal
+    Then it raises the match as an absorption finding
+
+  Scenario: an illustration sharing no apparatus with any Given raises no finding
+    Given an implementation whose illustrations share no apparatus with any scenario's Given
+    When the judge runs the absorption read
+    Then it raises no absorption finding
+    And it does not report the difference as drift
+
+  Scenario: the judge never reconciles an illustration toward a Given
+    Given an implementation illustration that differs from a scenario's Given
+    When the judge runs the absorption read
+    Then it does not propose converging the illustration and the Given
+
+  Scenario: an absorption finding is raised as a blocker that withholds the pass
+    Given the judge has raised an absorption finding
+    When it rolls up its verdict
+    Then the implementation is not reported passing while the finding stands
+
+  Scenario: an illustration paraphrasing a Given without shared wording is a finding
+    Given an implementation illustration that paraphrases a scenario's Given without reusing its wording
+    When the judge runs the absorption read
+    Then it raises the match as an absorption finding
+
+  Scenario: shared wording between a Feature description and the artifact's description is not a finding
+    Given a Feature description and the artifact's own description that summarize the same capability
+    When the judge runs the absorption read
+    Then it raises no absorption finding
+
+  Scenario: an implementation handling a Given's precondition is not a finding
+    Given a frozen scenario whose Given fixes a precondition the implementation runs under
+    When the judge reads the implementation handling that precondition
+    Then it raises no absorption finding
+
+  Scenario: a producer's precondition label does not clear an element that survives the swap test
+    Given an implementation reusing a Given element the producer labels a precondition
+    And substituting that element's domain for an unrelated one leaves the Then holding
+    When the judge runs the absorption read
+    Then it raises the match as an absorption finding
+    And the producer's label does not clear the element
+
+  Scenario: an illustration the judge cannot classify is escalated
+    Given an illustration the judge cannot classify as absorbed or independent
+    When it completes the absorption read
+    Then it escalates the illustration for judgment
+    And it does not pass the illustration by default
+
+  Scenario: the absorption read runs regardless of how the per-scenario checks scored
+    Given an implementation whose every frozen scenario has a passing check
+    When the judge runs the impl gate
+    Then it still runs the absorption read
+
   # ---- Structural read and rollup ----
 
   Scenario: a high-blast-radius scenario gets the behavioral-exercise backstop

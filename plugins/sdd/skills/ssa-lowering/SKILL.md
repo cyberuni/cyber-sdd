@@ -41,8 +41,8 @@ Do **not** run it when there is nothing to partition:
 
 ## Procedure
 
-Work the steps in order. **Record the shown-work as you go** (see "Decision-evidence") — several graded
-dimensions score the recorded verdict, and until SQ-F5 lands nothing emits it for you.
+Work the steps in order. **Record the shown-work as you go** (see "Decision-evidence") — the produced
+partition is not complete without it, and until SQ-F5 lands nothing emits it for you.
 
 ### 1 — Oracle lens: judge legitimacy before lowering (kill-or-reshape up front)
 
@@ -146,7 +146,7 @@ hand** (SQ-F5 #194 automation is deferred).
 
 ## Decision-evidence (record by hand — v1)
 
-The judgment is graded on its **shown-work**. Alongside the produced partition, record:
+The record **accompanies the produced partition** — the partition is incomplete without it. Record:
 - **Sources** — the CRs, specs, and shipped changes the cut drew on.
 - **Oracle verdict** — per CR: ship / reshape / kill, and why (staleness vs misalignment vs
   frontier re-validation).

@@ -9,6 +9,10 @@ SDD has **one inner loop** — the **Mission Loop** — fed by exactly one intak
 The vocabulary is load-bearing: a **cycle** is one full Mission-Loop pass (one CR carried to completion); **iteration** is the internal repeat *inside* a phase.
 Never call this a "5-step loop" — the Mission Loop is **steps 1–4**, and step 5 (the outer loops) is **not part of the Mission Loop**.
 
+Above the Mission Loop sits the **lifecycle loop** — **not SDD's own**: the Operator drives it, dispatching missions off the mission-graph frontier and retiring them in Operation order (ADR-0025; owned by `cyberfleet-plugin/operator/`).
+The Mission Loop is what runs *inside* one dispatched mission; the lifecycle loop is what decides *which* missions run and *when* they land.
+See [the lifecycle loop](#the-lifecycle-loop--above-the-mission-loop) below for the topology and its owners.
+
 ```mermaid
 flowchart TD
     GW[["gateway · classify + route"]] --> I
@@ -79,6 +83,67 @@ They are **not** part of the Mission Loop; nothing re-opens a closed cycle in pl
 
 The first three are **internal** (sourced from the project's own provenance — the combat log, the ledger, and the public trail, per `provenance-model.md`); **forge is external** — sourced from opt-in end-user corrections across installations, which is why it carries the **Consent** floor.
 Only **explore** and **deliver** iterate **internally** (inside a single cycle); the outer loops fire **post-mission**, across cycles.
+
+## The lifecycle loop — above the Mission Loop
+
+The Mission Loop ends at handoff (PR created + reported). The **lifecycle loop** picks up from there: **merge → tear down the pod → append to the mission graph → re-derive `ready` → dispatch next**.
+It is **not SDD's loop** — the **Operator owns it** (`../../cyberfleet-plugin/operator/`) and is the **single graph writer**: dispatched missions only *report*, the owner *writes*, so claims and retirements never race.
+It is **not a daemon** — summoned, runs one tick, exits; a later tick re-derives fresh state.
+
+This is the end-to-end picture: one CR compiled into a schedule, issued in parallel, retired in order.
+
+```mermaid
+flowchart TD
+    CR["CR · issue or user ask"] --> VET
+
+    subgraph FE["front-end · compile"]
+      VET["Oracle vets legitimacy<br/>Architect vets placement"] --> LOWER["lower · CR → Operations → Missions<br/>objective = SSA, one owning mission per spec-node<br/>lazy — near work lowered, far Ops left coarse"]
+    end
+
+    LOWER -->|"append nodes + edges"| STORE[("mission graph<br/>append-only · git-tracked<br/>single writer")]
+    STORE --> FOLD["fold · re-tally the whole log"]
+    FOLD --> CYCLES["cycles · knots — always a bug, never run"]
+    FOLD --> READY["ready · the frontier<br/>open + unblocked + unclaimed"]
+    READY --> PICK
+
+    subgraph LL["lifecycle loop · Operator · one tick, then exit"]
+      PICK["pick top-ranked within capacity K<br/>AFK → autonomous ship · HITL → human channel<br/>overflow stays on the frontier"] --> CLAIM["claim on the graph<br/>— before spawn, so ticks never race"]
+      CLAIM --> SPAWN["cyberlegion unit spawn<br/>— inter-mission dispatch, from outside any ship"]
+    end
+
+    SPAWN --> E2
+
+    subgraph ML["the Mission Loop · inside the dispatched ship"]
+      direction LR
+      E2["2 · explore"] -->|"spec gate · freeze"| D2["3 · deliver"] -->|"impl gate"| H2["4 · handoff<br/>PR + report"]
+    end
+
+    E2 -.->|"discovers deps, nodes, real touch-set<br/>— the graph is monadic, not known ahead"| REPORT
+    H2 --> REPORT["the mission reports<br/>— it never writes the graph"]
+    REPORT --> MERGE["merge · Operation order<br/>land only on green speculative CI<br/>bisect a red batch — hold culprit, land innocent"]
+    MERGE --> TEAR["tear down the pod"]
+    TEAR --> APPEND["append · retired + corrected touch-set<br/>+ discovered edges and nodes"]
+    APPEND --> STORE
+    APPEND -.->|"next tick re-derives"| READY
+```
+
+**Two orderings, and they do not match.** `ready` governs **issue** — missions fire the moment their own deps retire, in parallel, with no wave barrier (waves are a topological *view* for humans and capacity planning, never an execution unit).
+**Retirement is Operation-ordered merge** — the reorder buffer: worked out-of-order, landed in order, so trunk stays deployable.
+Capacity (K) and human-availability are the **dispatcher's** call; the scheduler stays read-only.
+
+**An Operation ships at its release floor** = the capstone's dependency closure — not all its declared missions; support members outside the closure ride the Operation's priority and retire window without gating release.
+
+Each piece has a home — this file owns only the topology:
+
+| Piece | Home |
+|---|---|
+| the model (hierarchy, hazards, five axes, monadic DAG) | ADR-0025 |
+| the store (append-only, git-tracked, orphan-ref) | ADR-0026 |
+| `fold` / `ready` / `cycles` | `../mission-graph/` |
+| the lifecycle loop + dispatch + capacity K | `../../cyberfleet-plugin/operator/` |
+| the headless realization (one tick) | `plugins/cyberfleet/agents/headless-operator.md` |
+| merge order, speculative CI, bisection | `merge-backstop-governance` |
+| lowering criteria (SSA, RAW/WAW/WAR) | `../ssa-lowering/`, `../collision-ladder/` |
 
 ## Gates dissolved into the autonomy bar
 

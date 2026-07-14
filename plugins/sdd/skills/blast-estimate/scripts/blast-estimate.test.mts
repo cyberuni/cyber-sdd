@@ -11,6 +11,7 @@ import {
 	lineUp,
 	main,
 	type ProjectLayout,
+	parseSensitivePaths,
 	readSensitivePaths,
 	renderResultToon,
 } from './blast-estimate.mts'
@@ -106,11 +107,17 @@ test('scenario: a single central work area outranks a single peripheral one', ()
 
 test('scenario: a marked-sensitive work area raises the computed blast', () => {
 	// Same area, same multi-area corpus, same count and fan-in — only the marking differs.
+	//
+	// The marking file is written the way a project would really write it — with a leading comment
+	// and a neighbouring key. An earlier whole-file-anchored parser accepted ONLY the bare
+	// `sensitive = [...]` byte-shape, so this scenario's Given ("a sensitive-paths file marks one
+	// work area") failed on a perfectly valid TOML file: it computed no level at all. The fixture
+	// used the one shape that parsed, which hid it.
 	const build = (marked: boolean): EstimateResult => {
 		const dir = mkCorpus()
 		seedArea(dir, 'sdd', 'area1', { 'README.md': 'referenced by nothing' })
 		seedFiller(dir, 2)
-		if (marked) writeSensitivePaths(dir, 'sensitive = ["sdd/area1"]')
+		if (marked) writeSensitivePaths(dir, '# areas needing extra care\nsensitive = ["sdd/area1"]\nversion = 1\n')
 		return estimateBlast(['sdd/area1'], SDD_LAYOUT, { root: dir })
 	}
 	const unmarked = build(false)
@@ -243,6 +250,30 @@ test('scenario: a malformed sensitive-paths file fails loud rather than reading 
 	assert.ok(r.error?.includes('sensitive-paths.toml'), 'the error names the unreadable file')
 	assert.equal(r.computed, null, 'no level is computed')
 	assert.equal(r.reasons, null)
+})
+
+// The marking file is ordinary TOML, not one exact byte-shape. These pin the shapes a real project
+// writes — a whole-file-anchored regex rejected every one of them, so a valid file that marked an
+// area computed no level. The parser is line-anchored and lenient, matching manage-spec-anchors'
+// `anchors = [ … ]` parser (the sibling SKILL.md claims parity with — the claim must stay true).
+test('the marking file parses with a leading comment, a trailing comment, or a neighbouring key', () => {
+	for (const [shape, text] of [
+		['leading comment', '# areas needing extra care\nsensitive = [ "a/b" ]\n'],
+		['trailing comment', 'sensitive = ["a/b"] # care\n'],
+		['neighbouring key', 'version = 1\nsensitive = ["a/b"]\nother = 2\n'],
+		['multiline array', 'sensitive = [\n  "a/b",\n]\n'],
+	] as [string, string][]) {
+		assert.deepEqual(parseSensitivePaths(text), ['a/b'], `a file with a ${shape} must parse`)
+	}
+})
+
+test('an empty marking file is "nothing marked"; one with no sensitive array at all fails loud', () => {
+	assert.deepEqual(parseSensitivePaths(''), [], 'an empty file is a real "nothing marked" declaration')
+	assert.deepEqual(parseSensitivePaths('sensitive = []\n'), [])
+	// Genuinely malformed — no `sensitive` array. Must still throw: an unreadable marking is not
+	// evidence of no markings. Leniency must not become "accept anything".
+	assert.throws(() => parseSensitivePaths('anchors = ["x"]\n'))
+	assert.throws(() => parseSensitivePaths('sensitive = [ this is not toml\n'))
 })
 
 test('scenario: a sensitive-sounding name is not treated as sensitive without a marking', () => {

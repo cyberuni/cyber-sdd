@@ -30,7 +30,18 @@ for the authoritative behavior description and
 [`blast-estimate.feature`](../../../../.agents/specs/sdd/blast-estimate/blast-estimate.feature) for
 the frozen 21-scenario contract.
 
+Fan-in counts the reference forms the corpus really uses — the bare id, a `sdd:spec-gate` skill ref,
+a path under any **declared root** at any depth, and a same-project relative link — not the bare id
+alone, which matched almost nothing on a real tree. It stays **mention-based** by design; symbol-level
+dependency is `ssa-lowering` / `collision-ladder` territory.
+
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
 - **Script:** [`scripts/blast-estimate.mts`](./scripts/blast-estimate.mts)
 - **Tests:** [`scripts/blast-estimate.test.mts`](./scripts/blast-estimate.test.mts) (`node:test`) —
   one test per frozen scenario, titled `scenario: <verbatim frozen scenario name>`.
+- **Live-corpus smoke check:**
+  [`scripts/blast-estimate.smoke.test.mts`](./scripts/blast-estimate.smoke.test.mts) — **not** bound
+  to any frozen scenario. The frozen suite mandates constructed corpora, so it is structurally blind
+  to whether the engine measures real reach on a real tree; three defects reached an impl gate
+  green-on-all-21 for exactly that reason. This asserts live properties (never magic numbers) and is
+  the tripwire for that class.

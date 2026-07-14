@@ -20,13 +20,15 @@ hand-typed **declared** blast (`agrees` / `under-called` / `over-called`). See
 - **count** — how many of the touch-set's areas resolve to a known work area in the corpus, plus
   **coverage**: whether the touch-set covers *every* work area of a touched project. Together these
   are **breadth** — absolute reach and relative reach.
-- **centrality** (dependency fan-in) — for each resolved area, how many *other* work areas' files
-  reference it (a literal, word-bounded mention of its `project/capability` id), measured across the
-  area's **full root set** — implementation files count exactly as spec prose does. The `max` across
-  the resolved areas is used.
+- **centrality** (dependency fan-in) — for each resolved area, how many *other* work areas hold at
+  least one file that **references** it, measured across the area's **full root set** —
+  implementation files count exactly as spec prose does. The `max` across the resolved areas is used.
+  See *The reference matcher* below: a bare id alone is **not** how real prose references an area.
 - **sensitivity** — whether a resolved area is **marked** in the opt-in
-  `.agents/sdd/sensitive-paths.toml` (a `sensitive = [ "id", ... ]` string array — the same shape
-  `manage-spec-anchors` uses for `anchors = [...]`). **Only an absent file (`ENOENT`) is benign** —
+  `.agents/sdd/sensitive-paths.toml` — a `sensitive = [ "id", ... ]` string array, parsed
+  line-anchored and lenient exactly as `manage-spec-anchors` parses `anchors = [ … ]`, so a leading
+  comment, a trailing comment, or a neighbouring key are all ordinary TOML and parse. A file with no
+  `sensitive` array at all is malformed and fails loud. **Only an absent file (`ENOENT`) is benign** —
   no area is sensitive, not an error. **Every other read failure fails loud** — unparseable,
   unreadable (permissions), or not a regular file — returning `computed: null` and an `error` naming
   the file. The narrow ENOENT test is deliberate: swallowing the rest into "nothing marked" fails in
@@ -42,7 +44,9 @@ not the exact numbers):
   - `coverageScore`: 3 iff the touch-set covers **every** work area of a touched project holding
     **≥2** work areas, else 0 (relative reach — a 3-area project touched entirely *is* project-wide;
     the barrier agreement must hold at every project size, not only at 4+)
-- **centrality**: 0→0, 1-2→1, 3+→2
+- **centrality**: 0→0, 1-2→1, 3-6→2, 7+→3 (a genuine hub: touching an area a large share of the
+  project leans on is project-scale reach even at count 1). Calibrated against **real** fan-in, which
+  spans roughly 0–17 on a corpus of this size.
 - **sensitivity**: any marked area →+2
 
 Sum the three, then `score>=3` → `high`, `score>=1` → `medium`, `score==0` → `low`. A touch-set that
@@ -74,6 +78,27 @@ A node's file set is every file under **any** of its roots, so fan-in measures t
 lean on an area rather than spec-prose cross-reference. `estimateBlast` takes layouts **injected**
 (`fileToNode` is pure, so tests construct them as fixtures); the CLI sources them from
 `discoverLayouts`, overridable with `--layout`.
+
+## The reference matcher
+
+Fan-in counts the forms the corpus **actually uses** to name an area — a bare id is what a touch-set
+and the ledger write, not how prose references anything. For node `<p>/<cap>`:
+
+| form | example |
+|---|---|
+| bare id | `sdd/spec-gate` |
+| skill-style ref | `sdd:spec-gate` |
+| path under any **declared root**, at any depth | `plugins/sdd/skills/spec-gate/`, `.agents/specs/sdd/authoring/spec-gate/` |
+| relative sibling link (**same project only**) | `../spec-gate/`, `../../authoring/spec-gate/` |
+
+Path forms are **derived from the project's declared roots**, never hardcoded, so a re-rooted project
+keeps working; the any-depth segment matters because a node's spec can sit nested under its root. A
+relative link carries no project, so it is only counted within the same project — otherwise two
+projects sharing a capability name (`manage`, `design`) would cross-credit each other.
+
+This stays **mention-based and cheap** by design. Real produced/consumed symbol dependency is
+`ssa-lowering` / `collision-ladder` territory — the boundary is deliberate. Only the resolved areas
+are scored, so a one-area touch-set costs one matcher pass over the corpus rather than one per area.
 
 ## Run it
 

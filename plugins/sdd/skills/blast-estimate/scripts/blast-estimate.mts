@@ -105,20 +105,89 @@ function escapeRegExp(s: string): string {
 	return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+// ── The reference matcher — the forms the corpus ACTUALLY uses to name a work area ──
+//
+// A bare `project/capability` id is what a touch-set and the ledger write, but it is NOT how prose
+// references an area. Real references are links and paths; matching the bare id alone scored 56 of
+// this repo's 62 `sdd` areas at fan-in 0 — including `sdd/spec-gate`, referenced by a dozen files —
+// while the few non-zero scores came from glossary rows using an id as a typographic EXAMPLE. That
+// measures "how often a name got used as documentation filler", not "how much of the project leans
+// on this area", which is the opposite of what the rubric asks for and worse than no signal at all.
+//
+// Every path form is derived from the project's DECLARED layout roots, never hardcoded, so a
+// re-rooted project keeps working. The `(?:[\w.-]+/)*` segment matters: a node's spec can sit NESTED
+// under its root (`.agents/specs/sdd/authoring/spec-gate/`), in which case `fileToNode`'s
+// capability-first rule maps the spec side to `sdd/authoring` and only the impl side to
+// `sdd/spec-gate` — so a flat `<root>/<capability>/` derivation would still miss the spec path.
+//
+// This stays MENTION-based and cheap by design. Real produced/consumed symbol dependency is
+// ssa-lowering / collision-ladder territory; the boundary was never the problem, only the recall.
+
+/** Left boundary: a reference must not start mid-token. */
+const LB = '(?:^|[^\\w/:.-])'
+
+function stripTrailingSlash(s: string): string {
+	return s.replace(/\/+$/, '')
+}
+
+/** The reference forms that name `nodeId` unambiguously from ANYWHERE (each is project-qualified):
+ *  the bare id (`sdd/spec-gate`), the skill-style ref (`sdd:spec-gate`), and a path under any of the
+ *  project's declared roots, at any nesting depth (`plugins/sdd/skills/spec-gate/`,
+ *  `.agents/specs/sdd/authoring/spec-gate/`). */
+function globalReferencePattern(project: string, capability: string, roots: string[]): RegExp {
+	const alts = [
+		`${LB}${escapeRegExp(`${project}/${capability}`)}(?![\\w-])`,
+		`${LB}${escapeRegExp(`${project}:${capability}`)}(?![\\w-])`,
+	]
+	for (const root of roots) {
+		alts.push(`${escapeRegExp(stripTrailingSlash(root))}/(?:[\\w.-]+/)*${escapeRegExp(capability)}/`)
+	}
+	return new RegExp(alts.join('|'))
+}
+
+/** The relative-link form (`../spec-gate/`, `../../authoring/spec-gate/`) — a sibling-node link. It
+ *  carries no project, so it is only counted from a file in the SAME project; otherwise two projects
+ *  sharing a capability name (`manage`, `design`) would cross-credit each other's fan-in. */
+function relativeReferencePattern(capability: string): RegExp {
+	return new RegExp(`(?:\\.\\./)+(?:[\\w.-]+/)*${escapeRegExp(capability)}/`)
+}
+
+function projectRoots(project: string, layouts: ProjectLayout[]): string[] {
+	return layouts.filter((l) => l.project === project).flatMap((l) => l.roots)
+}
+
 /**
- * computeFanInMap — centrality for every known area in one pass: area A's fan-in is the number of
- * OTHER areas holding at least one file that mentions A's id as a literal, word-bounded string.
- * Because a node's file set spans its spec AND impl roots, a reference from an implementation file
- * counts exactly as a reference from spec prose does — fan-in measures the project's real lean on an
- * area. An area's own files never count toward its own fan-in.
+ * computeFanInMap — centrality for the requested areas: area A's fan-in is the number of OTHER areas
+ * holding at least one file that REFERENCES A in any of the forms the corpus actually uses (see
+ * `globalReferencePattern` / `relativeReferencePattern`). Because a node's file set spans its spec
+ * AND impl roots, a reference from an implementation file counts exactly as spec prose does — fan-in
+ * measures the project's real lean on an area. An area's own files never count toward its own fan-in.
  *
- * Each file is read at most once (the map is built file-major), so this stays cheap on a real repo.
+ * `targets` defaults to every known area; passing only the areas actually being scored keeps the CLI
+ * cheap (a one-area touch-set costs 1 pattern × N files instead of 229 × N). Each file is read at
+ * most once, and an owner already credited for a target is skipped.
  */
-export function computeFanInMap(byNode: Map<string, string[]>, root: string): Map<string, number> {
-	const ids = [...byNode.keys()]
-	const patterns = new Map(ids.map((id) => [id, new RegExp(`(^|[^\\w/-])${escapeRegExp(id)}($|[^\\w/-])`)]))
+export function computeFanInMap(
+	byNode: Map<string, string[]>,
+	root: string,
+	layouts: ProjectLayout[],
+	targets?: string[],
+): Map<string, number> {
+	const ids = targets ?? [...byNode.keys()]
+	const specs = ids.map((id) => {
+		const slash = id.indexOf('/')
+		const project = id.slice(0, slash)
+		const capability = id.slice(slash + 1)
+		return {
+			id,
+			project,
+			global: globalReferencePattern(project, capability, projectRoots(project, layouts)),
+			relative: relativeReferencePattern(capability),
+		}
+	})
 	const referencers = new Map<string, Set<string>>(ids.map((id) => [id, new Set<string>()]))
 	for (const [owner, files] of byNode) {
+		const ownerProject = projectOf(owner)
 		for (const rel of files) {
 			let text: string
 			try {
@@ -126,10 +195,14 @@ export function computeFanInMap(byNode: Map<string, string[]>, root: string): Ma
 			} catch {
 				continue
 			}
-			for (const id of ids) {
-				if (id === owner) continue
-				if (referencers.get(id)?.has(owner)) continue // this owner already counted for `id`
-				if (patterns.get(id)?.test(text)) referencers.get(id)?.add(owner)
+			for (const spec of specs) {
+				if (spec.id === owner) continue
+				const seen = referencers.get(spec.id)
+				if (seen?.has(owner)) continue // this owner already counted for `spec.id`
+				// A relative link carries no project, so it only counts within the same project.
+				if (spec.global.test(text) || (ownerProject === spec.project && spec.relative.test(text))) {
+					seen?.add(owner)
+				}
 			}
 		}
 	}
@@ -138,23 +211,25 @@ export function computeFanInMap(byNode: Map<string, string[]>, root: string): Ma
 
 // ── Sensitivity — declared, never inferred ──
 
-/** Parses the minimal `.agents/sdd/sensitive-paths.toml` shape: a single top-level
- *  `sensitive = [ "id", ... ]` string array (mirrors manage-spec-anchors' `anchors = [...]`). Throws
- *  on anything else — a malformed file must fail loud, never read as "nothing marked". */
+/**
+ * Parses the opt-in `.agents/sdd/sensitive-paths.toml`: a `sensitive = [ "id", ... ]` string array.
+ *
+ * LINE-anchored and lenient, matching manage-spec-anchors' `anchors = [ … ]` parser byte for byte in
+ * shape — a leading comment, a trailing comment, or a neighbouring key are ordinary TOML and must
+ * parse. An earlier whole-file-anchored regex rejected all three, so a perfectly valid file that
+ * marked an area computed no level at all.
+ *
+ * An EMPTY file is `[]` (a real "nothing marked" declaration). A file with no `sensitive` array at
+ * all throws — that is genuinely malformed, and an unreadable marking is not evidence of no
+ * markings.
+ */
 export function parseSensitivePaths(text: string): string[] {
-	const trimmed = text.trim()
-	if (trimmed === '') return []
-	const m = /^sensitive\s*=\s*\[([\s\S]*)\]\s*$/.exec(trimmed)
-	if (!m) throw new Error('expected a top-level `sensitive = [...]` array')
+	if (text.trim() === '') return []
+	const m = /(^|\n)\s*sensitive\s*=\s*\[([\s\S]*?)\]/.exec(text)
+	if (!m) throw new Error('expected a `sensitive = [...]` array')
 	const out: string[] = []
-	for (const rawEntry of m[1].split(',')) {
-		const entry = rawEntry.trim()
-		if (entry === '') continue
-		const sm = /^"([^"]*)"$|^'([^']*)'$/.exec(entry)
-		if (!sm) throw new Error(`malformed entry: ${entry}`)
-		out.push(sm[1] ?? sm[2] ?? '')
-	}
-	return out
+	for (const q of m[2].matchAll(/"([^"]*)"|'([^']*)'/g)) out.push((q[1] ?? q[2]).trim())
+	return out.filter((s) => s !== '')
 }
 
 export type SensitiveResult = { ok: true; marked: string[] } | { ok: false; error: string }
@@ -217,10 +292,18 @@ function countScore(n: number): number {
 
 const COVERAGE_SCORE = 3
 
+// Centrality thresholds are calibrated against REAL fan-in, which spans roughly 0..17 on a corpus of
+// this size. They were originally 0/1-2/3+ — tuned while the reference matcher only saw bare ids, so
+// the observed corpus max was 4 and "3+" read as the top of the scale. With the matcher fixed, "3+"
+// covered most of the distribution and no single area could ever reach `high` on reach alone, which
+// under-called every hub (`sdd/spec-gate`, referenced by 10 other areas, computed `medium`). The top
+// tier now marks a genuine hub: touching an area that a large share of the project leans on IS
+// project-scale reach, even at count 1.
 function centralityScore(fanIn: number): number {
 	if (fanIn <= 0) return 0
 	if (fanIn <= 2) return 1
-	return 2
+	if (fanIn <= 6) return 2
+	return 3
 }
 
 const SENSITIVITY_SCORE = 2
@@ -370,7 +453,8 @@ export function estimateBlast(
 	}
 
 	const markedSet = new Set(sensitive.marked)
-	const fanInMap = computeFanInMap(byNode, root)
+	// Only the resolved areas are scored — fan-in for the rest of the corpus is never asked for.
+	const fanInMap = computeFanInMap(byNode, root, layouts, resolved)
 	const maxFanIn = Math.max(...resolved.map((a) => fanInMap.get(a) ?? 0))
 	const sensitiveAreas = resolved.filter((a) => markedSet.has(a))
 	const projectWide = projectsCoveredEntirely(resolved, byNode)

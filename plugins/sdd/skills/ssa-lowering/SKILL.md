@@ -150,7 +150,8 @@ The record **accompanies the produced partition** — the partition is incomplet
 - **Sources** — the CRs, specs, and shipped changes the cut drew on.
 - **Oracle verdict** — per CR: ship / reshape / kill, and why (staleness vs misalignment vs
   frontier re-validation).
-- **Architect verdict** — node placements and any barrier (with the fence/rebase reasoning).
+- **Architect verdict** — node placements and any barrier: the fence/rebase reasoning, and the
+  sequencing it implies — that the fleet rebases onto the new world after the fence, then fans out.
 - **Cut decisions** — why each Mission owns its node(s), each RAW/versioning choice (do-first vs
   rework-second), each irreducible-hard call, and each conservative-vs-parallel default.
 

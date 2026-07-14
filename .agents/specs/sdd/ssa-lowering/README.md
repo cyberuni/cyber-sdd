@@ -219,11 +219,13 @@ mistake a narrow pass for a comfortable one:
   `fleet-rebase-reasoned` (1, 1, 2 against a *correct* doctrine). That variance was **instrument
   error, not signal** — the dimension graded a rule the doctrine never states — so it was removed
   (see the coverage note). Removing it was right, and it leaves `barrier` at two dimensions both of
-  which have only ever measured at ceiling. So `barrier`'s slack is **reasoned, not measured**: a
-  doctrine lacking step 2's rule earns roughly 4 against a threshold of 5, and the binding is carried
-  almost entirely by `barrier-detected` (naming a fence that *owns no single node* is the doctrine's
-  own concept, not something the situation hands over), because `hoisted-early` — "do the sweeping
-  rename first" — is reachable from generic engineering sense. The impl gate measures this.
+  which measure at ceiling against a correct doctrine (6.00, SD 0). `barrier`'s slack is no longer
+  reasoned — it is **measured by ablation**: with step 2's barrier rule deleted, the scenario scores
+  **3.67 and fails 3 of 3** against a threshold of 5. It binds. Note the binding runs opposite to
+  what was first reasoned here: the ablation drops `hoisted-early` to **1.33** while `barrier-detected`
+  holds at **2.33**, so it is *hoisting* — not naming the fence — that a doctrine lacking the rule
+  loses. Generic engineering sense apparently reaches "call this a big cross-cutting rename" more
+  easily than it reaches "therefore nothing else may start until it retires".
 - **`irreducible` is the weakest rubric.** Its situation states that the two concerns *"must both
   write the same spec-node with no order that avoids rework either way"* — which hands over **both**
   answers the rubric grades (the irreducibility *and* the rework). A doctrine lacking step 4's rule
@@ -233,6 +235,15 @@ mistake a narrow pass for a comfortable one:
   it is held down only by the fold of `serialized-not-parallel` into `irreducible-recognized`, which
   adds an *act* the situation does not hand over. Treat this cell as not yet trustworthy. Closing it
   needs a situation that withholds the answer, i.e. a Given edit — out of scope here.
+- **`misaligned` contradicts this suite's own `@trigger` outline, and reds a correct doctrine about a
+  third of the time** ([#249](https://github.com/cyberuni/cyberplace/issues/249)). The outline says
+  the doctrine must **not** run on *"a single-capability change to one artifact-type"*, and the
+  `misaligned` situation is exactly that shape (one CR, one capability). Measured N=3 against the
+  correct doctrine: **1 of 3 producers took the doctrine's own do-not-run exit**, emitted no
+  partition, and scored **0/6 against a threshold of 5**. The rubric graded that empty artifact
+  *correctly* — this is not a rubric defect, it is the scenario disagreeing with the outline in the
+  same frozen file. Until #249 resolves which side is right, a red on `misaligned` should be read as
+  this contradiction before it is read as doctrine error.
 - **`contention`/`order-imposed` and `far-horizon`/`re-checked-not-trusted` are cued** — their
   situations hand over part of the answer (the order's existence; that the ground has shifted), so a
   doctrine lacking the rule starts above zero. Both still bind, but with less room than the
@@ -244,21 +255,27 @@ mistake a narrow pass for a comfortable one:
   on this suite (`catches-misalignment`, 2.33/3 mean, produced by a **correct** doctrine). If an
   `eval.judge.model` swap shifts the scoring distribution, the one-point slack must be **re-measured,
   not assumed**.
-- **`cohesion` carries a single dimension**, so its threshold is forced to **max** — the brittle form
-  the other ten rubrics avoid. This is accepted deliberately. The situation admits exactly one
-  judgment (the coupled node is kept whole or it is not) and plants no second node to wrongly absorb,
-  so there is no over-merge counterpart to grade; a binding second dimension would need a situation
-  planting a real over-merge temptation (a Given edit), and padding it with an unloseable dimension
-  would reintroduce the very defect #221 filed. The 2.33/3 evidence comes from an **inferential**
-  dimension (deriving a product's direction from how it ships); `cohesion-preserved` is a
-  **clear-cut structural** call over the produced partition, where low run-to-run variance is
-  expected. **The impl gate measures this.** A false red against a correct doctrine is data to act
-  on — not a risk to pre-empt with a guess. The action is **pre-registered** so a later pass acts on
-  the measurement instead of relitigating the choice: if the impl gate measures `cohesion-preserved`
-  below a 3.0 mean against a **correct** doctrine, **demote the scenario to an untagged boolean guard
-  — do not pad it with a second dimension.** The 0–3 scale is kept while this cell is being
-  calibrated precisely so a 2.67 is *observable*; a boolean would report only "fail" and teach
-  nothing.
+- **`cohesion` is a boolean guard, not a rubric — because ablation proved its dimension unloseable.**
+  It was first kept as a single-dimension rubric at `threshold = max`, on the reasoning that its
+  situation admits exactly one judgment. The impl gate tested that by **deleting the cohesion rule
+  from the doctrine entirely** and re-scoring: the scenario still scored **3/3, three runs of three**.
+  Judges were scoring it off **single-writer** — the situation confines the work to *one* spec-node,
+  and "exactly one owning Mission per spec-node" already guarantees one node lands in one Mission.
+  `cohesion-preserved` could not register a miss, which is the exact defect this suite was reworked
+  to remove.
+
+  So it goes where an unloseable assertion belongs: a **boolean guard**. That is honest — it stops
+  claiming to *grade* a judgment it cannot grade, and asserts the invariant it can actually check.
+  Grading real cohesion judgment needs a situation planting a genuine **over-merge temptation** (a
+  second node the cut could wrongly absorb), which is a Given edit and out of #221's scope — filed as
+  [#250](https://github.com/cyberuni/cyberplace/issues/250).
+
+  **Method note for the next pass, which cost this one a cycle:** the pre-registered trigger here was
+  *"if the impl gate measures `cohesion-preserved` below a 3.0 mean → demote."* It could never fire.
+  3.00 was the dimension's **floor**, not a pass — the condition presumed the loseability that was
+  itself in doubt. **A measured ceiling is not evidence a dimension works; it is consistent with a
+  dimension that cannot fail.** Test loseability by **ablating the rule and re-scoring**, never by
+  watching the mean against a correct subject.
 - **`relax-on-evidence`** grades the correctness of the relaxation *condition* (finer evidence proving
   disjointness) rather than its emission. It is the dimension closest to the presence-grading this
   pass removed; if it measures at ceiling with zero variance across runs, re-examine it next.

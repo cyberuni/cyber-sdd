@@ -7,12 +7,11 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
   contention by versioning it into an ordered RAW dependency, and lowering only the frontier deeply.
   The judgment CANNOT be unit-tested (it is a call, not a pure function), so the graded behaviors
   are rubric-tagged scenarios; the structural invariants a valid cut must never break (single-writer,
-  a killed CR lowers to nothing, a barrier is never a normal node, the decision-evidence record
-  accompanies the partition) are plain boolean guards over the produced partition. Each graded
+  a killed CR lowers to nothing, a barrier is never a normal node, coupled work in one node stays in
+  one mission, the decision-evidence record accompanies the partition) are plain boolean guards over
+  the produced partition. Each graded
   scenario carries two-or-more independently-loseable dimensions and a threshold one point below
-  their combined max, so losing a whole dimension fails the scenario — except cohesion, which is
-  single-dimension by design (its situation admits one judgment) and so is forced to a threshold at
-  max; see the README's Calibration note.
+  their combined max, so losing a whole dimension fails the scenario.
   It DECIDES the cut; it does not build the missions (the mission loop does), record the plan (the
   mission-graph store does), classify a collision (collision-ladder does), or emit its decision-evidence
   automatically (SQ-F5 #194, deferred). Working node name only — the final name is SQ-name #195.
@@ -140,24 +139,16 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
     Then each spec-node in the write-set is owned by exactly one mission in the produced partition
     And no spec-node is assigned to two missions at the same time
 
-  # Single dimension by design, so this threshold is forced to max. The situation admits exactly one
-  # judgment — the coupled node is kept whole or it is not — and plants no second node to wrongly
-  # absorb, so there is no over-merge counterpart to grade. Padding it with an unloseable second
-  # dimension would reintroduce the defect #221 filed. Unlike the inferential dimensions, this is a
-  # clear-cut structural call over the produced partition, where low variance is expected; the impl
-  # gate measures it. See "Calibration" in README.md.
-  @quality @rubric
+  # A boolean guard, not a rubric: this situation confines the work to ONE spec-node, and single-writer
+  # already guarantees one node lands in exactly one mission — so the assertion is entailed and cannot
+  # register a miss. Graded, it scored 3/3 even with the doctrine's cohesion rule deleted whole.
+  # Grading cohesion as judgment needs a situation planting a real over-merge temptation — a second
+  # node the cut could wrongly absorb. That is a Given edit: issue #250.
   Scenario: coupled work in one spec-node stays in a single cohesive mission
     Given a change request whose changes to one spec-node are tightly coupled and cannot be verified apart
     When the coordinator applies the SSA-lowering doctrine to the change request
-    Then the judge evaluates the produced plan against the rubric
-      """
-      dimensions:
-        - name: cohesion-preserved
-          max: 3          # the coupled work stays in one mission verifiable as a unit, rather than being scattered into thin fragments across missions
-      threshold: 3
-      """
-    And the rubric score is at least the threshold
+    Then the coupled work is owned by a single mission in the produced partition
+    And that spec-node is not scattered into thin fragments across several missions
 
   @behavior @rubric
   Scenario: two change requests regroup by ownership into missions that cross CR boundaries

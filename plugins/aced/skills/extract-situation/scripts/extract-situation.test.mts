@@ -1055,3 +1055,242 @@ test('a multi-column outline emits every referenced header and its values in the
 	assert.doesNotMatch(out, /expected/)
 	assert.doesNotMatch(out, /\byes\b/)
 })
+
+// ─── real-corpus shape ────────────────────────────────────────────────────────
+
+// Every fixture above opens with a bare `Feature: f`. The entire real corpus opens with `@frozen`,
+// so nothing here exercises the shape the engine actually meets in production.
+const FROZEN_SUITE = [
+	'@frozen',
+	'Feature: judge — the internal scorer',
+	'  Unit suite for the scorer. Cross-capability e2e lives in ../../acceptance/.',
+	'',
+	'  # ---- Role boundary ----',
+	'',
+	'  @rubric',
+	'  Scenario: it stages only related files',
+	'    Given a repo holding unrelated changes',
+	'    And the agent has been asked to commit',
+	'    When the agent stages',
+	'    Then the judge evaluates the scenario against the rubric',
+	'      """',
+	'      dimensions:',
+	'        - name: correctness',
+	'          max: 3',
+	'          ladder: |',
+	'            When only related files are staged, award 3',
+	'      threshold: 4',
+	'      """',
+	'    And the rubric score is at least the threshold',
+].join('\n')
+
+test('a tagged, frozen, real-corpus-shaped .feature parses', () => {
+	const situation = extractSituation(FROZEN_SUITE, 'it stages only related files', 'judge.feature')
+	assert.deepEqual(situation.given, [
+		'Given a repo holding unrelated changes',
+		'And the agent has been asked to commit',
+	])
+	assert.deepEqual(situation.when, ['When the agent stages'])
+})
+
+test('a real-corpus @rubric scenario leaks neither its rubric nor its collapsing Then', () => {
+	const out = formatMarkdown(extractSituation(FROZEN_SUITE, 'it stages only related files', 'judge.feature'))
+	for (const leak of [
+		/dimensions:/,
+		/max: 3/,
+		/threshold: 4/,
+		/award 3/,
+		/rubric score is at least/,
+		/the judge evaluates/,
+	]) {
+		assert.doesNotMatch(out, leak)
+	}
+})
+
+// ─── the answer column must not leak through a prefix collision ───────────────
+
+test('an Examples column is kept by exact name, not by prefix', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario Outline: a',
+		'    Given a user',
+		'    When they say "<query>"',
+		'    Then it invokes "<query_expected>"',
+		'',
+		'    Examples:',
+		'      | query   | query_expected |',
+		'      | ship it | ANSWERKEY_SENTINEL |',
+	].join('\n')
+	const out = formatMarkdown(extractSituation(text, 'a', 'x.feature'))
+	assert.doesNotMatch(out, /query_expected/)
+	assert.doesNotMatch(out, /ANSWERKEY_SENTINEL/)
+	assert.match(out, /\|\s*ship it\s*\|/)
+})
+
+// ─── a word merely starting with a keyword is not a step ──────────────────────
+
+test('a Then-side line whose first word merely starts with a keyword does not leak', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario: a',
+		'    Given a condition',
+		'    When an event happens',
+		'    Then it succeeds',
+		'    Whenever the agent retries it ANSWERKEY_SENTINEL',
+	].join('\n')
+	assert.doesNotMatch(formatMarkdown(extractSituation(text, 'a', 'x.feature')), /ANSWERKEY_SENTINEL/)
+})
+
+// ─── a docstring never crosses a scenario boundary ────────────────────────────
+
+test('a docstring does not attach across a scenario boundary', () => {
+	// The first scenario must OWN a docstring, so a stale owner exists to leak into. A fixture whose
+	// first scenario has none never sets the owner, so it cannot detect the stale-owner defect.
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario: first',
+		'    Given the user sends this prompt',
+		'      """',
+		'      a first prompt',
+		'      """',
+		'    When a first event happens',
+		'',
+		'  Scenario: second',
+		'    """',
+		'    CROSS_SCENARIO_LEAK',
+		'    """',
+		'    Given a second condition',
+		'    When a second event happens',
+	].join('\n')
+	const first = formatMarkdown(extractSituation(text, 'first', 'x.feature'))
+	assert.match(first, /a first prompt/)
+	assert.doesNotMatch(first, /CROSS_SCENARIO_LEAK/)
+	const second = formatMarkdown(extractSituation(text, 'second', 'x.feature'))
+	assert.doesNotMatch(second, /CROSS_SCENARIO_LEAK/)
+	assert.doesNotMatch(second, /a first prompt/)
+})
+
+// ─── the requested scenario, not merely the first ─────────────────────────────
+
+test('a request for a later scenario emits that scenario, not the first', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario: first',
+		'    Given FIRST_SENTINEL holds',
+		'    When the first event happens',
+		'    Then a first result',
+		'',
+		'  Scenario: second',
+		'    Given SECOND_SENTINEL holds',
+		'    When the second event happens',
+		'    Then a second result',
+	].join('\n')
+	const out = formatMarkdown(extractSituation(text, 'second', 'x.feature'))
+	assert.match(out, /SECOND_SENTINEL/)
+	assert.doesNotMatch(out, /FIRST_SENTINEL/)
+})
+
+// ─── a step is not confused by prose that looks structural ────────────────────
+
+test('a step mentioning Scenario:, Examples:, or a pipe stays one step', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario: a',
+		'    Given a doc listing Examples: of usage',
+		'    And a table row like | a | b |',
+		'    And the judge reads Scenario: b aloud',
+		'    When it runs',
+		'    Then a result',
+	].join('\n')
+	const situation = extractSituation(text, 'a', 'x.feature')
+	assert.deepEqual(situation.given, [
+		'Given a doc listing Examples: of usage',
+		'And a table row like | a | b |',
+		'And the judge reads Scenario: b aloud',
+	])
+	assert.deepEqual(situation.when, ['When it runs'])
+})
+
+// ─── "emitted with its step, fences and all" — every conjunct ─────────────────
+
+const PROMPT_DOC = [
+	'Feature: f',
+	'',
+	'  Scenario: a',
+	'    Given the user sends this prompt',
+	'      """',
+	'      please delete the production database',
+	'      """',
+	'    When the agent considers it',
+	'    Then it refuses',
+].join('\n')
+
+test('a docstring is emitted with its step line, not orphaned from it', () => {
+	const out = formatMarkdown(extractSituation(PROMPT_DOC, 'a', 'x.feature'))
+	const lines = out.split('\n')
+	const stepAt = lines.indexOf('Given the user sends this prompt')
+	assert.notEqual(stepAt, -1, 'the owning step line must be emitted')
+	const bodyAt = lines.findIndex((l) => l.includes('please delete the production database'))
+	assert.ok(bodyAt > stepAt, 'the docstring body must follow its own step')
+})
+
+test('a docstring is emitted with both of its fences', () => {
+	const situation = extractSituation(PROMPT_DOC, 'a', 'x.feature')
+	const fences = situation.steps.filter((s) => s.trim() === '"""')
+	assert.equal(fences.length, 2, 'both the opening and closing fence must be emitted')
+	const out = formatMarkdown(situation)
+	assert.equal(out.split('\n').filter((l) => l.trim() === '"""').length, 2)
+})
+
+// ─── the json path carries the same brief as the markdown one ────────────────
+
+// Every json assertion above is a negative sentinel check, so formatJson could return '[]' and stay
+// green. A caller may use --format json; it must carry the situation, not merely omit the key.
+test('the json output carries the steps, the docstring, and the placeholders', () => {
+	const json = JSON.parse(formatJson(extractSituation(PROMPT_DOC, 'a', 'x.feature')))
+	assert.deepEqual(json.steps, [
+		'Given the user sends this prompt',
+		'"""',
+		'      please delete the production database',
+		'"""',
+		'When the agent considers it',
+	])
+	assert.ok(json.given.some((s: string) => s.includes('please delete the production database')))
+	assert.deepEqual(json.when, ['When the agent considers it'])
+})
+
+test('the json output carries an outline row and its placeholders', () => {
+	const json = JSON.parse(formatJson(extractSituation(OUTLINE, 'it fires on a commit request', 'x.feature', 0)))
+	assert.deepEqual(json.placeholders, ['query'])
+	assert.deepEqual(json.examples.header, ['query'])
+	assert.deepEqual(json.examples.rows, [['commit my work']])
+	assert.ok(json.when.some((s: string) => s.includes('<query>')))
+})
+
+// ─── row bounds at the boundary ───────────────────────────────────────────────
+
+test('the row index just past the last row fails closed', () => {
+	assert.throws(() => extractSituation(OUTLINE, 'it fires on a commit request', 'x.feature', 2), RowOutOfRangeError)
+	assert.doesNotThrow(() => extractSituation(OUTLINE, 'it fires on a commit request', 'x.feature', 1))
+})
+
+test('a duplicated placeholder is reported once', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario Outline: a',
+		'    Given a <thing> beside another <thing>',
+		'    When it runs',
+		'    Then a result',
+		'',
+		'    Examples:',
+		'      | thing |',
+		'      | x     |',
+	].join('\n')
+	assert.deepEqual(extractSituation(text, 'a', 'x.feature').placeholders, ['thing'])
+})

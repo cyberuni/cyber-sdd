@@ -82,10 +82,80 @@ Feature: spec-validator — the spec-judge role
     When spec-validator checks rubric-structure
     Then it reports that scenario failing on rubric-structure before any scoring
 
+  # ---- Discrimination — the scenario must be able to register a miss ----
+
+  Scenario: a well-formed @rubric whose every dimension a memorizer scores at max fails discrimination
+    Given a @rubric scenario that passes rubric-structure
+    And a config-quoting memorizer scores every one of its dimensions at max
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a rubric dimension drawn from the subject's own vocabulary fails discrimination
+    Given a @rubric dimension whose terms are lifted from the subject configuration's own prose
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a memorizer floor reaching the bar on free dimensions alone fails discrimination
+    Given a @rubric whose memorizer scores every dimension but one at max, and needs a single point of the remaining dimension to reach the threshold
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: an untagged scenario that no plausible wrong configuration fails is reported on discrimination
+    Given an untagged scenario that every plausible wrong configuration passes
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a dimension grading that the steps were followed fails discrimination
+    Given a @rubric dimension that scores whether the config executed the doctrine's steps in order, where the judgment those steps serve is what the scenario tests
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a scenario a single-brancher configuration always passes fails discrimination
+    Given a scenario that a configuration always taking the same branch of the decision passes
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: an empty configuration does not clear discrimination
+    Given the only configuration that fails a scenario is an empty file that fails every scenario
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a loseable rubric passes discrimination
+    Given a @rubric carrying a dimension a config-quoting memorizer scores below max, whose summed score without it sits under the threshold
+    When spec-validator checks discrimination
+    Then it does not report that scenario failing on discrimination
+
+  # ---- Pairwise consistency — the scenarios read against each other ----
+
+  Scenario: two scenarios contradicting on one snapshot fail pairwise consistency
+    Given two scenarios in one suite sharing a When
+    And one constructible snapshot satisfies both of their Givens
+    And their Thens demand opposite verdicts
+    When spec-validator checks pairwise consistency
+    Then it reports the suite failing on pairwise-consistency
+
+  Scenario: overlapping Givens whose Thens agree pass pairwise consistency
+    Given two scenarios in one suite sharing a When whose Givens both hold of one snapshot
+    And their Thens assert different compatible aspects of it
+    When spec-validator checks pairwise consistency
+    Then it does not report the suite failing on pairwise-consistency
+
+  Scenario: two scenarios naming different operations pass pairwise consistency
+    Given two scenarios whose Givens both hold of one snapshot
+    And their Whens name different operations
+    When spec-validator checks pairwise consistency
+    Then it does not report the suite failing on pairwise-consistency
+
+  Scenario: a specific scenario carving an exception from a general sibling passes pairwise consistency
+    Given two scenarios sharing a When whose narrower Given carves out an exception from the general one and gives the other verdict
+    And the general Given does not itself exclude that exception
+    When spec-validator checks pairwise consistency
+    Then it does not report the suite failing on pairwise-consistency
+
   # ---- Reporting and guards ----
 
   Scenario: a clean suite passes every criterion
-    Given a .feature that meets trigger-context, rule-coverage, trigger-balance, edge-coverage, boolean-form, and rubric-structure
+    Given a .feature that meets trigger-context, rule-coverage, trigger-balance, edge-coverage, boolean-form, rubric-structure, discrimination, and pairwise-consistency
     When spec-validator grades the suite
     Then it reports every scenario passing and emits no blocker
 

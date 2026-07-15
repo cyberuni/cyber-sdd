@@ -73,7 +73,9 @@ The `<unit>.solution.md` is **not** in view — do not request or read it.
   no scope creep; every `## Use Cases` outcome has a scenario home; the CR is worth shipping.
 - **Builder** (`builder-spec`) — testability & coverage: every operation in the surface has at least
   one happy-path and one error-case scenario; scenarios describe **observable behavior only** (no
-  internal state or function names); no placeholder text.
+  internal state or function names); no placeholder text; every scenario and `@rubric` dimension can
+  **register a miss** (discrimination), and no two scenarios contradict on one snapshot (pairwise
+  consistency).
 - **Architect** (`architect-spec`) — structural fit: no duplication or contradiction with sibling
   specs; the node sits at the right layer; `spec.md` and the `.feature` do not contradict each other.
 
@@ -100,6 +102,41 @@ rubric form, so scoring lingo inside it is **not** rejected. Two parts:
   baseline by-hand scoring and is the **reference implementation** of the bar; a domain whose
   registry resolves a more capable spec-judge may score with more rigor. The structural check above
   is identical across all resolved judges; only scoring capability differs.
+
+**Discrimination (Builder — judged, every scenario and every `@rubric` dimension):** each must be able to
+**register a miss** — a **plausible wrong subject** must exist that fails the scenario, or that
+scores below the dimension's `max`. Structure and discrimination are **distinct checks**: a
+well-formed `@rubric` passes structure and may still fail here, and a green deterministic check
+clears neither. **Well-formed is never acceptance.**
+
+- Name the wrong subject explicitly — a **memorizer** (reproduces the doctrine's words), a **copier**
+  (echoes the artifact's worked examples), a **procedure-follower** (executes the steps without the
+  judgment), a **single-brancher**. It must be **plausible**: an empty artifact fails everything and
+  clears nothing.
+- Fail a dimension grading **presence** (a line is emitted, where the subject makes emission
+  trivial), **restatement** (the doctrine's own words — the memorizer scores max and the reasoner no
+  higher), or **procedure** (the steps, where the judgment is under test).
+- For a `@rubric`, **sum what each named wrong subject scores**: that sum sits **under** the
+  threshold, and not by a single point of a single dimension. A floor reaching threshold on the free
+  dimensions alone leaves the discriminating dimensions decorative.
+- A **measured ceiling is not evidence** — max on every run with zero variance is a tell the
+  dimension cannot be lost, not a finding that the subject is good.
+- **Escalate a scenario you cannot classify rather than passing it.**
+
+**Pairwise consistency (Builder — judged, the suite, not a scenario):** no two scenarios sharing a `When`
+demand opposite verdicts on one constructible snapshot. `Given`s need not be disjoint — two
+scenarios may share a precondition when their `Then`s assert different, compatible aspects; the
+check is the **contradiction**, never the overlap, and two scenarios whose `When`s name different
+operations do not contradict. Name both scenarios in the rejection. This is the authoring-time read
+of the defect the **`Conflict`** hard floor otherwise catches at the impl gate, post-freeze.
+
+**Specialization is not contradiction** — do not over-fire. A **general** scenario and a **specific**
+sibling whose narrower `Given` carves out an exception do not contradict, even when the general
+`Given` does not literally exclude that exception: the specific one names the narrower case and wins
+on it. Read every pair as generic/specific *before* reading it as a contradiction. A contradiction is
+a pair with **no intended winner** — the `Conflict` floor's own definition. A frozen suite may
+legitimately rely on this convention: retrofitting the exclusion into a frozen general `Given` is a
+narrowing that fires **Clearance**, so never demand it of one.
 
 **Agent-level (per lens, above):**
 - At least one happy-path and one error-case scenario per operation in the command surface (Builder).

@@ -117,7 +117,7 @@ export interface ParseError {
 	message: string
 }
 
-// Pure parse of `gherkin-cli@0.0.1 validate --format json`'s stdout. Maps each reported file to
+// Pure parse of `gherkin-cli@0.0.2 validate --format json`'s stdout. Maps each reported file to
 // its errors (empty array when it parses) so callers can look a path up directly.
 export function parseGherkinValidateOutput(stdout: string): Map<string, ParseError[]> {
 	const parsed = JSON.parse(stdout) as { files: { file: string; errors: { line: number; message: string }[] }[] }
@@ -137,7 +137,7 @@ export function parseGherkinValidateOutput(stdout: string): Map<string, ParseErr
 // normal parse-failure report. Only an empty/missing stdout means the parser genuinely didn't run.
 export function runGherkinValidate(paths: string[], cwd = '.'): Map<string, ParseError[]> {
 	try {
-		const stdout = execFileSync('npx', ['gherkin-cli@0.0.1', 'validate', ...paths, '--format', 'json'], {
+		const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'validate', ...paths, '--format', 'json'], {
 			encoding: 'utf8',
 			cwd,
 			stdio: ['ignore', 'pipe', 'pipe'],

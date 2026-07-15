@@ -120,7 +120,7 @@ export function scenarioKeysFromParse(parsed: GherkinParseOutput): ScenarioKey[]
 // regardless, so relative behavior elsewhere in the process is unaffected.
 export function getScenarioKeys(root: string, featurePath: string, featureRoot: string = root): ScenarioKey[] {
 	const abs = underRoot(featureRoot, featurePath)
-	const stdout = execFileSync('npx', ['gherkin-cli@0.0.1', 'parse', abs, '--format', 'json'], {
+	const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'parse', abs, '--format', 'json'], {
 		encoding: 'utf8',
 		cwd: root,
 	})

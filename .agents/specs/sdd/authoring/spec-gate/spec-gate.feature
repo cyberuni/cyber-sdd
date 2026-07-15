@@ -315,6 +315,45 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Then the losing baseline scenario is classified as modified
     And the change is not classified as purely additive
 
+  Scenario: a rewritten step DocString is classified as a narrowing
+    Given a touched frozen .feature whose baseline scenario has only a step's DocString content rewritten
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as modified
+    And the change is not classified as purely additive
+
+  Scenario: a rewritten step DataTable is classified as a narrowing
+    Given a touched frozen .feature whose baseline scenario has only a step's DataTable cell values rewritten
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as modified
+    And the change is not classified as purely additive
+
+  Scenario: a rewritten step DocString media type is classified as a narrowing
+    Given a touched frozen .feature whose baseline scenario has only a step's DocString media type rewritten
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as modified
+    And the change is not classified as purely additive
+
+  Scenario: a re-indented step DocString is classified as no content change
+    Given a touched frozen .feature whose baseline scenario has a step's DocString re-indented with its content intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+
+  Scenario: a swapped step DocString delimiter is classified as no content change
+    Given a touched frozen .feature whose baseline scenario has a step's DocString delimiter swapped with its content intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+
+  Scenario: a realigned step DataTable is classified as no content change
+    Given a touched frozen .feature whose baseline scenario has a step's DataTable column padding realigned with its cell values intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+
+  Scenario: a frozen scenario pushed down the file by an insertion above it is classified as no content change
+    Given a touched frozen .feature whose baseline scenario is pushed down the file by a whole scenario added above it, its own steps and arguments intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+    And the change is classified as purely additive
+
   Scenario: a narrowing detected on a frozen file fires Clearance rather than self-clearing
     Given the edit class of a touched frozen file is a narrowing of a baseline scenario
     When the gate evaluates the diff

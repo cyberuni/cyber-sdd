@@ -13,7 +13,7 @@
 //     a live git diff or the live mission-graph store.
 //   - readChangedFiles / resolveArtifactType / changedScenarios / collectChangedFiles /
 //     discoverLayouts are the thin IO SEAM: they shell out to `git`, `resolve-governances.mts`, and
-//     `npx gherkin-cli@0.0.1 diff` (the pinned differ classify-edit-class.mts also uses — this tool
+//     `npx gherkin-cli@0.0.2 diff` (the pinned differ classify-edit-class.mts also uses — this tool
 //     never reimplements a differ). NOT unit-tested (network/binary/fs boundary) — the tested logic
 //     is everything downstream of the file list.
 //   - main() is a thin CLI: argv -> collectChangedFiles + assembleCorrection, rendering TOON by
@@ -239,14 +239,14 @@ interface GherkinDiffOutput {
 	files: GherkinDiffFileResult[]
 }
 
-/** The changed scenario names of a touched `.feature`, via the pinned `gherkin-cli@0.0.1 diff`
+/** The changed scenario names of a touched `.feature`, via the pinned `gherkin-cli@0.0.2 diff`
  *  (same tool classify-edit-class.mts uses — never a reimplemented differ). Gated by isFeature —
  *  a non-.feature never calls out. On any failure returns []. Reads any `.feature` regardless of
  *  freeze — the freeze gate is a separate concern (spec-gate), not this tool's business. */
 export function changedScenarios(base: string, path: string, cwd: string): string[] {
 	if (!isFeature(path)) return []
 	try {
-		const out = execFileSync('npx', ['gherkin-cli@0.0.1', 'diff', path, '--base', base, '--format', 'json'], {
+		const out = execFileSync('npx', ['gherkin-cli@0.0.2', 'diff', path, '--base', base, '--format', 'json'], {
 			encoding: 'utf8',
 			cwd,
 			stdio: ['ignore', 'pipe', 'ignore'],

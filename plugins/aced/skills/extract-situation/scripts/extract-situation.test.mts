@@ -1008,3 +1008,50 @@ test('the entrypoint guard is neither version-conditional nor encoding-fragile',
 	assert.doesNotMatch(code, /file:\/\/\$\{/)
 	assert.match(code, /import\.meta\.url === pathToFileURL\(process\.argv\[1\]\)\.href/)
 })
+
+// ─── the Examples table must reach the BRIEF, not just the Situation ──────────
+
+// A `Then` that says "emitted" is about the rendered brief — the simulator never sees the Situation
+// object. Asserting on `situation.examples` leaves formatTable free to return '', which collapses
+// every outline row to the literal "<query>" and simulates them all identically, silently green.
+test('a selected row reaches the rendered brief, header and values', () => {
+	const out = formatMarkdown(extractSituation(OUTLINE, 'it fires on a commit request', 'x.feature', 0))
+	assert.match(out, /\|\s*query\s*\|/)
+	assert.match(out, /\|\s*commit my work\s*\|/)
+	assert.doesNotMatch(out, /what is the weather/)
+})
+
+test('the other row reaches the rendered brief when it is the one selected', () => {
+	const out = formatMarkdown(extractSituation(OUTLINE, 'it fires on a commit request', 'x.feature', 1))
+	assert.match(out, /\|\s*what is the weather\s*\|/)
+	assert.doesNotMatch(out, /commit my work/)
+})
+
+test('every referenced column and every row reaches the brief when no row is selected', () => {
+	const out = formatMarkdown(extractSituation(OUTLINE, 'it fires on a commit request', 'x.feature'))
+	assert.match(out, /\|\s*query\s*\|/)
+	assert.match(out, /\|\s*commit my work\s*\|/)
+	assert.match(out, /\|\s*what is the weather\s*\|/)
+})
+
+test('a multi-column outline emits every referenced header and its values in the brief', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario Outline: a',
+		'    Given a <role> user',
+		'    When they say "<query>"',
+		'    Then <expected>',
+		'',
+		'    Examples:',
+		'      | role  | query        | expected |',
+		'      | admin | ship it      | yes      |',
+	].join('\n')
+	const out = formatMarkdown(extractSituation(text, 'a', 'x.feature'))
+	assert.match(out, /\|\s*role\s*\|/)
+	assert.match(out, /\|\s*query\s*\|/)
+	assert.match(out, /\|\s*admin\s*\|/)
+	assert.match(out, /\|\s*ship it\s*\|/)
+	assert.doesNotMatch(out, /expected/)
+	assert.doesNotMatch(out, /\byes\b/)
+})

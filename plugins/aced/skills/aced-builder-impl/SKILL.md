@@ -31,8 +31,10 @@ agent level.
   scenarios run N times against the scenario's inline `threshold` (else `eval.judge.default_threshold`),
   scored by `eval.judge.model`. Defaults when omitted: model claude-sonnet-4-6, default_threshold 4,
   trigger activation_threshold 0.5, trigger runs 3.
-- **Collapse to a boolean.** A scenario passes when its aggregate `score ≥ threshold` (trigger
-  scenarios: accuracy ≥ activation_threshold); `IMPLEMENTATION_PASS` is true only when every frozen
-  scenario passes.
+- **Collapse to a boolean.** A scenario passes when its aggregate **total across the rubric's named
+  dimensions** ≥ `threshold` and no must-not-do was triggered (trigger scenarios: accuracy ≥
+  activation_threshold); `IMPLEMENTATION_PASS` is true only when every frozen scenario passes. Each
+  dimension is scored against its **own** `max` — there is no scale shared across dimensions, and no
+  single collapsed number stands for all of them.
 - **The runner is separate from the author.** Independence comes from the frozen `.feature` anchor and
   from a runner (`aced-case-judge`) that is not the producer — the producer cannot declare its own pass.

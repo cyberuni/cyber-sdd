@@ -23,7 +23,7 @@ Read both versions in full before proceeding. **If the "before" version cannot b
 
 ## Run evals on both versions
 
-For each version, run every scenario in the frozen `artifacts/specs/<feature-name>/<feature-name>.feature` through `aced-case-judge` (same process as `run`).
+For each version, run every scenario in the frozen `artifacts/specs/<feature-name>/<feature-name>.feature` through `aced-case-judge` (same process as `run`) — passing the `.feature` path and the scenario name, never the scenario body. The judge blinds its own simulating context; handing it the `Then` or the rubric would defeat that.
 
 Label results as **before** and **after**.
 
@@ -32,31 +32,36 @@ Do not write to `results/` during compare — this is a diff operation, not a re
 ## Compute the diff
 
 For each scenario, record:
-- Before score, after score, delta
+- Before and after **per dimension** (`score`/`max`), plus each side's total against the same maximum
 - Before pass/fail, after pass/fail
 - Change type: `improved` | `regressed` | `unchanged` | `now-passing` | `now-failing`
 
-Aggregate:
+Both sides are scored against the **same frozen scenario**, so their maxima match and their totals
+are comparable to each other. Totals are **not** comparable across different scenarios — maxima
+differ per scenario, so never average raw totals into a headline number. Aggregate instead:
 - Net pass rate delta (e.g., +3 scenarios passing)
-- Mean score delta (e.g., +0.4)
 - Count by change type
+- The per-dimension deltas, which are what say *where* the change landed
+
+A dimension delta is the useful signal: a total that holds steady while one dimension drops and
+another rises is a real change the total hides.
 
 ## Report
 
 ```
 ACED Compare — <name>
 ──────────────────────────────
-Before: 18/22 passing (82%)  mean 3.9
-After:  21/22 passing (95%)  mean 4.3
+Before: 18/22 passing (82%)
+After:  21/22 passing (95%)
 
-Net change: +3 passing, mean +0.4
+Net change: +3 passing
 
-IMPROVED (now passing or higher score):
-  ✓ no trigger for an audit request   2 → 5  (+3)
-  ✓ stages only related files         3 → 4  (+1)  now passing
-  ✓ red tests block the commit        3 → 5  (+2)  now passing
+IMPROVED (now passing, or a dimension gained):
+  ✓ no trigger for an audit request   invoked no → yes (expected yes)   now passing
+  ✓ stages only related files         3/5 → 4/5  correctness 2/3 → 3/3   now passing
+  ✓ red tests block the commit        3/5 → 5/5  correctness 1/3 → 3/3, completeness 2/2 → 2/2  now passing
 
-REGRESSED (now failing or lower score):
+REGRESSED (now failing, or a dimension lost):
   none
 
 UNCHANGED: 18 scenarios
@@ -64,7 +69,7 @@ UNCHANGED: 18 scenarios
 
 ## Regression gate
 
-If any scenario regressed (score dropped or flipped from pass to fail), warn explicitly:
+If any scenario regressed (a dimension dropped, the total dropped, or it flipped from pass to fail), warn explicitly:
 
 ```
 ⚠ REGRESSION DETECTED

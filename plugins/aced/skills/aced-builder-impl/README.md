@@ -4,7 +4,7 @@ Internal ACED governance (`user-invocable: false`). The **Builder** actor bar at
 specialized for agent-configuration artifact-types — it **unions onto** `sdd:builder-impl-governance`
 and adds how an agent-config subject (which has no deterministic test runner) reaches a per-scenario
 boolean: one scenario→rubric eval per frozen scenario, an explicit N-run policy (trigger vs
-behavior/quality), and a `score ≥ threshold` collapse, with the runner (`aced-case-judge`) kept separate
+behavior/quality), and a per-dimension `total ≥ threshold` collapse, with the runner (`aced-case-judge`) kept separate
 from the author.
 
 One merged bar loaded by **both** faces — the ACED impl-producer (`define-agent` / `improve`, forward,

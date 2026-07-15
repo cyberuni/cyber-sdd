@@ -37,11 +37,12 @@ Enumerate the scenarios of `<feature-name>.feature` **in file order**. For each 
      an inline `threshold` overrides `eval.judge.default_threshold`.
    - `@trigger` `Scenario Outline` → each `Examples` row is one `{query, should_trigger}` case.
    - a deterministic boolean scenario → its boolean `Then` assertions.
-4. Invoke `aced-case-judge` with the `subject`, the scenario, and its inline rubric/threshold, over the
-   run count for its layer (`eval.trigger.runs` for trigger; else a single behavior/quality run unless
-   the caller sets N).
-5. Collect: score (1–5), pass/fail (pass = score ≥ threshold; trigger pass = activation accuracy ≥
-   `eval.trigger.activation_threshold`), explanation.
+4. Invoke `aced-case-judge` with the `subject`, the **`.feature` path and the scenario name**, and its
+   threshold, over the run count for its layer (`eval.trigger.runs` for trigger; else a single
+   behavior/quality run unless the caller sets N).
+5. Collect: a score per named dimension against that dimension's own `max`, the total, pass/fail
+   (pass = total ≥ threshold, and a triggered must-not-do is a fail outright; trigger pass =
+   activation accuracy ≥ `eval.trigger.activation_threshold`), explanation.
 
 Run all scenarios before reporting. Do not stop on first failure.
 
@@ -53,23 +54,29 @@ Pass this context block to the judge:
 SUBJECT:
 <full agent configuration text>
 
-SCENARIO: <scenario name>
+FEATURE_PATH: <path to the frozen .feature>
+SCENARIO: <exact scenario name>
 LAYER: <layer>
-GIVEN/WHEN/THEN: <the scenario steps>
-RUBRIC: <the inline @rubric docstring, or the boolean Then assertions>
 THRESHOLD: <inline threshold, else eval.judge.default_threshold>
-
-Score this 1–5 using the rubric. Then state PASS or FAIL. Then explain in 2–3 sentences what the agent did well and what it missed.
 ```
+
+**Pass the path and the name — never the steps, the `Then`, or the rubric.** The judge simulates and
+scores in two separate contexts and composes the simulating context's brief with the
+`extract-situation` engine; handing it the scenario body would put the answer key back in the
+context that has to reach the answer. One invocation covers both passes — never sequence them here.
 
 ## Compute results
 
 After all scenarios:
 
 - Pass rate = passing scenarios / total scenarios
-- Mean score ± standard deviation across all scenarios
 - Per-layer breakdown (trigger pass rate, behavior pass rate)
-- Failing scenarios sorted by score ascending (worst first)
+- Failing scenarios sorted by **margin** (`total − threshold`) ascending, worst first
+
+Report each scenario's total **against its own maximum** (`4/5`), never as a bare number. Maxima
+differ per scenario, so a mean taken across raw totals compares scales that do not line up — if you
+report a headline number, report the mean **margin** or the mean **fraction of maximum**, and say
+which.
 
 ## Write results
 
@@ -80,14 +87,17 @@ Write to `artifacts/specs/<feature-name>/results/<ISO8601-timestamp>.json`:
   "timestamp": "<ISO8601>",
   "target": "<agent configuration path>",
   "pass_rate": 0.82,
-  "mean_score": 3.9,
-  "std_dev": 0.8,
-  "threshold": 4,
   "scenarios": [
     {
       "name": "<scenario name>",
       "layer": "behavior",
-      "score": 3,
+      "dimensions": [
+        { "name": "correctness", "score": 2, "max": 3 },
+        { "name": "completeness", "score": 1, "max": 2 }
+      ],
+      "total": 3,
+      "max": 5,
+      "threshold": 4,
       "pass": false,
       "explanation": "..."
     }
@@ -95,22 +105,23 @@ Write to `artifacts/specs/<feature-name>/results/<ISO8601-timestamp>.json`:
 }
 ```
 
+A `@trigger` scenario carries `"invoke"`, `"expected"`, and `"pass"` instead of `"dimensions"`.
+
 ## Report to user
 
 ```
 ACED Run — <name>
 ──────────────────────────
 Pass rate:  18/22 (82%)
-Mean score: 3.9 ± 0.8
 
 Trigger layer:  8/10 (80%)
 Behavior layer: 10/12 (83%)
 
 FAILING SCENARIOS (worst first):
-  ✗ no trigger for an audit request   [score 2] — <explanation>
-  ✗ stages only related files         [score 3] — <explanation>
-  ✗ trigger on skill creation         [score 3] — <explanation>
-  ✗ red tests block the commit        [score 3] — <explanation>
+  ✗ no trigger for an audit request   [invoked: no, expected: yes] — <explanation>
+  ✗ stages only related files         [3/5 vs 4: correctness 2/3, completeness 1/2] — <explanation>
+  ✗ trigger on skill creation         [invoked: yes, expected: no] — <explanation>
+  ✗ red tests block the commit        [3/5 vs 4: correctness 1/3, completeness 2/2] — <explanation>
 
 Run improve to address failing scenarios.
 Run compare after editing the agent configuration.

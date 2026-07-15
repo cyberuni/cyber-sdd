@@ -70,6 +70,31 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
     And the rubric score is at least the threshold
 
+  # Deliberately titled for the SITUATION, not the graded verdict — unlike its Oracle siblings, whose
+  # titles ("a stale change request is…", "a misaligned change request is…") name the branch they grade.
+  # aced-case-judge receives the scenario's NAME and simulates the agent from it, so a title stating the
+  # per-part branch mapping would hand the simulator the answer this scenario exists to withhold. The
+  # sibling titles carry the same leak against a single branch; retitling them is a frozen-scenario edit
+  # (a re-open), out of scope here. The simulator is also handed this rubric itself — see #252.
+  @behavior @rubric
+  Scenario: the Oracle gate judges a change request that carries two separate asks
+    Given a change request filed last year against a music-engraving library, asking for a single place to set staff spacing and page margins for a score and for the instrument parts extracted from it
+    And the same change request also asks for a playback cursor that highlights each note as the score is played back
+    And a house-style document has shipped since the change request was filed, carrying staff spacing, page margins, and beam angles, and passed to the engrave call for a whole score
+    And the instrument parts are produced by a separate extract path that assembles its own score document and takes no house-style argument
+    And the library ships as one synchronous call that takes a score and returns an SVG string, holds no state between calls, reads no clock, and publishes the contract that the same score returns the same bytes on every machine and every run
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: spacing-part-on-supersession
+          max: 3          # derives that the shipped house-style document already delivers the score-wide spacing and margins this part of the request was filed to get, so this part fails on supersession and not on direction-fit; no step of the situation states that any goal is covered. 3 = reshapes this part down to the one remnant the situation leaves genuinely uncovered — the extract path that assembles its own score document and takes no house-style argument; 1 = drops the spacing request whole as covered, discarding that live remnant; 0 = cuts a mission to build the score-wide spacing option the house-style document already delivers, or rejects this part on direction-fit
+        - name: cursor-part-on-direction-fit
+          max: 3          # infers the library's stateless, deterministic direction from how it ships (one synchronous call, no state between calls, no clock, the same score returning the same bytes on every run) and finds the playback cursor contradicts it on direction-fit — nothing in the situation supersedes the cursor, and no step declares the direction as a slogan. 3 = kills this part or reshapes it toward the direction, emitting no mission that builds the cursor as filed; 1 = records the direction concern but lowers it as filed anyway; 0 = treats the cursor as live work merely left uncovered by the house-style document and partitions it as filed, or calls it stale
+      threshold: 5
+      """
+    And the rubric score is at least the threshold
+
   Scenario: a killed change request lowers to zero missions
     Given a change request whose goal a shipped change has fully superseded
     When the coordinator applies the SSA-lowering doctrine and kills the change request

@@ -29,6 +29,21 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
     When the store is read
     Then no WAW or WAR edge is present, because the mutex is computed from touch-sets at fold time
 
+  Scenario: a node records that it is a barrier and the project it fences
+    Given a barrier node appended with the project it fences
+    When the store is read
+    Then the node carries its barrier marking and the project it fences
+
+  Scenario: a node appended without a barrier marking is a normal mission
+    Given a mission node appended with no barrier marking
+    When the store is read
+    Then the node is not a barrier
+
+  Scenario: the write path rejects a barrier marking on a node that is not a mission
+    Given an operation node carrying a barrier marking
+    When the node is offered to the write path
+    Then the write-time guard rejects it, because only a mission is ever scheduled and a barrier that can never surface would fence its project forever
+
   Scenario: the fold tolerates a node carrying a later additive schema field
     Given a store holding a v1 node and a node carrying an unknown later-version field
     When the graph is folded
@@ -104,6 +119,135 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
     Given two RAW-satisfied missions whose declared touch-sets intersect and neither is in-flight
     When ready is folded
     Then at most one of them is in the frontier
+
+  # ── ready — the barrier fence ──
+  # A barrier is a project-wide mission the fleet must rebase onto before fanning out again;
+  # `formation/` declares it and names the project it fences, `ssa-lowering/` detects one at
+  # lowering time, and THIS node honors the fence in the `ready` fold. The fence is a fold-time
+  # rule, never a stored edge (see `WAW and WAR relationships are not stored as edges` and
+  # `ready derives with no side effects`). Three clauses over a snapshot:
+  #   1. EXEMPT — a mission in the RAW-predecessor closure of ANY un-retired barrier of ANY
+  #      project is exempt from every fence. Graph-global, and it OUTRANKS clause 2.
+  #   2. OFFER — no barrier of a project surfaces until EVERY un-retired barrier of that project
+  #      is RAW-satisfied; then exactly one surfaces, by the pinned mission-ref tie-break.
+  #   3. HOLD — everything else in a fenced project is held.
+  # The closure is STRICT: a barrier is never in its own RAW-predecessor closure, so it never
+  # exempts itself out of clause 2. "Un-retired" covers open and claimed alike.
+  # Clause 1 is graph-global rather than per-project because RAW closure is not project-scoped: a
+  # project-scoped exemption lets one project's barrier wait on a mission another project's fence
+  # holds, and symmetrically — an acyclic deadlock the `cycles` view cannot see.
+  # Exemption lifts the FENCE only. RAW satisfaction, cycle quarantine and the WAW-mutex still
+  # apply to an exempt mission, so "exempt" never means "surfaces".
+
+  Scenario: an un-retired barrier holds the other missions of the project it fences
+    Given an un-retired barrier and a RAW-satisfied mission in the project it fences that is not in the barrier's RAW-predecessor closure
+    When ready is folded
+    Then that mission is not in the frontier
+
+  Scenario: a barrier does not fence a project it does not fence
+    Given an un-retired barrier fencing one project and a RAW-satisfied mission in a different project that is not in the barrier's RAW-predecessor closure
+    When ready is folded
+    Then the mission in the other project is in the frontier
+
+  Scenario: a graph holding no barrier is not fenced at all
+    Given a graph of RAW-satisfied missions and no barrier node
+    When ready is folded
+    Then the frontier is exactly the one the RAW and WAW folds admit on their own
+
+  Scenario: a barrier fences the default project of a store that declares no projects
+    Given a store whose nodes declare no project and an un-retired barrier among them
+    When ready is folded
+    Then another RAW-satisfied mission that is not in the barrier's RAW-predecessor closure is not in the frontier
+
+  Scenario: the default project is a project of its own, not a wildcard
+    Given an un-retired barrier fencing the default project and a RAW-satisfied mission declaring a named project that is not in the barrier's RAW-predecessor closure
+    When ready is folded
+    Then the mission declaring the named project is in the frontier
+
+  Scenario: a RAW predecessor of an un-retired barrier is exempt from the fence
+    Given an un-retired barrier and its RAW-satisfied direct RAW predecessor in the project it fences
+    When ready is folded
+    Then the predecessor is in the frontier
+
+  Scenario: exemption reaches the whole RAW-predecessor closure, not only direct predecessors
+    Given an un-retired RAW chain from a mission to a second mission to an un-retired barrier in the project it fences
+    When ready is folded
+    Then the mission at the head of the chain is in the frontier
+
+  Scenario: a predecessor of one project's barrier is exempt from another project's fence
+    Given an un-retired barrier fencing project Q, and a RAW-satisfied mission in Q that is a RAW predecessor of an un-retired barrier fencing project P and is in no RAW-predecessor closure of any barrier fencing Q
+    When ready is folded
+    Then that mission is in the frontier, because exemption is graph-global rather than scoped to the fences of the project the mission sits in
+
+  Scenario: retiring a barrier withdraws the exemption it granted
+    Given a retired barrier, an un-retired barrier fencing a second project, and a RAW-satisfied mission in that second project that lies in the retired barrier's RAW-predecessor closure and in no un-retired barrier's
+    When ready is folded
+    Then that mission is not in the frontier, because only an un-retired barrier grants exemption
+
+  Scenario: a barrier inside another barrier's RAW-predecessor closure is exempt and surfaces
+    Given two un-retired barriers fencing one project, with a RAW edge from the second to the first, the second having no RAW predecessor and nothing in-flight
+    When ready is folded
+    Then the second barrier is in the frontier, because exemption outranks the barrier ordering
+
+  Scenario: a lone RAW-satisfied barrier surfaces when its project holds no other barrier
+    Given a project fenced by exactly one un-retired barrier, itself RAW-satisfied, with nothing in-flight
+    When ready is folded
+    Then that barrier is in the frontier
+
+  Scenario: no barrier surfaces while any un-retired barrier of its project is not RAW-satisfied
+    Given a project fenced by two un-retired barriers, neither in the other's RAW-predecessor closure, of which one is RAW-satisfied and the other is held by an un-retired ordinary mission
+    When ready is folded
+    Then neither barrier is in the frontier
+
+  Scenario: exactly one barrier surfaces once every un-retired barrier of its project is RAW-satisfied
+    Given a project fenced by two un-retired barriers that are both RAW-satisfied and nothing in-flight
+    When ready is folded
+    Then exactly one of them is in the frontier, chosen by the pinned mission-ref tie-break
+
+  Scenario: each fenced project offers a barrier of its own in the same fold
+    Given two projects each fenced by exactly one un-retired RAW-satisfied barrier, their declared touch-sets disjoint and nothing in-flight
+    When ready is folded
+    Then both barriers are in the frontier, because the one-at-a-time rule is scoped per project rather than graph-wide
+
+  Scenario: an in-flight barrier still fences its project
+    Given a barrier that is claimed rather than retired and a RAW-satisfied mission in the project it fences that is not in the barrier's RAW-predecessor closure
+    When ready is folded
+    Then that mission is not in the frontier
+
+  Scenario: a retired barrier no longer fences its project
+    Given a project whose only barrier is retired and a RAW-satisfied mission in that project
+    When ready is folded
+    Then that mission is in the frontier
+
+  Scenario: a fenced mission does not consume the WAW tie-break slot from an exempt one
+    Given an un-retired barrier, a held non-predecessor mission in the project it fences, and an exempt RAW predecessor of the barrier whose declared touch-set intersects the held mission and whose id sorts after it
+    When ready is folded
+    Then the exempt predecessor is in the frontier, because the fence is applied before the WAW tie-break rather than after it
+
+  Scenario: exemption lifts the fence but not the WAW-mutex against in-flight work
+    Given an in-flight mission and an exempt RAW predecessor of an un-retired barrier whose declared touch-set intersects that in-flight mission
+    When ready is folded
+    Then the exempt predecessor is not in the frontier
+
+  Scenario: two exempt missions that are WAW-paired never both surface
+    Given two RAW-satisfied RAW predecessors of one un-retired barrier whose declared touch-sets intersect and neither in-flight
+    When ready is folded
+    Then at most one of them is in the frontier
+
+  Scenario: a barrier the WAW-mutex holds does not pass its project's offer to the next barrier
+    Given a project fenced by two RAW-satisfied un-retired barriers, where the one the tie-break pins declares a touch-set intersecting an in-flight mission
+    When ready is folded
+    Then neither barrier is in the frontier, because the offer is pinned to the tie-break winner rather than passed on
+
+  Scenario: a fenced project holding an un-retired barrier always offers progress
+    Given an acyclic graph whose only nodes are an un-retired barrier, the missions of its RAW-predecessor closure, and other missions of the project it fences, with nothing in-flight
+    When ready is folded
+    Then the frontier is not empty, because a fold-time fence leaves the graph acyclic and a wedge would present as an empty frontier with a clean cycles report
+
+  Scenario: the fence holds a RAW-satisfied mission downstream of the exempt closure
+    Given an un-retired barrier, a retired mission in its RAW-predecessor closure, and a mission in the project it fences whose only RAW predecessor is that retired mission and which is not itself in the barrier's RAW-predecessor closure, with nothing in-flight
+    When ready is folded
+    Then that mission is not in the frontier, so the fence is proved to hold what it does not exempt rather than only to stay live
 
   # ── ready — determinism and read-only ──
 

@@ -61,6 +61,9 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **needs-a-human** (HITL — "human in the loop") | a person must approve this step before it proceeds |
 | **runs-on-its-own** (AFK — "away from keyboard") | safe to run automatically, with no person present |
 | **blast** | how much of the project a Mission could disturb — its risk / reach |
+| **barrier** (fence) | a Mission that reshapes a whole project at once — everyone else in that project must wait for it and then rebuild on top of it, rather than run alongside it |
+| **project** | which project a Mission belongs to, and the thing a barrier fences — a list may hold work from several projects at once; work that names no project all sits in one default project together |
+| **exempt** | a Mission a fence deliberately lets through — the barrier itself is *waiting on* it, so holding it back would leave both stuck forever |
 | **schema version** | a version number stamped on every entry so the format can grow later without breaking old entries |
 | **orphan ref** | a git storage slot that holds *only* the work list (not a copy of the code) and is shared by every working copy of the repo, so the list reads the same no matter which branch you are on |
 | **branch-independent** | the same list is seen from every branch — because it lives in the shared orphan ref, not in the files of whatever branch you happen to have checked out |
@@ -83,6 +86,7 @@ of parallel agents (all later work). It **plans and reports**; it does not do th
 | **see what can start now** | the work list | the Missions with nothing left to wait for and no clash with started work — the same answer every time for the same list | `Scenario: a mission whose RAW predecessor is retired is in the frontier` |
 | **keep clashing work apart** — two Missions would change the same thing | the list + each Mission's touch-set | at most **one** of a clashing pair is ever offered at once (the other waits its turn) | `Scenario: a candidate whose touch-set intersects an in-flight mission is held back` |
 | **catch a knotted plan** — the links accidentally form a loop | the work list | it never crashes; every Mission caught in the loop is set aside, and the loop is reported as something to fix | `Scenario: the fold quarantines a cycle instead of failing` |
+| **hold a project for a reshaping job** — one Mission is about to change the whole project | the list + a Mission marked as a barrier and the project it fences | the rest of that project waits; the jobs the barrier is itself waiting on are still let through; barriers are handed out one at a time | `Scenario: an un-retired barrier holds the other missions of the project it fences` |
 | **check a shippable group** — is this Operation shippable, and how far along | an Operation's declared Missions + its capstone | whether nothing needed is missing (missing prerequisites flagged), what the smallest ship-set is, and a done-so-far count | `Scenario: an Operation whose capstone closure exceeds the declared set is flagged` |
 
 Every scenario in [`mission-graph.feature`](./mission-graph.feature) maps to one of these entries or to
@@ -154,6 +158,48 @@ Key points:
   — the capability atom a Mission owns — is always written in full, so the two never collide. The
   `node` *field* here carries the vertex kind; enriching it to instead carry the mission's **owned
   spec-node** is a follow-up **engine** change, tracked in issue #184.)
+
+## The barrier fence — "hold this project, one big job is reshaping it"
+
+Some jobs reshape a **whole project** at once (renaming a core idea used everywhere, say). Running other
+work alongside one is wasteful: it would all have to be redone on top afterwards. So such a job is marked
+a **barrier** and names the **project it fences**. Elsewhere in the system, `formation` is what *declares*
+a barrier and names its project, and `ssa-lowering` is what *spots* one; **this list is what honors it** —
+the three are separate jobs on purpose, so a barrier is decided once and obeyed everywhere.
+
+Only a **Mission** can be a barrier. Marking a group (an Operation) as one is refused when it is written,
+because a group is never handed out as work — so it could never finish, and its fence would never lift.
+
+`ready` applies three rules, in this order:
+
+1. **Let through the jobs a barrier is waiting on.** If a barrier cannot start until some other job
+   finishes, that job is let through **every** fence — including a fence in a *different* project. This
+   rule **wins over rule 2**. A barrier is never "waiting on itself", so this never lets a barrier out of
+   rule 2 by the back door.
+2. **Hand out barriers one at a time, per project.** A project's barriers stay back until **all** of that
+   project's unfinished barriers are ready to go; then exactly **one** is offered, chosen by the same
+   fixed lowest-id rule the collision tie-break uses. Two different projects each hand out their own — the
+   one-at-a-time rule is per project, not one barrier across the whole list.
+3. **Hold everything else in that project.** A project with **no** barrier is untouched by any of this.
+   Work that names no project sits in the default project, which is a **real** project: a barrier there
+   fences the other no-project work and nothing else — it is not a wildcard over the whole list.
+
+**Being let through is not the same as being handed out.** The rules above only lift the *fence*. A job
+let through still has to clear everything else — its own dependencies, the knot check, and the collision
+rule — so a let-through job that clashes with started work still waits its turn.
+
+**Why rule 1 reaches across projects.** If it only let through jobs in the barrier's *own* project, then
+project A's barrier could sit waiting on a job in project B that B's *own* fence is holding back — and
+the reverse at the same time. Nobody moves, forever. Because "waiting on" links are not confined to one
+project, the let-through rule must not be either.
+
+**Why this is worth being careful about.** The fence is worked out **while reading** the list, not stored
+as a "wait for" link (the same choice the collision rule makes). That keeps the reading side-effect-free
+— but it means a stuck project leaves **no loop in the plan**, so the knot-check (`cycles`) reports a
+clean bill while nothing at all can start. A stall here would be **silent**. So the list is checked both
+ways: that a project holding a barrier **always** offers something to start (never stuck), *and* that the
+fence **actually holds** what it should (never quietly lets everything through — a fence that holds
+nothing would pass the never-stuck check perfectly).
 
 ## `cycles` — "did the plan tie itself in a knot?"
 

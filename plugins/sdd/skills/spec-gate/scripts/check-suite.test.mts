@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 import {
 	checkFilePaths,
@@ -536,6 +536,20 @@ test('main --files returns 0 on a clean file and 1 on a violation', () => {
 // remainder as a bare, ignored line). The fixture below also carries a "sometimes" hedge on its
 // Then step, so a permissive read would ADDITIONALLY trip the boolean-form check — proving the
 // parse violation REPLACES that finding rather than joining it.
+// Unparseable to the pinned parser, yet FLAWLESS to the permissive scan: the wrapped remainder
+// starts with no step keyword, so parseSuite simply skips it and sees Feature + Given + Then. No
+// hedge, no rubric, no missing step. A check that fails this file closed can only be reading the
+// real parser's verdict — nothing else here is failable, which is what makes it a valid probe.
+const UNPARSEABLE_ONLY = [
+	'@frozen',
+	'Feature: broken',
+	'',
+	'  Scenario: wrapped step',
+	'    Given a step that wraps',
+	'      onto the next line',
+	'    Then it holds',
+].join('\n')
+
 const UNPARSEABLE_AND_HEDGED = [
 	'@frozen',
 	'Feature: broken',
@@ -651,4 +665,53 @@ test('runGherkinValidate against the real pinned parser reports a real EPARSE fo
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
+})
+
+// ─── the tree-wide --root sweep ───────────────────────────────────────────────
+// These drive main(['--root', ...]) rather than checkFilePaths, because the sweep's contract is a
+// claim about the COMPOSITION (discoverSuiteDirs feeding the validated path), not about
+// checkFilePaths in isolation. Reverting main's --root branch to a bare parseSuite scan leaves
+// every checkFilePaths-level test green, so only this level can catch that regression.
+
+function withCorpus(files: Record<string, string>, run: (root: string) => void): void {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-corpus-'))
+	try {
+		for (const [rel, body] of Object.entries(files)) {
+			const full = join(root, rel)
+			mkdirSync(dirname(full), { recursive: true })
+			writeFileSync(full, body)
+		}
+		run(root)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+}
+
+test('the corpus sweep fails closed on an unparseable suite', () => {
+	withCorpus({ 'unit/broken.feature': UNPARSEABLE_ONLY, 'unit/fine.feature': CLEAN_SUITE }, (root) => {
+		assert.equal(main(['--root', root]), 1, 'an unparseable suite anywhere in the corpus fails the sweep closed')
+	})
+})
+
+test('the corpus sweep names the unparseable file', () => {
+	withCorpus({ 'unit/broken.feature': UNPARSEABLE_ONLY }, (root) => {
+		const errors: string[] = []
+		const restore = console.error
+		console.error = (m: string) => errors.push(String(m))
+		try {
+			main(['--root', root])
+		} finally {
+			console.error = restore
+		}
+		assert.ok(
+			errors.some((m) => /broken\.feature/.test(m) && /cannot parse as Gherkin/.test(m)),
+			'the sweep names the unparseable file and why it failed',
+		)
+	})
+})
+
+test('the corpus sweep raises no parse violation when every suite parses', () => {
+	withCorpus({ 'unit/a.feature': CLEAN_SUITE, 'nested/deep/b.feature': CLEAN_SUITE }, (root) => {
+		assert.equal(main(['--root', root]), 0, 'a corpus that parses wholly does not fail the sweep closed')
+	})
 })

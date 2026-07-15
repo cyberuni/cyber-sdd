@@ -354,6 +354,58 @@ describe('spec:authoring/spec-gate', () => {
 		}
 	})
 
+	// ── the differ's own failure branch ──
+	// A differ that exits without a readable result is reachable in production: a bad base ref makes
+	// the pinned CLI exit nonzero with no `files` array, so execFileSync throws inside the runner.
+	// The runner is injected here because that branch cannot be driven through the real binary
+	// without also breaking the git fixture the other scenarios depend on.
+
+	test('a structural differ that produces no readable result is classified unclassifiable', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(
+				join(dir, 'specs/sample.feature'),
+				`${FROZEN_BASELINE}\n  Scenario: gamma\n    Given g\n    Then g\n`,
+			)
+
+			const throwingDiff = () => {
+				throw new Error('gherkin-cli diff exited 1 with no report')
+			}
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir, throwingDiff)
+
+			assert.equal(result.classification, 'unclassifiable')
+			assert.notEqual(result.classification, 'no-content-change')
+			assert.notEqual(result.classification, 'additive')
+			assert.match(result.reason ?? '', /no readable result/)
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('a differ failure escalates rather than resolving to a reassuring class, even on an additive edit', () => {
+		// The working edit here is genuinely additive — a classifier that fell back to inspecting the
+		// file itself, or that defaulted the catch to a benign class, would report `additive` and
+		// self-clear. Only escalation is correct: the differ never rendered a verdict.
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(
+				join(dir, 'specs/sample.feature'),
+				`${FROZEN_BASELINE}\n  Scenario: delta\n    Given d\n    Then d\n`,
+			)
+
+			const throwingDiff = () => {
+				throw new Error('boom')
+			}
+			assert.equal(classifyFile('specs/sample.feature', 'HEAD', dir, throwingDiff).classification, 'unclassifiable')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
 	test('main returns 1 (not 0) when the classified file is unclassifiable', () => {
 		const dir = initRepo()
 		const cwd = process.cwd()

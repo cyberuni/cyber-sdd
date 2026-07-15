@@ -1,25 +1,16 @@
 ---
-status: implemented
+status: approved
 project-path: plugins/aced
 approval:
   spec:
     verdict: approve
-    by: agent
-    cause: dimension
+    by: unional
+    cause: clearance
     why:
-      floor: none — CR github-140 is additive (4 new boolean scenarios per suite on the already-frozen define-agent.feature + define-skill.feature, self-clearing; no scenario narrowed); no Clearance floor
-      blast: low — advisory gate-role naming convention in ACED define-agent + define-skill; two spec suites + two READMEs widened, no impl behavior change yet
-      novelty: low — encodes a doctrine-ratified naming rule (role+scope not bare verb) already applied reactively 3× across 2 plugins; canonical forms only
-      confidence: high — cold aced-spec-validator ALIGNED, all bars PASS, BLOCKER null; near-miss discriminates; gherkin parse clean
-  impl:
-    verdict: approve
-    by: agent
-    cause: dimension
-    why:
-      floor: none — impl built against the frozen suite; the two SKILL.md bodies changed to meet it, no .feature/README/frontmatter/script touched
-      blast: low — in-skill HIGH gate-role naming check added to define-agent (checks-table row B9) and define-skill (in-skill subsection, explicitly separate from mechanical audit validate)
-      novelty: low — advisory authoring guidance, native to each host skill's existing quality mechanism; no new script or validate.mts check
-      confidence: high — cold aced-impl-judge re-derived all 8 frozen scenarios independently → 8/8 PASS, in-skill-not-mechanical constraint met, clean gate (no correction iteration); pnpm verify 20/20 green
+      floor: clearance — RATIFIED LIVE by the owner, scoped to TWO frozen judge.feature scenarios ("invoked for one case it emits the four-field result", "the output is exactly the four fields"); both assert the scalar four-field output the per-dimension contract contradicts, so no additive path exists. Structural gherkin-cli diff vs base: 2 removed / 0 modified / 9 unchanged — no untouched frozen scenario narrowed. extract-situation.feature is a new node, frozen additively.
+      blast: medium — the shared measurement instrument for every @rubric scenario in every ACED suite; fixed once in the protocol so no individual suite can fix it locally. Callers keep a one-invoke contract, so caller wiring is unchanged.
+      novelty: high — a NEW deterministic engine (extract-situation) now composes the simulator's brief, moving redaction out of the judge's own judgment; owner blessed the scope growth beyond the aced/case-judge touch-set.
+      confidence: high — cold aced-spec-validator ALIGNED on judge at round 3 (a scalar impl fails 3 independent scenarios, a one-context impl fails 5); three rounds closed the transcript-provenance hole, a dropped trigger-output shape, and a PASS-vs-must-not-do contradiction. extract-situation is recused from ACED grading (deterministic, node:test-assertable — no Fit line, per the sdd authoring/spec-gate precedent) and verified by mutation instead: 13 of 24 mutations initially survived, all 13 now caught, control mutation still survives. pnpm verify 21/21 green.
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer

@@ -196,15 +196,51 @@ more than the one point of slack every threshold allows.
 - **Memorization.** These scenarios are fixed and public to the graded doctrine. An agent that
   pattern-matches a probe to a remembered answer still earns the live dimensions without exercising
   the judgment. Re-cutting the probes off the doctrine's worked examples (#211/#215) raised the cost
-  of recall but does not close it; the ambiguous-Oracle probes (#222) and the memorization work
-  (#220) are tracked separately. **This suite raises the bar against a *sloppy* doctrine, not a
-  *memorizing* one** — necessary, not sufficient.
+  of recall but does not close it. **One probe now bites on memorization** (#222): every other Oracle
+  scenario is a clean single-branch instantiation of §1's two-branch taxonomy, so a memorizing agent
+  shape-matches it to full marks; `the Oracle gate judges a change request that carries two separate
+  asks` is dual-branch, matches no template, and is measured to fail both memorizing reads (see
+  *Where the margin is thin*). It is **one** probe against **one** taxonomy — the rest of the suite
+  still raises the bar against a *sloppy* doctrine rather than a *memorizing* one, so treat the
+  memorization limit as **narrowed, not closed**.
 - **Partial degradation within a dimension.** A doctrine that reasons weakly but arrives at the right
   call can still score full marks, since scoring reads the produced partition, not the deliberation
   quality behind it.
 
-**Where the margin is thin.** Three rubrics bind, but only just — stated so a future pass does not
-mistake a narrow pass for a comfortable one:
+**Where the margin is thin.** Stated so a future pass does not mistake a narrow pass for a comfortable
+one — and, for the one probe that has a measured failing read, so a future pass does not mistake a
+*measured* margin for an assumed one:
+
+- **`the Oracle gate judges a change request that carries two separate asks` — measured across five
+  conditions (#222), the only Oracle probe with a measured *failing* read.** Production was separated
+  from scoring: each plan was produced by an agent that never saw the rubric, then scored by a cold
+  `aced-case-judge` that saw only the scenario and one anonymized plan. Scores are
+  `spacing-part-on-supersession` / `cursor-part-on-direction-fit`, threshold 5 of 6.
+
+  | condition | scores | result |
+  |---|---|---|
+  | full doctrine, genuine reasoning | 3 / 3 = 6 | PASS |
+  | full doctrine, memorizer fires the **stale** template wholesale | 3 / 0 = 3 | FAIL |
+  | full doctrine, memorizer fires the **misaligned** template wholesale | 0 / 3 = 3 | FAIL |
+  | mutant: §1's **Misaligned** branch deleted, its vocabulary scrubbed | 3 / 1 = 4 | FAIL |
+  | mutant: §1's **Stale** branch deleted, its vocabulary scrubbed | 3 / 3 = 6 | **PASS** |
+
+  Two things this buys and one it does not. The **independence** of the two dimensions is
+  *demonstrated, not asserted* — the two memorizing reads land at `(3,0)` and `(0,3)`, so each
+  dimension is observed at both full marks and zero, and neither is free points. The
+  **`cursor-part-on-direction-fit`** dimension is bound to §1's Misaligned branch: deleting that
+  branch drops the scenario to 4/6.
+  **`spacing-part-on-supersession` is NOT the guard for §1's Stale branch** — deleting that branch
+  left the scenario at 6/6, because *When to run* independently carries "re-validate it — never trust
+  the filing-time verdict", which is enough to derive the supersession. The dimension binds to the
+  doctrine redundantly, not to that one paragraph. Do not cite this scenario as Stale's guard.
+- **The measurement above is cleaner than the impl gate's.** `aced-case-judge` simulates the agent and
+  scores it **in one context**, holding the scenario's name and its inline rubric — the answer key —
+  while simulating. This scenario's title was written for the situation rather than the verdict to
+  withhold what it can, but the rubric's own dimension comments still state the correct call. So an
+  impl-gate PASS here is **weaker evidence than the five-condition table**, which separated the two
+  roles. That contamination is `aced-case-judge`'s protocol, not this suite's, and it applies to every
+  `@rubric` scenario equally — **#252**.
 
 - **`catches-misalignment` has been measured twice and the two disagree — 2.33/3 and 3.00/3, both
   against a *correct* doctrine.** The 2.33 is what `threshold = combined max − 1` was calibrated on,

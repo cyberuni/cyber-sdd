@@ -59,6 +59,95 @@ Scenario: <name>
 The final `Then` yields exactly one boolean — the gate sees pass/fail, not a score. The rubric is
 internal evaluation detail, judged **by hand**.
 
+## A scenario must be able to register a miss
+
+Well-formedness is **necessary and never sufficient**. A boolean `Then`, and a `@rubric` block with
+named dimensions and a threshold, are both satisfied by a scenario no subject can fail. Form is what
+the mechanical check settles; whether the scenario *grades* anything is this bar.
+
+**Every scenario — and every `@rubric` dimension inside one — must be able to register a miss:** a
+plausible wrong subject must exist that fails the scenario, or that scores below the dimension's
+`max`. A scenario every plausible subject passes is **dead weight** — nominal suite size, zero
+effective size, the same defect an absorbed probe carries.
+
+### The miss test
+
+**Name a plausible wrong subject; check that it loses.** If none exists, the scenario is inert —
+rewrite it.
+
+**Plausible, not strawman.** The wrong subject is one a competent-but-wrong producer could ship. An
+empty artifact fails everything and clears nothing. Name these first:
+
+| Wrong subject | Scores max on |
+|---|---|
+| **memorizer** — reproduces the doctrine's words without applying them | any dimension grading recall |
+| **copier** — echoes the artifact's own worked examples | any probe sharing the artifact's apparatus |
+| **procedure-follower** — executes the steps without the judgment | any dimension grading sequence |
+| **single-brancher** — always takes the same branch | any scenario needing only that branch |
+
+The **copier** is what the test-vector rule below bars; the miss test is the general form, and
+absorption is one way to fail it.
+
+### The three anti-patterns
+
+Each names a `Then` or dimension **no** plausible wrong subject loses. Rewrite on sight:
+
+- **Presence** — grades that a line, section, or artifact is *emitted*, where the subject's shape
+  makes emission trivial. A dimension reading *"names the threshold"* is max for anything that read
+  the doctrine.
+- **Restatement** — grades reproducing the doctrine's own words. The memorizer scores max and the
+  reasoner no higher: it measures reading and reports it as reasoning.
+- **Procedural** — grades following the steps where the *judgment*, not the sequence, is under test.
+
+### Loseable in arithmetic ≠ loseable in practice
+
+Per named wrong subject, **sum what it scores; the sum sits under the threshold** — and not by a
+single point of a single dimension. A floor that reaches threshold on the free dimensions alone
+leaves the discriminating dimensions decorative.
+
+> `[live 3] [restatement 3] [presence 2]`, `threshold: 6`. A memorizer banks `3+2=5` — one under, so
+> loseable in arithmetic. One point of `live` carries it, so no memorizer ever fails. The rubric
+> grades reading and reports it as reasoning.
+
+### Judged, not linted
+
+No deterministic form, and not a candidate for one — whether a dimension is loseable depends on the
+subject, which no lexical probe reads. `check-suite` does not check it. A judge that cannot name a
+plausible wrong subject for a scenario **escalates it rather than passing it**.
+
+A **measured ceiling is not evidence**: a dimension scoring max on every run with zero variance is a
+**tell that it cannot be lost**, not a finding that the subject is good. Re-run the miss test.
+
+## Pairwise consistency — no two scenarios contradict on one snapshot
+
+Every other rule reads one scenario. This one reads **pairs**.
+
+**Within one suite, no two scenarios may demand opposite verdicts on a single constructible
+snapshot.** `Given`s need not be disjoint — two scenarios may share a precondition when their
+`Then`s assert different, compatible aspects. The bar is the **contradiction**, never the overlap.
+
+For each pair whose `Given`s are not obviously disjoint: does one constructible state satisfy both?
+If so, their `Then`s must agree.
+
+- **The `When` scopes it** — different operations over the same state do not contradict. A
+  contradiction needs a shared `When` *and* an overlapping `Given`.
+- **Specialization is not contradiction.** A **general** scenario and a **specific** sibling whose
+  narrower `Given` carves out an exception do not contradict, even when the general `Given` does not
+  literally exclude that exception — the specific scenario names the narrower case and **wins on
+  it**. Read a pair as generic/specific before reading it as a contradiction. A contradiction is a
+  pair with **no intended winner** (the `Conflict` floor's own definition). Stating the exclusion in
+  the general `Given` is clearer and preferred when you are authoring it fresh; it is **not**
+  required, and retrofitting it into a frozen scenario is a narrowing that fires **Clearance**.
+- **The remedy is a `Given`** — narrow it to exclude the overlap; reconcile `Then`s only when both
+  were meant to hold.
+
+Judged, not linted. `check-scenario-overlap` fingerprints *duplicate* scenarios *across nodes*; this
+is *contradiction* within *one* suite.
+
+Boundary: the **`Conflict` hard floor** covers a self-contradicting suite at the **impl gate**,
+post-freeze, with no detector — it is what an escaped contradiction costs. This bar reads the same
+defect at **authoring**, while a `Given` is cheap to narrow; the floor stays the backstop.
+
 ## A `Given` is a test vector, not specification
 
 The implementation owes conformance to the `Then`. It owes nothing to the `Given`'s apparatus.
@@ -106,8 +195,13 @@ is. No lexical or n-gram probe stands in for the read; `check-suite` does not ch
 
 | Scenario type | What the judge validates |
 |---|---|
-| Untagged | Every `Then` is a boolean assertion — no scores, probabilities, or rubric lingo. |
-| `@rubric`-tagged | **Structure (universal):** rubric block present with named dimensions + per-dimension `max` + exactly one `threshold`; collapsing `Then` present. **Scoring (per-resolved-judge):** reads the rubric, scores each dimension, applies the threshold, emits pass/fail. |
+| Untagged | **Boolean form:** every `Then` is a boolean assertion — no scores, probabilities, or rubric lingo. **Discrimination:** a plausible wrong subject exists that fails it. |
+| `@rubric`-tagged | **Structure (universal):** rubric block present with named dimensions + per-dimension `max` + exactly one `threshold`; collapsing `Then` present. **Discrimination:** every dimension is loseable, and each named wrong subject's summed score sits under the threshold. **Scoring (per-resolved-judge):** reads the rubric, scores each dimension, applies the threshold, emits pass/fail. |
+| Every pair | **Pairwise consistency:** no two scenarios sharing a `When` demand opposite verdicts on one constructible snapshot. |
+
+**Structure and discrimination are distinct checks.** Structure is checked first (a malformed rubric
+cannot be reasoned about); passing it settles nothing about discrimination. **Well-formed is never
+acceptance.**
 
 The structural check is **universal** — every resolved judge enforces it identically. A resolved
 judge does **not** reject scoring lingo *inside* a `@rubric` scenario (the sanctioned form), and it
@@ -158,7 +252,12 @@ per-CR runtime touchpoints**, not only in CI:
   **before the cold judge is spawned**, so the qualitative judge only ever sees well-formed suites.
 
 A tree-wide `--root` sweep stays the CI backstop. The mechanical check settles form deterministically;
-the resolved judge spends its rounds on the qualitative bars, never on catching a hedge word.
+the resolved judge spends its rounds on the qualitative bars — discrimination, pairwise consistency,
+probe independence, coverage, scope, fit — never on catching a hedge word.
+
+The executable form covers **form only**. Discrimination and pairwise consistency are **not** in it
+and are not candidates for it: a suite that passes every mechanical rule is exactly the shape this
+defect takes, so a green `check-suite` never clears either bar.
 
 ## Scenario ordering (step-down)
 

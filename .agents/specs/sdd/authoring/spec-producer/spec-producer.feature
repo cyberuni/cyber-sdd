@@ -124,7 +124,78 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then the producer rewrites the step to a boolean assertion before returning
 
   Scenario: the producer reports complete when the self-check finds no violation
-    Given the producer's authored .feature is well formed
+    Given the producer's authored .feature is well formed, carries no entangled Given, and carries no scenario or dimension that cannot register a miss
     When the mechanical form check runs over it
     Then the check reports no violation
     And the producer reports complete
+
+  # ---- Discrimination — the authored scenario must be able to register a miss ----
+
+  Scenario: a green mechanical form check does not clear an unloseable rubric dimension
+    Given the spec-producer has authored a @rubric scenario whose every dimension a memorizer scores at max
+    When it runs the mechanical feature-form check
+    Then the check reports no form violation
+    And the producer rewrites the unloseable dimensions before returning
+
+  Scenario: the producer applies the miss test to each authored scenario before returning
+    Given the spec-producer has authored a boolean scenario
+    When it applies the miss test
+    Then it names a plausible wrong subject that fails the scenario
+    And it does not report complete while it can name no such subject
+
+  Scenario: a strawman does not satisfy the miss test
+    Given the only subject the producer can name that fails an authored scenario is an empty artifact
+    When it applies the miss test
+    Then it treats the scenario as inert and rewrites it before returning
+
+  Scenario: a rubric floor reaching the bar on free dimensions alone is rewritten
+    Given an authored @rubric whose memorizer scores every dimension but one at max, and needs a single point of the remaining dimension to reach the threshold
+    When the producer applies the miss test
+    Then it rewrites the free dimensions before returning
+
+  Scenario: a dimension grading that a line is emitted is rewritten
+    Given an authored @rubric dimension that scores whether the subject emits a line the doctrine already names
+    When the producer applies the miss test
+    Then it rewrites the dimension before returning
+
+  Scenario: a dimension grading that the steps were followed in order is rewritten
+    Given an authored @rubric dimension that scores whether the subject executed the doctrine's steps in order, where the judgment those steps serve is what the scenario tests
+    When the producer applies the miss test
+    Then it rewrites the dimension before returning
+
+  Scenario: a scenario a single-brancher subject always passes is rewritten
+    Given the producer has authored a scenario that a subject always taking the same branch of the decision passes
+    When it applies the miss test
+    Then it rewrites the scenario before returning
+
+  Scenario: an already-loseable dimension is left alone
+    Given an authored @rubric dimension a memorizer scores below max, whose free dimensions do not reach the threshold without it
+    When the producer applies the miss test
+    Then it does not rewrite the dimension
+
+  # ---- Pairwise consistency — the authored scenarios read against each other ----
+
+  Scenario: two authored scenarios contradicting on one snapshot are reconciled before returning
+    Given the producer has authored two scenarios sharing a When
+    And one constructible snapshot satisfies both of their Givens
+    And their Thens demand opposite verdicts
+    When it reviews the suite before returning
+    Then it narrows one Given to exclude the overlap before returning
+
+  Scenario: an overlapping Given whose Thens agree raises no contradiction
+    Given the producer has authored two scenarios sharing a When whose Givens both hold of one snapshot
+    And their Thens assert different compatible aspects of it
+    When it reviews the suite
+    Then it raises no contradiction and narrows neither Given
+
+  Scenario: two scenarios naming different operations raise no contradiction
+    Given the producer has authored two scenarios whose Givens both hold of one snapshot
+    And their Whens name different operations
+    When it reviews the suite
+    Then it raises no contradiction and narrows neither Given
+
+  Scenario: a specific scenario carving an exception from a general sibling raises no contradiction
+    Given the producer has authored a general scenario and a specific sibling sharing a When, whose narrower Given carves out an exception and gives the other verdict
+    And the general Given does not itself exclude that exception
+    When it reviews the suite
+    Then it raises no contradiction and narrows neither Given

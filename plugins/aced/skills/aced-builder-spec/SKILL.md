@@ -44,10 +44,26 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
 - **Rubric-structure** *(`@rubric` scenarios).* Graded behavior is authored as a `@rubric` scenario
   with the rubric **inline** (named dimensions + per-dimension `max` + one `threshold` + a collapsing
   `Then`), per `sdd:suite-format-governance`. A malformed `@rubric` fails before scoring; a well-formed
-  one is accepted (its rubric lingo is the sanctioned form). The rubric is spec-owned and frozen with
-  the scenario — the impl-judge *runs* it, it does not author it.
+  one passes **rubric-structure** (its rubric lingo is the sanctioned form). Structure passing is
+  **not acceptance** — the scenario is still checked for discrimination below. The rubric is
+  spec-owned and frozen with the scenario — the impl-judge *runs* it, it does not author it.
+- **Discrimination** *(all tiers; every scenario and every `@rubric` dimension).* Each must be able
+  to **register a miss** — a plausible wrong config must fail it, or score below the dimension's
+  `max` — per the miss test in `sdd:suite-format-governance`, whose **presence / restatement /
+  procedural** anti-patterns and under-threshold floor arithmetic apply unchanged. An agent-config
+  binds it tighter on two counts:
+  - **The memorizer is the default wrong subject.** The subject is a *document the case-judge also
+    reads*, so restatement is the dominant failure mode. Name what a **config-quoting memorizer**
+    scores on each dimension before accepting the rubric.
+  - **Rubric vocabulary is not the subject's vocabulary.** A dimension whose terms are lifted from
+    the config's own prose grades recall of that prose — the memorizer scores it max. Draw the
+    dimension's terms from the behavior under test, not from the artifact that describes it.
+- **Pairwise consistency** *(all tiers; the suite, not a scenario).* No two scenarios sharing a
+  `When` demand opposite verdicts on one constructible snapshot, per `sdd:suite-format-governance`.
 
 ## References
 
 - `aced:aced-fit` — the fit classifier this bar loads to make trigger-context / trigger-balance
   conditional.
+- `sdd:suite-format-governance` — the miss test, the wrong-subject table, the three anti-patterns,
+  and the pairwise-consistency rule this bar specializes.

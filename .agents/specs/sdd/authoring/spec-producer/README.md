@@ -77,6 +77,21 @@ Phase 2 — the suite:
   behavior); the rule excludes them only from the apparatus you author. This is **not** settled by
   the mechanical form check below — probe independence has no deterministic form, so a green form
   check never clears an entangled `Given`.
+- **Apply the miss test to every scenario and every `@rubric` dimension you author**
+  (`../suite-format/README.md`). Name a **plausible wrong subject** — a memorizer, a copier, a
+  procedure-follower, a single-brancher — and check that it *loses*. A scenario every plausible
+  subject passes measures nothing and is dead weight, whatever its form. The wrong subject must be
+  plausible: an empty artifact fails everything, and its failure clears nothing. For a `@rubric`,
+  sum what each named wrong subject scores — that sum sits **under** the threshold, and not by a
+  single point of a single dimension. Rewrite a dimension that grades **presence** (a line is
+  emitted), **restatement** (the doctrine's own words), or **procedure** (the steps, not the
+  judgment). Like probe independence, this is **not** settled by the mechanical form check — a green
+  form check never clears an unloseable dimension.
+- **Read your authored scenarios against each other** (`../suite-format/README.md`). No two
+  scenarios sharing a `When` may demand opposite verdicts on one constructible snapshot; narrow one
+  `Given` to exclude the overlap. Overlapping `Given`s whose `Then`s agree, and scenarios whose
+  `When`s name different operations, are not contradictions — the bar is the contradiction, never
+  the overlap.
 - Step-down ordering and stage grouping still hold after the edits.
 - **Self-check the form before returning** — run the deterministic `.feature`-form check (the
   executable form of `../suite-format/README.md`) over the authored suite and fix any violation (a

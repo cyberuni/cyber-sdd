@@ -73,7 +73,7 @@ If any scenario regressed (a dimension dropped, the total dropped, or it flipped
 
 ```
 ⚠ REGRESSION DETECTED
-  ✗ trigger on skill creation  5 → 3  (was passing, now failing)
+  ✗ trigger on skill creation  invoked no → yes (expected no)  (was passing, now failing)
 
 Do not commit this change until the regression is resolved.
 Run improve to address it, or revert and try a different edit.

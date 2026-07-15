@@ -41,7 +41,7 @@ Ask the user:
 2. **Topic** — one sentence: what domain does this governance cover?
 3. **Consumers** — which skills or agents will load this? (informs the structure and depth)
 4. **Content type** — select the primary content shape:
-   - **Rubric** — scored criteria (1–5 or pass/fail) for evaluation
+   - **Rubric** — scored criteria for evaluation: named dimensions, each with its own `max`, plus one `threshold`
    - **Constraint set** — rules that must not be violated
    - **Checklist** — ordered or unordered items to verify
    - **Decision table** — conditions → outcomes

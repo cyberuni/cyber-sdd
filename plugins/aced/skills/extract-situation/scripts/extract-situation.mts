@@ -15,6 +15,7 @@
 // dependencies — plain node strips the types.
 
 import { readFileSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -277,4 +278,10 @@ export function main(argv: string[]): number {
 // `import.meta.main` is Node >=24.2, but this repo's engines floor is >=22, where it is `undefined`
 // — the CLI would never run, printing nothing and exiting 0. A caller keying its BLOCKER on a
 // non-zero exit would read that empty brief as a success and simulate from nothing.
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) process.exit(main(process.argv.slice(2)))
+//
+// `pathToFileURL`, not `file://${process.argv[1]}`: `import.meta.url` percent-encodes, so the naive
+// concat mismatches on any path holding a space (or #, ?, %) and silently reproduces that same
+// never-fires bug — the trigger merely moves from a Node version to an install path.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+	process.exit(main(process.argv.slice(2)))
+}

@@ -23,11 +23,13 @@ For each suite:
 - Pass rate delta vs. previous run (trend)
 - Worst failing case: its name, and its total against **its own maximum** (`3/5 vs 4`)
 
-**Do not compute a mean score across suites.** Each scenario's rubric declares its own per-dimension
-maxima, so raw totals from different scenarios sit on different scales and their mean measures
-nothing. Pass rate is the cross-suite metric — it is already normalized. If a headline number beyond
-pass rate is wanted, use the mean **margin** (`total − threshold`) or the mean **fraction of
-maximum**, and label which.
+- Mean **%max** — the mean of each rubric scenario's `total ÷ its own maximum`, as a percentage
+
+**Never mean the raw totals.** Each scenario's rubric declares its own per-dimension maxima, so
+totals from different scenarios sit on different scales and averaging them measures nothing. Normalize
+first: `total ÷ max` per scenario, then mean those fractions. Always label the column `%max` so it is
+never read as a raw score. A suite with no rubric scenarios (all boolean or trigger) has no `%max` —
+render `—`.
 
 ## Classify health
 
@@ -45,12 +47,12 @@ maximum**, and label which.
 ACED Project Report
 ═══════════════════════════════════════════════
 
-  Suite                  Status       Pass   Trend
-  ─────────────────────────────────────────────────
-  commit-discipline      healthy      95%    ↑ +5%
-  create-skill           degraded     76%    → 0%
-  aced-case-judge        critical     58%    ↓ -12%
-  subagents/researcher   no-data       —     —
+  Suite                  Status       Pass   Mean %max   Trend
+  ───────────────────────────────────────────────────────────
+  commit-discipline      healthy      95%    92%         ↑ +5%
+  create-skill           degraded     76%    74%         → 0%
+  aced-case-judge        critical     58%    61%         ↓ -12%
+  subagents/researcher   no-data       —      —          —
 
 NEEDS ATTENTION:
   ✗ aced-case-judge (critical, trending down) — run aced-improve
@@ -62,7 +64,7 @@ Suites with no results: subagents/researcher — run run to initialize
 
 ## Optional: full detail mode
 
-If the user asks for details on a specific suite, print all failing cases from the latest result file with their per-dimension scores, their total against its maximum, the threshold, and the explanation.
+If the user asks for details on a specific suite, print all failing cases from the latest result file with their per-dimension scores, their total against its maximum, the threshold, and the case's `what_failed`.
 
 ## Suggest next actions
 

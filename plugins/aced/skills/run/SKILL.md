@@ -44,7 +44,8 @@ Enumerate the scenarios of `<feature-name>.feature` **in file order**. For each 
    own `max`, plus the total and pass/fail (pass = total ≥ threshold; a triggered must-not-do is a
    fail outright). A trigger row returns its invoke decision against the expected one — accuracy is
    yours to aggregate across rows and runs, against `eval.trigger.activation_threshold`. A boolean
-   scenario returns pass/fail with no dimension scores.
+   scenario returns pass/fail with no dimension scores. Every shape also returns `WHAT WORKED` and
+   `WHAT FAILED` — those two are the whole explanation the judge emits, and it emits nothing else.
 
 Run all scenarios before reporting. Do not stop on first failure.
 
@@ -102,7 +103,8 @@ Write to `artifacts/specs/<feature-name>/results/<ISO8601-timestamp>.json`:
       "max": 5,
       "threshold": 4,
       "pass": false,
-      "explanation": "..."
+      "what_worked": "...",
+      "what_failed": "..."
     }
   ]
 }
@@ -122,10 +124,10 @@ Trigger layer:  8/10 (80%)
 Behavior layer: 10/12 (83%)
 
 FAILING SCENARIOS (worst first):
-  ✗ no trigger for an audit request   [invoked: no, expected: yes] — <explanation>
-  ✗ stages only related files         [3/5 vs 4: correctness 2/3, completeness 1/2] — <explanation>
-  ✗ trigger on skill creation         [invoked: yes, expected: no] — <explanation>
-  ✗ red tests block the commit        [3/5 vs 4: correctness 1/3, completeness 2/2] — <explanation>
+  ✗ no trigger for an audit request   [invoked: no, expected: yes] — <what failed>
+  ✗ stages only related files         [3/5 vs 4: correctness 2/3, completeness 1/2] — <what failed>
+  ✗ trigger on skill creation         [invoked: yes, expected: no] — <what failed>
+  ✗ red tests block the commit        [3/5 vs 4: correctness 1/3, completeness 2/2] — <what failed>
 
 Run improve to address failing scenarios.
 Run compare after editing the agent configuration.

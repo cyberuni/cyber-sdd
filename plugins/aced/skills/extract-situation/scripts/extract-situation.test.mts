@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -870,4 +870,141 @@ test('the CLI rejects a non-integer row and emits no brief', () => {
 	} finally {
 		rmSync(dir, { recursive: true, force: true })
 	}
+})
+
+// ─── the entrypoint guard survives its own path ───────────────────────────────
+
+// `import.meta.url` percent-encodes; `file://${process.argv[1]}` does not. A path holding a space
+// makes the naive concat mismatch, so the guard never fires and the CLI prints nothing at exit 0 —
+// the same silent-empty-brief bug the guard was rewritten to remove, retriggered by an install path.
+test('the CLI entrypoint fires from a path containing a space', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'extract-situation-'))
+	const spaced = join(dir, 'dir with space')
+	mkdirSync(spaced)
+	const script = join(spaced, 'extract-situation.mts')
+	copyFileSync(CLI, script)
+	const feature = join(dir, 'x.feature')
+	writeFileSync(
+		feature,
+		['Feature: f', '', '  Scenario: a', '    Given a thing', '    When it runs', '    Then a result'].join('\n'),
+	)
+	try {
+		const stdout = execFileSync(
+			process.execPath,
+			['--experimental-strip-types', script, '--feature', feature, '--scenario', 'a'],
+			{
+				encoding: 'utf8',
+				stdio: ['ignore', 'pipe', 'pipe'],
+			},
+		)
+		assert.match(stdout, /## Situation/)
+		assert.match(stdout, /Given a thing/)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ─── conjuncts the frozen scenarios assert but the tests did not ──────────────
+
+test('an outline emits its placeholder tokens intact in the brief', () => {
+	const situation = extractSituation(OUTLINE, 'it fires on a commit request', 'x.feature', 0)
+	assert.ok(situation.steps.some((s) => s.includes('<query>')))
+	assert.match(formatMarkdown(situation), /When the user says "<query>"/)
+})
+
+test('an empty situation emits no brief through the CLI', () => {
+	const { dir, path } = tmpFeature(['Feature: f', '', '  Scenario: a', '    Then a result'].join('\n'))
+	try {
+		const { status, stdout } = runCli(['--feature', path, '--scenario', 'a'])
+		assert.notEqual(status, 0)
+		assert.equal(stdout, '')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('a missing argument emits a usage error and no brief', () => {
+	const { dir, path } = tmpFeature(
+		['Feature: f', '', '  Scenario: a', '    Given a thing', '    When it runs'].join('\n'),
+	)
+	try {
+		for (const args of [
+			['--feature', path],
+			['--scenario', 'a'],
+		]) {
+			const { status, stdout } = runCli(args)
+			assert.notEqual(status, 0)
+			assert.equal(stdout, '')
+		}
+		const errs: string[] = []
+		const origErr = console.error
+		console.error = (m: string) => void errs.push(String(m))
+		try {
+			assert.equal(main(['--feature', path]), 1)
+			assert.ok(errs.some((e) => /usage:/i.test(e)))
+		} finally {
+			console.error = origErr
+		}
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// "no other file" means the whole filesystem, not just the fixture dir. Watch a second, unrelated
+// directory too — a side effect written anywhere else is exactly what this scenario forbids.
+test('an extraction writes no file anywhere it is watched', () => {
+	const { dir, path } = tmpFeature(
+		['Feature: f', '', '  Scenario: a', '    Given a condition', '    When an event happens', '    Then a result'].join(
+			'\n',
+		),
+	)
+	const elsewhere = mkdtempSync(join(tmpdir(), 'extract-situation-elsewhere-'))
+	const cwdBefore = readdirSync(process.cwd())
+	try {
+		const before = readdirSync(dir)
+		const elsewhereBefore = readdirSync(elsewhere)
+		assert.equal(main(['--feature', path, '--scenario', 'a']), 0)
+		assert.deepEqual(readdirSync(dir), before)
+		assert.deepEqual(readdirSync(elsewhere), elsewhereBefore)
+		assert.deepEqual(readdirSync(process.cwd()), cwdBefore)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+		rmSync(elsewhere, { recursive: true, force: true })
+	}
+})
+
+// ─── source-level guards, where behavior cannot reach ─────────────────────────
+
+// Two properties this suite cannot prove by running: a write to a path no test watches, and a guard
+// that misfires only on a Node this runtime is not. Both are asserted against the source instead —
+// the same shape verify-scenarios.test.mts uses.
+
+test('the engine writes nothing to the filesystem', () => {
+	const src = readFileSync(new URL('./extract-situation.mts', import.meta.url), 'utf8')
+	for (const banned of [
+		/\bwriteFileSync\b/,
+		/\bappendFileSync\b/,
+		/\bmkdirSync\b/,
+		/\bwriteFile\b/,
+		/\brmSync\b/,
+		/\bcpSync\b/,
+	]) {
+		assert.doesNotMatch(src, banned)
+	}
+})
+
+test('the entrypoint guard is neither version-conditional nor encoding-fragile', () => {
+	const src = readFileSync(new URL('./extract-situation.mts', import.meta.url), 'utf8')
+	// Comments name both wrong forms in order to explain them; assert against code only.
+	const code = src
+		.split('\n')
+		.filter((l) => !l.trimStart().startsWith('//'))
+		.join('\n')
+	// `import.meta.main` is Node >=24.2 while engines.node is ">=22": undefined there, so the CLI
+	// prints nothing and exits 0. No test can catch it — a test only ever probes the Node it runs on.
+	assert.doesNotMatch(code, /import\.meta\.main/)
+	// `file://${process.argv[1]}` mismatches a percent-encoded import.meta.url on any path holding a
+	// space. The spaced-path test catches that one, but pin the correct form here too.
+	assert.doesNotMatch(code, /file:\/\/\$\{/)
+	assert.match(code, /import\.meta\.url === pathToFileURL\(process\.argv\[1\]\)\.href/)
 })

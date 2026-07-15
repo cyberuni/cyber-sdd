@@ -1,9 +1,18 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
-import { checkFilePaths, checkSuite, discoverSuiteDirs, main, parseFilesArg, parseSuite } from './check-suite.mts'
+import {
+	checkFilePaths,
+	checkSuite,
+	discoverSuiteDirs,
+	main,
+	type ParseError,
+	parseFilesArg,
+	parseGherkinValidateOutput,
+	parseSuite,
+} from './check-suite.mts'
 
 const CLEAN_SUITE = [
 	'Feature: clean',
@@ -519,4 +528,190 @@ test('main --files returns 0 on a clean file and 1 on a violation', () => {
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
+})
+
+// ─── Gherkin parse guard — fail closed, never fail open ───────────────────────
+// A soft-wrapped step has no Gherkin continuation form, so the pinned parser rejects it at the
+// wrapped line — an EPARSE the permissive `parseSuite` scan cannot see (it just reads the wrapped
+// remainder as a bare, ignored line). The fixture below also carries a "sometimes" hedge on its
+// Then step, so a permissive read would ADDITIONALLY trip the boolean-form check — proving the
+// parse violation REPLACES that finding rather than joining it.
+// Unparseable to the pinned parser, yet FLAWLESS to the permissive scan: the wrapped remainder
+// starts with no step keyword, so parseSuite simply skips it and sees Feature + Given + Then. No
+// hedge, no rubric, no missing step. A check that fails this file closed can only be reading the
+// real parser's verdict — nothing else here is failable, which is what makes it a valid probe.
+const UNPARSEABLE_ONLY = [
+	'@frozen',
+	'Feature: broken',
+	'',
+	'  Scenario: wrapped step',
+	'    Given a step that wraps',
+	'      onto the next line',
+	'    Then it holds',
+].join('\n')
+
+const UNPARSEABLE_AND_HEDGED = [
+	'@frozen',
+	'Feature: broken',
+	'',
+	'  Scenario: wrapped step',
+	'    Given a step that wraps',
+	'      onto the next line',
+	'    Then it sometimes holds',
+].join('\n')
+
+test('parseGherkinValidateOutput maps each reported file to its errors', () => {
+	const stdout = JSON.stringify({
+		summary: { files: 2, errors: 1 },
+		files: [
+			{ file: 'a.feature', ok: false, errors: [{ line: 6, message: 'boom', code: 'EPARSE' }] },
+			{ file: 'b.feature', ok: true, errors: [] },
+		],
+	})
+	const map = parseGherkinValidateOutput(stdout)
+	assert.deepEqual(map.get('a.feature'), [{ line: 6, message: 'boom' }])
+	assert.deepEqual(map.get('b.feature'), [])
+})
+
+test('checkSuite fails closed and reports the line when parse errors are passed', () => {
+	const parseErrors: ParseError[] = [{ line: 6, message: 'expected: #EOF, got bad token' }]
+	const v = checkSuite('slug', 'broken.feature', UNPARSEABLE_AND_HEDGED, parseErrors)
+	assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+})
+
+test('a parse failure replaces the form findings rather than joining them', () => {
+	const parseErrors: ParseError[] = [{ line: 6, message: 'expected: #EOF, got bad token' }]
+	const v = checkSuite('slug', 'broken.feature', UNPARSEABLE_AND_HEDGED, parseErrors)
+	assert.equal(v.length, 1, 'only the parse violation is reported')
+	assert.ok(!v.some((m) => /non-boolean hedge/.test(m)), 'the hedge finding from the permissive scan is absent')
+})
+
+test('a file that parses (no parse errors passed) raises no parse violation', () => {
+	const v = checkSuite('greet', 'greet.feature', CLEAN_SUITE, [])
+	assert.ok(!v.some((m) => /cannot parse as Gherkin/.test(m)))
+})
+
+test('checkFilePaths fails closed on a file the injected validator reports a parse error for, replacing form findings', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const broken = join(root, 'broken.feature')
+		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
+		const fakeValidate = () => new Map([[broken, [{ line: 6, message: 'expected: #EOF, got bad token' }]]])
+		const v = checkFilePaths([broken], root, fakeValidate)
+		assert.equal(v.length, 1)
+		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+		assert.ok(!v.some((m) => /non-boolean hedge/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths raises no parse violation for a file the injected validator reports clean', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const clean = join(root, 'clean.feature')
+		writeFileSync(clean, CLEAN_SUITE)
+		const fakeValidate = () => new Map([[clean, []]])
+		const v = checkFilePaths([clean], root, fakeValidate)
+		assert.deepEqual(v, [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths fails closed when the validator omits a file from its report', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const clean = join(root, 'clean.feature')
+		writeFileSync(clean, CLEAN_SUITE)
+		// The validator's map has no entry at all for `clean` — defaulting the missing entry to
+		// "parses fine" (an empty array) is the exact fail-open bug this guard closes.
+		const fakeValidate = () => new Map<string, ParseError[]>()
+		const v = checkFilePaths([clean], root, fakeValidate)
+		assert.ok(v.some((m) => /returned no result for this file/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths fails every readable path closed when the validator throws', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const a = join(root, 'a.feature')
+		const b = join(root, 'b.feature')
+		writeFileSync(a, CLEAN_SUITE)
+		writeFileSync(b, CLEAN_SUITE)
+		const fakeValidate = () => {
+			throw new Error('parser genuinely could not run')
+		}
+		const v = checkFilePaths([a, b], root, fakeValidate)
+		assert.equal(v.length, 2)
+		assert.ok(v.every((m) => /cannot verify Gherkin validity/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ── integration: the real pinned npx boundary (one per engine, proves the wiring) ──
+
+test('runGherkinValidate against the real pinned parser reports a real EPARSE for an unparseable file', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-real-'))
+	try {
+		const broken = join(root, 'broken.feature')
+		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
+		const v = checkFilePaths([broken], root)
+		assert.equal(v.length, 1, 'the real parser replaces the form findings with the one parse violation')
+		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ─── the tree-wide --root sweep ───────────────────────────────────────────────
+// These drive main(['--root', ...]) rather than checkFilePaths, because the sweep's contract is a
+// claim about the COMPOSITION (discoverSuiteDirs feeding the validated path), not about
+// checkFilePaths in isolation. Reverting main's --root branch to a bare parseSuite scan leaves
+// every checkFilePaths-level test green, so only this level can catch that regression.
+
+function withCorpus(files: Record<string, string>, run: (root: string) => void): void {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-corpus-'))
+	try {
+		for (const [rel, body] of Object.entries(files)) {
+			const full = join(root, rel)
+			mkdirSync(dirname(full), { recursive: true })
+			writeFileSync(full, body)
+		}
+		run(root)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+}
+
+test('the corpus sweep fails closed on an unparseable suite', () => {
+	withCorpus({ 'unit/broken.feature': UNPARSEABLE_ONLY, 'unit/fine.feature': CLEAN_SUITE }, (root) => {
+		assert.equal(main(['--root', root]), 1, 'an unparseable suite anywhere in the corpus fails the sweep closed')
+	})
+})
+
+test('the corpus sweep names the unparseable file', () => {
+	withCorpus({ 'unit/broken.feature': UNPARSEABLE_ONLY }, (root) => {
+		const errors: string[] = []
+		const restore = console.error
+		console.error = (m: string) => errors.push(String(m))
+		try {
+			main(['--root', root])
+		} finally {
+			console.error = restore
+		}
+		assert.ok(
+			errors.some((m) => /broken\.feature/.test(m) && /cannot parse as Gherkin/.test(m)),
+			'the sweep names the unparseable file and why it failed',
+		)
+	})
+})
+
+test('the corpus sweep raises no parse violation when every suite parses', () => {
+	withCorpus({ 'unit/a.feature': CLEAN_SUITE, 'nested/deep/b.feature': CLEAN_SUITE }, (root) => {
+		assert.equal(main(['--root', root]), 0, 'a corpus that parses wholly does not fail the sweep closed')
+	})
 })

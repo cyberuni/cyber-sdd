@@ -32,7 +32,13 @@ import { join } from 'node:path'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
-export type EditClassification = 'unfrozen-skip' | 'additive' | 'no-content-change' | 'narrowing' | 'mixed'
+export type EditClassification =
+	| 'unfrozen-skip'
+	| 'additive'
+	| 'no-content-change'
+	| 'narrowing'
+	| 'mixed'
+	| 'unclassifiable'
 
 export type ScenarioChangeKind = 'added' | 'modified' | 'removed' | 'unchanged'
 
@@ -45,6 +51,12 @@ export interface GherkinDiffFileResult {
 	file: string
 	addOnly: boolean
 	scenarios: ScenarioChange[]
+	// Present when the differ could not parse one side of the comparison for this file. Its
+	// presence must be checked BEFORE reading `scenarios` — an unparseable file yields an EMPTY
+	// `scenarios` array, and empty reads as "nothing changed" (see classifyFromDiff) whether the
+	// file genuinely did not change or the differ simply could not see it. That emptiness is
+	// structurally guaranteed here, not measured, so it is not evidence of anything.
+	error?: { code: string; message: string }
 }
 
 export interface GherkinDiffOutput {
@@ -56,6 +68,8 @@ export interface ClassificationResult {
 	file: string
 	classification: EditClassification
 	scenarios: ScenarioChange[]
+	// Set only for `unclassifiable` — why the differ's result could not be trusted.
+	reason?: string
 }
 
 // ─── feature-level @frozen tag ─────────────────────────────────────────────────
@@ -94,6 +108,31 @@ export function classifyFromDiff(fileResult: { addOnly: boolean; scenarios: Scen
 	if (narrowed) return 'narrowing'
 	if (added) return 'additive'
 	return 'no-content-change'
+}
+
+// ─── the escalation boundary — an input the classifier cannot classify ────────
+
+// A file the differ reports a parse error for, or does not report at all, is not "no change" —
+// it is an input the classifier has no evidence about, and absence of evidence never reads as
+// evidence of no change. `error` is checked FIRST, before `scenarios` is read at all: an
+// unparseable file gives the differ nothing to compare, so it reports an empty `scenarios` array
+// (and a top-level `summary.addOnly: true`), which classifyFromDiff would otherwise read as
+// `no-content-change`. That emptiness is structurally guaranteed by the parse failure rather than
+// measured against the baseline — which is how a rewritten suite came to self-clear.
+export function classifyFromFileResult(fileResult: GherkinDiffFileResult | undefined): {
+	classification: EditClassification
+	reason?: string
+} {
+	if (fileResult === undefined) {
+		return { classification: 'unclassifiable', reason: 'the structural differ returned no result for this file' }
+	}
+	if (fileResult.error) {
+		return {
+			classification: 'unclassifiable',
+			reason: `cannot parse (${fileResult.error.code}): ${fileResult.error.message}`,
+		}
+	}
+	return { classification: classifyFromDiff(fileResult) }
 }
 
 // ─── pure rename detection (git, not gherkin-cli) ──────────────────────────────
@@ -147,8 +186,10 @@ function readGitShow(base: string, path: string, cwd: string): string {
 }
 
 // Thin exec wrapper around the pinned `gherkin-cli@0.0.1 diff` — never a re-implemented differ.
-// Not unit-tested directly (network/binary boundary); classifyFromDiff carries the tested logic.
-function runGherkinDiff(base: string, path: string, cwd: string): GherkinDiffOutput {
+// classifyFromDiff / classifyFromFileResult carry the tested logic; this is the binary boundary.
+export type GherkinDiffRunner = (base: string, path: string, cwd: string) => GherkinDiffOutput
+
+export const runGherkinDiff: GherkinDiffRunner = (base, path, cwd) => {
 	const stdout = execFileSync('npx', ['gherkin-cli@0.0.1', 'diff', path, '--base', base, '--format', 'json'], {
 		encoding: 'utf8',
 		cwd,
@@ -158,7 +199,15 @@ function runGherkinDiff(base: string, path: string, cwd: string): GherkinDiffOut
 
 // ─── per-file classification ────────────────────────────────────────────────────
 
-export function classifyFile(path: string, base: string, cwd = '.'): ClassificationResult {
+// `diff` is injected so the tests can drive the differ's failure branch — a binary that exits
+// without a readable result is a real, reachable path (a bad base ref makes the CLI exit nonzero
+// with no `files` array), and it must escalate rather than resolve to a reassuring class.
+export function classifyFile(
+	path: string,
+	base: string,
+	cwd = '.',
+	diffWith: GherkinDiffRunner = runGherkinDiff,
+): ClassificationResult {
 	let currentText: string
 	try {
 		currentText = readFileSync(join(cwd, path), 'utf8')
@@ -179,17 +228,36 @@ export function classifyFile(path: string, base: string, cwd = '.'): Classificat
 		return { file: path, classification: 'no-content-change', scenarios: [] }
 	}
 
-	const diff = runGherkinDiff(base, path, cwd)
-	const fileResult = diff.files.find((f) => f.file === path) ?? diff.files[0]
-	const scenarios = fileResult?.scenarios ?? []
-	const classification = classifyFromDiff({ addOnly: fileResult?.addOnly ?? true, scenarios })
-	return { file: path, classification, scenarios }
+	let diff: GherkinDiffOutput
+	try {
+		diff = diffWith(base, path, cwd)
+	} catch {
+		return {
+			file: path,
+			classification: 'unclassifiable',
+			scenarios: [],
+			reason: 'the structural differ produced no readable result',
+		}
+	}
+
+	// The CLI echoes the path as given, so an exact match is the expected case. A single-file diff
+	// that reports under a different path (rather than omitting it) still resolves — but with
+	// multiple files reported and no exact match, which one is "this file" is not knowable, so it
+	// falls through to `undefined` and classifyFromFileResult's no-result escalation.
+	const fileResult = diff.files.find((f) => f.file === path) ?? (diff.files.length === 1 ? diff.files[0] : undefined)
+	const { classification, reason } = classifyFromFileResult(fileResult)
+	return { file: path, classification, scenarios: fileResult?.scenarios ?? [], reason }
 }
 
 // The classification is scoped to the CR's touched .feature files only — a caller passes the
 // explicit touched-path list, never a tree-wide sweep.
-export function classifyFiles(paths: string[], base: string, cwd = '.'): ClassificationResult[] {
-	return paths.filter((p) => p.endsWith('.feature')).map((p) => classifyFile(p, base, cwd))
+export function classifyFiles(
+	paths: string[],
+	base: string,
+	cwd = '.',
+	diffWith: GherkinDiffRunner = runGherkinDiff,
+): ClassificationResult[] {
+	return paths.filter((p) => p.endsWith('.feature')).map((p) => classifyFile(p, base, cwd, diffWith))
 }
 
 // ─── output ──────────────────────────────────────────────────────────────────
@@ -198,6 +266,7 @@ export function formatText(results: ClassificationResult[]): string {
 	const lines: string[] = []
 	for (const r of results) {
 		lines.push(`${r.classification.toUpperCase().padEnd(18)} ${r.file}`)
+		if (r.reason) lines.push(`  ${r.reason}`)
 		for (const s of r.scenarios) {
 			if (s.change !== 'unchanged') lines.push(`  ${s.change.padEnd(10)} ${s.name}`)
 		}
@@ -233,6 +302,12 @@ export function main(argv: string[]): number {
 		process.stdout.write(`${JSON.stringify(results, null, 2)}\n`)
 	} else {
 		process.stdout.write(`${formatText(results)}\n`)
+	}
+
+	const unclassifiable = results.filter((r) => r.classification === 'unclassifiable')
+	if (unclassifiable.length) {
+		for (const r of unclassifiable) console.error(`✗ ${r.file}: unclassifiable — ${r.reason}`)
+		return 1
 	}
 	return 0
 }

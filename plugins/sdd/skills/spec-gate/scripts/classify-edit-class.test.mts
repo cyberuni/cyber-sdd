@@ -8,7 +8,9 @@ import {
 	classifyFile,
 	classifyFiles,
 	classifyFromDiff,
+	classifyFromFileResult,
 	hasFeatureFrozenTag,
+	main,
 	parseRenameStatus,
 } from './classify-edit-class.mts'
 
@@ -276,6 +278,176 @@ describe('spec:authoring/spec-gate', () => {
 			const results = classifyFiles(['specs/sample.feature'], 'HEAD', dir)
 			assert.equal(results.length, 1)
 			assert.equal(results[0].file, 'specs/sample.feature')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	// ── the unclassifiable escalation boundary — a parse error is never read as no-change ──
+
+	test('classifyFromFileResult: undefined (no per-file result) is unclassifiable', () => {
+		const result = classifyFromFileResult(undefined)
+		assert.equal(result.classification, 'unclassifiable')
+		assert.match(result.reason ?? '', /returned no result/)
+	})
+
+	test('classifyFromFileResult: THE REGRESSION TEST — an error alongside addOnly:true and no scenarios is unclassifiable, not no-content-change', () => {
+		// This is exactly the reported bug's shape: the differ reports a parse error for the file
+		// AND a fully reassuring addOnly:true, scenarios:[] — because a file with no parseable
+		// scenarios gives the differ nothing to compare. Reading addOnly here silently guarantees
+		// "nothing changed" instead of measuring it.
+		const result = classifyFromFileResult({
+			file: 'specs/sample.feature',
+			addOnly: true,
+			scenarios: [],
+			error: { code: 'EPARSE', message: 'failed to parse feature' },
+		})
+		assert.equal(result.classification, 'unclassifiable')
+		assert.notEqual(result.classification, 'no-content-change')
+		assert.match(result.reason ?? '', /EPARSE/)
+	})
+
+	test('classifyFromFileResult: no error delegates to classifyFromDiff unchanged', () => {
+		const additive = classifyFromFileResult({
+			file: 'x',
+			addOnly: true,
+			scenarios: [{ name: 'gamma', change: 'added' }],
+		})
+		assert.equal(additive.classification, 'additive')
+		assert.equal(additive.reason, undefined)
+
+		const narrowing = classifyFromFileResult({
+			file: 'x',
+			addOnly: false,
+			scenarios: [{ name: 'beta', change: 'modified' }],
+		})
+		assert.equal(narrowing.classification, 'narrowing')
+	})
+
+	// ── end-to-end: a real unparseable frozen file over a real git+gherkin-cli boundary ──
+
+	// Gherkin has no step-continuation syntax — a soft-wrapped step's remainder is a bare token the
+	// pinned parser rejects (EPARSE), unlike the permissive form-check scan.
+	const UNPARSEABLE_NARROWED = [
+		'@frozen',
+		'Feature: sample',
+		'',
+		'  Scenario: wrapped step',
+		'    Given a step that wraps',
+		'      onto the next line',
+		'    Then it holds',
+	].join('\n')
+
+	test('an unparseable, materially narrowed frozen file classifies unclassifiable end-to-end, never no-content-change', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(join(dir, 'specs/sample.feature'), UNPARSEABLE_NARROWED)
+
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir)
+			assert.equal(result.classification, 'unclassifiable')
+			assert.notEqual(result.classification, 'no-content-change')
+			assert.notEqual(result.classification, 'additive')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	// ── the differ's own failure branch ──
+	// A differ that exits without a readable result is reachable in production: a bad base ref makes
+	// the pinned CLI exit nonzero with no `files` array, so execFileSync throws inside the runner.
+	// The runner is injected here because that branch cannot be driven through the real binary
+	// without also breaking the git fixture the other scenarios depend on.
+
+	test('a structural differ that produces no readable result is classified unclassifiable', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(
+				join(dir, 'specs/sample.feature'),
+				`${FROZEN_BASELINE}\n  Scenario: gamma\n    Given g\n    Then g\n`,
+			)
+
+			const throwingDiff = () => {
+				throw new Error('gherkin-cli diff exited 1 with no report')
+			}
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir, throwingDiff)
+
+			assert.equal(result.classification, 'unclassifiable')
+			assert.notEqual(result.classification, 'no-content-change')
+			assert.notEqual(result.classification, 'additive')
+			assert.match(result.reason ?? '', /no readable result/)
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('a differ failure escalates rather than resolving to a reassuring class, even on an additive edit', () => {
+		// The working edit here is genuinely additive — a classifier that fell back to inspecting the
+		// file itself, or that defaulted the catch to a benign class, would report `additive` and
+		// self-clear. Only escalation is correct: the differ never rendered a verdict.
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(
+				join(dir, 'specs/sample.feature'),
+				`${FROZEN_BASELINE}\n  Scenario: delta\n    Given d\n    Then d\n`,
+			)
+
+			const throwingDiff = () => {
+				throw new Error('boom')
+			}
+			assert.equal(classifyFile('specs/sample.feature', 'HEAD', dir, throwingDiff).classification, 'unclassifiable')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('main returns 1 (not 0) when the classified file is unclassifiable', () => {
+		const dir = initRepo()
+		const cwd = process.cwd()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(join(dir, 'specs/sample.feature'), UNPARSEABLE_NARROWED)
+
+			process.chdir(dir)
+			const exit = main(['--files', 'specs/sample.feature', '--base', 'HEAD'])
+			assert.equal(exit, 1)
+		} finally {
+			process.chdir(cwd)
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('a pure rename of an unparseable frozen file still classifies no-content-change (rename detection runs before the differ)', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), UNPARSEABLE_NARROWED)
+			commitAll(dir, 'baseline')
+			git(dir, 'mv', 'specs/sample.feature', 'specs/renamed.feature')
+
+			const result = classifyFile('specs/renamed.feature', 'HEAD', dir)
+			assert.equal(result.classification, 'no-content-change')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('an unparseable file with no @frozen tag in either version stays unfrozen-skip', () => {
+		const dir = initRepo()
+		try {
+			const unfrozenUnparseable = UNPARSEABLE_NARROWED.replace('@frozen\n', '')
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozenUnparseable)
+			commitAll(dir, 'baseline')
+			// Still unparseable, still no @frozen tag in either version.
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozenUnparseable.replace('it holds', 'it still holds'))
+
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir)
+			assert.equal(result.classification, 'unfrozen-skip')
 		} finally {
 			rmSync(dir, { recursive: true, force: true })
 		}

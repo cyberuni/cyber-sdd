@@ -22,7 +22,7 @@ it does not produce.
 | **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
-| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
+| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
 
 Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
@@ -124,6 +124,27 @@ judge ever sees, and a mechanical bar never rides on the judge catching a hedge 
 **scoped to the touched files**, not the whole tree (the tree-wide sweep stays a CI backstop). The
 gate stays verdict-only — it fixes nothing, it reports the form violation for the producer to fix.
 
+**Gherkin validity is the pinned parser's verdict, not a lenient read.** A `.feature` the pinned
+Gherkin parser (`../../design/gherkin-cli-dependency.md`) **rejects** is a **fail closed** — the check
+reports the parse failure and the line it occurred on, and the judge is not spawned. The parse
+failure **replaces** the form findings rather than joining them: every other form check reads the
+file through a permissive scan, so on an unparseable file those findings are read from a partial
+view and are not evidence. Reporting "no violations" from a file the parser could not read is the
+**fail-open** this guard exists to close — a permissive scan cannot see a `Scenario:` the parser
+rejects, so it reports the reassuring answer instead of the true one.
+
+A parse failure is a **form violation like any other** — it needs no special surface and gets none.
+It fails the gate's touched-scope check closed and the CI backstop's tree-wide sweep closed by the
+same path every other form violation already takes. What makes it worth naming is only **where the
+verdict comes from**: the pinned parser, never the permissive scan the other form checks read
+through.
+
+The guard is specified to **discriminate, not merely to refuse**: a `.feature` that parses raises no
+parse violation, and a corpus that parses wholly raises none either. A check that always fails
+closed would be as useless as one that always passes — it would just fail in the safe direction, and
+"safe" is not the same as "measuring". Both directions are frozen so neither can be satisfied by a
+constant.
+
 ## The referenced-artifact-exists pre-filter
 
 Alongside the suite-form check, and also **before the cold judge is spawned**, the gate runs a
@@ -190,3 +211,30 @@ context-line reassignment can no longer route a narrowing down the additive path
 The classification is scoped to the CR's **touched** `.feature` files. A whole-scenario addition stays
 additive and self-clears; only a baseline scenario that is genuinely `modified`/`removed` is a narrowing,
 and its outcome is Clearance (per the floor), not a bare block.
+
+### An input the classifier cannot classify
+
+The structural differ reports a per-file **parse error** when either side of the comparison fails to
+parse, and it reports that error **alongside a fully reassuring result**: `addOnly: true`, zero
+changed scenarios. That pairing is not a measurement — a file that yields **no scenarios** gives the
+differ nothing to compare, so "nothing changed" is **structurally guaranteed rather than observed**.
+A classifier that reads `addOnly` and ignores the error field therefore returns `no-content-change`
+for a diff that rewrote the whole suite, and the edit **self-clears with Clearance never firing**.
+
+So the classifier **never derives a class from `addOnly`** — it reads the error field first, and any
+input it cannot classify becomes **`unclassifiable`**, which **escalates to Clearance** and advances
+no status. Three distinct inputs collapse to it: a **parse error** on either side, a differ that
+returns **no per-file result** for a touched file, and a differ that **produces no readable result at
+all**. Each is a case where the classifier has no evidence — and the absence of evidence is never
+read as evidence of no change. A check that cannot classify its input **escalates; it never exempts**.
+
+Two boundaries keep the escalation honest rather than merely loud:
+
+- **A pure rename still classifies as `no-content-change`**, even when the file does not parse. That
+  verdict comes from **git's** rename detection (a 100% similarity score across the tree), which
+  **measures** a zero-content delta without ever parsing the file. The classifier has evidence here,
+  so it needs no escalation — the rename check runs before the differ for exactly this reason.
+- **An unparseable file with no `@frozen` tag stays `unfrozen-skip`.** Edit-class routing exists to
+  protect a freeze, and there is no freeze to protect. This is not an exemption: the file is still
+  touched, so the **form check above fails the gate closed on it** regardless. The two checks are
+  independent, and the gate needs only one of them to hold.

@@ -180,6 +180,39 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Then the feature-form check raises no violation
     And the gate spawns the cold judge
 
+  Scenario: a touched feature the Gherkin parser rejects fails the gate closed
+    Given a touched .feature the pinned Gherkin parser cannot parse
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+
+  Scenario: a parse failure is reported with the line it occurred on
+    Given a touched .feature the pinned Gherkin parser cannot parse
+    When the gate runs the feature-form check
+    Then the check reports the parse failure and the line it occurred on
+
+  Scenario: a parse failure replaces the form findings rather than joining them
+    Given a touched .feature the pinned Gherkin parser cannot parse
+    When the gate runs the feature-form check
+    Then the check reports the parse failure for that file
+    And it reports no form finding read from that file
+
+  Scenario: the corpus sweep fails closed on an unparseable suite
+    Given a .feature in the corpus the pinned Gherkin parser cannot parse
+    When the feature-form check runs over the whole corpus
+    Then the check fails closed and names the unparseable file
+
+  Scenario: the corpus sweep raises no parse violation when every suite parses
+    Given every .feature in the corpus parses
+    When the feature-form check runs over the whole corpus
+    Then the check raises no parse violation
+    And the check does not fail closed
+
+  Scenario: a touched feature that parses raises no parse violation
+    Given a touched .feature the pinned Gherkin parser parses
+    When the gate runs the feature-form check
+    Then the check raises no parse violation for that file
+
   # ---- Referenced-artifact-exists pre-filter ----
 
   Scenario: an unresolved reference the CR introduces is surfaced for judgment, not hard-blocked
@@ -310,3 +343,51 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Given a CR that touched a subset of the project's .feature files
     When the gate classifies edit classes
     Then it classifies only the touched files, not the whole tree
+
+  # ---- Structural edit-class: an input it cannot classify ----
+
+  Scenario: a touched frozen file the structural differ cannot parse is classified unclassifiable
+    Given a touched frozen .feature whose structural diff reports a parse error for it
+    When the gate classifies its edit class
+    Then the change is classified as unclassifiable
+    And the gate escalates it to Clearance rather than self-clearing
+
+  Scenario: a parse error is never read as an absence of change
+    Given a touched frozen .feature whose structural diff reports a parse error for it
+    When the gate classifies its edit class
+    Then the change is not classified as no content change
+    And the change is not classified as additive
+
+  Scenario: the classifier does not trust addOnly when the differ reports a parse error
+    Given a structural diff reporting addOnly true and a parse error for the same file
+    When the gate classifies its edit class
+    Then the classification comes from the parse error and not from addOnly
+
+  Scenario: a file the structural differ returns no result for is classified unclassifiable
+    Given a touched frozen .feature the structural differ returns no per-file result for
+    When the gate classifies its edit class
+    Then the change is classified as unclassifiable
+    And the gate escalates it rather than self-clearing
+
+  Scenario: a structural differ that produces no readable result is classified unclassifiable
+    Given the structural differ exits without producing a readable result for a touched frozen .feature
+    When the gate classifies its edit class
+    Then the change is classified as unclassifiable
+    And the gate escalates it rather than self-clearing
+
+  Scenario: an unclassifiable edit class advances no status
+    Given a touched frozen .feature whose edit class is unclassifiable
+    When the gate evaluates the diff
+    Then the gate advances no status
+
+  Scenario: a pure rename of an unparseable frozen file stays no content change
+    Given a touched frozen .feature the parser cannot parse, relocated by a pure rename with no content delta
+    When the gate classifies its edit class
+    Then the change is classified as no content change
+    And the classification comes from the rename detection and not from the structural differ
+
+  Scenario: an unparseable file carrying no frozen tag is skipped by the edit-class routing
+    Given a touched .feature the parser cannot parse that carries no frozen tag in either version
+    When the gate classifies its edit class
+    Then the file is skipped by the edit-class routing
+    And the feature-form check still fails the gate closed on it

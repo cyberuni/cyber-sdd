@@ -7,9 +7,9 @@ approval:
     by: agent
     why:
       floor: none
-      blast: medium — additive only (21 added / 0 modified / 0 removed), freeze self-clears, no re-open
-      novelty: medium — a 7th ledger kind and a stricter outward-publish floor, both on settled owner-argued design
-      confidence: high — round 4 ALIGNED on an independently re-derived oracle after three blocked rounds, each defect closed additively and none refuted by a later round
+      blast: medium — additive only (7 added / 0 modified / 0 removed), freeze self-clears, no re-open; the behavior change itself is upstream in the pinned differ and reaches this repo only via the version pin
+      novelty: low — no new floor and no new route; the edit-class signal feeding the existing narrowing → Clearance path is made reliable for graded scenarios, which the classifier's own header already claimed
+      confidence: high — round 4 ALIGNED after three FAIL rounds; the judge derived the identity matrix independently from the implementation and measured that each of the seven scenarios kills at least one of nine mutants while a pristine control survives all seven; the stricter identity re-classifies zero of the corpus's 2878 scenarios
 ---
 
 # Spec-Driven Development (SDD)

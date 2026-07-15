@@ -73,7 +73,9 @@ The `<unit>.solution.md` is **not** in view — do not request or read it.
   no scope creep; every `## Use Cases` outcome has a scenario home; the CR is worth shipping.
 - **Builder** (`builder-spec`) — testability & coverage: every operation in the surface has at least
   one happy-path and one error-case scenario; scenarios describe **observable behavior only** (no
-  internal state or function names); no placeholder text.
+  internal state or function names); no placeholder text; every scenario and `@rubric` dimension can
+  **register a miss** (discrimination), and no two scenarios contradict on one snapshot (pairwise
+  consistency).
 - **Architect** (`architect-spec`) — structural fit: no duplication or contradiction with sibling
   specs; the node sits at the right layer; `spec.md` and the `.feature` do not contradict each other.
 
@@ -101,7 +103,7 @@ rubric form, so scoring lingo inside it is **not** rejected. Two parts:
   registry resolves a more capable spec-judge may score with more rigor. The structural check above
   is identical across all resolved judges; only scoring capability differs.
 
-**Discrimination (judged, every scenario and every `@rubric` dimension):** each must be able to
+**Discrimination (Builder — judged, every scenario and every `@rubric` dimension):** each must be able to
 **register a miss** — a **plausible wrong subject** must exist that fails the scenario, or that
 scores below the dimension's `max`. Structure and discrimination are **distinct checks**: a
 well-formed `@rubric` passes structure and may still fail here, and a green deterministic check
@@ -121,7 +123,7 @@ clears neither. **Well-formed is never acceptance.**
   dimension cannot be lost, not a finding that the subject is good.
 - **Escalate a scenario you cannot classify rather than passing it.**
 
-**Pairwise consistency (judged, the suite — not a scenario):** no two scenarios sharing a `When`
+**Pairwise consistency (Builder — judged, the suite, not a scenario):** no two scenarios sharing a `When`
 demand opposite verdicts on one constructible snapshot. `Given`s need not be disjoint — two
 scenarios may share a precondition when their `Then`s assert different, compatible aspects; the
 check is the **contradiction**, never the overlap, and two scenarios whose `When`s name different

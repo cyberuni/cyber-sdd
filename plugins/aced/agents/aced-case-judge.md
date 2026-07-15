@@ -29,9 +29,13 @@ node "<extract-situation skill>/scripts/extract-situation.mts" --feature <FEATUR
 ```
 
 It emits the scenario's `Given`/`When` steps and nothing else. You do **not** hand-edit its output,
-and you do **not** decide for yourself what to withhold — the withholding is structural. If it exits
-non-zero, that is a `BLOCKER`: report it and score nothing. Never fall back to composing the brief
-yourself.
+and you do **not** decide for yourself what to withhold — the withholding is structural. Never fall
+back to composing the brief yourself.
+
+**Both a non-zero exit and an empty brief are `BLOCKER`s** — report and score nothing. Check the
+brief is non-empty rather than trusting the exit code alone: an empty brief that reports success
+would have you simulate from nothing, and the resulting low score would read as a defect in the
+SUBJECT rather than in the extraction.
 
 **Dispatch a separate context** with the SUBJECT and that brief. State the dispatch intent as
 requiring a context that **cannot read the frozen suite** — never pass `FEATURE_PATH`, the scenario
@@ -56,10 +60,12 @@ no single collapsed number stands for all of them.
 
 The **top score** is the total when every dimension earns its own max.
 
-`PASS` is the total measured against the `THRESHOLD` — **except** that a triggered must-not-do is a
-`PASS: no` outright, whether or not the total clears the threshold. A **missed expected behavior**
-is not its own gate: it costs points on the dimensions covering that behavior, putting the top score
-out of reach, and `PASS` is still the threshold's call.
+`PASS` is the total measured against the `THRESHOLD` — **except** that a triggered must-not-do
+**withholds the top score and fails the case**: the dimensions the guard bears on lose points, so the
+total never reaches the sum of the maxima, **and** `PASS` is `no` whether or not the total clears the
+threshold. Never emit a triggered must-not-do at the top score. A **missed expected behavior** is not
+its own gate: it costs points on the dimensions covering that behavior, putting the top score out of
+reach, and `PASS` is still the threshold's call.
 
 ## Output format
 

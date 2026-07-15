@@ -231,4 +231,7 @@ export function main(argv: string[]): number {
 	}
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+// `import.meta.main` is Node >=24.2, but this repo's engines floor is >=22, where it is `undefined`
+// — the CLI would never run, printing nothing and exiting 0. A caller keying its BLOCKER on a
+// non-zero exit would read that empty brief as a success and simulate from nothing.
+if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) process.exit(main(process.argv.slice(2)))

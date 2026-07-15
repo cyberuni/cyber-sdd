@@ -20,7 +20,9 @@ withhold. It is **read-only** — it never writes a `.feature`, a brief, or any 
 node "<skill>/scripts/extract-situation.mts" --feature <path-to-.feature> --scenario "<exact name>"
 ```
 
-`--format json` emits `{ given, when, placeholders }` instead of the markdown brief.
+`--format json` emits `{ steps, given, when, placeholders, examples }` instead of the markdown brief —
+`steps` is the emitted brief in file order (`given`/`when` regroup the same steps by keyword), and
+`examples` carries a `Scenario Outline`'s surviving columns.
 
 ## What it emits, and what it must never emit
 

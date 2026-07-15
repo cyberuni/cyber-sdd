@@ -1,6 +1,6 @@
 # run
 
-Run the frozen `.feature` suite for one target agent configuration and report pass rate, mean score, and per-scenario results.
+Run the frozen `.feature` suite for one target agent configuration and report pass rate and per-dimension scores, and per-scenario results.
 
 ## When to use
 
@@ -16,7 +16,7 @@ Defer to a sibling when the request is about diagnosing failures (`improve`), di
 
 ## What it does
 
-Locates the target's `eval.md` and frozen `.feature`, invokes `aced-case-judge` once per scenario (skipping layers not enabled in `eval.md`'s `eval.layers`), computes pass rate / mean ± std dev / per-layer breakdown, writes a timestamped JSON result file, and reports a summary with the worst-scoring failures first.
+Locates the target's `eval.md` and frozen `.feature`, invokes `aced-case-judge` once per scenario (skipping layers not enabled in `eval.md`'s `eval.layers`), computes the pass rate and each case's per-dimension total against its own maximum / per-layer breakdown, writes a timestamped JSON result file, and reports a summary with the worst-scoring failures first.
 
 ## Install
 

@@ -20,9 +20,14 @@ If no matching directories are found, report that no eval suites are initialized
 
 For each suite:
 - Pass rate (latest run)
-- Mean score (latest run)
 - Pass rate delta vs. previous run (trend)
-- Worst-scoring failing case name and score
+- Worst failing case: its name, and its total against **its own maximum** (`3/5 vs 4`)
+
+**Do not compute a mean score across suites.** Each scenario's rubric declares its own per-dimension
+maxima, so raw totals from different scenarios sit on different scales and their mean measures
+nothing. Pass rate is the cross-suite metric — it is already normalized. If a headline number beyond
+pass rate is wanted, use the mean **margin** (`total − threshold`) or the mean **fraction of
+maximum**, and label which.
 
 ## Classify health
 
@@ -40,15 +45,16 @@ For each suite:
 ACED Project Report
 ═══════════════════════════════════════════════
 
-  Suite                  Status       Pass    Mean  Trend
-  ─────────────────────────────────────────────────────
-  commit-discipline      healthy      95%     4.6   ↑ +5%
-  create-skill           degraded     76%     3.7   → 0%
-  aced-case-judge             critical     58%     3.1   ↓ -12%
-  subagents/researcher   no-data       —       —    —
+  Suite                  Status       Pass   Trend
+  ─────────────────────────────────────────────────
+  commit-discipline      healthy      95%    ↑ +5%
+  create-skill           degraded     76%    → 0%
+  aced-case-judge        critical     58%    ↓ -12%
+  subagents/researcher   no-data       —     —
 
 NEEDS ATTENTION:
   ✗ aced-case-judge (critical, trending down) — run aced-improve
+      worst: red tests block the commit  1/5 vs 4  (correctness 0/3, completeness 1/2)
   ⚠ create-skill (degraded) — run run for details
 
 Suites with no results: subagents/researcher — run run to initialize
@@ -56,7 +62,7 @@ Suites with no results: subagents/researcher — run run to initialize
 
 ## Optional: full detail mode
 
-If the user asks for details on a specific suite, print all failing cases with scores and explanations from the latest result file.
+If the user asks for details on a specific suite, print all failing cases from the latest result file with their per-dimension scores, their total against its maximum, the threshold, and the explanation.
 
 ## Suggest next actions
 

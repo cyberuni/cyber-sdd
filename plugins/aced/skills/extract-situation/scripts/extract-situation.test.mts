@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
+import { execFileSync } from 'node:child_process'
 import { mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import {
 	AmbiguousScenarioError,
 	EmptySituationError,
@@ -652,6 +654,93 @@ test('an extraction writes no file', () => {
 		assert.equal(main(['--feature', path, '--scenario', 'a']), 0)
 		assert.deepEqual(readdirSync(dir), before)
 	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ─── the CLI entrypoint itself ────────────────────────────────────────────────
+
+// Every other test calls `main(argv)` directly, so none of them cover the entrypoint guard — the
+// only path a caller actually uses. A guard that never fires makes the script print nothing and
+// exit 0, which a caller keying its BLOCKER on a non-zero exit reads as a valid empty brief.
+const CLI = fileURLToPath(new URL('./extract-situation.mts', import.meta.url))
+
+function runCli(args: string[]): { status: number; stdout: string } {
+	try {
+		const stdout = execFileSync(process.execPath, ['--experimental-strip-types', CLI, ...args], {
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'pipe'],
+		})
+		return { status: 0, stdout }
+	} catch (err) {
+		const e = err as { status: number; stdout: string }
+		return { status: e.status, stdout: e.stdout ?? '' }
+	}
+}
+
+test('the CLI entrypoint emits the brief when run as a script', () => {
+	const { dir, path } = tmpFeature(
+		['Feature: f', '', '  Scenario: a', '    Given a condition', '    When an event happens', '    Then a result'].join(
+			'\n',
+		),
+	)
+	try {
+		const { status, stdout } = runCli(['--feature', path, '--scenario', 'a'])
+		assert.equal(status, 0)
+		assert.match(stdout, /## Situation/)
+		assert.match(stdout, /Given a condition/)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('the CLI entrypoint exits non-zero and emits no brief on a missing scenario', () => {
+	const { dir, path } = tmpFeature(
+		['Feature: f', '', '  Scenario: a', '    Given a condition', '    When an event happens'].join('\n'),
+	)
+	try {
+		const { status, stdout } = runCli(['--feature', path, '--scenario', 'absent'])
+		assert.notEqual(status, 0)
+		assert.doesNotMatch(stdout, /## Situation/)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ─── fail-closed messages name the file, and emit nothing ─────────────────────
+
+test('an unreadable file exits non-zero, names the file, and emits no brief', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'extract-situation-'))
+	const missing = join(dir, 'absent.feature')
+	try {
+		const { status, stdout } = runCli(['--feature', missing, '--scenario', 'a'])
+		assert.notEqual(status, 0)
+		assert.equal(stdout, '')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('main names the unreadable file on stderr and writes no brief to stdout', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'extract-situation-'))
+	const missing = join(dir, 'absent.feature')
+	const errs: string[] = []
+	const outs: string[] = []
+	const origErr = console.error
+	const origWrite = process.stdout.write
+	console.error = (m: string) => void errs.push(String(m))
+	process.stdout.write = ((c: string) => {
+		outs.push(String(c))
+		return true
+	}) as typeof process.stdout.write
+	try {
+		const code = main(['--feature', missing, '--scenario', 'a'])
+		assert.equal(code, 1)
+		assert.ok(errs.some((e) => e.includes(missing)))
+		assert.equal(outs.join(''), '')
+	} finally {
+		console.error = origErr
+		process.stdout.write = origWrite
 		rmSync(dir, { recursive: true, force: true })
 	}
 })

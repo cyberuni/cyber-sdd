@@ -35,13 +35,17 @@ Enumerate the scenarios of `<feature-name>.feature` **in file order**. For each 
 3. Extract the eval from the scenario itself:
    - `@rubric` scenario → the inline rubric docstring (dimensions + per-dimension `max` + `threshold`);
      an inline `threshold` overrides `eval.judge.default_threshold`.
-   - `@trigger` `Scenario Outline` → each `Examples` row is one `{query, should_trigger}` case.
+   - `@trigger` `Scenario Outline` → each `Examples` row is one case; invoke the judge **once per row**, passing its zero-based `ROW`.
    - a deterministic boolean scenario → its boolean `Then` assertions.
-4. Invoke `aced-case-judge` with the `subject`, the scenario, and its inline rubric/threshold, over the
-   run count for its layer (`eval.trigger.runs` for trigger; else a single behavior/quality run unless
-   the caller sets N).
-5. Collect: score (1–5), pass/fail (pass = score ≥ threshold; trigger pass = activation accuracy ≥
-   `eval.trigger.activation_threshold`), explanation.
+4. Invoke `aced-case-judge` with the `subject`, the **`.feature` path and the scenario name** (plus the
+   `ROW` for a trigger outline), and its threshold, over the run count for its layer
+   (`eval.trigger.runs` for trigger; else a single behavior/quality run unless the caller sets N).
+5. Collect, by shape: a `@rubric` case returns a score per named dimension against that dimension's
+   own `max`, plus the total and pass/fail (pass = total ≥ threshold; a triggered must-not-do is a
+   fail outright). A trigger row returns its invoke decision against the expected one — accuracy is
+   yours to aggregate across rows and runs, against `eval.trigger.activation_threshold`. A boolean
+   scenario returns pass/fail with no dimension scores. Every shape also returns `WHAT WORKED` and
+   `WHAT FAILED` — those two are the whole explanation the judge emits, and it emits nothing else.
 
 Run all scenarios before reporting. Do not stop on first failure.
 
@@ -53,23 +57,30 @@ Pass this context block to the judge:
 SUBJECT:
 <full agent configuration text>
 
-SCENARIO: <scenario name>
+FEATURE_PATH: <path to the frozen .feature>
+SCENARIO: <exact scenario name>
+ROW: <zero-based Examples row — trigger outlines only>
 LAYER: <layer>
-GIVEN/WHEN/THEN: <the scenario steps>
-RUBRIC: <the inline @rubric docstring, or the boolean Then assertions>
 THRESHOLD: <inline threshold, else eval.judge.default_threshold>
-
-Score this 1–5 using the rubric. Then state PASS or FAIL. Then explain in 2–3 sentences what the agent did well and what it missed.
 ```
+
+**Pass the path and the name — never the steps, the `Then`, or the rubric.** The judge simulates and
+scores in two separate contexts and composes the simulating context's brief with the
+`extract-situation` engine; handing it the scenario body would put the answer key back in the
+context that has to reach the answer. One invocation covers both passes — never sequence them here.
 
 ## Compute results
 
 After all scenarios:
 
 - Pass rate = passing scenarios / total scenarios
-- Mean score ± standard deviation across all scenarios
 - Per-layer breakdown (trigger pass rate, behavior pass rate)
-- Failing scenarios sorted by score ascending (worst first)
+- Failing scenarios sorted by **margin** (`total − threshold`) ascending, worst first
+
+Report each scenario's total **against its own maximum** (`4/5`), never as a bare number. Maxima
+differ per scenario, so a mean taken across raw totals compares scales that do not line up — if you
+report a headline number, report the mean **margin** or the mean **fraction of maximum**, and say
+which.
 
 ## Write results
 
@@ -80,20 +91,27 @@ Write to `artifacts/specs/<feature-name>/results/<ISO8601-timestamp>.json`:
   "timestamp": "<ISO8601>",
   "target": "<agent configuration path>",
   "pass_rate": 0.82,
-  "mean_score": 3.9,
-  "std_dev": 0.8,
-  "threshold": 4,
   "scenarios": [
     {
       "name": "<scenario name>",
       "layer": "behavior",
-      "score": 3,
+      "dimensions": [
+        { "name": "correctness", "score": 2, "max": 3 },
+        { "name": "completeness", "score": 1, "max": 2 }
+      ],
+      "total": 3,
+      "max": 5,
+      "threshold": 4,
       "pass": false,
-      "explanation": "..."
+      "what_worked": "...",
+      "what_failed": "..."
     }
   ]
 }
 ```
+
+A `@trigger` row carries `"row"`, `"invoke"`, `"expected"`, and `"pass"` instead of `"dimensions"`; a
+boolean scenario carries `"pass"` alone.
 
 ## Report to user
 
@@ -101,16 +119,15 @@ Write to `artifacts/specs/<feature-name>/results/<ISO8601-timestamp>.json`:
 ACED Run — <name>
 ──────────────────────────
 Pass rate:  18/22 (82%)
-Mean score: 3.9 ± 0.8
 
 Trigger layer:  8/10 (80%)
 Behavior layer: 10/12 (83%)
 
 FAILING SCENARIOS (worst first):
-  ✗ no trigger for an audit request   [score 2] — <explanation>
-  ✗ stages only related files         [score 3] — <explanation>
-  ✗ trigger on skill creation         [score 3] — <explanation>
-  ✗ red tests block the commit        [score 3] — <explanation>
+  ✗ no trigger for an audit request   [invoked: no, expected: yes] — <what failed>
+  ✗ stages only related files         [3/5 vs 4: correctness 2/3, completeness 1/2] — <what failed>
+  ✗ trigger on skill creation         [invoked: yes, expected: no] — <what failed>
+  ✗ red tests block the commit        [3/5 vs 4: correctness 1/3, completeness 2/2] — <what failed>
 
 Run improve to address failing scenarios.
 Run compare after editing the agent configuration.

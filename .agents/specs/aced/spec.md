@@ -4,22 +4,22 @@ project-path: plugins/aced
 approval:
   spec:
     verdict: approve
-    by: agent
-    cause: dimension
+    by: unional
+    cause: clearance
     why:
-      floor: none — CR github-140 is additive (4 new boolean scenarios per suite on the already-frozen define-agent.feature + define-skill.feature, self-clearing; no scenario narrowed); no Clearance floor
-      blast: low — advisory gate-role naming convention in ACED define-agent + define-skill; two spec suites + two READMEs widened, no impl behavior change yet
-      novelty: low — encodes a doctrine-ratified naming rule (role+scope not bare verb) already applied reactively 3× across 2 plugins; canonical forms only
-      confidence: high — cold aced-spec-validator ALIGNED, all bars PASS, BLOCKER null; near-miss discriminates; gherkin parse clean
+      floor: clearance — RATIFIED LIVE by the owner, scoped to TWO frozen judge.feature scenarios ("invoked for one case it emits the four-field result", "the output is exactly the four fields"); both assert the scalar four-field output the per-dimension contract contradicts, so no additive path exists. Structural gherkin-cli diff vs base: 2 removed / 0 modified / 9 unchanged — no untouched frozen scenario narrowed. extract-situation.feature is a new node, frozen additively.
+      blast: medium — the shared measurement instrument for every @rubric scenario in every ACED suite; fixed once in the protocol so no individual suite can fix it locally. Callers keep a one-invoke contract, so caller wiring is unchanged.
+      novelty: high — a NEW deterministic engine (extract-situation) now composes the simulator's brief, moving redaction out of the judge's own judgment; owner blessed the scope growth beyond the aced/case-judge touch-set.
+      confidence: high — cold aced-spec-validator ALIGNED on judge at round 3 (a scalar impl fails 3 independent scenarios, a one-context impl fails 5); three rounds closed the transcript-provenance hole, a dropped trigger-output shape, and a PASS-vs-must-not-do contradiction. extract-situation is recused from ACED grading (deterministic, node:test-assertable — no Fit line, per the sdd authoring/spec-gate precedent) and verified by mutation instead: 13 of 24 mutations initially survived, all 13 now caught, control mutation still survives. pnpm verify 21/21 green.
   impl:
     verdict: approve
-    by: agent
+    by: unional
     cause: dimension
     why:
-      floor: none — impl built against the frozen suite; the two SKILL.md bodies changed to meet it, no .feature/README/frontmatter/script touched
-      blast: low — in-skill HIGH gate-role naming check added to define-agent (checks-table row B9) and define-skill (in-skill subsection, explicitly separate from mechanical audit validate)
-      novelty: low — advisory authoring guidance, native to each host skill's existing quality mechanism; no new script or validate.mts check
-      confidence: high — cold aced-impl-judge re-derived all 8 frozen scenarios independently → 8/8 PASS, in-skill-not-mechanical constraint met, clean gate (no correction iteration); pnpm verify 20/20 green
+      floor: none — impl built against the frozen suites; every later scenario was ADDITIVE (gherkin-cli addOnly, 0 modified), so the ratified Clearance was never re-entered. One out-of-touch-set break was found and reconciled WITHOUT a re-open: report.feature:78's "mean" is unqualified, so report renders a normalized mean (%max) instead of the raw cross-suite mean the CR's own thesis forbids.
+      blast: medium — the shared measurement instrument for every @rubric scenario in every ACED suite, plus a new deterministic engine composing the simulator's brief. Callers keep a one-invoke contract, so no suite can bypass the blindness locally.
+      novelty: high — a blind two-pass protocol with the redaction moved out of the judge's own judgment into tested code; the asymmetry is explicit (the simulating context is blind; the scoring context reads the whole scenario, because the guards it gates on live only in the Then).
+      confidence: medium-high — cold impl-judge round 4: judge.feature 30/30, extract-situation 27/27 on behavior, scope clean; its sole blocker (three fail-closed Thens bound only by a proxy) closed and proven by the judge's own ablations. Convergence measured before stopping: rounds 1-2 plus an independent reader found 6 engine/body defects; rounds 3-4 and a 97-mutation sweep found ZERO — only harness gaps, whose seam migrated each round. 88 tests, verify 21/21. NOT high, and deliberately so: the impl-judge invokes aced-case-judge, so with case-judge as the subject its method is circular. It refused and read by hand, so all 30 judge.feature verdicts are a static contract-binding read, NOT a measurement — the protocol has never been executed. Filed as a blocking follow-up.
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer

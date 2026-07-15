@@ -1,6 +1,6 @@
 # report
 
-Generate a project-wide health dashboard across every ACED eval suite — pass rate, mean score, trend vs. the previous run, and which agent configurations need attention.
+Generate a project-wide health dashboard across every ACED eval suite — pass rate, mean %max, trend vs. the previous run, and which agent configurations need attention.
 
 ## When to use
 
@@ -16,7 +16,7 @@ Defer to a sibling when the request is about one specific target: `run` to score
 
 ## What it does
 
-Scans `artifacts/specs/*/eval.md`, computes per-suite pass rate/mean/trend from the two most recent `results/` files, classifies each suite as healthy / degraded / critical / no-data / trending-down, and prints a dashboard with a "needs attention" list and suggested next action per suite.
+Scans `artifacts/specs/*/eval.md`, computes per-suite pass rate, mean %max (each scenario's total over its own maximum, normalized before averaging), and trend from the two most recent `results/` files, classifies each suite as healthy / degraded / critical / no-data / trending-down, and prints a dashboard with a "needs attention" list and suggested next action per suite.
 
 ## Install
 

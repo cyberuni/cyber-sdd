@@ -234,13 +234,20 @@ one — and, for the one probe that has a measured failing read, so a future pas
   left the scenario at 6/6, because *When to run* independently carries "re-validate it — never trust
   the filing-time verdict", which is enough to derive the supersession. The dimension binds to the
   doctrine redundantly, not to that one paragraph. Do not cite this scenario as Stale's guard.
-- **The measurement above is cleaner than the impl gate's.** `aced-case-judge` simulates the agent and
-  scores it **in one context**, holding the scenario's name and its inline rubric — the answer key —
-  while simulating. This scenario's title was written for the situation rather than the verdict to
-  withhold what it can, but the rubric's own dimension comments still state the correct call. So an
-  impl-gate PASS here is **weaker evidence than the five-condition table**, which separated the two
-  roles. That contamination is `aced-case-judge`'s protocol, not this suite's, and it applies to every
-  `@rubric` scenario equally — **#252**.
+- **No impl-gate PASS on this scenario can ever equal the table above — the reason is structural, not
+  a fixable protocol bug.** An impl gate runs the **correct-doctrine arm only**. The table's other four
+  arms — two memorizing reads and two rule-deletion mutants — are what establish that the dimensions
+  are loseable and bound to a rule; a passing gate run does not execute them and therefore cannot
+  re-establish it. **A green impl gate says the doctrine still reasons; only an ablation says the probe
+  can still fail.** Re-run the arms when the doctrine's Oracle lens changes — a pass is not a substitute.
+- **A second, *fixable* hazard sits underneath that one: `aced-case-judge` simulates the agent and
+  scores it in one context**, holding the scenario's name and its inline rubric — the answer key —
+  while simulating (**#252**; this scenario's title withholds what it can, but the rubric's dimension
+  comments still state the correct call, and the sibling titles leak outright — **#253**). A judge is
+  **not obliged** to score that way: #222's own impl gate separated production from scoring by hand and
+  measured 6/6 across three runs. So treat this as a hazard to **defeat per run**, not a standing
+  discount — and do not let defeating it be mistaken for discharging the paragraph above, which it
+  never touches.
 
 - **`catches-misalignment` has been measured twice and the two disagree — 2.33/3 and 3.00/3, both
   against a *correct* doctrine.** The 2.33 is what `threshold = combined max − 1` was calibrated on,

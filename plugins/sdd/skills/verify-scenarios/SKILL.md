@@ -32,8 +32,9 @@ artifact-type already falls through to SDD defaults).
 
 ## Config schema
 
-`.agents/sdd/scenario-bridge.toml` — an array-of-tables of result **sources** (a `.feature` is not
-assumed to map to one runner: vitest + playwright + pytest can all contribute to one node):
+`.agents/sdd/scenario-bridge.toml`, resolved beneath `--root` (**not** a single repo-root path — see
+"Monorepo rooting" below) — an array-of-tables of result **sources** (a `.feature` is not assumed to
+map to one runner: vitest + playwright + pytest can all contribute to one node):
 
 ```toml
 [[source]]
@@ -68,8 +69,8 @@ Hand-rolled regex parse, no xml dependency — verified against vitest 4.1.7's J
 ```bash
 node "<skill>/scripts/verify-scenarios.mts" \
   --feature <path/to/x.feature> --node <project>/<node> \
-  [--config .agents/sdd/scenario-bridge.toml] [--root .] [--report <xml>] [--run] \
-  [--format toon|json]
+  [--config .agents/sdd/scenario-bridge.toml] [--root .] [--feature-root <dir>] \
+  [--report <xml>] [--run] [--format toon|json]
 ```
 
 - `--report <xml>` bypasses `--config` entirely — a single ad-hoc junit source, no command.
@@ -79,6 +80,25 @@ node "<skill>/scripts/verify-scenarios.mts" \
   `{node,total,bound,pass,fail,unbound,scenarios[],extras[]}`. `--format toon` emits the repo's
   TOON tabular form.
 - Exit code is non-zero when any scenario is UNBOUND or FAIL; zero only at full BOUND+PASS.
+
+## Monorepo rooting — `--feature-root` vs. `--root`
+
+`--root` is the **bridge/report root** — where `--config` defaults to, and where every source's
+`reportPath` and an ad-hoc `--report` resolve. `--feature-root` is where `--feature` resolves; it
+**defaults to `--root`** when omitted, so a colocated project (spec, config, and report all under one
+root) needs only `--root` — unchanged from before this option existed. Pass `--feature-root`
+separately when the frozen `.feature` lives at a **different** root than the project's config +
+report — the common monorepo shape, where specs sit at a repo-root spec corpus
+(`.agents/specs/<project>/`) but the project's own `.agents/sdd/scenario-bridge.toml` and test report
+sit under its `project-path` (e.g. `packages/<project>/`):
+
+```bash
+node "<skill>/scripts/verify-scenarios.mts" \
+  --feature .agents/specs/cyberlegion-plugin/identity/identity.feature \
+  --node cyberlegion-plugin/identity \
+  --feature-root . \
+  --root packages/cyberlegion
+```
 
 ## Boundaries
 

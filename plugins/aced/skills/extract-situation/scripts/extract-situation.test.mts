@@ -1,3 +1,20 @@
+// This suite exists to prove the answer key never reaches a simulating context, so most of it is
+// negative assertions. A negative assertion is satisfied by the NULL output — `doesNotMatch('', /X/)`
+// is true — so it can never, alone, prove the mechanism ran. It went vacuous twice here:
+//
+//   - by output: `formatTable` returning '' kept every Examples assertion green, because empty output
+//     contains no forbidden string. Every outline row would then simulate against the literal
+//     "<query>", collapsing to one identical simulation.
+//   - by fixture: a rubric sentinel sat on `dimension: ANSWERKEY_SENTINEL` — a line that never opens
+//     with a step keyword, so the parser had no chance to misread it. A LEAKING engine passed 15/15.
+//     A sentinel is only as good as its position.
+//
+// So: pair every negative with a positive on the same output. `doesNotMatch(out, /should_trigger/)`
+// AND `match(out, /commit my work/)`. The positive half has no trivial satisfier. Before adding a
+// test here, ask what the laziest thing that passes it is; if the answer is "doing nothing", it is
+// not binding. Then ablate — flip the engine to leak and watch it go red. An un-ablated negative is
+// a hope, not a test.
+
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { copyFileSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'

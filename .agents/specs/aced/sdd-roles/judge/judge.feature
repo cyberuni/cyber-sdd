@@ -62,6 +62,21 @@ Feature: judge — the internal scorer
     When judge scores that case
     Then every dimension's verdict is derived from that returned transcript, and the context that scores never produces a simulation of its own
 
+  Scenario: the context that scores reads the expected outcome
+    Given a case whose must-not-do guards and expected behaviors live in its Then steps
+    When judge scores the returned transcript
+    Then it reads those Then steps, so what it gates on is never absent from the context that scores
+
+  Scenario: an empty brief fails closed whatever the extractor's exit code
+    Given the extractor emits an empty brief while reporting success
+    When judge would dispatch the simulation
+    Then it reports a blocker and scores nothing, rather than simulating from nothing
+
+  Scenario: a dispatch returning no transcript fails closed
+    Given the dispatched context returns no transcript
+    When judge would score the case
+    Then it reports a blocker and scores nothing, rather than simulating in the context that scores
+
   Scenario: one invocation covers both passes
     Given a caller holding a subject and one test case
     When it invokes judge once
@@ -78,6 +93,16 @@ Feature: judge — the internal scorer
     Given a test case carrying the trigger layer and no rubric
     When judge returns its result
     Then it reports the simulated invoke decision against the expected one and emits no dimension scores
+
+  Scenario: one outline row is one case
+    Given a trigger Scenario Outline whose Examples hold several rows
+    When judge is invoked for one of those rows
+    Then it reports the invoke decision for that row alone and never collapses the rows into one verdict
+
+  Scenario: a boolean case emits the verdict without dimension scores
+    Given a test case carrying boolean Then assertions, no rubric, and no trigger tag
+    When judge returns its result
+    Then it reports whether every boolean Then held, including the must-not-do guards, and emits no dimension scores
 
   Scenario: the behavior layer walks the simulated steps
     Given a test case carrying the behavior layer with expected behaviors and a must-not-do list

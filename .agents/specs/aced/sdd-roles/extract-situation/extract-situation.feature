@@ -25,6 +25,16 @@ Feature: extract-situation — the blind-brief extractor
     When the engine is asked for that scenario
     Then that But step appears in the output
 
+  Scenario: a docstring under a Given or When is emitted with its step
+    Given a scenario whose Given step carries a docstring holding the prompt under test
+    When the engine is asked for that scenario
+    Then that docstring is emitted with its step, fences and all
+
+  Scenario: a docstring's lines are content rather than steps
+    Given a scenario whose Given step carries a docstring whose lines open with the words Given or When
+    When the engine is asked for that scenario
+    Then those lines are emitted as that step's content, and none of them captures the steps below the docstring
+
   # ---- Withhold the answer key ----
 
   Scenario: the scenario name is withheld
@@ -46,6 +56,11 @@ Feature: extract-situation — the blind-brief extractor
     Given a scenario whose Then step is followed by a But step
     When the engine is asked for that scenario
     Then that But step appears nowhere in the output
+
+  Scenario: a docstring under a Then is withheld with its step
+    Given a scenario whose Then step carries a docstring
+    When the engine is asked for that scenario
+    Then no line of that docstring appears in the output
 
   Scenario: a rubric line opening with a step keyword is withheld
     Given a scenario whose inline rubric docstring carries a scoring ladder whose lines open with the words Given or When
@@ -73,6 +88,16 @@ Feature: extract-situation — the blind-brief extractor
     Given a Scenario Outline whose Given and When steps carry placeholder tokens
     When the engine is asked for that outline
     Then those tokens are emitted intact and each Examples column they reference is emitted with them
+
+  Scenario: a requested row selects exactly that Examples row
+    Given a Scenario Outline whose Examples hold several rows, and a request naming one of them
+    When the engine is asked for that outline and that row
+    Then only that row's values are emitted, so one row is one case
+
+  Scenario: a row outside the Examples table fails closed
+    Given a request naming a row the Examples table does not hold
+    When the engine is asked for that outline and that row
+    Then it exits non-zero and emits no brief
 
   Scenario: an Examples column only a Then references is withheld
     Given a Scenario Outline whose Examples carry a column referenced only by its Then step

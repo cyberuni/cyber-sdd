@@ -27,6 +27,9 @@ export type EffectiveKeyword = ConcreteKeyword | 'unresolved'
 export interface Step {
 	text: string
 	effectiveKeyword: EffectiveKeyword
+	// A docstring belongs to the step above it and inherits that step's fate. Under a `Given`/`When`
+	// it IS the situation (the prompt under test); under a `Then` it is the answer key (the rubric).
+	docstring: { fence: string; lines: string[] } | null
 }
 
 export interface ParsedScenario {
@@ -63,17 +66,32 @@ export function parseScenarios(text: string): ParsedScenario[] {
 	let current: ParsedScenario | null = null
 	let lastKeyword: ConcreteKeyword | null = null
 	let docstringFence: string | null = null
+	let docstringOwner: Step | null = null
 
 	for (const raw of lines) {
 		const line = raw.trimStart()
 
+		// Docstring lines are captured onto their owning step, never re-read as steps. Letting them
+		// fall through the step regex is what leaks a rubric ladder that opens with a step keyword
+		// ("When the agent stages only related files, award 3") into the brief, and overwrites
+		// `lastKeyword` so the collapsing `And ... at least the threshold` below it leaks too.
 		const fence = /^("""|```)/.exec(line)?.[1]
 		if (docstringFence) {
-			if (fence === docstringFence) docstringFence = null
+			if (fence === docstringFence) {
+				docstringFence = null
+				docstringOwner = null
+			} else if (docstringOwner?.docstring) {
+				docstringOwner.docstring.lines.push(raw)
+			}
 			continue
 		}
 		if (fence) {
 			docstringFence = fence
+			const owner = current?.steps.at(-1) ?? null
+			if (owner) {
+				owner.docstring = { fence, lines: [] }
+				docstringOwner = owner
+			}
 			continue
 		}
 
@@ -107,7 +125,7 @@ export function parseScenarios(text: string): ParsedScenario[] {
 			const resolved: EffectiveKeyword = /^(Given|When|Then)$/i.test(literal)
 				? ((literal[0].toUpperCase() + literal.slice(1).toLowerCase()) as ConcreteKeyword)
 				: (lastKeyword ?? 'unresolved')
-			current.steps.push({ text: line, effectiveKeyword: resolved })
+			current.steps.push({ text: line, effectiveKeyword: resolved, docstring: null })
 			if (resolved !== 'unresolved') lastKeyword = resolved
 		}
 	}
@@ -125,13 +143,15 @@ export class UnparseableFeatureError extends Error {}
 // fails closed rather than emitting an empty brief: a simulator handed nothing simulates nothing,
 // the case scores low, and the eval reads as a defect in the SUBJECT rather than in the extraction.
 export class EmptySituationError extends Error {}
+// A `Scenario Outline` row index that the Examples table does not hold.
+export class RowOutOfRangeError extends Error {}
 
 // Extracts the redacted situation for the named scenario: its Given/When steps only, by EFFECTIVE
 // keyword (never literal text) — every Then/And/But-after-Then step, every tag, the scenario name
 // itself, and every sibling scenario are excluded by construction (never read into the result).
 // Fails closed: an unparseable file, a missing name, or a duplicate name throws rather than
 // returning an empty-but-plausible brief a caller could mistake for a valid one.
-export function extractSituation(text: string, scenarioName: string, fileLabel: string): Situation {
+export function extractSituation(text: string, scenarioName: string, fileLabel: string, row?: number): Situation {
 	if (!/^\s*Feature:/im.test(text)) {
 		throw new UnparseableFeatureError(`${fileLabel}: not a valid .feature file (no Feature: line)`)
 	}
@@ -150,9 +170,13 @@ export function extractSituation(text: string, scenarioName: string, fileLabel: 
 
 	const scenario = matches[0]
 	const emitted = scenario.steps.filter((s) => s.effectiveKeyword === 'Given' || s.effectiveKeyword === 'When')
-	const steps = emitted.map((s) => s.text)
-	const given = emitted.filter((s) => s.effectiveKeyword === 'Given').map((s) => s.text)
-	const when = emitted.filter((s) => s.effectiveKeyword === 'When').map((s) => s.text)
+	const steps = emitted.flatMap((s) =>
+		s.docstring ? [s.text, s.docstring.fence, ...s.docstring.lines, s.docstring.fence] : [s.text],
+	)
+	const withDoc = (s: Step) =>
+		s.docstring ? [s.text, s.docstring.fence, ...s.docstring.lines, s.docstring.fence] : [s.text]
+	const given = emitted.filter((s) => s.effectiveKeyword === 'Given').flatMap(withDoc)
+	const when = emitted.filter((s) => s.effectiveKeyword === 'When').flatMap(withDoc)
 
 	if (steps.length === 0) {
 		throw new EmptySituationError(`${fileLabel}: scenario has no Given or When steps: "${scenarioName}"`)
@@ -166,9 +190,18 @@ export function extractSituation(text: string, scenarioName: string, fileLabel: 
 			.map((col, i) => (placeholders.includes(col) ? i : -1))
 			.filter((i) => i !== -1)
 		if (keepIdx.length > 0) {
+			// One row is one case: judge scores a single invoke decision per invocation, so an outline
+			// is extracted a row at a time rather than handed over whole.
+			const allRows = scenario.examples.rows
+			if (row !== undefined && (row < 0 || row >= allRows.length)) {
+				throw new RowOutOfRangeError(
+					`${fileLabel}: row ${row} is outside the Examples table (${allRows.length} rows): "${scenarioName}"`,
+				)
+			}
+			const picked = row === undefined ? allRows : [allRows[row]]
 			examples = {
 				header: keepIdx.map((i) => scenario.examples!.header[i]),
-				rows: scenario.examples.rows.map((row) => keepIdx.map((i) => row[i])),
+				rows: picked.map((r) => keepIdx.map((i) => r[i])),
 			}
 		}
 	}
@@ -206,11 +239,21 @@ function flag(argv: string[], name: string): string | undefined {
 export function main(argv: string[]): number {
 	const featurePath = flag(argv, '--feature')
 	const scenarioName = flag(argv, '--scenario')
+	const rowRaw = flag(argv, '--row')
 	const format = flag(argv, '--format') ?? (argv.includes('--json') ? 'json' : 'text')
 
 	if (!featurePath || !scenarioName) {
-		console.error('✗ usage: extract-situation.mts --feature <path> --scenario "<name>" [--format json]')
+		console.error('✗ usage: extract-situation.mts --feature <path> --scenario "<name>" [--row <n>] [--format json]')
 		return 1
+	}
+
+	let row: number | undefined
+	if (rowRaw !== undefined) {
+		row = Number(rowRaw)
+		if (!Number.isInteger(row) || row < 0) {
+			console.error(`✗ --row must be a non-negative integer, got "${rowRaw}"`)
+			return 1
+		}
 	}
 
 	let text: string
@@ -222,7 +265,7 @@ export function main(argv: string[]): number {
 	}
 
 	try {
-		const situation = extractSituation(text, scenarioName, featurePath)
+		const situation = extractSituation(text, scenarioName, featurePath, row)
 		process.stdout.write(format === 'json' ? formatJson(situation) : formatMarkdown(situation))
 		return 0
 	} catch (err) {

@@ -35,14 +35,16 @@ Enumerate the scenarios of `<feature-name>.feature` **in file order**. For each 
 3. Extract the eval from the scenario itself:
    - `@rubric` scenario → the inline rubric docstring (dimensions + per-dimension `max` + `threshold`);
      an inline `threshold` overrides `eval.judge.default_threshold`.
-   - `@trigger` `Scenario Outline` → each `Examples` row is one `{query, should_trigger}` case.
+   - `@trigger` `Scenario Outline` → each `Examples` row is one case; invoke the judge **once per row**, passing its zero-based `ROW`.
    - a deterministic boolean scenario → its boolean `Then` assertions.
-4. Invoke `aced-case-judge` with the `subject`, the **`.feature` path and the scenario name**, and its
-   threshold, over the run count for its layer (`eval.trigger.runs` for trigger; else a single
-   behavior/quality run unless the caller sets N).
-5. Collect: a score per named dimension against that dimension's own `max`, the total, pass/fail
-   (pass = total ≥ threshold, and a triggered must-not-do is a fail outright; trigger pass =
-   activation accuracy ≥ `eval.trigger.activation_threshold`), explanation.
+4. Invoke `aced-case-judge` with the `subject`, the **`.feature` path and the scenario name** (plus the
+   `ROW` for a trigger outline), and its threshold, over the run count for its layer
+   (`eval.trigger.runs` for trigger; else a single behavior/quality run unless the caller sets N).
+5. Collect, by shape: a `@rubric` case returns a score per named dimension against that dimension's
+   own `max`, plus the total and pass/fail (pass = total ≥ threshold; a triggered must-not-do is a
+   fail outright). A trigger row returns its invoke decision against the expected one — accuracy is
+   yours to aggregate across rows and runs, against `eval.trigger.activation_threshold`. A boolean
+   scenario returns pass/fail with no dimension scores.
 
 Run all scenarios before reporting. Do not stop on first failure.
 
@@ -56,6 +58,7 @@ SUBJECT:
 
 FEATURE_PATH: <path to the frozen .feature>
 SCENARIO: <exact scenario name>
+ROW: <zero-based Examples row — trigger outlines only>
 LAYER: <layer>
 THRESHOLD: <inline threshold, else eval.judge.default_threshold>
 ```
@@ -105,7 +108,8 @@ Write to `artifacts/specs/<feature-name>/results/<ISO8601-timestamp>.json`:
 }
 ```
 
-A `@trigger` scenario carries `"invoke"`, `"expected"`, and `"pass"` instead of `"dimensions"`.
+A `@trigger` row carries `"row"`, `"invoke"`, `"expected"`, and `"pass"` instead of `"dimensions"`; a
+boolean scenario carries `"pass"` alone.
 
 ## Report to user
 

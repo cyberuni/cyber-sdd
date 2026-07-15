@@ -26,10 +26,12 @@ verdict-revealing beyond the keyword rule — it withholds by structure, never b
 | Emit the situation | a `.feature` path and an exact scenario name | it emits that scenario's `Given`/`When` steps verbatim, in the file's order, regrouping nothing |
 | Withhold the answer key | a scenario carrying a name, a `Then`, and an inline `@rubric` | the name, every `Then`, and the rubric docstring appear nowhere in the output |
 | Honor keyword inheritance | a scenario with `And`/`But` steps under both a `Given` and a `Then` | the step under `Given` is emitted; the step under `Then` is withheld |
+| Emit a situation docstring | a `Given`/`When` step carrying a docstring (routinely the prompt under test) | the docstring is emitted with its step; a docstring under a `Then` is withheld with its step |
 | Survive a keyword-leading rubric | a rubric ladder whose lines open with `Given`/`When` | no docstring line is emitted, and the ladder does not capture the `And` steps below the docstring |
 | Withhold an orphaned step | an `And` with no step above it to inherit from | its keyword is unresolved, so it is withheld |
 | Withhold the neighbors | a `.feature` holding sibling scenarios and tags | no sibling scenario, tag, or `Feature:` description appears in the output |
 | Keep an outline's placeholders | a `Scenario Outline` whose `Given`/`When` carry `<placeholder>` tokens | the tokens stay intact and each referenced `Examples` column is emitted |
+| Select one outline row | a `Scenario Outline` and a row index | only that row's values are emitted — one row is one case; an out-of-range row exits non-zero |
 | Withhold a Then-only column | a `Scenario Outline` whose `Examples` carry a column only a `Then` references | that column is withheld |
 | Fail closed on an empty situation | a scenario the file holds carrying no `Given` and no `When` | it exits non-zero and emits no brief, rather than an empty one |
 | Fail closed on an absent scenario | a scenario name absent from the file | it exits non-zero and emits no brief |

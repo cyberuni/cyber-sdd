@@ -99,6 +99,11 @@ Feature: extract-situation — the blind-brief extractor
     When the engine is asked for that outline and that row
     Then it exits non-zero and emits no brief
 
+  Scenario: a commented-out Examples row is not data
+    Given a Scenario Outline whose Examples hold a commented-out row between two live ones
+    When the engine is asked for that outline
+    Then that row is neither emitted nor counted, so it shifts no row index and inflates no row count
+
   Scenario: an Examples column only a Then references is withheld
     Given a Scenario Outline whose Examples carry a column referenced only by its Then step
     When the engine is asked for that outline

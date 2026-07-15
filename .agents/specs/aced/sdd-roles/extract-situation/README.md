@@ -32,6 +32,7 @@ verdict-revealing beyond the keyword rule — it withholds by structure, never b
 | Withhold the neighbors | a `.feature` holding sibling scenarios and tags | no sibling scenario, tag, or `Feature:` description appears in the output |
 | Keep an outline's placeholders | a `Scenario Outline` whose `Given`/`When` carry `<placeholder>` tokens | the tokens stay intact and each referenced `Examples` column is emitted |
 | Select one outline row | a `Scenario Outline` and a row index | only that row's values are emitted — one row is one case; an out-of-range row exits non-zero |
+| Skip a commented row | a `Scenario Outline` whose `Examples` carry a commented-out row | it is neither emitted nor counted — it shifts no row index and inflates no row count |
 | Withhold a Then-only column | a `Scenario Outline` whose `Examples` carry a column only a `Then` references | that column is withheld |
 | Fail closed on an empty situation | a scenario the file holds carrying no `Given` and no `When` | it exits non-zero and emits no brief, rather than an empty one |
 | Fail closed on an absent scenario | a scenario name absent from the file | it exits non-zero and emits no brief |

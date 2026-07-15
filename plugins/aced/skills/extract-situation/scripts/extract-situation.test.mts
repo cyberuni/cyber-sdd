@@ -1294,3 +1294,169 @@ test('a duplicated placeholder is reported once', () => {
 	].join('\n')
 	assert.deepEqual(extractSituation(text, 'a', 'x.feature').placeholders, ['thing'])
 })
+
+// ─── fail-closed is a PROCESS fact — drive the process to bind it ─────────────
+
+// `main()` catches every error, so `assert.throws` on the pure function is a proxy: it cannot see an
+// exit code or stdout. A `Then` that says "exits non-zero AND emits no brief" is only bound by
+// driving main/the CLI and asserting both halves.
+function runMain(args: string[]): { code: number; stdout: string; stderr: string } {
+	const outs: string[] = []
+	const errs: string[] = []
+	const origWrite = process.stdout.write
+	const origErr = console.error
+	process.stdout.write = ((c: string) => {
+		outs.push(String(c))
+		return true
+	}) as typeof process.stdout.write
+	console.error = (m: string) => void errs.push(String(m))
+	try {
+		const code = main(args)
+		return { code, stdout: outs.join(''), stderr: errs.join('\n') }
+	} finally {
+		process.stdout.write = origWrite
+		console.error = origErr
+	}
+}
+
+test('a row outside the Examples table exits non-zero and emits no brief', () => {
+	const { dir, path } = tmpFeature(OUTLINE)
+	try {
+		const r = runMain(['--feature', path, '--scenario', 'it fires on a commit request', '--row', '9'])
+		assert.notEqual(r.code, 0)
+		assert.equal(r.stdout, '')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('an ambiguous scenario name exits non-zero and emits no brief', () => {
+	const { dir, path } = tmpFeature(
+		[
+			'Feature: f',
+			'',
+			'  Scenario: dup',
+			'    Given a first condition',
+			'    When a first event happens',
+			'',
+			'  Scenario: dup',
+			'    Given a second condition',
+			'    When a second event happens',
+		].join('\n'),
+	)
+	try {
+		const r = runMain(['--feature', path, '--scenario', 'dup'])
+		assert.notEqual(r.code, 0)
+		assert.equal(r.stdout, '')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('text carrying no Feature line exits non-zero and emits no brief', () => {
+	const { dir, path } = tmpFeature('this text merely mentions Feature: somewhere mid-line')
+	try {
+		const r = runMain(['--feature', path, '--scenario', 'a'])
+		assert.notEqual(r.code, 0)
+		assert.equal(r.stdout, '')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('an absent scenario name exits non-zero and emits no brief', () => {
+	const { dir, path } = tmpFeature(OUTLINE)
+	try {
+		const r = runMain(['--feature', path, '--scenario', 'absent'])
+		assert.notEqual(r.code, 0)
+		assert.equal(r.stdout, '')
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('a non-integer row exits non-zero and emits no brief', () => {
+	const { dir, path } = tmpFeature(OUTLINE)
+	try {
+		for (const bad of ['x', '-1', '1.5']) {
+			const r = runMain(['--feature', path, '--scenario', 'it fires on a commit request', '--row', bad])
+			assert.notEqual(r.code, 0, `--row ${bad} must fail`)
+			assert.equal(r.stdout, '', `--row ${bad} must emit no brief`)
+		}
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+// ─── a commented-out Examples row is not data ─────────────────────────────────
+
+// Comments are legal anywhere, and a commented-out Examples row is a standard idiom. Treating one as
+// live data shifts every --row index and inflates the row count, so an out-of-range row stops failing
+// closed — the judge would silently score the wrong row.
+const COMMENTED_OUTLINE = [
+	'Feature: f',
+	'',
+	'  Scenario Outline: a',
+	'    Given a user',
+	'    When they say "<query>"',
+	'    Then it invokes "<should_trigger>"',
+	'',
+	'    Examples:',
+	'      | query       | should_trigger |',
+	'      | commit this | yes            |',
+	'      # | flaky row | no             |',
+	'      | rebase now  | yes            |',
+].join('\n')
+
+test('a commented-out Examples row is skipped, not counted', () => {
+	const situation = extractSituation(COMMENTED_OUTLINE, 'a', 'x.feature')
+	assert.deepEqual(situation.examples?.rows, [['commit this'], ['rebase now']])
+	assert.doesNotMatch(formatMarkdown(situation), /flaky row/)
+})
+
+test('a commented-out Examples row does not shift the row index', () => {
+	const second = extractSituation(COMMENTED_OUTLINE, 'a', 'x.feature', 1)
+	assert.deepEqual(second.examples?.rows, [['rebase now']])
+	assert.match(formatMarkdown(second), /\|\s*rebase now\s*\|/)
+	assert.throws(() => extractSituation(COMMENTED_OUTLINE, 'a', 'x.feature', 2), RowOutOfRangeError)
+})
+
+// ─── the docstring conjuncts the fixtures reached only for a Given ────────────
+
+test('a When-owned docstring is emitted with its step, fences and all', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario: a',
+		'    Given a condition',
+		'    When the agent receives this payload',
+		'      """',
+		'      {"id": 1}',
+		'      """',
+		'    Then a result',
+	].join('\n')
+	const situation = extractSituation(text, 'a', 'x.feature')
+	const lines = formatMarkdown(situation).split('\n')
+	const stepAt = lines.indexOf('When the agent receives this payload')
+	assert.notEqual(stepAt, -1)
+	assert.equal(lines.filter((l) => l.trim() === '"""').length, 2)
+	assert.ok(lines.findIndex((l) => l.includes('{"id": 1}')) > stepAt)
+})
+
+test('a docstring does not capture the And directly below it', () => {
+	const text = [
+		'Feature: f',
+		'',
+		'  Scenario: a',
+		'    Given the user sends this prompt',
+		'      """',
+		'      When should I commit?',
+		'      """',
+		'    When the agent considers it',
+		'    Then it answers',
+		'    And it stops with ANSWERKEY_SENTINEL',
+	].join('\n')
+	const situation = extractSituation(text, 'a', 'x.feature')
+	assert.deepEqual(situation.when, ['When the agent considers it'])
+	assert.doesNotMatch(formatMarkdown(situation), /ANSWERKEY_SENTINEL/)
+})

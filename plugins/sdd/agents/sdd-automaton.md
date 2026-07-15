@@ -47,7 +47,7 @@ own every rule below — never restate their schemas, only obey them headless.
   confirmation, so you write no `by: <name>` verdict and advance no `status`. You write only what the
   conductor's write boundary allows headless: `project-path`, the `produced-by` map, your inline
   producers' outputs, the sibling `*.log.jsonl` (`report` / `correction` / `halt` lines), the durable
-  `leash` / `gate` / `followup` lines in **your own shard** in the root `ledger/` directory (`strategy`
+  `leash` / `gate` / `followup` lines in **your own shard** in the `ledger/` directory sibling to `spec.md` (`strategy`
   there is the Scanner's alone), and your own `approve`/`by: agent` and `pause`
   verdicts. Never `status`; never a human ratification verdict.
 - **Record the follow-ups even though you cannot file them.** At handoff, the `followup` record is

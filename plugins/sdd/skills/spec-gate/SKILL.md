@@ -138,7 +138,7 @@ self-clears.
 
 | Verb | Action |
 |---|---|
-| **approve** | land the diff; **freeze** each touched `.feature` (set its own `@frozen` tag); append a per-CR `gate` line to the mission's **own shard** in the root `ledger/` directory (`verdict: approve`, `frozen[]`, keyed by `cr`, no `ts`); write `status: approved` |
+| **approve** | land the diff; **freeze** each touched `.feature` (set its own `@frozen` tag); append a per-CR `gate` line to the mission's **own shard** in the `ledger/` directory sibling to `spec.md` (`verdict: approve`, `frozen[]`, keyed by `cr`, no `ts`); write `status: approved` |
 | **change** | revise the diff; **nothing freezes**; stays `draft` |
 | **reject** | scope-kill — drop the delta; nothing freezes |
 

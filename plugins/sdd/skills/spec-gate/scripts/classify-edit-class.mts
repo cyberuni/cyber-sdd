@@ -32,7 +32,13 @@ import { join } from 'node:path'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
-export type EditClassification = 'unfrozen-skip' | 'additive' | 'no-content-change' | 'narrowing' | 'mixed'
+export type EditClassification =
+	| 'unfrozen-skip'
+	| 'additive'
+	| 'no-content-change'
+	| 'narrowing'
+	| 'mixed'
+	| 'unclassifiable'
 
 export type ScenarioChangeKind = 'added' | 'modified' | 'removed' | 'unchanged'
 
@@ -45,6 +51,10 @@ export interface GherkinDiffFileResult {
 	file: string
 	addOnly: boolean
 	scenarios: ScenarioChange[]
+	// Present when the differ could not parse one side of the comparison for this file. Its
+	// presence must be checked BEFORE trusting `addOnly`/`scenarios` — a file yielding no
+	// scenarios makes `addOnly: true` structurally guaranteed, not measured.
+	error?: { code: string; message: string }
 }
 
 export interface GherkinDiffOutput {
@@ -56,6 +66,8 @@ export interface ClassificationResult {
 	file: string
 	classification: EditClassification
 	scenarios: ScenarioChange[]
+	// Set only for `unclassifiable` — why the differ's result could not be trusted.
+	reason?: string
 }
 
 // ─── feature-level @frozen tag ─────────────────────────────────────────────────
@@ -94,6 +106,29 @@ export function classifyFromDiff(fileResult: { addOnly: boolean; scenarios: Scen
 	if (narrowed) return 'narrowing'
 	if (added) return 'additive'
 	return 'no-content-change'
+}
+
+// ─── the escalation boundary — an input the classifier cannot classify ────────
+
+// A file the differ reports a parse error for, or does not report at all, is not "no change" —
+// it is an input the classifier has no evidence about, and absence of evidence never reads as
+// evidence of no change. `error` is checked BEFORE `addOnly`/`scenarios`: the differ pairs a
+// parse error with a fully reassuring `addOnly: true, scenarios: []`, because a file yielding no
+// scenarios gives it nothing to compare — that pairing is structurally guaranteed, not measured.
+export function classifyFromFileResult(fileResult: GherkinDiffFileResult | undefined): {
+	classification: EditClassification
+	reason?: string
+} {
+	if (fileResult === undefined) {
+		return { classification: 'unclassifiable', reason: 'the structural differ returned no result for this file' }
+	}
+	if (fileResult.error) {
+		return {
+			classification: 'unclassifiable',
+			reason: `cannot parse (${fileResult.error.code}): ${fileResult.error.message}`,
+		}
+	}
+	return { classification: classifyFromDiff(fileResult) }
 }
 
 // ─── pure rename detection (git, not gherkin-cli) ──────────────────────────────
@@ -179,11 +214,25 @@ export function classifyFile(path: string, base: string, cwd = '.'): Classificat
 		return { file: path, classification: 'no-content-change', scenarios: [] }
 	}
 
-	const diff = runGherkinDiff(base, path, cwd)
-	const fileResult = diff.files.find((f) => f.file === path) ?? diff.files[0]
-	const scenarios = fileResult?.scenarios ?? []
-	const classification = classifyFromDiff({ addOnly: fileResult?.addOnly ?? true, scenarios })
-	return { file: path, classification, scenarios }
+	let diff: GherkinDiffOutput
+	try {
+		diff = runGherkinDiff(base, path, cwd)
+	} catch {
+		return {
+			file: path,
+			classification: 'unclassifiable',
+			scenarios: [],
+			reason: 'the structural differ produced no readable result',
+		}
+	}
+
+	// The CLI echoes the path as given, so an exact match is the expected case. A single-file diff
+	// that reports under a different path (rather than omitting it) still resolves — but with
+	// multiple files reported and no exact match, which one is "this file" is not knowable, so it
+	// falls through to `undefined` and classifyFromFileResult's no-result escalation.
+	const fileResult = diff.files.find((f) => f.file === path) ?? (diff.files.length === 1 ? diff.files[0] : undefined)
+	const { classification, reason } = classifyFromFileResult(fileResult)
+	return { file: path, classification, scenarios: fileResult?.scenarios ?? [], reason }
 }
 
 // The classification is scoped to the CR's touched .feature files only — a caller passes the
@@ -198,6 +247,7 @@ export function formatText(results: ClassificationResult[]): string {
 	const lines: string[] = []
 	for (const r of results) {
 		lines.push(`${r.classification.toUpperCase().padEnd(18)} ${r.file}`)
+		if (r.reason) lines.push(`  ${r.reason}`)
 		for (const s of r.scenarios) {
 			if (s.change !== 'unchanged') lines.push(`  ${s.change.padEnd(10)} ${s.name}`)
 		}
@@ -233,6 +283,12 @@ export function main(argv: string[]): number {
 		process.stdout.write(`${JSON.stringify(results, null, 2)}\n`)
 	} else {
 		process.stdout.write(`${formatText(results)}\n`)
+	}
+
+	const unclassifiable = results.filter((r) => r.classification === 'unclassifiable')
+	if (unclassifiable.length) {
+		for (const r of unclassifiable) console.error(`✗ ${r.file}: unclassifiable — ${r.reason}`)
+		return 1
 	}
 	return 0
 }

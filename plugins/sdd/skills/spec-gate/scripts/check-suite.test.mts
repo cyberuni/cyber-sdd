@@ -3,7 +3,16 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { checkFilePaths, checkSuite, discoverSuiteDirs, main, parseFilesArg, parseSuite } from './check-suite.mts'
+import {
+	checkFilePaths,
+	checkSuite,
+	discoverSuiteDirs,
+	main,
+	type ParseError,
+	parseFilesArg,
+	parseGherkinValidateOutput,
+	parseSuite,
+} from './check-suite.mts'
 
 const CLEAN_SUITE = [
 	'Feature: clean',
@@ -516,6 +525,129 @@ test('main --files returns 0 on a clean file and 1 on a violation', () => {
 		writeFileSync(hedged, HEDGED_SUITE)
 		assert.equal(main(['--files', clean]), 0)
 		assert.equal(main(['--files', hedged]), 1)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ─── Gherkin parse guard — fail closed, never fail open ───────────────────────
+// A soft-wrapped step has no Gherkin continuation form, so the pinned parser rejects it at the
+// wrapped line — an EPARSE the permissive `parseSuite` scan cannot see (it just reads the wrapped
+// remainder as a bare, ignored line). The fixture below also carries a "sometimes" hedge on its
+// Then step, so a permissive read would ADDITIONALLY trip the boolean-form check — proving the
+// parse violation REPLACES that finding rather than joining it.
+const UNPARSEABLE_AND_HEDGED = [
+	'@frozen',
+	'Feature: broken',
+	'',
+	'  Scenario: wrapped step',
+	'    Given a step that wraps',
+	'      onto the next line',
+	'    Then it sometimes holds',
+].join('\n')
+
+test('parseGherkinValidateOutput maps each reported file to its errors', () => {
+	const stdout = JSON.stringify({
+		summary: { files: 2, errors: 1 },
+		files: [
+			{ file: 'a.feature', ok: false, errors: [{ line: 6, message: 'boom', code: 'EPARSE' }] },
+			{ file: 'b.feature', ok: true, errors: [] },
+		],
+	})
+	const map = parseGherkinValidateOutput(stdout)
+	assert.deepEqual(map.get('a.feature'), [{ line: 6, message: 'boom' }])
+	assert.deepEqual(map.get('b.feature'), [])
+})
+
+test('checkSuite fails closed and reports the line when parse errors are passed', () => {
+	const parseErrors: ParseError[] = [{ line: 6, message: 'expected: #EOF, got bad token' }]
+	const v = checkSuite('slug', 'broken.feature', UNPARSEABLE_AND_HEDGED, parseErrors)
+	assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+})
+
+test('a parse failure replaces the form findings rather than joining them', () => {
+	const parseErrors: ParseError[] = [{ line: 6, message: 'expected: #EOF, got bad token' }]
+	const v = checkSuite('slug', 'broken.feature', UNPARSEABLE_AND_HEDGED, parseErrors)
+	assert.equal(v.length, 1, 'only the parse violation is reported')
+	assert.ok(!v.some((m) => /non-boolean hedge/.test(m)), 'the hedge finding from the permissive scan is absent')
+})
+
+test('a file that parses (no parse errors passed) raises no parse violation', () => {
+	const v = checkSuite('greet', 'greet.feature', CLEAN_SUITE, [])
+	assert.ok(!v.some((m) => /cannot parse as Gherkin/.test(m)))
+})
+
+test('checkFilePaths fails closed on a file the injected validator reports a parse error for, replacing form findings', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const broken = join(root, 'broken.feature')
+		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
+		const fakeValidate = () => new Map([[broken, [{ line: 6, message: 'expected: #EOF, got bad token' }]]])
+		const v = checkFilePaths([broken], root, fakeValidate)
+		assert.equal(v.length, 1)
+		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+		assert.ok(!v.some((m) => /non-boolean hedge/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths raises no parse violation for a file the injected validator reports clean', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const clean = join(root, 'clean.feature')
+		writeFileSync(clean, CLEAN_SUITE)
+		const fakeValidate = () => new Map([[clean, []]])
+		const v = checkFilePaths([clean], root, fakeValidate)
+		assert.deepEqual(v, [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths fails closed when the validator omits a file from its report', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const clean = join(root, 'clean.feature')
+		writeFileSync(clean, CLEAN_SUITE)
+		// The validator's map has no entry at all for `clean` — defaulting the missing entry to
+		// "parses fine" (an empty array) is the exact fail-open bug this guard closes.
+		const fakeValidate = () => new Map<string, ParseError[]>()
+		const v = checkFilePaths([clean], root, fakeValidate)
+		assert.ok(v.some((m) => /returned no result for this file/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths fails every readable path closed when the validator throws', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const a = join(root, 'a.feature')
+		const b = join(root, 'b.feature')
+		writeFileSync(a, CLEAN_SUITE)
+		writeFileSync(b, CLEAN_SUITE)
+		const fakeValidate = () => {
+			throw new Error('parser genuinely could not run')
+		}
+		const v = checkFilePaths([a, b], root, fakeValidate)
+		assert.equal(v.length, 2)
+		assert.ok(v.every((m) => /cannot verify Gherkin validity/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ── integration: the real pinned npx boundary (one per engine, proves the wiring) ──
+
+test('runGherkinValidate against the real pinned parser reports a real EPARSE for an unparseable file', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-real-'))
+	try {
+		const broken = join(root, 'broken.feature')
+		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
+		const v = checkFilePaths([broken], root)
+		assert.equal(v.length, 1, 'the real parser replaces the form findings with the one parse violation')
+		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}

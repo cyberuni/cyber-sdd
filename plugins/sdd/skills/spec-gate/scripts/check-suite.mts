@@ -4,6 +4,7 @@
 // running the file directly drives the CLI. No dependencies — plain node strips
 // the types.
 
+import { execFileSync } from 'node:child_process'
 import { type Dirent, readdirSync, readFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 
@@ -109,10 +110,63 @@ export function parseSuite(text: string): ParsedSuite {
 	return { hasFeatureLine, scenarios, sectionCommentCount }
 }
 
+// ─── Gherkin validity — the pinned parser, not the permissive scan below ───────
+
+export interface ParseError {
+	line: number
+	message: string
+}
+
+// Pure parse of `gherkin-cli@0.0.1 validate --format json`'s stdout. Maps each reported file to
+// its errors (empty array when it parses) so callers can look a path up directly.
+export function parseGherkinValidateOutput(stdout: string): Map<string, ParseError[]> {
+	const parsed = JSON.parse(stdout) as { files: { file: string; errors: { line: number; message: string }[] }[] }
+	const out = new Map<string, ParseError[]>()
+	for (const f of parsed.files) {
+		out.set(
+			f.file,
+			f.errors.map((e) => ({ line: e.line, message: e.message })),
+		)
+	}
+	return out
+}
+
+// The exec boundary around the pinned parser. `validate` exits 1 when any file fails to parse but
+// still writes the full JSON report to stdout — execFileSync THROWS on that nonzero exit, so a
+// throw alone is not proof the parser could not run; recover `err.stdout` and parse it as the
+// normal parse-failure report. Only an empty/missing stdout means the parser genuinely didn't run.
+export function runGherkinValidate(paths: string[], cwd = '.'): Map<string, ParseError[]> {
+	try {
+		const stdout = execFileSync('npx', ['gherkin-cli@0.0.1', 'validate', ...paths, '--format', 'json'], {
+			encoding: 'utf8',
+			cwd,
+			stdio: ['ignore', 'pipe', 'pipe'],
+		})
+		return parseGherkinValidateOutput(stdout)
+	} catch (err) {
+		const stdout = (err as { stdout?: string }).stdout
+		if (typeof stdout === 'string' && stdout.length > 0) {
+			return parseGherkinValidateOutput(stdout)
+		}
+		throw new Error(`gherkin-cli validate did not run: ${(err as Error).message}`)
+	}
+}
+
 // ─── checks ──────────────────────────────────────────────────────────────────
 
-export function checkSuite(slug: string, file: string, text: string): string[] {
+// `parseErrors` carries the pinned parser's verdict for this file (empty when it parses, or
+// omitted by 3-arg callers that predate this guard). A parse failure REPLACES every other
+// finding below rather than joining them: every other check reads the file through the
+// permissive `parseSuite` scan, so on an unparseable file those findings come from a partial
+// view and are not evidence — reporting them as "the form" would still be the fail-open this
+// guard exists to close, just with company.
+export function checkSuite(slug: string, file: string, text: string, parseErrors: ParseError[] = []): string[] {
 	const tag = (msg: string) => `${slug}/${file}: ${msg}`
+
+	if (parseErrors.length > 0) {
+		return parseErrors.map((e) => tag(`cannot parse as Gherkin at line ${e.line} — ${e.message}`))
+	}
+
 	const v: string[] = []
 	const ref = parseSuite(text)
 
@@ -224,17 +278,50 @@ export function discoverSuiteDirs(root: string): { slug: string; files: string[]
 // --files mode the caller passes an explicit path list and only those files are
 // checked (tree discovery is skipped). An unreadable path fails closed — the
 // gate must never silently pass a file it could not read.
-export function checkFilePaths(paths: string[]): string[] {
+//
+// `validate` is injected so the unit tests exercise this wiring with a fake parser (fast,
+// offline) while `main` wires the real pinned-npx boundary. The parser is the SOLE source of
+// Gherkin validity — if it cannot be run at all, every readable path fails closed rather than
+// falling back to the permissive scan; if it runs but omits a path from its report, that path
+// fails closed too rather than defaulting to "parses fine".
+export function checkFilePaths(
+	paths: string[],
+	cwd = '.',
+	validate: typeof runGherkinValidate = runGherkinValidate,
+): string[] {
 	const violations: string[] = []
+	const readable: { path: string; text: string }[] = []
 	for (const p of paths) {
-		let text: string
 		try {
-			text = readFileSync(p, 'utf8')
+			readable.push({ path: p, text: readFileSync(p, 'utf8') })
 		} catch {
 			violations.push(`${p}: cannot read file`)
+		}
+	}
+	if (readable.length === 0) return violations
+
+	let parseErrorsByPath: Map<string, ParseError[]>
+	try {
+		parseErrorsByPath = validate(
+			readable.map((r) => r.path),
+			cwd,
+		)
+	} catch (err) {
+		for (const { path } of readable) {
+			violations.push(`${path}: cannot verify Gherkin validity — ${(err as Error).message}`)
+		}
+		return violations
+	}
+
+	for (const { path: p, text } of readable) {
+		const errs = parseErrorsByPath.get(p)
+		if (errs === undefined) {
+			// Defaulting a missing report to "parses fine" is the exact fail-open bug being fixed —
+			// the parser said nothing about this file, so it cannot be classified as valid.
+			violations.push(`${p}: the Gherkin parser returned no result for this file`)
 			continue
 		}
-		violations.push(...checkSuite(dirname(p), basename(p), text))
+		violations.push(...checkSuite(dirname(p), basename(p), text, errs))
 	}
 	return violations
 }
@@ -263,13 +350,14 @@ export function main(argv: string[]): number {
 		violations = checkFilePaths(paths)
 	} else {
 		const root = argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : '.agents/specs'
+		// The tree-wide sweep must fail closed on a parse failure exactly like --files — route the
+		// full discovered path list through the same validated path rather than the bare parseSuite
+		// scan, so an unparseable suite anywhere in the corpus fails the sweep closed.
+		const paths: string[] = []
 		for (const { slug, files } of discoverSuiteDirs(root)) {
-			const slugDir = join(root, slug)
-			for (const file of files) {
-				const text = readFileSync(join(slugDir, file), 'utf8')
-				violations = violations.concat(checkSuite(slug, file, text))
-			}
+			for (const file of files) paths.push(join(root, slug, file))
 		}
+		violations = checkFilePaths(paths)
 	}
 
 	if (violations.length) {

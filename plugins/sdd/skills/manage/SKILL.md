@@ -18,7 +18,7 @@ The **manage-level** front door to an SDD project — the user-facing handler fo
 
 | # | Operation group | Covers |
 |---|---|---|
-| 1 | **Setup & discovery** | scaffold a project's spec envelope for the first time → `backfill-project-spec`; curate discovery's extra spec anchors → `manage-spec-anchors`; curate the ignore file → `manage-ignore`; set up or configure the mission statusline → `init` (all are prerequisites for a project being found and usable, not routine cleanup) |
+| 1 | **Setup & discovery** | scaffold a project's spec envelope for the first time → `backfill-project-spec`; curate discovery's extra spec anchors → `manage-spec-anchors`; curate the ignore file → `manage-ignore`; wire a project's scenario bridge → `manage-scenario-bridge`; set up or configure the mission statusline → `init` (all are prerequisites for a project being found and usable, not routine cleanup) |
 | 2 | **Inspect** | list / navigate the corpus → `discover-specs`, `concept-index`, `place-node`, `discover-plans` |
 | 3 | **Audit & align** | audit node-shape, drift, structure → `check-spec-structure`, `formation-loop`, `align-spec` *(planned)*; scan plan briefs for machine-local path leaks → `check-plan-safety` |
 | 4 | **Housekeeping** | retire completed mission plans → `plan-retirement` |
@@ -34,6 +34,7 @@ Classification routes a manage request to the **handler** that handles it; every
 | **Setup & discovery** | set up / backfill a project's spec for the first time | **`backfill-project-spec`** — scaffolds the spec envelope + stub nodes |
 | **Setup & discovery** | list / change discovery's extra spec anchors | **`manage-spec-anchors`** — list fixed + custom anchors, CRUD the custom ones, induce a pattern from a path, preview its match (writes only `.agents/sdd/spec-anchors.toml`) |
 | **Setup & discovery** | curate the ignore file | **`manage-ignore`** — curate `.agents/sdd/.sddignore` (list / add / remove / induce / preview); writes only the ignore file |
+| **Setup & discovery** | scaffold or curate a project's scenario-bridge config | **`manage-scenario-bridge`** — list / scaffold / add sources in `<project-path>/.agents/sdd/scenario-bridge.toml`; writes only that project's scenario-bridge config |
 | **Setup & discovery** | set up / configure the mission statusline | **`init`** — user-invocable onboarding skill; offers the opt-in statusline, wires the reader into project `.claude/settings.json` |
 | **Inspect** | list the specs + statuses | **`discover-specs`** — frontmatter-only corpus scan |
 | **Inspect** | render / refresh the by-concept view | **`concept-index`** — `--check` (read) / `--write` (refresh block) |
@@ -49,7 +50,7 @@ Reviewing **pending strategy** is **not** a manage operation — it stays **gate
 
 ## Load the engine in-session
 
-When the route resolves, **load the matched engine in the current session** and run it directly — **spawn nothing**. Read-only engines (`discover-specs`, `discover-plans`, `check-spec-structure`, `check-plan-safety`, `place-node`, `concept-index --check`) run in place; **write-capable** operations stay **owned by their engine** — `backfill-project-spec` scaffolds the skeleton, `plan-retirement` performs its gated deletion, `concept-index --write` refreshes the generated block, `manage-spec-anchors` writes its `spec-anchors.toml` config. `manage` only routes.
+When the route resolves, **load the matched engine in the current session** and run it directly — **spawn nothing**. Read-only engines (`discover-specs`, `discover-plans`, `check-spec-structure`, `check-plan-safety`, `place-node`, `concept-index --check`) run in place; **write-capable** operations stay **owned by their engine** — `backfill-project-spec` scaffolds the skeleton, `plan-retirement` performs its gated deletion, `concept-index --write` refreshes the generated block, `manage-spec-anchors` writes its `spec-anchors.toml` config, `manage-scenario-bridge` writes its project's `scenario-bridge.toml` config. `manage` only routes.
 
 ## Non-mission — the boundary
 

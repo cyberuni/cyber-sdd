@@ -39,6 +39,11 @@ Feature: The manage dispatcher — classify a manage-level request and load the 
     When manage classifies it
     Then it loads the init skill in the current session
 
+  Scenario: a setup request to wire a project's scenario bridge loads manage-scenario-bridge
+    Given a request to scaffold or curate a project's scenario-bridge config
+    When manage classifies it
+    Then it loads the manage-scenario-bridge engine in the current session
+
   Scenario: an inspect request loads the matching read-only engine
     Given a request to list the project's specs and their statuses
     When manage classifies it

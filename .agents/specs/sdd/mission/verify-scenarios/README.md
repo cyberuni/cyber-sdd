@@ -42,7 +42,8 @@ behaviors:
 | **junit adapter → results** | a testcase binds to the **node** named by its `spec:<node>` name-segment (at any depth); a testcase with no such segment binds to **no node**; the **key** is the leaf's `@id:<slug>` else the leaf verbatim; the **outcome** is fail / skip / pass from the child element; `classname` / `name` are read **by attribute name** and XML-unescaped, and a name carrying a literal `>` is not truncated |
 | **union + fold** | results from **every** configured source are unioned, then folded by `(node, key)` against the scenario set: **UNBOUND** (no result), **PASS** (≥1, none fail), **FAIL** (any fail); a result bound to another node is excluded; a bound key matching no scenario is an **EXTRA**, not a failure |
 | **the CLI surface** | `--report` bypasses the config for a single ad-hoc junit source; `--run` executes each source's `command` before reading its report (else the existing report is read as-is); output renders as text by default, or `json` / `toon` on request; a missing `--feature` / `--node` prints usage and exits non-zero |
-| **path resolution** | a path argument (`--feature` / `--report` / `--config`, and each source's `reportPath`) resolves **beneath `--root`** (which defaults to the current directory) when **relative**, and is used **verbatim** when **absolute** — never double-prefixed under `--root` |
+| **path resolution** | a path argument (`--feature` / `--report` / `--config`, and each source's `reportPath`) resolves **beneath its root** when **relative**, and is used **verbatim** when **absolute** — never double-prefixed |
+| **feature-root vs. bridge-root** | `--feature` resolves beneath `--feature-root` (defaults to `--root` when omitted); `--config`'s default path, `--report`, and every source's `reportPath` always resolve beneath `--root` — a monorepo where the frozen `.feature` and the project's config+report live under different roots (e.g. a repo-root spec corpus alongside a package-rooted project) needs no single root to serve both |
 | **exit status** | the tool exits **non-zero** when any scenario is UNBOUND or FAIL, and **zero** only when every scenario is bound and passing |
 
 ## Binding convention
@@ -63,6 +64,11 @@ behaviors:
   alone; the parsing / adapter / fold functions are pure and independently testable.
 - **Writes nothing.** The engine reads the `.feature` and the reports and emits its report to
   stdout; acting on the result (judging the UNBOUND set) belongs to the impl-judge.
-- **Config** lives at `.agents/sdd/scenario-bridge.toml` (an array-of-tables of sources); a
-  `.feature` is **not** assumed to map to one runner — vitest + playwright + others can each
-  contribute a source, and `tap` / `aced` slot into the same adapter seam later.
+- **Config** lives at `<project-path>/.agents/sdd/scenario-bridge.toml` (an array-of-tables of
+  sources), discovered under the **project's own root** (`--root`) — never a single repo-root path —
+  so a monorepo member's config sits beside the code and reports it covers. A `.feature` is **not**
+  assumed to map to one runner — vitest + playwright + others can each contribute a source, and
+  `tap` / `aced` slot into the same adapter seam later. [`../../gateway/manage/README.md`](../../gateway/manage/README.md)'s
+  `manage-scenario-bridge` engine owns scaffolding this **one-time per-project wiring** — no producer
+  role authors it (the impl-producer authors the *binding tests* the config's sources report on, not
+  the config itself).

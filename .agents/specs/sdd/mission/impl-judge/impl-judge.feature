@@ -96,6 +96,16 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     When the impl-judge judges the implementation
     Then it judges every frozen scenario by hand rather than consuming a bridge report
 
+  Scenario: the bridge is discovered under the project's own root, not a single repo-root path
+    Given a monorepo project whose spec lives at a repo-root spec corpus and whose code, config, and report live under its own project-path
+    When the impl-judge checks whether a scenario bridge is configured
+    Then it looks for scenario-bridge.toml under the project's project-path rather than only the repo root
+
+  Scenario: the judge resolves the feature location independently of the bridge root
+    Given a monorepo project whose frozen feature and scenario-bridge.toml resolve under different roots
+    When the impl-judge runs verify-scenarios
+    Then it resolves the feature at its own location and the config, report, and reportPath under the project's project-path
+
   # ---- The absorption read ----
 
   Scenario: an implementation illustration reusing a scenario's Given apparatus is a finding

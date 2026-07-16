@@ -178,7 +178,10 @@ Stated plainly, because this node's previous gate recorded a discrimination clai
 misaligned CR, lowers a dead CR anyway, misses a barrier or schedules it late, fuses two capabilities
 into one node, splits a shared node per-CR, calls an order-imposable contention irreducible, lowers
 the far horizon, or parallelizes an unproven overlap. Each such loss costs a full dimension, which is
-more than the one point of slack every threshold allows.
+more than the one point of slack **this suite's** thresholds carry — a slack measured against **this
+suite's** judge, and (see below) one that did not reproduce. No threshold anywhere is entitled to a
+point of slack by default: the margin is the judge's noise at the cut, which is measured per suite,
+never decreed.
 
 **It cannot detect:**
 

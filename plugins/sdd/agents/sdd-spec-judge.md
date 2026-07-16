@@ -93,9 +93,12 @@ rubric form, so scoring lingo inside it is **not** rejected. Two parts:
 
 - **Structure (universal — every resolved judge enforces it identically):** the rubric block is
   present with named dimensions, a per-dimension `max`, and exactly one `threshold`; a
-  boolean-collapsing `Then` is present (`the rubric score is at least the threshold`). A missing
-  threshold, missing named dimensions, or absent collapsing `Then` is a structural failure — the
-  judge names the missing element as the cause and **scoring does not begin**.
+  boolean-collapsing `Then` is present (`the rubric score is at least the threshold`); and **no
+  dimension is double-barreled** (two criteria joined by *and*, e.g. `harness_agnostic_and_mcp_free`
+  — it has no honest score, since a subject satisfying one half and failing the other makes every
+  awardable number report something false). A missing threshold, missing named dimensions, an absent
+  collapsing `Then`, or a double-barreled dimension is a structural failure — the judge names the
+  element as the cause and **scoring does not begin**.
 - **Scoring (per-resolved-judge — capability varies by the domain's resolved spec-judge):** the
   judge reads the rubric, scores each dimension, sums, applies the threshold, and emits a single
   pass/fail (`total ≥ threshold ⇒ pass`) — never a raw score. This default `sdd-spec-judge` performs
@@ -103,11 +106,27 @@ rubric form, so scoring lingo inside it is **not** rejected. Two parts:
   registry resolves a more capable spec-judge may score with more rigor. The structural check above
   is identical across all resolved judges; only scoring capability differs.
 
-**Discrimination (Builder — judged, every scenario and every `@rubric` dimension):** each must be able to
-**register a miss** — a **plausible wrong subject** must exist that fails the scenario, or that
-scores below the dimension's `max`. Structure and discrimination are **distinct checks**: a
-well-formed `@rubric` passes structure and may still fail here, and a green deterministic check
-clears neither. **Well-formed is never acceptance.**
+**Selection (Builder — judged, every `@rubric` dimension; runs BEFORE discrimination):** a `@rubric`
+is a **compensatory** model — the sum lets strength on one dimension pay for weakness on another —
+so every dimension in it must be **substitutable**: you must accept that trade.
+
+- **Fail a `@rubric` that sums a non-substitutable criterion.** Say the trade out loud: *"great scope
+  makes up for shipping an npx dependency"* is one nobody accepts, so `no_npx_dependency` belongs in
+  a boolean `Then`, not in the sum. Graded as a dimension it becomes **tradeable**, which is the one
+  thing a rule must never be, and no `max` or `threshold` repairs it.
+- **Do not demand per-dimension hurdles instead.** A minimum on each dimension is **conjunctive**
+  scoring: less reliable, not safer — the least-reliable subscore controls the outcome and it buys
+  fewer false passes with more **false negative classification errors**. The remedy is that the
+  criterion never enters the rubric, not that it gains a floor.
+- **Run this check first.** A criterion that does not belong in the sum needs no discrimination
+  analysis, and every dimension reaching the miss test below has already cleared selection.
+
+**Discrimination (Builder — judged, every scenario and every `@rubric` dimension; runs AFTER
+selection):** each must be able to **register a miss** — a **plausible wrong subject** must exist
+that fails the scenario, or that scores below the dimension's `max`. Structure, selection, and
+discrimination are **distinct checks**: a well-formed `@rubric` passes structure and may still sum a
+criterion that never belonged in it, a substitutable dimension may still be one no wrong subject can
+lose, and a green deterministic check clears none of the three. **Well-formed is never acceptance.**
 
 - Name the wrong subject explicitly — a **memorizer** (reproduces the doctrine's words), a **copier**
   (echoes the artifact's worked examples), a **procedure-follower** (executes the steps without the
@@ -116,9 +135,12 @@ clears neither. **Well-formed is never acceptance.**
 - Fail a dimension grading **presence** (a line is emitted, where the subject makes emission
   trivial), **restatement** (the doctrine's own words — the memorizer scores max and the reasoner no
   higher), or **procedure** (the steps, where the judgment is under test).
-- For a `@rubric`, **sum what each named wrong subject scores**: that sum sits **under** the
-  threshold, and not by a single point of a single dimension. A floor reaching threshold on the free
-  dimensions alone leaves the discriminating dimensions decorative.
+- For a `@rubric`, **sum what each named wrong subject banks** — never zero a dimension to make a
+  point — and that sum sits **strictly under** the threshold (a tie passes). A floor reaching
+  threshold on the free dimensions alone leaves the discriminating dimensions decorative.
+- **Do not decree a margin.** How far under is your judge's noise at the cut (**cSEM**), a measured
+  property of the instrument. Never fail a rubric for clearing by "only one point"; fail it for a
+  dimension no wrong subject can lose.
 - A **measured ceiling is not evidence** — max on every run with zero variance is a tell the
   dimension cannot be lost, not a finding that the subject is good.
 - **Escalate a scenario you cannot classify rather than passing it.**

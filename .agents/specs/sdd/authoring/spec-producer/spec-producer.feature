@@ -129,6 +129,31 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then the check reports no violation
     And the producer reports complete
 
+  # ---- Selection — which form a criterion goes in ----
+
+  Scenario: a criterion no strength elsewhere pays for is never written as a dimension
+    Given the producer is authoring a scenario for a schema migration and holds criteria for row preservation, column naming, and comment coverage
+    When it selects the form of each criterion
+    Then it writes row preservation as a boolean Then step
+    And it writes no scored dimension for row preservation
+
+  Scenario: criteria a reviewer would genuinely trade are written as dimensions
+    Given the producer is authoring a scenario for a schema migration and holds criteria for column naming and comment coverage
+    When it selects the form of each criterion
+    Then it writes both criteria as scored dimensions
+
+  Scenario: a criterion covering two concerns is split and each half takes its own form
+    Given the producer is authoring one criterion covering both that a migration is reversible and how thoroughly it is documented
+    When it selects the form of that criterion
+    Then it writes reversibility as a boolean Then step
+    And it writes documentation thoroughness as a scored dimension
+
+  Scenario: correcting an existing summed non-substitutable criterion is raised, not silently stripped
+    Given a revise CR whose already-frozen @rubric sums a criterion no strength elsewhere pays for
+    When the producer applies the selection rule to it
+    Then it reports the correction as an edit needing clearance
+    And it does not remove that dimension without the clearance
+
   # ---- Discrimination — the authored scenario must be able to register a miss ----
 
   Scenario: a green mechanical form check does not clear an unloseable rubric dimension
@@ -172,6 +197,19 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Given an authored @rubric dimension a memorizer scores below max, whose free dimensions do not reach the threshold without it
     When the producer applies the miss test
     Then it does not rewrite the dimension
+
+  Scenario: the producer scores a wrong subject at what that subject banks
+    Given an authored @rubric carrying a live dimension a memorizer partly satisfies
+    When the producer applies the miss test
+    Then it scores the live dimension at what the memorizer's own answer earns
+    And it does not score the live dimension at zero
+
+  Scenario: a wrong subject that ties the threshold is treated as clearing it
+    Given an authored @rubric whose memorizer banks a sum equal to the threshold
+    When the producer applies the miss test
+    Then it treats the memorizer as passing the scenario
+    And it does not report the dimensions loseable
+    And it does not report complete while the memorizer passes the scenario
 
   # ---- Pairwise consistency — the authored scenarios read against each other ----
 

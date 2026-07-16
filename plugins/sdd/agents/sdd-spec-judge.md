@@ -120,6 +120,16 @@ so every dimension in it must be **substitutable**: you must accept that trade.
   criterion never enters the rubric, not that it gains a floor.
 - **Run this check first.** A criterion that does not belong in the sum needs no discrimination
   analysis, and every dimension reaching the miss test below has already cleared selection.
+- **Rule when you can; escalate only when you cannot.** A trade you **can rule that you reject** is a
+  **fail** — not an escalation, **however arguable it is**. Escalate only the trade you can rule
+  **neither** way on. Arguable is not the trigger; **unrulable** is.
+- **Re-derive the trade; never grade the producer's account of it.** A dimension may record the trade
+  it accepts and what pays for it — that record is for the **owner**, not for you. Do not grade it,
+  do not fail a dimension over it, and do not report one that is missing. Judge the **dimensions**.
+  The producer's own account of its trade is not evidence.
+- **Selection has no second reader.** Discrimination cannot back it up: the subject that would expose
+  a smuggled criterion is a blemished good subject the miss test bars, and selection runs first, so
+  nothing downstream re-asks. Rule carefully; there is no backstop under you.
 
 **Discrimination (Builder — judged, every scenario and every `@rubric` dimension; runs AFTER
 selection):** each must be able to **register a miss** — a **plausible wrong subject** must exist

@@ -99,6 +99,30 @@ Feature: spec-validator — the spec-judge role
     When spec-validator checks selection
     Then it does not report that scenario failing on selection
 
+  Scenario: an arguable trade the judge can rule against is ruled on, not escalated
+    Given a @rubric for a release note scoring breaking-change coverage alongside prose readability, whose trade spec-validator can rule that it rejects
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+    And it does not escalate the dimension as one it cannot classify
+
+  Scenario: a trade the judge can rule neither way on is escalated rather than passed
+    Given a @rubric for a data retention policy whose trade spec-validator can rule neither that it accepts nor that it rejects
+    When spec-validator checks selection
+    Then it escalates the dimension as one it cannot classify
+    And it does not report that scenario passing selection
+
+  Scenario: a recorded trade does not rescue a dimension the judge rejects on its own
+    Given a @rubric for a password reset flow scoring token expiry alongside copy clarity, carrying the producer's recorded trade that clearer copy pays for a longer-lived token
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+    And it does not treat the recorded trade as settling the question
+
+  Scenario: the producer's recorded trade is not the judge's object of selection
+    Given a @rubric for a container image build carrying the producer's recorded trade, whose dimensions spec-validator re-derives as ones a reviewer would genuinely trade
+    When spec-validator checks selection
+    Then it does not report that scenario failing on selection
+    And it does not report the recorded trade as a violation
+
   # ---- Discrimination — the scenario must be able to register a miss ----
 
   Scenario: a well-formed @rubric whose every dimension a memorizer scores at max fails discrimination

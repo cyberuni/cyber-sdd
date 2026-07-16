@@ -83,7 +83,10 @@ Phase 2 — the suite:
   shipping an npx dependency"* — nobody accepts that). If you do not accept it, the criterion is
   **not in the sum**: write it as a boolean `Then`. A rule graded as a dimension becomes
   **tradeable**, and no threshold repairs that. Split a **double-barreled** dimension (two criteria
-  joined by *and*) before selecting — the halves routinely land in different forms.
+  joined by *and*) before selecting — the halves routinely land in different forms. **Write the trade
+  down** in the same record that carries the cut's reason, naming it and **what pays for it** — an unrecorded trade is an unowned selection nobody can disagree with. Record it for
+  each dimension you author or revise. The duty is **yours alone**: no judge reports a missing record,
+  so nothing catches you skipping it.
 - **Apply the miss test to every scenario and every `@rubric` dimension you author**
   (`../suite-format/README.md`). Name a **plausible wrong subject** — a memorizer, a copier, a
   procedure-follower, a single-brancher — and check that it *loses*. A scenario every plausible

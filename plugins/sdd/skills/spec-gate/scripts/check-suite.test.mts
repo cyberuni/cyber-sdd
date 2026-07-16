@@ -7,6 +7,7 @@ import {
 	checkFilePaths,
 	checkSuite,
 	discoverSuiteDirs,
+	findDeadRubric,
 	main,
 	type ParseError,
 	parseFilesArg,
@@ -238,6 +239,171 @@ test('a @rubric tag does not excuse a probabilistic hedge', () => {
 	].join('\n')
 	const v = checkSuite('slug', 'x.feature', text)
 	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+})
+
+// ─── findDeadRubric — vacuous rubric (sum(max) < threshold) ────────────────
+
+test('findDeadRubric flags sum(max) < threshold', () => {
+	const doc = [
+		'dimensions:',
+		'  - name: correctness',
+		'    max: 3',
+		'  - name: completeness',
+		'    max: 2',
+		'threshold: 6',
+	].join('\n')
+	assert.deepEqual(findDeadRubric(doc), { dimensionsTotal: 5, threshold: 6 })
+})
+
+test('findDeadRubric does NOT flag sum(max) === threshold (legal strict bar)', () => {
+	const doc = [
+		'dimensions:',
+		'  - name: correctness',
+		'    max: 3',
+		'  - name: completeness',
+		'    max: 2',
+		'threshold: 5',
+	].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric does not flag sum(max) > threshold', () => {
+	const doc = [
+		'dimensions:',
+		'  - name: correctness',
+		'    max: 3',
+		'  - name: completeness',
+		'    max: 2',
+		'threshold: 4',
+	].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric returns null on a missing threshold', () => {
+	const doc = ['dimensions:', '  - name: correctness', '    max: 3'].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric returns null on no max: lines (no dimensions found)', () => {
+	const doc = ['threshold: 4', 'notes: nothing here'].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric returns null on non-numeric threshold, no crash', () => {
+	const doc = ['dimensions:', '  - name: correctness', '    max: 3', 'threshold: many'].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+// ─── checkSuite — dead rubric wiring (@rubric scenarios only) ─────────────
+
+test('a @rubric scenario whose rubric sums below threshold is a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: some name',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 6',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(
+		v.some((m) => /rubric cannot be passed — dimensions total 5, threshold 6/.test(m)),
+		v.join('\n'),
+	)
+})
+
+test('a @rubric scenario whose rubric sums exactly to threshold is NOT a violation (control)', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: some name',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 5',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)), v.join('\n'))
+})
+
+test('a @rubric scenario whose rubric sums above threshold is not a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: some name',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 4',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)))
+})
+
+test('a non-@rubric scenario with similar-looking DocString text is not a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  Scenario: some name without the tag',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 6',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)))
+})
+
+test('a @rubric scenario with a malformed/absent rubric DocString does not crash and is not a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: no docstring at all',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	assert.doesNotThrow(() => checkSuite('slug', 'x.feature', text))
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)))
 })
 
 // ─── checkSuite — meta-spec exemptions (a spec about rubrics is not a rubric) ──

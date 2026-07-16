@@ -148,6 +148,27 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it writes reversibility as a boolean Then step
     And it writes documentation thoroughness as a scored dimension
 
+  Scenario: the producer records the trade it accepts beside a dimension it authors
+    Given the producer is authoring a @rubric for an incident postmortem and holds criteria for how thoroughly the contributing factors are traced and how actionable the follow-ups are
+    When it selects the form of each criterion
+    Then it writes both criteria as scored dimensions
+    And it records the trade it accepts and what pays for it
+
+  Scenario: a dimension authored with no recorded trade is not left unrecorded
+    Given the producer has authored a @rubric dimension whose trade it accepts and recorded no trade for it
+    When it applies the selection rule
+    Then it records the trade it accepts and what pays for it before returning
+
+  Scenario: revising an existing dimension binds the recording duty to it
+    Given a revise CR that rewrites an already-frozen @rubric dimension whose trade the producer accepts and which records no trade
+    When the producer applies the selection rule to it
+    Then it records the trade it accepts and what pays for it before returning
+
+  Scenario: a standing dimension recording no trade is not reported by the authoring duty
+    Given a revise CR whose already-frozen @rubric carries a dimension whose trade the producer accepts and which records no trade, and which the CR does not touch
+    When the producer applies the selection rule to it
+    Then it does not report that dimension
+
   Scenario: correcting an existing summed non-substitutable criterion is raised, not silently stripped
     Given a revise CR whose already-frozen @rubric sums a criterion no strength elsewhere pays for
     When the producer applies the selection rule to it

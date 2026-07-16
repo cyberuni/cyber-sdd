@@ -135,6 +135,26 @@ test*) and a **gradient** (*how thorough it is*) that got named once. Split them
 its own: the rule becomes a boolean `Then`, the gradient stays a dimension. Reaching instead for a
 minimum on the dimension is the conjunctive move below, and it is the wrong one.
 
+**Write the trade down.** Said out loud and left there, a trade leaves no trace — and a trade nobody
+wrote is one nobody can disagree with: an **unowned selection**, exactly as a `threshold:` with no
+recorded reason is an unowned policy. Put it in the **same record that carries the cut's reason**
+(below, which is also where that record may live), naming the trade **and what pays for it** —
+*"thinner edge-case coverage is paid for by stronger error handling."*
+
+**The record is for the owner, not the judge.** Its reader is whoever reviews this suite later and
+may disagree with it — the same audience and the same purpose as the cut's recorded reason. The
+spec-judge does **not** grade it and never fails a dimension over it: selection is re-derived from
+the **dimensions themselves**, exactly as where no record exists. A producer's own account of its
+trade is not evidence, and putting it in the judge's path would buy that account a vote it has not
+earned. What the record buys is that the selection stops being **unfalsifiable** — not detection of
+a contested trade (*The soft spot*, below), and not any judgment the judge would otherwise skip.
+
+The duty binds **when you author or revise a dimension**, and it is **the producer's alone**: no
+judge reports a missing record, whoever authored it, so nothing catches you skipping it. That is the
+honest state of it. Correcting the standing corpus is its own work — and **recording** a trade forces
+no threshold re-derivation, changing no `max` and no cut; that is what **stripping** a
+non-substitutable dimension forces (above).
+
 **This is not conjunctive scoring.** Conjunctive scoring keeps every criterion in the rubric and
 adds a per-dimension minimum each must clear. That is a worse instrument, not a safer one: the
 **least-reliable subscore controls the outcome**, and it buys its fewer false passes with more
@@ -156,6 +176,39 @@ inherit by arithmetic.
 rubric or in the node's spec body, name which error the cut buys down and what that costs — *"a
 false pass ships a broken contract and a false fail costs one more authoring round, so the cut
 sits high."*
+
+**One record carries both** the cut's reason and each dimension's trade (above) — they are decided
+together and reviewed together, and two parallel records are two things to drift.
+
+## The soft spot — selection rests on one judgment, and that is accepted
+
+**Do not look for a disambiguator on the contested case. There is none, and each search for one
+repeats a settled mistake.**
+
+The substitutability test is decisive on clear-cut criteria. On a **contested** one it gives no
+traction, and a producer who wants a criterion to be a dimension can construct a trade that reads
+plausibly. Nothing in this bar catches that. Each apparent guard is checked and does not reach:
+
+- **Escalation does not reach it.** The escalate trigger (below) keys on a judge's **inability** to
+  say whether it accepts the trade. A genuinely contested criterion produces **confident
+  disagreement** — competent judges landing on opposite sides, each sure — not inability.
+  *Contestable in fact* and *uncertain to this judge* are different properties; escalation fires on
+  the second only.
+- **The recorded trade does not reach it.** A motivated producer writes the trade down and it reads
+  fine — and nothing grades it in any case (above).
+- **Discrimination cannot back it up.** The subject that would expose a criterion smuggled into the
+  sum is one right about everything *except* that criterion — a **blemished good subject**, the
+  strawman the miss test bars. And selection runs **before** discrimination, so nothing downstream
+  re-asks the question.
+
+So selection rests on **one confident judgment, with no second reader inside this bar.** That is
+accepted deliberately, not overlooked. The backstops sit **outside** it: the cold judge's
+independence, and an owner who can disagree with the recorded trade after the fact — which is what
+the record is for.
+
+The two moves that look like a fix here are already ruled out: **arithmetic** over `max` and
+`threshold` (*Selection and discrimination are judged, not linted*, below) and **per-dimension
+hurdles** (above). A reader who reaches for either is solving a different problem.
 
 ## A scenario must be able to register a miss
 

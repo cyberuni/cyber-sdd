@@ -59,6 +59,100 @@ Scenario: <name>
 The final `Then` yields exactly one boolean — the gate sees pass/fail, not a score. The rubric is
 internal evaluation detail, judged **by hand**.
 
+## One criterion per dimension — split before you select
+
+A dimension naming two criteria joined by *and* — `harness_agnostic_and_mcp_free` — is
+**double-barreled**, and it has no honest score: a subject that is harness-agnostic but ships an MCP
+dependency satisfies one half and fails the other, so every number you could award it reports
+something false.
+
+This is a **structural** defect, not a selection one, and it is caught at the **structure** check —
+before selection, because a double-barreled criterion cannot be selected either. Its two halves
+rarely trade the same way, so asking whether *it* is substitutable has no answer. **Split it first**,
+then run each half through the substitutability test below on its own — the halves routinely land in
+different forms (*that a migration is reversible* is a rule; *how thoroughly it is documented* is a
+gradient).
+
+## Choosing the form — the substitutability test
+
+The two forms are not *simple* vs *complex*. They are **non-substitutable** vs **substitutable**,
+and this is the rule that decides which form a criterion goes in.
+
+A rubric that sums N dimensions against one threshold is a **compensatory** model: a high score on
+one dimension **compensates** for a low score on another. That is the form's purpose and its one
+documented cost — a subject that wholly fails one dimension can still pass by banking points
+elsewhere. The term is **compensation**; the bad pass it produces is a **false positive
+classification error**. It attaches to the **aggregation** — to the act of summing — and no
+judgment method, judge quality, or threshold arithmetic touches it.
+
+Compensation is legitimate only where the dimensions are **substitutable**: where you genuinely
+accept that strength on one may pay for weakness on another.
+
+> Knowing how to read English really well should not compensate for the lack of ability to speak
+> English.
+
+**The selection rule: a criterion belongs in a `@rubric` only if you accept that strength elsewhere
+may pay for weakness here.** If you do not accept that trade, the criterion is not in the sum at
+all — it is a boolean `Then` (Form 1).
+
+**Select before you author.** This is a decision about where a criterion **goes**, made while you are
+writing it — not a pass that strips dimensions out of a rubric afterwards. A non-substitutable
+criterion never becomes a dimension in the first place.
+
+Where an **existing** suite already sums one, correcting it is a **mixed** edit, never a silent
+strip — and it is not the simple deletion it looks like. It **adds** a boolean `Then` (strengthening
+the contract) and it **forces the threshold to be re-derived**: strip a `max: 3` dimension out of
+`[3, 3, 2] threshold: 6` and the surviving dimensions cannot reach 6 at all, so the cut must be
+re-set, and re-setting it is a fresh **policy call** (below). A mixed edit routes to **Clearance**
+like any other.
+
+Apply it per criterion, in the subject's own domain, by **saying the trade out loud**:
+
+- *"Great scope makes up for shipping an npx dependency"* — nobody accepts this. `no_npx_dependency`
+  is a **rule**: a boolean `Then`.
+- *"Stronger error handling makes up for thinner edge-case coverage"* — a trade a reviewer would
+  genuinely make. Both belong in the rubric.
+
+| The criterion is | Form |
+|---|---|
+| **non-substitutable** — no strength elsewhere pays for failing it | **Form 1** — a boolean `Then` |
+| **substitutable** — a reviewer would genuinely make the trade | **Form 2** — a `@rubric` dimension |
+
+A **rule** graded as a rubric dimension becomes **tradeable**, which is the one thing a rule must
+never be. That is a category error in the *selection*, and no threshold repairs it: a
+non-substitutable criterion at any `max` and any `threshold` is still purchasable with points
+earned elsewhere. One scenario routinely carries both forms — its rules as boolean `Then`s, its one
+genuine gradient as a `@rubric`. Keeping a criterion out of the sum does not weaken the scenario: the
+rule fails the subject outright instead of being priced.
+
+**"Partly substitutable" means you are holding two criteria, not one.** The common case: you would
+accept a thinner test suite paid for by strength elsewhere, but you would never accept *no tests at
+all*. That is not one criterion with a floor under it — it is a **rule** (*there is at least one
+test*) and a **gradient** (*how thorough it is*) that got named once. Split them and select each on
+its own: the rule becomes a boolean `Then`, the gradient stays a dimension. Reaching instead for a
+minimum on the dimension is the conjunctive move below, and it is the wrong one.
+
+**This is not conjunctive scoring.** Conjunctive scoring keeps every criterion in the rubric and
+adds a per-dimension minimum each must clear. That is a worse instrument, not a safer one — the
+**least-reliable subscore controls the outcome**, and it buys its fewer false passes with more
+**false negative classification errors**. Per-dimension hurdles are not a safe default; do not reach
+for them. Substitutability makes the opposite move: a non-substitutable criterion does not become a
+graded subscore with a floor under it, it **never enters the rubric at all** and is asserted as a
+boolean instead. Nothing is graded, so no subscore's reliability controls anything.
+
+## The threshold is a policy call, not a derived one
+
+Where the cut sits is decided by the **relative cost of a false positive (a wrong subject that
+passes) against a false negative (a good subject that fails)** — a values decision the spec owner
+makes on purpose. **It is not computable from the data.** Putting the cut where two subjects' scores
+meet minimizes total error *only* when a false pass and a false fail cost the same and the two kinds
+of subject are about equally likely — a claim about your domain, never a default to inherit by
+arithmetic.
+
+**Record why.** A `threshold:` line with no recorded reason is an unowned policy. Next to the rubric
+or in the node's spec body, name which error the cut buys down and what it costs — *"a false pass
+ships a broken contract and a false fail costs one more authoring round, so the cut sits high."*
+
 ## A scenario must be able to register a miss
 
 Well-formedness is **necessary and never sufficient**. A boolean `Then`, and a `@rubric` block with
@@ -101,19 +195,66 @@ Each names a `Then` or dimension **no** plausible wrong subject loses. Rewrite o
 
 ### Loseable in arithmetic ≠ loseable in practice
 
-Per named wrong subject, **sum what it scores; the sum sits under the threshold** — and not by a
-single point of a single dimension. A floor that reaches threshold on the free dimensions alone
-leaves the discriminating dimensions decorative.
+Per named wrong subject, **sum what it scores; the sum sits strictly under the threshold**.
+Strictly: the collapsing `Then` passes a score *at least* the threshold, so a wrong subject that
+**ties** the threshold **passes**. A rubric whose free dimensions alone carry a wrong subject to the
+threshold leaves its discriminating dimensions decorative.
 
-> `[live 3] [restatement 3] [presence 2]`, `threshold: 6`. A memorizer banks `3+2=5` — one under, so
-> loseable in arithmetic. One point of `live` carries it, so no memorizer ever fails. The rubric
-> grades reading and reports it as reasoning.
+> `[live 3] [restatement 3] [presence 2]`, `threshold: 6`. A memorizer banks `3+2=5` on
+> `restatement` and `presence` without engaging `live` at all. Those two are free — a memorizer maxes
+> both — so each fails the miss test on its own and is rewritten. The defect is the two decorative
+> dimensions, not the distance from 5 to 6.
+
+**Score each wrong subject at what it banks — never zero a dimension to make a point.** A wrong
+subject scores each dimension at what that dimension's own rules award it, which for a memorizer on
+a live dimension is rarely 0. Zeroing one dimension in turn and asking whether the rubric still
+passes is **not** this test: it posits a subject right about everything except one thing — a
+blemished **good** subject, precisely the strawman the miss test bars. A score profile does not
+identify a subject: `[3, 0, 3]` is the memorizer's profile *and* a good-but-flawed subject's, and
+they are not the same subject.
+
+### The margin is measured, not decreed
+
+**How far under the threshold a wrong subject must land is not a constant this bar can give you.**
+That distance is only meaningful against the **noise of your own judge** — score the same subject
+twice and the scores differ. The named quantity is the **conditional standard error of measurement
+(cSEM)**: the judge's precision **at the cut score**, a **measured property of the instrument**, not
+a number doctrine decrees. A single global reliability figure (Cronbach's alpha) is the wrong tool
+for a pass/fail decision — it averages precision across the whole scale, and the only precision that
+decides a pass is the precision at the cut.
+
+**So measure it, per suite.** Score your named wrong subjects **more than once** and record whether
+the scores reproduce. The one node in this corpus whose rubrics conform records exactly this in its
+README — *"2.33/3 mean, measured twice, did not reproduce"* — and honestly flags that its one-point
+slack is not evidence-backed.
+
+**Copy that practice — the measuring and the honest record — and nothing else from it.** That node's
+own threshold convention is its **local policy call**, not doctrine, and its design is not a template
+this bar blesses. A slack measured against one suite's judge says nothing about yours. **This bar
+governs; where a node's design and this bar disagree, this bar wins.**
+
+Any constant offered in place of that measurement — *"not by a single point"*, `gap ≥ 2`,
+`max ≥ b + 2` — is a guess at an instrument property nobody measured. Every such constant this bar
+has carried was wrong, and each one's repair produced the next.
+
+**Naming subjects orders them; it never separates them.** Scoring one wrong subject and one good
+subject and putting the cut between them is a crude instance of **contrasting groups** — a real
+standard-setting method that scores a known-fail **group** and a known-pass **group** and reads the
+cut off where the **distributions** separate. At one subject per group there is no distribution, no
+variance, no intersection: two points establish an **ordering**, never a separation. The miss test is
+a **sanity check** on a threshold you set as policy — it catches a cut that is plainly too low. It
+never derives one.
 
 ### Judged, not linted
 
-No deterministic form, and not a candidate for one — whether a dimension is loseable depends on the
-subject, which no lexical probe reads. `check-suite` does not check it. A judge that cannot name a
-plausible wrong subject for a scenario **escalates it rather than passing it**.
+Selection and discrimination both have no deterministic form, and neither is a candidate for one.
+Whether a dimension is loseable depends on the subject, which no lexical probe reads; whether a
+criterion is **substitutable** is a **judgment about the domain** — it asks whether a trade would be
+*accepted*, which is not a property of the rubric's text at all. Every attempt to derive the
+selection rule from arithmetic over `max` and `threshold` failed, because no arithmetic over the
+scores can see it. `check-suite` checks neither. A judge that cannot name a plausible wrong subject
+for a scenario, or cannot say whether a dimension's trade is one it would accept, **escalates it
+rather than passing it**.
 
 A **measured ceiling is not evidence**: a dimension scoring max on every run with zero variance is a
 **tell that it cannot be lost**, not a finding that the subject is good. Re-run the miss test.
@@ -196,12 +337,14 @@ is. No lexical or n-gram probe stands in for the read; `check-suite` does not ch
 | Scenario type | What the judge validates |
 |---|---|
 | Untagged | **Boolean form:** every `Then` is a boolean assertion — no scores, probabilities, or rubric lingo. **Discrimination:** a plausible wrong subject exists that fails it. |
-| `@rubric`-tagged | **Structure (universal):** rubric block present with named dimensions + per-dimension `max` + exactly one `threshold`; collapsing `Then` present. **Discrimination:** every dimension is loseable, and each named wrong subject's summed score sits under the threshold. **Scoring (per-resolved-judge):** reads the rubric, scores each dimension, applies the threshold, emits pass/fail. |
+| `@rubric`-tagged | **Structure (universal):** rubric block present with named dimensions + per-dimension `max` + exactly one `threshold`; collapsing `Then` present; no dimension double-barreled. **Selection:** every dimension is **substitutable** — a non-substitutable criterion belongs in a boolean `Then`, not in the sum. **Discrimination:** every dimension is loseable, and each named wrong subject's summed score sits **strictly under** the threshold. **Scoring (per-resolved-judge):** reads the rubric, scores each dimension, applies the threshold, emits pass/fail. |
 | Every pair | **Pairwise consistency:** no two scenarios sharing a `When` demand opposite verdicts on one constructible snapshot. |
 
-**Structure and discrimination are distinct checks.** Structure is checked first (a malformed rubric
-cannot be reasoned about); passing it settles nothing about discrimination. **Well-formed is never
-acceptance.**
+**Structure, selection, and discrimination are distinct checks.** Passing one settles nothing about
+the others: a well-formed `@rubric` may still sum a criterion that should never have been in the sum,
+and a **substitutable** dimension may still be one no wrong subject can lose. Structure is checked
+first (a malformed rubric cannot be reasoned about); selection before discrimination, because a
+criterion that leaves the sum needs no discrimination analysis. **Well-formed is never acceptance.**
 
 The structural check is **universal** — every resolved judge enforces it identically. A resolved
 judge does **not** reject scoring lingo *inside* a `@rubric` scenario (the sanctioned form), and it
@@ -255,9 +398,9 @@ A tree-wide `--root` sweep stays the CI backstop. The mechanical check settles f
 the resolved judge spends its rounds on the qualitative bars — discrimination, pairwise consistency,
 probe independence, coverage, scope, fit — never on catching a hedge word.
 
-The executable form covers **form only**. Discrimination and pairwise consistency are **not** in it
-and are not candidates for it: a suite that passes every mechanical rule is exactly the shape this
-defect takes, so a green `check-suite` never clears either bar.
+The executable form covers **form only**. Selection, discrimination, and pairwise consistency are
+**not** in it and are not candidates for it: a suite that passes every mechanical rule is exactly the
+shape these defects take, so a green `check-suite` never clears any of the three.
 
 ## Scenario ordering (step-down)
 

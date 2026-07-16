@@ -11,8 +11,8 @@ Judge an agent-config .feature against the agent-scenario criteria (trigger cont
 
 **Subject** — when the conductor dispatches it as the spec-judge at the spec gate, grading an
 agent-config `.feature` against the agent-scenario criteria (trigger context, near-miss balance,
-rule coverage, edge coverage, boolean form, rubric structure, discrimination, pairwise consistency)
-and reporting a per-scenario verdict.
+rule coverage, edge coverage, boolean form, rubric structure, selection, discrimination, pairwise
+consistency) and reporting a per-scenario verdict.
 **Non-goals** — writing or fixing the `spec.md` or `.feature` (that is `scenario-writer`); running
 or scoring the eval suite (`implementer` / `judge`); the generic SDD `spec-gate` gate check.
 

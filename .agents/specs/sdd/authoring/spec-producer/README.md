@@ -77,16 +77,23 @@ Phase 2 — the suite:
   behavior); the rule excludes them only from the apparatus you author. This is **not** settled by
   the mechanical form check below — probe independence has no deterministic form, so a green form
   check never clears an entangled `Given`.
+- **Route every criterion through the substitutability test before you write it as a dimension**
+  (`../suite-format/README.md`). A criterion belongs in a `@rubric` **only if** you accept that
+  strength elsewhere may pay for weakness here — say the trade out loud (*"great scope makes up for
+  shipping an npx dependency"* — nobody accepts that). If you do not accept it, the criterion is
+  **not in the sum**: write it as a boolean `Then`. A rule graded as a dimension becomes
+  **tradeable**, and no threshold repairs that. Split a **double-barreled** dimension (two criteria
+  joined by *and*) before selecting — the halves routinely land in different forms.
 - **Apply the miss test to every scenario and every `@rubric` dimension you author**
   (`../suite-format/README.md`). Name a **plausible wrong subject** — a memorizer, a copier, a
   procedure-follower, a single-brancher — and check that it *loses*. A scenario every plausible
   subject passes measures nothing and is dead weight, whatever its form. The wrong subject must be
   plausible: an empty artifact fails everything, and its failure clears nothing. For a `@rubric`,
-  sum what each named wrong subject scores — that sum sits **under** the threshold, and not by a
-  single point of a single dimension. Rewrite a dimension that grades **presence** (a line is
-  emitted), **restatement** (the doctrine's own words), or **procedure** (the steps, not the
-  judgment). Like probe independence, this is **not** settled by the mechanical form check — a green
-  form check never clears an unloseable dimension.
+  sum what each named wrong subject **banks** — never zero a dimension to make a point — and that
+  sum sits **strictly under** the threshold (a tie passes). Rewrite a dimension that grades
+  **presence** (a line is emitted), **restatement** (the doctrine's own words), or **procedure**
+  (the steps, not the judgment). Like probe independence, this is **not** settled by the mechanical
+  form check — a green form check never clears an unloseable dimension.
 - **Read your authored scenarios against each other** (`../suite-format/README.md`). No two
   scenarios sharing a `When` may demand opposite verdicts on one constructible snapshot; narrow one
   `Given` to exclude the overlap. Overlapping `Given`s whose `Then`s agree, and scenarios whose

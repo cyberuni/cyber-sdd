@@ -82,6 +82,23 @@ Feature: spec-validator — the spec-judge role
     When spec-validator checks rubric-structure
     Then it reports that scenario failing on rubric-structure before any scoring
 
+  Scenario: a dimension naming two criteria fails rubric-structure
+    Given a @rubric carrying one dimension scoring both that a migration is reversible and how thoroughly it is documented
+    When spec-validator checks rubric-structure
+    Then it reports that scenario failing on rubric-structure before any scoring
+
+  # ---- Selection — every dimension must be substitutable (checked before discrimination) ----
+
+  Scenario: a dimension scoring a criterion no strength elsewhere pays for fails selection
+    Given a @rubric for a schema migration carrying a dimension scoring row preservation alongside dimensions scoring column naming and comment coverage
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+
+  Scenario: a rubric whose dimensions a reviewer would genuinely trade passes selection
+    Given a @rubric for a schema migration whose dimensions score column naming and comment coverage
+    When spec-validator checks selection
+    Then it does not report that scenario failing on selection
+
   # ---- Discrimination — the scenario must be able to register a miss ----
 
   Scenario: a well-formed @rubric whose every dimension a memorizer scores at max fails discrimination

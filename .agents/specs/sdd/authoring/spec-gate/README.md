@@ -212,6 +212,40 @@ The classification is scoped to the CR's **touched** `.feature` files. A whole-s
 additive and self-clears; only a baseline scenario that is genuinely `modified`/`removed` is a narrowing,
 and its outcome is Clearance (per the floor), not a bare block.
 
+### A scenario's structural identity includes its steps' arguments
+
+A step's **DocString** and **DataTable** are part of that step, not decoration around it — so they are
+part of the scenario's structural identity. A signature over **step text alone** reads a rewritten
+argument as **no change at all**, and that hole is not evenly distributed: a `@rubric` lives **wholly**
+inside a DocString, so it is exactly the **graded** scenarios that lose their freeze. A frozen rubric
+could be renamed and its `threshold: 3` moved to `threshold: 0` — every subject then passing — while
+the diff reported `unchanged` / `addOnly: true` and the gate printed `NO-CONTENT-CHANGE`: a self-clear
+route, Clearance never firing, the discrimination bar satisfied at freeze time guaranteeing nothing
+thereafter. The identity therefore covers each step's **argument content**, and a rewritten argument is
+a `modified` scenario taking the same narrowing → Clearance path as a rewritten step.
+
+Only what an argument **says** counts, never how it is written — and that holds for **each** argument
+kind on **both** faces, not for the DocString the defect was reported against:
+
+| | a change to what it says → `modified` | a change to how it is written → `unchanged` |
+| --- | --- | --- |
+| **DocString** | its content, or its **media type** (which selects how the content is read, so it is identity, not decoration) | re-indenting it; swapping its delimiter between `"""` and back-ticks |
+| **DataTable** | its cell values | realigning its column padding |
+| **either** | — | its source location: a scenario pushed down the file by an insertion above it stays `unchanged`, and the edit stays purely additive |
+
+Three of those exclusions — the delimiter, the padding, and the source location — are **independent
+implementation choices** rather than consequences of "only content counts": dropping a DataTable's
+padding means reducing its rows to cell *values*, which a naive hash of the raw rows would not do. So
+each is **frozen by its own scenario** rather than inferred, because an identity that hashed a
+delimiter, a cell's padding, or a line number would satisfy every *other* scenario here while
+re-classifying ordinary formatting and ordinary additive edits as narrowings. A DocString's
+indentation is the exception that proves the rule: the parser strips it before the identity is
+computed, so there is no field to exclude — its scenario guards a **dependency's** property rather than
+a choice of ours, and it is frozen so that a parser swap cannot quietly take it away.
+
+Keeping the identity off form is what stops it over-firing — and a floor that fires on a re-indent is a
+floor that gets ignored.
+
 ### An input the classifier cannot classify
 
 The structural differ reports a per-file **parse error** when either side of the comparison fails to

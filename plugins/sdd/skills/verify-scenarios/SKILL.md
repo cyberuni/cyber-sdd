@@ -103,7 +103,7 @@ node "<skill>/scripts/verify-scenarios.mts" \
 ## Boundaries
 
 Read-only over the `.feature` and test reports; writes nothing. Consumes `gherkin-cli` (via `npx
-gherkin-cli@0.0.1 parse <feature> --format json`) for the scenario set — never re-implements a
+gherkin-cli@0.0.2 parse <feature> --format json`) for the scenario set — never re-implements a
 Gherkin parser. Does not reorganize `.feature` files by runner and does not wire itself into the
 impl-judge (a separate CR grows the default `sdd-impl-judge` to call this for deterministic
 artifact-types, run through SDD's own spec gate).

@@ -9,9 +9,17 @@
 // The classification is STRUCTURAL, never a raw git line-diff. A raw line-diff is fooled by a
 // trailing step orphaned off a frozen scenario onto a newly added adjacent scenario: the orphan
 // shows no `-` line and reads as purely additive, so a narrowing self-clears silently and
-// Clearance never fires. The pinned `gherkin-cli@0.0.1 diff --base <ref> <file> --format json`
+// Clearance never fires. The pinned `gherkin-cli@0.0.2 diff --base <ref> <file> --format json`
 // (`../../design/gherkin-cli-dependency.md`) is AST-level and is not fooled — it reports the
 // losing baseline scenario as `modified` (`addOnly: false`).
+//
+// The pin is load-bearing, not incidental. Through `0.0.1` the differ's scenario identity covered
+// step keyword + text only, so a step's DocString / DataTable could be rewritten while the scenario
+// still reported `unchanged` — and a `@rubric` lives wholly inside a DocString, which put every
+// graded scenario outside the freeze. `0.0.2` hashes what an argument SAYS (content, media type) and
+// still excludes how it is WRITTEN (delimiter, table padding, source locations), so a reformat does
+// not fire Clearance. Both directions are bound by the frozen scenarios in this engine's suite;
+// moving the pin backwards fails three of them.
 //
 // Classifications:
 //   unfrozen-skip    — the file carries no feature-level @frozen tag in the baseline OR the
@@ -185,12 +193,12 @@ function readGitShow(base: string, path: string, cwd: string): string {
 	}
 }
 
-// Thin exec wrapper around the pinned `gherkin-cli@0.0.1 diff` — never a re-implemented differ.
+// Thin exec wrapper around the pinned `gherkin-cli@0.0.2 diff` — never a re-implemented differ.
 // classifyFromDiff / classifyFromFileResult carry the tested logic; this is the binary boundary.
 export type GherkinDiffRunner = (base: string, path: string, cwd: string) => GherkinDiffOutput
 
 export const runGherkinDiff: GherkinDiffRunner = (base, path, cwd) => {
-	const stdout = execFileSync('npx', ['gherkin-cli@0.0.1', 'diff', path, '--base', base, '--format', 'json'], {
+	const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'diff', path, '--base', base, '--format', 'json'], {
 		encoding: 'utf8',
 		cwd,
 	})

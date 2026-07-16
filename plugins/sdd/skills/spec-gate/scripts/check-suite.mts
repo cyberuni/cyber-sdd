@@ -25,6 +25,9 @@ export interface ParsedScenario {
 	isOutline: boolean
 	placeholders: string[]
 	examples: { header: string[]; rows: string[][] } | null
+	// Step DocStrings (`"""..."""` blocks), in encounter order. A @rubric scenario's
+	// rubric YAML lives in one of these — the permissive scan otherwise skips them.
+	docStrings: string[]
 }
 
 // ─── hedge words that signal probabilistic / rubric assertions ────────────────
@@ -51,9 +54,29 @@ export function parseSuite(text: string): ParsedSuite {
 	let current: ParsedScenario | null = null
 	// Tags on the line(s) above a Scenario apply to the scenario that follows.
 	let pendingTags: string[] = []
+	// A step DocString (`"""` ... `"""`) attaches to the step immediately above it —
+	// content is captured verbatim (not keyword-parsed) until the closing `"""`.
+	let inDocString = false
+	let docStringLines: string[] = []
 
 	for (const raw of lines) {
 		const line = raw.trimStart()
+
+		if (inDocString) {
+			if (line.startsWith('"""')) {
+				inDocString = false
+				if (current) current.docStrings.push(docStringLines.join('\n'))
+				docStringLines = []
+			} else {
+				docStringLines.push(raw)
+			}
+			continue
+		}
+
+		if (current && line.startsWith('"""')) {
+			inDocString = true
+			continue
+		}
 
 		if (/^Feature:/i.test(line)) {
 			hasFeatureLine = true
@@ -76,7 +99,7 @@ export function parseSuite(text: string): ParsedSuite {
 			if (current) scenarios.push(current)
 			const isOutline = /^Scenario Outline:/i.test(line)
 			const name = line.replace(/^Scenario(?: Outline)?:/i, '').trim()
-			current = { name, steps: [], tags: pendingTags, isOutline, placeholders: [], examples: null }
+			current = { name, steps: [], tags: pendingTags, isOutline, placeholders: [], examples: null, docStrings: [] }
 			pendingTags = []
 			continue
 		}
@@ -152,6 +175,47 @@ export function runGherkinValidate(paths: string[], cwd = '.'): Map<string, Pars
 	}
 }
 
+// ─── dead rubric — a rubric whose attainable maximum can't reach its threshold ─
+
+export interface DeadRubric {
+	dimensionsTotal: number
+	threshold: number
+}
+
+// Hand-rolled line scan (no YAML dependency) over a rubric DocString of the shape:
+//   dimensions:
+//     - name: correctness
+//       max: 3
+//   threshold: 4
+// Sums every `max:` value (at any indent, so it doesn't depend on YAML nesting rules)
+// and reads the (last) `threshold:` value. Returns the violation only when the sum is
+// STRICTLY less than the threshold — sum === threshold is a legal all-or-nothing bar
+// and must never be reported. Missing/non-numeric threshold or no `max:` lines found
+// return null: malformed rubric form is not this check's job to police.
+export function findDeadRubric(docString: string): DeadRubric | null {
+	let dimensionsTotal = 0
+	let sawMax = false
+	let threshold: number | null = null
+
+	for (const raw of docString.split('\n')) {
+		const line = raw.trim()
+		const maxMatch = /^max:\s*(-?\d+(?:\.\d+)?)\s*$/.exec(line)
+		if (maxMatch) {
+			sawMax = true
+			dimensionsTotal += Number(maxMatch[1])
+			continue
+		}
+		const thresholdMatch = /^threshold:\s*(-?\d+(?:\.\d+)?)\s*$/.exec(line)
+		if (thresholdMatch) {
+			threshold = Number(thresholdMatch[1])
+		}
+	}
+
+	if (!sawMax || threshold === null) return null
+	if (dimensionsTotal >= threshold) return null
+	return { dimensionsTotal, threshold }
+}
+
 // ─── checks ──────────────────────────────────────────────────────────────────
 
 // `parseErrors` carries the pinned parser's verdict for this file (empty when it parses, or
@@ -182,6 +246,22 @@ export function checkSuite(slug: string, file: string, text: string, parseErrors
 		// threshold lingo is the contract, not a leaked grade. Skip the rubric-noun
 		// ban for it (adverb hedges still apply — a rubric is not an excuse to hedge).
 		const isRubric = scenario.tags.includes('@rubric')
+
+		// Dead rubric: sum(dimension max) < threshold means no subject can ever reach
+		// the cut — the rubric grades nothing. Only checked for @rubric scenarios;
+		// sum === threshold is a legal strict (all-or-nothing) bar, not a violation.
+		if (isRubric) {
+			for (const docString of scenario.docStrings) {
+				const dead = findDeadRubric(docString)
+				if (dead) {
+					v.push(
+						tag(
+							`${label}: rubric cannot be passed — dimensions total ${dead.dimensionsTotal}, threshold ${dead.threshold}`,
+						),
+					)
+				}
+			}
+		}
 
 		// Must have at least one step
 		if (steps.length === 0) {

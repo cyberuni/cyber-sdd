@@ -175,6 +175,50 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it reports the correction as an edit needing clearance
     And it does not remove that dimension without the clearance
 
+  # ---- Correction — removing a dimension re-derives the cut ----
+
+  Scenario: removing a dimension re-derives the cut in the same edit
+    Given a cleared correction removing a scored dimension from a frozen @rubric
+    When the producer applies the correction
+    Then it re-derives the cut as a fresh policy call in that same edit
+    And it records the reason for the new cut naming the new attainable maximum
+
+  Scenario: a correction leaving the old cut in place is not returned
+    Given a cleared correction whose removal leaves the surviving dimensions unable to reach the unchanged cut
+    When the producer applies the correction and leaves the cut where it stood
+    Then it reports that no subject can reach the cut
+    And it does not return the correction with that cut
+
+  Scenario: a surviving cut the arithmetic clears is still re-derived
+    Given a cleared correction whose removal leaves the surviving dimensions totaling exactly the unchanged cut
+    When the producer applies the correction
+    Then it re-derives the cut as a fresh policy call
+    And it does not treat the surviving dimensions reaching the cut as evidence the cut was chosen
+
+  Scenario: the producer corrects one graded scenario per clearance rather than in a batch
+    Given a revise CR whose frozen suites carry four @rubric scenarios each summing a criterion no strength elsewhere pays for
+    When the producer scopes the correction
+    Then it raises one clearance for each corrected scenario
+    And it records a separate re-derived cut and reason for each corrected scenario
+
+  Scenario: a blanket approval over several corrections does not discharge each one's decision
+    Given a revise CR carrying one owner approval covering four @rubric corrections at once
+    When the producer applies the corrections
+    Then it does not treat the single approval as ratifying each corrected scenario's cut
+    And it raises the cut decisions that the approval left unexamined
+
+  Scenario: the correction queue is scoped by the selection rule rather than by dimension name
+    Given a revise CR whose frozen @rubric carries a dimension named for one concern that covers two, and a dimension whose name reads conjunctive but names one disjunctive subject
+    When the producer scopes the correction queue
+    Then it includes the dimension covering two concerns
+    And it excludes the dimension naming one disjunctive subject
+
+  Scenario: a correction that adds its boolean Then to the same scenario still takes the clearance
+    Given a cleared correction that removes a dimension from a frozen @rubric and asserts the criterion as a boolean Then in that same scenario
+    When the producer classifies the edit
+    Then it routes the correction to clearance
+    And it does not treat the edit as self-clearing
+
   # ---- Discrimination — the authored scenario must be able to register a miss ----
 
   Scenario: a green mechanical form check does not clear an unloseable rubric dimension

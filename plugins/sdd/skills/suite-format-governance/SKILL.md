@@ -99,12 +99,9 @@ all — it is a boolean `Then` (Form 1).
 writing it — not a pass that strips dimensions out of a rubric afterwards. A non-substitutable
 criterion never becomes a dimension in the first place.
 
-Where an **existing** suite already sums one, correcting it is a **mixed** edit, never a silent
-strip — and it is not the simple deletion it looks like. It **adds** a boolean `Then` (strengthening
-the contract) and it **forces the threshold to be re-derived**: strip a `max: 3` dimension out of
-`[3, 3, 2] threshold: 6` and the surviving dimensions cannot reach 6 at all, so the cut must be
-re-set, and re-setting it is a fresh **policy call** (below). A mixed edit routes to **Clearance**
-like any other.
+Where an **existing** suite already sums one, correcting it is never a silent strip and never the
+simple deletion it looks like: it **adds** a boolean `Then` and it **forces the cut to be
+re-derived**. That correction has its own procedure — *Correcting a standing rubric*, below.
 
 Apply it per criterion, in the subject's own domain, by **saying the trade out loud**:
 
@@ -175,6 +172,89 @@ ships a broken contract and a false fail costs one more authoring round, so the 
 
 **One record carries both** the cut's reason and each dimension's trade (above) — they are decided
 together and reviewed together, and two parallel records are two things to drift.
+
+## Correcting a standing rubric — a queue of decisions, not a sweep
+
+Selection (above) governs authoring. A rubric that **already** sums a non-substitutable criterion is
+a different act: **correcting** it. The correction looks mechanical and is not. Removing a dimension
+does two things at once — it **adds** a boolean `Then` asserting the criterion (strengthening the
+contract), and it **removes a scored dimension, which invalidates the cut**.
+
+**The second half is the trap, because it is silent.** Strip a `max: 3` dimension out of
+`[3, 3, 2] threshold: 6` and the survivors reach 5 against a cut of 6 — **nothing passes at all.**
+Strip a `max: 2` out of `[2, 3, 2] threshold: 5` and the survivors total exactly 5 — only a
+**flawless** subject passes. Neither reports anything. A rubric no subject can pass reads like a
+**strict bar**, not a broken one.
+
+### The re-derivation duty
+
+**Removing a dimension changes the attainable maximum, so the `threshold:` left behind is an
+un-re-derived cut — whether or not its number still needs to change.** A correction that removes a
+dimension must, **in the same edit**, re-derive the cut as a fresh **policy call** (above) and record
+its reason, and that reason names the **new attainable maximum** it was set against.
+
+This is why the correction **cannot be computed**. The cut is set from the relative cost of a false
+pass against a false fail (above) — not derivable from the data, so not derivable by a script
+sweeping the corpus. Each rubric's cut is **its own decision**, and a sweep has no one to make it.
+
+### One rubric, one decision, one ratification
+
+A correction to a `@frozen` suite **routes to Clearance** (the gate's hard floor) and takes the
+owner's ratification. **One ratification per rubric.** A blanket approval over a batch is not a
+faster path to the same place: it collapses N individual policy calls into **one unexamined one**,
+which is the very thing the duty exists to prevent. Correct the corpus as a **queue** — each item
+carrying its own re-derived cut and that cut's recorded reason — never as one sweep.
+
+Two consequences follow, and both cut against batching:
+
+- **The queue's membership is a judgment, not a match.** Which rubrics sum a non-substitutable
+  criterion is settled by the substitutability test per criterion, in the subject's own domain — not
+  by a name pattern. A conjunctive **name** (`..._and_...`) is a strong hint and an incomplete one:
+  a criterion can join two concerns under a name that reads singular, and a name can read conjunctive
+  while the `_or_` is one disjunctive subject rather than two criteria. A regex sweep therefore both
+  over- and under-fires, and its under-fire is the dangerous half — it **looks complete**.
+- **Split before you correct.** A double-barreled dimension is split first (above), and its halves
+  routinely land in different forms. The correction proceeds per **half**, not per name.
+
+### Why the routing does not depend on the edit class
+
+State the routing from what is true of **every** such correction, not from the shape one happens to
+take:
+
+> **Removing a dimension always modifies the baseline rubric scenario.** So the correction is never
+> `additive` and never `no-content-change`. It lands as **`narrowing`** (the boolean `Then` joins the
+> same scenario) or **`mixed`** (the boolean `Then` becomes a separate `Scenario`), and **both route
+> to Clearance.** Which one it is never changes the answer.
+
+Do **not** encode the rule as "a mixed edit routes to Clearance." It is true and it is the wrong
+handle: the natural in-scenario shape is `narrowing`, so a producer checking whether its edit is
+`mixed` reads *no* and may conclude it self-clears. **It does not.** Route on the **removal**, which
+is present in both shapes, never on the class the diff happens to report.
+
+**The freeze sees the rubric only because the differ's pin says it does.** A `@rubric` lives wholly
+inside a DocString. The structural differ is pinned at `gherkin-cli@0.0.2`, which hashes what a step
+argument **says**; before that pin its scenario identity covered step text alone, and a rubric could
+be gutted while its scenario still reported `unchanged`. **The pin is load-bearing here** — moved
+backwards, every correction in this queue self-clears silently and Clearance never fires.
+
+### The one mechanical check — and the bound it does not cover
+
+**`sum(max) < threshold` is a dead rubric.** No subject, not even a perfect one, reaches the cut;
+the scenario is `Then false` wearing a rubric's clothes. No policy could intend that of a rubric
+meant to grade, so this is safe to **lint, fail-closed** — and it is **not a slack constant**: it
+decrees no distance between anything, only that the passing set is **non-empty**.
+
+**A green lint is not evidence the cut was re-derived, and the verdict says so.** The lint's bound is
+exactly the vacuous case. `[2, 3, 2] threshold: 5` stripped to `[3, 2] threshold: 5` passes the lint
+and is still an un-re-derived cut nobody chose — the duty above is what catches it, and only the
+owner's ratification discharges it.
+
+**Reach for no other arithmetic here.** A check that a surviving rubric keeps *enough* room under its
+cut is a **slack constant** by another name, and the ban on those (*The margin is measured, not
+decreed*, below) is not suspended because a correction prompted the question. Zero slack is not a
+defect this bar can detect: only-a-flawless-subject-passes is a legitimate policy where the owner
+**chose** it. The defect is that a strip nobody re-derived leaves that policy **unchosen**, and that
+is a fact about the **edit**, not about the number.
 
 ## The soft spot — selection rests on one judgment, and that is accepted
 

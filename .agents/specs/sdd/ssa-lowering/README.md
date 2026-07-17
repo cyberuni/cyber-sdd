@@ -266,12 +266,40 @@ one — and, for the one probe that has a measured failing read, so a future pas
   error, not signal** — the dimension graded a rule the doctrine never states — so it was removed
   (see the coverage note). Removing it was right, and it leaves `barrier` at two dimensions both of
   which measure at ceiling against a correct doctrine (6.00, SD 0). `barrier`'s slack is no longer
-  reasoned — it is **measured by ablation**: with step 2's barrier rule deleted, the scenario scores
-  **3.67 and fails 3 of 3** against a threshold of 5. It binds. Note the binding runs opposite to
-  what was first reasoned here: the ablation drops `hoisted-early` to **1.33** while `barrier-detected`
-  holds at **2.33**, so it is *hoisting* — not naming the fence — that a doctrine lacking the rule
-  loses. Generic engineering sense apparently reaches "call this a big cross-cutting rename" more
-  easily than it reaches "therefore nothing else may start until it retires".
+  reasoned — it is **measured by ablation**: with step 2's barrier rule deleted, the scenario **fails
+  3 of 3** against a threshold of 5. **It binds — this is the one `@rubric` in this suite with a
+  measured, reproduced live verdict.**
+
+  **Re-measured under #319 (op6-m12), N=3 producers per arm, 3 independent blind judges, arm-blinded
+  transcripts.** The scrub was full — the barrier rule deleted whole *plus* its vocabulary removed
+  from the description, *When to run*, step 6, and the decision-evidence section (which restated the
+  whole fence/rebase rule). Step 4's "rebases/reworks onto its result" was deliberately left: it is a
+  different rule, and cutting it would have over-broadened the mutant.
+
+  | dimension | arm A (intact) | arm B (ablated) | Δ |
+  |---|---|---|---|
+  | `barrier-detected` | 3.00 (SD 0) | **0.00 (SD 0)** | **−3.00** |
+  | `hoisted-early` | 3.00 (SD 0) | 1.67 | −1.33 |
+  | **total** | **6.00** | **1.67** | **−4.33** |
+
+  Arm B fails in **9 of 9** judge×run cells. Controls both behaved: `hoisted-early` fired (must-drop),
+  and the `:145` control scenario held at 6/6 across both arms and all three judges (must-survive), so
+  the scrub was not over-broad.
+
+  **This corrects the direction recorded here earlier** (`hoisted-early` 1.33 / `barrier-detected`
+  2.33, total 3.67). The scenario-level verdict reproduces and the `hoisted-early` collapse reproduces
+  (1.33 → 1.67), but `barrier-detected` does **not** hold at 2.33 — it measures **0.00, SD 0**. The
+  earlier read mistook the ablated producers' words for their decision. They *do* reach "cross-cutting"
+  and "not a new node of its own" unaided from the `Given` — and then emit the rename as a Mission
+  owning every node it touches, standing as a peer to the feature Missions joined by ordinary RAW
+  edges. That is precisely the *"not modeled as one node-owning mission among peers"* shape the
+  dimension bars, so it scores zero. **Both dimensions lose; `barrier-detected` loses harder.**
+
+  **#319's cued-`Given` hypothesis is REFUTED, and the refutation is the useful part.** The `Given`
+  does hand over *"used across every capability of the project"*, which is most of the dimension's
+  first clause — but the dimension grades the **modeling consequence**, which the `Given` does not
+  supply and which no ablated producer reached in 3 of 3 runs. A cued clause is not a cued dimension:
+  what makes this one loseable is the *consequence* half, which the situation cannot parrot.
 - **`irreducible` is the weakest rubric.** Its situation states that the two concerns *"must both
   write the same spec-node with no order that avoids rework either way"* — which hands over **both**
   answers the rubric grades (the irreducibility *and* the rework). A doctrine lacking step 4's rule
@@ -370,20 +398,37 @@ its vocabulary from the rest of the subject** (a partial scrub yields a dud muta
 nothing), re-score blind. A dimension that holds its score does not guard that rule. Never watch a mean
 against a correct subject — a ceiling is equally consistent with a dimension that cannot fail.
 
-**Measured so far — 2 of 11 `@rubric` scenarios ablated, and both dimensions came back dead:**
+**Measured so far — 3 of 11 `@rubric` scenarios ablated. Two came back dead; one came back LIVE:**
 
 | dimension | ablation | Δ | verdict |
 |---|---|---|---|
 | `catches-misalignment` | worked example stripped; inference rule added | **0.00** | unloseable — its `Given` states the direction three times |
 | `disjoint-nodes-not-fused` | anti-fuse **and** screaming placement deleted whole | **0.00** | unloseable — the SSA framing makes one-node-one-Mission the default |
+| `barrier-detected` | step 2's barrier rule deleted whole + vocabulary scrubbed | **−3.00** | **LIVE** — 0.00 (SD 0) ablated; fails 9/9 judge×run cells (#319) |
+| `hoisted-early` | (same ablation) | **−1.33** | **LIVE** — 1.67 ablated |
+
+**An earlier edition of this table read "2 of 11 … and both came back dead", which contradicted the
+`barrier` bullet above it — that bullet had recorded a barrier ablation two days earlier and the sweep
+did not count it.** #319 was filed on the uncorrected count and scoped `barrier` as unablated. The
+lesson is not about arithmetic: **a sweep that recounts the corpus must reconcile against what the
+same document already records**, or it manufactures phantom debt and sends a mission to re-measure a
+measured cell. The re-measurement was still worth its cost — it reproduced the verdict, refuted the
+recorded *direction*, and refuted #319's hypothesis — but it was scoped on a false premise.
 
 Set against what this spec already concedes elsewhere — `cohesion-preserved` demoted for scoring 3/3
 with its rule deleted; `fleet-rebase-reasoned` removed for grading a rule the doctrine never states;
 `irreducible` recorded as the weakest rubric because its situation hands over both answers — the
-picture is consistent and unflattering: **this suite's effective size is far below its nominal 20, and
-every probe of it so far has found dead weight rather than ruled it out.** No dimension should be
-assumed live because it has not been ablated. The two ablated here are the only two with a *measured*
-null; the remaining nine `@rubric` scenarios are **unfalsified, not earned**.
+picture remains unflattering: **this suite's effective size is well below its nominal 20.** No
+dimension should be assumed live because it has not been ablated; the remaining **eight** `@rubric`
+scenarios are **unfalsified, not earned**.
+
+**But the sweep no longer runs one way, and that is worth stating precisely.** `barrier` is the first
+cell to come back **LIVE** under a full scrub — Δ = −4.33, arm B at 1.67 against a threshold of 5. So
+the standing summary that *every probe of this suite finds dead weight* is now **false**, and it was
+the more dangerous half of the claim: it invited treating "unablated" as "presumed dead" and the
+ablation as a formality that confirms it. Ablation is a **measurement with two outcomes**. Two of the
+three cells probed are dead, one is live and binds — that is the finding, and it is the reason the
+remaining eight must each be measured rather than assumed in either direction.
 
 **One absorption hit, found and fixed.** The regroup rule illustrated with *"(e.g. a shared
 authentication or billing node)"* while the suite probes it with *"the shared authentication
@@ -391,8 +436,17 @@ spec-node"* and *"the shared billing spec-node"* — the doctrine carried the pr
 blind producer reported its reasoning as *"step 3, **'shared authentication node' rule**"*, quoting the
 illustration back as the rule's name: the probe was not making it derive, it was making it match. The
 illustration is removed, restoring the decoupling #211 established (the doctrine keeps mailer,
-telemetry, rate-limiter; the suite probes with different domains). The doctrine's other three
-illustrations were checked against every probe's apparatus and are clean.
+telemetry, rate-limiter; the suite probes with different domains).
+
+**A second absorption hit — the "other three illustrations are clean" check missed one (#319).**
+Step 2's barrier rule illustrates itself with *"a rename of a core type used across every capability"*;
+`:122` probes it with *"renames a core type used across every capability of the project"*. That is
+**verbatim**, the same shape as the regroup hit above, and the sweep that pronounced the remaining
+illustrations clean did not catch it. It does **not** overturn the LIVE verdict — arm B fails 9/9
+regardless — but it **confounds arm A**: the rule and its illustration were ablated together, so the
+measurement cannot say whether a correct producer scores 6.00 by applying the rule or by matching the
+illustration to the situation. Separating them needs a third arm (rule kept, illustration re-domained)
+and is filed rather than fixed here — the LIVE verdict op6-m6 needs does not depend on it.
 
 **The through-line, for whoever picks this up.** Both dimensions measured dead were filed as *subject*
 gaps (#254, #255) with cheap, non-frozen fixes. Both fixes are inert. **The defect is in the `Given`s,
@@ -400,6 +454,16 @@ not the doctrine** — situations that hand over the answers they grade, and sit
 temptation toward the failure they claim to detect. Those are frozen-scenario edits, so the repair this
 suite actually needs routes to **Clearance**, and its threshold re-derivations are **policy** calls the
 owner holds. There is no cheap version of this.
+
+**Bound on that through-line (#319).** It generalizes from the two cells that came back dead, and
+`barrier` is now a counter-example to the tempting over-read of it. `:122`'s `Given` **is** partly
+cued — it states *"used across every capability of the project"*, most of `barrier-detected`'s first
+clause — and the dimension is nonetheless **live, at Δ = −3.00**. So "a cued clause" does not imply
+"a dead dimension": what decides loseability is whether the situation hands over the **consequence**
+the dimension grades, not whether it hands over a **premise** the dimension mentions. `:122` survives
+because its dimension grades the modeling call (*not one node-owning mission among peers*), which no
+`Given` can parrot. **Read a suspected cued `Given` by asking which half of the dimension it supplies
+— then ablate. Do not close it on the reading.**
 
 ### Calibration — and what the impl gate should measure
 

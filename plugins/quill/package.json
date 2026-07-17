@@ -1,5 +1,5 @@
 {
-	"name": "@cyberplace/aced-plugin",
+	"name": "@cyberplace/quill-plugin",
 	"private": true,
 	"version": "0.0.0",
 	"type": "module"

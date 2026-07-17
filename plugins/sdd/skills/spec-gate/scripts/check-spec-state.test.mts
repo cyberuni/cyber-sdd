@@ -2,8 +2,9 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 import {
 	checkGateFloor,
 	checkNode,
@@ -31,6 +32,11 @@ import {
 	resolveScenarioRef,
 	type SpecState,
 } from './check-spec-state.mts'
+
+// The engine resolves a repo-root-relative reference against process.cwd() (the
+// CWD-is-repo-root convention this script documents). Establish that precondition
+// rather than inherit it — the suite also runs from the package dir.
+process.chdir(join(dirname(fileURLToPath(import.meta.url)), '../../../../..'))
 
 function state(over: Partial<SpecState> = {}): SpecState {
 	return {

@@ -1,5 +1,14 @@
 {
 	"name": "@cyberplace/sdd-plugin",
 	"private": true,
-	"type": "module"
+	"version": "0.0.0",
+	"type": "module",
+	"bin": {
+		"sdd-check-specs": "./skills/check-project-specs/scripts/check-project-specs.mts"
+	},
+	"scripts": {
+		"check:spec": "sdd-check-specs",
+		"test": "node --test \"skills/*/scripts/*.test.mts\"",
+		"typecheck": "tsc -p tsconfig.json"
+	}
 }

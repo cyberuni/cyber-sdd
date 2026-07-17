@@ -104,9 +104,9 @@ Partition the combined write-set toward SSA.
   stays in **one cohesive Mission**, verifiable as a unit. Do not scatter a node into thin fragments
   across Missions. (The one node still has exactly one owning Mission.)
 - **Regroup by ownership, across CR boundaries.** Cut Missions by **ownership of nodes, not by
-  originating CR** — so N CRs produce M Missions, not one-per-CR. When two CRs both touch a shared node
-  (e.g. a shared authentication or billing node), **one** Mission owns that node drawing on **both** CRs
-  (not one Mission per CR splitting the node).
+  originating CR** — so N CRs produce M Missions, not one-per-CR. When two CRs both touch a shared
+  node, **one** Mission owns that node drawing on **both** CRs (not one Mission per CR splitting the
+  node).
 - **Provenance + local ref.** Each Mission **records its originating CR(s) as provenance**, and carries a
   **locally-minted mission-ref** (the mission-graph node id) — **not** a tracker ticket ref. The tracker
   speaks intent; a Mission is a local decomposition of it.

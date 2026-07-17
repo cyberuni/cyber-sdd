@@ -27,17 +27,28 @@ planning and applied with **strong weight** — judgment first, mechanics second
 
 ## When to run
 
-Run this doctrine when a change request must be **cut into Missions** during intake/Explore:
+**Routing guidance for the caller** — the conductor deciding what to send here. It is **not a
+self-refusal gate**. Once this doctrine is invoked it **always runs step 1 (the Oracle lens)** and
+never exits without a verdict: step 1 judges legitimacy *before* partitioning, so "there is nothing
+to partition" cannot gate it.
+
+Route a change request here when it must be **cut into Missions** during intake/Explore:
 - a CR spanning multiple capabilities must be decomposed into Missions;
 - two-or-more open CRs overlap on a shared capability and must be **regrouped** into Missions;
 - a **far-horizon** CR has reached the frontier and must be lowered (re-validate it — never trust the filing-time verdict);
 - a CR describes a **project-wide** change (rename/refactor) that must be planned as fleet work (barrier).
 
-Do **not** run it when there is nothing to partition:
+These have nothing to partition, so routing them here buys nothing:
 - a single-capability change to one artifact-type → straight to the mission loop;
 - adding one scenario to an existing feature file within one node;
 - running `ready`/`cycles` over the mission-graph store (that is a query);
 - classifying an already-detected node collision (that is `collision-ladder`).
+
+**Invoked anyway on one of those, do not refuse.** Run step 1, record the Oracle verdict, and emit
+whatever the cut yields — for a single-capability CR that is one Mission, or **zero** if the Oracle
+kills it. Refusing drops the legitimacy judgment, which is the cheapest judgment to make here and the
+most expensive to skip. Note the standing gap this leaves: a CR routed straight to the mission loop is
+Oracle-vetted by nothing until the intake-vet automation lands (#196).
 
 ## Procedure
 

@@ -10,10 +10,10 @@
 // `plugins/cyberfleet` is governed by `.agents/specs/cyberfleet-plugin`.
 
 import { execFileSync } from 'node:child_process'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { collectSpecs, type SpecRecord } from '../../discover-specs/scripts/discover-specs.mts'
+import { collectSpecs, discoverSpecFiles, type SpecRecord } from '../../discover-specs/scripts/discover-specs.mts'
 
 const SKILLS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -86,9 +86,93 @@ export function resolveSpecFor(specs: SpecRecord[], projectRel: string): Resolut
 	return { kind: 'resolved', spec: hits[0] as SpecRecord }
 }
 
+// ─── coverage ─────────────────────────────────────────────────────────────────
+
+export interface CoverageGap {
+	spec: string
+	projectPath: string
+	reason: 'unrecognized' | 'no-project-path' | 'no-manifest' | 'no-check-script'
+}
+
+/**
+ * Every spec must be reachable from a project that actually checks it. Without
+ * this, a spec silently goes unchecked the moment its project drops the script —
+ * which is exactly how the corpus ended up with one audited project out of ten.
+ *
+ * `specFiles` are the spec.md paths found at the recognized locations *before*
+ * the lifecycle-status filter; `specs` are the ones that survived it. A file in
+ * the first set and not the second is a spec whose status is not in the enum:
+ * discovery drops it, so every engine silently skips it and it is checked by
+ * nothing. That is a gap to escalate, not to exempt.
+ */
+export function findCoverageGaps(
+	root: string,
+	specFiles: string[],
+	specs: SpecRecord[],
+	readPkg: (p: string) => unknown,
+): CoverageGap[] {
+	const gaps: CoverageGap[] = []
+	const recognized = new Set(specs.map((s) => (s.path === '' ? 'spec.md' : `${s.path}/spec.md`)))
+	for (const f of specFiles) {
+		if (!recognized.has(f)) gaps.push({ spec: f, projectPath: '', reason: 'unrecognized' })
+	}
+	for (const s of specs) {
+		if (s.projectPath === '') {
+			gaps.push({ spec: s.path, projectPath: '', reason: 'no-project-path' })
+			continue
+		}
+		const pkg = readPkg(join(root, s.projectPath, 'package.json')) as { scripts?: Record<string, string> } | null
+		if (!pkg) {
+			gaps.push({ spec: s.path, projectPath: s.projectPath, reason: 'no-manifest' })
+			continue
+		}
+		if (!pkg.scripts?.['check:spec']) {
+			gaps.push({ spec: s.path, projectPath: s.projectPath, reason: 'no-check-script' })
+		}
+	}
+	return gaps
+}
+
+const REASON_TEXT: Record<CoverageGap['reason'], string> = {
+	unrecognized:
+		'sits at a spec location but its status is not in the lifecycle enum, so discovery drops it and nothing checks it',
+	'no-project-path': 'declares no project-path, so no project can be resolved to check it',
+	'no-manifest': 'names a project with no package.json, so it is not a workspace member',
+	'no-check-script': 'names a project that defines no `check:spec` script',
+}
+
+function checkCoverage(root: string): number {
+	const gaps = findCoverageGaps(root, discoverSpecFiles(root), collectSpecs(root), (p) => {
+		try {
+			return JSON.parse(readFileSync(p, 'utf8'))
+		} catch {
+			return null
+		}
+	})
+	if (gaps.length === 0) {
+		process.stdout.write('check-project-specs: every spec is checked by its project\n')
+		return 0
+	}
+	for (const g of gaps) process.stderr.write(`  ${g.spec} — ${REASON_TEXT[g.reason]}\n`)
+	process.stderr.write(`check-project-specs: ${gaps.length} spec(s) no project checks\n`)
+	return 1
+}
+
 // ─── run ──────────────────────────────────────────────────────────────────────
 
 export function main(argv: string[]): number {
+	if (argv.includes('--check-coverage')) {
+		const root = findRepoRoot(process.cwd())
+		if (!root) {
+			process.stderr.write('check-project-specs: no pnpm-workspace.yaml found above the cwd\n')
+			return 1
+		}
+		return checkCoverage(root)
+	}
+	return checkProject(argv)
+}
+
+function checkProject(argv: string[]): number {
 	const projectArg = argv.includes('--project') ? argv[argv.indexOf('--project') + 1] : undefined
 	const projectDir = resolve(projectArg ?? process.cwd())
 

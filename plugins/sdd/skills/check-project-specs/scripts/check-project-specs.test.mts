@@ -4,11 +4,14 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import type { SpecRecord } from '../../discover-specs/scripts/discover-specs.mts'
-import { ENGINES, findRepoRoot, resolveSpecFor } from './check-project-specs.mts'
+import { ENGINES, findCoverageGaps, findRepoRoot, resolveSpecFor } from './check-project-specs.mts'
 
 function spec(path: string, projectPath: string): SpecRecord {
 	return { path, name: path, nameSource: 'derived', status: 'implemented', projectPath, approvals: '' }
 }
+
+const withCheck = () => ({ scripts: { 'check:spec': 'sdd-check-specs' } })
+const files = (...s: SpecRecord[]) => s.map((x) => `${x.path}/spec.md`)
 
 // ─── resolveSpecFor ───────────────────────────────────────────────────────────
 
@@ -77,6 +80,48 @@ test('findRepoRoot returns empty when no marker exists above', () => {
 	} finally {
 		rmSync(tmp, { recursive: true, force: true })
 	}
+})
+
+// ─── findCoverageGaps ─────────────────────────────────────────────────────────
+
+test('findCoverageGaps passes when every spec names a project that checks it', () => {
+	const s = [spec('.agents/specs/sdd', 'plugins/sdd')]
+	assert.deepEqual(findCoverageGaps('.', files(...s), s, withCheck), [])
+})
+
+test('findCoverageGaps flags a spec whose project defines no check:spec', () => {
+	const s = [spec('.agents/specs/sdd', 'plugins/sdd')]
+	const gaps = findCoverageGaps('.', files(...s), s, () => ({ scripts: { test: 'x' } }))
+	assert.equal(gaps.length, 1)
+	assert.equal(gaps[0]?.reason, 'no-check-script')
+})
+
+test('findCoverageGaps flags a spec whose project is not a workspace member', () => {
+	const s = [spec('.agents/specs/sdd', 'plugins/sdd')]
+	const gaps = findCoverageGaps('.', files(...s), s, () => null)
+	assert.equal(gaps[0]?.reason, 'no-manifest')
+})
+
+test('findCoverageGaps flags a spec declaring no project-path', () => {
+	const s = [spec('.agents/specs/orphan', '')]
+	const gaps = findCoverageGaps('.', files(...s), s, withCheck)
+	assert.equal(gaps[0]?.reason, 'no-project-path')
+})
+
+test('findCoverageGaps flags a spec file discovery dropped for an out-of-enum status', () => {
+	// The fail-open this guard exists to close: a spec.md sits at a recognized
+	// location but carries a status outside the lifecycle enum, so discovery drops
+	// it, every engine skips it, and nothing checks it. It must escalate, not exempt.
+	const gaps = findCoverageGaps('.', ['.agents/specs/quill/spec.md'], [], withCheck)
+	assert.equal(gaps.length, 1)
+	assert.equal(gaps[0]?.reason, 'unrecognized')
+	assert.equal(gaps[0]?.spec, '.agents/specs/quill/spec.md')
+})
+
+test('findCoverageGaps does not flag a discovered file that survived the status filter', () => {
+	const s = [spec('.agents/specs/sdd', 'plugins/sdd')]
+	const gaps = findCoverageGaps('.', ['.agents/specs/sdd/spec.md'], s, withCheck)
+	assert.deepEqual(gaps, [])
 })
 
 // ─── the engine set ───────────────────────────────────────────────────────────

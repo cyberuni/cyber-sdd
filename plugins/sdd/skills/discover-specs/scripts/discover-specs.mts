@@ -155,7 +155,7 @@ export function deriveName(loc: Location, fm: Frontmatter): { name: string; name
 // the three spec locations. The walk finds `.agents` dirs at any depth (pattern 3) and probes
 // `spec/spec.md` (patterns 1 & 3) plus, only at the repo root, `specs/<project>/spec.md`
 // (pattern 2).
-function discoverSpecFiles(root: string): string[] {
+export function discoverSpecFiles(root: string): string[] {
 	const found: string[] = []
 	const walk = (relDir: string): void => {
 		let entries: import('node:fs').Dirent[]

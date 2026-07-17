@@ -167,11 +167,16 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
   # A boolean guard, not a rubric: this situation confines the work to ONE spec-node, and single-writer
   # already guarantees one node lands in exactly one mission — so the assertion is entailed and cannot
   # register a miss. Graded, it scored 3/3 even with the doctrine's cohesion rule deleted whole.
-  # Cohesion's miss is OVER-SPLIT — scattering one node into fragments — so grading it as judgment
-  # needs a situation planting an over-split temptation: coupled work whose seams read as separable
-  # capabilities. (An over-merge temptation would not de-entail it — single-writer still forces the
-  # coupled node into one mission however many other nodes exist — and over-merge is already graded
-  # by disjoint-nodes-not-fused.) That is a Given edit: issue #250.
+  # Cohesion's miss is OVER-SPLIT — scattering one node into fragments. An over-merge temptation would
+  # not de-entail it — single-writer still forces the coupled node into one mission however many other
+  # nodes exist.
+  # CORRECTION (#241 ablation): this comment used to add "and over-merge is already graded by
+  # disjoint-nodes-not-fused". That is measured FALSE — ablating step 2's anti-fuse rule and screaming
+  # placement whole left that dimension at 3/3, Delta = 0. It is unloseable; it grades over-merge only
+  # in its wording. The over-merge temptation #250 asks for belongs on the regroup scenario, not here.
+  # Cohesion stays boolean on independent grounds: it is NON-SUBSTITUTABLE (no strength elsewhere pays
+  # for scattering a coupled node), so per suite-format-governance's selection rule it is a boolean
+  # Then at any max and any threshold. De-entailing it would not make a rubric legal. See README.
   Scenario: coupled work in one spec-node stays in a single cohesive mission
     Given a change request whose changes to one spec-node are tightly coupled and cannot be verified apart
     When the coordinator applies the SSA-lowering doctrine to the change request

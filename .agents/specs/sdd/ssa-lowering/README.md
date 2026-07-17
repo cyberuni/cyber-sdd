@@ -281,19 +281,125 @@ one — and, for the one probe that has a measured failing read, so a future pas
   it is held down only by the fold of `serialized-not-parallel` into `irreducible-recognized`, which
   adds an *act* the situation does not hand over. Treat this cell as not yet trustworthy. Closing it
   needs a situation that withholds the answer, i.e. a Given edit — out of scope here.
-- **`misaligned` contradicts this suite's own `@trigger` outline, and reds a correct doctrine about a
-  third of the time** ([#249](https://github.com/cyberuni/cyberplace/issues/249)). The outline says
-  the doctrine must **not** run on *"a single-capability change to one artifact-type"*, and the
-  `misaligned` situation is exactly that shape (one CR, one capability). Measured N=3 against the
-  correct doctrine: **1 of 3 producers took the doctrine's own do-not-run exit**, emitted no
-  partition, and scored **0/6 against a threshold of 5**. The rubric graded that empty artifact
-  *correctly* — this is not a rubric defect, it is the scenario disagreeing with the outline in the
-  same frozen file. Until #249 resolves which side is right, a red on `misaligned` should be read as
-  this contradiction before it is read as doctrine error.
+- **`misaligned`'s contradiction with the `@trigger` outline is RESOLVED — in the doctrine, not the
+  suite** ([#249](https://github.com/cyberuni/cyberplace/issues/249)). The outline says the doctrine
+  must **not** run on *"a single-capability change to one artifact-type"*, and the `misaligned`
+  situation is that shape. The contradiction was **manufactured by the doctrine's "When to run" being
+  written as a self-refusal gate**: step 1 (Oracle) judges legitimacy *before* partitioning, so
+  "nothing to partition" cannot gate it — but the exclusion gated the whole doctrine on a partitioning
+  test. "When to run" is now **caller routing guidance**, and the doctrine never self-refuses once
+  invoked.
+
+  Both frozen claims survive, so this needed **no** frozen edit: the `@trigger` row asserts what the
+  *coordinator routes* (still true); `misaligned` asserts what the doctrine *produces once applied*
+  (still true). Measured blind, N=3 per arm:
+
+  | arm | result |
+  |---|---|
+  | control — old doctrine | **3/3 refused**, zero partition, **0/6** |
+  | fixed | **3/3 ran step 1**, caught misalignment, killed |
+
+  The control reproduced the defect **harder than #249 filed it** (3/3, not 1/3). Both arms emit zero
+  Missions for opposite reasons: the old arm never made the call (0/6); the fixed arm makes it and
+  kills (6/6). The rubric grades the **judgment**, not the mission count. Standing gap, recorded in
+  the doctrine: a CR routed straight to the mission loop is Oracle-vetted by nothing until SQ-intake
+  (#196) lands.
+
+- **`catches-misalignment` is UNLOSEABLE — via its `Given`, not via any missing rule. Measured.**
+  [#254](https://github.com/cyberuni/cyberplace/issues/254) filed this as a *subject* gap: the doctrine
+  teaches direction only from a declared slogan and carries no rule for inferring direction from how a
+  product ships. The gap is real. **Fixing it changes nothing.** The doctrine's worked example (the
+  pattern-match crutch) was stripped and two arms run blind, N=3 each:
+
+  | arm | doctrine | result |
+  |---|---|---|
+  | no example, **no inference rule** | competence only | **3/3 PASS (6/6)** |
+  | no example, **+ the inference rule** | rule supplied | **3/3 PASS (6/6)** |
+
+  **Δ = 0.** The rule is dead weight and was **not landed**. The reason is the situation: it states the
+  direction **three redundant times** — *read-only*, *no write credentials*, *README promises it will
+  never open a pull request or touch a branch*. There is no direction left to infer, so the dimension
+  measures whether the reader can read, not what the doctrine teaches. **No rule added to the subject
+  can repair a `Given` that already contains the answer.**
+
+  This is the shape already flagged on `irreducible` below — a situation that hands over the answers it
+  grades. `catches-misalignment` has the same defect and it went unnoticed. It reclassifies #254 from a
+  subject gap to a **suite** defect: a cued `Given`, whose fix is a frozen `Given` edit → **Clearance**.
+
+- **`disjoint-nodes-not-fused` is UNLOSEABLE. Measured.**
+  [#255](https://github.com/cyberuni/cyberplace/issues/255) filed this as a subject gap too: the
+  anti-fuse rule lives in step 2 (placement) and is never restated at step 3 (regroup), where the
+  over-merge temptation arises. Also real, also inert. Step 2's rule was ablated **whole** — the
+  anti-fuse sentence *and* screaming placement, a full scrub rather than the partial one that yields a
+  dud mutant:
+
+  | arm | doctrine | result |
+  |---|---|---|
+  | baseline (anti-fuse at step 2) | intact | **3/3 PASS (6/6)** |
+  | anti-fuse **and** screaming placement deleted | ablated | **3/3 PASS (6/6)** |
+
+  **Δ = 0.** Note *why*, because the obvious reasoning is wrong: single-writer does **not** formally
+  entail non-fusion (one Mission owning X, Y *and* Z is still single-writer). But no producer does
+  that. The ablated producers reason *"three spec-nodes → three Missions, single-writer per node"* —
+  **the SSA framing itself**, a doctrine titled *one owning Mission per spec-node*, makes
+  one-node-one-Mission the default read. Over-merge takes a deliberate pooling act, and **nothing in
+  the situation tempts it**.
+
+  **This vindicates [#250](https://github.com/cyberuni/cyberplace/issues/250) and re-aims it.** #250
+  asked for an over-merge temptation; the calibration note below overruled it for the *cohesion*
+  scenario — correctly, since cohesion's miss is over-**split**, and it asserted *"over-merge is already
+  graded by `disjoint-nodes-not-fused`"*. That last claim is now **measured false**. #250's instinct was
+  right and pointed at the wrong scenario: **the over-merge temptation belongs on `regroup`.** Its fix
+  is a frozen `Given` edit → **Clearance**.
 - **`contention`/`order-imposed` and `far-horizon`/`re-checked-not-trusted` are cued** — their
   situations hand over part of the answer (the order's existence; that the ground has shifted), so a
   doctrine lacking the rule starts above zero. Both still bind, but with less room than the
   arithmetic suggests.
+
+### Effective vs nominal size — what the ablation sweep measured (#241, #256)
+
+[#241](https://github.com/cyberuni/cyberplace/issues/241) asks the useful question: not *"is this node
+contaminated?"* but **what fraction of this suite is dead weight**.
+[#256](https://github.com/cyberuni/cyberplace/issues/256) is the same question stated as debt — 19 of 20
+scenarios had never been tested against a memorizing subject. **Ablation answers both; the miss test
+cannot.** A dimension another assertion entails is invisible to the miss test, because the subject that
+would expose it is a blemished-good subject the bar bars naming.
+
+**The instrument, stated so it is not re-derived:** delete the rule a dimension claims to guard, **scrub
+its vocabulary from the rest of the subject** (a partial scrub yields a dud mutant that measures
+nothing), re-score blind. A dimension that holds its score does not guard that rule. Never watch a mean
+against a correct subject — a ceiling is equally consistent with a dimension that cannot fail.
+
+**Measured so far — 2 of 11 `@rubric` scenarios ablated, and both dimensions came back dead:**
+
+| dimension | ablation | Δ | verdict |
+|---|---|---|---|
+| `catches-misalignment` | worked example stripped; inference rule added | **0.00** | unloseable — its `Given` states the direction three times |
+| `disjoint-nodes-not-fused` | anti-fuse **and** screaming placement deleted whole | **0.00** | unloseable — the SSA framing makes one-node-one-Mission the default |
+
+Set against what this spec already concedes elsewhere — `cohesion-preserved` demoted for scoring 3/3
+with its rule deleted; `fleet-rebase-reasoned` removed for grading a rule the doctrine never states;
+`irreducible` recorded as the weakest rubric because its situation hands over both answers — the
+picture is consistent and unflattering: **this suite's effective size is far below its nominal 20, and
+every probe of it so far has found dead weight rather than ruled it out.** No dimension should be
+assumed live because it has not been ablated. The two ablated here are the only two with a *measured*
+null; the remaining nine `@rubric` scenarios are **unfalsified, not earned**.
+
+**One absorption hit, found and fixed.** The regroup rule illustrated with *"(e.g. a shared
+authentication or billing node)"* while the suite probes it with *"the shared authentication
+spec-node"* and *"the shared billing spec-node"* — the doctrine carried the probes' own apparatus. A
+blind producer reported its reasoning as *"step 3, **'shared authentication node' rule**"*, quoting the
+illustration back as the rule's name: the probe was not making it derive, it was making it match. The
+illustration is removed, restoring the decoupling #211 established (the doctrine keeps mailer,
+telemetry, rate-limiter; the suite probes with different domains). The doctrine's other three
+illustrations were checked against every probe's apparatus and are clean.
+
+**The through-line, for whoever picks this up.** Both dimensions measured dead were filed as *subject*
+gaps (#254, #255) with cheap, non-frozen fixes. Both fixes are inert. **The defect is in the `Given`s,
+not the doctrine** — situations that hand over the answers they grade, and situations that plant no
+temptation toward the failure they claim to detect. Those are frozen-scenario edits, so the repair this
+suite actually needs routes to **Clearance**, and its threshold re-derivations are **policy** calls the
+owner holds. There is no cheap version of this.
 
 ### Calibration — and what the impl gate should measure
 
@@ -317,7 +423,15 @@ one — and, for the one probe that has a measured failing read, so a future pas
   filed as [#250](https://github.com/cyberuni/cyberplace/issues/250). Note the direction: cohesion's
   miss is **over-split** (scattering one node into fragments). An *over-merge* temptation would not
   de-entail the assertion — single-writer still forces the coupled node into one mission however many
-  other nodes exist — and over-merge is already graded by `disjoint-nodes-not-fused`.
+  other nodes exist.
+
+  **Correction — the clause that once closed this paragraph is measured false.** It read: *"and
+  over-merge is already graded by `disjoint-nodes-not-fused`."* It is not. That dimension was ablated
+  (step 2's anti-fuse rule and screaming placement deleted whole) and scored **3/3 PASS, Δ = 0** — it
+  is unloseable, and it grades over-merge only in its wording. So #250 was **right about the
+  temptation and wrong about the scenario**: the over-merge temptation this suite lacks belongs on
+  **`regroup`**, not on cohesion. Cohesion stays a boolean guard on its own (independent) grounds —
+  see the selection rule note below.
 
   **Method note for the next pass, which cost this one a cycle:** the pre-registered trigger here was
   *"if the impl gate measures `cohesion-preserved` below a 3.0 mean → demote."* It could never fire.
@@ -325,6 +439,17 @@ one — and, for the one probe that has a measured failing read, so a future pas
   itself in doubt. **A measured ceiling is not evidence a dimension works; it is consistent with a
   dimension that cannot fail.** Test loseability by **ablating the rule and re-scoring**, never by
   watching the mean against a correct subject.
+
+  **The boolean is cohesion's terminal state, not a consolation — and the selection rule now says so
+  independently of the ablation.** `suite-format-governance` (landed by #292) decides form by
+  **substitutability**: a criterion belongs in a `@rubric` only if you genuinely accept that strength
+  elsewhere pays for weakness here. Say this trade out loud — *"great barrier detection makes up for
+  scattering a tightly-coupled node into thin fragments across missions"* — and nobody accepts it.
+  Cohesion is **non-substitutable**, so it is a boolean `Then` and never a dimension, at any `max` and
+  any `threshold`. This matters for #250's remaining ask: **de-entangling the dimension would not make
+  it legal.** A de-entailed non-substitutable criterion is still barred from the sum, so re-promoting
+  cohesion behind a better `Given` is not work waiting to be done — it is work the bar now forbids.
+  The over-split temptation #250 describes has no rubric to serve.
 - **`relax-on-evidence`** grades the correctness of the relaxation *condition* (finer evidence proving
   disjointness) rather than its emission. It is the dimension closest to the presence-grading this
   pass removed; if it measures at ceiling with zero variance across runs, re-examine it next.

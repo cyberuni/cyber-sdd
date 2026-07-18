@@ -79,9 +79,9 @@ flowchart TD
   L1 --> D3{"location confirmed by user"}
   L2 --> D3
   L3 --> D3
-  L4 --> DER{"path inside a repo package area?"}
-  DER -->|"yes"| H1["hoist, named by package"]
-  DER -->|"no, it is the repo root"| H2["colocate at own anchor"]
+  L4 --> DER{"can the spec be kept out of what ships?"}
+  DER -->|"no — wholesale copy (agentic plugin)"| H1["hoist, named by package"]
+  DER -->|"yes — default"| H2["colocate at own anchor"]
   H1 --> D3
   H2 --> D3
 
@@ -145,8 +145,8 @@ Grouped by use case; every scenario in
 | L4 — path and kind cannot be read | `intent mode asks for the project path it cannot read` |
 | L4 — repo context is still readable | `intent mode still reads the repo around an empty project` |
 | DER — location follows the path | `the spec location is derived from the project path in intent mode` |
-| DER — nested → hoisted | `a greenfield project nested in a repo has its spec hoisted` |
-| DER — outer → colocated | `a greenfield project at the repo root keeps its spec colocated` |
+| DER — cannot exclude → hoisted | `a greenfield agentic plugin has its spec hoisted` |
+| DER — can exclude → colocated | `a greenfield nested package keeps its spec colocated` |
 
 ### monorepo
 

@@ -37,15 +37,17 @@ Feature: scaffold-project-spec — lay out a project's spec
     When the bootstrap settles the spec location
     Then the location is derived from that path rather than asked as a separate choice
 
-  Scenario: a greenfield project nested in a repo has its spec hoisted
-    Given a greenfield project in intent mode whose path sits inside an existing repo's package area
+  Scenario: a greenfield agentic plugin has its spec hoisted
+    Given a greenfield project in intent mode that will be an agentic plugin
     When the bootstrap settles the spec location
-    Then the spec is hoisted out of the package dir and named by the package
+    Then the spec is hoisted out of the plugin dir and named by the package
+    And the reason recorded is that plugin install copies the directory wholesale
 
-  Scenario: a greenfield project at the repo root keeps its spec colocated
-    Given a greenfield project in intent mode whose path is the repo root
+  Scenario: a greenfield nested package keeps its spec colocated
+    Given a greenfield project in intent mode nested in a repo that can exclude the spec from its package
     When the bootstrap settles the spec location
     Then the spec is colocated at the project's own anchor
+    And being nested is not by itself a reason to hoist
 
   Scenario: intent mode still reads the repo around an empty project
     Given a greenfield project in intent mode inside an existing monorepo

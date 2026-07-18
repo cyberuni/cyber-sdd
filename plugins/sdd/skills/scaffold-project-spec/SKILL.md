@@ -50,25 +50,29 @@ where it helps) the three things detection would otherwise have read:
    Confirm it rather than inventing a path.
 3. **What it will do** — the intended capabilities, which step 3 recommends a strategy from.
 
-**Nested or outer** falls out of (2): a path inside an existing repo's package area is a **nested** project;
-a path that *is* the repo root is the **outer** one.
+(2) gives the `project-path`; (1) decides the **location**, per step 2 — nesting does not.
 
 ## 2 — Choose the spec location
 
 Recommend, let the user override, never assume:
 
-- **colocated** — `<project>/.agents/spec/` (singular). Default for a repo-level / non-shippable project.
-- **hoisted** — `<repo>/.agents/specs/<plugin>/` (plural, named by the package). Recommend for an **agentic
-  plugin** (and any shippable package): the spec must not live inside the distributable.
+**Colocate by default.** Hoist only when the spec **cannot be kept out of what ships** — nesting alone is
+never the reason.
+
+- **colocated** — `<project>/.agents/spec/` (singular). The default, including for a **nested** project.
+  An npm package colocates fine: `files` / `.npmignore` excludes `.agents/` from the tarball.
+- **hoisted** — `<repo>/.agents/specs/<name>/` (plural, named by the package). Only when the project dir is
+  copied **wholesale**, with no include/exclude mechanism to leave the spec behind. The one identified case
+  is an **agentic plugin**: plugin install copies the whole plugin directory, so a colocated spec would ship
+  to every consumer. If a new packaging format has the same all-or-nothing copy, it joins this case;
+  otherwise colocate.
 - **monorepo-member** — for a **monorepo**, offer to lay out **every package** (each hoisted) plus the outer
   project (`<repo>/.agents/spec/`). Run steps 1–6 **per selected project**, producing several draft trees
   (the evidence mode is picked once, in step 0, for the whole run).
 
-In **intent mode** the location is **derived from the `project-path` established in step 1**, exactly as it
-is for an existing project — hoisted iff `project-path` is not the spec's own dir (`project-unit.md`: a
-nested project's spec is lifted out of its possibly-shippable package dir; the outer project's is not).
-Shippability is the *reason* the hoist exists, never the test — a nested package that ships nothing is still
-hoisted. Confirm the derived location with the user; never re-ask it as an independent choice.
+In **intent mode** apply the same test to the **kind of project** established in step 1: an agentic plugin
+hoists, everything else colocates at the `project-path` given. Confirm with the user; never re-ask location
+as an independent choice, and never hoist merely because the path is nested.
 
 ## 3 — Recommend + choose the strategy
 

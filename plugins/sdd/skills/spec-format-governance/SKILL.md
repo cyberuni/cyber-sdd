@@ -1,57 +1,66 @@
 ---
 name: spec-format-governance
-description: "Partial Skill: invoke by name only — the SDD spec-format bar for spec.md structure. Loaded by the spec-producer and the spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 ---
 
 # Spec-Format Governance — the spec.md structure bar
 
-The **universal** bar for how a `spec.md` is *structured*: the required `## Use Cases` section and
-the `spec.md` enrichment that keep a spec legible at the gate. A fixed-universal SDD governance —
-the **spec-producer** loads it to self-align before writing, and the **spec-judge** loads it to
-grade structure backward at the spec gate. It owns no `.feature`; its conformance shows up in the
-judge's verdict on real specs.
+Universal bar for how a `spec.md` is **structured**. The spec-producer self-aligns to it before
+writing; the spec-judge grades structure backward at the spec gate. Owns no `.feature` (that form is
+`sdd:suite-format-governance`); owns no spec *granularity* (a corpus-organization concern). A
+behavioral node is organized as **use-case groups**; a descriptive index or reference artifact
+carries none of the below.
 
-Boundary: the `.feature` Gherkin/rubric form and scenario ordering belong to **`sdd:suite-format-governance`**;
-spec *granularity* (when a spec grows too big → carve it into more folders/units) is a
-corpus-organization concern. This bar owns only `spec.md` structure.
+## Section by use-case group
 
-## The required `## Use Cases` section
+Section the spec by **use-case group** — a nameable cluster of related entry points, named by intent
+(screaming architecture; never by layer or output format). Open with the frame a table cannot hold:
 
-Every **behavioral** spec node carries a dedicated `## Use Cases` section; a descriptive index or a
-reference artifact carries none. Open it with the frame a table cannot hold, then list the use
-cases:
+- **Subject** — one line naming the territory the groups exercise.
+- **Non-goals** — one line on what the spec deliberately excludes.
 
-- **Subject** — one line naming the territory the use cases all exercise.
-- **Non-goals** — one line on what the spec deliberately excludes, wherever the boundary isn't
-  self-evident.
+Each group carries three views of one capability — **use cases**, a **logic graph**, and a
+**scenario map** — and the `.feature` mirrors the groups as `# ── <group> ── ` sections.
 
-A **use case** is an *entry-point* — coarse-grained, one per distinct way the subject is invoked —
-given as **trigger / inputs / outcome** (a table, prose, or EARS templates; whichever reads best).
-A use case is **not** a scenario: the use case answers *"when, and with what, is this invoked?"*
-(in `spec.md`); a scenario answers *"given this exact situation, does it do that — yes/no?"* (in
-the `.feature`).
+## Each group: use cases → logic graph → scenario map
 
-The relationship is **one-to-many**: each use case is covered by one-or-more scenarios (happy path,
-negative mirror, boundary). A scenario with no use case is an orphan test; a use case with no
-scenarios is unverified intent. The producer writes the section and covers each use case with
-scenarios; the judge checks the section exists and the mapping holds.
+- **Use cases** — the group's **entry points**, one per distinct way the subject is invoked, as
+  **trigger / inputs / outcome** (table, prose, or EARS — whichever reads best). A use case answers
+  *"when, and with what, is this invoked?"* — never *"given this state, does it do that?"* (that is a
+  scenario).
+- **Logic graph** — the **decisions** the capability makes once invoked, **drawn** as a fenced
+  Mermaid decision graph: nodes are decisions, edges are branches. This is the coverage map a
+  reviewer reads at the gate. Draw it whenever the group has real decision structure; a single-branch
+  group may state the decision in a line.
+- **Scenario map** — an **explicit maintained table** binding each **graph edge → its covering
+  scenario(s)** in the `.feature`. Every edge has at least one scenario; every scenario binds to one
+  edge. This table is what `check-suite` lints (edge with no scenario = coverage hole; scenario off
+  the map = orphan) and what the Builder bar judges coverage against.
 
-## Layout & enrichment
+A `@pinned` (user-owned) behavior the graph did not reach enters as a **seed**: the agent grows the
+graph around it and adds the discovered edges to the map (`sdd:suite-format-governance`).
 
-`spec.md` is a document a person reviews at the gate — including a **non-engineer** (a PM, a
-stakeholder) — so legibility is part of the bar. Enrich it — never a wall of prose:
+## Layout & enrichment — legible to a non-engineer
 
-- **Draw the picture** where a diagram carries the idea better than words (architecture, sequence,
-  state, data flow, decision tree) — a fenced Mermaid (or equivalent) diagram.
-- **Format for humans** — clear heading hierarchy, tables for structured comparisons, short
-  paragraphs, callouts for the load-bearing decisions.
-- **Readable vocabulary — assume the reader does not know the jargon.** Never leave a specialized
-  term undefined — an acronym, a domain or computer-science term, a framework noun, an internal
-  codename. Lead with the **plain word** and keep the specialized term as a **parenthetical** for the
-  reader who already knows it — e.g. "the step is **safe to repeat** (idempotent)". When a spec leans
-  on more than a couple of such terms, carry a short **Key terms** glossary near the top, defining —
-  one plain sentence each — every term the `spec.md` *and its `.feature`* rely on. A spec a
-  non-engineer cannot follow fails legibility.
+`spec.md` is reviewed at the gate, including by a non-engineer (a PM, a stakeholder):
 
-Enrichment applies to `spec.md` only; the `.feature` stays plain boolean Gherkin (`sdd:suite-format-governance`).
+- **Draw the picture** — beyond the required logic graph, add a diagram wherever it carries an idea
+  better than prose (architecture, sequence, state, data flow).
+- **Format for humans** — heading hierarchy, tables for comparisons, short paragraphs, callouts for
+  the load-bearing decisions; never a wall of prose.
+- **Readable vocabulary** — lead with the plain word, keep the specialized term as a parenthetical
+  ("**safe to repeat** (idempotent)"); carry a short **Key terms** glossary when the spec leans on
+  several. A spec a non-engineer cannot follow fails legibility.
+
+Enrichment applies to `spec.md` only; the `.feature` stays plain Gherkin.
+
+## Key points (read-check)
+
+1. **Section by use-case group** — named by intent (screaming), never by layer or output format.
+2. **Each group is three views** — use cases (entry points), a **drawn logic graph** (decisions), and
+   a **scenario-map** table.
+3. **The scenario map is an explicit 1:1 table** — graph-edge → covering scenario — the coverage
+   contract `check-suite` lints.
+4. **A `@pinned` behavior enters as a seed** the agent grows the graph around.
+5. **Legible to a non-engineer** — plain word + parenthetical, a Key terms glossary when needed.

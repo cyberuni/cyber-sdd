@@ -1,6 +1,6 @@
 ---
 name: builder-spec-governance
-description: "Partial Skill: invoke by name only — the Builder actor bar at the spec gate — testability and coverage of the .feature. Loaded by the spec-producer and the cold spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 metadata:
   actor: builder
@@ -10,21 +10,26 @@ metadata:
 
 # Builder-Spec Governance — the testability & coverage bar
 
-The **Builder** bar at the **spec gate**: is the `.feature` a complete, testable contract? One
-merged bar loaded by **both** faces — the **spec-producer** reads it forward (it writes the testable
-`.feature`) and the **cold spec-judge** reads it backward (it grades coverage). `producer ≠ judge`
-holds at the agent level.
-
-The SDD default for the `builder` spec bar — a plugin may bind its own per artifact-type (governance resolution); this loads when the registry leaves `builder`/`spec` unbound. Conformance — does the *implementation* satisfy the contract — is the impl gate's
-`builder-impl` bar.
+The **Builder** bar at the **spec gate**: is the `.feature` a complete, testable contract over the
+decision graph? Loaded by both faces. The SDD default for the `builder` spec bar; a plugin may bind
+its own, and this loads when the registry leaves `builder`/`spec` unbound.
 
 ## The bar
 
-- **Every behavior is testable.** Each scenario asserts an observable outcome a check can confirm —
-  boolean, no "sometimes". A behavior that cannot be observed cannot be specced.
-- **Coverage is complete.** Every operation has a happy path and its error cases; no command-surface
-  entry is unscenarioed.
-- **A graded subject is still specced as a boolean.** For a non-deterministic subject, the contract
-  reaches a per-scenario boolean through a rubric + threshold over N runs (`score ≥ threshold`); the
-  rubric form itself stays out of the boolean `.feature` and is carried as a judge-only `@rubric`
-  scenario (`sdd:suite-format-governance`).
+- **Every branch is covered.** Each edge of every group's logic graph has its scenario, and every
+  guard/negative edge is paired with a positive companion. The **scenario map is 1:1** — no orphan
+  scenario, no uncovered edge (`sdd:suite-format-governance`).
+- **Every scenario is testable.** Each asserts an observable outcome a check can confirm — a boolean,
+  no "sometimes". A behavior that cannot be observed cannot be specced.
+- **A graded subject is still a boolean.** For a non-deterministic subject the contract reaches a
+  per-scenario boolean through a rubric + threshold over N runs; the rubric form stays out of the
+  boolean `.feature`, carried as a judge-only `@rubric` scenario.
+
+## Key points (read-check)
+
+1. **Every branch is covered** — every edge has its scenario, guards paired with positives, the
+   scenario map 1:1.
+2. **Every scenario is testable** — an observable boolean outcome; unobservable behavior cannot be
+   specced.
+3. **A graded subject still reaches a per-scenario boolean** via rubric + threshold; the rubric stays
+   out of the `.feature`.

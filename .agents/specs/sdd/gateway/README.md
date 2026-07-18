@@ -200,4 +200,4 @@ The behavior suite is [`gateway.feature`](./gateway.feature) — activation + in
 handling skill in-session (the `start-mission` default / the headless automaton), and the
 classification edges (ambiguity routes in, non-CR escapes, frozen feature re-opened through a
 mission). Cross-capability outcomes that run a CR end-to-end through the gateway live in
-`../acceptance/`.
+`../workflows/`.

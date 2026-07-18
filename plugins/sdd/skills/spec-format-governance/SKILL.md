@@ -6,61 +6,67 @@ user-invocable: false
 
 # Spec-Format Governance — the spec.md structure bar
 
-Universal bar for how a `spec.md` is **structured**. The spec-producer self-aligns to it before
-writing; the spec-judge grades structure backward at the spec gate. Owns no `.feature` (that form is
-`sdd:suite-format-governance`); owns no spec *granularity* (a corpus-organization concern). A
-behavioral node is organized as **use-case groups**; a descriptive index or reference artifact
-carries none of the below.
+Universal bar for how a **behavioral** node's `spec.md` is structured. The spec-producer self-aligns
+to it before writing; the spec-judge grades structure backward at the spec gate. The layout law it
+sits inside — spec types, the four folder kinds, screaming architecture — is
+`design/spec-structure.md`; this bar owns one node's `spec.md`. A descriptive index or reference
+artifact carries none of the sections below.
 
-## Section by use-case group
+## The four sections, in order
 
-Section the spec by **use-case group** — a nameable cluster of related entry points, named by intent
-(screaming architecture; never by layer or output format). Open with the frame a table cannot hold:
+### `## What`
+The overview: what the capability is, the problem it solves, who has it — plus **Non-goals** (what it
+deliberately excludes). One or two short paragraphs; add a **Key terms** glossary when it leans on
+jargon. Legible to a non-engineer.
 
-- **Subject** — one line naming the territory the groups exercise.
-- **Non-goals** — one line on what the spec deliberately excludes.
+### `## Use Cases`
+The **entry points** — one row per distinct way the capability is invoked, each **named to its
+implementation surface** (a CLI verb, a public function, an endpoint), given as
+**trigger / inputs / outcome**. A use case answers *"when, and with what, is this invoked?"* — never
+*"given this state, does it do that?"* (that is a scenario). Naming the impl surface keeps the spec,
+the suite, and the code on **one screaming structure**: the builder gives each use case its own
+module, so each change stays local.
 
-Each group carries three views of one capability — **use cases**, a **logic graph**, and a
-**scenario map** — and the `.feature` mirrors the groups as `# ── <group> ── ` sections.
+### `## Logic`
+The **decision graph** the capability runs once invoked, **drawn** as a fenced Mermaid graph — nodes
+are decisions, edges are branches. Use cases **enter** this graph, and several usually share it
+(many-to-one). When use cases run genuinely distinct decision logic (common for CLI verbs), section
+`## Logic` by sub-graph and have each use case name the one it enters. A single-branch capability may
+state its decision in a line.
 
-## Each group: use cases → logic graph → scenario map
+### `## Scenario map`
+The **explicit maintained table** binding each **branch → its covering scenario** in the suite,
+**grouped by use case**. 1:1 — every branch has exactly one scenario, every scenario one branch. The
+grouping makes coverage **visible per use case**: an uncovered surface is a hole, not a silent gap in
+prose. `check-suite` lints it. A `@pinned` behavior the graph did not reach enters as a **seed** the
+agent grows the graph around, adding the discovered branches to the map.
 
-- **Use cases** — the group's **entry points**, one per distinct way the subject is invoked, as
-  **trigger / inputs / outcome** (table, prose, or EARS — whichever reads best). A use case answers
-  *"when, and with what, is this invoked?"* — never *"given this state, does it do that?"* (that is a
-  scenario).
-- **Logic graph** — the **decisions** the capability makes once invoked, **drawn** as a fenced
-  Mermaid decision graph: nodes are decisions, edges are branches. This is the coverage map a
-  reviewer reads at the gate. Draw it whenever the group has real decision structure; a single-branch
-  group may state the decision in a line.
-- **Scenario map** — an **explicit maintained table** binding each **graph edge → its covering
-  scenario(s)** in the `.feature`. Every edge has at least one scenario; every scenario binds to one
-  edge. This table is what `check-suite` lints (edge with no scenario = coverage hole; scenario off
-  the map = orphan) and what the Builder bar judges coverage against.
+## Plain language — a gate requirement, not a nicety
 
-A `@pinned` (user-owned) behavior the graph did not reach enters as a **seed**: the agent grows the
-graph around it and adds the discovered edges to the map (`sdd:suite-format-governance`).
+`spec.md` is reviewed at the gate, so plain language is a bar it must clear. Write so a **smart
+reader with no domain context follows it on the first read**:
 
-## Layout & enrichment — legible to a non-engineer
+- **Simplify the writing, never the domain.** Domain concepts are essential — define each in plain
+  words, never drop one to sound simpler. Jargon, long sentences, and unexplained acronyms are
+  accidental — drive them to zero.
+- **Lead with the plain word**, keep the specialized term as a parenthetical ("**safe to repeat**
+  (idempotent)"); carry a **Key terms** glossary when the spec leans on several.
+- **Short sentences, concrete over abstract.** Draw a diagram wherever it beats prose; format with
+  headings, tables, and callouts for the load-bearing decisions.
 
-`spec.md` is reviewed at the gate, including by a non-engineer (a PM, a stakeholder):
-
-- **Draw the picture** — beyond the required logic graph, add a diagram wherever it carries an idea
-  better than prose (architecture, sequence, state, data flow).
-- **Format for humans** — heading hierarchy, tables for comparisons, short paragraphs, callouts for
-  the load-bearing decisions; never a wall of prose.
-- **Readable vocabulary** — lead with the plain word, keep the specialized term as a parenthetical
-  ("**safe to repeat** (idempotent)"); carry a short **Key terms** glossary when the spec leans on
-  several. A spec a non-engineer cannot follow fails legibility.
-
-Enrichment applies to `spec.md` only; the `.feature` stays plain Gherkin.
+The same bar binds the **suite**'s scenarios — plain `Given/When/Then` the same reader can follow.
+Enrichment (diagrams, formatting) is `spec.md` only; the suite stays plain Gherkin.
 
 ## Key points (read-check)
 
-1. **Section by use-case group** — named by intent (screaming), never by layer or output format.
-2. **Each group is three views** — use cases (entry points), a **drawn logic graph** (decisions), and
-   a **scenario-map** table.
-3. **The scenario map is an explicit 1:1 table** — graph-edge → covering scenario — the coverage
-   contract `check-suite` lints.
-4. **A `@pinned` behavior enters as a seed** the agent grows the graph around.
-5. **Legible to a non-engineer** — plain word + parenthetical, a Key terms glossary when needed.
+1. **Four sections in order** — `## What` (overview + non-goals), `## Use Cases`, `## Logic`,
+   `## Scenario map`.
+2. **A use case is an entry point named to its impl surface** (CLI verb / function / endpoint) — spec,
+   suite, and code share one screaming structure.
+3. **The logic graph is shared** — use cases enter it (many-to-one); section by sub-graph only when
+   the logic genuinely differs.
+4. **The scenario map is 1:1 and grouped by use case** — coverage visible per use case; `check-suite`
+   lints it.
+5. **A `@pinned` behavior enters as a seed** the agent grows the graph around.
+6. **Plain language is a gate bar** — a reader with no domain context follows the spec (and its
+   suite) on first read; define every term, simplify the writing not the domain.

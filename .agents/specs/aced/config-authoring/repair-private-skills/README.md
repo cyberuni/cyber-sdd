@@ -70,4 +70,4 @@ The behavior suite is [`repair-private-skills.feature`](./repair-private-skills.
 reach, the four validate checks (public symlink, missing SKILL.md, missing frontmatter, missing
 internal metadata) plus the augmentation-only exemption and the clean/ok case, and the repair writes
 (symlink delete, metadata insert, idempotence on clean entries, skip-what-it-cannot-fix, and the
-`.agents/skills`-only write boundary). Cross-capability e2e scenarios live in `../../acceptance/`.
+`.agents/skills`-only write boundary). Cross-capability e2e scenarios live in `../../workflows/`.

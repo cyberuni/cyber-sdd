@@ -52,4 +52,4 @@ The behavior suite is [`skillify.feature`](./skillify.feature) — the activatio
 sibling deferrals, mining the workflow from the session, the placement/pattern/name/description
 choices, encoding the why, flagging script candidates, validating, placing and linking, the
 generalize-don't-transcribe guard, and the graded quality of the produced skill. Cross-capability e2e
-scenarios live in `../../acceptance/`.
+scenarios live in `../../workflows/`.

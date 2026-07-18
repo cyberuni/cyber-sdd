@@ -1,7 +1,7 @@
 # project-spec/ — project-spec-level maintenance tooling
 
 The **tooling** that operates over the internal structure of **one project-spec** — its capability
-folders, its `design/` rules, its `acceptance/` e2e suite, and its colocated unit suites. Every tool
+folders, its `design/` rules, its `workflows/` suite, and its colocated unit suites. Every tool
 here acts on a **single** project-spec (`.agents/specs/<project>/`), not across the collection; the
 cross-project tier is [`../corpus/`](../corpus/README.md) (`discovery`). This is the
 **project-spec** level of `corpus ⊃ project-spec ⊃ node` (`../design/spec-structure.md`).
@@ -40,7 +40,7 @@ carry no lifecycle state. (`deprecate`/retire is a lifecycle act owned by
 This capability hosts several **units of code** (skills). The unit of test is the skill — **one
 `.feature` per unit**, named for the unit and colocated with the unit's spec in its own folder.
 The freeze grain is per `.feature` file, so units freeze independently. Cross-capability outcome
-(e2e) scenarios live in `../acceptance/`, never here.
+(e2e) scenarios live in `../workflows/`, never here.
 
 | Unit | Type | Spec | Role |
 |---|---|---|---|

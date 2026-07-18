@@ -6,15 +6,15 @@ user-invocable: false
 
 # Suite-Format Governance — the acceptance behavior-suite bar
 
-Form authority for a `.feature` behavior suite: how it is written and judged. Fixed-universal SDD
+Form authority for a behavior suite: how it is written and judged. Fixed-universal SDD
 governance — the spec-producer self-aligns to it, and each actor bar (`oracle` / `architect` /
-`builder`) judges its slice of it backward at the gates. Governs the `.feature` of a **behavioral**
+`builder`) judges its slice of it backward at the gates. Governs the suite of a **behavioral**
 spec only; descriptive and reference nodes carry no suite. Every scenario collapses to **one
 pass/fail** at the verification point — never a score.
 
 ## The suite specifies acceptance only — strict
 
-A `.feature` specifies **acceptance** — the observable **decisions** the node owns — and nothing else.
+A suite specifies **acceptance** — the observable **decisions** the node owns — and nothing else.
 
 - **Decisions only.** A scenario tests a **decision** — a branch the capability takes. A non-branch
   **invariant** that always holds ("output is valid JSON", "idempotent") is **not acceptance** and is
@@ -47,7 +47,7 @@ not evidence it works. Rubric-dimension discrimination detail: `references/rubri
 ## Sections mirror the spec's use-case groups; every scenario binds to a map edge
 
 `spec.md` sections the node by **use-case group**, each carrying a drawn **logic graph** and an
-explicit **scenario-map** table (`sdd:spec-format-governance`). The `.feature` **mirrors** it:
+explicit **scenario-map** table (`sdd:spec-format-governance`). The suite **mirrors** it:
 
 - Group scenarios under `# ── <use-case group> ──` comments — same groups, same order — screaming
   the intents; never sectioned by layer, output format, or "misc rules".
@@ -151,7 +151,7 @@ selection, pairwise consistency, and apparatus independence are **judged**, neve
 The `confirm-read` check verifies a role's read-attestation covers each point below, in its own words
 — the load-bearing directives, the ones whose misreading is expensive:
 
-1. **Acceptance only, strict** — a `.feature` specifies the decisions the node owns; invariants and
+1. **Acceptance only, strict** — a suite specifies the decisions the node owns; invariants and
    co-owned seams are out of scope.
 2. **The suite is the decision graph** — one scenario per edge, cover every branch, and pair every
    guard/negative edge with a positive companion on the same path (a lone negative is inert).

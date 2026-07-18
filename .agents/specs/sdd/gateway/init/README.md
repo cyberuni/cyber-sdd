@@ -94,5 +94,5 @@ The behavior suite is [`init.feature`](./init.feature) — the offer/consent, th
 wiring the project reader, composing with an existing status line, global-statusline detection and
 the composed global base, project scope, the git-repo gitignore, fall-through when absent, and
 idempotency. The runtime write/clear of the status **value**
-is the conductor's suite (`../../mission/conductor/`); cross-capability e2e scenarios live in
-`../../acceptance/`.
+is the conductor's suite (`../../mission/conductor/`); cross-capability workflow scenarios live in
+`../../workflows/`.

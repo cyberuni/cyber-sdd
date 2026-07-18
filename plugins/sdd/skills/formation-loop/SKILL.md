@@ -112,4 +112,4 @@ Formation owns corpus **structure** only and emits **no** out-of-loop decision:
 - a **per-spec gate structural check** → **declined**; formation does not run as the gate check.
 
 Cross-capability outcome scenarios (a split or reconcile carried end-to-end) live in
-`../acceptance/`; the loop and verdict behaviors are in `formation/formation.feature`.
+`../workflows/`; the loop and verdict behaviors are in `formation/formation.feature`.

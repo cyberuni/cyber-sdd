@@ -92,7 +92,7 @@ function unquote(v: string): string {
 export function facetKind(relPath: string, specType: string | undefined): FacetKind {
 	const p = relPath.replace(/\\/g, '/')
 	if (p.startsWith('design/')) return 'rule'
-	if (p.startsWith('acceptance/')) return 'e2e'
+	if (p.startsWith('workflows/')) return 'e2e'
 	if (specType === 'reference') return 'reference'
 	if (specType === 'behavioral') return 'behavior'
 	return 'index'

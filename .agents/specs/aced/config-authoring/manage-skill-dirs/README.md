@@ -71,4 +71,4 @@ entirely (only `*` and `**` remain).
 The behavior suite is [`manage-skill-dirs.feature`](./manage-skill-dirs.feature) — the config format,
 list, CRUD over the custom patterns, induce, preview, the boundary that only the config is written,
 and the one agentic confirm-before-persist scenario. Cross-capability e2e scenarios live in
-`../../acceptance/`.
+`../../workflows/`.

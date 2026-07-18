@@ -131,8 +131,8 @@ system except as a CR ([`design/loops.md`](./design/loops.md)):
 
 The placement map — the declared organization (`design/spec-layout.md`). SDD is organized
 **capability-first**: top-level folders name what the project *does*. A new concept routes to the
-folder whose capability it serves; rules go to `design/`, cross-capability e2e scenarios to
-`acceptance/`.
+folder whose capability it serves; rules go to `design/`, cross-capability workflow scenarios to
+`workflows/`.
 
 | Folder | Owns | Loop role |
 |---|---|---|
@@ -153,7 +153,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | [`ssa-lowering/`](./ssa-lowering/README.md) | the reasoning front-end: lower one-or-more CRs into a partitioned set of Missions (one owning Mission per spec-node) via the Oracle + Architect lenses | — (run at intake/Explore) |
 | [`blast-estimate/`](./blast-estimate/README.md) | compute a mission's blast from its touch-set (count × centrality × sensitivity) and line it up against the hand-asserted `blast:` (feeds the mission graph) | — (consumed by the graph's writer) |
 | [`plugin/`](./plugin/README.md) | SDD's plugin nature (ships-as-plugin + extended-by-plugins; registry init-write) | — |
-| [`acceptance/`](./acceptance/README.md) | e2e behavior suite | — |
+| [`workflows/`](./workflows/README.md) | workflows suite (cross-capability usage flows) | — |
 
 <!-- BEGIN generated: by-concept (project-spec/concept-index) -->
 
@@ -164,16 +164,16 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 | Concept | Facets |
 |---|---|
 | `artifact-type` | `design/artifact-type.md` (rule) |
-| `autonomy` | `acceptance/` (e2e) · `design/autonomy-rubric.md` (rule) |
-| `delivery` | `acceptance/` (e2e) · `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) · `mission/manage-scenario-bridge/` (behavior) · `mission/verify-scenarios/` (behavior) |
+| `autonomy` | `design/autonomy-rubric.md` (rule) · `workflows/` (e2e) |
+| `delivery` | `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) · `mission/manage-scenario-bridge/` (behavior) · `mission/verify-scenarios/` (behavior) · `workflows/` (e2e) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
 | `intake` | `intake/manage-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
-| `lifecycle` | `acceptance/` (e2e) · `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) |
+| `lifecycle` | `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) · `workflows/` (e2e) |
 | `orchestration` | `blast-estimate/` (behavior) · `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
 | `plugin` | `plugin/` (behavior) · `plugin/plugin-contract/` (reference) |
-| `provenance` | `acceptance/` (e2e) · `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) |
-| `resolution` | `acceptance/` (e2e) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) |
+| `provenance` | `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) · `workflows/` (e2e) |
+| `resolution` | `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) · `workflows/` (e2e) |
 | `routing` | `gateway/` (behavior) · `gateway/dispatch/` (behavior) · `gateway/manage/` (behavior) |
 | `setup` | `gateway/init/` (behavior) |
 | `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-gate/` (behavior) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `mission/solution-producer/` (behavior) |
@@ -186,4 +186,4 @@ folder whose capability it serves; rules go to `design/`, cross-capability e2e s
 - **ONE spec, ONE behavior suite, ONE gate/freeze baseline.** Folders are *views*, never lifecycle units — none gets its own `status`/approval.
 - **Rule-in-design + behavior-in-capability.**
 - **Three spec types** ([`design/spec-structure.md`](./design/spec-structure.md)): **descriptive** (no subject — rule docs + indexes; no marker), **reference artifact** (`spec-type: reference` — a suite-less shipped thing), **behavioral artifact** (`spec-type: behavioral` — a testable unit with a `.feature`). `spec-type` is per-node classification, never lifecycle.
-- **Unit scenarios colocate** with their capability; **acceptance (e2e) scenarios** live in `acceptance/`.
+- **Unit scenarios colocate** with their capability; **workflow (cross-capability) scenarios** live in `workflows/`.

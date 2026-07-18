@@ -62,7 +62,7 @@ the internal repeat *inside* explore (spec-producer ⇄ spec-judge, spikes) and 
 This capability's behavior is realized by the **conductor** plus the
 **solution-producer** it runs inline. The unit of test is the skill — **one `.feature` per
 unit**, named for the unit and colocated with the unit's spec in its own folder. The freeze grain
-is **per `.feature` file**. Cross-capability outcome (e2e) scenarios live in `../acceptance/`,
+is **per `.feature` file**. Cross-capability outcome (e2e) scenarios live in `../workflows/`,
 never here.
 
 | Unit | Type | Spec | Role |
@@ -132,7 +132,7 @@ sources are the stale side, to fix in the source sweep.
   artifact-types → summons several squads, each running its five-role chain. No contradiction —
   `../design/specialists-and-squads.md` is canonical.
 - **Spec-fleet assumption in the sources — RESOLVED (project-spec model).** The consolidated
-  impl gate verifies against **one** suite (`../acceptance/` + colocated unit); the one-suite
+  impl gate verifies against **one** suite (`../workflows/` + colocated unit); the one-suite
   model **stands**. The folded specs that verify against a **per-feature/per-domain `.feature`**
   are the **stale side** — their per-scenario verification language must be re-read against the
   one-suite model in the source sweep, not re-litigated in design.

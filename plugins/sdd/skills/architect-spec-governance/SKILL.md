@@ -10,36 +10,43 @@ metadata:
 
 # Architect-Spec Governance — the structural-fit bar (spec gate)
 
-The **Architect** bar at the **spec gate**: does the spec fit the existing structure, and is its
-decision graph well-placed? The SDD default for the `architect` spec bar; a plugin may bind its own
-per artifact-type, and this loads when the registry leaves `architect`/`spec` unbound.
+The **Architect** bar at the **spec gate**: does this **capability** fit the project's structure, and
+is its decision graph well-placed? Judges the capability (read from its spec + suite), not the
+document's prose — that is `sdd:spec-format-governance`. The SDD default for the `architect` spec bar;
+a plugin may bind its own per artifact-type, and this loads when the registry leaves `architect`/`spec`
+unbound.
 
 ## The bar
 
-- **No duplication.** The contract reuses existing specs, concepts, and structures. A second copy of
-  an existing concept is a defect.
-- **No conflict.** It does not contradict established conventions, module boundaries, or an existing
-  spec's contract.
-- **Screaming placement.** The spec sections by **use-case group**, named by intent — never by layer
-  or output format. **One capability per node**; a decision graph smeared across nodes is a placement
-  defect.
-- **A well-formed logic graph.** Each group's drawn graph connects — every decision reachable, no
-  dangling branch — and the suite's sections mirror its groups.
+- **No knowledge duplication.** A capability, concept, rule, or contract has **one home**; whatever
+  needs it references that home. Two copies of one piece of knowledge drift — a change lands in one
+  and misses the other. But **coincidental resemblance is not duplication**: two capabilities that
+  look alike yet change for different reasons stay separate — a premature shared abstraction couples
+  them, and the wrong abstraction costs more than the repetition. Test: does a change to one force the
+  same change to the other? Only then converge.
+- **No conflict.** The capability does not contradict established conventions, module boundaries, or
+  an existing capability's contract.
+- **Screaming placement.** The capability lives in a folder named for its intent — **one capability
+  per node**, its behavior never smeared across nodes.
+- **A well-formed logic graph.** Its decision graph connects — every decision reachable, no dangling
+  branch — and the suite's sections mirror it.
 - **An orthogonal axis.** Structural fit judges a property the builder was not optimizing — a real
   independent check even from the same hand.
-- **Structural concerns are deferred.** A structural problem in another domain is an observation that
-  spawns a new spec, never a marker in the spec being built.
+- **Structural concerns are deferred.** A structural problem in another capability is an observation
+  that spawns a new spec, never a marker in the one being built.
 
 ## Faces — asymmetric loadout
 
 The two faces read different inputs. **Forward (solution-producer):** self-aligns the ungated
 `<unit>.solution.md`, where structure is chosen. **Backward (cold spec-judge):** grades structure
-from `spec.md` + the `.feature` only — the solution is out of view (grader independence).
+from `spec.md` + the suite only — the solution is out of view (grader independence).
 
 ## Key points (read-check)
 
-1. **No duplication, no conflict** with existing specs, concepts, conventions, or boundaries.
-2. **Screaming placement** — section by use-case group named by intent; one capability per node; no
-   graph smeared across nodes.
-3. **A well-formed logic graph** whose groups the suite's sections mirror.
-4. **Structural concerns in another domain are deferred** — an observation that spawns a new spec.
+1. **No knowledge duplication** — one home per concept; but coincidental resemblance is not
+   duplication (don't merge things that change for different reasons). No conflict with conventions or
+   boundaries.
+2. **Screaming placement** — the capability in a folder named by intent; one capability per node; not
+   smeared across nodes.
+3. **A well-formed logic graph** the suite's sections mirror.
+4. **Structural concerns in another capability are deferred** — an observation that spawns a new spec.

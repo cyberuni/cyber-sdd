@@ -57,7 +57,7 @@ In order; the conductor runs it in-session, surfacing each choice to the user (r
    **never** offered as the top level (the nest-inside rule); **ADR is not a strategy** (it is the decisions
    facet).
 4. **Scaffold** the **shared envelope** (root `spec.md`, `design/` incl. the `design/decisions/` ADR log,
-   `acceptance/`, a tooling/project home, a glossary) + the chosen strategy's **top-level skeleton** of stub
+   `workflows/`, a tooling/project home, a glossary) + the chosen strategy's **top-level skeleton** of stub
    node READMEs, each declaring a **legal `spec-type`** (testable surface → behavioral; shipped suite-less
    artifact → reference + `## Subject`; index / rule / structural grouping → descriptive). The skeleton
    respects the **two-level depth cap** (`../../design/spec-structure.md`) under **every** strategy: a node is

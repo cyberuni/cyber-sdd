@@ -62,7 +62,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
 | [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
 | [`design/`](./design/README.md) | descriptive | the eval model + the `decisions/` ADR log |
-| [`acceptance/`](./acceptance/README.md) | descriptive | the e2e behavior suite (author → run → improve → compare) |
+| [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: author → run → improve → compare) |
 | [`glossary/`](./glossary/README.md) | reference | the agent-config eval vocabulary |
 
 ## Placement map
@@ -81,7 +81,7 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 - **a rule or model** (an eval layer, the mapping, a scoring convention) → `design/` (descriptive); a
   **decision + its rationale** → `design/decisions/` (ADR); a **unit's design fork** → that unit's
   `<unit>.solution.md`.
-- **a cross-capability outcome** (spans ≥2 folders) → `acceptance/`, never a capability folder.
+- **a cross-capability outcome** (spans ≥2 folders) → `workflows/`, never a capability folder.
 - **a term** → `glossary/`.
 
 The nesting rule: capabilities at the top; any layering or doc-section structure nests *inside* a capability,

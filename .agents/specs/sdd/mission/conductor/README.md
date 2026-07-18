@@ -219,7 +219,7 @@ A **segment** is one run within a cycle (suspend-and-resume). The conductor:
 ## The impl gate
 
 Mission **owns the impl gate** (Approved → Implemented), exercised in `../delivery.md`. The gate
-judges the implementation against the **frozen contract** — `../../acceptance/` (the e2e outcome
+judges the implementation against the **frozen contract** — `../../workflows/` (the workflow outcome
 suite) **plus the colocated unit suites**. The gate is verdict-only and **fails closed**; it
 writes no setup frontmatter.
 

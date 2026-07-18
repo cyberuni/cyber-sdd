@@ -56,7 +56,7 @@ Write the **shared envelope** every strategy ships:
 - **`design/`** — the rules/model home, **including `design/decisions/`** (the ADR log: append-only,
   descriptive, ungated — the project-scope sibling of a unit's `<unit>.solution.md`; *organize no node as an
   ADR body*);
-- **`acceptance/`** — the e2e behavior suite home;
+- **`workflows/`** — the workflows suite home (cross-capability usage flows);
 - a **tooling/project** home (build, CI, packaging, deps);
 - a **glossary** (reference node).
 

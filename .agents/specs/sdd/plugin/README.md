@@ -136,7 +136,7 @@ work lands.
 Unit scenarios for plugin behavior (manifest validity, idempotent init-write, fail-closed on a
 corrupt registry, version reconciliation, the `.cursor/plans` symlink + its no-clobber migration)
 are in [`plugin.feature`](./plugin.feature). Cross-capability outcomes (a plugin registers and the
-conductor later resolves its delegates) live in [`../acceptance/`](../acceptance/README.md).
+conductor later resolves its delegates) live in [`../workflows/`](../workflows/README.md).
 
 ## Source
 

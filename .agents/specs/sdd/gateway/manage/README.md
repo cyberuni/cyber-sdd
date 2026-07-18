@@ -102,4 +102,4 @@ is itself a change to the project is redirected to `start-mission`, not handled 
 The behavior suite is [`manage.feature`](./manage.feature) — intake (fast path / two-level group
 menu / four-option rule), the group routes (setup & discovery / inspect / audit / housekeeping), loading the
 engine in-session, and the boundaries (non-mission, hand-off to `start-mission`, write-ownership,
-thin-classifier). Cross-capability e2e scenarios live in `../../acceptance/`.
+thin-classifier). Cross-capability e2e scenarios live in `../../workflows/`.

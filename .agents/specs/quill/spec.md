@@ -34,7 +34,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `spec-writer`, `doc-writer`, `judge` |
 | [`registry/`](./registry/README.md) | behavioral | register Quill as the documentation SDD plugin — `init-quill` |
 | [`design/`](./design/README.md) | descriptive | the doc-eval model (the four static checks) + the `decisions/` ADR log |
-| [`acceptance/`](./acceptance/README.md) | descriptive | the e2e behavior suite (spec → write → verify) |
+| [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: spec → write → verify) |
 | [`glossary/`](./glossary/README.md) | reference | the documentation-eval vocabulary |
 
 ## Placement map
@@ -46,7 +46,7 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 - **a rule or model** (a verification check, the LLM-eval → doc mapping, a scoring convention) → `design/`
   (descriptive); a **decision + its rationale** → `design/decisions/` (ADR); a **unit's design fork** → that
   unit's `<unit>.solution.md`.
-- **a cross-capability outcome** (spans ≥2 folders) → `acceptance/`, never a capability folder.
+- **a cross-capability outcome** (spans ≥2 folders) → `workflows/`, never a capability folder.
 - **a term** → `glossary/`.
 
 The nesting rule: capabilities at the top; any layering or doc-section structure nests *inside* a capability,

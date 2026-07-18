@@ -66,4 +66,4 @@ runner — without a model×effort def explosion.
 The behavior suite is [`manage-model-runners.feature`](./manage-model-runners.feature) — gateway
 reach, the add/list/remove operations, the additive-only invariants (idempotent add, never
 auto-remove, confirm before removal), and the runner-def shape (one per model, neutral executor,
-canonical path + symlinks). Cross-capability e2e scenarios live in `../../acceptance/`.
+canonical path + symlinks). Cross-capability e2e scenarios live in `../../workflows/`.

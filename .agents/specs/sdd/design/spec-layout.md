@@ -42,7 +42,7 @@ in (scope, terminology, conformance, references):
 |---|---|---|
 | `spec.md` (root) | `project-path` frontmatter + the descriptive index + the **declared organization** (the **placement map**, which names the strategy) | descriptive |
 | `design/` | the architecture, rules/model, and the **`design/decisions/` ADR log** (the "why") | descriptive |
-| `acceptance/` | the e2e behavior suite (cross-capability outcomes) | behavioral |
+| `workflows/` | the workflows suite (cross-capability usage flows) | behavioral |
 | a **tooling/project** home | build, CI, packaging, deps — the carve-out *every* scheme needs | descriptive |
 | **glossary** | the ubiquitous language (load-bearing under bounded-context) | reference |
 

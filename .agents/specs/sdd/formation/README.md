@@ -175,4 +175,4 @@ Formation owns corpus structure only and emits **no** out-of-loop decision:
 
 Unit scenarios for the loop and the Warden's verdict are in
 [`formation.feature`](./formation.feature); cross-capability outcome scenarios (a split or reconcile
-end-to-end) live in [`../acceptance/`](../acceptance/README.md).
+end-to-end) live in [`../workflows/`](../workflows/README.md).

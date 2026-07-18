@@ -3,12 +3,14 @@ spec-type: behavioral
 concept: [lifecycle, autonomy, resolution, delivery, provenance]
 ---
 
-# acceptance/ — the e2e behavior suite
+# workflows/ — the workflows suite
 
-The **outcome-level (e2e) behavior suite** — the scenarios that exercise SDD end-to-end and
-**span capabilities**. Consumed by `../mission/`'s step-3 verify (the impl gate). **Not a
-loop step.** Unit scenarios stay colocated with their capability folder; only
-cross-capability outcome scenarios live here.
+The **workflows suite** — cross-capability usage flows: the scenarios that exercise SDD
+end-to-end and **span capabilities**, the project-level analog of a use case (a path through
+the composed capabilities, the way a use case is a path through a node's logic graph).
+Consumed by `../mission/`'s step-3 verify (the impl gate). **Not a loop step.** Unit
+scenarios stay colocated with their capability folder; only cross-capability workflow
+scenarios live here.
 
 Written in boolean Gherkin per `../authoring/suite-format/README.md`: every scenario is a
 declarative Given/When/Then with a pass/fail reading, no rubric or threshold in the
@@ -17,7 +19,7 @@ folders; a single-capability behavior belongs as a unit scenario.
 
 ## Use Cases
 
-**Subject** — the cross-capability (e2e) outcomes that exercise SDD end-to-end, each spanning two
+**Subject** — the cross-capability workflows that exercise SDD end-to-end, each spanning two
 or more capability folders.
 **Non-goals** — no single-capability behavior (those are unit scenarios in their own folder), no
 loop step of its own, and no rubric/threshold in the `.feature`.
@@ -97,5 +99,5 @@ The realized scenarios live in the six theme `.feature` files above.
 
 ## Source
 
-- new — e2e scenarios distilled from the in-scope specs' `.feature` files (inventory above)
+- new — workflow scenarios distilled from the in-scope specs' `.feature` files (inventory above)
 - judged per `../authoring/suite-format/README.md` (boolean / rubric Gherkin, by-hand where applicable)

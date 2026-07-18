@@ -10,7 +10,7 @@ metadata:
 
 # Builder-Spec Governance — the testability & coverage bar
 
-The **Builder** bar at the **spec gate**: is the `.feature` a complete, testable contract over the
+The **Builder** bar at the **spec gate**: is the suite a complete, testable contract over the
 decision graph? Loaded by both faces. The SDD default for the `builder` spec bar; a plugin may bind
 its own, and this loads when the registry leaves `builder`/`spec` unbound.
 

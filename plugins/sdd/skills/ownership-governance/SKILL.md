@@ -76,17 +76,17 @@ that requires changing specified behavior is a `BLOCKER` returned upward (the fi
 its layer revert to `draft` — the gate/skill decides), never an in-place edit. The matching lifecycle
 rule (what freezing *means* as a state) is in `sdd:lifecycle-governance`.
 
-The freeze binds the **contract only** (`spec.md` + the `.feature`). The combat log (the plan's
+The freeze binds the **contract only** (`spec.md` + the suite). The combat log (the plan's
 `*.log.jsonl`) and the durable `ledger/` shards are **exempt**: they are operational provenance, never
 frozen, and the conductor and Scanner keep appending to their own shards within their boundaries above
 even while a file sits `@frozen`.
 
-A judge — spec-judge or impl-judge — must not modify `spec.md` or the `.feature`: it reports, it does
+A judge — spec-judge or impl-judge — must not modify `spec.md` or the suite: it reports, it does
 not patch.
 
 ## User-owned scenarios (`@pinned`)
 
-A `@pinned` scenario is **user-owned** — the one `.feature` scenario the spec-producer does **not**
+A `@pinned` scenario is **user-owned** — the one scenario the spec-producer does **not**
 own. Any agent role may **propose** changing or removing it, but **never executes** the change
 without **in-session user authorization** — the authority of a human ratification (positional, not
 relayable, not self-assertable within leash). Only the user applies `@pinned`. This is grounded in

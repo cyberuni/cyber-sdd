@@ -36,7 +36,7 @@ This capability hosts several **units of code** (skills). The unit of test is th
 `.feature` per unit**, named for the unit and colocated with the unit's spec in its own folder.
 A producer suite never tests gate behavior and a gate suite never tests grilling — mixing two
 units in one file is a category error. The freeze grain is **per `.feature` file**, so units
-freeze independently. Cross-capability outcome (e2e) scenarios live in `../acceptance/`, never
+freeze independently. Cross-capability outcome (e2e) scenarios live in `../workflows/`, never
 here.
 
 | Unit | Type | Spec | Role |

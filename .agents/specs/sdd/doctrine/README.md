@@ -35,7 +35,7 @@ Council's ratification.**
 
 The capability's behavior is realized by **two units of code**, each its own behavioral spec with
 one `.feature`. The freeze grain is **per `.feature` file**. Cross-capability outcome (e2e)
-scenarios — a ratified strategy re-tuning doctrine end-to-end — live in `../acceptance/`, never
+scenarios — a ratified strategy re-tuning doctrine end-to-end — live in `../workflows/`, never
 here.
 
 | Unit | Type | Spec | Role |

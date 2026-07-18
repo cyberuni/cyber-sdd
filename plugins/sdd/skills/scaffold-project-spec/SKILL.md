@@ -19,13 +19,19 @@ the spec-location rules — all below. Run the seven steps in order, surfacing e
 
 ## 0 — Pick the evidence mode
 
-**Detected, not chosen.** Ask one question of the tree, not of the user: **is there a source tree to read?**
+**Detected, not chosen.** Ask one question of the tree, not of the user: **does this project have source to
+read?** Scope it to the **project**, never the repo — a new package inside an existing monorepo is a
+greenfield *project* in a populated *repo*.
 
-- **detection mode** — source exists. Steps 1-3 read it.
-- **intent mode** — no source (a greenfield project). Steps 1-3 have nothing to read, so they run off the
-  capabilities the user states the project *will* have.
+- **detection mode** — the project's source exists. Steps 1-3 read it.
+- **intent mode** — the project's source does not exist yet. Steps 1-3 have nothing to read for it, so they
+  run off what the user states the project *will* be.
 
-Steps 4-6 are identical under both modes. Never run detection's signal-reading against an empty tree and
+**The repo around an intent-mode project is still readable**, and reading it is not a mode switch: an
+existing monorepo's shape, conventions, and sibling packages inform the recommendation even when the
+project itself is empty. Intent mode means *this project* has no source — not that the disk is blank.
+
+Steps 4-6 are identical under both modes. Never run detection's signal-reading against an empty project and
 never let intent mode fall through to a silent default.
 
 ## 1 — Establish the project shape
@@ -34,9 +40,18 @@ never let intent mode fall through to a silent default.
 a **monorepo** (`apps/`+`packages/`, or multiple package anchors each with their own manifest); whether
 `src/` is **feature-** or **layer-organized**; framework markers; owners (`CODEOWNERS`); size.
 
-**Intent mode** — there are no signals. Ask the user what the project will **do** (its intended
-capabilities) and whether it will be **shippable**; those two answers stand in for the plugin/monorepo/plain
-classification the source would otherwise give.
+**Intent mode** — the project has no signals of its own. Establish by asking (reading the surrounding repo
+where it helps) the three things detection would otherwise have read:
+
+1. **What kind of project** — a repo harness, an agent plugin, an npm package, a website, an app
+   (`project-unit.md`). This is what the plugin/monorepo/plain classification stood for.
+2. **Where it will live** — the repo-relative dir its source will occupy. This is the **`project-path`** step
+   5 must write, and in a greenfield project that directory does not exist yet, so it can only be asked.
+   Confirm it rather than inventing a path.
+3. **What it will do** — the intended capabilities, which step 3 recommends a strategy from.
+
+**Nested or outer** falls out of (2): a path inside an existing repo's package area is a **nested** project;
+a path that *is* the repo root is the **outer** one.
 
 ## 2 — Choose the spec location
 
@@ -49,8 +64,11 @@ Recommend, let the user override, never assume:
   project (`<repo>/.agents/spec/`). Run steps 1–6 **per selected project**, producing several draft trees
   (the evidence mode is picked once, in step 0, for the whole run).
 
-In **intent mode** the shippable answer from step 1 drives this: shippable → hoisted, otherwise colocated.
-It is a question, never a detection.
+In **intent mode** the location is **derived from the `project-path` established in step 1**, exactly as it
+is for an existing project — hoisted iff `project-path` is not the spec's own dir (`project-unit.md`: a
+nested project's spec is lifted out of its possibly-shippable package dir; the outer project's is not).
+Shippability is the *reason* the hoist exists, never the test — a nested package that ships nothing is still
+hoisted. Confirm the derived location with the user; never re-ask it as an independent choice.
 
 ## 3 — Recommend + choose the strategy
 

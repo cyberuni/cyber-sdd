@@ -18,9 +18,14 @@ It serves an **existing** project and a **greenfield** one through a single entr
 **evidence mode**. The mode is **detected, not chosen** — the only question is whether there is
 source to read:
 
-- **detection mode** — the source tree exists, so shape and strategy are read from it.
-- **intent mode** — no source exists, so both come from the capabilities the user states the project
-  will have. The strategy is never silently defaulted.
+- **detection mode** — the project's source exists, so shape and strategy are read from it.
+- **intent mode** — the project's source does not exist yet, so its **kind**, its **intended path**,
+  and its **capabilities** are asked instead. The strategy is never silently defaulted, and the spec
+  location is **derived from the path** rather than asked separately.
+
+The mode is scoped to the **project**, not the repo: a new package inside an existing monorepo is a
+greenfield project in a populated repo, so intent mode still reads the surrounding repo for shape
+and conventions.
 
 Both modes converge on the same scaffold and the same declared organization.
 
@@ -69,12 +74,16 @@ flowchart TD
   D2 -->|"agentic plugin"| L1["recommend hoisted"]
   D2 -->|"multiple package anchors"| L2["recommend per-package + outer"]
   D2 -->|"plain single project"| L3["recommend colocated"]
-  INT --> L4["ask shippable-or-not<br/>cannot detect"]
+  INT --> L4["ask kind + intended path<br/>read surrounding repo"]
 
   L1 --> D3{"location confirmed by user"}
   L2 --> D3
   L3 --> D3
-  L4 --> D3
+  L4 --> DER{"path inside a repo package area?"}
+  DER -->|"yes"| H1["hoist, named by package"]
+  DER -->|"no, it is the repo root"| H2["colocate at own anchor"]
+  H1 --> D3
+  H2 --> D3
 
   D3 -->|"monorepo selection"| FAN["one run per selected project"]
   D3 -->|"single"| D4{"strategy"}
@@ -133,7 +142,11 @@ Grouped by use case; every scenario in
 |---|---|
 | D4 — strategy from stated capabilities | `intent mode recommends a strategy from the capabilities the user states` |
 | D4 — capabilities not stated → ask | `intent mode does not silently apply the capability-first default` |
-| L4 — location cannot be detected | `intent mode asks for the spec location it cannot detect` |
+| L4 — path and kind cannot be read | `intent mode asks for the project path it cannot read` |
+| L4 — repo context is still readable | `intent mode still reads the repo around an empty project` |
+| DER — location follows the path | `the spec location is derived from the project path in intent mode` |
+| DER — nested → hoisted | `a greenfield project nested in a repo has its spec hoisted` |
+| DER — outer → colocated | `a greenfield project at the repo root keeps its spec colocated` |
 
 ### monorepo
 

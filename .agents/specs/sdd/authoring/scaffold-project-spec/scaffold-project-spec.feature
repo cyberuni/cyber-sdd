@@ -26,10 +26,32 @@ Feature: scaffold-project-spec — lay out a project's spec
     When the bootstrap recommends a strategy
     Then it asks the user for the intended capabilities rather than assuming the default
 
-  Scenario: intent mode asks for the spec location it cannot detect
-    Given a greenfield project in intent mode with no source to classify as shippable
-    When the bootstrap presents the location choice
-    Then it asks whether the project will be shippable rather than detecting a plugin layout
+  Scenario: intent mode asks for the project path it cannot read
+    Given a greenfield project in intent mode whose source directory does not exist yet
+    When the bootstrap establishes the project shape
+    Then it asks the user for the repo-relative path the source will occupy
+    And it asks what kind of project it will be
+
+  Scenario: the spec location is derived from the project path in intent mode
+    Given a greenfield project in intent mode whose project path has been established
+    When the bootstrap settles the spec location
+    Then the location is derived from that path rather than asked as a separate choice
+
+  Scenario: a greenfield project nested in a repo has its spec hoisted
+    Given a greenfield project in intent mode whose path sits inside an existing repo's package area
+    When the bootstrap settles the spec location
+    Then the spec is hoisted out of the package dir and named by the package
+
+  Scenario: a greenfield project at the repo root keeps its spec colocated
+    Given a greenfield project in intent mode whose path is the repo root
+    When the bootstrap settles the spec location
+    Then the spec is colocated at the project's own anchor
+
+  Scenario: intent mode still reads the repo around an empty project
+    Given a greenfield project in intent mode inside an existing monorepo
+    When the bootstrap establishes the project shape
+    Then it reads the surrounding repo's shape and conventions to inform its recommendation
+    And it does not treat the populated repo as the project having source
 
   Scenario: both evidence modes converge on the same declared organization
     Given a strategy chosen in either evidence mode

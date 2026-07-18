@@ -23,25 +23,34 @@ Every scenario collapses to a single **pass/fail** at the verification point.
 This is the contract the rest of the pipeline depends on: the judge reports one boolean per frozen scenario, never a score.
 Two forms reach that boolean.
 
-## Test levels — the `.feature` is acceptance/boundary only
+## Two axes — the suite specifies acceptance; the level is a test implementation detail
 
-A `.feature` carries **acceptance / boundary** scenarios — each asserts one intent at the **inner**
-boundary (the DIP seam, mocking the external dependency behind its interface; not a spawned
-subprocess or the real service). The outer boundary is warranted **only when the integration itself
-is the behavior under test** — the wiring, protocol, or process boundary is what the intent asserts,
-not an implementation detail reachable behind a mockable seam. It is **not** the home for inner-rule
-combinatorics — the truth tables and matrices a rule composes. An acceptance suite structurally
-cannot exhaustively cover a combinatorial space, so a suite that tries **churns without end** (the
+The old framing, "the `.feature` is acceptance/boundary only", mixed one item from each of two
+independent axes. They are separate:
+
+- **Axis 1 — what the suite specifies: acceptance, strictly.** A scenario asserts a **decision the
+  node owns**, as a `(path class, edge)` pair. The suite says nothing about *how* the assertion is
+  verified.
+- **Axis 2 — the verification level** (e2e > system > integration > boundary > unit) is a **test
+  implementation detail**, chosen per scenario as **high as it doesn't hurt**, recorded with its
+  reason. It lives on the impl bars (`sdd:builder-impl-governance`), never in the frozen contract —
+  so the same frozen scenario may be verified at a different level tomorrow without re-opening it.
+
+"Boundary" is a **level**, not a category of scenario. A suite that names a level in its contract has
+leaked axis 2 into axis 1.
+
+**Combinatorics still move down** — for a reason that survives the reframing. A suite is a **decision
+graph**, not a combinatorial cover: it carries one scenario per `(path class, edge)` pair, so it
+structurally cannot exhaust a truth table, and a suite that tries **churns without end** (the
 `github-315` `deps.feature` cost 13 Builder-lens judge rounds; ADR-0028).
 
-- **Combinatorics move down to unit tests owned by the impl-producer** (`../../mission/impl-producer/`):
-  each inner rule covered once, cheaply, exhaustively; cases drawn from the rules, never by enumerating
-  the frozen scenarios.
-- **The impl gate checks both levels** and never demands the `.feature` enumerate a combinatorial space
+- **Inner-rule combinatorics belong to unit tests owned by the impl-producer**
+  (`../../mission/impl-producer/`): each inner rule covered once, cheaply, exhaustively; cases drawn
+  from the rules, never by enumerating the frozen scenarios.
+- **The impl gate checks both axes** and never demands the suite enumerate a combinatorial space
   (`../../mission/impl-judge/`).
-- **No deterministic inner layer, no offload** — a graded non-deterministic subject (agent config) has
-  nothing to push combinatorics into; its graded behavior stays at the boundary and `@rubric` absorbs
-  the space.
+- **No deterministic inner layer, no offload** — a graded non-deterministic subject (an agent config)
+  has nothing to push combinatorics into; `@rubric` absorbs the space in place.
 
 ## The suite screams the intents
 

@@ -1,8 +1,3 @@
----
-spec-type: reference
-concept: doc-eval
----
-
 # glossary — Quill ubiquitous language
 
 The documentation-eval vocabulary: artifact-type, doc-eval check, frozen `.feature`, reader path, the

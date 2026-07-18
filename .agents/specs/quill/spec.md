@@ -35,7 +35,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`registry/`](./registry/README.md) | behavioral | register Quill as the documentation SDD plugin — `init-quill` |
 | [`design/`](./design/README.md) | descriptive | the doc-eval model (the four static checks) + the `decisions/` ADR log |
 | [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: spec → write → verify) |
-| [`glossary/`](./glossary/README.md) | reference | the documentation-eval vocabulary |
+| [`glossary.md`](./glossary.md) | reference | the documentation-eval vocabulary |
 
 ## Placement map
 
@@ -47,7 +47,7 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
   (descriptive); a **decision + its rationale** → `design/decisions/` (ADR); a **unit's design fork** → that
   unit's `<unit>.solution.md`.
 - **a cross-capability outcome** (spans ≥2 folders) → `workflows/`, never a capability folder.
-- **a term** → `glossary/`.
+- **a term** → `glossary.md`.
 
 The nesting rule: capabilities at the top; any layering or doc-section structure nests *inside* a capability,
 never as a top-level folder.
@@ -60,7 +60,7 @@ never as a top-level folder.
 
 | Concept | Facets |
 |---|---|
-| `doc-eval` | `design/doc-eval-model.md` (rule) · `glossary/` (reference) |
+| `doc-eval` | `design/doc-eval-model.md` (rule) |
 | `plugin-registry` | `registry/` (behavior) |
 | `production-chain` | `sdd-roles/doc-writer/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/spec-writer/` (behavior) |
 

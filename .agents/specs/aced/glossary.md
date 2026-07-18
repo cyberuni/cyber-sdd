@@ -1,8 +1,3 @@
----
-spec-type: reference
-concept: [glossary]
----
-
 # glossary — ACED ubiquitous language
 
 The agent-config eval vocabulary: artifact-type, golden set, scenario, rubric, layer, judge, threshold, regression gate.

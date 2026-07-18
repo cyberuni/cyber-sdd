@@ -85,6 +85,18 @@ project *does* — with these non-capability exceptions:
 
 (`workflows/` was `acceptance/`: every suite is acceptance now, so the folder is named for what actually distinguishes it — project-level **workflows**.)
 
+**Root files, not folders.** Every mandated folder is an exception to screaming architecture, so the
+mandated set stays as small as possible: anything that is one document lives as a **root file beside
+`spec.md`**, never as a folder of its own.
+
+- **`glossary.md`** — the project's **ubiquitous language**: every load-bearing term defined once, in
+  plain words. Required (advisory) of every project spec. It is a *root file* precisely so it does not
+  claim a top-level folder that would read as a capability.
+
+A glossary is **not** the same artifact as a terminology pin-list (SDD's own `TERMINOLOGY.md` — "not a
+glossary, only the collision-prone pairs"): the glossary defines the vocabulary, the pin-list separates
+near-neighbours that are each already defined. A project may carry both; only the glossary is expected.
+
 It is the **default**, not the only, layout. The full menu of organization strategies (capability-first,
 mirror-source, bounded-context, layered, doc-envelope), the selection rule, and how each reconciles with the
 node taxonomy above live in [`spec-layout.md`](./spec-layout.md). Whichever is chosen is **declared**, not

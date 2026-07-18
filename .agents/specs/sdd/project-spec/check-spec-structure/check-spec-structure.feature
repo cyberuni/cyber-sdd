@@ -26,6 +26,26 @@ Feature: The check-spec-structure procedure — audit node-shape within one proj
     When check-spec-structure audits the project-spec
     Then it emits no oversized-node finding for that node
 
+  Scenario: a project-spec with no root glossary is flagged missing-glossary
+    Given a project-spec with no glossary.md beside its root spec.md
+    When check-spec-structure audits the project-spec
+    Then it emits an advisory missing-glossary finding
+
+  Scenario: a project-spec carrying a root glossary raises no missing-glossary finding
+    Given a project-spec with a glossary.md beside its root spec.md
+    When check-spec-structure audits the project-spec
+    Then it emits no missing-glossary finding
+
+  Scenario: a glossary folder does not satisfy the root-file mandate
+    Given a project-spec whose glossary is a folder rather than a root glossary.md
+    When check-spec-structure audits the project-spec
+    Then it emits a missing-glossary finding
+
+  Scenario: a missing glossary never fails the check gate
+    Given a project-spec whose only finding is a missing glossary
+    When check-spec-structure runs in check mode
+    Then it reports no blocking findings and exits zero
+
   Scenario: a structurally clean project-spec produces no findings
     Given a project-spec whose nodes are all concept-tagged and within the threshold
     When check-spec-structure audits the project-spec

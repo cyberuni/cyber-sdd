@@ -101,13 +101,15 @@ Write the **shared envelope** every strategy ships:
   ADR body*);
 - **`workflows/`** — the workflows suite home (cross-capability usage flows);
 - a **tooling/project** home (build, CI, packaging, deps);
-- a **glossary** (reference node).
+- **`glossary.md`** — a root file beside `spec.md` (never a folder): the project's ubiquitous
+  language, every load-bearing term defined once in plain words. Seed it with the terms the scaffold
+  already commits to; per-unit explore adds the rest.
 
 Then the chosen strategy's **top-level skeleton** of **stub node READMEs**, each declaring a legal
 **`spec-type`** via the classifier:
 
 - a **testable surface** → `behavioral` (`## Use Cases`; its `.feature` is authored later, in explore);
-- a **shipped suite-less artifact** (a governance, a config, the glossary) → `reference` (`## Subject`, no
+- a **shipped suite-less artifact** (a governance, a config) → `reference` (`## Subject`, no
   `.feature`);
 - an **index / rule / structural grouping** → **descriptive** (no marker).
 
@@ -160,6 +162,6 @@ Either way, **propose** the node placement for the formation **Warden** to confi
 ## Output boundary
 
 Write the skeleton, the root envelope (`project-path` frontmatter + placement map + the reserved by-concept
-index block), and the `design/decisions/` + glossary homes — nothing else. Do **not** author any node's `## Use Cases`/`.feature`, render a gate verdict,
+index block), the `design/decisions/` home, and `glossary.md` — nothing else. Do **not** author any node's `## Use Cases`/`.feature`, render a gate verdict,
 freeze, or write `status` / `approval` / `produced-by` (the conductor's and `spec-gate`'s; see
 `ownership-governance`).

@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import {
 	audit,
+	checkGlossary,
 	checkOversized,
 	checkUntagged,
 	countScenarios,
@@ -244,4 +245,32 @@ test('frontmatter only — node body does not change the deterministic findings'
 		body: 'OMEGA different body',
 	})
 	assert.deepEqual(audit(scanProjectSpec(d1), 40), audit(scanProjectSpec(d2), 40))
+})
+
+test('a project spec with no root glossary.md reports the advisory missing-glossary finding', () => {
+	const d = mkCorpus()
+	const findings = checkGlossary(d)
+	assert.equal(findings.length, 1)
+	assert.equal(findings[0]?.kind, 'missing-glossary')
+	assert.equal(findings[0]?.severity, 'advisory')
+})
+
+test('a project spec carrying a root glossary.md reports nothing', () => {
+	const d = mkCorpus()
+	writeFileSync(join(d, 'glossary.md'), '# glossary\n')
+	assert.deepEqual(checkGlossary(d), [])
+})
+
+test('a glossary FOLDER does not satisfy the check — the mandate is a root file', () => {
+	const d = mkCorpus()
+	mkdirSync(join(d, 'glossary'), { recursive: true })
+	writeFileSync(join(d, 'glossary', 'README.md'), '# glossary\n')
+	assert.equal(checkGlossary(d).length, 1)
+})
+
+test('missing-glossary never blocks — audit stays non-blocking on it alone', () => {
+	const d = mkCorpus()
+	const findings = audit([], 40, d)
+	assert.equal(findings.length, 1)
+	assert.equal(hasBlocking(findings), false)
 })

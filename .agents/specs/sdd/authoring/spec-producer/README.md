@@ -96,7 +96,15 @@ Phase 2 — the suite:
   sum sits **strictly under** the threshold (a tie passes). Rewrite a dimension that grades
   **presence** (a line is emitted), **restatement** (the doctrine's own words), or **procedure**
   (the steps, not the judgment). Like probe independence, this is **not** settled by the mechanical
-  form check — a green form check never clears an unloseable dimension.
+  form check — a green form check never clears an unloseable dimension. Two further shapes fail the
+  miss test and are rewritten on sight: a **toothless finding** (a `Then` asserting a signal is
+  *raised* but not its binding consequence — the wrong subject raises it and acts on nothing) and a
+  **process `Then`** (asserting how the artifact was produced — "co-developed", "written test-first",
+  "refactored before completing" — which is unobservable and belongs in prose, not a scenario).
+- **Check coverage before returning** (`../suite-format/README.md`). Every outcome and every
+  **carve-out** the node's `## Use Cases` / README states has at least one scenario; a claim named
+  only in prose is unspecified. A **mirrored duty** (a producer/judge, sender/receiver pair) is
+  specified on **both** sides — a behavior on one node implies its mirror on the counterpart.
 - **Read your authored scenarios against each other** (`../suite-format/README.md`). No two
   scenarios sharing a `When` may demand opposite verdicts on one constructible snapshot; narrow one
   `Given` to exclude the overlap. Overlapping `Given`s whose `Then`s agree, and scenarios whose

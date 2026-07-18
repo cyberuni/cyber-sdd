@@ -1,0 +1,4 @@
+{"seq": 1, "kind": "leash", "cr": "github-323", "leash": "auto-spec", "by": "derived", "blast": "medium", "approach": ["no-spike", "worktree"]}
+{"seq": 2, "kind": "gate", "cr": "github-323", "gate": "spec", "verdict": "approve", "by": "unional", "cause": "dimension", "frozen": ["sdd-roles/spec-validator/spec-validator.feature", "sdd-roles/scenario-writer/scenario-writer.feature"]}
+{"seq": 3, "kind": "gate", "cr": "github-323", "gate": "impl", "verdict": "approve", "by": "unional", "cause": "dimension"}
+{"seq": 4, "kind": "followup", "cr": "github-323", "class": "backlog", "summary": "the ACED spec-validator Selection scenarios' second And-clause restates the primary Then rather than adding independent discrimination — a house pattern across the whole section", "evidence": ["cold spec-judge formation observation; pre-existing across all frozen Selection scenarios, not introduced by this CR; a formation-loop pass, not a mission edit"]}

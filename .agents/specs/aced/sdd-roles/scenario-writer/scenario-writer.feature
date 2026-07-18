@@ -90,6 +90,12 @@ Feature: scenario-writer — the spec-producer role
     When scenario-writer writes the must-not-do guard
     Then it asserts the prohibition as a boolean Then step rather than a separate golden-set must-not list
 
+  Scenario: a property a boolean scenario in the suite decides is kept out of the rubric
+    Given the scenario-writer authoring a @rubric for a subject whose suite already carries a boolean scenario deciding a property
+    When it selects the form of each criterion
+    Then it does not add a dimension re-grading that property to the rubric
+    And it leaves the property to its boolean scenario rather than smuggling it into the compensatory sum
+
   # ---- Gaps and guards ----
 
   Scenario: uninferable intent returns a content gap

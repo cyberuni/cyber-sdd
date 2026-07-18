@@ -233,6 +233,18 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it names a plausible wrong subject that fails the scenario
     And it does not report complete while it can name no such subject
 
+  Scenario: the producer checks every stated outcome has a scenario before returning
+    Given the spec-producer has authored a node whose Use Cases or README names an outcome or carve-out with no scenario
+    When it reviews coverage before returning
+    Then it adds a scenario for the uncovered outcome
+    And it does not report complete while a stated outcome or carve-out has no scenario
+
+  Scenario: a duty specified on one node of a mirrored pair is mirrored on the counterpart
+    Given the producer has specified a duty on one node of a producer-and-judge pair with no matching scenario on the counterpart node
+    When it reviews coverage before returning
+    Then it specifies the mirrored duty on the counterpart node
+    And it does not report complete while only one side carries the duty
+
   Scenario: a strawman does not satisfy the miss test
     Given the only subject the producer can name that fails an authored scenario is an empty artifact
     When it applies the miss test
@@ -257,6 +269,18 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Given the producer has authored a scenario that a subject always taking the same branch of the decision passes
     When it applies the miss test
     Then it rewrites the scenario before returning
+
+  Scenario: a Then asserting a finding is raised without its consequence is rewritten
+    Given the producer has authored a scenario whose Then asserts a finding is raised but not that it withholds the pass or changes the outcome
+    When it applies the miss test
+    Then it names a wrong subject that raises the finding and acts on nothing
+    And it rewrites the scenario to assert the finding's binding consequence before returning
+
+  Scenario: a Then asserting how the artifact was produced rather than its behavior is rewritten
+    Given the producer has authored a scenario whose Then asserts the production process such as tests being co-developed or written first rather than an observable behavior
+    When it reviews the authored scenario
+    Then it treats the process assertion as unobservable
+    And it rewrites the Then to assert the artifact's observable behavior before returning
 
   Scenario: an already-loseable dimension is left alone
     Given an authored @rubric dimension a memorizer scores below max, whose free dimensions do not reach the threshold without it

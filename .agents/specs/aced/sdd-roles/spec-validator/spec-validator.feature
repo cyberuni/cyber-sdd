@@ -123,6 +123,18 @@ Feature: spec-validator — the spec-judge role
     Then it does not report that scenario failing on selection
     And it does not report the recorded trade as a violation
 
+  Scenario: a dimension re-grading a property a boolean scenario in the same suite decides fails selection
+    Given a @rubric whose dimension scores a property that a boolean scenario in the same suite already decides pass or fail
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+    And it treats the dimension as an untradeable boolean smuggled into the compensatory sum
+
+  Scenario: two dimensions sharing a criterion with no boolean twin pass selection
+    Given a @rubric whose two dimensions score related criteria while no boolean scenario in the suite decides either property
+    When spec-validator checks selection
+    Then it does not report either dimension failing on selection for sharing a criterion
+    And it classifies by whether a boolean scenario in the suite decides the property rather than by comparing the two dimensions to each other
+
   # ---- Discrimination — the scenario must be able to register a miss ----
 
   Scenario: a well-formed @rubric whose every dimension a memorizer scores at max fails discrimination

@@ -1,0 +1,3 @@
+{"seq": 1, "kind": "leash", "cr": "github-322", "leash": "auto-spec", "by": "derived", "blast": "medium", "approach": ["no-spike", "worktree"]}
+{"seq": 2, "kind": "gate", "cr": "github-322", "gate": "spec", "verdict": "approve", "by": "unional", "cause": "dimension", "frozen": ["mission/impl-producer/impl-producer.feature", "mission/impl-judge/impl-judge.feature", "authoring/spec-producer/spec-producer.feature"]}
+{"seq": 3, "kind": "gate", "cr": "github-322", "gate": "impl", "verdict": "approve", "by": "unional", "cause": "dimension"}

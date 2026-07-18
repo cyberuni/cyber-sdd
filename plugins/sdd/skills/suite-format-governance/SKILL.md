@@ -21,12 +21,60 @@ and how iteration cost is weighed — belongs to the SDD lifecycle bar. This gov
 Every scenario collapses to a single **pass/fail** at the verification point — the judge reports
 one boolean per frozen scenario, never a score. Two forms reach that boolean.
 
+## Test levels — the `.feature` is acceptance/boundary only
+
+A `.feature` carries **acceptance / boundary** scenarios: each asserts one intent at the boundary.
+It is **not** the home for inner-rule combinatorics — the truth tables and matrices a rule composes
+(five reference-forms × each verb, an `ignore` matrix, byte-identity semantics). An acceptance suite
+structurally **cannot** exhaustively cover a combinatorial space, so a suite that tries churns
+without end.
+
+- **Boundary level.** Author each scenario at the **inner** boundary — the DIP seam, mocking the
+  external dependency behind its interface — not an outer boundary (a spawned subprocess, the real
+  service). The outer boundary is warranted **only when the integration itself is the behavior under
+  test** — the wiring, protocol, or process boundary is what the intent asserts, not an implementation
+  detail reachable behind a mockable seam. A single external dependency behind an interface is mocked,
+  never spawned.
+- **Combinatorics move down to unit tests** owned by the **impl-producer**
+  (`sdd:impl-producer-governance`): given the frozen acceptance `.feature`, it authors the inner-rule
+  unit tests (plain project tests), each rule covered once, cheaply, exhaustively — cases drawn from
+  the rules, never by enumerating the frozen scenarios.
+- **The impl gate checks both levels** and **never demands the `.feature` enumerate a combinatorial
+  space** (`sdd:impl-judge` two-level check).
+- **No deterministic inner layer, no offload.** A graded non-deterministic subject (agent config)
+  has nothing to push combinatorics down to; its graded behavior stays at the boundary and `@rubric`
+  absorbs the space (a plugin domain, e.g. ACED).
+
+See ADR-0028 for the churn analysis and the worked example.
+
+## The suite screams the intents
+
+Organize a suite's scenario **sections by use-case / intent**, front and center — the same law
+`../../design/spec-structure.md` enforces on the node tree (screaming architecture; no `src/utils/`).
+Sections named by **layer**, **output format**, or **"misc rules"** are a **placement defect**: a
+suite that screams plumbing rather than domain intents is a poorly-abstracted architecture that will
+churn, and the implementation inherits the smear. Give each intent a single section where its
+acceptance coverage is meant to be complete.
+
+## One behavior per scenario — SRP and dedup
+
+One behavior per scenario; one canonical scenario per behavior. A scenario with several unrelated
+`Then`s churns whenever any of them changes and its name starts to lie — split it. Two scenarios
+sharing a `When`+`Then` core are a duplicate that will drift into a contradiction — dedup to the
+canonical one. SRP is what makes per-scenario pass/fail meaningful and dedup mechanically checkable.
+
 ## Form 1 — pure-boolean Gherkin (default)
 
 A plain `Given / When / Then` scenario whose every `Then` is an **observable, deterministic boolean
 assertion** — no scores, probabilities, or rubric lingo. Assert outputs, exit codes, side effects,
 emitted events — never internal state, function names, or implementation steps. Use it whenever the
 behavior is directly checkable. Cover at least one happy-path and one error-case per operation.
+
+A `Then` asserts the **artifact's end-state or observable behavior**, never the **production process**
+that made it. "co-developed with the code", "written test-first", "refactored before completing",
+"authored in this order" are unobservable — nothing in the artifact or a run reveals the authoring
+sequence — so they cannot be a `Then`. Rewrite such a `Then` to assert the artifact's observable
+behavior or end-state instead; production discipline belongs in governance prose, not a scenario.
 
 ## Form 2 — rubric Gherkin (`@rubric`, judged by hand)
 
@@ -80,6 +128,10 @@ Each names a `Then` or dimension **no** plausible wrong subject loses. Rewrite o
 - **Restatement** — grades reproducing the doctrine's own words. The memorizer scores max and the
   reasoner no higher: it measures reading and reports it as reasoning.
 - **Procedural** — grades following the steps where the *judgment*, not the sequence, is under test.
+- **Toothless finding** — a `Then` asserts a signal is *raised* (a finding, flag, error, blocker) but
+  not its **binding consequence** (it withholds the pass, blocks the gate, changes the outcome). The
+  wrong subject raises the signal and acts on nothing — emission is trivial, the consequence is the
+  behavior under test. When a scenario asserts a finding, it asserts the finding's teeth.
 
 ### Judged, not linted
 
@@ -200,9 +252,14 @@ are unaffected and the structural check ignores tags it does not recognize.
 - **Layer tags** — tag a scenario with the evaluation layer a resolved judge should route it through:
   `@trigger`, `@behavior`, `@quality`. Orthogonal to `@rubric` (a scenario may carry both, e.g.
   `@behavior @rubric`). The tag is metadata; it never changes the one-boolean-per-scenario contract.
-- **Enumerated cases** — when one scenario is exercised over an enumerated set (e.g. a trigger-query
-  corpus of `{ query, should_trigger }`), use a `Scenario Outline` with an `Examples:` table — one row
-  per case, `<placeholder>` tokens bound to columns:
+- **Enumerated cases — `Scenario Outline` is a rare exception, not a default.** Default to specific
+  scenarios (**DAMP over DRY**). An Outline forces one uniform `Given/When/Then` shape, so it is
+  legitimate **only** for a genuinely uniform enumerated set — one varying token, every row the same
+  `Then` shape (e.g. a trigger-query corpus of `{ query, should_trigger }`). The tell that an Outline
+  is wrong: **two example rows that want different `Then`s are two scenarios, not one Outline** —
+  reaching for a second `Then` shape or an extra `Given` per row means the set is not uniform and the
+  abstraction is hiding it. When the uniform case does apply, use a `Scenario Outline` with an
+  `Examples:` table — one row per case, `<placeholder>` tokens bound to columns:
 
   ```gherkin
   @trigger
@@ -241,6 +298,24 @@ probe independence, coverage, scope, fit — never on catching a hedge word.
 The executable form covers **form only**. Selection, discrimination, and pairwise consistency are
 **not** in it and are not candidates for it: a suite that passes every mechanical rule is exactly the
 shape these defects take, so a green `check-suite` never clears any of the three.
+
+### The qualitative self-run — same lenses the cold judge will apply
+
+A green `check-suite` is the floor, not the finish. **Before returning, the spec-producer self-runs
+the same qualitative lenses the cold judge will**, so a qualitative defect never costs a judge round
+any more than a mechanical one does:
+
+- **Miss test** every scenario (and every `@rubric` dimension) — name a plausible wrong subject and
+  check it loses, including the toothless-finding and process-`Then` shapes above.
+- **SRP + observability** — each `Then` is observable from the artifact, the scenario name covers
+  **every** `Then`, and no scenario duplicates another's `When`+`Then` core.
+- **Coverage + mirror** — every outcome the node's `## Use Cases` / README states, **including every
+  carve-out or exception named only in prose**, has at least one scenario; and a **mirrored duty** (a
+  producer/judge, sender/receiver, request/response pair) is specified on **both** sides — a behavior
+  on one node implies its mirror on the other.
+
+The cold judge stays the independent backstop; this pass keeps it from spending rounds on what the
+producer could see itself.
 
 ## Scenario ordering (step-down)
 

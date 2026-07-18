@@ -26,3 +26,15 @@ The SDD default for the `builder` impl bar — a plugin may bind its own per art
   stays out of the `.feature` (`sdd:suite-format-governance`).
 - **No green-by-tampering.** Passing a scenario means the behavior holds, not that a check was edited
   to pass. The frozen `.feature` is never modified to make the implementation conform.
+- **Two test levels, both checked.** For a **deterministic domain** the gate checks the acceptance
+  boundary **and** inner-rule coverage: every frozen acceptance scenario passes at the boundary,
+  **and** the inner-rule combinatorial space (`sdd:suite-format-governance`) has unit coverage. It
+  **never demands the acceptance `.feature` enumerate a combinatorial space** — leaving combinatorics
+  to unit tests is never grounds to fail an intent, and the `.feature` is never required to carry one
+  scenario per combinatorial case.
+- **Missing inner-rule coverage is its own finding.** When the inner-rule combinatorial space has no
+  unit coverage, that is a finding **distinct from** any per-scenario acceptance failure — and it
+  **withholds the pass**: the implementation is not reported passing while that finding stands (same
+  weight as a structural/absorption finding).
+- **No deterministic inner layer, no unit-coverage duty.** A graded non-deterministic subject has no
+  deterministic inner layer to hold to unit coverage — judge it at the acceptance boundary only.

@@ -9,7 +9,7 @@ user-invocable: false
 Universal bar for how a **behavioral** node's `spec.md` is structured. The spec-producer self-aligns
 to it before writing; the spec-judge grades structure backward at the spec gate. The layout law it
 sits inside — spec types, the four folder kinds, screaming architecture — is
-`design/spec-structure.md`; this bar owns one node's `spec.md`. A descriptive index or reference
+`sdd:spec-structure-governance`; this bar owns one node's `spec.md`. A descriptive index or reference
 artifact carries none of the sections below.
 
 ## The four sections, in order (plus one optional)

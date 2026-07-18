@@ -34,7 +34,7 @@ Each leaf unit folder holds the `spec.md` this governance describes, its `.featu
 it, and optionally a `.solution.md`.
 
 The folder law itself — spec types, the folder kinds, screaming architecture, the depth cap — is
-owned by **`design/spec-structure.md`**, not by this bar. It is summarized here so the file
+owned by **`spec-structure-governance`**, not by this bar. It is summarized here so the file
 structure below has somewhere to sit.
 
 ## What it requires — the file structure
@@ -64,7 +64,7 @@ Descriptive indexes and reference documents are exempt — they carry none of th
 
 This bar owns the layout of a **single** `spec.md`. Its neighbors own everything around that:
 
-- **`design/spec-structure.md`** — the layout law this sits inside, and the owner of the folder
+- **`spec-structure-governance`** — the layout law this sits inside, and the owner of the folder
   structure summarized above: spec types, the folder kinds, screaming architecture, the depth cap.
 - **`suite-format-governance`** — how the `.feature` suite itself is written (Gherkin form, rubrics,
   scenario ordering).

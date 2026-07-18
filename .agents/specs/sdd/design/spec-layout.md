@@ -200,9 +200,12 @@ people and the placement ops that consume it already read, the **body of the roo
 - **The spec `location` mode** (`colocated | hoisted | monorepo-member`) is **derived** from the
   `project-path` frontmatter (hoisted iff `project-path` is not the spec's own dir) — not declared.
 
-**Who writes it.** `scaffold-project-spec` — the only step that *decides* the layout (it ran detection +
-the compass with the user) — writes the placement map (and `project-path`) at its scaffold step, in the
-same act that writes root `spec.md`. **Who reads it.** `start-mission`'s explore consults the routing
+**Who writes it.** `scaffold-project-spec` — the step that *decides* the layout, running the compass with
+the user from whichever evidence the project affords: **detection mode** reads an existing source tree,
+**intent mode** has none to read and asks what the project will be. It writes the placement map (and
+`project-path`) at its scaffold step, in the same act that writes root `spec.md`. (An earlier wording
+called it "the only step that decides … it ran detection", which silently assumed every project arrives
+with source to detect — greenfield projects then had no decider at all.) **Who reads it.** `start-mission`'s explore consults the routing
 table for its **provisional** placement; the **handoff** Warden pass re-reads it to **finalize** placement
 (below); the post-mission Warden reads it to judge cross-mission structural fit. A normal node-add never
 re-derives the organization; the **Warden** rewrites the placement map only during a deliberate

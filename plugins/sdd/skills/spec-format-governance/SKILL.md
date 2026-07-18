@@ -12,7 +12,7 @@ sits inside — spec types, the four folder kinds, screaming architecture — is
 `design/spec-structure.md`; this bar owns one node's `spec.md`. A descriptive index or reference
 artifact carries none of the sections below.
 
-## The four sections, in order
+## The four sections, in order (plus one optional)
 
 ### `## What`
 The overview: what the capability is, the problem it solves, who has it — plus **Non-goals** (what it
@@ -57,6 +57,23 @@ uncovered surface is a hole, not a silent gap in prose. `check-suite` lints it. 
 the graph did not reach enters as a **seed** the agent grows the graph around, adding the discovered
 edges to the map.
 
+### `## References` *(optional — any spec-type)*
+Where a decision in this node rests on **research or an external standard**, cite it here: the source
+and **what it backs**. Not a bibliography — a line earns its place only by carrying a decision that
+would otherwise read as taste.
+
+- **Cite the claim, not the topic.** "Vague steps produce defensive step definitions carrying flags,
+  so a `Given` must be buildable — [source]" beats "see [source] on BDD".
+- **External sources only.** A sibling spec, a `design/` model doc, or a governance is a normal
+  in-body reference, not a research citation.
+- **Optional and rare.** Most nodes decide from the domain and cite nothing. An empty section is
+  omitted, never stubbed.
+- **Not the design record.** A chosen-vs-rejected design fork belongs in the unit's
+  `<unit>.solution.md`; `## References` records the *evidence consulted*, which outlives the fork.
+
+It is the last section, after `## Scenario map` (or after `## Subject` on a reference artifact).
+Reason: a reader wants the contract first and the provenance only when they question it.
+
 ## Plain language — a gate requirement, not a nicety
 
 `spec.md` is reviewed at the gate, so plain language is a bar it must clear. Write so a **smart
@@ -76,7 +93,8 @@ Enrichment (diagrams, formatting) is `spec.md` only; the suite stays plain Gherk
 ## Key points (read-check)
 
 1. **Four sections in order** — `## What` (overview + non-goals), `## Use Cases`, `## Logic`,
-   `## Scenario map`.
+   `## Scenario map` — plus an optional `## References` last, citing research that backs a decision
+   (the claim it supports, not the topic).
 2. **A use case is an entry point named to its impl surface** (CLI verb / function / endpoint) — spec,
    suite, and code share one screaming structure.
 3. **The logic graph is shared** — use cases enter it (many-to-one); section by sub-graph only when

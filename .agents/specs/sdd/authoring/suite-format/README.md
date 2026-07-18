@@ -618,3 +618,21 @@ Freeze is **per `.feature` file**: a frozen suite file carries a feature-level *
 - A **narrowing or rewriting** edit **unfreezes** the file; at the gate that fires **Clearance**.
 
 Vocabulary is **freeze / unfreeze** — never lock/unlock (reserved for the concurrency layer). The freeze/unfreeze *model* — when freeze fires (the Draft → Approved gate), the unfreeze risk trigger, relocation preserving freeze, iteration economy — lives in `../../design/lifecycle-model.md`; this bar owns only the marker and the suite-edit rules above.
+
+## References
+
+- **A `Given` must be a scaffoldable state** — vague steps make step definitions *defensive*,
+  accumulating conditions and flags, while two readers picture different fixtures from the same
+  line; that is the impl-producer/impl-judge disagreement the bar exists to prevent, and a step
+  definition needing conditionals is the tell that the step is wrong upstream.
+  [Common Gherkin Mistakes](https://nextgenanalysts.co.uk/common-gherkin-mistakes-and-how-to-avoid-them-with-examples/)
+- **A `Given` states what holds, never how it came to hold** — declarative over imperative, so a
+  scenario survives implementation change.
+  [Writing better Gherkin — Cucumber](https://cucumber.io/docs/bdd/better-gherkin/)
+- **One condition per step, conjunctions split** — a step carrying two actions is not reusable, and
+  reusability is what lets a step library accumulate instead of fragment.
+  [BDD 101: Writing Good Gherkin](https://automationpanda.com/2017/01/30/bdd-101-writing-good-gherkin/)
+  · [gherkin-best-practices](https://github.com/andredesousa/gherkin-best-practices)
+- **One scenario, one behavior** — the cardinal rule behind one `When`/`Then` pair per scenario,
+  which SDD sharpens to one **(path class, edge)** pair.
+  [BDD 101: Writing Good Gherkin](https://automationpanda.com/2017/01/30/bdd-101-writing-good-gherkin/)

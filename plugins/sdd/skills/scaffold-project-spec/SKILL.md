@@ -1,27 +1,42 @@
 ---
 name: scaffold-project-spec
-description: "Partial Skill: invoke by name only — backfill SDD project-spec"
+description: "Partial Skill: invoke by name only — lay out an SDD project-spec"
 user-invocable: false
 ---
 
-# scaffold-project-spec — lay out an existing project's spec
+# scaffold-project-spec — lay out a project's spec
 
-The procedure the **conductor** follows, **once at bootstrap**, when `start-mission` explore finds an existing
-project with **no consolidated spec**. It chooses *how the spec is organized*, scaffolds that skeleton, and
+The procedure the **conductor** follows, **once at bootstrap**, when `start-mission` explore finds a project
+with **no consolidated spec**. It chooses *how the spec is organized*, scaffolds that skeleton, and
 **declares the choice**, so the per-unit explore that follows (`spec-producer-governance`) slots work into known
 homes. It is **internal** — reached through `start-mission`, never a user entry — and leaves the tree at
 `status: draft`; it authors no node's `## Use Cases`/`.feature`, renders no gate verdict, and freezes nothing.
 
 This skill is **self-contained**: it bakes in the node taxonomy (three spec-types, the **concept axis**, the
 **two-level depth cap**, screaming-architecture as the default), the strategy menu + the shared envelope, and
-the spec-location rules — all below. Run the six steps in order, surfacing each choice to the user
+the spec-location rules — all below. Run the seven steps in order, surfacing each choice to the user
 (recommended-first), never assuming silently.
 
-## 1 — Detect the project shape
+## 0 — Pick the evidence mode
 
-Read signals, do not guess: an **agentic plugin** (`.plugin/` + `skills/` + `agents/`); a **monorepo**
-(`apps/`+`packages/`, or multiple package anchors each with their own manifest); whether `src/` is
-**feature-** or **layer-organized**; framework markers; owners (`CODEOWNERS`); size.
+**Detected, not chosen.** Ask one question of the tree, not of the user: **is there a source tree to read?**
+
+- **detection mode** — source exists. Steps 1-3 read it.
+- **intent mode** — no source (a greenfield project). Steps 1-3 have nothing to read, so they run off the
+  capabilities the user states the project *will* have.
+
+Steps 4-6 are identical under both modes. Never run detection's signal-reading against an empty tree and
+never let intent mode fall through to a silent default.
+
+## 1 — Establish the project shape
+
+**Detection mode** — read signals, do not guess: an **agentic plugin** (`.plugin/` + `skills/` + `agents/`);
+a **monorepo** (`apps/`+`packages/`, or multiple package anchors each with their own manifest); whether
+`src/` is **feature-** or **layer-organized**; framework markers; owners (`CODEOWNERS`); size.
+
+**Intent mode** — there are no signals. Ask the user what the project will **do** (its intended
+capabilities) and whether it will be **shippable**; those two answers stand in for the plugin/monorepo/plain
+classification the source would otherwise give.
 
 ## 2 — Choose the spec location
 
@@ -30,8 +45,12 @@ Recommend, let the user override, never assume:
 - **colocated** — `<project>/.agents/spec/` (singular). Default for a repo-level / non-shippable project.
 - **hoisted** — `<repo>/.agents/specs/<plugin>/` (plural, named by the package). Recommend for an **agentic
   plugin** (and any shippable package): the spec must not live inside the distributable.
-- **monorepo-member** — for a **monorepo**, offer to backfill **every package** (each hoisted) plus the outer
-  project (`<repo>/.agents/spec/`). Run steps 1–6 **per selected project**, producing several draft trees.
+- **monorepo-member** — for a **monorepo**, offer to lay out **every package** (each hoisted) plus the outer
+  project (`<repo>/.agents/spec/`). Run steps 1–6 **per selected project**, producing several draft trees
+  (the evidence mode is picked once, in step 0, for the whole run).
+
+In **intent mode** the shippable answer from step 1 drives this: shippable → hoisted, otherwise colocated.
+It is a question, never a detection.
 
 ## 3 — Recommend + choose the strategy
 
@@ -41,7 +60,13 @@ Present **one recommendation + its rationale + the alternative**; the user choos
   decomposition is discernible. For a fixed-layout plugin this is a spec-side abstraction over fixed source —
   accepted for legibility; name the spec↔source divergence as a known cost.
 - **mirror-source** — spec nodes track the source tree. Offer when `src/` is already **feature-first** and
-  navigated-by-code. Mirror is **boundary-aligned** (step 4).
+  navigated-by-code. Mirror is **boundary-aligned** (step 4). **Detection mode only** — there is no source
+  tree to mirror in intent mode.
+
+In **intent mode**, recommend from the capabilities the user stated in step 1. If they have not stated any,
+**ask for them** — never apply the capability-first default silently. (Detection mode's no-signal fallback
+*is* the capability-first default; intent mode has no equivalent, because a greenfield project always has an
+intent to state.)
 
 Never offer **layering** or **arc42 sections** as the *top* level — they nest *inside* a capability. **ADR is
 not a strategy** — it is the decisions facet (step 4). The deferred strategies (bounded-context, layered,

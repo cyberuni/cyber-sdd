@@ -95,11 +95,23 @@ flowchart TD
   D4 -->|"intent mode · capabilities not stated"| ASK["ask for intended capabilities"]
   ASK --> ST1
 
-  ST1 --> SC["scaffold envelope + skeleton"]
-  ST2 --> SC
-  ST3 --> SC
+  ST1 --> SCE
+  ST2 --> SCE
+  ST3 --> SCE
 
-  SC --> DECL["declare organization on root spec.md"]
+  subgraph SC["scaffold"]
+    direction TB
+    SCE["SC-env · write the shared envelope"] --> SCADR["SC-adr · decisions home, not an ADR body"]
+    SCADR --> SCSK["SC-skel · write the strategy skeleton"]
+    SCSK --> SCTY["SC-type · each stub declares a legal spec-type"]
+    SCTY --> SCD["SC-depth · cap at two levels"]
+    SCD --> SCM{"SC-mirror · mirror-source?"}
+    SCM -->|"yes"| SCMB["stop at the unit boundary"]
+    SCM -->|"no"| SCOK["no mirror constraint"]
+  end
+
+  SCMB --> DECL["declare organization on root spec.md"]
+  SCOK --> DECL
   DECL --> HB["hand back at status draft"]
 ```
 
@@ -109,80 +121,89 @@ decisions facet).
 
 ## Scenario map
 
-Grouped by use case; every scenario in
-[`scaffold-project-spec.feature`](./scaffold-project-spec.feature) names the decision it covers.
+Grouped by use case. Each row is one **(path class, edge)** pair: `Path` is the scenario's `Given`
+(the decisions already made), `Edge` is its `When` (the decision under test). An edge repeated with
+different paths is **permutation coverage**; `Path = any` is a **convergence** claim — the outcome
+does not vary across the paths reaching that edge.
 
 ### Shared graph — entry and evidence mode (all use cases)
 
-| Decision | Scenario |
-|---|---|
-| D0 — spec already exists | `a project that already has a project spec is not scaffolded` |
-| D1 — source present → detection | `a project that has a source tree enters detection mode` |
-| D1 — no source → intent | `a project that has no source tree enters intent mode` |
-| D1 — modes reconverge | `both evidence modes converge on the same declared organization` |
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D0 | a project spec already exists | `a project that already has a project spec is not scaffolded` |
+| D1 | project has a source tree | `a project that has a source tree enters detection mode` |
+| D1 | project has no source tree | `a project that has no source tree enters intent mode` |
+| DECL | any evidence mode *(convergence)* | `both evidence modes converge on the same declared organization` |
 
 ### bootstrap (detection mode)
 
-| Decision | Scenario |
-|---|---|
-| D2 — agentic plugin | `an agentic plugin is detected and the hoisted location is recommended` |
-| D2 — plain single project | `a plain repo-level project is recommended the colocated location` |
-| D3 — recommendation is overridable | `the recommended location is surfaced first and is overridable` |
-| D3 — never silently assumed | `the location is never silently assumed` |
-| D4 — capabilities discernible | `a project with a discernible capability decomposition is recommended capability-first` |
-| D4 — source feature-first | `a feature-first code base navigated by code is offered mirror-source` |
-| D4 — no signal → default | `a project with no discernible decomposition and no feature-first layout takes the default` |
-| D4 — one recommendation + alternative | `one recommendation and its alternative are presented for the user to choose` |
-| D4 — barred: layering | `layering is never offered as the top-level body` |
-| D4 — barred: ADR | `ADR is not offered as a strategy` |
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D2 | detection · agentic plugin | `an agentic plugin is detected and the hoisted location is recommended` |
+| D2 | detection · plain single project | `a plain repo-level project is recommended the colocated location` |
+| D3 | any recommended location *(convergence)* | `the recommended location is surfaced first and is overridable` |
+| D3 | more than one valid location | `the location is never silently assumed` |
+| D4 | detection · capabilities discernible | `a project with a discernible capability decomposition is recommended capability-first` |
+| D4 | detection · source feature-first | `a feature-first code base navigated by code is offered mirror-source` |
+| D4 | detection · no signal | `a project with no discernible decomposition and no feature-first layout takes the default` |
+| D4 | any recommended strategy *(convergence)* | `one recommendation and its alternative are presented for the user to choose` |
+| D4 | strongly layered project *(barred)* | `layering is never offered as the top-level body` |
+| D4 | any project *(barred)* | `ADR is not offered as a strategy` |
 
 ### greenfield (intent mode)
 
-| Decision | Scenario |
-|---|---|
-| D4 — strategy from stated capabilities | `intent mode recommends a strategy from the capabilities the user states` |
-| D4 — capabilities not stated → ask | `intent mode does not silently apply the capability-first default` |
-| L4 — path and kind cannot be read | `intent mode asks for the project path it cannot read` |
-| L4 — repo context is still readable | `intent mode still reads the repo around an empty project` |
-| DER — location follows the path | `the spec location is derived from the project path in intent mode` |
-| DER — cannot exclude → hoisted | `a greenfield agentic plugin has its spec hoisted` |
-| DER — can exclude → colocated | `a greenfield nested package keeps its spec colocated` |
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| L4 | intent · source dir does not exist | `intent mode asks for the project path it cannot read` |
+| L4 | intent · inside an existing monorepo | `intent mode still reads the repo around an empty project` |
+| DER | intent · path established | `the spec location is derived from the project path in intent mode` |
+| DER | intent · will be an agentic plugin | `a greenfield agentic plugin has its spec hoisted` |
+| DER | intent · spec can be excluded from the package | `a greenfield nested package keeps its spec colocated` |
+| D4 | intent · capabilities stated | `intent mode recommends a strategy from the capabilities the user states` |
+| D4 | intent · capabilities not stated | `intent mode does not silently apply the capability-first default` |
 
 ### monorepo
 
-| Decision | Scenario |
-|---|---|
-| D2 — multiple package anchors | `a monorepo is detected and a repo-wide backfill is offered` |
-| D3/FAN — one run per selection | `a monorepo run produces one draft tree per chosen project` |
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D2 | detection · multiple package anchors | `a monorepo is detected and a repo-wide backfill is offered` |
+| FAN | several projects selected | `a monorepo run produces one draft tree per chosen project` |
 
-### SC — scaffold (shared by every use case)
+### SC — scaffold
 
-| Decision | Scenario |
-|---|---|
-| envelope, strategy-independent | `the shared envelope is scaffolded for every strategy` |
-| strategy skeleton | `the chosen strategy's top-level skeleton is written` |
-| each stub declares a type | `every scaffolded node declares a legal spec-type` |
-| mirror-source stops at the unit | `mirror-source scaffolding stops at the unit boundary` |
-| depth cap under any strategy | `the scaffolded skeleton respects the two-level depth cap for any strategy` |
-| decisions home without ADR-as-layout | `an ADR decisions home is created without organizing the spec by ADR` |
+Location never reaches this stage: the scaffold depends on the **strategy**, not on where the spec
+sits, so the four location classes collapse. Only `mirror-source` distinguishes.
 
-### DECL — declare the organization (shared)
+Scaffold is a **stage, not one edge** — it makes six separable decisions, each with its own
+observable outcome. Drawing it as a single node produced two rows sharing `SC | any strategy`, which
+the same-edge-same-path duplicate rule correctly rejected.
 
-| Decision | Scenario |
-|---|---|
-| `project-path`, no `spec-layout` block | `the project-path frontmatter is written on the root spec.md` |
-| name not derivable → confirm | `a name that is not reliably derivable is confirmed with the user before writing` |
-| name derivable → write none | `a colocated project with a correct repo-root name writes no name frontmatter` |
-| placement map names the strategy | `the placement map naming the strategy is written into the root body` |
-| by-concept block reserved, not filled | `the root spec.md reserves the generated by-concept index block` |
-| result is a legal root tuple | `the produced root passes the static state check` |
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| SC-env | any strategy *(convergence)* | `the shared envelope is scaffolded for every strategy` |
+| SC-adr | any strategy *(convergence)* | `an ADR decisions home is created without organizing the spec by ADR` |
+| SC-skel | a chosen strategy | `the chosen strategy's top-level skeleton is written` |
+| SC-type | any scaffolded node *(convergence)* | `every scaffolded node declares a legal spec-type` |
+| SC-depth | any strategy *(convergence)* | `the scaffolded skeleton respects the two-level depth cap for any strategy` |
+| SC-mirror | mirror-source · nesting below a testable surface | `mirror-source scaffolding stops at the unit boundary` |
 
-### HB — hand back (shared)
+### DECL — declare the organization
 
-| Decision | Scenario |
-|---|---|
-| left at draft | `the tree is left at draft` |
-| no control frontmatter | `control frontmatter is not written` |
-| node bodies left to explore | `node Use Cases and feature suites are left to per-unit explore` |
-| concept tags left to explore | `concept tags are assigned during per-unit explore, not at scaffold` |
-| placement proposed to the Warden | `placement is proposed for the Warden to confirm` |
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| DECL | any strategy and location *(convergence)* | `the project-path frontmatter is written on the root spec.md` |
+| DECL | name not reliably derivable | `a name that is not reliably derivable is confirmed with the user before writing` |
+| DECL | colocated · repo-root name correct | `a colocated project with a correct repo-root name writes no name frontmatter` |
+| DECL | any chosen strategy *(convergence)* | `the placement map naming the strategy is written into the root body` |
+| DECL | writing the root spec.md | `the root spec.md reserves the generated by-concept index block` |
+| DECL | a scaffolded tree | `the produced root passes the static state check` |
+
+### HB — hand back
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| HB | scaffolding finished | `the tree is left at draft` |
+| HB | writing the root spec.md | `control frontmatter is not written` |
+| HB | a scaffolded behavioral node stub | `node Use Cases and feature suites are left to per-unit explore` |
+| HB | a scaffolded node stub | `concept tags are assigned during per-unit explore, not at scaffold` |
+| HB | nodes placed | `placement is proposed for the Warden to confirm` |

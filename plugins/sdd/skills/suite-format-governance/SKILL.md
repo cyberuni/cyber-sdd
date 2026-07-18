@@ -16,9 +16,14 @@ pass/fail** at the verification point — never a score.
 
 A suite specifies **acceptance** — the observable **decisions** the node owns — and nothing else.
 
-- **Decisions only.** A scenario tests a **decision** — a branch the capability takes. A non-branch
-  **invariant** that always holds ("output is valid JSON", "idempotent") is **not acceptance** and is
-  not specified here — it is covered by the implementation's own tests.
+- **Decisions only — and the map is the test.** A scenario tests a **decision** — a branch the
+  capability takes. The mechanical filter is **can you name the edge it sits on?** A scenario with no
+  nameable edge is a non-branch **invariant** ("output is valid JSON", "idempotent"): not acceptance,
+  not specified here, covered by the implementation's own tests.
+  Do **not** cut a scenario merely because it reads like a property. A constraint that holds across
+  every path *still sits on an edge* — "the envelope is the same for every strategy" is the
+  **convergence** shape at that edge (below), asserting the outcome does not vary, which is a design
+  decision. Unmappable is the cut; property-sounding is not.
 - **The node's own decisions.** A property **co-owned** across a seam — activation/routing (does this
   config fire?), a sibling's behavior, harness wiring — is not this node's to freeze; it is **out of
   scope** (Oracle relocates or kills it).
@@ -28,7 +33,19 @@ A suite specifies **acceptance** — the observable **decisions** the node owns 
 
 The suite **is** the node's decision graph at acceptance level. Author it as one:
 
-- **One scenario = one edge** — a single decision taking a single branch.
+- **One scenario = one (path class, edge) pair.** The `Given` is the **path** — the decisions already
+  made on the way here; the `When` is the **edge under test**; the `Then` is the **branch taken**. The
+  unit is not the edge alone: one edge needs several scenarios when its outcome differs by the path
+  reaching it.
+- **State the least specific `Given` that determines the outcome.** Paths that **reconverge** and leave
+  no distinguishing state **collapse into one scenario** — `a→b→d` and `a→c→d` are the same scenario
+  when the outcome at `d` does not depend on whether `b` or `c` was taken. Name the reconvergence
+  point, never the route. This is what keeps the suite finite: without it, every upstream branch
+  multiplies every downstream one.
+- **Add a permutation only when the outcome differs.** Same outcome under two prefixes ⇒ one scenario.
+- **An over-specific `Given` is a defect.** Naming state the outcome does *not* depend on
+  **manufactures a false permutation** — it implies a sibling scenario for the other value and invites
+  exactly the explosion the collapse rule prevents.
 - **Cover every branch.** A decision whose only covered edges are its "no" branches is incomplete: a
   **kill / reject / guard edge is paired with a positive companion** driving the same path in its
   firing direction. A lone negative is passed by a do-nothing subject (the sorted list that "stays
@@ -51,10 +68,20 @@ explicit **scenario-map** table (`sdd:spec-format-governance`). The suite **mirr
 
 - Group scenarios under `# ── <use-case group> ──` comments — same groups, same order — screaming
   the intents; never sectioned by layer, output format, or "misc rules".
-- **The map is 1:1** — every scenario binds to exactly one graph edge, and every edge to exactly one
-  scenario. A scenario off the map is an orphan; an edge with none is a coverage hole; two scenarios
-  on one edge is a duplicate (split the edge, or push the variance down to units). `check-suite` lints
-  all three.
+- **The map is 1:1 scenario↔row**, and each row names **both** the edge and the path class
+  (`| Edge | Path (Given) | Scenario |`). A scenario off the map is an orphan; an edge with **no** row
+  is a coverage hole. An edge with **several** rows is **not** a duplicate — it is permutation
+  coverage, and legitimate exactly when each row's path class yields a different outcome. Two rows
+  with the same edge *and* the same path class **is** a duplicate. `check-suite` lints orphans,
+  uncovered edges, and same-edge-same-path duplicates.
+
+**Three shapes sit on the map**, all of them acceptance:
+
+- **branch** — the `Given` pins one path class; the `Then` names the branch taken.
+- **convergence** — the `Given` deliberately **spans** classes ("for every strategy"); the `Then`
+  asserts the outcome **does not vary**. One scenario legitimately covers many permutations, and that
+  non-variance is a design decision, not an invariant.
+- **barred** — the `Then` asserts an edge that must **not** exist (an option never offered).
 
 ## `@pinned` — user-owned seed scenarios
 
@@ -73,7 +100,7 @@ scenario class the agent does not own:
 
 ## One behavior per scenario — SRP and dedup
 
-One edge per scenario; one canonical scenario per edge. A scenario with several unrelated `Then`s
+One (path class, edge) per scenario; one canonical scenario per pair. A scenario with several unrelated `Then`s
 churns and its name lies — split it. Two scenarios sharing a `When`+`Then` core are a duplicate —
 dedup to the canonical (never dedup away a `@pinned` scenario without consent).
 
@@ -153,8 +180,9 @@ The `confirm-read` check verifies a role's read-attestation covers each point be
 
 1. **Acceptance only, strict** — a suite specifies the decisions the node owns; invariants and
    co-owned seams are out of scope.
-2. **The suite is the decision graph** — one scenario per edge, cover every branch, and pair every
-   guard/negative edge with a positive companion on the same path (a lone negative is inert).
+2. **The suite is the decision graph** — one scenario per **(path class, edge)** pair, cover every
+   branch, collapse reconverged paths whose outcome does not differ, and pair every guard/negative
+   edge with a positive companion on the same path (a lone negative is inert).
 3. **Each edge isolates a specific condition** — the `Given` hands over no part of the verdict, and a
    scenario asserting a finding asserts its binding consequence, not just its emission.
 4. **A dead edge measures nothing** — run the miss test (a plausible wrong subject takes the wrong

@@ -35,11 +35,27 @@ are decisions, edges are branches. Use cases **enter** this graph, and several u
 state its decision in a line.
 
 ### `## Scenario map`
-The **explicit maintained table** binding each **branch → its covering scenario** in the suite,
-**grouped by use case**. 1:1 — every branch has exactly one scenario, every scenario one branch. The
-grouping makes coverage **visible per use case**: an uncovered surface is a hole, not a silent gap in
-prose. `check-suite` lints it. A `@pinned` behavior the graph did not reach enters as a **seed** the
-agent grows the graph around, adding the discovered branches to the map.
+The **explicit maintained table** binding the graph to the suite, **grouped by use case**, with three
+columns — **`| Edge | Path (Given) | Scenario |`**. The unit is the **(path class, edge)** pair, not
+the edge alone: a scenario's `Given` is the path reaching the edge, its `When` is the edge under test
+(`sdd:suite-format-governance`).
+
+- **1:1 scenario↔row** — every scenario has exactly one row, every row one scenario.
+- **An edge may carry several rows.** That is **permutation coverage**, not duplication — legitimate
+  when each row's path class yields a *different* outcome. Same edge *and* same path class twice is a
+  duplicate.
+- **Collapse reconverged paths.** Where the outcome does not depend on which upstream branch was
+  taken, one row covers them all; write the path as the reconvergence point (or `any`), never the
+  route. Naming state the outcome does not depend on manufactures a false permutation.
+- An edge with **no** row is a coverage hole; a scenario with **no nameable edge** is not acceptance
+  and does not belong in the suite.
+
+Three columns make the shape legible at a glance: a `Path` column reading `any` is a **convergence**
+claim (the outcome does not vary), and an edge repeated with different paths shows exactly which
+distinctions the contract cares about. The grouping keeps coverage **visible per use case** — an
+uncovered surface is a hole, not a silent gap in prose. `check-suite` lints it. A `@pinned` behavior
+the graph did not reach enters as a **seed** the agent grows the graph around, adding the discovered
+edges to the map.
 
 ## Plain language — a gate requirement, not a nicety
 

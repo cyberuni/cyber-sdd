@@ -1,6 +1,6 @@
 ---
 name: suite-format-governance
-description: "Partial Skill: invoke by name only — the SDD suite-format bar for how a .feature behavior suite is written and judged. Loaded by the spec-producer and the spec-judge, and named by the impl-producer and impl-judge bars for the test-vector rule; not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 ---
 

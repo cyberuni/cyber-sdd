@@ -27,7 +27,9 @@ Two forms reach that boolean.
 
 A `.feature` carries **acceptance / boundary** scenarios — each asserts one intent at the **inner**
 boundary (the DIP seam, mocking the external dependency behind its interface; not a spawned
-subprocess or the real service unless the domain warrants it). It is **not** the home for inner-rule
+subprocess or the real service). The outer boundary is warranted **only when the integration itself
+is the behavior under test** — the wiring, protocol, or process boundary is what the intent asserts,
+not an implementation detail reachable behind a mockable seam. It is **not** the home for inner-rule
 combinatorics — the truth tables and matrices a rule composes. An acceptance suite structurally
 cannot exhaustively cover a combinatorial space, so a suite that tries **churns without end** (the
 `github-315` `deps.feature` cost 13 Builder-lens judge rounds; ADR-0028).

@@ -31,7 +31,10 @@ without end.
 
 - **Boundary level.** Author each scenario at the **inner** boundary — the DIP seam, mocking the
   external dependency behind its interface — not an outer boundary (a spawned subprocess, the real
-  service) unless the domain warrants it.
+  service). The outer boundary is warranted **only when the integration itself is the behavior under
+  test** — the wiring, protocol, or process boundary is what the intent asserts, not an implementation
+  detail reachable behind a mockable seam. A single external dependency behind an interface is mocked,
+  never spawned.
 - **Combinatorics move down to unit tests** owned by the **impl-producer**
   (`sdd:impl-producer-governance`): given the frozen acceptance `.feature`, it authors the inner-rule
   unit tests (plain project tests), each rule covered once, cheaply, exhaustively — cases drawn from

@@ -102,8 +102,12 @@ execute, store, or classify.
 | **don't over-serialize a clean split** | a write-set of genuinely independent spec-nodes | the Missions carry **no fabricated dependency** between independent nodes — they can run in parallel | `Scenario: independent spec-nodes are lowered without a fabricated dependency between them` |
 | **see the reasoning behind the cut** | any cut — a killed CR alongside one lowered across several nodes | a **decision-evidence record** accompanies the partition, stating each Oracle and Architect verdict and its cause | `Scenario: the produced partition is accompanied by a decision-evidence record` |
 
-Every scenario in [`ssa-lowering.feature`](./ssa-lowering.feature) maps to one of these entries or to
-its activation (the `@trigger` outline). The graded ("does it judge well?") behaviors are `@rubric`
+Every scenario in [`ssa-lowering.feature`](./ssa-lowering.feature) maps to one of these entries.
+**Activation is not among them and is not frozen here** — it is owned by (description prose x
+harness x sibling set), of which this node controls one, so it is a co-owned seam and out of scope
+for a per-node suite (`sdd:suite-format-governance`; issue #304). Trigger accuracy is measured by
+its own instrument — a labeled query corpus run N times for a trigger rate — not by a frozen example
+table. The graded ("does it judge well?") behaviors are `@rubric`
 scenarios; the structural invariants a cut must **never** violate (single-writer, a killed CR lowers
 to nothing, a barrier is never a normal node, the decision-evidence record accompanies the partition)
 are plain boolean guards. The split is deliberate: **presence** of an artifact is a boolean guard,

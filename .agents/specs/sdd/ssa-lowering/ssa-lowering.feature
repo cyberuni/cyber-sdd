@@ -16,24 +16,13 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
   mission-graph store does), classify a collision (collision-ladder does), or emit its decision-evidence
   automatically (SQ-F5 #194, deferred). Working node name only — the final name is SQ-name #195.
 
-  # ── Activation: fires when a change request must be partitioned ──
-
-  @trigger
-  Scenario Outline: the lowering doctrine activates only when a change request must be cut into missions
-    Given the situation "<situation>"
-    When the coordinator decides whether to apply the SSA-lowering doctrine
-    Then applying the doctrine is "<should_apply>"
-
-    Examples:
-      | situation                                                                                          | should_apply |
-      | a change request spanning three capabilities must be decomposed into missions during intake        | yes          |
-      | two open change requests overlap on a shared capability and must be regrouped into missions         | yes          |
-      | a far-horizon change request has reached the frontier and must be lowered before work starts        | yes          |
-      | a change request describes a project-wide rename that must be planned as fleet work                 | yes          |
-      | a single-capability change to one artifact-type needs no partition and goes straight to the mission loop | no       |
-      | a request to add one scenario to an existing mission-graph feature file, within one node            | no           |
-      | running the ready and cycles views over the existing mission-graph store                            | no           |
-      | classifying an already-detected node collision as hard or soft with the collision-ladder            | no           |
+  # ── Activation is NOT frozen here ──
+  # Activation is owned by (description prose x harness x sibling set) and this node controls one of
+  # the three, so it is a co-owned seam and out of scope for a per-node frozen suite
+  # (`sdd:suite-format-governance`, "the node's own decisions"). The @trigger Scenario Outline that
+  # sat here froze a property the node cannot honour alone. Trigger accuracy is measured by its own
+  # instrument — a labeled query corpus run N times for a trigger rate — not by a frozen example
+  # table. Issue #304.
 
   # ── Oracle gate: judge legitimacy before lowering ──
 

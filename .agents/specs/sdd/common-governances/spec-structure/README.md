@@ -29,8 +29,9 @@ owner: it is loaded wherever a node is placed, judged, or audited.
 - **Boundary** — the **model + rationale** live in `../../design/spec-structure.md` (canonical),
   with `../../design/project-unit.md` fixing what maps to one spec and
   `../../design/spec-layout.md` holding the strategy menu and the placement-map format. The
-  **strategy decision procedure** is `../../authoring/decide-spec-layout/`; the **home suggestion**
-  engine is `../../project-spec/place-node/`; a node's internal section shape is
+  **strategy decision procedure** is `../../authoring/scaffold-project-spec/` (detection mode for an
+  existing project, intent mode for a greenfield one); the **home suggestion** engine is
+  `../../project-spec/place-node/`; a node's internal section shape is
   `../../authoring/spec-format/`. This bar owns the taxonomy and the placement law that reads from
   it — it decides nothing per project and stores no homes.
 

@@ -72,10 +72,13 @@ two nodes that specify **no** shared behavior raise **no** dedup finding. The ac
 not run unconditionally.
 
 Alongside its findings a pass surfaces an **advisory layout-quality signal** — the scheduler's
-**false-conflict rate** doubles as a **code-partition-quality metric** (capability-first keeps
-node↔folder clean and the rate low; a layered / framework-first layout scatters a capability and
-drives it up). The signal is **advisory** — it **gates no mission**; it points the Warden and Council
-at a degrading partition so the capability-first recommendation can be re-asserted.
+**false-conflict rate** doubles as a **partition-quality metric**: a layout that keeps node↔folder
+clean holds the rate low, and one that scatters a single concern across folders drives it up. Read
+the signal **against the strategy the project declared**, not against a preferred one — a high rate
+under `mirror-source` means the source tree itself scatters the concern, which is a different finding
+from a capability-first spec drifting toward layers. The signal is **advisory** — it **gates no
+mission**; it points the Warden and Council at a degrading partition so the **declared** layout can
+be re-asserted, or deliberately re-declared.
 
 ## The Warden's self-clear-vs-escalate verdict
 

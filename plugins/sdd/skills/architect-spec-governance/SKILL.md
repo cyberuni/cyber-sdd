@@ -26,8 +26,11 @@ unbound.
   same change to the other? Only then converge.
 - **No conflict.** The capability does not contradict established conventions, module boundaries, or
   an existing capability's contract.
-- **Screaming placement.** The capability lives in a folder named for its intent — **one capability
-  per node**, its behavior never smeared across nodes.
+- **Placement matches the declared layout.** Judge against the strategy the project **declared** in
+  its root `spec.md` placement map, never a preferred one (`sdd:spec-structure-governance`): under
+  the screaming-architecture default a capability lives in a folder named for its intent, while a
+  project that declared `mirror-source` is correctly placed when it mirrors its source. Independent
+  of strategy: **one capability per node**, its behavior never smeared across nodes.
 - **A well-formed logic graph.** Its decision graph connects — every decision reachable, no dangling
   branch — and the suite's sections mirror it.
 - **An orthogonal axis.** Structural fit judges a property the builder was not optimizing — a real
@@ -46,7 +49,7 @@ from `spec.md` + the suite only — the solution is out of view (grader independ
 1. **No knowledge duplication** — one home per concept; but coincidental resemblance is not
    duplication (don't merge things that change for different reasons). No conflict with conventions or
    boundaries.
-2. **Screaming placement** — the capability in a folder named by intent; one capability per node; not
-   smeared across nodes.
+2. **Placement matches the *declared* layout** (`sdd:spec-structure-governance`), not a preferred
+   one; one capability per node either way, never smeared across nodes.
 3. **A well-formed logic graph** the suite's sections mirror.
 4. **Structural concerns in another capability are deferred** — an observation that spawns a new spec.

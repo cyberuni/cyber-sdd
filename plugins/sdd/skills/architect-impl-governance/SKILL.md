@@ -24,7 +24,8 @@ unbound.
   abstraction couples them, and the wrong abstraction costs more than the repetition. Test: does a
   change to one force the same change to the other? Only then converge.
 - **No conflict.** The implementation does not contradict conventions, module boundaries, or a spec's
-  contract.
+  contract — including the project's **declared** layout, judged as declared rather than as preferred
+  (`sdd:spec-structure-governance`).
 - **Contained complexity.** Watch cyclomatic complexity and coupling; a unit hard to test is usually
   mis-structured — flag it.
 - **A sound verification pyramid.** Across the suite the verification levels form a pyramid — a broad

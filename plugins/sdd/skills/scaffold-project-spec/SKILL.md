@@ -12,10 +12,14 @@ with **no spec yet**. It chooses *how the spec is organized*, scaffolds that ske
 homes. It is **internal** — reached through `start-mission`, never a user entry — and leaves the tree at
 `status: draft`; it authors no node's `## Use Cases`/`.feature`, renders no gate verdict, and freezes nothing.
 
-This skill is **self-contained**: it bakes in the node taxonomy (three spec-types, the **concept axis**, the
-**two-level depth cap**, screaming-architecture as the default), the strategy menu + the shared envelope, and
-the spec-location rules — all below. Run the seven steps in order, surfacing each choice to the user
-(recommended-first), never assuming silently.
+**Load `sdd:spec-structure-governance`** for the layout law it applies: the node taxonomy (three
+spec-types, the concept axis), the two-level depth cap, screaming architecture and the
+non-capability folders, root-files-not-folders, and the colocate-or-hoist test. This skill does not
+restate that law — it **runs** it, and owns only what is genuinely its own: the **strategy menu**,
+the **shared envelope**, and the seven-step procedure below.
+
+Run the seven steps in order, surfacing each choice to the user (recommended-first), never assuming
+silently.
 
 ## 0 — Pick the evidence mode
 

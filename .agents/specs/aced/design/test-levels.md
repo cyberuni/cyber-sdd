@@ -1,7 +1,3 @@
----
-concept: [eval-model]
----
-
 # test-levels — where agent-config behavior is surfaced
 
 The companion to the SDD suite-design doctrine (`../../sdd/authoring/suite-format/README.md`,

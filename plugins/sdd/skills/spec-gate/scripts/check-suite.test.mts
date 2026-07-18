@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 import {
 	checkFilePaths,
+	checkScenarioMap,
 	checkSuite,
 	discoverSuiteDirs,
 	findDeadRubric,
@@ -880,4 +881,65 @@ test('the corpus sweep raises no parse violation when every suite parses', () =>
 	withCorpus({ 'unit/a.feature': CLEAN_SUITE, 'nested/deep/b.feature': CLEAN_SUITE }, (root) => {
 		assert.equal(main(['--root', root]), 0, 'a corpus that parses wholly does not fail the sweep closed')
 	})
+})
+
+// ─── scenario-map binding ─────────────────────────────────────────────────────
+
+const FEAT = `@frozen
+Feature: demo
+
+  Scenario: alpha branches left
+    Given a thing
+    When it runs
+    Then it goes left
+
+  Scenario: beta branches right
+    Given another thing
+    When it runs
+    Then it goes right
+`
+
+const SPEC_OK = `# demo
+
+## Scenario map
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | a thing | \`alpha branches left\` |
+| D1 | another thing | \`beta branches right\` |
+`
+
+test('a complete scenario map reports nothing', () => {
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, SPEC_OK), [])
+})
+
+test('an edge repeated under a DIFFERENT path is permutation coverage, not a duplicate', () => {
+	// Both rows sit on D1; they differ by path class, which is exactly what the model allows.
+	assert.equal(checkScenarioMap('demo', 'demo.feature', FEAT, SPEC_OK).length, 0)
+})
+
+test('a scenario absent from the map is reported as an orphan', () => {
+	const spec = SPEC_OK.replace('| D1 | another thing | `beta branches right` |\n', '')
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.equal(v.length, 1)
+	assert.match(v[0] ?? '', /not on the scenario map — "beta branches right"/)
+})
+
+test('a map row naming no such scenario is reported', () => {
+	const spec = `${SPEC_OK}| D2 | ghost path | \`gamma that does not exist\` |\n`
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.equal(v.length, 1)
+	assert.match(v[0] ?? '', /names no such scenario — "gamma that does not exist"/)
+})
+
+test('two rows sharing an edge AND a path class are a duplicate', () => {
+	const spec = SPEC_OK.replace('| D1 | another thing |', '| D1 | a thing |')
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.equal(v.length, 1)
+	assert.match(v[0] ?? '', /duplicate map pair/)
+})
+
+test('a spec carrying no scenario map section is SKIPPED, not failed', () => {
+	// The map is the rebuilt node format; a node still on the older shape is not in violation.
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, '# demo\n\nno map here\n'), [])
 })

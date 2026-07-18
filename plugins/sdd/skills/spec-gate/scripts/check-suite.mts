@@ -402,8 +402,87 @@ export function checkFilePaths(
 			continue
 		}
 		violations.push(...checkSuite(dirname(p), basename(p), text, errs))
+		if (errs.length === 0) {
+			const specPath = join(dirname(p), 'README.md')
+			let specText: string | undefined
+			try {
+				specText = readFileSync(specPath, 'utf8')
+			} catch {
+				specText = undefined
+			}
+			if (specText !== undefined) {
+				violations.push(...checkScenarioMap(dirname(p), basename(p), text, specText))
+			}
+		}
 	}
 	return violations
+}
+
+// ─── scenario-map binding ─────────────────────────────────────────────────────
+// The sibling spec's `## Scenario map` binds each scenario to a (path class, edge) pair
+// (`| Edge | Path (Given) | Scenario |`). Form only: this checks the BINDING is complete and
+// non-duplicated. Whether the edges cover the graph is judged, not linted — that needs the drawn
+// graph's semantics, and a green check clears no coverage question.
+//
+// A spec carrying no `## Scenario map` section is SKIPPED, not failed: the map is the rebuilt node
+// format, and a node still on the older shape is not in violation of a section it does not claim.
+export interface MapRow {
+	edge: string
+	path: string
+	scenario: string
+}
+
+export function parseScenarioMap(specText: string): MapRow[] | undefined {
+	const start = specText.indexOf('## Scenario map')
+	if (start === -1) return undefined
+	const body = specText.slice(start)
+	const rows: MapRow[] = []
+	for (const line of body.split('\n')) {
+		const t = line.trim()
+		if (!t.startsWith('|')) continue
+		const cells = t
+			.split('|')
+			.slice(1, -1)
+			.map((c) => c.trim())
+		if (cells.length !== 3) continue
+		const scenario = cells[2] ?? ''
+		// Skip the header row and its separator; a data row names its scenario in backticks.
+		const m = scenario.match(/^`(.+)`$/)
+		if (m === null) continue
+		rows.push({ edge: cells[0] ?? '', path: cells[1] ?? '', scenario: m[1] ?? '' })
+	}
+	return rows
+}
+
+export function checkScenarioMap(slug: string, file: string, featureText: string, specText: string): string[] {
+	const rows = parseScenarioMap(specText)
+	if (rows === undefined) return []
+	const tag = (msg: string) => `${slug}/${file}: ${msg}`
+	const v: string[] = []
+
+	const titles = [...featureText.matchAll(/^\s*Scenario(?: Outline)?:\s*(.+?)\s*$/gm)].map((m) => m[1] ?? '')
+	const mapped = new Set(rows.map((r) => r.scenario))
+
+	for (const t of titles) {
+		if (!mapped.has(t)) v.push(tag(`scenario is not on the scenario map — "${t}"`))
+	}
+	const titleSet = new Set(titles)
+	for (const r of rows) {
+		if (!titleSet.has(r.scenario)) v.push(tag(`scenario map row names no such scenario — "${r.scenario}"`))
+	}
+	const seen = new Map<string, string>()
+	for (const r of rows) {
+		const key = `${r.edge}\u0000${r.path}`
+		const prior = seen.get(key)
+		if (prior !== undefined) {
+			v.push(
+				tag(
+					`duplicate map pair — edge "${r.edge}" and path "${r.path}" cover both "${prior}" and "${r.scenario}"; a repeated edge needs a DIFFERENT path class`,
+				),
+			)
+		} else seen.set(key, r.scenario)
+	}
+	return v
 }
 
 // Collect the path list following --files, stopping at the next flag.

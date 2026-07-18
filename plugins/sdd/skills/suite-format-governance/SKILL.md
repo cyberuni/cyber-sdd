@@ -197,8 +197,11 @@ first, then its branches and errors; a `@rubric` scenario sorts into its group l
 ## The executable form — `check-suite`
 
 The mechanical rules — Gherkin validity, every untagged `Then` a boolean, no leaked rubric lingo,
-`Scenario Outline` Examples coverage, `# ── ── ` section comments, and **scenario-map binding**
-(every scenario on an edge, every edge covered) — run as `check-suite`
+`Scenario Outline` Examples coverage, `# ── ── ` section comments, and **scenario-map binding** —
+every scenario carries a map row, every row names a real scenario, and no two rows share an edge
+*and* a path class. Whether the rows **cover the graph** is judged, not linted: that needs the drawn
+graph's semantics, so a green check clears no coverage question. A spec with no `## Scenario map`
+section is skipped, not failed — run as `check-suite`
 (`spec-gate/scripts/check-suite.mts`): the spec-producer self-runs it before returning, and the spec
 gate runs it fail-closed before the cold judge. **Form only** — coverage adequacy, discrimination,
 selection, pairwise consistency, and apparatus independence are **judged**, never linted, and a green
@@ -218,8 +221,9 @@ The `confirm-read` check verifies a role's read-attestation covers each point be
    scenario asserting a finding asserts its binding consequence, not just its emission.
 4. **A dead edge measures nothing** — run the miss test (a plausible wrong subject takes the wrong
    branch); a measured ceiling is a tell it cannot be lost, not evidence.
-5. **The scenario map is 1:1** — every scenario to one edge, every edge to one scenario; sections
-   mirror the spec's use-case groups.
+5. **The scenario map is 1:1 scenario<->row**, each row naming both the **edge** and the **path
+   class**; an edge may carry several rows (permutation coverage) — a duplicate is same edge *and*
+   same path. Sections mirror the spec's use-case groups.
 6. **`@pinned` is user-owned** — the agent proposes but never executes a change or removal without
    user authorization; only the user pins; a pin seeds graph growth.
 7. **A `Given` is a test vector** — the precondition binds, the apparatus binds nothing (swap test);

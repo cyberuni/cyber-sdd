@@ -1,6 +1,6 @@
 # scaffold-project-spec
 
-Non-user-invocable SDD skill holding the **project-level layout bootstrap**: when a project has **no consolidated spec**, choose how the spec is organized, scaffold that skeleton, and declare the choice. It serves an **existing** project and a **greenfield** one through one entry, branching on **evidence mode**.
+Non-user-invocable SDD skill holding the **project-level layout bootstrap**: when a project has **no spec yet**, choose how the spec is organized, scaffold that skeleton, and declare the choice. It serves an **existing** project and a **greenfield** one through one entry, branching on **evidence mode**.
 
 Loaded via the harness (`Skill`) by the **conductor** (the main session) **once at bootstrap** when `start-mission` explore finds a project lacking a spec. It is **not** a user entry — the single entry is `start-mission`; this is an internal explore-phase step. It runs a seven-step procedure — pick the evidence mode (is there source to read?) → establish the project shape (read the source, or ask what the project will do) → choose the spec location (colocated / hoisted / monorepo-member) → recommend + choose a strategy (capability-first default, mirror-source) → scaffold the shared envelope + the strategy skeleton (each node declaring a legal `spec-type`) → declare the `project-path` frontmatter + the body placement map → hand back to per-unit explore — and leaves the tree at `status: draft`.
 

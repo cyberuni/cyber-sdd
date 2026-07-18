@@ -75,10 +75,10 @@ Feature: scaffold-project-spec — lay out a project's spec
     When the bootstrap detects the project shape
     Then it recommends colocating the spec at <project>/.agents/spec/
 
-  Scenario: a project that already has a consolidated spec is not backfilled
-    Given an existing project that already has a consolidated spec
+  Scenario: a project that already has a project spec is not scaffolded
+    Given an existing project that already has a project spec
     When the bootstrap is consulted
-    Then it does not backfill and leaves the existing spec untouched
+    Then it does not scaffold and leaves the existing spec untouched
 
   # ---- Location choice ----
 

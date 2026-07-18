@@ -7,7 +7,7 @@ user-invocable: false
 # scaffold-project-spec — lay out a project's spec
 
 The procedure the **conductor** follows, **once at bootstrap**, when `start-mission` explore finds a project
-with **no consolidated spec**. It chooses *how the spec is organized*, scaffolds that skeleton, and
+with **no spec yet**. It chooses *how the spec is organized*, scaffolds that skeleton, and
 **declares the choice**, so the per-unit explore that follows (`spec-producer-governance`) slots work into known
 homes. It is **internal** — reached through `start-mission`, never a user entry — and leaves the tree at
 `status: draft`; it authors no node's `## Use Cases`/`.feature`, renders no gate verdict, and freezes nothing.

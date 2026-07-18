@@ -7,7 +7,7 @@ concept: spec-structure
 
 ## What
 
-The **project-level layout bootstrap**. When a project has **no consolidated spec**, it chooses an
+The **project-level layout bootstrap**. When a project has **no spec yet**, it chooses an
 organization **strategy**, scaffolds that skeleton, and **declares** the choice — so the per-unit
 explore that follows slots work into known homes instead of inventing placement each time. It is the
 structural answer to [#35](https://github.com/cyberuni/cyberplace/issues/35): placing a concept
@@ -52,7 +52,7 @@ spec location).
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **bootstrap** — an existing project (or one package) with no consolidated spec | the project source + the user's **location** and **strategy** choices | a scaffolded **draft** spec tree: shared envelope + strategy skeleton + stub nodes (each declaring a legal `spec-type`) + root `spec.md` carrying `project-path` and the body placement map, at `status: draft` |
+| **bootstrap** — an existing project (or one package) with no project spec | the project source + the user's **location** and **strategy** choices | a scaffolded **draft** spec tree: shared envelope + strategy skeleton + stub nodes (each declaring a legal `spec-type`) + root `spec.md` carrying `project-path` and the body placement map, at `status: draft` |
 | **greenfield** — a new project with no source tree yet | the capabilities the user states the project will have + the user's **location** and **strategy** choices | the same scaffolded **draft** spec tree, reached through **intent mode**: no source is read, and the strategy is never silently defaulted |
 | **monorepo** — a repo with multiple package anchors | the repo + the user's per-project selection | one **bootstrap** per chosen package (each hoisted to `<repo>/.agents/specs/<pkg>/`) plus the outer project (`<repo>/.agents/spec/`) — several draft trees in one pass |
 
@@ -63,7 +63,7 @@ All three use cases enter one graph; they differ only at **D1** (which evidence 
 
 ```mermaid
 flowchart TD
-  S["start-mission finds no consolidated spec"] --> D0{"already has a consolidated spec?"}
+  S["start-mission finds no project spec"] --> D0{"already has a project spec?"}
   D0 -->|"yes"| X["leave it untouched · do not scaffold"]
   D0 -->|"no"| D1{"is there a source tree to read?"}
 
@@ -116,7 +116,7 @@ Grouped by use case; every scenario in
 
 | Decision | Scenario |
 |---|---|
-| D0 — spec already exists | `a project that already has a consolidated spec is not backfilled` |
+| D0 — spec already exists | `a project that already has a project spec is not scaffolded` |
 | D1 — source present → detection | `a project that has a source tree enters detection mode` |
 | D1 — no source → intent | `a project that has no source tree enters intent mode` |
 | D1 — modes reconverge | `both evidence modes converge on the same declared organization` |

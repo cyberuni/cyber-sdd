@@ -44,6 +44,15 @@ prioritize the structural pass there first. It reads **never** the combat log (t
 input, retired at retro) and **never** live subagent context — like the other outer loops it fires
 strictly post-mission.
 
+**Read the declared strategy before judging.** Each project spec's root `spec.md` carries a
+**placement map** naming the layout strategy it chose (`capability-first | mirror-source | …`). Read
+it and judge structural fit **against that**, never against a default: a project that declared
+`mirror-source` is not misplaced for mirroring its source tree. **Never infer the strategy from the
+tree** — that makes the audit circular (the shape the corpus has becomes the standard it is judged
+by) and, on a half-migrated corpus, judges it against the layout it is migrating away from. A map
+naming no strategy is judged against the **capability-first** default, and the missing declaration
+is itself a finding. (Strategy is policy — read it; homes are data — derive them.)
+
 ## The intra-spec structural acts
 
 It acts on each spec's **structure**, not its content — one project is **one spec**, so structural

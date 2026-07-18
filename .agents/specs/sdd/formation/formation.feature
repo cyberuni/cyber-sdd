@@ -99,6 +99,30 @@ Feature: The formation loop — keep the spec corpus structurally organized
     Then the signal is advisory
     And it gates no mission
 
+  # ── Judged against the declared strategy ──
+
+  Scenario: the Warden reads the declared strategy before judging structural fit
+    Given a formation pass over a project spec whose placement map names a layout strategy
+    When the Warden judges structural fit
+    Then it reads the declared strategy from the placement map
+    And it judges fit against that strategy rather than against a default
+
+  Scenario: a node following a declared mirror-source layout is not reported as misplaced
+    Given a formation pass over a project spec whose placement map names mirror-source
+    When the Warden judges structural fit
+    Then a node mirroring the source tree is not reported as misplaced
+
+  Scenario: a node contradicting the declared layout is reported as misplaced
+    Given a formation pass over a project spec whose placement map names mirror-source
+    When the Warden judges structural fit
+    Then a node that neither mirrors the source tree nor matches the routing table is reported as misplaced
+
+  Scenario: a project spec whose placement map names no strategy is judged against the default
+    Given a formation pass over a project spec whose placement map names no strategy
+    When the Warden judges structural fit
+    Then it judges fit against the capability-first default
+    And it reports the undeclared strategy as a finding
+
   # ── Corpus-wide, not the gate ──
 
   Scenario: a formation pass produces a finding set covering every spec

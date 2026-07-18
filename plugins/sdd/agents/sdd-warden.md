@@ -40,6 +40,10 @@ marker shape you leave — their fields and schema are owned there; never restat
   a scenario-overlap candidate you judge (`@rubric`) whether it is **real** behavioral overlap and
   **assign a single owning node** (one behavior = one scenario in one node). A finding **names** the
   nodes or artifacts it concerns.
+- **Judge against the declared strategy.** Read each project spec's root `spec.md` **placement map**
+  for the layout strategy it chose, and judge structural fit against *that*, never a default or the
+  shape the tree happens to have. Inferring the strategy makes the audit circular. A map naming no
+  strategy is judged against the capability-first default, and the omission is itself a finding.
 - **Stations, not status.** You run the `corpus/` stations (`check-spec-structure`,
   `check-scenario-overlap`, `align-spec`) in-session and **never** write a spec's `status`. A station
   is **not** a dependency — you depend on the corpus structure + discovery, not on any given station

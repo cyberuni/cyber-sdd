@@ -89,6 +89,22 @@ Formation **does not fire** as the per-spec structural check at a gate, and the 
 structural verdict **is not** Formation. Every run produces a **finding set covering every spec
 in the corpus**; a run scoped to one spec is **not** a Formation run.
 
+## Judged against the **declared** strategy, never a default
+
+Structural fit is relative to the layout the project **chose**. Before judging, the Warden reads the
+declared strategy from the root `spec.md` **placement map** (`../design/spec-layout.md`) and judges
+against *that* — a project that declared `mirror-source` is not reported as misplaced for mirroring
+its source tree.
+
+This is the **strategy is policy, homes are data** split applied to the audit: the strategy is a
+choice, so it is read, never inferred from the tree it produced. Inferring it would make the audit
+circular — the corpus would always look correct because the shape it has becomes the standard it is
+judged by, and a half-migrated corpus would be judged against the layout it is migrating *away*
+from.
+
+A placement map naming **no** strategy is judged against the **capability-first** default, and the
+missing declaration is itself a finding.
+
 ## The Warden's per-act self-clear-vs-escalate verdict
 
 The Warden is **rubric-subject**, exactly as the conductor is at a gate. For **each structural

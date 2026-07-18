@@ -3,13 +3,19 @@ spec-type: behavioral
 concept: spec-structure
 ---
 
-# backfill-project-spec — lay out an existing project's spec
+# backfill-project-spec — lay out a project's spec
 
-The **project-level layout bootstrap**: when an existing project has **no consolidated spec**, choose an
+The **project-level layout bootstrap**: when a project has **no consolidated spec**, choose an
 **organization strategy** (`../../design/spec-layout.md`), scaffold the skeleton, and **declare** the choice,
 so the per-unit explore that follows slots work into known homes instead of inventing placement. It is the
 structural answer to [#35](https://github.com/cyberuni/cyberplace/issues/35) — lowering the placement
 burden on non-owner builders.
+
+It serves both an **existing** project and a **greenfield** one through a single entry, branching on
+**evidence mode**: **detection mode** reads the source tree for its recommendations; **intent mode** has no
+source to read, so it recommends from the capabilities the user states the project will have. The mode is
+**detected, not chosen** — the bootstrap asks only whether there is source to read. Both modes converge on
+the same scaffold and the same declared organization.
 
 It enacts the **structure-doc trio**: `../../design/spec-structure.md` (the node taxonomy — the three
 spec-types, the **concept axis**, the **two-level depth cap**, screaming-architecture as the default),
@@ -17,7 +23,7 @@ spec-types, the **concept axis**, the **two-level depth cap**, screaming-archite
 `../../design/project-unit.md` (the external boundary + the spec location).
 
 It is **not a user-facing entry skill**. The single entry is `../../gateway/` → `start-mission`; this unit is
-an **internal step the conductor loads during explore** when it finds an existing project lacking a spec. It
+an **internal step the conductor loads during explore** when it finds a project lacking a spec. It
 runs **once at bootstrap**, before the normal per-unit explore (`../spec-producer/`), and leaves the tree at
 `status: draft`.
 
@@ -34,11 +40,12 @@ the project it scaffolds.
 | Trigger | Inputs | Outcome |
 |---|---|---|
 | **bootstrap** — an existing project (or one package) with no consolidated spec | the project source + the user's **location** and **strategy** choices | a scaffolded **draft** spec tree: the shared envelope + the strategy skeleton + stub nodes (each declaring a legal `spec-type`) + root `spec.md` carrying the `project-path` frontmatter and the body placement map, at `status: draft` |
+| **greenfield** — a new project with no source tree yet | the capabilities the user states the project will have + the user's **location** and **strategy** choices | the same scaffolded **draft** spec tree, reached through **intent mode**: no source is read, and the strategy is never silently defaulted |
 | **monorepo** — a repo with multiple package anchors | the repo + the user's per-project selection | one **bootstrap** per chosen package (each hoisted to `<repo>/.agents/specs/<pkg>/`) plus the outer project (`<repo>/.agents/spec/`), several draft trees in one pass |
 
-Every scenario in [`backfill-project-spec.feature`](./backfill-project-spec.feature) maps to one of these two
-use cases or to a cross-cutting guarantee (location choice, strategy choice, the declared organization, the
-scaffold boundary, the hand-back).
+Every scenario in [`backfill-project-spec.feature`](./backfill-project-spec.feature) maps to one of these
+three use cases or to a cross-cutting guarantee (evidence mode, location choice, strategy choice, the
+declared organization, the scaffold boundary, the hand-back).
 
 ## The workflow
 

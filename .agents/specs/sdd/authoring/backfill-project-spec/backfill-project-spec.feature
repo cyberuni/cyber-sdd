@@ -4,6 +4,38 @@ Feature: backfill-project-spec — lay out an existing project's spec
   not author a node's ## Use Cases or .feature, render a gate verdict, or freeze (those are
   ../spec-producer/ and ../spec-gate/).
 
+  # ---- Evidence mode ----
+
+  Scenario: a project that has a source tree enters detection mode
+    Given a project whose source tree exists and can be read
+    When the bootstrap selects its evidence mode
+    Then it enters detection mode and reads the project shape for its recommendations
+
+  Scenario: a project that has no source tree enters intent mode
+    Given a greenfield project with no source tree at all
+    When the bootstrap selects its evidence mode
+    Then it enters intent mode and reads no project shape
+
+  Scenario: intent mode recommends a strategy from the capabilities the user states
+    Given a greenfield project in intent mode and the capabilities the user states it will have
+    When the bootstrap recommends a strategy
+    Then it recommends from the stated capabilities rather than from a source layout
+
+  Scenario: intent mode does not silently apply the capability-first default
+    Given a greenfield project in intent mode whose intended capabilities are not yet stated
+    When the bootstrap recommends a strategy
+    Then it asks the user for the intended capabilities rather than assuming the default
+
+  Scenario: intent mode asks for the spec location it cannot detect
+    Given a greenfield project in intent mode with no source to classify as shippable
+    When the bootstrap presents the location choice
+    Then it asks whether the project will be shippable rather than detecting a plugin layout
+
+  Scenario: both evidence modes converge on the same declared organization
+    Given a strategy chosen in either evidence mode
+    When the bootstrap records the organization
+    Then it writes the same root spec.md envelope, project-path frontmatter, and placement map
+
   # ---- Detection ----
 
   Scenario: an agentic plugin is detected and the hoisted location is recommended

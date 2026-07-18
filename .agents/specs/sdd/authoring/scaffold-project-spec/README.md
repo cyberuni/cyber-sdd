@@ -145,7 +145,7 @@ does not vary across the paths reaching that edge.
 | D3 | more than one valid location | `the location is never silently assumed` |
 | D4 | detection · capabilities discernible | `a project with a discernible capability decomposition is recommended capability-first` |
 | D4 | detection · source feature-first | `a feature-first code base navigated by code is offered mirror-source` |
-| D4 | detection · no signal | `a project with no discernible decomposition and no feature-first layout takes the default` |
+| D4 | detection · src layer-organized | `a layer-organized project takes the capability-first default` |
 | D4 | any recommended strategy *(convergence)* | `one recommendation and its alternative are presented for the user to choose` |
 | D4 | strongly layered project *(barred)* | `layering is never offered as the top-level body` |
 | D4 | any project *(barred)* | `ADR is not offered as a strategy` |

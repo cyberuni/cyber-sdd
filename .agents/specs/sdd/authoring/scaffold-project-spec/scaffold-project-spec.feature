@@ -121,8 +121,9 @@ Feature: scaffold-project-spec — lay out a project's spec
     When the bootstrap presents strategy options
     Then ADR is not among the strategies offered
 
-  Scenario: a project with no discernible decomposition and no feature-first layout takes the default
-    Given a project with no discernible capability decomposition and no feature-first source layout
+  Scenario: a layer-organized project takes the capability-first default
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
     When the bootstrap recommends a strategy
     Then it recommends the capability-first default
 

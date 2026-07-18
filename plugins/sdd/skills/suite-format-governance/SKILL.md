@@ -129,6 +129,37 @@ absorption** — no producer lifts a `Given`'s apparatus into the artifact as a 
 artifact illustration is lifted into a `Given`; each draws from a domain the other does not probe.
 Judged semantically, not lexically.
 
+### A `Given` must be a **scaffoldable state**
+
+The `Given` is what the impl-producer **builds** and the impl-judge **checks it built**. If the two
+can read it and picture different fixtures, the gate churns — the producer writes a defensive step
+carrying flags and branches, and the judge disagrees about what was even set up. A step definition
+that needs conditionals is the tell that the step is wrong **upstream**, not that the automation is
+hard.
+
+- **A state, not a procedure.** Declarative: *what holds*, never the keystrokes that got there.
+- **Observable, not evaluative.** Bar judgment words — *discernible, valid, appropriate, clear,
+  proper, reasonable*. They read as precision and carry none: each reader supplies their own
+  threshold. Name the fact instead.
+- **Present, not absent.** A state defined by what is *missing* ("no X and no Y") is unbuildable —
+  absence has infinitely many fixtures. Name the concrete shape that *has* the property.
+- **One condition per step.** Split a conjunction into `Given` + `And`. Each step then stands alone
+  and is reusable across scenarios, which is what makes a step library accumulate instead of
+  fragment.
+- **The build test:** *could two people, given only this line, construct the same fixture?* If no, it
+  is not yet a `Given`.
+
+**Worked correction.** `Given a project with no discernible capability decomposition and no
+feature-first source layout` fails three ways at once — *discernible* is evaluative, the state is
+doubly absent, and it is a conjunction. It becomes:
+
+```gherkin
+Given a project in detection mode
+And its src/ is organized by layer rather than by feature
+```
+
+Two buildable steps, no judgment words, and the path class is named outright.
+
 ## Pairwise consistency — no two scenarios contradict on one snapshot
 
 Within one suite, no two scenarios may demand **opposite verdicts** on a single constructible state.

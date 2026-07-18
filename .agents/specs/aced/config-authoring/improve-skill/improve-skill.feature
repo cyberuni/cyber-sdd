@@ -8,7 +8,7 @@ Feature: improve-skill — audit and improve an existing SKILL.md
   The mechanical subset (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9) also runs standalone,
   LLM-free, as a CI-usable scan with its own scope and exit-code rules. Authoring a new skill from scratch is
   define-skill; validating repo-private skill metadata is repair-private-skills; finding a skill's
-  upstream source is contribute-skill. Cross-capability e2e scenarios live in ../../acceptance/.
+  upstream source is contribute-skill. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 

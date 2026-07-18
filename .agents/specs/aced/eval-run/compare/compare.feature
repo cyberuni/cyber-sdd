@@ -2,7 +2,7 @@
 Feature: compare — diff two config versions for regressions
   Unit suite for the compare skill: score a before-version and an after-version against the same
   golden set and classify the per-case change, gating on regressions. Single-version scoring is
-  run; the project roll-up is report. Cross-capability e2e scenarios live in ../../acceptance/.
+  run; the project roll-up is report. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 

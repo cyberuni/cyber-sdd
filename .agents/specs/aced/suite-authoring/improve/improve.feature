@@ -3,7 +3,7 @@ Feature: improve — diagnose failures and propose config fixes
   Unit suite for the improve skill: load the latest results, collect failing cases, group them by
   failure pattern, propose before/after config diffs, and auto-run compare after edits. Capturing a
   new case is add; scoring is run; on-demand diffing is compare. Cross-capability e2e scenarios live
-  in ../../acceptance/.
+  in ../../workflows/.
 
   # ---- Triggering ----
 

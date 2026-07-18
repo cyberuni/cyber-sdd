@@ -66,7 +66,7 @@ test('parseScalarOrFlow handles both shapes', () => {
 
 test('facetKind derives from location then spec-type', () => {
 	assert.equal(facetKind('design/lifecycle-model.md', undefined), 'rule')
-	assert.equal(facetKind('workflows/README.md', 'behavioral'), 'e2e')
+	assert.equal(facetKind('workflows/README.md', 'behavioral'), 'workflow')
 	assert.equal(facetKind('mission/resolution/README.md', 'behavioral'), 'behavior')
 	assert.equal(facetKind('common-governances/ownership/README.md', 'reference'), 'reference')
 	assert.equal(facetKind('mission/README.md', undefined), 'index')

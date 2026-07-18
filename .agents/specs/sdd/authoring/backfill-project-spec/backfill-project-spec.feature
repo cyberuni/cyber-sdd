@@ -75,7 +75,7 @@ Feature: backfill-project-spec — lay out an existing project's spec
   Scenario: the shared envelope is scaffolded for every strategy
     Given a chosen strategy and location
     When the bootstrap scaffolds the tree
-    Then it creates the root spec.md, design/, acceptance/, a tooling home, and a glossary
+    Then it creates the root spec.md, design/, workflows/, a tooling home, and a glossary
 
   Scenario: the chosen strategy's top-level skeleton is written
     Given a chosen strategy

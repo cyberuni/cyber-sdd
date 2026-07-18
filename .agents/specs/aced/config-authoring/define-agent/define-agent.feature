@@ -3,7 +3,7 @@ Feature: define-agent — author an agent definition
   Unit suite for the define-agent skill: choose a mode, resolve placement, scaffold the canonical
   agent file plus runtime symlinks and (invokable) a companion command, then verify and report.
   Authoring a reference-only governance is define-governance; scoring and case authoring are
-  run/add. Cross-capability e2e scenarios live in ../../acceptance/.
+  run/add. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 

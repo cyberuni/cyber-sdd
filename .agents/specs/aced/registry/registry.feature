@@ -2,7 +2,7 @@
 Feature: registry — register ACED as the agent-config SDD plugin
   Unit suite for the init-aced skill: upsert the ACED entry in .agents/universal-plugin.json so the
   conductor resolves ACED for the agent-config artifact-types. Idempotent, fail-closed. Cross-
-  capability e2e scenarios live in ../acceptance/.
+  capability e2e scenarios live in ../workflows/.
 
   # ---- Triggering ----
 

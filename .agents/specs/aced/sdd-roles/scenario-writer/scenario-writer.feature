@@ -4,7 +4,7 @@ Feature: scenario-writer — the spec-producer role
   and the .feature for one agent-config artifact — boolean scenarios, @rubric for graded behavior, and
   a @trigger Scenario Outline for activation, with the rubric authored inline (no separate golden set).
   Grading the suite is spec-validator; running the evals is implementer; scoring one case is judge.
-  Cross-capability e2e (a full explore→deliver pass over a real skill) lives in ../../acceptance/, not here.
+  Cross-capability e2e (a full explore→deliver pass over a real skill) lives in ../../workflows/, not here.
 
   # ---- Role boundary ----
 

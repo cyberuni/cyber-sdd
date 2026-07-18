@@ -4,7 +4,7 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
   Scanner reads persisted artifacts post-hoc, drafts unratified strategy to the durable ledger,
   and surfaces it episodically; it never ratifies, never writes status, and never blocks a mission.
   Cross-capability e2e scenarios (a ratified strategy re-tuning doctrine end-to-end) live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ---- The six lifecycle triggers ----
 

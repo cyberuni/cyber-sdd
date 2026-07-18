@@ -4,7 +4,7 @@ Feature: impl-judge — run and roll up the frozen .feature suite at the impl ga
   suite (its inline @rubric and @trigger cases) over N runs, collapse each frozen scenario to a boolean,
   and roll up the gate verdict. Authoring the .feature and its inline rubric is scenario-writer at
   explore; grading the spec .feature is spec-validator; scoring one case is judge. Cross-capability e2e
-  (a full impl gate over a real subject) lives in ../../acceptance/, not here.
+  (a full impl gate over a real subject) lives in ../../workflows/, not here.
 
   # ---- Role boundary ----
 

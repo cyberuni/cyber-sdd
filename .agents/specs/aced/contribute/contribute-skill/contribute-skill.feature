@@ -7,7 +7,7 @@ Feature: contribute-skill — contribute a locally-improved installed skill back
   changed files in a single commit, open the PR, and report its URL. A repo-native skill whose source IS
   this repo does not fire; scaffolding a new skill from scratch is define-skill; generalizing the current
   session is skillify; diagnosing failing evals is improve. Cross-capability e2e scenarios live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ── Triggering ──
 

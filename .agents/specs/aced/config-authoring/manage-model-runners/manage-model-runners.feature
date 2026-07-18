@@ -4,7 +4,7 @@ Feature: manage-model-runners — maintain the per-model runner agent-def family
   manage gateway that adds, lists, and removes runner agent definitions (one per model) at their
   user-global canonical paths. Additive only — it never auto-removes a runner a target list omits.
   Authoring a bespoke single agent definition is define-agent; running the skills-under-test is a
-  future eval-run capability. Cross-capability e2e scenarios live in ../../acceptance/.
+  future eval-run capability. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Reach ----
 

@@ -2,7 +2,7 @@
 Feature: The formation loop — keep the spec corpus structurally organized
   Unit suite for the formation (structure) outer loop run by the Warden. Loop, act, and
   verdict behaviors only — corpus-wide structure, never per-spec gate judgment. Cross-capability
-  end-to-end outcomes (a split or reconcile carried through) live in ../acceptance/.
+  end-to-end outcomes (a split or reconcile carried through) live in ../workflows/.
 
   # ── The intra-spec structural acts ──
 

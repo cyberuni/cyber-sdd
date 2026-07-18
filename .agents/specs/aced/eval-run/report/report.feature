@@ -2,7 +2,7 @@
 Feature: report — project-wide eval health
   Unit suite for the report skill: discover every eval suite, classify each one's health, and
   render a project dashboard with attention flags. Single-suite scoring is run; two-version diff
-  is compare. Cross-capability e2e scenarios live in ../../acceptance/.
+  is compare. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 

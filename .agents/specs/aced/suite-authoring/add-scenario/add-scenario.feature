@@ -3,7 +3,7 @@ Feature: add-scenario — add a test case to the golden set
   Unit suite for the add-scenario skill: capture a failure, edge, or gap as one golden-set case with a
   scenario, expected behaviors, must-not-do guards, and a scoring guide. Fixing the config when
   cases fail is improve; scoring is run; diffing is compare. Cross-capability e2e scenarios live
-  in ../../acceptance/.
+  in ../../workflows/.
 
   # ---- Triggering ----
 

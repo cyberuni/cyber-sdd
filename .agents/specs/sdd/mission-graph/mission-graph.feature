@@ -5,7 +5,7 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
   cycles write-guard and fold-time quarantine, and the Operation deliverability check. Derivation
   behaviors only, over per-scenario CONSTRUCTED graphs — never the live store, which mutates on every
   retirement. The #135/#136/#137 worked example is distilled into one fixture. Cross-capability
-  end-to-end scenarios live in ../acceptance/.
+  end-to-end scenarios live in ../workflows/.
 
   # ── The store — schema, nodes, edges ──
 

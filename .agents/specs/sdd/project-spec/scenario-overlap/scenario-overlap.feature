@@ -3,7 +3,7 @@ Feature: The check-scenario-overlap procedure — detect one behavior in two own
   Unit suite for the check-scenario-overlap tool. Deterministic cross-node overlap detection plus a
   Warden judgment arm — intra-project spec-level SSA, read-only and advisory. It surfaces where the
   same behavior lives in more than one node's .feature; the Warden confirms and dedups. Cross-capability
-  e2e scenarios live in ../../acceptance/.
+  e2e scenarios live in ../../workflows/.
 
   # ── Detect cross-node overlap (deterministic) ──
 

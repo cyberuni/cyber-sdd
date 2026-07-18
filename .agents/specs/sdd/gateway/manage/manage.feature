@@ -2,7 +2,7 @@
 Feature: The manage dispatcher — classify a manage-level request and load the engine in-session
   Unit suite for the manage unit (the manage skill). Classification + loading the matching
   engine only — manage holds no production logic, opens no CR, invokes no gate, and writes no
-  contract state. Cross-capability e2e scenarios live in ../../acceptance/.
+  contract state. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Intake ----
 

@@ -4,7 +4,7 @@ Feature: The resolution procedure — match governance bars for an artifact-type
   bars across the caller-passed project anchors, the plugin squad, and the sdd defaults, and naming
   each role's agent — returned bucketed by tier, never ordered or composed. Deterministic scenarios,
   node:test-verified. The agent's composition by precedence is asserted in the conductor / cold-judge
-  suites, not here. Cross-capability e2e scenarios live in ../../acceptance/resolve-squad.feature.
+  suites, not here. Cross-capability e2e scenarios live in ../../workflows/resolve-squad.feature.
 
   # ── Match the resolved-actor bars for an artifact-type ──
 

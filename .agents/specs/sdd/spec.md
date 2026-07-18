@@ -164,16 +164,16 @@ folder whose capability it serves; rules go to `design/`, cross-capability workf
 | Concept | Facets |
 |---|---|
 | `artifact-type` | `design/artifact-type.md` (rule) |
-| `autonomy` | `design/autonomy-rubric.md` (rule) · `workflows/` (e2e) |
-| `delivery` | `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) · `mission/manage-scenario-bridge/` (behavior) · `mission/verify-scenarios/` (behavior) · `workflows/` (e2e) |
+| `autonomy` | `design/autonomy-rubric.md` (rule) · `workflows/` (workflow) |
+| `delivery` | `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) · `mission/manage-scenario-bridge/` (behavior) · `mission/verify-scenarios/` (behavior) · `workflows/` (workflow) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
 | `intake` | `intake/manage-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
-| `lifecycle` | `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) · `workflows/` (e2e) |
+| `lifecycle` | `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) · `workflows/` (workflow) |
 | `orchestration` | `blast-estimate/` (behavior) · `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
 | `plugin` | `plugin/` (behavior) · `plugin/plugin-contract/` (reference) |
-| `provenance` | `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) · `workflows/` (e2e) |
-| `resolution` | `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) · `workflows/` (e2e) |
+| `provenance` | `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) · `workflows/` (workflow) |
+| `resolution` | `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) · `workflows/` (workflow) |
 | `routing` | `gateway/` (behavior) · `gateway/dispatch/` (behavior) · `gateway/manage/` (behavior) |
 | `setup` | `gateway/init/` (behavior) |
 | `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-gate/` (behavior) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `mission/solution-producer/` (behavior) |

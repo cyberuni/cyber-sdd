@@ -3,7 +3,7 @@ Feature: The verify-scenarios procedure — bridge frozen scenarios to test repo
   Unit suite for the verify-scenarios engine. Deterministic scenario→test-report bridge: derive a
   frozen .feature's scenario set, union the configured sources' results, and classify each scenario
   PASS / FAIL / UNBOUND so the impl-judge reasons by hand only over the UNBOUND set. Read-only and
-  advisory. Cross-capability e2e scenarios live in ../../acceptance/.
+  advisory. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── Read the source set ──
 

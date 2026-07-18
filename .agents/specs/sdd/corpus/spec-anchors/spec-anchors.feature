@@ -4,7 +4,7 @@ Feature: The spec-anchors config — declare and curate the extra anchors discov
   format, listing fixed + custom anchors, CRUD over the custom ones, inducing a pattern from a sample
   path, and previewing a pattern's effect. Deterministic scenarios are node:test-verified; the
   one @rubric scenario is agentic (the manage skill confirming before it persists).
-  Cross-capability e2e scenarios live in ../../acceptance/.
+  Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── The config format ──
 

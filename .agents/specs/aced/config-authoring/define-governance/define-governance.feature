@@ -3,7 +3,7 @@ Feature: define-governance — author a reference-only governance
   Unit suite for the define-governance skill: classify the content as governance, resolve placement,
   scaffold the canonical file and runtime symlinks, enforce the non-auto-trigger contract, then
   verify and report. A user-triggered workflow agent is define-agent; scoring and case authoring are
-  run/add. Cross-capability e2e scenarios live in ../../acceptance/.
+  run/add. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 

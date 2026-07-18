@@ -2,7 +2,7 @@
 Feature: The check-spec-structure procedure — audit node-shape within one project spec
   Unit suite for the check-spec-structure tool. Deterministic node-shape audit plus judgment
   arms — intra-spec structural maintenance, read-only and advisory. Cross-capability e2e scenarios
-  live in ../../acceptance/.
+  live in ../../workflows/.
 
   # ── Audit node-shape (deterministic) ──
 

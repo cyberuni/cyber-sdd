@@ -2,7 +2,7 @@
 Feature: run — score the current config against its frozen .feature suite
   Unit suite for the run skill: resolve the frozen .feature suite and its eval.md, judge every
   scenario, and report. Scoring a single case is aced-case-judge's contract; diff and roll-up are
-  compare/report. Cross-capability e2e scenarios live in ../../acceptance/.
+  compare/report. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 

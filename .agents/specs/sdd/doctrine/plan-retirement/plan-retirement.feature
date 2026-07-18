@@ -6,7 +6,7 @@ Feature: Plan retirement — the gated, idempotent tracked deletion of a retired
   scenario asserts it; the DISTILLED half is verified MECHANICALLY by the sweep against the project
   ledger — a strategy entry that distills the cr-ref (distills == cr-ref) must exist before that
   cr-ref's combat log is deleted, and its absence is fail-closed. Cross-capability e2e scenarios (a
-  mission distilled then retired end-to-end) live in ../../acceptance/.
+  mission distilled then retired end-to-end) live in ../../workflows/.
 
   # ---- Delete-only: the sweep never distills ----
 

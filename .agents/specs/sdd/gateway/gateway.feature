@@ -2,7 +2,7 @@
 Feature: The gateway — classify a request and load the handling skill in-session
   Unit suite for the gateway unit (the sdd skill). Classification + loading the handling skill only
   — the gateway holds no production logic and writes no contract state. Cross-capability e2e
-  scenarios live in ../acceptance/.
+  scenarios live in ../workflows/.
 
   # ---- Activation and intake ----
 

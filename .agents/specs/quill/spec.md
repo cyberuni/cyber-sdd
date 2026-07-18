@@ -6,7 +6,7 @@ project-path: plugins/quill
 # Quill — Documentation SDD Plugin
 
 > Root project spec — the **descriptive** top index for Quill. Rules live in [`design/`](./design/README.md);
-> behaviors live in the capability folders. Scaffolded by `backfill-project-spec` at `status: draft`; each
+> behaviors live in the capability folders. Scaffolded by `scaffold-project-spec` at `status: draft`; each
 > behavioral node's `## Use Cases` + `.feature` are authored in per-unit explore.
 
 ## What Quill is

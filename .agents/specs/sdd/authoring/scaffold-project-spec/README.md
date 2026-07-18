@@ -3,7 +3,7 @@ spec-type: behavioral
 concept: spec-structure
 ---
 
-# backfill-project-spec — lay out a project's spec
+# scaffold-project-spec — lay out a project's spec
 
 ## What
 
@@ -57,41 +57,41 @@ All three use cases enter one graph; they differ only at **D1** (which evidence 
 (whether the run fans out per package).
 
 ```mermaid
-graph TD
-  S[start-mission finds no consolidated spec] --> D0{already has a consolidated spec?}
-  D0 -->|yes| X[leave it untouched, do not scaffold]
-  D0 -->|no| D1{is there a source tree to read?}
+flowchart TD
+  S["start-mission finds no consolidated spec"] --> D0{"already has a consolidated spec?"}
+  D0 -->|"yes"| X["leave it untouched · do not scaffold"]
+  D0 -->|"no"| D1{"is there a source tree to read?"}
 
-  D1 -->|yes| DET[detection mode: read project shape]
-  D1 -->|no| INT[intent mode: gather stated capabilities]
+  D1 -->|"yes"| DET["detection mode<br/>read project shape"]
+  D1 -->|"no"| INT["intent mode<br/>gather stated capabilities"]
 
-  DET --> D2{project shape}
-  D2 -->|agentic plugin| L1[recommend hoisted]
-  D2 -->|multiple package anchors| L2[recommend per-package + outer]
-  D2 -->|plain single project| L3[recommend colocated]
-  INT --> L4[ask shippable-or-not; cannot detect]
+  DET --> D2{"project shape"}
+  D2 -->|"agentic plugin"| L1["recommend hoisted"]
+  D2 -->|"multiple package anchors"| L2["recommend per-package + outer"]
+  D2 -->|"plain single project"| L3["recommend colocated"]
+  INT --> L4["ask shippable-or-not<br/>cannot detect"]
 
-  L1 --> D3{location confirmed by user}
+  L1 --> D3{"location confirmed by user"}
   L2 --> D3
   L3 --> D3
   L4 --> D3
 
-  D3 -->|monorepo selection| FAN[one run per selected project]
-  D3 -->|single| D4{strategy}
+  D3 -->|"monorepo selection"| FAN["one run per selected project"]
+  D3 -->|"single"| D4{"strategy"}
   FAN --> D4
 
-  D4 -->|capabilities discernible / stated| ST1[capability-first]
-  D4 -->|source already feature-first| ST2[mirror-source]
-  D4 -->|detection mode, no signal| ST3[capability-first default]
-  D4 -->|intent mode, capabilities not stated| ASK[ask for intended capabilities]
+  D4 -->|"capabilities discernible or stated"| ST1["capability-first"]
+  D4 -->|"source already feature-first"| ST2["mirror-source"]
+  D4 -->|"detection mode · no signal"| ST3["capability-first default"]
+  D4 -->|"intent mode · capabilities not stated"| ASK["ask for intended capabilities"]
   ASK --> ST1
 
-  ST1 --> SC[scaffold envelope + skeleton]
+  ST1 --> SC["scaffold envelope + skeleton"]
   ST2 --> SC
   ST3 --> SC
 
-  SC --> DECL[declare organization on root spec.md]
-  DECL --> HB[hand back at status: draft]
+  SC --> DECL["declare organization on root spec.md"]
+  DECL --> HB["hand back at status draft"]
 ```
 
 **Barred branches** — options the graph never offers, enforced as their own scenarios: layering or
@@ -101,7 +101,7 @@ decisions facet).
 ## Scenario map
 
 Grouped by use case; every scenario in
-[`backfill-project-spec.feature`](./backfill-project-spec.feature) names the decision it covers.
+[`scaffold-project-spec.feature`](./scaffold-project-spec.feature) names the decision it covers.
 
 ### Shared graph — entry and evidence mode (all use cases)
 

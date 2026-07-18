@@ -1,5 +1,5 @@
 @frozen
-Feature: backfill-project-spec — lay out an existing project's spec
+Feature: scaffold-project-spec — lay out a project's spec
   Unit suite for the project-level layout bootstrap. Layout/scaffold behaviors only — it does
   not author a node's ## Use Cases or .feature, render a gate verdict, or freeze (those are
   ../spec-producer/ and ../spec-gate/).

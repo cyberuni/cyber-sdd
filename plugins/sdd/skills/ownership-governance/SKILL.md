@@ -15,7 +15,7 @@ is in `sdd:gate-validation-governance`; the plan/ledger write split is in `sdd:c
 | Field / artifact | Written by | Never written by |
 |---|---|---|
 | `status` | the gate skill (`spec-gate`) — on a human verdict, or to match a conductor self-assertion within leash | the conductor, any producer |
-| `project-path` | the **conductor** (at scaffold; `backfill-project-spec`) | producers, the gate skill |
+| `project-path` | the **conductor** (at scaffold; `scaffold-project-spec`) | producers, the gate skill |
 | run-level leash + approach — the `kind: leash` ledger line (session-local; to the conductor's own ledger shard, **not** spec.md frontmatter — the conductor's autonomy bar, `start-mission`) | the **conductor** (initial evaluation) | producers, the gate skill |
 | `approval` **self-assertion** (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the **conductor** (synthesis only) | producers, the gate skill |
 | `approval` **human ratification** (`verdict: approve`/`reject` + `by: <name>`) | the gate skill (`spec-gate`), **in-session position only** | the conductor, any producer, any spawned delegate |

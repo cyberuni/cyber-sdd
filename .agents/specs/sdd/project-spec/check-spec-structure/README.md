@@ -71,7 +71,7 @@ A finding carries a **severity**, and `--check` reads it:
 - **placement-drift is *not* a deterministic check.** A concept legitimately **scatters** across
   capability folders — re-unifying that scatter is exactly what `../concept-index/` exists for. So a
   "node's concept ≠ its folder" scan false-positives on correctly-placed nodes (e.g. `../../formation/`
-  and `../../authoring/backfill-project-spec/` both carry `spec-structure` yet belong where they
+  and `../../authoring/scaffold-project-spec/` both carry `spec-structure` yet belong where they
   sit). Placement is owned by `../place-node/` (advising a **new** node's home), the mission
   **handoff** (finalizing it), and the **Warden's** judgment — not a recurring mechanical audit.
 - **over-fragmented capability folder** — no settled heuristic on a young project-spec; high

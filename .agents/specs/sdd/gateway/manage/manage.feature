@@ -24,10 +24,10 @@ Feature: The manage dispatcher — classify a manage-level request and load the 
 
   # ---- Group routes ----
 
-  Scenario: a setup request loads backfill-project-spec
+  Scenario: a setup request loads scaffold-project-spec
     Given a request to set up the project's spec for the first time
     When manage classifies it
-    Then it loads backfill-project-spec in the current session
+    Then it loads scaffold-project-spec in the current session
 
   Scenario: a setup request to curate the spec anchors loads manage-spec-anchors
     Given a request to list or change discovery's extra spec anchors

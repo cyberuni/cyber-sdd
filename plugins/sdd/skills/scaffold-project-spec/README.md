@@ -1,4 +1,4 @@
-# backfill-project-spec
+# scaffold-project-spec
 
 Non-user-invocable SDD skill holding the **project-level layout bootstrap**: when an existing project has **no consolidated spec**, choose how the spec is organized, scaffold that skeleton, and declare the choice.
 

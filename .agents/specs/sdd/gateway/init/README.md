@@ -31,7 +31,7 @@ including one detected (read-only) in the **global** settings that the project w
 opens **no CR** and invokes **no gate**; it never wires the **global** settings (SDD is repo-scoped —
 a user's global status line is theirs; detection reads that file, never writes it); it does **not**
 move the existing Setup & discovery engines
-(`backfill-project-spec` / `manage-spec-anchors` / `manage-ignore`) into itself; and it neither writes
+(`scaffold-project-spec` / `manage-spec-anchors` / `manage-ignore`) into itself; and it neither writes
 nor clears the status **value** at runtime (that is the conductor's — `../../mission/conductor/`).
 
 Every scenario in [`init.feature`](./init.feature) maps to one of these behaviors:

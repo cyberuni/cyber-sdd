@@ -10,7 +10,7 @@ re-derived. The third doc in the structure trio: `project-unit.md` fixes the *ex
 to one spec), `spec-structure.md` fixes the *node taxonomy* (descriptive / reference / behavioral) and names
 **screaming architecture** as the default; this doc generalizes that single recommendation into a small
 **menu of strategies** with a selection rule, a fit reconciliation, and a declared record — the model behind
-the `backfill-project-spec` authoring unit (`../authoring/backfill-project-spec/`).
+the `scaffold-project-spec` authoring unit (`../authoring/scaffold-project-spec/`).
 
 The problem it answers ([#35](https://github.com/cyberuni/cyberplace/issues/35)): placing a concept
 correctly today needs the whole system in your head. The owner places fast; a newcomer is slow and
@@ -200,7 +200,7 @@ people and the placement ops that consume it already read, the **body of the roo
 - **The spec `location` mode** (`colocated | hoisted | monorepo-member`) is **derived** from the
   `project-path` frontmatter (hoisted iff `project-path` is not the spec's own dir) — not declared.
 
-**Who writes it.** `backfill-project-spec` — the only step that *decides* the layout (it ran detection +
+**Who writes it.** `scaffold-project-spec` — the only step that *decides* the layout (it ran detection +
 the compass with the user) — writes the placement map (and `project-path`) at its scaffold step, in the
 same act that writes root `spec.md`. **Who reads it.** `start-mission`'s explore consults the routing
 table for its **provisional** placement; the **handoff** Warden pass re-reads it to **finalize** placement

@@ -27,7 +27,7 @@ Feature: SDD acceptance — CR lifecycle (intake → authoring → mission → h
   Scenario: a CR whose target project has no spec routes to backfill
     Given a change request whose target project has no spec at any spec location
     When SDD intakes it
-    Then it routes to backfill-project-spec to lay out the project spec before the mission proceeds
+    Then it routes to scaffold-project-spec to lay out the project spec before the mission proceeds
 
   Scenario: an outer-loop finding re-enters only as a new CR
     Given an outer loop produces a finding

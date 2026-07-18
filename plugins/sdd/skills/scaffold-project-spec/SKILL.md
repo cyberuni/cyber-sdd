@@ -1,10 +1,10 @@
 ---
-name: backfill-project-spec
+name: scaffold-project-spec
 description: "Partial Skill: invoke by name only — backfill SDD project-spec"
 user-invocable: false
 ---
 
-# backfill-project-spec — lay out an existing project's spec
+# scaffold-project-spec — lay out an existing project's spec
 
 The procedure the **conductor** follows, **once at bootstrap**, when `start-mission` explore finds an existing
 project with **no consolidated spec**. It chooses *how the spec is organized*, scaffolds that skeleton, and

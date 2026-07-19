@@ -189,6 +189,14 @@ check ignores unrecognized tags.
 
 - **Layer tags** route a scenario to a resolved judge's evaluation layer (`@behavior`, `@quality`,
   and — where the node genuinely owns the routing decision — `@trigger`). Orthogonal to `@rubric`.
+- **`@trigger` carries a contract, not just a label.** It routes the scenario into the judge's
+  **trigger-run policy**, which reads a query and an expected activation verdict. So a `@trigger`
+  `Scenario Outline` must supply them: an `Examples` table with a **`query` column and a
+  `should_trigger` column**. An outline tagged `@trigger` whose table has neither routes the judge
+  into a policy it cannot execute — `check-suite` surfaces that **advisory** (the repair is a
+  judgment call: re-tag, adopt the contract, or retire). An **untagged** outline claims no
+  activation and is never held to this contract, so enumerated decision tables stay sanctioned —
+  a deterministic, fully-owned decision table wants `@behavior`, not `@trigger`.
 - **`Scenario Outline` is a rare exception, not a default** (DAMP over DRY) — legitimate only for a
   genuinely uniform enumerated set (one varying token, every row the same `Then` shape). Two rows
   wanting different `Then`s are two scenarios, not one Outline. Requires a non-empty `Examples:` table
@@ -216,7 +224,14 @@ every scenario carries a map row, every row names a real scenario, and no two ro
 graph's semantics, so a green check clears no coverage question. A spec with no `## Scenario map`
 section is skipped, not failed — run as `check-suite`
 (`spec-gate/scripts/check-suite.mts`): the spec-producer self-runs it before returning, and the spec
-gate runs it fail-closed before the cold judge. **Form only** — coverage adequacy, discrimination,
+gate runs it fail-closed before the cold judge.
+
+`check-suite` reports in **two tiers**. Everything above is **blocking** (`✗`, exit 1). A finding is
+**advisory** (`⚠`, exit unaffected, the judge still spawns) only when the check can prove the defect
+but **cannot pick the repair** — currently the `@trigger` activation contract above. A blocking
+violation beside an advisory finding still fails closed; the tiers never trade.
+
+**Form only** — coverage adequacy, discrimination,
 selection, pairwise consistency, and apparatus independence are **judged**, never linted, and a green
 `check-suite` clears none of them.
 

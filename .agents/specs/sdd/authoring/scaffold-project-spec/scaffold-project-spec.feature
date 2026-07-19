@@ -90,8 +90,7 @@ Feature: scaffold-project-spec — lay out a project's spec
     Then the recommended option is shown first and the user can choose another
 
   Scenario: the location is never silently assumed
-    Given a package nested in a monorepo that is itself an agentic plugin
-    And the spec could sit hoisted at the repo root or colocated beside the package
+    Given an agentic plugin, for which the hoist rule leaves exactly one legal location
     When the bootstrap proceeds
     Then it surfaces the location choice rather than assuming one
 

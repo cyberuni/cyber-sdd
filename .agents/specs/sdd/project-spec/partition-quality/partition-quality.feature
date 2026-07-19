@@ -82,6 +82,13 @@ Feature: check-partition-quality — does this layout permit parallel work
     Then each is labelled as confounded by node count
     And neither is presented as the headline
 
+  Scenario: the machine-readable report carries the confound label in the field name
+    Given a report carrying the within-node co-change ratio and the mean nodes touched
+    And a consumer reading the report as json rather than as text
+    When check-partition-quality reports
+    Then the confound label is part of the field name the consumer must read
+    And no unlabelled diagnostics field is emitted alongside it
+
   Scenario: a coarser partition does not win on the headline by being coarser
     Given a coarse partition and a fine partition over one history
     When check-partition-quality reports each headline

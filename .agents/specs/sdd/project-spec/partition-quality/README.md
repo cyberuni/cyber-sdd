@@ -79,7 +79,8 @@ reader does not "simplify" the engine back onto one of them.
 | D3 | several candidates | `two candidate partitions are compared on the same history` |
 | REP | a computed rate | `the parallelizable share is reported as the headline` |
 | CMP | a completed comparison | `the comparison reports the parallelizable share of each candidate` |
-| DIAG | any report *(convergence)* | `the confounded diagnostics are labelled as confounded` |
+| DIAG | a text render | `the confounded diagnostics are labelled as confounded` |
+| DIAG | a json render | `the machine-readable report carries the confound label in the field name` |
 | DIAG | a coarse and a fine partition | `a coarser partition does not win on the headline by being coarser` |
 
 ## References

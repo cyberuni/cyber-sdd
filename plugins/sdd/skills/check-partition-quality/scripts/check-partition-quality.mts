@@ -150,6 +150,20 @@ export function shuffledControl(changes: Change[], p: Partition, seed = 7): numb
 	return collisionRate(changes, (f) => m.get(f)).rate
 }
 
+/**
+ * Rename `diagnostics` to `confoundedDiagnostics` on the way out to JSON.
+ *
+ * The text render carries the warning inline; a JSON consumer sees only keys, so a plain
+ * `diagnostics` object hands over two numbers indistinguishable from the headline. Renaming the key
+ * beats adding a note field: a consumer cannot read these numbers without typing the word
+ * "confounded", whereas a sibling note is trivially skipped.
+ */
+export function toJson([name, m]: [string, Measurement | ThinHistory]): [string, unknown] {
+	if (!('diagnostics' in m)) return [name, m]
+	const { diagnostics, ...rest } = m
+	return [name, { ...rest, confoundedDiagnostics: diagnostics }]
+}
+
 // ── Confounded diagnostics — labelled, never the headline ────────────────────
 
 export function withinNodeCoChangeRatio(changes: Change[], p: Partition): number {
@@ -301,7 +315,7 @@ export function main(argv: string[]): number {
 				Measurement | ThinHistory,
 			],
 	)
-	if (format === 'json') process.stdout.write(`${JSON.stringify(Object.fromEntries(results), null, 2)}\n`)
+	if (format === 'json') process.stdout.write(`${JSON.stringify(Object.fromEntries(results.map(toJson)), null, 2)}\n`)
 	else process.stdout.write(`${render(results, repo, scope)}\n`)
 	return 0
 }

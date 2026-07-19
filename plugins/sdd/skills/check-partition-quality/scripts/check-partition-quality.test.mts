@@ -13,6 +13,7 @@ import {
 	parseGitLog,
 	render,
 	shuffledControl,
+	toJson,
 	withinNodeCoChangeRatio,
 } from './check-partition-quality.mts'
 
@@ -165,6 +166,21 @@ test('the engine has no write surface — it reads git history and prints', () =
 	for (const [, args] of gitCalls) {
 		assert.match(args, /'log'/, 'the only git subcommand may be the read-only `log`')
 	}
+})
+
+test('the json report carries the confound label in the field name', () => {
+	// Must clear DEFAULT_FLOOR — a thin history carries no diagnostics to label.
+	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({ files: [`n${i % 5}/a`, `n${i % 5}/b`] }))
+	const m = measure(cs, p)
+	assert.ok(!isThin(m), 'fixture must not be thin, or this test asserts nothing')
+	const [, out] = toJson(['second-folder', m]) as [string, Record<string, unknown>]
+
+	assert.ok('confoundedDiagnostics' in out, 'the confound label must be part of the field name')
+	assert.ok(!('diagnostics' in out), 'no unlabelled diagnostics field may be emitted alongside it')
+	assert.deepEqual(Object.keys(out.confoundedDiagnostics as object).sort(), [
+		'meanNodesTouched',
+		'withinNodeCoChangeRatio',
+	])
 })
 
 test('withinNodeCoChangeRatio and meanNodesTouched stay exported for the report', () => {

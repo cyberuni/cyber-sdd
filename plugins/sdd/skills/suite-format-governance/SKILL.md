@@ -209,8 +209,8 @@ selection, pairwise consistency, and apparatus independence are **judged**, neve
 
 ## Key points (read-check)
 
-The `read-check` verifies a role's read-attestation covers each point below, in its own words
-— the load-bearing directives, the ones whose misreading is expensive:
+The load-bearing directives below are the ones whose misreading is expensive — read them as the
+compressed form of this bar, not as a summary that replaces it:
 
 1. **Acceptance only, strict** — a suite specifies the decisions the node owns; invariants and
    co-owned seams are out of scope.

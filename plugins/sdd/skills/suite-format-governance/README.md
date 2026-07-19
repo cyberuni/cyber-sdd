@@ -53,8 +53,6 @@ question.
 - **spec-judge** and the actor bars (**oracle** / **architect** / **builder**): judge their slices
   of it backward at the **spec-gate**.
 - **spec-gate:** runs `check-suite` fail-closed before spawning the cold judge.
-- **read-check:** verifies a role's read-attestation covers the bar's load-bearing points, in the
-  role's own words (`plugins/sdd/skills/read-check/`).
 
 ## Related governances
 

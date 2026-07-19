@@ -662,6 +662,37 @@ test('an outline with no Examples table yields the blocking violation, not an ad
 
 // ─── the partition invariant — a finding never weakens a blocking violation ───
 
+// The other half of the partition, at the checkFilePaths wiring level rather than in
+// checkTriggerContract's isolation: an advisory finding ALONE must leave violations empty, so the
+// gate's exit code is untouched. Without this, the tier could be wired to push into violations and
+// only the mixed-file test below would notice — and it asserts violations is NON-empty, which a
+// mis-wired advisory would satisfy for the wrong reason.
+test('a file carrying only a @trigger finding yields that finding and NO violation', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-advisory-only-'))
+	try {
+		const text = [
+			'Feature: trigger',
+			'',
+			'  @trigger',
+			'  Scenario Outline: the config activates on a matching query',
+			'    Given a user query "<query>"',
+			'    When the agent decides whether to invoke the config',
+			'    Then invocation is "<query>"',
+			'',
+			'    Examples:',
+			'      | query        |',
+			'      | make a chart |',
+		].join('\n')
+		const p = join(root, 'advisory.feature')
+		writeFileSync(p, text)
+		const { findings, violations } = checkFilePaths([p], root, () => new Map([[p, []]]))
+		assert.ok(findings.some((m) => /no should_trigger column/.test(m)))
+		assert.deepEqual(violations, [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
 test('a file carrying both a @trigger finding and a blocking violation still yields a non-empty violations', () => {
 	const root = mkdtempSync(join(tmpdir(), 'sdd-partition-'))
 	try {

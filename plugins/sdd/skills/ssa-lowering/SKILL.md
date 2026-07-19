@@ -79,8 +79,9 @@ Record the legitimacy verdict (ship / reshape / kill + why) as shown-work.
 
 For each surviving CR, decide **where each piece belongs** and whether it is a barrier.
 
-- **Screaming placement.** Each distinct capability lands in its **own spec-node**, placed by the
-  capability it owns (screaming architecture) — never by a technical layer. Two unrelated new
+- **Placement.** Each distinct capability lands in its **own spec-node**, placed under the layout the
+  project **declared** in its placement map (`sdd:spec-structure-governance` — the rule lives there;
+  this bar only requires one node per capability). Two unrelated new
   capabilities in one CR (e.g. a rate-limiter and an audit-log) go to **separate** nodes; do not fuse
   unrelated capabilities into one Mission.
 - **Barrier detection.** A **project-wide** change — an architecture refactor, a rename of a core type

@@ -97,7 +97,7 @@ Feature: scaffold-project-spec — lay out a project's spec
   # ---- Strategy choice ----
 
   Scenario: a project with a discernible capability decomposition is recommended capability-first
-    Given a project whose capabilities can be derived
+    Given a project whose src/ top-level folders are named for what the project does
     When the bootstrap recommends a strategy
     Then it recommends the capability-first strategy
 
@@ -183,7 +183,7 @@ Feature: scaffold-project-spec — lay out a project's spec
     And the frontmatter carries no spec-layout block
 
   Scenario: a name that is not reliably derivable is confirmed with the user before writing
-    Given a hoisted or nested project whose name is not reliably derivable
+    Given a hoisted project whose repo-root directory name differs from its package name
     When the bootstrap records the organization
     Then it asks the user and confirms the name before writing it to the root frontmatter
 

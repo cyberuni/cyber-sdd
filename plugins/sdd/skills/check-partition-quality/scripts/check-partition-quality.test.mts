@@ -198,25 +198,64 @@ test('two candidate partitions are compared on the same history — same commits
 	// that the TOOL reads history once and scores every candidate against that one read, which lives
 	// in main() and is observable only from here.
 	const scope = 'src/'
+	// Files share a first segment but vary in the second, so the declared scope genuinely changes the
+	// GROUPING (not just node labels): under scope 'src/' second-folder groups by cap/unit, but under
+	// '' it groups by the coarser src/cap — a different measurement. A fixture that grouped the same
+	// way either way could not tell a candidate scored under the wrong scope from a correct one.
 	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({
-		files: [`src/n${i % 10}/deep/a.ts`, `src/n${i % 10}/deep/b.ts`],
+		files: [`src/cap${i % 5}/unit${i % 3}/a.ts`, `src/cap${i % 5}/unit${i % 3}/b.ts`],
 	}))
 	const calls: Array<{ repo: string; limit: number; scoped: boolean }> = []
 	const readHistory: Context['readHistory'] = (repo, inScope, limit = 4000) => {
-		calls.push({ repo, limit, scoped: inScope('src/n0/deep/a.ts') && !inScope('other/x.ts') })
+		calls.push({ repo, limit, scoped: inScope('src/cap0/unit0/a.ts') && !inScope('other/x.ts') })
 		return cs
 	}
-	const code = main(
-		['--repo', '/some/repo', '--scope', scope, '--partition', 'top-folder', '--partition', 'second-folder'],
-		{ readHistory },
-	)
+	const write = process.stdout.write.bind(process.stdout)
+	let out = ''
+	process.stdout.write = ((s: string) => {
+		out += s
+		return true
+	}) as typeof process.stdout.write
+	let code: number
+	try {
+		code = main(
+			[
+				'--repo',
+				'/some/repo',
+				'--scope',
+				scope,
+				'--format',
+				'json',
+				'--partition',
+				'top-folder',
+				'--partition',
+				'second-folder',
+			],
+			{ readHistory },
+		)
+	} finally {
+		process.stdout.write = write
+	}
 	assert.equal(code, 0)
-	// Read exactly ONCE for two candidates — re-reading per candidate is the defect this guards.
+	// Read exactly ONCE for two candidates — re-reading per candidate is one way to break this.
 	assert.equal(calls.length, 1)
-	// ...and that one read carried the same repo, limit, and scope filter both candidates are scored under.
 	assert.equal(calls[0]?.repo, '/some/repo')
 	assert.equal(calls[0]?.limit, 4000)
 	assert.ok(calls[0]?.scoped)
+	// The `Then` is about what each candidate was MEASURED over, not merely what was read. Asserting
+	// on the read alone leaves the door open to scoring the candidates over different commit subsets
+	// or under different scopes after that one read. So check each candidate's reported numbers
+	// against the same history measured under the same scope — computed here independently.
+	const report = JSON.parse(out) as Record<string, unknown>
+	for (const c of ['top-folder', 'second-folder']) {
+		const partition = PARTITIONS[c]?.(scope) as (f: string) => string | undefined
+		const [, expected] = toJson([c, measure(cs, partition)])
+		assert.deepEqual(report[c], expected, `${c} must be measured over the same commits and the same scope`)
+	}
+	// Both candidates saw every commit, so they must agree on the pair count they were scored over.
+	const pairsOf = (c: string) => (report[c] as { pairs: number }).pairs
+	assert.equal(pairsOf('top-folder'), pairsOf('second-folder'))
+	assert.equal(pairsOf('top-folder'), (30 * 29) / 2)
 })
 
 test('the comparison reports the parallelizable share of each candidate', () => {

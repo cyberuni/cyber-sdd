@@ -147,7 +147,7 @@ never shared into another mission's context.
 The five roles apply three **lenses** (governances, not agents): **Oracle** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the
 spec-judge and impl-judge **apply** them backward. There is no "Builder judge" or "Oracle
-agent" — a verdict has a Oracle-lens face, a Builder-lens face, and an Architect-lens face.
+agent" — a verdict has an Oracle-lens face, a Builder-lens face, and an Architect-lens face.
 
 The constraint that forces the judge split is **`producer ≠ judge`**, enforced by context
 separation: the hand that writes an artifact never signs off on it. Tagline: **"the conductor
@@ -219,7 +219,7 @@ A **segment** is one run within a cycle (suspend-and-resume). The conductor:
 ## The impl gate
 
 Mission **owns the impl gate** (Approved → Implemented), exercised in `../delivery.md`. The gate
-judges the implementation against the **frozen contract** — `../../acceptance/` (the e2e outcome
+judges the implementation against the **frozen contract** — `../../workflows/` (the workflow outcome
 suite) **plus the colocated unit suites**. The gate is verdict-only and **fails closed**; it
 writes no setup frontmatter.
 

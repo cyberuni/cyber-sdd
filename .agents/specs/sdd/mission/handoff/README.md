@@ -52,7 +52,7 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 ## Inputs
 
 The verified result of the deliver phase: the implementation passed the impl gate, impl-sync holds
-(the frozen suite runs green), and the colocated unit suites plus `../../acceptance/` are green.
+(the frozen suite runs green), and the colocated unit suites plus `../../workflows/` are green.
 Handoff **consumes** this; it does not re-verify and it does not touch the contract.
 
 ## Placement finalization — the scoped Warden pass
@@ -246,7 +246,7 @@ neither retires it early nor specially preserves it.
 
 Unit scenarios for handoff (decompose-by-unit, land in the declared shape, the PR-flow vs
 commit-to-main branch, no new floor) **colocate** in this folder. Cross-capability outcomes
-that run a CR end-to-end through handoff live in `../../acceptance/`.
+that run a CR end-to-end through handoff live in `../../workflows/`.
 
 ## Source
 

@@ -130,4 +130,4 @@ The agent judges the **Builder** class read (un-contracted change), **novelty**,
 3. **An ACED golden suite** mapping `(act, risk profile) → expected verdict`, run at the doctrine cadence over the agent configs to catch posture drift mechanically.
 
 Backstop: provisional markers + the async review queue make "conservative + auditable" sufficient, not "infallible."
-The golden suite (deterministic helper cases + golden verdicts) colocates with this rule or in `../acceptance/`.
+The golden suite (deterministic helper cases + golden verdicts) colocates with this rule or in `../workflows/`.

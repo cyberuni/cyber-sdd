@@ -9,7 +9,7 @@ Feature: The finer-than-node ladder — classify a node collision hard or soft b
   it disjoint(soft) / write-write(hard) / read-after-write(hard); when the symbols cannot be inferred it
   stays hard, flagged deferred. The ★ SSA-lowering doctrine (partitioning a change into missions,
   versioning a write-write into an ordered dependency) stays out of scope (issue #189 capstone). It never
-  writes to the mission graph. Cross-capability e2e scenarios live in ../acceptance/.
+  writes to the mission graph. Cross-capability e2e scenarios live in ../workflows/.
 
   # ── The ladder: descend only until classifiable, then stop ──
 

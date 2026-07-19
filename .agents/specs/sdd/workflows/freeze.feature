@@ -23,7 +23,7 @@ Feature: SDD acceptance — freeze (the spec gate → the impl gate)
 
   Scenario: a fatal deal-breaker reverts an approved spec to draft and unfreezes it
     Given an approved spec with a fatal deal-breaker found later
-    When a Director-lens revert is applied
+    When an Oracle-lens revert is applied
     Then the spec returns to draft
     And its feature is unfrozen
 

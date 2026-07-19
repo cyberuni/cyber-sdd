@@ -3,7 +3,7 @@ Feature: spec-validator — the spec-judge role
   Unit suite for the ACED spec-judge the conductor dispatches at the spec gate: grade an agent-config
   .feature against the agent-scenario criteria and report a per-scenario verdict. Authoring the suite
   is scenario-writer; running the evals is implementer; scoring one case is judge. Cross-capability
-  e2e (a gate pass over a real produced suite) lives in ../../acceptance/, not here.
+  e2e (a gate pass over a real produced suite) lives in ../../workflows/, not here.
 
   # ---- Role boundary ----
 

@@ -62,4 +62,4 @@ that improves SDD from real field corrections — nothing about a project's own 
 ## Scenarios
 
 Unit scenarios (consent OFF ⇒ nothing captured; no unredacted transmit; core workflow
-unaffected) colocate in this folder; cross-capability outcome scenarios live in `../acceptance/`.
+unaffected) colocate in this folder; cross-capability outcome scenarios live in `../workflows/`.

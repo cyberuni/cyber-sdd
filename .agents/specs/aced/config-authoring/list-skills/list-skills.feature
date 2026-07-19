@@ -6,7 +6,7 @@ Feature: list-skills — discover and summarize installed skills
   an optional glob-style name filter, and reports each surviving skill's name, foundIn source,
   description, and package-managed status. Read-only — validating or repairing skill content is
   repair-private-skills; maintaining the per-model runner family is manage-model-runners.
-  Cross-capability e2e scenarios live in ../../acceptance/.
+  Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Reach ----
 

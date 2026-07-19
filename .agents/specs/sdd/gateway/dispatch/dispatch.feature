@@ -3,7 +3,7 @@ Feature: The dispatch loop — run the approved-plan queue headless, one at a ti
   Unit suite for the gateway/dispatch unit (the sdd skill's fan-out path). Selecting the approved
   queue and running each mission in a fresh automaton, sequentially, relaying what needs a human —
   it spawns and relays, holds no production logic, and writes no contract state. Cross-capability
-  e2e scenarios live in ../../acceptance/.
+  e2e scenarios live in ../../workflows/.
 
   # ---- Select the queue ----
 

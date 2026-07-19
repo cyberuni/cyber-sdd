@@ -19,7 +19,7 @@ const ANCHOR_HEADING = '## Invariants'
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.turbo', '.next', 'coverage'])
 
-export type FacetKind = 'rule' | 'e2e' | 'reference' | 'behavior' | 'index'
+export type FacetKind = 'rule' | 'workflow' | 'reference' | 'behavior' | 'index'
 
 export interface NodeRecord {
 	/** Path relative to the spec directory (POSIX). */
@@ -92,7 +92,7 @@ function unquote(v: string): string {
 export function facetKind(relPath: string, specType: string | undefined): FacetKind {
 	const p = relPath.replace(/\\/g, '/')
 	if (p.startsWith('design/')) return 'rule'
-	if (p.startsWith('acceptance/')) return 'e2e'
+	if (p.startsWith('workflows/')) return 'workflow'
 	if (specType === 'reference') return 'reference'
 	if (specType === 'behavioral') return 'behavior'
 	return 'index'

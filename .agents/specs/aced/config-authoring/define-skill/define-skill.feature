@@ -5,7 +5,7 @@ Feature: define-skill — author a workflow skill
   hand it to the ACED eval loop to spec and score. Authoring an agent definition or persona is
   define-agent; a reference-only governance is define-governance; extracting the current session is
   skillify; scoring and case authoring are run / add. Cross-capability e2e scenarios live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ---- Triggering ----
 

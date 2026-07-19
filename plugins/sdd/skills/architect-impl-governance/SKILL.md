@@ -1,6 +1,6 @@
 ---
 name: architect-impl-governance
-description: "Partial Skill: invoke by name only — the Architect actor bar at the impl gate — structural fit of the implementation. Loaded by the impl-producer and the impl-judge, not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 metadata:
   actor: architect
@@ -10,23 +10,36 @@ metadata:
 
 # Architect-Impl Governance — the structural-fit bar (impl gate)
 
-The **Architect** bar at the **impl gate**: does the implementation fit the existing structure
-without duplication or conflict? One merged bar loaded by **both** faces — the **impl-producer**
-reads it forward to self-align and the **impl-judge** reads it backward to verify. `producer ≠
-judge` holds at the agent level.
-
-The SDD default for the `architect` impl bar — a plugin may bind its own per artifact-type (governance resolution); this loads when the registry leaves `architect`/`impl` unbound. Structural fit of the spec/solution is the spec gate's `architect-spec` bar.
+The **Architect** bar at the **impl gate**: does the implementation fit the existing structure, and
+is the suite's verification pyramid sound? Loaded by both faces. The SDD default for the `architect`
+impl bar; a plugin may bind its own, and this loads when the registry leaves `architect`/`impl`
+unbound.
 
 ## The bar
 
-- **No duplication.** The implementation reuses existing structures rather than re-implementing
-  them. A second copy of an existing concept is a defect.
-- **No conflict.** It does not contradict established conventions, module boundaries, or an existing
-  spec's contract.
-- **Contained complexity.** Watch cyclomatic complexity and coupling; a unit that is hard to test is
-  usually mis-structured — flag it.
-- **An orthogonal axis.** Structural fit judges a property the builder was not optimizing, so it
-  catches the builder's blind spot even from the same hand — a real independent check, not the
-  agent-split hygiene.
-- **Structural concerns are deferred, not blocking.** A structural problem in *another* domain is an
-  Architect observation that spawns a new spec — never a marker in the spec being built.
+- **No knowledge duplication.** A rule, contract, or piece of logic has **one home** in the
+  implementation; whatever needs it calls that home. Two copies of one piece of knowledge drift — a
+  change lands in one and misses the other. But **coincidental resemblance is not duplication**: two
+  units that look alike yet change for different reasons stay separate — a premature shared
+  abstraction couples them, and the wrong abstraction costs more than the repetition. Test: does a
+  change to one force the same change to the other? Only then converge.
+- **No conflict.** The implementation does not contradict conventions, module boundaries, or a spec's
+  contract — including the project's **declared** layout, judged as declared
+  (`sdd:spec-structure-governance`). The declaration is not a licence: node <-> capability stays 1:1
+  under every strategy, because the scheduler cuts one mission per node (ADR-0025).
+- **Contained complexity.** Watch cyclomatic complexity and coupling; a unit hard to test is usually
+  mis-structured — flag it.
+- **A sound verification pyramid.** Across the suite the verification levels form a pyramid — a broad
+  cheap base under a **thin e2e cap** that keeps the end-to-end path honest. An **all-e2e** suite is
+  fragile and slow; a **capless** suite has no honesty check. The per-scenario level is the builder's
+  call (`sdd:builder-impl-governance`); this bar judges the shape.
+- **An orthogonal axis.** Structural fit judges a property the builder was not optimizing.
+- **Structural concerns are deferred.** A structural problem in another capability spawns a new spec.
+
+## Key points (read-check)
+
+1. **No knowledge duplication** — one home per rule; but coincidental resemblance is not duplication
+   (don't merge units that change for different reasons). No conflict; contained complexity.
+2. **A sound verification pyramid** — cheap base, thin e2e cap; neither all-e2e nor capless.
+3. **Per-scenario level is the builder's call; this bar judges the shape.**
+4. **Structural concerns in another capability are deferred.**

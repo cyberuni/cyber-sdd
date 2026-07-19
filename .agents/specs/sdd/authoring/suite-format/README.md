@@ -15,7 +15,7 @@ A **reference artifact**: the `suite-format` governance — how behavior-suite s
 - **Boundary** — the `spec.md` structure (the required `## Use Cases` section, enrichment) belongs to `../spec-format/`; the freeze/unfreeze *model* (triggers, the gate, iteration economy) belongs to `../../design/lifecycle-model.md`. This bar owns the `.feature` form.
 
 This bar governs the `.feature` of a **behavioral** spec only — `descriptive` and `reference` nodes carry no suite (see the spec types in `../../design/spec-structure.md`).
-It applies uniformly to both the e2e scenarios in `../../acceptance/` and the unit scenarios colocated with their capability folder — one project-spec, one convention.
+It applies uniformly to both the workflow scenarios in `../../workflows/` and the unit scenarios colocated with their capability folder — one project-spec, one convention.
 
 ## The gate sees one boolean per scenario
 
@@ -23,25 +23,34 @@ Every scenario collapses to a single **pass/fail** at the verification point.
 This is the contract the rest of the pipeline depends on: the judge reports one boolean per frozen scenario, never a score.
 Two forms reach that boolean.
 
-## Test levels — the `.feature` is acceptance/boundary only
+## Two axes — the suite specifies acceptance; the level is a test implementation detail
 
-A `.feature` carries **acceptance / boundary** scenarios — each asserts one intent at the **inner**
-boundary (the DIP seam, mocking the external dependency behind its interface; not a spawned
-subprocess or the real service). The outer boundary is warranted **only when the integration itself
-is the behavior under test** — the wiring, protocol, or process boundary is what the intent asserts,
-not an implementation detail reachable behind a mockable seam. It is **not** the home for inner-rule
-combinatorics — the truth tables and matrices a rule composes. An acceptance suite structurally
-cannot exhaustively cover a combinatorial space, so a suite that tries **churns without end** (the
+The old framing, "the `.feature` is acceptance/boundary only", mixed one item from each of two
+independent axes. They are separate:
+
+- **Axis 1 — what the suite specifies: acceptance, strictly.** A scenario asserts a **decision the
+  node owns**, as a `(path class, edge)` pair. The suite says nothing about *how* the assertion is
+  verified.
+- **Axis 2 — the verification level** (e2e > system > integration > boundary > unit) is a **test
+  implementation detail**, chosen per scenario as **high as it doesn't hurt**, recorded with its
+  reason. It lives on the impl bars (`sdd:builder-impl-governance`), never in the frozen contract —
+  so the same frozen scenario may be verified at a different level tomorrow without re-opening it.
+
+"Boundary" is a **level**, not a category of scenario. A suite that names a level in its contract has
+leaked axis 2 into axis 1.
+
+**Combinatorics still move down** — for a reason that survives the reframing. A suite is a **decision
+graph**, not a combinatorial cover: it carries one scenario per `(path class, edge)` pair, so it
+structurally cannot exhaust a truth table, and a suite that tries **churns without end** (the
 `github-315` `deps.feature` cost 13 Builder-lens judge rounds; ADR-0028).
 
-- **Combinatorics move down to unit tests owned by the impl-producer** (`../../mission/impl-producer/`):
-  each inner rule covered once, cheaply, exhaustively; cases drawn from the rules, never by enumerating
-  the frozen scenarios.
-- **The impl gate checks both levels** and never demands the `.feature` enumerate a combinatorial space
+- **Inner-rule combinatorics belong to unit tests owned by the impl-producer**
+  (`../../mission/impl-producer/`): each inner rule covered once, cheaply, exhaustively; cases drawn
+  from the rules, never by enumerating the frozen scenarios.
+- **The impl gate checks both axes** and never demands the suite enumerate a combinatorial space
   (`../../mission/impl-judge/`).
-- **No deterministic inner layer, no offload** — a graded non-deterministic subject (agent config) has
-  nothing to push combinatorics into; its graded behavior stays at the boundary and `@rubric` absorbs
-  the space.
+- **No deterministic inner layer, no offload** — a graded non-deterministic subject (an agent config)
+  has nothing to push combinatorics into; `@rubric` absorbs the space in place.
 
 ## The suite screams the intents
 
@@ -63,7 +72,7 @@ A plain `Given / When / Then` scenario whose every `Then` is an observable, dete
 This is the default and is unchanged from baseline SDD.
 Use it whenever the behavior is directly checkable.
 
-A `Then` asserts the **artifact's end-state or observable behavior**, never the **production process** that made it — "co-developed with the code", "written test-first", "refactored before completing", "authored in this order" are unobservable (nothing in the artifact or a run reveals the authoring sequence); rewrite such a `Then` to assert the artifact's observable behavior instead, and keep production discipline in governance prose, not a scenario.
+A `Then` is legal when you can **name the artifact a verifier reads to settle it** — an output, an exit code, a written file, an emitted event, a returned field. The test is the **trace, not the verb**: asserting an *act* is fine when the act leaves a trace (`it reads the role-to-agent map from the registry` is checkable against the registry), and illegal when it records nothing (`it sweeps the corpus`). Where an act matters but records nothing, **add the record — a role `Output` field, a report, a ledger line — and assert that**, rather than dropping the act. In particular a `Then` asserts the **artifact's end-state or observable behavior**, never the **production process** that made it — "co-developed with the code", "written test-first", "refactored before completing", "authored in this order" are unobservable (nothing in the artifact or a run reveals the authoring sequence); rewrite such a `Then` to assert the artifact's observable behavior instead, and keep production discipline in governance prose, not a scenario.
 
 ## Form 2 — rubric Gherkin (`@rubric`, judged by hand)
 
@@ -618,3 +627,21 @@ Freeze is **per `.feature` file**: a frozen suite file carries a feature-level *
 - A **narrowing or rewriting** edit **unfreezes** the file; at the gate that fires **Clearance**.
 
 Vocabulary is **freeze / unfreeze** — never lock/unlock (reserved for the concurrency layer). The freeze/unfreeze *model* — when freeze fires (the Draft → Approved gate), the unfreeze risk trigger, relocation preserving freeze, iteration economy — lives in `../../design/lifecycle-model.md`; this bar owns only the marker and the suite-edit rules above.
+
+## References
+
+- **A `Given` must be a scaffoldable state** — vague steps make step definitions *defensive*,
+  accumulating conditions and flags, while two readers picture different fixtures from the same
+  line; that is the impl-producer/impl-judge disagreement the bar exists to prevent, and a step
+  definition needing conditionals is the tell that the step is wrong upstream.
+  [Common Gherkin Mistakes](https://nextgenanalysts.co.uk/common-gherkin-mistakes-and-how-to-avoid-them-with-examples/)
+- **A `Given` states what holds, never how it came to hold** — declarative over imperative, so a
+  scenario survives implementation change.
+  [Writing better Gherkin — Cucumber](https://cucumber.io/docs/bdd/better-gherkin/)
+- **One condition per step, conjunctions split** — a step carrying two actions is not reusable, and
+  reusability is what lets a step library accumulate instead of fragment.
+  [BDD 101: Writing Good Gherkin](https://automationpanda.com/2017/01/30/bdd-101-writing-good-gherkin/)
+  · [gherkin-best-practices](https://github.com/andredesousa/gherkin-best-practices)
+- **One scenario, one behavior** — the cardinal rule behind one `When`/`Then` pair per scenario,
+  which SDD sharpens to one **(path class, edge)** pair.
+  [BDD 101: Writing Good Gherkin](https://automationpanda.com/2017/01/30/bdd-101-writing-good-gherkin/)

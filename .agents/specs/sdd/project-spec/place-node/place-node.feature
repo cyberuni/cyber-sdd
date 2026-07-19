@@ -2,7 +2,7 @@
 Feature: The place-node procedure — suggest a provisional home and catch duplicates
   Unit suite for the place-node tool. Suggesting a provisional capability home for a new node from
   the project-spec's concept: tags, and surfacing possible duplicates by name. Read-only and advisory.
-  Cross-capability e2e scenarios live in ../../acceptance/.
+  Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── Suggest a home from where the concept already lives ──
 

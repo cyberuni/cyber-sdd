@@ -3,7 +3,7 @@ Feature: manage — classify an ACED manage-level request and load the engine in
   Unit suite for the ACED manage dispatcher (the manage skill). Classification + loading the matching
   engine only — manage holds no production logic, opens no CR, invokes no gate, and writes no contract
   state. Authoring a config is define-agent/define-skill; scoring is run. Cross-capability e2e
-  scenarios live in ../acceptance/.
+  scenarios live in ../workflows/.
 
   # ---- Intake ----
 

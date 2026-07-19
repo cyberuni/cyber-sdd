@@ -5,7 +5,7 @@ Feature: judge — the internal scorer
   rubric dimension collapsed to one verdict. The simulation it scores is produced blind, in a context
   that never saw the rubric or the expected outcome. Rolling up the gate verdict and aggregating across
   runs are implementer's job; authoring the rubric is scenario-writer's (inline in the frozen .feature).
-  Cross-capability e2e (scoring inside a full impl-gate run) lives in ../../acceptance/, not here.
+  Cross-capability e2e (scoring inside a full impl-gate run) lives in ../../workflows/, not here.
 
   # ---- Role boundary ----
 

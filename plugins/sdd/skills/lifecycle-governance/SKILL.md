@@ -84,7 +84,7 @@ Each spec carries a **project name** so a consumer can resolve a name → spec. 
 (the optional frontmatter `name`, authoritative), else `derived` (the repo-root single-project →
 `repo`; a `.agents/specs/<project>` folder names itself), else `guessed` (a nested project's folder
 basename — confirm with the user). The optional `name` field is **written at spec creation**
-(`sdd:backfill-project-spec`) — it earns its router slot because the gateway presents project names
+(`sdd:scaffold-project-spec`) — it earns its router slot because the gateway presents project names
 to the user; it is required in practice only for a nested project whose folder is not the user's name.
 
 **Sync is derived, not stored (no `aligned` flag).** "Synced" is two properties, each derived or

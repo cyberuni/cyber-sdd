@@ -54,4 +54,4 @@ Every scenario in [`list-skills.feature`](./list-skills.feature) maps to one of 
 The behavior suite is [`list-skills.feature`](./list-skills.feature) — gateway reach, the
 fixed-source scan, the SKILL.md-presence filter, dedupe-by-precedence, the optional grep filter, the
 reported field set (name / foundIn / description / package-managed), the directory-name fallback,
-and the sorted output. Cross-capability e2e scenarios live in `../../acceptance/`.
+and the sorted output. Cross-capability e2e scenarios live in `../../workflows/`.

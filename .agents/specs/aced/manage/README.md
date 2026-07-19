@@ -88,4 +88,4 @@ or to **add or revise** ACED's specified behavior is **not** a manage operation 
 The behavior suite is [`manage.feature`](./manage.feature) — intake (fast path / four-option menu),
 the four routes (model-runners, list-skills, repair-private-skills, skill-dirs), loading the engine in-session,
 and the boundaries (non-mission, write-ownership, thin-classifier, authoring redirect). Cross-capability
-e2e scenarios live in `../acceptance/`.
+e2e scenarios live in `../workflows/`.

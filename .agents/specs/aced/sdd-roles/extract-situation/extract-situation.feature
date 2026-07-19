@@ -6,7 +6,7 @@ Feature: extract-situation — the blind-brief extractor
   Every Given below names the apparatus that DISCRIMINATES: a rubric whose lines cannot open with a
   step keyword, or a scenario whose steps never interleave, leaves the Then unable to fail. Simulating
   and scoring are judge's; authoring the rubric is scenario-writer's. Cross-capability e2e lives in
-  ../../acceptance/, not here.
+  ../../workflows/, not here.
 
   # ---- Emit the situation ----
 

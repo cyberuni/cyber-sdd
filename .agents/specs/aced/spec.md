@@ -28,7 +28,7 @@ produced-by:
 # ACED — Agent Config Evaluation & Development
 
 > Root project spec — the **descriptive** top index for ACED. Rules live in [`design/`](./design/README.md);
-> behaviors live in the capability folders. Scaffolded by `backfill-project-spec` at `status: draft`; each
+> behaviors live in the capability folders. Scaffolded by `scaffold-project-spec` at `status: draft`; each
 > behavioral node's `## Use Cases` + `.feature` are authored in per-unit explore.
 
 ## What ACED is
@@ -62,8 +62,8 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
 | [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
 | [`design/`](./design/README.md) | descriptive | the eval model + the `decisions/` ADR log |
-| [`acceptance/`](./acceptance/README.md) | descriptive | the e2e behavior suite (author → run → improve → compare) |
-| [`glossary/`](./glossary/README.md) | reference | the agent-config eval vocabulary |
+| [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: author → run → improve → compare) |
+| [`glossary.md`](./glossary.md) | reference | the agent-config eval vocabulary |
 
 ## Placement map
 
@@ -81,8 +81,8 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 - **a rule or model** (an eval layer, the mapping, a scoring convention) → `design/` (descriptive); a
   **decision + its rationale** → `design/decisions/` (ADR); a **unit's design fork** → that unit's
   `<unit>.solution.md`.
-- **a cross-capability outcome** (spans ≥2 folders) → `acceptance/`, never a capability folder.
-- **a term** → `glossary/`.
+- **a cross-capability outcome** (spans ≥2 folders) → `workflows/`, never a capability folder.
+- **a term** → `glossary.md`.
 
 The nesting rule: capabilities at the top; any layering or doc-section structure nests *inside* a capability,
 never as a top-level folder.
@@ -101,7 +101,6 @@ never as a top-level folder.
 | `contribution` | `contribute/contribute-skill/` (behavior) |
 | `discovery` | `config-authoring/manage-skill-dirs/` (behavior) |
 | `eval-run` | `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
-| `glossary` | `glossary/` (reference) |
 | `registry` | `registry/` (behavior) |
 | `routing` | `manage/` (behavior) |
 | `sdd-roles` | `sdd-roles/extract-situation/` (behavior) · `sdd-roles/impl-judge/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/scenario-writer/` (behavior) · `sdd-roles/spec-validator/` (behavior) |

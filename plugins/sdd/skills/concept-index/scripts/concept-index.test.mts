@@ -66,7 +66,7 @@ test('parseScalarOrFlow handles both shapes', () => {
 
 test('facetKind derives from location then spec-type', () => {
 	assert.equal(facetKind('design/lifecycle-model.md', undefined), 'rule')
-	assert.equal(facetKind('acceptance/README.md', 'behavioral'), 'e2e')
+	assert.equal(facetKind('workflows/README.md', 'behavioral'), 'workflow')
 	assert.equal(facetKind('mission/resolution/README.md', 'behavioral'), 'behavior')
 	assert.equal(facetKind('common-governances/ownership/README.md', 'reference'), 'reference')
 	assert.equal(facetKind('mission/README.md', undefined), 'index')
@@ -107,13 +107,13 @@ test('group order is deterministic: concepts and nodes sorted', () => {
 	try {
 		seed(dir, 'mission/resolution/README.md', 'spec-type: behavioral\nconcept: resolution')
 		seed(dir, 'design/autonomy-rubric.md', 'concept: autonomy')
-		seed(dir, 'acceptance/README.md', 'spec-type: behavioral\nconcept: resolution')
+		seed(dir, 'workflows/README.md', 'spec-type: behavioral\nconcept: resolution')
 		const grouped = groupByConcept(scanProjectSpec(dir))
 		assert.deepEqual([...grouped.keys()], ['autonomy', 'resolution'])
-		// acceptance/ sorts before mission/resolution/ by display path
+		// mission/resolution/ sorts before workflows/ by display path
 		assert.deepEqual(
 			grouped.get('resolution')?.map((n) => n.display),
-			['acceptance/', 'mission/resolution/'],
+			['mission/resolution/', 'workflows/'],
 		)
 	} finally {
 		rmSync(dir, { recursive: true, force: true })

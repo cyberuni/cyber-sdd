@@ -10,6 +10,9 @@
 //   - oversized-node (advisory) — a node whose sibling `.feature` scenario count exceeds the
 //     granularity threshold; carries a deterministic shape profile (plain/tagged counts + section-
 //     cluster count) but prescribes no route. Never fails `--check`.
+//   - missing-glossary (advisory) — the project spec has no root `glossary.md`, so its ubiquitous
+//     language has no home and a term can be used without ever being defined. A root FILE, not a
+//     folder: every mandated folder is an exception to screaming architecture. Never fails `--check`.
 // Breadth-vs-depth routing and intra-spec contradiction are Warden judgment (the @rubric scenarios)
 // — no engine code here.
 //
@@ -17,13 +20,13 @@
 // engine writes nothing. No dependencies (the repo's node-≥23.6 / no-deps convention). Pure
 // functions are exported for node:test; running the file directly drives the CLI.
 
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.turbo', '.next', 'coverage'])
 export const DEFAULT_MAX_SCENARIOS = 40
 
-export type FindingKind = 'untagged-node' | 'oversized-node'
+export type FindingKind = 'untagged-node' | 'oversized-node' | 'missing-glossary'
 export type Severity = 'blocking' | 'advisory'
 
 export interface NodeRecord {
@@ -218,8 +221,26 @@ export function checkOversized(records: NodeRecord[], maxScenarios: number): Fin
 		}))
 }
 
-export function audit(records: NodeRecord[], maxScenarios: number): Finding[] {
-	return [...checkUntagged(records), ...checkOversized(records, maxScenarios)]
+// A project spec with no root glossary.md has nowhere to define its ubiquitous language → advisory.
+export function checkGlossary(specDir: string): Finding[] {
+	if (existsSync(join(specDir, 'glossary.md'))) return []
+	return [
+		{
+			kind: 'missing-glossary' as const,
+			severity: 'advisory' as const,
+			node: 'glossary.md',
+			detail:
+				'no root glossary.md — the project has no home for its ubiquitous language, so a term can be used without ever being defined; a root file, never a folder',
+		},
+	]
+}
+
+export function audit(records: NodeRecord[], maxScenarios: number, specDir?: string): Finding[] {
+	return [
+		...checkUntagged(records),
+		...checkOversized(records, maxScenarios),
+		...(specDir === undefined ? [] : checkGlossary(specDir)),
+	]
 }
 
 export function hasBlocking(findings: Finding[]): boolean {
@@ -252,7 +273,7 @@ export function main(argv: string[]): number {
 		else if (a === '--max-scenarios') maxScenarios = Number(argv[++i] ?? DEFAULT_MAX_SCENARIOS)
 		else if (a === '--format') format = (argv[++i] as 'toon' | 'json') ?? 'toon'
 	}
-	const findings = audit(scanProjectSpec(specDir), maxScenarios)
+	const findings = audit(scanProjectSpec(specDir), maxScenarios, specDir)
 	if (mode === 'check') {
 		if (hasBlocking(findings)) {
 			process.stderr.write(

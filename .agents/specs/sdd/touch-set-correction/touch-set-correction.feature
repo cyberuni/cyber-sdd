@@ -6,7 +6,7 @@ Feature: The touch-set-correction engine — reconcile a declared touch-set agai
   (each file's artifact-type), and gherkin-cli diff (a touched .feature's changed scenarios) into a
   read-only, post-hoc correction: the actual touched work areas, lined up against the guess, plus the
   corrected touch-set. The finer-than-node ladder, hard/soft classification, region tier, and SSA
-  lowering are out of scope (issue #189 remainder). Cross-capability e2e scenarios live in ../acceptance/.
+  lowering are out of scope (issue #189 remainder). Cross-capability e2e scenarios live in ../workflows/.
 
   # ── Reconcile the declared prediction against the actual diff ──
 

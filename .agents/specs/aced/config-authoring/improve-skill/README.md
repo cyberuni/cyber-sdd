@@ -98,4 +98,4 @@ The behavior suite is [`improve-skill.feature`](./improve-skill.feature) — the
 and `contribute-skill`), the LLM-audit workflow (`@rubric` scenarios for judgment-heavy checks plus
 plain scenarios for its mechanical report/block/fix steps), and the deterministic validate-engine
 behaviors (plain boolean scenarios: scan scope, severity split, exit code). Cross-capability e2e
-scenarios live in `../../acceptance/`.
+scenarios live in `../../workflows/`.

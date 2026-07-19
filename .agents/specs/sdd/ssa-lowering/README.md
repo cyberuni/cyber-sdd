@@ -102,8 +102,13 @@ execute, store, or classify.
 | **don't over-serialize a clean split** | a write-set of genuinely independent spec-nodes | the Missions carry **no fabricated dependency** between independent nodes — they can run in parallel | `Scenario: independent spec-nodes are lowered without a fabricated dependency between them` |
 | **see the reasoning behind the cut** | any cut — a killed CR alongside one lowered across several nodes | a **decision-evidence record** accompanies the partition, stating each Oracle and Architect verdict and its cause | `Scenario: the produced partition is accompanied by a decision-evidence record` |
 
-Every scenario in [`ssa-lowering.feature`](./ssa-lowering.feature) maps to one of these entries or to
-its activation (the `@trigger` outline). The graded ("does it judge well?") behaviors are `@rubric`
+Every scenario in [`ssa-lowering.feature`](./ssa-lowering.feature) maps to one of these entries.
+**Applicability *is* among them and is frozen here** — the `@trigger` outline enumerates the
+situations the doctrine does and does not govern. This is not harness activation ("does this config
+fire?", genuinely a co-owned seam): the decision is the **coordinator's**, made by reading this
+doctrine, so the node owns it outright — the case `sdd:suite-format-governance` admits `@trigger`
+for, "where the node genuinely owns the routing decision". (Issue #304 briefly removed it on the
+harness-activation reading; restored at the 2026-07-19 spec gate.) The graded ("does it judge well?") behaviors are `@rubric`
 scenarios; the structural invariants a cut must **never** violate (single-writer, a killed CR lowers
 to nothing, a barrier is never a normal node, the decision-evidence record accompanies the partition)
 are plain boolean guards. The split is deliberate: **presence** of an artifact is a boolean guard,

@@ -36,13 +36,13 @@ This capability hosts several **units of code** (skills). The unit of test is th
 `.feature` per unit**, named for the unit and colocated with the unit's spec in its own folder.
 A producer suite never tests gate behavior and a gate suite never tests grilling — mixing two
 units in one file is a category error. The freeze grain is **per `.feature` file**, so units
-freeze independently. Cross-capability outcome (e2e) scenarios live in `../acceptance/`, never
+freeze independently. Cross-capability outcome (e2e) scenarios live in `../workflows/`, never
 here.
 
 | Unit | Type | Spec | Role |
 |---|---|---|---|
 | **spec-producer** | behavioral | [`spec-producer/`](./spec-producer/README.md) | the `spec-producer-governance` procedure — grill a CR into spec prose + a boolean suite (create / revise / backfill modes); **producer behaviors only** |
-| **backfill-project-spec** | behavioral | [`backfill-project-spec/`](./backfill-project-spec/README.md) | the project-level layout bootstrap — choose an organization strategy + spec location, scaffold the skeleton, and declare `project-path` + the body placement map, when an existing project has no consolidated spec; an **internal step the conductor loads** during explore |
+| **scaffold-project-spec** | behavioral | [`scaffold-project-spec/`](./scaffold-project-spec/README.md) | the project-level layout bootstrap — choose an organization strategy + spec location, scaffold the skeleton, and declare `project-path` + the body placement map, when a project has no project spec; an **internal step the conductor loads** during explore |
 | **spec-gate** | behavioral | [`spec-gate/`](./spec-gate/README.md) | the spec gate — the verdict, the three verbs, per-file freeze, the digest, and the structural provenance checks |
 | **spec-format** | reference | [`spec-format/`](./spec-format/README.md) | the `spec-format-governance` bar — the required `## Use Cases` section + `spec.md` enrichment; a **reference artifact** (no `.feature`), loaded by the producer/judge |
 | **suite-format** | reference | [`suite-format/`](./suite-format/README.md) | the `suite-format-governance` bar — the `.feature` form (boolean Gherkin, `@rubric`, ordering, the `@frozen` marker); a **reference artifact**, loaded by the producer/judge |

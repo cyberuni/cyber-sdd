@@ -3,7 +3,7 @@ Feature: The init onboarding skill — wire SDD's opt-in conveniences into the r
   Unit suite for the init unit (the init skill). A user-facing setup skill that offers SDD's
   opt-in conveniences and, on consent, wires them into operational config only — it opens no CR,
   invokes no gate, and never writes the runtime status value (that is the conductor's).
-  Cross-capability e2e scenarios live in ../../acceptance/.
+  Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Front door ----
 

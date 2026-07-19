@@ -1,6 +1,6 @@
 ---
 name: ownership-governance
-description: "Partial Skill: invoke by name only — the SDD write-ownership contract. Loaded by every SDD producer, judge, the conductor, and the start-mission/spec-gate skills, not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 ---
 
@@ -15,7 +15,7 @@ is in `sdd:gate-validation-governance`; the plan/ledger write split is in `sdd:c
 | Field / artifact | Written by | Never written by |
 |---|---|---|
 | `status` | the gate skill (`spec-gate`) — on a human verdict, or to match a conductor self-assertion within leash | the conductor, any producer |
-| `project-path` | the **conductor** (at scaffold; `backfill-project-spec`) | producers, the gate skill |
+| `project-path` | the **conductor** (at scaffold; `scaffold-project-spec`) | producers, the gate skill |
 | run-level leash + approach — the `kind: leash` ledger line (session-local; to the conductor's own ledger shard, **not** spec.md frontmatter — the conductor's autonomy bar, `start-mission`) | the **conductor** (initial evaluation) | producers, the gate skill |
 | `approval` **self-assertion** (`verdict: approve`/`pause` + `by: agent`/none + `why`) | the **conductor** (synthesis only) | producers, the gate skill |
 | `approval` **human ratification** (`verdict: approve`/`reject` + `by: <name>`) | the gate skill (`spec-gate`), **in-session position only** | the conductor, any producer, any spawned delegate |
@@ -28,6 +28,7 @@ is in `sdd:gate-validation-governance`; the plan/ledger write split is in `sdd:c
 | ledger `followup` line — the durable follow-up record (`class: blocking`/`backlog`) | the **conductor** (append-only, to its own ledger shard, at handoff, **unconditionally** — no permission, no forge, no human) | producers, judges, the gate skill |
 | ledger `strategy` lines | the doctrine-loop Scanner (append-only) | the conductor, producers, judges |
 | `spec.md` body + the `.feature` | the **spec-producer** | the conductor, judges, solution/impl producers |
+| a **`@pinned` scenario** (user-owned) | the **user** (in-session) | every agent role — may **propose**, never **executes** a change/removal without in-session user authorization |
 | `<unit>.solution.md` | the **solution-producer** | the spec-producer, judges |
 | plan brief + `todos` | the **conductor** | producers, judges |
 | implementation + its verification | the **impl-producer** | the impl-judge (it *runs*, never authors) |
@@ -75,10 +76,29 @@ that requires changing specified behavior is a `BLOCKER` returned upward (the fi
 its layer revert to `draft` — the gate/skill decides), never an in-place edit. The matching lifecycle
 rule (what freezing *means* as a state) is in `sdd:lifecycle-governance`.
 
-The freeze binds the **contract only** (`spec.md` + the `.feature`). The combat log (the plan's
+The freeze binds the **contract only** (`spec.md` + the suite). The combat log (the plan's
 `*.log.jsonl`) and the durable `ledger/` shards are **exempt**: they are operational provenance, never
 frozen, and the conductor and Scanner keep appending to their own shards within their boundaries above
 even while a file sits `@frozen`.
 
-A judge — spec-judge or impl-judge — must not modify `spec.md` or the `.feature`: it reports, it does
+A judge — spec-judge or impl-judge — must not modify `spec.md` or the suite: it reports, it does
 not patch.
+
+## User-owned scenarios (`@pinned`)
+
+A `@pinned` scenario is **user-owned** — the one scenario the spec-producer does **not**
+own. Any agent role may **propose** changing or removing it, but **never executes** the change
+without **in-session user authorization** — the authority of a human ratification (positional, not
+relayable, not self-assertable within leash). Only the user applies `@pinned`. This is grounded in
+**ownership, not freeze**: it holds at `draft` and survives a re-open, since ownership does not lapse
+when a file unfreezes. The marker and its seed-growth role are `sdd:suite-format-governance`.
+
+## Key points (read-check)
+
+1. **One writer per field/artifact** (the matrix) — no role writes outside the spec it owns or spawns.
+2. **Never write a frozen `.feature`** — a behavior-changing gap is a `BLOCKER` returned upward, never
+   an in-place edit.
+3. **Human ratification is positional** — the in-session channel only; never relayed, never
+   self-asserted within leash.
+4. **A `@pinned` scenario is user-owned** — the agent proposes, never executes a change or removal
+   without in-session user authorization.

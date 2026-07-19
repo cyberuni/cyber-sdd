@@ -35,7 +35,7 @@ flowchart TD
 
 ## Non-mission work: `manage`
 
-Not every request changes the project's specified behavior. The gateway's second route, `manage`, is a sibling thin dispatcher for **bootstrap, inspect, audit, and housekeeping** — it loads the matching engine in-session and never opens a CR, invokes a gate, or writes `status`/`approval`. Its engines: `backfill-project-spec` (scaffold a project's first spec), `discover-specs` / `discover-plans` / `concept-index` / `place-node` (inspect), `check-spec-structure` / `formation-loop` (audit and align), `plan-retirement` / `manage-spec-anchors` (housekeeping). A `manage` operation that surfaces a real behavior change hands off to `start-mission`.
+Not every request changes the project's specified behavior. The gateway's second route, `manage`, is a sibling thin dispatcher for **bootstrap, inspect, audit, and housekeeping** — it loads the matching engine in-session and never opens a CR, invokes a gate, or writes `status`/`approval`. Its engines: `scaffold-project-spec` (scaffold a project's first spec), `discover-specs` / `discover-plans` / `concept-index` / `place-node` (inspect), `check-spec-structure` / `formation-loop` (audit and align), `plan-retirement` / `manage-spec-anchors` (housekeeping). A `manage` operation that surfaces a real behavior change hands off to `start-mission`.
 
 ## The escape hatch
 

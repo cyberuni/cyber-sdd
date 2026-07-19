@@ -56,4 +56,4 @@ The behavior suite is [`contribute-skill.feature`](./contribute-skill.feature) â
 sibling deferrals (including the repo-native carve-out), mapping consumer paths onto the source skills
 tree, including changed files while excluding machine-local ones, the diff-and-confirm gate, the
 no-change stop, the fork fallback, the single-commit contribution, the report, the write-scope guards,
-and the graded quality of the produced PR. Cross-capability e2e scenarios live in `../../acceptance/`.
+and the graded quality of the produced PR. Cross-capability e2e scenarios live in `../../workflows/`.

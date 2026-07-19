@@ -6,7 +6,7 @@ Feature: repair-private-skills — validate and repair repo-private skill hygien
   issues; repair-private writes fixes, deleting the stray symlink and inserting the missing
   metadata, and never writes outside .agents/skills. Discovering skills across all sources is
   list-skills; maintaining the runner-def family is manage-model-runners.
-  Cross-capability e2e scenarios live in ../../acceptance/.
+  Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Reach ----
 

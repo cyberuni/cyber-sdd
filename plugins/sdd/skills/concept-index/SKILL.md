@@ -28,7 +28,7 @@ node "<skill>/scripts/concept-index.mts" --spec-dir <spec> [--write | --check]
 
 The view is **pure derivation** from the `concept:` tags: rendering twice is byte-identical and a
 `--write` over a current block is a no-op. Each node is annotated by **facet kind** — a node under `design/` → rule,
-under `acceptance/` → e2e, else `reference` / `behavior` / `index` from its `spec-type`.
+under `workflows/` → workflow, else `reference` / `behavior` / `index` from its `spec-type`.
 
 ## Boundaries
 

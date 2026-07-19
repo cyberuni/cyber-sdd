@@ -6,7 +6,7 @@ Feature: skillify — generalize the current session into a reusable skill
   script-extraction candidates, validate it, and place and link it. Scaffolding a skill from scratch
   is define-skill; diagnosing why a skill's evals fail is improve; an agent or persona is define-agent;
   a reference-only rule set is define-governance. Cross-capability e2e scenarios live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ── Triggering ──
 

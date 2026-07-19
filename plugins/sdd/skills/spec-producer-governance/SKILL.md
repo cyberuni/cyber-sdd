@@ -30,7 +30,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
 3. **Write the `spec.md` body per `sdd:spec-format-governance`.** That bar owns the required structure — the `## Use Cases` section (subject, non-goals, and the entry-point table of trigger / inputs / outcome) and the enrichment rules; follow it rather than re-listing sections here (a hardcoded list drifts from the bar). Author the body content — What, Why, design decisions, and the command / API surface where one exists — and enrich for human review (headings, tables, short paragraphs, a diagram where it carries the idea). Never leave placeholders (`TBD`, `TODO`, empty sections). **Do not** write the control frontmatter (`status`, `project-path`, `approval`, `produced-by`) — those belong to the conductor and the gate skill. Every referenced engine, skill, or artifact path you name must be real — a reference that resolves to nothing is caught mechanically at step 5 below, but naming a real path the first time spends no round on it.
 
-4. **Write `<DOMAIN_PATH>/<DOMAIN>.feature`** — pure boolean Gherkin per `sdd:suite-format-governance`. **Cover every use case from the `## Use Cases` section with one-or-more scenarios** (happy path, negative mirror, boundary) — a use case with no scenario is unverified intent; a scenario with no use case is an orphan. Each `Then` is an observable boolean (the subject *does* X), never internal state, function names, or "sometimes". Order scenarios by lifecycle stage (the step-down convention). Keep the `.feature` plain; rubric form is legal only inside an `@rubric`-tagged scenario.
+4. **Write `<DOMAIN_PATH>/<DOMAIN>.feature`** — pure boolean Gherkin per `sdd:suite-format-governance`. **Cover every use case from the `## Use Cases` section with one-or-more scenarios** (happy path, negative mirror, boundary) — a use case with no scenario is unverified intent; a scenario with no use case is an orphan. Each `Then` is an observable boolean — name the artifact a verifier reads to settle it; an act is assertable only when it leaves a trace, and where it records nothing, add the record rather than dropping the act. Never internal state, function names, "sometimes", or how the artifact was authored. Order scenarios by lifecycle stage (the step-down convention). Keep the `.feature` plain; rubric form is legal only inside an `@rubric`-tagged scenario.
 
    **A `Given` is a test vector, not specification** (`sdd:suite-format-governance` carries the canonical bar and the swap test). Author each `Given`'s apparatus — its domain, entities, names, framing — from a domain **the artifact does not illustrate**. On a revise CR the apparatus never reuses the artifact's existing worked examples; on `BACKFILL` it never reuses the illustrations you read out of source. Read those examples in full at step 1 — they are evidence of the behavior you are specifying; exclude them only from the apparatus you author into a `Given`.
 
@@ -63,9 +63,17 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
    artifact ...`. Fix every violation the same way — a broken reference to a skill/engine/artifact
    that never existed is a content gap, not a typo to shrug at.
 
+## Responding to a `change` verdict
+
+Load `sdd:remediation-governance` — the findings are **evidence, not a work order**. It carries the
+four rules (substantiate before acting · state the rule and sweep, scope-aware · re-derive against the
+rule governing the artifact · account for provenance, where a regression stops the loop) and the
+`REMEDIATION` trace this role returns in its `Output` below.
+
 ## Output (the conductor collects)
 
 ```
+REMEDIATION:      <per finding answered: verdict, rule, swept, ruled-out, provenance — `sdd:remediation-governance`; omit when no verdict was answered>
 STATUS:            complete | needs-input | blocked
 SCENARIOS_WRITTEN: <count>
 NOTES:             <what was written / revised>

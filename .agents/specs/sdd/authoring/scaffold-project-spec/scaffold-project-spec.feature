@@ -1,8 +1,64 @@
 @frozen
-Feature: backfill-project-spec — lay out an existing project's spec
+Feature: scaffold-project-spec — lay out a project's spec
   Unit suite for the project-level layout bootstrap. Layout/scaffold behaviors only — it does
   not author a node's ## Use Cases or .feature, render a gate verdict, or freeze (those are
   ../spec-producer/ and ../spec-gate/).
+
+  # ---- Evidence mode ----
+
+  Scenario: a project that has a source tree enters detection mode
+    Given a project whose source tree exists and can be read
+    When the bootstrap selects its evidence mode
+    Then it enters detection mode and reads the project shape for its recommendations
+
+  Scenario: a project that has no source tree enters intent mode
+    Given a greenfield project with no source tree at all
+    When the bootstrap selects its evidence mode
+    Then it enters intent mode and reads no project shape
+
+  Scenario: intent mode recommends a strategy from the capabilities the user states
+    Given a greenfield project in intent mode and the capabilities the user states it will have
+    When the bootstrap recommends a strategy
+    Then it recommends from the stated capabilities rather than from a source layout
+
+  Scenario: intent mode does not silently apply the capability-first default
+    Given a greenfield project in intent mode whose intended capabilities are not yet stated
+    When the bootstrap recommends a strategy
+    Then it asks the user for the intended capabilities rather than assuming the default
+
+  Scenario: intent mode asks for the project path it cannot read
+    Given a greenfield project in intent mode whose source directory does not exist yet
+    When the bootstrap establishes the project shape
+    Then it asks the user for the repo-relative path the source will occupy
+    And it asks what kind of project it will be
+
+  Scenario: the spec location is derived from the project path in intent mode
+    Given a greenfield project in intent mode whose project path has been established
+    When the bootstrap settles the spec location
+    Then the location is derived from that path rather than asked as a separate choice
+
+  Scenario: a greenfield agentic plugin has its spec hoisted
+    Given a greenfield project in intent mode that will be an agentic plugin
+    When the bootstrap settles the spec location
+    Then the spec is hoisted out of the plugin dir and named by the package
+    And the reason recorded is that plugin install copies the directory wholesale
+
+  Scenario: a greenfield nested package keeps its spec colocated
+    Given a greenfield project in intent mode nested in a repo that can exclude the spec from its package
+    When the bootstrap settles the spec location
+    Then the spec is colocated at the project's own anchor
+    And being nested is not by itself a reason to hoist
+
+  Scenario: intent mode still reads the repo around an empty project
+    Given a greenfield project in intent mode inside an existing monorepo
+    When the bootstrap establishes the project shape
+    Then it reads the surrounding repo's shape and conventions to inform its recommendation
+    And it does not treat the populated repo as the project having source
+
+  Scenario: both evidence modes converge on the same declared organization
+    Given a strategy chosen in either evidence mode
+    When the bootstrap records the organization
+    Then it writes the same root spec.md envelope, project-path frontmatter, and placement map
 
   # ---- Detection ----
 
@@ -21,10 +77,10 @@ Feature: backfill-project-spec — lay out an existing project's spec
     When the bootstrap detects the project shape
     Then it recommends colocating the spec at <project>/.agents/spec/
 
-  Scenario: a project that already has a consolidated spec is not backfilled
-    Given an existing project that already has a consolidated spec
+  Scenario: a project that already has a project spec is not scaffolded
+    Given an existing project that already has a project spec
     When the bootstrap is consulted
-    Then it does not backfill and leaves the existing spec untouched
+    Then it does not scaffold and leaves the existing spec untouched
 
   # ---- Location choice ----
 
@@ -34,14 +90,14 @@ Feature: backfill-project-spec — lay out an existing project's spec
     Then the recommended option is shown first and the user can choose another
 
   Scenario: the location is never silently assumed
-    Given a project whose shape allows more than one valid location
+    Given an agentic plugin, for which the hoist rule leaves exactly one legal location
     When the bootstrap proceeds
     Then it surfaces the location choice rather than assuming one
 
   # ---- Strategy choice ----
 
   Scenario: a project with a discernible capability decomposition is recommended capability-first
-    Given a project whose capabilities can be derived
+    Given a project whose src/ top-level folders are named for what the project does
     When the bootstrap recommends a strategy
     Then it recommends the capability-first strategy
 
@@ -50,13 +106,27 @@ Feature: backfill-project-spec — lay out an existing project's spec
     When the bootstrap recommends a strategy
     Then it offers the mirror-source strategy
 
+  Scenario: a layer-organized code base is also offered mirror-source
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
+    When the bootstrap presents strategy options
+    Then mirror-source is among the strategies offered
+
+  Scenario: mirror-source over a layer-organized source is offered with its cost stated
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
+    When the bootstrap offers mirror-source
+    Then it states that the coarser partition yields a slower schedule and never an incorrect one
+    And it names the false-conflict rate as the signal that would later earn a capability its own home
+
   Scenario: one recommendation and its alternative are presented for the user to choose
     Given the bootstrap has selected a recommended strategy
     When it presents the strategy choice
     Then it shows one recommended strategy with its rationale and the alternative
 
   Scenario: layering is never offered as the top-level body
-    Given a strongly layered project
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
     When the bootstrap presents strategy options
     Then layered organization is not offered as a top-level strategy
 
@@ -65,8 +135,9 @@ Feature: backfill-project-spec — lay out an existing project's spec
     When the bootstrap presents strategy options
     Then ADR is not among the strategies offered
 
-  Scenario: a project with no discernible decomposition and no feature-first layout takes the default
-    Given a project with no discernible capability decomposition and no feature-first source layout
+  Scenario: a layer-organized project takes the capability-first default
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
     When the bootstrap recommends a strategy
     Then it recommends the capability-first default
 
@@ -75,7 +146,7 @@ Feature: backfill-project-spec — lay out an existing project's spec
   Scenario: the shared envelope is scaffolded for every strategy
     Given a chosen strategy and location
     When the bootstrap scaffolds the tree
-    Then it creates the root spec.md, design/, acceptance/, a tooling home, and a glossary
+    Then it creates the root spec.md, design/, workflows/, a tooling home, and a glossary
 
   Scenario: the chosen strategy's top-level skeleton is written
     Given a chosen strategy
@@ -112,12 +183,12 @@ Feature: backfill-project-spec — lay out an existing project's spec
     And the frontmatter carries no spec-layout block
 
   Scenario: a name that is not reliably derivable is confirmed with the user before writing
-    Given a hoisted or nested project whose name is not reliably derivable
+    Given a hoisted project whose repo-root directory name differs from its package name
     When the bootstrap records the organization
     Then it asks the user and confirms the name before writing it to the root frontmatter
 
   Scenario: a colocated project with a correct repo-root name writes no name frontmatter
-    Given a colocated project whose repo-root name is already correct
+    Given a colocated project whose repo-root directory name equals the derived project name
     When the bootstrap writes the root spec.md
     Then it writes no name frontmatter
 

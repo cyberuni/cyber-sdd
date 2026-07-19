@@ -3,12 +3,14 @@ spec-type: behavioral
 concept: [lifecycle, autonomy, resolution, delivery, provenance]
 ---
 
-# acceptance/ — the e2e behavior suite
+# workflows/ — the workflows suite
 
-The **outcome-level (e2e) behavior suite** — the scenarios that exercise SDD end-to-end and
-**span capabilities**. Consumed by `../mission/`'s step-3 verify (the impl gate). **Not a
-loop step.** Unit scenarios stay colocated with their capability folder; only
-cross-capability outcome scenarios live here.
+The **workflows suite** — cross-capability usage flows: the scenarios that exercise SDD
+end-to-end and **span capabilities**, the project-level analog of a use case (a path through
+the composed capabilities, the way a use case is a path through a node's logic graph).
+Consumed by `../mission/`'s step-3 verify (the impl gate). **Not a loop step.** Unit
+scenarios stay colocated with their capability folder; only cross-capability workflow
+scenarios live here.
 
 Written in boolean Gherkin per `../authoring/suite-format/README.md`: every scenario is a
 declarative Given/When/Then with a pass/fail reading, no rubric or threshold in the
@@ -17,7 +19,7 @@ folders; a single-capability behavior belongs as a unit scenario.
 
 ## Use Cases
 
-**Subject** — the cross-capability (e2e) outcomes that exercise SDD end-to-end, each spanning two
+**Subject** — the cross-capability workflows that exercise SDD end-to-end, each spanning two
 or more capability folders.
 **Non-goals** — no single-capability behavior (those are unit scenarios in their own folder), no
 loop step of its own, and no rubric/threshold in the `.feature`.
@@ -75,7 +77,7 @@ Sources: `automaton-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
 - D1. A spec-gate approve freezes the `.feature` files the CR touched (a per-file `@frozen` tag); `spec.md` is kept in sync but never frozen, and the plan (brief + ordered `todos`) is never frozen — with no separate plan gate.
 - D2. The frozen `.feature` is the object at the spec gate and the bar at the impl gate.
 - D3. An agent refuses to edit a frozen `.feature` and directs reverting to draft.
-- D4. A fatal deal-breaker reverts an approved spec to draft (a Oracle-revert) and unfreezes the `.feature`.
+- D4. A fatal deal-breaker reverts an approved spec to draft (an Oracle-revert) and unfreezes the `.feature`.
 - D5. A spec can be Approved with no implementation; an illegal state tuple (impl committed against an unfrozen `.feature`) is rejected.
 
 ### E. Gate verdicts (authoring + mission, producer/judge separation)
@@ -85,6 +87,10 @@ Sources: `sdd-gate-autonomy`, `automaton-deliver`, `sdd-mission-loop`.
 - E2. The impl gate passes only when every frozen scenario has a passing verification; an uncovered scenario fails it and `status` stays `approved`.
 - E3. The cold judge runs the producer's verification and adds its own structural/scope reading; the producer never declares its own pass verdict.
 - E4. `status` advances to `implemented` only when every impl-judge passes, and the gate station (not the conductor) writes `status` and the human ratification.
+- E5. A **change** verdict is evidence, not a work order: the producer substantiates each finding before acting, contests the ones it cannot substantiate, and edits nothing for those.
+- E6. A finding names an **instance**; the returned remediation names the **rule** it instantiates, the other instances the sweep found, and the candidates it inspected and **excluded**.
+- E7. A correction is re-derived against the rule **governing the artifact**: one that contradicts a governance the artifact is bound by is rejected; one that agrees with all of them is accepted.
+- E8. Each finding's **provenance** is derived from the diff — an artifact changed by the previous remediation round's commits makes its finding a **regression**, which stops the loop for a re-plan; an artifact predating those commits is **pre-existing**, and remediation continues.
 
 ### F. Handoff (mission verified result → delivery shape)
 Sources: `mission/handoff/` (new), commit discipline.
@@ -97,5 +103,5 @@ The realized scenarios live in the six theme `.feature` files above.
 
 ## Source
 
-- new — e2e scenarios distilled from the in-scope specs' `.feature` files (inventory above)
+- new — workflow scenarios distilled from the in-scope specs' `.feature` files (inventory above)
 - judged per `../authoring/suite-format/README.md` (boolean / rubric Gherkin, by-hand where applicable)

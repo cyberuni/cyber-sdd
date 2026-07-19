@@ -16,7 +16,13 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
   mission-graph store does), classify a collision (collision-ladder does), or emit its decision-evidence
   automatically (SQ-F5 #194, deferred). Working node name only — the final name is SQ-name #195.
 
-  # ── Activation: fires when a change request must be partitioned ──
+  # ── Applicability: does this doctrine govern the situation at hand ──
+  # Restored 2026-07-19 after the spec gate. The #304 deletion misread this as harness activation
+  # ("does this config fire?"), which IS a co-owned seam — but the `When` here is the COORDINATOR
+  # deciding whether the doctrine governs a situation, reading the doctrine itself. That decision is
+  # the node's own, and `sdd:suite-format-governance` admits `@trigger` exactly "where the node
+  # genuinely owns the routing decision". Deleting it dropped a measurement rather than relocating
+  # one, which is the standard this CR applies to the 14 sibling suites it declined to sweep.
 
   @trigger
   Scenario Outline: the lowering doctrine activates only when a change request must be cut into missions
@@ -116,6 +122,23 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
     And the rubric score is at least the threshold
 
+  @behavior @rubric
+  Scenario: a change request that fits the product direction clears the Oracle gate and is lowered
+    Given a change request asking that the read-only CI check also report, per finding, which config file enabled the rule that produced it
+    And the tool ships as a read-only CI check that runs with no write credentials, and its README promises it will never open a pull request or touch a branch
+    And no shipped change supersedes the ask, and the request was filed against the current release
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: clears-the-gate
+          max: 3          # finds the CR consistent with how the tool ships (reporting more about findings is still read-only) and neither reshapes nor kills it; a coordinator that reshapes or kills anyway scores 0
+        - name: lowers-the-work
+          max: 3          # carries the cleared CR into the partition — the produced plan contains at least one mission owning the reporting work, rather than an empty partition
+      threshold: 5
+      """
+    And the rubric score is at least the threshold
+
   # ── Architect's say: placement and barriers ──
 
   @behavior @rubric
@@ -185,8 +208,8 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
 
   @behavior @rubric
   Scenario: two change requests regroup by ownership into missions that cross CR boundaries
-    Given two change requests that each touch the shared authentication spec-node from a different angle
-    And each also touches a spec-node the other does not
+    Given a change request that touches the authentication spec-node and the billing spec-node
+    And a second change request that touches the authentication spec-node and the search spec-node
     When the coordinator applies the SSA-lowering doctrine across both change requests together
     Then the judge evaluates the produced plan against the rubric
       """
@@ -194,7 +217,7 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
         - name: regroup-by-ownership
           max: 3          # the shared authentication node is owned by one mission drawing on both CRs rather than split per CR — missions cut by ownership (N CRs to M missions), not one-per-CR
         - name: disjoint-nodes-not-fused
-          max: 3          # the two nodes only one CR touches stay their own missions; regrouping the shared node does not pull the disjoint work into it, which would trade the under-merge error for an over-merge that serializes independent writes
+          max: 3          # billing and search — each touched by only one CR — stay their own missions; regrouping the shared authentication node does not pull them in, which would trade the under-merge error for an over-merge that serializes independent writes
       threshold: 5
       """
     And the rubric score is at least the threshold

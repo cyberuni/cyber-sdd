@@ -4,7 +4,7 @@ Feature: The skill-dirs config — declare and curate the extra locations the va
   listing fixed + custom skill-dir patterns, CRUD over the custom ones, inducing a pattern from a
   sample skill directory, and previewing a pattern's effect. Deterministic scenarios are
   node:test-verified; the one @rubric scenario is agentic (the manage skill confirming before it
-  persists). Cross-capability e2e scenarios live in ../../acceptance/.
+  persists). Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── The config format ──
 

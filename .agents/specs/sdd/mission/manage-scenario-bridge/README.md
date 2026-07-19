@@ -22,7 +22,7 @@ engine is loaded in-session by the `../../gateway/manage/README.md`-fronted **ma
 
 **Non-goals** — it does not author the binding tests a source reports on (the impl-producer does,
 `sdd:impl-producer-governance`), does not run the bridge or judge anything (`../verify-scenarios/`
-and `../impl-judge/` do), does not scaffold a project's `spec.md` (`backfill-project-spec` does),
+and `../impl-judge/` do), does not scaffold a project's `spec.md` (`scaffold-project-spec` does),
 and writes **only** `scenario-bridge.toml` — never a `spec.md`, `status`, `approval`, or a freeze.
 It opens no CR and invokes no gate.
 

@@ -103,11 +103,12 @@ execute, store, or classify.
 | **see the reasoning behind the cut** | any cut — a killed CR alongside one lowered across several nodes | a **decision-evidence record** accompanies the partition, stating each Oracle and Architect verdict and its cause | `Scenario: the produced partition is accompanied by a decision-evidence record` |
 
 Every scenario in [`ssa-lowering.feature`](./ssa-lowering.feature) maps to one of these entries.
-**Activation is not among them and is not frozen here** — it is owned by (description prose x
-harness x sibling set), of which this node controls one, so it is a co-owned seam and out of scope
-for a per-node suite (`sdd:suite-format-governance`; issue #304). Trigger accuracy is measured by
-its own instrument — a labeled query corpus run N times for a trigger rate — not by a frozen example
-table. The graded ("does it judge well?") behaviors are `@rubric`
+**Applicability *is* among them and is frozen here** — the `@trigger` outline enumerates the
+situations the doctrine does and does not govern. This is not harness activation ("does this config
+fire?", genuinely a co-owned seam): the decision is the **coordinator's**, made by reading this
+doctrine, so the node owns it outright — the case `sdd:suite-format-governance` admits `@trigger`
+for, "where the node genuinely owns the routing decision". (Issue #304 briefly removed it on the
+harness-activation reading; restored at the 2026-07-19 spec gate.) The graded ("does it judge well?") behaviors are `@rubric`
 scenarios; the structural invariants a cut must **never** violate (single-writer, a killed CR lowers
 to nothing, a barrier is never a normal node, the decision-evidence record accompanies the partition)
 are plain boolean guards. The split is deliberate: **presence** of an artifact is a boolean guard,

@@ -85,7 +85,8 @@ format has the same all-or-nothing copy, it joins the hoisting case.
 ## Strategy is policy; homes are data
 
 Screaming architecture is the **default**, not the only layout. Whichever layout a project uses is a
-**choice**, and choices are declared:
+**choice**, and choices are declared. But the choices are **not equals** — see the partition stake
+below; declaring a layout does not license breaking node<->capability alignment.
 
 - **The strategy** (`capability-first`, `mirror-source`, …) is **declared** in the root `spec.md`
   **placement map** and **read**. Never derive it from the tree: a greenfield project has no tree yet
@@ -101,6 +102,26 @@ Screaming architecture is the **default**, not the only layout. Whichever layout
 This is the same split the corpus-discovery rule already makes — fixed conventions are scanned,
 while an off-convention anchor list is declared and curated. "No drift" means *do not store what you
 can observe*, never *do not declare a choice*.
+
+### The partition stake — why capability-first is more than a preference
+
+Capability-first is the partition the **mission scheduler** depends on. One mission owns one
+spec-node, so when **node <-> capability is 1:1** a change touches one node and its collisions are
+legible; missions run in parallel. A **layered / framework-first top level scatters one capability
+across many folders** — the mapping breaks, a single behavior smears across nodes, collisions
+explode, and the schedule degrades toward **serial** (ADR-0025).
+
+So layouts are ranked by whether they preserve that alignment, not by taste:
+
+- **capability-first** — aligned by construction.
+- **mirror-source** — aligned *when the source is already feature-first*, which is the only condition
+  it is offered under; it inherits the source's alignment rather than creating one.
+- **layered / framework-first as the *top* level** — **discouraged**, and a declaration does not
+  rescue it. Layering survives only *nested inside* a capability.
+
+The invariant that holds under **every** strategy: **one capability per node, never smeared across
+nodes**. A declared layout says where a node goes; it never licenses a capability to scatter. The
+scheduler's **false-conflict rate** is the standing metric of the partition's quality.
 
 ## Key points (read-check)
 

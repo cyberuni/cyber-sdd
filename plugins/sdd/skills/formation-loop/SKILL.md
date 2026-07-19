@@ -51,7 +51,8 @@ it and judge structural fit **against that**, never against a default: a project
 tree** — that makes the audit circular (the shape the corpus has becomes the standard it is judged
 by) and, on a half-migrated corpus, judges it against the layout it is migrating away from. A map
 naming no strategy is judged against the **capability-first** default, and the missing declaration
-is itself a finding. (Strategy is policy — read it; homes are data — derive them.)
+is itself a finding. A declared layout settles *where a node goes*; it never licenses a capability to
+scatter across nodes. (Strategy is policy — read it; homes are data — derive them.)
 
 ## The intra-spec structural acts
 
@@ -74,11 +75,12 @@ not run unconditionally.
 Alongside its findings a pass surfaces an **advisory layout-quality signal** — the scheduler's
 **false-conflict rate** doubles as a **partition-quality metric**: a layout that keeps node↔folder
 clean holds the rate low, and one that scatters a single concern across folders drives it up. Read
-the signal **against the strategy the project declared**, not against a preferred one — a high rate
-under `mirror-source` means the source tree itself scatters the concern, which is a different finding
-from a capability-first spec drifting toward layers. The signal is **advisory** — it **gates no
-mission**; it points the Warden and Council at a degrading partition so the **declared** layout can
-be re-asserted, or deliberately re-declared.
+the signal **against the strategy the project declared** — a high rate under `mirror-source` means the
+source tree itself scatters the concern, which is a different finding from a capability-first spec
+drifting toward layers. But the rate measures the same thing either way: **node <-> capability
+alignment**, which the scheduler depends on and which no declaration suspends (ADR-0025). The signal
+is **advisory** — it **gates no mission**; it points the Warden and Council at a degrading partition
+so the **declared** layout can be re-asserted, or deliberately re-declared.
 
 ## The Warden's self-clear-vs-escalate verdict
 

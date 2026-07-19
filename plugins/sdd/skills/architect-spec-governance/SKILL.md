@@ -26,11 +26,15 @@ unbound.
   same change to the other? Only then converge.
 - **No conflict.** The capability does not contradict established conventions, module boundaries, or
   an existing capability's contract.
-- **Placement matches the declared layout.** Judge against the strategy the project **declared** in
-  its root `spec.md` placement map, never a preferred one (`sdd:spec-structure-governance`): under
-  the screaming-architecture default a capability lives in a folder named for its intent, while a
-  project that declared `mirror-source` is correctly placed when it mirrors its source. Independent
-  of strategy: **one capability per node**, its behavior never smeared across nodes.
+- **Placement matches the declared layout — and the layout preserves the partition.** Judge
+  *placement within* the strategy the project **declared** in its root `spec.md` placement map
+  (`sdd:spec-structure-governance`): under the screaming-architecture default a capability lives in a
+  folder named for its intent, while a project that declared `mirror-source` is correctly placed when
+  it mirrors its source. But the declaration is **not** a licence — layouts are ranked by whether
+  they keep **node <-> capability 1:1**, because the mission scheduler cuts one mission per node and a
+  scattered capability degrades the schedule toward serial (ADR-0025). **One capability per node,
+  never smeared across nodes**, holds under every strategy, and a layered / framework-first *top*
+  level stays discouraged however it is declared.
 - **A well-formed logic graph.** Its decision graph connects — every decision reachable, no dangling
   branch — and the suite's sections mirror it.
 - **An orthogonal axis.** Structural fit judges a property the builder was not optimizing — a real

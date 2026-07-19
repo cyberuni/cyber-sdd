@@ -106,10 +106,23 @@ dedup to the canonical (never dedup away a `@pinned` scenario without consent).
 
 ## Form 1 — pure-boolean Gherkin (default)
 
-`Given / When / Then` whose every `Then` is an **observable, deterministic boolean** — outputs, exit
-codes, side effects, emitted events; never internal state, function names, or the authoring process
-("co-developed", "written test-first" are unobservable — assert the end-state instead). Use whenever
-the branch is directly checkable.
+`Given / When / Then` whose every `Then` is an **observable, deterministic boolean**. Use whenever the
+branch is directly checkable.
+
+**The test is the trace, not the verb.** A `Then` is legal when you can name the artifact a verifier
+reads to settle it — an output, an exit code, a written file, an emitted event, a returned field.
+Asserting an *act* is not the defect; asserting an act that records nothing is. Follow these:
+
+- **Name the artifact before writing the `Then`. If nothing records it, do not assert it.**
+- **Assert an act only when the act leaves a trace.** `Then it reads the role-to-agent map from the
+  registry` is legal — the resolved squad is checkable against the registry. `Then it sweeps the
+  corpus` is not: no artifact records a sweep.
+- **When an act matters but records nothing, add the record — do not delete the act.** Give the role
+  an `Output` field, a written report, or a ledger line, then assert *that*.
+- **Never assert how the artifact came to be authored** — "co-developed", "written test-first",
+  "authored in this order". Nothing in the artifact or a run reveals authoring sequence. Assert the
+  end state instead, and keep production discipline in governance prose.
+- **Never assert internal state or a function name.** Neither is readable at the verification point.
 
 ## Form 2 — rubric Gherkin (`@rubric`, judged by hand)
 
@@ -228,3 +241,7 @@ compressed form of this bar, not as a summary that replaces it:
    user authorization; only the user pins; a pin seeds graph growth.
 7. **A `Given` is a test vector** — the precondition binds, the apparatus binds nothing (swap test);
    no absorption.
+8. **A `Then` is legal when you can name the artifact that settles it** — the test is the **trace,
+   not the verb**. Asserting an *act* is fine when the act leaves a trace; where it records nothing,
+   **add the record and assert that**, rather than dropping the act. Never assert how the artifact
+   was authored, nor internal state.

@@ -72,7 +72,7 @@ A plain `Given / When / Then` scenario whose every `Then` is an observable, dete
 This is the default and is unchanged from baseline SDD.
 Use it whenever the behavior is directly checkable.
 
-A `Then` asserts the **artifact's end-state or observable behavior**, never the **production process** that made it — "co-developed with the code", "written test-first", "refactored before completing", "authored in this order" are unobservable (nothing in the artifact or a run reveals the authoring sequence); rewrite such a `Then` to assert the artifact's observable behavior instead, and keep production discipline in governance prose, not a scenario.
+A `Then` is legal when you can **name the artifact a verifier reads to settle it** — an output, an exit code, a written file, an emitted event, a returned field. The test is the **trace, not the verb**: asserting an *act* is fine when the act leaves a trace (`it reads the role-to-agent map from the registry` is checkable against the registry), and illegal when it records nothing (`it sweeps the corpus`). Where an act matters but records nothing, **add the record — a role `Output` field, a report, a ledger line — and assert that**, rather than dropping the act. In particular a `Then` asserts the **artifact's end-state or observable behavior**, never the **production process** that made it — "co-developed with the code", "written test-first", "refactored before completing", "authored in this order" are unobservable (nothing in the artifact or a run reveals the authoring sequence); rewrite such a `Then` to assert the artifact's observable behavior instead, and keep production discipline in governance prose, not a scenario.
 
 ## Form 2 — rubric Gherkin (`@rubric`, judged by hand)
 

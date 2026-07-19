@@ -213,6 +213,37 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate runs the feature-form check
     Then the check raises no parse violation for that file
 
+  # ---- Feature-form advisory tier ----
+
+  Scenario: an advisory feature-form finding is surfaced for judgment, not hard-blocked
+    Given a touched .feature whose only feature-form finding is advisory-tier
+    When the gate applies its structural checks
+    Then the gate surfaces the finding and does not fail closed
+    And it spawns the cold judge
+
+  Scenario: an advisory finding beside a blocking violation still fails the gate closed
+    Given a touched .feature carrying both an advisory-tier finding and a blocking form violation
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+
+  # ---- @trigger activation contract ----
+
+  Scenario: a @trigger outline missing the activation contract is surfaced for judgment
+    Given a touched .feature whose @trigger Scenario Outline has an Examples table carrying neither a query column nor a should_trigger column
+    When the gate runs the feature-form check
+    Then the check surfaces an advisory finding naming that scenario
+    And the gate does not fail closed
+
+  Scenario: a @trigger outline carrying the activation contract raises no finding
+    Given a touched .feature whose @trigger Scenario Outline has an Examples table carrying a query column and a should_trigger column
+    When the gate runs the feature-form check
+    Then the check raises no activation-contract finding for that scenario
+
+  Scenario: an untagged Scenario Outline is not held to the activation contract
+    Given a touched .feature with a Scenario Outline carrying no @trigger tag whose Examples table carries neither a query column nor a should_trigger column
+    When the gate runs the feature-form check
+    Then the check raises no activation-contract finding for that scenario
+
   # ---- Referenced-artifact-exists pre-filter ----
 
   Scenario: an unresolved reference the CR introduces is surfaced for judgment, not hard-blocked

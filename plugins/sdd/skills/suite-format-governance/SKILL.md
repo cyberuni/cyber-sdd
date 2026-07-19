@@ -83,6 +83,30 @@ explicit **scenario-map** table (`sdd:spec-format-governance`). The suite **mirr
   non-variance is a design decision, not an invariant.
 - **barred** — the `Then` asserts an edge that must **not** exist (an option never offered).
 
+## The tag set — every tag a `.feature` may carry
+
+This bar owns the whole `.feature` tag vocabulary. Nothing else defines a tag; a governance that
+mentions one is a consumer. The rules live in the sections named below — this table is the index.
+
+| Tag | Kind | Scope | Applied by | Means |
+| --- | --- | --- | --- | --- |
+| `@trigger` | layer (routing) | scenario | producer | Activation: does the subject fire when it should? Routes to the judge's **trigger-run policy**, so an Outline carrying it **must** supply `query` + `should_trigger` `Examples` columns — see *Optional conventions*. |
+| `@behavior` | layer (routing) | scenario | producer | Does it take the right steps? The default layer for a deterministic, fully-owned case — including an enumerated decision table. |
+| `@quality` | layer (routing) | scenario | producer | Is the output good? |
+| `@rubric` | assertion form | scenario | producer | The scenario is graded against an inline rubric (named dimensions + threshold) instead of a boolean `Then` — see *Form 2*. Orthogonal to the layer tags; a scenario may carry both. |
+| `@pinned` | ownership | scenario | **user only** | A user-owned seed scenario the agent may propose against but never change unilaterally — see *`@pinned`*. |
+| `@frozen` | lifecycle state | **file** | the gate | The suite is the agreed contract; narrowing it needs Clearance — see *The `@frozen` marker*. |
+
+Two distinctions worth keeping straight. **`@frozen` is the only file-level tag** — it sits on the
+`Feature`, not a scenario. And **a scenario carries at most one layer tag**: a layer tag *selects the
+run policy the judge executes*, so two would name two policies for one scenario and leave the
+routing undecided. `@rubric` and `@pinned` are not layers and compose freely with one. (This follows
+from the routing model rather than from a previously written rule; every one of the corpus's layer
+-tagged scenarios already satisfies it.)
+
+`check-suite` ignores tags it does not recognize, so an unknown tag fails silently rather than
+loudly — spell them exactly as written above.
+
 ## `@pinned` — user-owned seed scenarios
 
 A **user** may mark a scenario `@pinned`. It is **user-owned** (`sdd:ownership-governance`) — the one
@@ -187,16 +211,16 @@ post-freeze backstop.
 Additive and plugin-facing (e.g. ACED); untagged plain suites are unaffected and the structural
 check ignores unrecognized tags.
 
-- **Layer tags** route a scenario to a resolved judge's evaluation layer (`@behavior`, `@quality`,
-  and — where the node genuinely owns the routing decision — `@trigger`). Orthogonal to `@rubric`.
-- **`@trigger` carries a contract, not just a label.** It routes the scenario into the judge's
-  **trigger-run policy**, which reads a query and an expected activation verdict. So a `@trigger`
-  `Scenario Outline` must supply them: an `Examples` table with a **`query` column and a
-  `should_trigger` column**. An outline tagged `@trigger` whose table has neither routes the judge
-  into a policy it cannot execute — `check-suite` surfaces that **advisory** (the repair is a
-  judgment call: re-tag, adopt the contract, or retire). An **untagged** outline claims no
-  activation and is never held to this contract, so enumerated decision tables stay sanctioned —
-  a deterministic, fully-owned decision table wants `@behavior`, not `@trigger`.
+- **Layer tags** are defined in *The tag set* above; apply `@trigger` only where the node genuinely
+  owns the routing decision.
+- **`@trigger`'s activation contract is enforced, not advisory convention.** A `@trigger`
+  `Scenario Outline` must carry a **`query` column and a `should_trigger` column** — the tag routes
+  the scenario into the trigger-run policy, and that policy reads exactly those. An outline tagged
+  `@trigger` whose table has neither routes the judge into a policy it cannot execute; `check-suite`
+  surfaces it **advisory**, because the repair is a judgment call it cannot make (re-tag, adopt the
+  contract, or retire). An **untagged** outline claims no activation and is never held to this
+  contract, so enumerated decision tables stay sanctioned — a deterministic, fully-owned decision
+  table wants `@behavior`.
 - **`Scenario Outline` is a rare exception, not a default** (DAMP over DRY) — legitimate only for a
   genuinely uniform enumerated set (one varying token, every row the same `Then` shape). Two rows
   wanting different `Then`s are two scenarios, not one Outline. Requires a non-empty `Examples:` table

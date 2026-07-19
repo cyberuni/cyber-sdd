@@ -35,6 +35,10 @@ only.
 | **suite** | the scenarios of a spec taken as behavior. The word for what is specified. |
 | **`.feature`** | the file and format the suite is written in. The word for the artifact only. |
 | **scenario** | one acceptance case — a decision the capability makes, asserted as an observable boolean. |
+| **layer tag** (`@trigger`, `@behavior`, `@quality`) | the evaluation layer a scenario is routed through — **trigger** (does it fire when it should), **behavior** (does it take the right steps), **quality** (is the output good). A scenario carries at most one: the tag selects the run policy the judge executes. |
+| **activation contract** | what `@trigger` obliges. Because the tag routes a scenario into the trigger-run policy, and that policy reads a query and an expected verdict, a `@trigger` `Scenario Outline` must carry `query` and `should_trigger` `Examples` columns. An outline that does not is not an activation case and wants `@behavior`. |
+| **rubric** (`@rubric`) | a scenario graded against inline named dimensions and a threshold rather than a boolean `Then`. Orthogonal to the layer tags — a scenario may carry both. |
+| **pin** (`@pinned`) | a user-owned seed scenario. The one scenario class the agent does not own: it may propose a change but never execute one without in-session user authorization. Only the user pins. |
 | **freeze** (`@frozen`) | a per-file flag marking a suite as the agreed contract. Protects scenario **content**, not file location: a pure rename preserves it, a content change does not. |
 | **additive** | a new scenario that widens the contract. It cannot break existing implementation, so it self-clears into a frozen file without escalation. |
 | **Clearance** | the escalation required to *narrow or rewrite* a frozen scenario. Granted by the owner, recorded before the edit, never assumed. |

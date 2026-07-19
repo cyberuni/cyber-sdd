@@ -147,7 +147,7 @@ never shared into another mission's context.
 The five roles apply three **lenses** (governances, not agents): **Oracle** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the
 spec-judge and impl-judge **apply** them backward. There is no "Builder judge" or "Oracle
-agent" — a verdict has a Oracle-lens face, a Builder-lens face, and an Architect-lens face.
+agent" — a verdict has an Oracle-lens face, a Builder-lens face, and an Architect-lens face.
 
 The constraint that forces the judge split is **`producer ≠ judge`**, enforced by context
 separation: the hand that writes an artifact never signs off on it. Tagline: **"the conductor

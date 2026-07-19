@@ -77,7 +77,7 @@ Sources: `automaton-freeze`, `sdd-gate-autonomy`, `sdd-state-legality`.
 - D1. A spec-gate approve freezes the `.feature` files the CR touched (a per-file `@frozen` tag); `spec.md` is kept in sync but never frozen, and the plan (brief + ordered `todos`) is never frozen — with no separate plan gate.
 - D2. The frozen `.feature` is the object at the spec gate and the bar at the impl gate.
 - D3. An agent refuses to edit a frozen `.feature` and directs reverting to draft.
-- D4. A fatal deal-breaker reverts an approved spec to draft (a Oracle-revert) and unfreezes the `.feature`.
+- D4. A fatal deal-breaker reverts an approved spec to draft (an Oracle-revert) and unfreezes the `.feature`.
 - D5. A spec can be Approved with no implementation; an illegal state tuple (impl committed against an unfrozen `.feature`) is rejected.
 
 ### E. Gate verdicts (authoring + mission, producer/judge separation)

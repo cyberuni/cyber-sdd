@@ -2,8 +2,6 @@
 name: remediation-governance
 description: "Partial Skill: invoke by name only — the SDD remediation bar: how a producer responds to a `change` verdict at either gate. Loaded by the spec-producer and the impl-producer, not user-triggered."
 user-invocable: false
-metadata:
-  internal: true
 ---
 
 # Remediation Governance — responding to a `change` verdict

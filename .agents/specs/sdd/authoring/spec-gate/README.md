@@ -62,6 +62,18 @@ contract): **approve** → land the diff and freeze each touched `.feature` file
 `@frozen` tag); **change** → revise the diff, nothing freezes yet; **reject** → scope-kill, drop
 the delta.
 
+**A `change` verdict's findings are evidence, not a work order.** Remediating them one cited line at
+a time fixes instances and leaves the defect — and can introduce new defects the next round then
+reports. The producer therefore: **substantiates** each finding before acting (an unsubstantiated one
+is contested with evidence, not edited away); states the **rule** each finding instantiates and
+**sweeps** for its other instances, reporting the ruled-out candidates as well as the hits;
+**re-derives** each correction against the rule *governing the artifact*, since a correction that
+clears the finding while contradicting that rule is worse than the defect it replaced; and accounts
+for findings by **provenance** each round. All findings pre-existing ⇒ the loop is **converging**.
+Any finding introduced by the previous round's remediation ⇒ the loop is **diverging**, which halts
+iteration for a re-plan rather than another remediation round. Frozen in
+[`../../workflows/gate-verdicts.feature`](../../workflows/gate-verdicts.feature) (theme E).
+
 **Freeze on approval is per file.** Each touched `.feature` is **hard-frozen** via its own
 `@frozen` tag; untouched files keep their state. What may be done to a frozen file depends on the
 **edit class**, not on the freeze itself (`../../design/lifecycle-model.md` — the unfreeze trigger is

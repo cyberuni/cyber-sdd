@@ -87,6 +87,10 @@ Sources: `sdd-gate-autonomy`, `automaton-deliver`, `sdd-mission-loop`.
 - E2. The impl gate passes only when every frozen scenario has a passing verification; an uncovered scenario fails it and `status` stays `approved`.
 - E3. The cold judge runs the producer's verification and adds its own structural/scope reading; the producer never declares its own pass verdict.
 - E4. `status` advances to `implemented` only when every impl-judge passes, and the gate station (not the conductor) writes `status` and the human ratification.
+- E5. A **change** verdict is evidence, not a work order: the producer substantiates each finding before acting, contests the ones it cannot substantiate, and edits nothing for those.
+- E6. A finding names an **instance**; the producer states the **rule** it instantiates and sweeps the corpus for every other instance before fixing.
+- E7. A correction is re-derived against the rule **governing the artifact**, not merely against the finding — a correction that clears the finding while contradicting that rule is rejected.
+- E8. Findings are accounted for by **provenance** each round: one caused by the previous round's remediation means the loop is **diverging**, which halts iteration and forces a re-plan.
 
 ### F. Handoff (mission verified result → delivery shape)
 Sources: `mission/handoff/` (new), commit discipline.

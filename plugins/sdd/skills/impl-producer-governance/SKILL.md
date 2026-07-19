@@ -51,6 +51,30 @@ MODE: explore | implement
    `CONTENT_GAP` / `BLOCKER`, never an in-place edit. Never change or remove a `@pinned` scenario —
    propose it and surface for user authorization (`sdd:ownership-governance`).
 
+## Responding to a `change` verdict — evidence, not a work order
+
+A gate verdict's findings are **evidence to reason from**, never a task list to execute. Working
+down the list edit-by-edit is the failure this section exists to prevent: it fixes cited lines while
+leaving the defect, and it can introduce defects the next round then reports.
+
+1. **Substantiate each finding first.** A finding is a **hypothesis**. Verify it against the artifact
+   before touching anything. One you cannot substantiate is **contested** — return your evidence and
+   edit nothing. Fixing an unverified finding is how a vague line becomes a wrong one.
+2. **State the rule, then sweep.** A judge names an **instance**; the defect is the **rule**. Name
+   the rule the finding instantiates and sweep the corpus for every other instance — in a script, so
+   the result is reproducible — before making any edit. Report the sweep's **negative** half too: the
+   candidates you inspected and ruled out, so the next reader need not re-run it.
+3. **Re-derive the correction against the rule that governs the artifact**, not merely against the
+   finding. "Does this still trip the finding?" is the weak question. "Is what it now says **true**?"
+   is the one that matters — a correction that clears the finding while contradicting a governance
+   the artifact is bound by is a worse defect than the one it replaced.
+4. **Account for findings by provenance, every round.** Split them into *pre-existing* and
+   *introduced by the previous round's remediation*. All pre-existing ⇒ the loop is **converging**;
+   continue. **Any** finding traceable to the last round's fix ⇒ the loop is **diverging** — stop,
+   report it, and re-plan. Do not open another remediation round on a diverging loop.
+
+Frozen as `workflows/gate-verdicts.feature` (theme E, rows E5-E8).
+
 ## Output (the conductor collects)
 
 ```

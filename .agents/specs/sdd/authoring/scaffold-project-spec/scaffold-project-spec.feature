@@ -90,7 +90,8 @@ Feature: scaffold-project-spec — lay out a project's spec
     Then the recommended option is shown first and the user can choose another
 
   Scenario: the location is never silently assumed
-    Given a project whose shape allows more than one valid location
+    Given a package nested in a monorepo that is itself an agentic plugin
+    And the spec could sit hoisted at the repo root or colocated beside the package
     When the bootstrap proceeds
     Then it surfaces the location choice rather than assuming one
 
@@ -125,7 +126,8 @@ Feature: scaffold-project-spec — lay out a project's spec
     Then it shows one recommended strategy with its rationale and the alternative
 
   Scenario: layering is never offered as the top-level body
-    Given a strongly layered project
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
     When the bootstrap presents strategy options
     Then layered organization is not offered as a top-level strategy
 
@@ -187,7 +189,7 @@ Feature: scaffold-project-spec — lay out a project's spec
     Then it asks the user and confirms the name before writing it to the root frontmatter
 
   Scenario: a colocated project with a correct repo-root name writes no name frontmatter
-    Given a colocated project whose repo-root name is already correct
+    Given a colocated project whose repo-root directory name equals the derived project name
     When the bootstrap writes the root spec.md
     Then it writes no name frontmatter
 

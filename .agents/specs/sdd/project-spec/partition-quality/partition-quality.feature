@@ -87,14 +87,6 @@ Feature: check-partition-quality — does this layout permit parallel work
     When check-partition-quality reports each headline
     Then the headline reflects the parallel work each permits rather than rewarding fewer nodes
 
-  # ── Boundary ──
-
-  Scenario: the engine writes nothing to the repository
-    Given a completed measurement
-    When check-partition-quality finishes
-    Then it has moved no file, written no spec, and changed no layout
-
-  Scenario: the measurement renders no verdict on the layout
-    Given a measured partition with a poor parallelizable share
-    When check-partition-quality reports
-    Then it reports the number without approving or rejecting the layout
+  # The read-only and no-verdict properties hold on every path, so they sit on no edge the
+  # ## Logic graph draws: invariants, not decisions. Acceptance-only-strict leaves them to the
+  # engine's own unit suite, which covers both (`sdd:suite-format-governance`).

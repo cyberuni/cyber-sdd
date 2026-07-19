@@ -81,8 +81,6 @@ reader does not "simplify" the engine back onto one of them.
 | CMP | a completed comparison | `the comparison reports the parallelizable share of each candidate` |
 | DIAG | any report *(convergence)* | `the confounded diagnostics are labelled as confounded` |
 | DIAG | a coarse and a fine partition | `a coarser partition does not win on the headline by being coarser` |
-| BOUNDARY | a completed measurement | `the engine writes nothing to the repository` |
-| BOUNDARY | a poor parallelizable share | `the measurement renders no verdict on the layout` |
 
 ## References
 

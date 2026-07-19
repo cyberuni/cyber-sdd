@@ -113,7 +113,8 @@ Feature: scaffold-project-spec — lay out a project's spec
     Then mirror-source is among the strategies offered
 
   Scenario: mirror-source over a layer-organized source is offered with its cost stated
-    Given a project in detection mode whose src/ is organized by layer
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
     When the bootstrap offers mirror-source
     Then it states that the coarser partition yields a slower schedule and never an incorrect one
     And it names the false-conflict rate as the signal that would later earn a capability its own home

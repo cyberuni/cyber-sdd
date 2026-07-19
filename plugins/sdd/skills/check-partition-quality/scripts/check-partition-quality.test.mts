@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import {
 	type Change,
@@ -150,6 +151,20 @@ test('the report renders no verdict on the layout', () => {
 
 test('an unknown partition name is rejected without running', () => {
 	assert.equal(main(['--partition', 'no-such-partition']), 1)
+})
+
+// Relocated from the acceptance suite at the 2026-07-19 spec gate: "the engine writes nothing to
+// the repository" holds on every path, so it sits on no edge and is an invariant, not a decision.
+// It keeps its guard here rather than being dropped.
+test('the engine has no write surface — it reads git history and prints', () => {
+	const src = readFileSync(new URL('./check-partition-quality.mts', import.meta.url), 'utf8')
+	assert.doesNotMatch(src, /writeFileSync|appendFileSync|mkdirSync|rmSync|unlinkSync|createWriteStream/)
+
+	const gitCalls = [...src.matchAll(/execFileSync\(\s*'git',\s*\[([\s\S]*?)\]/g)]
+	assert.ok(gitCalls.length > 0, 'expected the engine to shell out to git')
+	for (const [, args] of gitCalls) {
+		assert.match(args, /'log'/, 'the only git subcommand may be the read-only `log`')
+	}
 })
 
 test('withinNodeCoChangeRatio and meanNodesTouched stay exported for the report', () => {

@@ -113,15 +113,37 @@ explode, and the schedule degrades toward **serial** (ADR-0025).
 
 So layouts are ranked by whether they preserve that alignment, not by taste:
 
-- **capability-first** — aligned by construction.
-- **mirror-source** — aligned *when the source is already feature-first*, which is the only condition
-  it is offered under; it inherits the source's alignment rather than creating one.
-- **layered / framework-first as the *top* level** — **discouraged**, and a declaration does not
-  rescue it. Layering survives only *nested inside* a capability.
+- **capability-first** — aligned by construction; the recommendation.
+- **mirror-source** — inherits whatever alignment the source has. Best case is a feature-first
+  source, which is already capability-aligned; over a layered source it is **still offered**, with
+  the cost named (below).
+- **layered / framework-first as the *top* level** — **discouraged** as a *chosen* layout for a
+  project free to choose, and a declaration does not rescue it. Layering survives *nested inside* a
+  capability.
 
 The invariant that holds under **every** strategy: **one capability per node, never smeared across
 nodes**. A declared layout says where a node goes; it never licenses a capability to scatter. The
 scheduler's **false-conflict rate** is the standing metric of the partition's quality.
+
+### A coarse partition costs precision, not correctness
+
+This is why an imperfect layout is workable rather than disqualifying. The scheduler is
+**conservative** — a collision it cannot resolve **serializes** — so the worst case of a poor
+partition is a **slower schedule, never a corrupted one**. Three mechanisms recover most of the loss:
+
+- **The collision ladder descends below the node** — file, region, semantic, symbol — so two missions
+  sharing a node but touching different symbols classify **soft** and still co-wave. The residue is
+  `symbol-rung-deferred`: symbols that cannot be inferred stay hard.
+- **Worktrees** dissolve file-level false dependencies until write-back.
+- **The concept axis** carries the capability view the folders do not: in a mirrored tree the folders
+  name source areas while `concept:` tags still name capabilities.
+
+**Adoption over purity.** Demanding a restructuring before a project may hold its first spec is an
+entry toll, and an unadopted tool partitions nothing. A project adopts on the shape it has,
+accumulates `concept:` tags as it writes nodes, and **hoists one capability at a time when the
+false-conflict rate earns the move** — a concept spanning many nodes being the measured signal that a
+capability wants its own home. Capability-first is the **destination**, reached on evidence, not the
+entry condition.
 
 ## Key points (read-check)
 

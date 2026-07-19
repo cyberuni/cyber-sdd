@@ -106,6 +106,18 @@ Feature: scaffold-project-spec — lay out a project's spec
     When the bootstrap recommends a strategy
     Then it offers the mirror-source strategy
 
+  Scenario: a layer-organized code base is also offered mirror-source
+    Given a project in detection mode
+    And its src/ is organized by layer rather than by feature
+    When the bootstrap presents strategy options
+    Then mirror-source is among the strategies offered
+
+  Scenario: mirror-source over a layer-organized source is offered with its cost stated
+    Given a project in detection mode whose src/ is organized by layer
+    When the bootstrap offers mirror-source
+    Then it states that the coarser partition yields a slower schedule and never an incorrect one
+    And it names the false-conflict rate as the signal that would later earn a capability its own home
+
   Scenario: one recommendation and its alternative are presented for the user to choose
     Given the bootstrap has selected a recommended strategy
     When it presents the strategy choice

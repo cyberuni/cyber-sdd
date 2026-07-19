@@ -85,9 +85,18 @@ Present **one recommendation + its rationale + the alternative**; the user choos
 - **capability-first** *(default)* — top-level folders by what the project *does*. Recommend when a capability
   decomposition is discernible. For a fixed-layout plugin this is a spec-side abstraction over fixed source —
   accepted for legibility; name the spec↔source divergence as a known cost.
-- **mirror-source** — spec nodes track the source tree. Offer when `src/` is already **feature-first** and
-  navigated-by-code. Mirror is **boundary-aligned** (step 4). **Detection mode only** — there is no source
-  tree to mirror in intent mode.
+- **mirror-source** — spec nodes track the source tree. Offer whenever the team **navigates by code**;
+  a **feature-first** `src/` is the best case, not a precondition. Over a **layered** source, still
+  offer it — but name the cost: the folder partition is coarse, so the scheduler sees more collisions
+  and the schedule is slower (never wrong — an unresolved collision serializes, `sdd:spec-structure-governance`).
+  Say what recovers it (the collision ladder resolves most shared-node pairs at the file or symbol
+  rung) and what the exit looks like (concept tags accumulate; hoist a capability when the
+  false-conflict rate earns it). Mirror is **boundary-aligned** (step 4). **Detection mode only** —
+  there is no source tree to mirror in intent mode.
+
+**Do not require a restructuring before the first spec.** An existing project adopting SDD keeps the
+shape it has; capability-first is the destination, reached on evidence, not an entry toll. Recommend
+capability-first, accept mirror-source with its cost stated, and let the data drive the migration.
 
 In **intent mode**, recommend from the capabilities the user stated in step 1. If they have not stated any,
 **ask for them** — never apply the capability-first default silently. (Detection mode's no-signal fallback

@@ -89,7 +89,7 @@ flowchart TD
   D3 -->|"single"| D4{"strategy"}
   FAN --> D4
 
-  D4 -->|"capabilities discernible or stated"| ST1["capability-first"]
+  D4["D4 · strategy — recommend / offer / bar"] -->|"capabilities discernible or stated"| ST1["capability-first"]
   D4 -->|"source already feature-first"| ST2["mirror-source"]
   D4 -->|"detection mode · no signal"| ST3["capability-first default"]
   D4 -->|"intent mode · capabilities not stated"| ASK["ask for intended capabilities"]
@@ -143,12 +143,14 @@ does not vary across the paths reaching that edge.
 | D2 | detection · plain single project | `a plain repo-level project is recommended the colocated location` |
 | D3 | any recommended location *(convergence)* | `the recommended location is surfaced first and is overridable` |
 | D3 | more than one valid location | `the location is never silently assumed` |
-| D4 | detection · capabilities discernible | `a project with a discernible capability decomposition is recommended capability-first` |
-| D4 | detection · source feature-first | `a feature-first code base navigated by code is offered mirror-source` |
-| D4 | detection · src layer-organized | `a layer-organized project takes the capability-first default` |
-| D4 | any recommended strategy *(convergence)* | `one recommendation and its alternative are presented for the user to choose` |
-| D4 | strongly layered project *(barred)* | `layering is never offered as the top-level body` |
-| D4 | any project *(barred)* | `ADR is not offered as a strategy` |
+| D4-rec | detection · capabilities discernible | `a project with a discernible capability decomposition is recommended capability-first` |
+| D4-rec | detection · src layer-organized | `a layer-organized project takes the capability-first default` |
+| D4-offer | detection · source feature-first | `a feature-first code base navigated by code is offered mirror-source` |
+| D4-offer | detection · src layer-organized | `a layer-organized code base is also offered mirror-source` |
+| D4-cost | detection · src layer-organized | `mirror-source over a layer-organized source is offered with its cost stated` |
+| D4-present | any recommended strategy *(convergence)* | `one recommendation and its alternative are presented for the user to choose` |
+| D4-bar | strongly layered project | `layering is never offered as the top-level body` |
+| D4-bar | any project | `ADR is not offered as a strategy` |
 
 ### greenfield (intent mode)
 
@@ -159,8 +161,8 @@ does not vary across the paths reaching that edge.
 | DER | intent · path established | `the spec location is derived from the project path in intent mode` |
 | DER | intent · will be an agentic plugin | `a greenfield agentic plugin has its spec hoisted` |
 | DER | intent · spec can be excluded from the package | `a greenfield nested package keeps its spec colocated` |
-| D4 | intent · capabilities stated | `intent mode recommends a strategy from the capabilities the user states` |
-| D4 | intent · capabilities not stated | `intent mode does not silently apply the capability-first default` |
+| D4-rec | intent · capabilities stated | `intent mode recommends a strategy from the capabilities the user states` |
+| D4-rec | intent · capabilities not stated | `intent mode does not silently apply the capability-first default` |
 
 ### monorepo
 

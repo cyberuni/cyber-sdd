@@ -287,7 +287,13 @@ export function render(results: [string, Measurement | ThinHistory][], repo: str
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
 
-export function main(argv: string[]): number {
+/**
+ * The effects `main` reaches the outside world through. Dependencies enter at the CLI boundary and
+ * nowhere below it: everything under `main` is pure over the history it is handed.
+ */
+export type Context = { readHistory: typeof readHistory }
+
+export function main(argv: string[], context: Context = { readHistory }): number {
 	let repo = '.'
 	let scope = ''
 	let floor = DEFAULT_FLOOR
@@ -310,7 +316,9 @@ export function main(argv: string[]): number {
 			return 1
 		}
 	}
-	const changes = readHistory(repo, (f) => (scope ? f.startsWith(scope) : true), limit)
+	// Read ONCE, then measure every candidate over that one history — the comparison is only
+	// meaningful if each candidate is scored against the same commits and the same scope.
+	const changes = context.readHistory(repo, (f) => (scope ? f.startsWith(scope) : true), limit)
 	const results = candidates.map(
 		(c) =>
 			[c, measure(changes, (PARTITIONS[c] as (s: string) => Partition)(scope), floor)] as [

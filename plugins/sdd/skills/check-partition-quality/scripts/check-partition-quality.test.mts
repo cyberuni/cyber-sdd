@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { test } from 'node:test'
 import {
 	type Change,
+	type Context,
 	collisionRate,
 	DEFAULT_FLOOR,
 	isThin,
@@ -192,22 +193,30 @@ test('the render labels the diagnostics as confounded and never headlines them',
 // ── Comparing candidate partitions ────────────────────────────────────────────
 
 test('two candidate partitions are compared on the same history — same commits, same scope', () => {
-	// One shared history, measured under two different partitions of the SAME files/scope.
+	// Drives the real main() through its context boundary. Asserting on a hand-shared array passed
+	// to measure() twice would only prove the test's own setup — the promise this scenario makes is
+	// that the TOOL reads history once and scores every candidate against that one read, which lives
+	// in main() and is observable only from here.
 	const scope = 'src/'
 	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({
 		files: [`src/n${i % 10}/deep/a.ts`, `src/n${i % 10}/deep/b.ts`],
 	}))
-	const topFolder = PARTITIONS['top-folder']?.(scope) as (f: string) => string | undefined
-	const secondFolder = PARTITIONS['second-folder']?.(scope) as (f: string) => string | undefined
-	const mTop = measure(cs, topFolder)
-	const mSecond = measure(cs, secondFolder)
-	assert.ok(!isThin(mTop) && !isThin(mSecond))
-	if (!isThin(mTop) && !isThin(mSecond)) {
-		// Every file is in scope for both partitions, so both must be measured over the identical
-		// set of usable commits — the same number of change pairs.
-		assert.equal(mTop.pairs, mSecond.pairs)
-		assert.equal(mTop.pairs, (30 * 29) / 2)
+	const calls: Array<{ repo: string; limit: number; scoped: boolean }> = []
+	const readHistory: Context['readHistory'] = (repo, inScope, limit = 4000) => {
+		calls.push({ repo, limit, scoped: inScope('src/n0/deep/a.ts') && !inScope('other/x.ts') })
+		return cs
 	}
+	const code = main(
+		['--repo', '/some/repo', '--scope', scope, '--partition', 'top-folder', '--partition', 'second-folder'],
+		{ readHistory },
+	)
+	assert.equal(code, 0)
+	// Read exactly ONCE for two candidates — re-reading per candidate is the defect this guards.
+	assert.equal(calls.length, 1)
+	// ...and that one read carried the same repo, limit, and scope filter both candidates are scored under.
+	assert.equal(calls[0]?.repo, '/some/repo')
+	assert.equal(calls[0]?.limit, 4000)
+	assert.ok(calls[0]?.scoped)
 })
 
 test('the comparison reports the parallelizable share of each candidate', () => {

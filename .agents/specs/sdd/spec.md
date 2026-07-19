@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/sdd
 approval:
   spec:
@@ -10,9 +10,9 @@ approval:
     by: agent
     why:
       floor: none
-      blast: low — the pin bump plus its bound tests; no classifier logic changed, since the engine only shells out to the differ
-      novelty: none — the frozen contract was settled at the spec gate and the implementation adds no route of its own
-      confidence: high — cold impl-judge re-derived all seven oracles independently and passed each, re-ran the pin ablation itself rather than trusting the claim, and confirmed every fixture pair differs only in the axis its scenario names; suite 27/27, root verify 21/21
+      blast: medium — three co-gated CRs; new shipped skill (spec-structure-governance) + measurement engine (check-partition-quality) + the test-framework governance rebuild; all behavior-changing, all against frozen suites
+      novelty: low — no new autonomy floor; the impl gate ran its standard cold re-derive-and-verify per CR
+      confidence: high — three cold impl-judges, one per CR, each re-derived its scenarios' oracles independently and ran pnpm verify itself. test-framework-rebuild passed round 1 clean. spec-organization-rebuild failed one scenario (formation routing-table disjunct), fixed at the bar not the cited lines, round 2 verified the root-cause claim independently. partition-quality took four rounds — one rule-4 halt and owner re-plan (a context seam at main's boundary) — converging when a round-4 adversarial hunt across five new mutant classes produced zero survivors. Root verify 34/34
 ---
 
 # Spec-Driven Development (SDD)

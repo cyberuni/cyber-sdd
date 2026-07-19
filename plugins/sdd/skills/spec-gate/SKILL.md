@@ -139,7 +139,7 @@ self-clears.
 | Verb | Action |
 |---|---|
 | **approve** | land the diff; **freeze** each touched `.feature` (set its own `@frozen` tag); append a per-CR `gate` line to the mission's **own shard** in the `ledger/` directory sibling to `spec.md` (`verdict: approve`, `frozen[]`, keyed by `cr`, no `ts`); write `status: approved` |
-| **change** | revise the diff; **nothing freezes**; stays `draft`. The findings are **evidence, not a work order** — the producer substantiates each before acting, states the **rule** each instantiates and sweeps for its other instances, re-derives every correction against the rule **governing the artifact**, and accounts for findings by **provenance**: any finding introduced by the previous round's remediation means the loop is **diverging** and halts it for a re-plan (`sdd:spec-producer-governance`, "Responding to a `change` verdict") |
+| **change** | revise the diff; **nothing freezes**; stays `draft`. The findings are **evidence, not a work order** — the producer substantiates each before acting, states the **rule** each instantiates and sweeps for its other instances, re-derives every correction against the rule **governing the artifact**, and accounts for each finding's **provenance**: a finding naming an artifact the previous round's commits changed is a **regression**, which stops the loop for a re-plan (`sdd:remediation-governance`) |
 | **reject** | scope-kill — drop the delta; nothing freezes |
 
 **Freeze is per `.feature` file.** Each touched file hard-freezes via its `@frozen` tag; untouched

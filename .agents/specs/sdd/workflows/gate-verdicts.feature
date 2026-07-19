@@ -6,7 +6,7 @@ Feature: SDD acceptance — gate verdicts (producer/judge separation across both
   Scenario: the gate report carries a verdict regenerated from current state
     Given a gate rendering its report
     When the report is produced
-    Then it carries the verdict with its Director, Builder, and Architect lens faces
+    Then it carries the verdict with its Oracle, Builder, and Architect lens faces
     And it names the contestable defaults chosen
     And it flags when the verdict was self-asserted
     And it is regenerated from current state rather than stored
@@ -26,29 +26,35 @@ Feature: SDD acceptance — gate verdicts (producer/judge separation across both
     When the producer responds to the verdict
     Then it remediates the finding
 
-  Scenario: a finding naming one instance is swept for every instance before it is fixed
+  Scenario: a finding naming one instance is answered with its rule and its sweep
     Given a gate verdict of change whose finding names one artifact
-    When the producer responds to the verdict
-    Then it states the rule that finding instantiates
-    And it sweeps the corpus for every other instance of that rule
-    And its remediation covers the instances the sweep returned
+    When the producer returns its remediation
+    Then the returned remediation names the rule that finding instantiates
+    And it lists the other instances of that rule the sweep found
+    And it lists the candidates the sweep inspected and excluded
 
-  Scenario: a correction is re-derived against the rule that governs it
-    Given a producer that has corrected an artifact a finding named
+  Scenario: a correction contradicting the rule governing its artifact is rejected
+    Given a correction that clears the finding it answers
+    And that correction contradicts a governance the corrected artifact is bound by
     When the correction is checked before re-gating
-    Then it is checked against the rule governing that artifact
-    And a correction that clears the finding while contradicting that rule is rejected
+    Then it is rejected
 
-  Scenario: a finding caused by the previous round's fix halts the loop
-    Given a gate round carrying a finding that the previous round's remediation introduced
-    When the producer accounts for its findings by provenance
-    Then it reports the loop as diverging
-    And it re-plans rather than opening another remediation round
+  Scenario: a correction satisfying both the finding and its governing rule is accepted
+    Given a correction that clears the finding it answers
+    And that correction agrees with every governance the corrected artifact is bound by
+    When the correction is checked before re-gating
+    Then it is accepted
 
-  Scenario: a round whose findings all predate the last fix continues the loop
-    Given a gate round whose findings all predate the previous round's remediation
-    When the producer accounts for its findings by provenance
-    Then it reports the loop as converging
+  Scenario: a finding naming an artifact the previous round changed is a regression
+    Given a gate finding naming an artifact that the previous remediation round's commits changed
+    When the producer accounts for that finding's provenance
+    Then the returned remediation reports it as a regression
+    And the loop stops for a re-plan rather than opening another remediation round
+
+  Scenario: a finding naming an artifact older than the previous round continues the loop
+    Given a gate finding naming an artifact that predates the previous remediation round's commits
+    When the producer accounts for that finding's provenance
+    Then the returned remediation reports it as pre-existing
     And remediation continues
 
   Scenario: the impl gate passes only when every frozen scenario has a passing verification

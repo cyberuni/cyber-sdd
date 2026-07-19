@@ -51,7 +51,11 @@ it and judge structural fit **against that**, never against a default: a project
 tree** — that makes the audit circular (the shape the corpus has becomes the standard it is judged
 by) and, on a half-migrated corpus, judges it against the layout it is migrating away from. A map
 naming no strategy is judged against the **capability-first** default, and the missing declaration
-is itself a finding. A declared layout settles *where a node goes*; it never licenses a capability to
+is itself a finding. **Read the map's routing table too, not only its strategy:** a node placed by an
+explicit routing-table row (the "concept of kind K lives in home H" taxonomy and its tie-breaks) is
+correctly placed even where the strategy's own derivation would put it elsewhere, so report a node
+misplaced only when it **neither** follows the declared strategy **nor** matches a routing-table row
+— judging on the strategy alone raises false findings against placements a human already adjudicated. A declared layout settles *where a node goes*; it never licenses a capability to
 scatter across nodes. (Strategy is policy — read it; homes are data — derive them.)
 
 ## The intra-spec structural acts

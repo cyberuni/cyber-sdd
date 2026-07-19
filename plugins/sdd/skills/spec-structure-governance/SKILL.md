@@ -99,6 +99,15 @@ below; declaring a layout does not license breaking node<->capability alignment.
 - **They compose:** the declared strategy **parameterizes the derivation**. Keep deriving homes, but
   ask the placement map *which* derivation to run.
 
+**The placement map has two parts, and a placement judgment must consult both.** Beside the declared
+strategy it carries a **routing table** — the maintained "a concept of kind K lives in home H"
+taxonomy plus the human **tie-break** rows for genuinely contested overlaps. The table records
+decisions the strategy alone does not settle, so a node placed by an explicit routing-table row is
+**correctly placed even when it does not match the strategy's derivation**. Judging misplacement on
+the strategy alone therefore reports false findings against exactly the placements a human already
+adjudicated. The test is a disjunction: a node is misplaced only when it **neither** follows the
+declared strategy **nor** matches a routing-table row.
+
 This is the same split the corpus-discovery rule already makes — fixed conventions are scanned,
 while an off-convention anchor list is declared and curated. "No drift" means *do not store what you
 can observe*, never *do not declare a choice*.

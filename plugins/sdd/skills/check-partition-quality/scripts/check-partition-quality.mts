@@ -259,6 +259,9 @@ export function renderOne(label: string, m: Measurement | ThinHistory): string {
 		`    collision rate       : ${pct(m.collisionRate)}  over ${m.pairs} change pairs, ${m.nodes} nodes`,
 		`    shuffled control     : ${pct(m.control)}  (margin ${m.marginOverControl >= 0 ? '+' : ''}${pct(m.marginOverControl)})`,
 	]
+	if (m.collisionRate >= 1) {
+		lines.push('    ⚠ every change pair collides — this partition permits no parallel work')
+	}
 	if (m.explainsNothing) {
 		lines.push('    ⚠ this partition explains no more than chance — do not trust the headline')
 	}

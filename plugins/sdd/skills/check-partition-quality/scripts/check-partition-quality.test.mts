@@ -64,6 +64,18 @@ test('a single-node partition collides on every pair — no parallel work is pos
 	assert.equal(collisionRate(cs, single).rate, 1)
 })
 
+test('a partition of one node collides with itself on every pair, and the report names it as permitting no parallel work', () => {
+	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({ files: [`n${i % 6}/a`, `n${i % 6}/b`] }))
+	const single = PARTITIONS.single?.('') as (f: string) => string | undefined
+	const m = measure(cs, single)
+	assert.ok(!isThin(m))
+	if (!isThin(m)) {
+		assert.equal(m.collisionRate, 1)
+		const out = render([['x', m]], '.', '')
+		assert.match(out, /permits no parallel work/)
+	}
+})
+
 test('a fully disjoint partition collides on no pair', () => {
 	const cs: Change[] = [{ files: ['a/1', 'a/2'] }, { files: ['b/1', 'b/2'] }]
 	assert.equal(collisionRate(cs, p).rate, 0)
@@ -97,13 +109,49 @@ test('history at the floor is measured', () => {
 // ── The control ──────────────────────────────────────────────────────────────
 
 test('a partition no better than its shuffled control is flagged as explaining nothing', () => {
-	// Every change touches every node ⇒ shuffling cannot make it worse; the partition explains nothing.
-	const cs: Change[] = Array.from({ length: 30 }, () => ({ files: ['a/1', 'b/1', 'c/1'] }))
+	// A non-degenerate fixture: collisionRate is NOT pinned at 1, so the flag genuinely depends on
+	// the control's actual value (a hardcoded control could not reproduce this margin by accident).
+	// Node assignment (i, (i*3+1) mod 8) is arbitrary relative to co-change, so the real partition
+	// performs about as well as a shuffle of the same node sizes — margin <= 0.
+	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({
+		files: [`n${i % 8}/x${i}`, `n${(i * 3 + 1) % 8}/y${i}`],
+	}))
 	const m = measure(cs, p)
 	assert.ok(!isThin(m))
 	if (!isThin(m)) {
+		assert.notEqual(m.collisionRate, 1, 'fixture must not be the degenerate all-collide case')
+		assert.equal(m.control, shuffledControl(cs, p), 'the reported control must be the real shuffle, not a stand-in')
+		assert.notEqual(m.control, 0, 'a real shuffled control over this fixture is never exactly zero')
 		assert.equal(m.explainsNothing, true)
 		assert.match(render([['x', m]], '.', ''), /explains no more than chance/)
+	}
+})
+
+test('a partition better than its shuffled control reports the margin', () => {
+	// Each change lives entirely inside one of ten nodes — real structure a shuffle destroys.
+	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({ files: [`n${i % 10}/a`, `n${i % 10}/b`] }))
+	const m = measure(cs, p)
+	assert.ok(!isThin(m))
+	if (!isThin(m)) {
+		assert.equal(m.control, shuffledControl(cs, p), 'the reported control must be the real shuffle')
+		assert.ok(m.control > m.collisionRate, 'fixture must genuinely beat its control, or margin proves nothing')
+		assert.ok(m.marginOverControl > 0)
+		assert.equal(m.explainsNothing, false)
+		const out = render([['x', m]], '.', '')
+		assert.match(out, /margin \+/)
+	}
+})
+
+test('every run reports a shuffled control alongside the measurement, wired through measure() and render()', () => {
+	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({ files: [`n${i % 10}/a`, `n${i % 10}/b`] }))
+	const m = measure(cs, p)
+	assert.ok(!isThin(m))
+	if (!isThin(m)) {
+		// Tie the reported field to an independently computed real shuffle, not just "some number".
+		assert.equal(m.control, shuffledControl(cs, p))
+		assert.notEqual(m.control, 0)
+		const out = render([['x', m]], '.', '')
+		assert.match(out, new RegExp(`shuffled control\\s*: ${(m.control * 100).toFixed(1)}%`))
 	}
 })
 
@@ -139,6 +187,61 @@ test('the render labels the diagnostics as confounded and never headlines them',
 	assert.match(out, /CONFOUNDED by node count/)
 	assert.match(out, /← the headline/)
 	assert.match(out.split('← the headline')[0] ?? '', /parallelizable share/)
+})
+
+// ── Comparing candidate partitions ────────────────────────────────────────────
+
+test('two candidate partitions are compared on the same history — same commits, same scope', () => {
+	// One shared history, measured under two different partitions of the SAME files/scope.
+	const scope = 'src/'
+	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({
+		files: [`src/n${i % 10}/deep/a.ts`, `src/n${i % 10}/deep/b.ts`],
+	}))
+	const topFolder = PARTITIONS['top-folder']?.(scope) as (f: string) => string | undefined
+	const secondFolder = PARTITIONS['second-folder']?.(scope) as (f: string) => string | undefined
+	const mTop = measure(cs, topFolder)
+	const mSecond = measure(cs, secondFolder)
+	assert.ok(!isThin(mTop) && !isThin(mSecond))
+	if (!isThin(mTop) && !isThin(mSecond)) {
+		// Every file is in scope for both partitions, so both must be measured over the identical
+		// set of usable commits — the same number of change pairs.
+		assert.equal(mTop.pairs, mSecond.pairs)
+		assert.equal(mTop.pairs, (30 * 29) / 2)
+	}
+})
+
+test('the comparison reports the parallelizable share of each candidate', () => {
+	const scope = 'src/'
+	const cs: Change[] = Array.from({ length: 30 }, (_, i) => ({
+		files: [`src/n${i % 10}/deep/a.ts`, `src/n${i % 10}/deep/b.ts`],
+	}))
+	const topFolder = PARTITIONS['top-folder']?.(scope) as (f: string) => string | undefined
+	const single = PARTITIONS.single?.(scope) as (f: string) => string | undefined
+	const mTop = measure(cs, topFolder)
+	const mSingle = measure(cs, single)
+	assert.ok(!isThin(mTop) && !isThin(mSingle))
+	if (!isThin(mTop) && !isThin(mSingle)) {
+		const out = render(
+			[
+				['top-folder', mTop],
+				['single', mSingle],
+			],
+			'.',
+			scope,
+		)
+		// Each candidate carries its OWN parallelizable share — the two numbers must differ and
+		// both must appear, not just the winner's.
+		assert.notEqual(mTop.parallelizableShare, mSingle.parallelizableShare)
+		assert.match(
+			out,
+			new RegExp(`top-folder[\\s\\S]*?parallelizable share : ${(mTop.parallelizableShare * 100).toFixed(1)}%`),
+		)
+		assert.match(
+			out,
+			new RegExp(`single[\\s\\S]*?parallelizable share : ${(mSingle.parallelizableShare * 100).toFixed(1)}%`),
+		)
+		assert.match(out, /"top-folder" permits the most parallel work/)
+	}
 })
 
 // ── Boundary ─────────────────────────────────────────────────────────────────

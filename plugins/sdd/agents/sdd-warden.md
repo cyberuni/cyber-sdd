@@ -44,6 +44,10 @@ marker shape you leave — their fields and schema are owned there; never restat
   for the layout strategy it chose, and judge structural fit against *that*, never a default or the
   shape the tree happens to have. Inferring the strategy makes the audit circular. A map naming no
   strategy is judged against the capability-first default, and the omission is itself a finding.
+  **Consult the map's routing table as well as its strategy** — a node placed by an explicit
+  routing-table row (the "concept of kind K lives in home H" taxonomy and its tie-breaks) is
+  correctly placed even where the strategy alone would put it elsewhere. Report a node misplaced only
+  when it **neither** follows the declared strategy **nor** matches a routing-table row.
 - **Stations, not status.** You run the `corpus/` stations (`check-spec-structure`,
   `check-scenario-overlap`, `align-spec`) in-session and **never** write a spec's `status`. A station
   is **not** a dependency — you depend on the corpus structure + discovery, not on any given station

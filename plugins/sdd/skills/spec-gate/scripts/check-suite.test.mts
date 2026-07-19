@@ -7,6 +7,7 @@ import {
 	checkFilePaths,
 	checkScenarioMap,
 	checkSuite,
+	checkTriggerContract,
 	discoverSuiteDirs,
 	findDeadRubric,
 	main,
@@ -549,6 +550,172 @@ test('a Scenario Outline whose Examples miss a placeholder column is a violation
 	assert.ok(v.some((m) => /missing column\(s\) for placeholder\(s\): should_trigger/.test(m)))
 })
 
+// ─── checkTriggerContract — @trigger outline activation contract (advisory) ───
+
+test('a @trigger outline missing should_trigger produces a finding', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  @trigger',
+		'  Scenario Outline: the config activates on a matching query',
+		'    Given a user query "<query>"',
+		'    When the agent decides whether to invoke the config',
+		'    Then invocation follows',
+		'',
+		'    Examples:',
+		'      | query        |',
+		'      | make a chart |',
+	].join('\n')
+	const f = checkTriggerContract('slug', 'x.feature', text)
+	assert.equal(f.length, 1)
+	assert.match(f[0] ?? '', /no should_trigger column/)
+})
+
+test('a @trigger outline missing query produces a finding', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  @trigger',
+		'  Scenario Outline: the config activates on a matching query',
+		'    Given a user query',
+		'    When the agent decides whether to invoke the config',
+		'    Then invocation is "<should_trigger>"',
+		'',
+		'    Examples:',
+		'      | should_trigger |',
+		'      | yes            |',
+	].join('\n')
+	const f = checkTriggerContract('slug', 'x.feature', text)
+	assert.equal(f.length, 1)
+	assert.match(f[0] ?? '', /no query column/)
+})
+
+test('CONTROL: a @trigger outline carrying both query and should_trigger produces no finding', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  @trigger',
+		'  Scenario Outline: the config activates on a matching query',
+		'    Given a user query "<query>"',
+		'    When the agent decides whether to invoke the config',
+		'    Then invocation is "<should_trigger>"',
+		'',
+		'    Examples:',
+		'      | query        | should_trigger |',
+		'      | make a chart | yes            |',
+	].join('\n')
+	assert.deepEqual(checkTriggerContract('slug', 'x.feature', text), [])
+})
+
+test('SCOPE GUARD: an untagged Scenario Outline with neither column produces no finding', () => {
+	const text = [
+		'Feature: decision table',
+		'',
+		'  Scenario Outline: a plain enumerated decision table',
+		'    Given input "<input>"',
+		'    When processed',
+		'    Then output is "<output>"',
+		'',
+		'    Examples:',
+		'      | input | output |',
+		'      | a     | b      |',
+	].join('\n')
+	assert.deepEqual(checkTriggerContract('slug', 'x.feature', text), [])
+})
+
+// The fixture must exhibit the forbidden difference: a plain `Scenario` with NO Examples table is
+// already absorbed by the no-table guard above, so it would pass this test no matter what the
+// isOutline guard did. The pinned parser accepts a plain `Scenario:` carrying an `Examples:` table
+// (verified — 0 errors), so that input is reachable and is the only fixture that binds this guard:
+// it clears every other clause and reaches the rule on the outline check alone.
+test('SCOPE GUARD: a plain @trigger Scenario (not an outline) produces no finding', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  @trigger',
+		'  Scenario: a single activation case',
+		'    Given a user query "make a chart"',
+		'    When the agent decides whether to invoke the config',
+		'    Then invocation is yes',
+		'',
+		'    Examples:',
+		'      | note        |',
+		'      | not a table |',
+	].join('\n')
+	assert.deepEqual(checkTriggerContract('slug', 'x.feature', text), [])
+})
+
+test('an outline with no Examples table yields the blocking violation, not an advisory finding', () => {
+	const text = [
+		'Feature: trigger',
+		'',
+		'  @trigger',
+		'  Scenario Outline: the config activates on a matching query',
+		'    Given a user query "<query>"',
+		'    When the agent decides whether to invoke the config',
+		'    Then invocation is "<should_trigger>"',
+	].join('\n')
+	assert.deepEqual(checkTriggerContract('slug', 'x.feature', text), [])
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(v.some((m) => /Scenario Outline has no non-empty Examples table/.test(m)))
+})
+
+// ─── the partition invariant — a finding never weakens a blocking violation ───
+
+test('a file carrying both a @trigger finding and a blocking violation still yields a non-empty violations', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-partition-'))
+	try {
+		const text = [
+			'Feature: trigger',
+			'',
+			'  @trigger',
+			'  Scenario Outline: the config sometimes activates on a matching query',
+			'    Given a user query "<query>"',
+			'    When the agent decides whether to invoke the config',
+			'    Then invocation sometimes follows',
+			'',
+			'    Examples:',
+			'      | query        |',
+			'      | make a chart |',
+		].join('\n')
+		const p = join(root, 'mixed.feature')
+		writeFileSync(p, text)
+		const { findings, violations } = checkFilePaths([p], root, () => new Map([[p, []]]))
+		assert.ok(findings.some((m) => /no should_trigger column/.test(m)))
+		assert.ok(violations.some((m) => /non-boolean hedge/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('a file with parse errors yields no advisory findings', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-partition-'))
+	try {
+		const text = [
+			'@frozen',
+			'Feature: trigger',
+			'',
+			'  @trigger',
+			'  Scenario Outline: wrapped step',
+			'    Given a step that wraps',
+			'      onto the next line',
+			'    Then it holds',
+			'',
+			'    Examples:',
+			'      | query        |',
+			'      | make a chart |',
+		].join('\n')
+		const p = join(root, 'broken.feature')
+		writeFileSync(p, text)
+		const fakeValidate = () => new Map([[p, [{ line: 7, message: 'expected: #EOF, got bad token' }]]])
+		const { findings, violations } = checkFilePaths([p], root, fakeValidate)
+		assert.deepEqual(findings, [])
+		assert.ok(violations.some((m) => /cannot parse as Gherkin/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
 // ─── checkSuite — scenario ordering / sectioning ───────────────────────────
 
 test('a feature with >6 scenarios and no section comments fails ordering', () => {
@@ -641,7 +808,7 @@ test('checkFilePaths checks only the named files, not siblings', () => {
 		writeFileSync(clean, CLEAN_SUITE)
 		// A hedged sibling in the same dir must NOT be picked up when only clean is named.
 		writeFileSync(join(root, 'hedged.feature'), HEDGED_SUITE)
-		assert.deepEqual(checkFilePaths([clean]), [])
+		assert.deepEqual(checkFilePaths([clean]).violations, [])
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
@@ -652,8 +819,8 @@ test('checkFilePaths flags a form violation in a named file', () => {
 	try {
 		const hedged = join(root, 'hedged.feature')
 		writeFileSync(hedged, HEDGED_SUITE)
-		const v = checkFilePaths([hedged])
-		assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+		const { violations } = checkFilePaths([hedged])
+		assert.ok(violations.some((m) => /non-boolean hedge/.test(m)))
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
@@ -666,17 +833,17 @@ test('checkFilePaths checks multiple named files', () => {
 		const hedged = join(root, 'hedged.feature')
 		writeFileSync(clean, CLEAN_SUITE)
 		writeFileSync(hedged, HEDGED_SUITE)
-		const v = checkFilePaths([clean, hedged])
-		assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
-		assert.equal(v.filter((m) => /non-boolean hedge/.test(m)).length, 1)
+		const { violations } = checkFilePaths([clean, hedged])
+		assert.ok(violations.some((m) => /non-boolean hedge/.test(m)))
+		assert.equal(violations.filter((m) => /non-boolean hedge/.test(m)).length, 1)
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
 })
 
 test('checkFilePaths fails closed on an unreadable path', () => {
-	const v = checkFilePaths([join(tmpdir(), 'sdd-does-not-exist-xyz.feature')])
-	assert.ok(v.some((m) => /cannot read file/.test(m)))
+	const { violations } = checkFilePaths([join(tmpdir(), 'sdd-does-not-exist-xyz.feature')])
+	assert.ok(violations.some((m) => /cannot read file/.test(m)))
 })
 
 test('main --files returns 1 when no paths follow', () => {
@@ -764,10 +931,11 @@ test('checkFilePaths fails closed on a file the injected validator reports a par
 		const broken = join(root, 'broken.feature')
 		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
 		const fakeValidate = () => new Map([[broken, [{ line: 6, message: 'expected: #EOF, got bad token' }]]])
-		const v = checkFilePaths([broken], root, fakeValidate)
-		assert.equal(v.length, 1)
-		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
-		assert.ok(!v.some((m) => /non-boolean hedge/.test(m)))
+		const { findings, violations } = checkFilePaths([broken], root, fakeValidate)
+		assert.equal(violations.length, 1)
+		assert.ok(violations.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+		assert.ok(!violations.some((m) => /non-boolean hedge/.test(m)))
+		assert.deepEqual(findings, [])
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
@@ -779,8 +947,8 @@ test('checkFilePaths raises no parse violation for a file the injected validator
 		const clean = join(root, 'clean.feature')
 		writeFileSync(clean, CLEAN_SUITE)
 		const fakeValidate = () => new Map([[clean, []]])
-		const v = checkFilePaths([clean], root, fakeValidate)
-		assert.deepEqual(v, [])
+		const { violations } = checkFilePaths([clean], root, fakeValidate)
+		assert.deepEqual(violations, [])
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
@@ -794,8 +962,8 @@ test('checkFilePaths fails closed when the validator omits a file from its repor
 		// The validator's map has no entry at all for `clean` — defaulting the missing entry to
 		// "parses fine" (an empty array) is the exact fail-open bug this guard closes.
 		const fakeValidate = () => new Map<string, ParseError[]>()
-		const v = checkFilePaths([clean], root, fakeValidate)
-		assert.ok(v.some((m) => /returned no result for this file/.test(m)))
+		const { violations } = checkFilePaths([clean], root, fakeValidate)
+		assert.ok(violations.some((m) => /returned no result for this file/.test(m)))
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
@@ -811,9 +979,9 @@ test('checkFilePaths fails every readable path closed when the validator throws'
 		const fakeValidate = () => {
 			throw new Error('parser genuinely could not run')
 		}
-		const v = checkFilePaths([a, b], root, fakeValidate)
-		assert.equal(v.length, 2)
-		assert.ok(v.every((m) => /cannot verify Gherkin validity/.test(m)))
+		const { violations } = checkFilePaths([a, b], root, fakeValidate)
+		assert.equal(violations.length, 2)
+		assert.ok(violations.every((m) => /cannot verify Gherkin validity/.test(m)))
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
@@ -826,9 +994,9 @@ test('runGherkinValidate against the real pinned parser reports a real EPARSE fo
 	try {
 		const broken = join(root, 'broken.feature')
 		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
-		const v = checkFilePaths([broken], root)
-		assert.equal(v.length, 1, 'the real parser replaces the form findings with the one parse violation')
-		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+		const { violations } = checkFilePaths([broken], root)
+		assert.equal(violations.length, 1, 'the real parser replaces the form findings with the one parse violation')
+		assert.ok(violations.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}

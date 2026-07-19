@@ -329,6 +329,42 @@ export function checkSuite(slug: string, file: string, text: string, parseErrors
 	return v
 }
 
+// ─── @trigger activation contract — an advisory (findings) check, not blocking ─
+// A layer tag is not a label — it is the evaluation layer a judge routes the scenario
+// through. `@trigger` routes a scenario into the trigger-run policy, and that policy
+// reads a query and an expected activation verdict per Examples row. A `Scenario
+// Outline` tagged `@trigger` whose table supplies neither `query` nor `should_trigger`
+// routes the judge into a policy it cannot execute. This is advisory, not blocking:
+// an untagged outline (a plain enumerated decision table) is never held to this
+// contract, and an outline with no Examples table at all is already a BLOCKING
+// violation from checkSuite above — don't double-report it here.
+export function checkTriggerContract(slug: string, file: string, text: string): string[] {
+	const tag = (msg: string) => `${slug}/${file}: ${msg}`
+	const findings: string[] = []
+	const ref = parseSuite(text)
+
+	for (const scenario of ref.scenarios) {
+		if (!scenario.isOutline) continue
+		if (!scenario.tags.includes('@trigger')) continue
+		const ex = scenario.examples
+		// No/empty Examples table is already checkSuite's blocking violation — skip it here.
+		if (!ex || ex.header.length === 0 || ex.rows.length === 0) continue
+
+		const missing = ['query', 'should_trigger'].filter((c) => !ex.header.includes(c))
+		if (missing.length === 0) continue
+
+		const label = scenario.name ? `Scenario "${scenario.name}"` : 'unnamed scenario'
+		const missingCols = missing.map((c) => `${c} column`).join(' and no ')
+		findings.push(
+			tag(
+				`${label}: @trigger outline is missing the activation contract — its Examples table has no ${missingCols}; the tag routes this scenario into the trigger-run policy, which reads a query and an activation verdict (re-tag @behavior if it is not an activation case)`,
+			),
+		)
+	}
+
+	return findings
+}
+
 // ─── CLI entry ────────────────────────────────────────────────────────────────
 
 // Discovery walks the tree recursively so nested spec folders (sdd/sdd-skill)
@@ -368,7 +404,8 @@ export function checkFilePaths(
 	paths: string[],
 	cwd = '.',
 	validate: typeof runGherkinValidate = runGherkinValidate,
-): string[] {
+): { findings: string[]; violations: string[] } {
+	const findings: string[] = []
 	const violations: string[] = []
 	const readable: { path: string; text: string }[] = []
 	for (const p of paths) {
@@ -378,7 +415,7 @@ export function checkFilePaths(
 			violations.push(`${p}: cannot read file`)
 		}
 	}
-	if (readable.length === 0) return violations
+	if (readable.length === 0) return { findings, violations }
 
 	let parseErrorsByPath: Map<string, ParseError[]>
 	try {
@@ -390,7 +427,7 @@ export function checkFilePaths(
 		for (const { path } of readable) {
 			violations.push(`${path}: cannot verify Gherkin validity — ${(err as Error).message}`)
 		}
-		return violations
+		return { findings, violations }
 	}
 
 	for (const { path: p, text } of readable) {
@@ -403,6 +440,9 @@ export function checkFilePaths(
 		}
 		violations.push(...checkSuite(dirname(p), basename(p), text, errs))
 		if (errs.length === 0) {
+			// A parse failure already replaced checkSuite's findings above (its permissive-scan view is
+			// not evidence); the advisory tier holds to the same rule — no findings for an unparseable file.
+			findings.push(...checkTriggerContract(dirname(p), basename(p), text))
 			const specPath = join(dirname(p), 'README.md')
 			let specText: string | undefined
 			try {
@@ -415,7 +455,7 @@ export function checkFilePaths(
 			}
 		}
 	}
-	return violations
+	return { findings, violations }
 }
 
 // ─── scenario-map binding ─────────────────────────────────────────────────────
@@ -498,7 +538,7 @@ export function parseFilesArg(argv: string[]): string[] {
 }
 
 export function main(argv: string[]): number {
-	let violations: string[] = []
+	let result: { findings: string[]; violations: string[] }
 
 	if (argv.includes('--files')) {
 		const paths = parseFilesArg(argv)
@@ -506,24 +546,30 @@ export function main(argv: string[]): number {
 			console.error('✗ --files requires at least one .feature path')
 			return 1
 		}
-		violations = checkFilePaths(paths)
+		result = checkFilePaths(paths)
 	} else {
 		const root = argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : '.agents/specs'
 		// The tree-wide sweep must fail closed on a parse failure exactly like --files — route the
 		// full discovered path list through the same validated path rather than the bare parseSuite
-		// scan, so an unparseable suite anywhere in the corpus fails the sweep closed.
+		// scan, so an unparseable suite anywhere in the corpus fails the sweep closed. Findings are
+		// advisory in both branches alike — the sweep must never treat them as blocking either.
 		const paths: string[] = []
 		for (const { slug, files } of discoverSuiteDirs(root)) {
 			for (const file of files) paths.push(join(root, slug, file))
 		}
-		violations = checkFilePaths(paths)
+		result = checkFilePaths(paths)
 	}
 
-	if (violations.length) {
-		for (const line of violations) console.error(`✗ ${line}`)
+	for (const f of result.findings) process.stdout.write(`⚠ ${f}\n`)
+	if (result.violations.length) {
+		for (const line of result.violations) console.error(`✗ ${line}`)
 		return 1
 	}
-	process.stdout.write('suite checks OK\n')
+	process.stdout.write(
+		result.findings.length
+			? `suite checks OK; ${result.findings.length} finding(s) surfaced for judgment\n`
+			: 'suite checks OK\n',
+	)
 	return 0
 }
 

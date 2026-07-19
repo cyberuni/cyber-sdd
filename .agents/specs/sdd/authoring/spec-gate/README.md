@@ -22,7 +22,7 @@ it does not produce.
 | **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
-| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none); a `@trigger` `Scenario Outline` whose `Examples` table carries neither a `query` nor a `should_trigger` column → **surfaced as a judgment finding** (advisory), not a fail-closed — the tag claims the trigger-run policy but the rows cannot drive it, and the repair (re-tag vs. adopt the contract vs. retire) is a judgment the table cannot settle; an **untagged** outline is never held to it, and a blocking form violation beside an advisory finding still fails closed |
+| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
 
 Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
@@ -156,39 +156,6 @@ parse violation, and a corpus that parses wholly raises none either. A check tha
 closed would be as useless as one that always passes — it would just fail in the safe direction, and
 "safe" is not the same as "measuring". Both directions are frozen so neither can be satisfied by a
 constant.
-
-### The advisory tier within the form check
-
-Most form findings are **blocking** — a missing `Then`, a hedge adverb, a leaked rubric, a parse
-failure. They stay exactly as above: a partition into tiers must never weaken them, so a blocking
-violation still fails the gate closed even when an advisory finding sits beside it in the same file.
-
-A form finding is **advisory** only when the check can prove the defect but **cannot pick the
-repair** — the same test the referenced-artifact check already passes below. Such a finding is
-**surfaced for judgment** (`⚠`, exit unaffected, the cold judge still spawns) rather than advancing
-nothing. This is the shape `check-spec-state` already runs; the suite-form check adopts it rather
-than inventing a second one.
-
-### The `@trigger` activation contract
-
-A layer tag is not a label — it is the **evaluation layer a resolved judge routes the scenario
-through** (`../suite-format/README.md`). `@trigger` routes a scenario into the **trigger-run
-policy**, and that policy reads a query and an expected activation verdict. So a `@trigger`
-`Scenario Outline` must carry the activation contract its tag promises: an `Examples` table with a
-**`query` column and a `should_trigger` column**, the corpus shape the suite-form bar already names.
-
-An outline tagged `@trigger` whose table carries neither column routes the judge into a policy it
-**cannot execute** — the tag claims a contract the rows do not supply. That is the defect the check
-names, and it is a mechanical consequence, not a style preference.
-
-The finding is **advisory** because the repair is genuinely a judgment call the table cannot settle:
-a mis-tagged outline may want its tag corrected to `@behavior` (content-preserving, when the outline
-is a sound intra-node decision table), or may want the contract adopted, or may want the outline
-retired. Only the first is free; the others narrow a frozen scenario and fire Clearance.
-
-The rule keys on the **tag**, not the outline: an **untagged** `Scenario Outline` carries no
-activation claim and is never held to this contract — enumerated decision tables remain fully
-sanctioned. Both directions are frozen, so the check cannot be satisfied by a constant.
 
 ## The referenced-artifact-exists pre-filter
 

@@ -44,19 +44,9 @@ the CR's touched files:
 node "<skill>/scripts/check-suite.mts" --files <the CR's touched .feature files>
 ```
 
-Exit `1` prints each `✗ <file>: <reason>` — **advance nothing and do not spawn the judge; report the
-violations for the producer to fix.**
-
-Exit `0` is **not automatically "form clean"**: it also prints any `⚠ <file>: <reason>` **advisory**
-finding plus the summary line. **Surface those findings for the judge's read, never a hard block by
-themselves** — the judge still runs. A finding is advisory only when the check can prove the defect
-but cannot pick the repair; today that is the **`@trigger` activation contract** (an outline tagged
-`@trigger` whose `Examples` table carries neither a `query` nor a `should_trigger` column claims the
-trigger-run policy without supplying what that policy reads — the repair is re-tag `@behavior`,
-adopt the contract, or retire, and only the first is free). **Do not report exit `0` as clean
-without relaying the `⚠` lines.** A blocking violation beside an advisory finding still exits `1`.
-
-Scoping to `--files` keeps the gate on the CR's delta; the tree-wide `--root` sweep stays the `verify:specs-new` CI backstop. The cold
+Exit `0` = form clean; exit `1` prints each `✗ <file>: <reason>` — **advance nothing and do not
+spawn the judge; report the violations for the producer to fix.** Scoping to `--files` keeps the gate
+on the CR's delta; the tree-wide `--root` sweep stays the `verify:specs-new` CI backstop. The cold
 spec-judge grades form qualitatively; this engine catches it mechanically, so the judge only ever
 sees a well-formed suite.
 

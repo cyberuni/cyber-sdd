@@ -42,9 +42,7 @@ order, stepping down from the happy path to its branches and errors.
 The mechanical rules — Gherkin validity, boolean `Then`s, section comments, Outline coverage, and
 the scenario-map binding — are linted by `check-suite` (`spec-gate/scripts/check-suite.mts`). The
 spec-producer self-runs it before returning, and the spec gate runs it fail-closed before the cold
-judge. It reports in **two tiers**: blocking (`✗`, exit 1) and **advisory** (`⚠`, exit 0, surfaced
-for the judge's read) — the latter only where the check can prove the defect but not pick the
-repair, today the `@trigger` activation contract. It checks **form only**: whether the map's rows actually cover the drawn graph — coverage,
+judge. It checks **form only**: whether the map's rows actually cover the drawn graph — coverage,
 discrimination, consistency — is judged, never linted, so a green check clears no coverage
 question.
 

@@ -85,24 +85,37 @@ explicit **scenario-map** table (`sdd:spec-format-governance`). The suite **mirr
 
 ## The tag set — every tag a `.feature` may carry
 
-This bar owns the whole `.feature` tag vocabulary. Nothing else defines a tag; a governance that
-mentions one is a consumer. The rules live in the sections named below — this table is the index.
+This bar defines the tag **vocabulary** — what each tag *means*. It does **not** define how a judge
+measures the tagged scenario: run counts, thresholds, corpora and pass bars are the resolved
+plugin's (ACED, for agent-config domains). Tag = interface, plugin = implementation. A governance
+that mentions a tag is a consumer. The rules live in the sections named below; this table is the index.
 
-| Tag | Kind | Scope | Applied by | Means |
+| Tag | Names | Scope | Applied by | Means |
 | --- | --- | --- | --- | --- |
-| `@trigger` | layer (routing) | scenario | producer | Activation: does the subject fire when it should? Routes to the judge's **trigger-run policy**, so an Outline carrying it **must** supply `query` + `should_trigger` `Examples` columns — see *Optional conventions*. |
-| `@behavior` | layer (routing) | scenario | producer | Does it take the right steps? The default layer for a deterministic, fully-owned case — including an enumerated decision table. |
-| `@quality` | layer (routing) | scenario | producer | Is the output good? |
-| `@rubric` | assertion form | scenario | producer | The scenario is graded against an inline rubric (named dimensions + threshold) instead of a boolean `Then` — see *Form 2*. Orthogonal to the layer tags; a scenario may carry both. |
+| `@trigger` | the engage decision | scenario | producer | Does the subject **engage** when it should, and stay out when it should not? |
+| `@behavior` | conduct once engaged | scenario | producer | Having engaged, does it take the right steps and honor its rules? |
+| `@quality` | the result | scenario | producer | Is what it produced good? |
+| `@rubric` | the assertion form | scenario | producer | Graded against an inline rubric (named dimensions + threshold) rather than a boolean `Then` — see *Form 2*. Independent of the tags above; a scenario may carry both. |
 | `@pinned` | ownership | scenario | **user only** | A user-owned seed scenario the agent may propose against but never change unilaterally — see *`@pinned`*. |
 | `@frozen` | lifecycle state | **file** | the gate | The suite is the agreed contract; narrowing it needs Clearance — see *The `@frozen` marker*. |
 
-Two distinctions worth keeping straight. **`@frozen` is the only file-level tag** — it sits on the
-`Feature`, not a scenario. And **a scenario carries at most one layer tag**: a layer tag *selects the
-run policy the judge executes*, so two would name two policies for one scenario and leave the
-routing undecided. `@rubric` and `@pinned` are not layers and compose freely with one. (This follows
-from the routing model rather than from a previously written rule; every one of the corpus's layer
--tagged scenarios already satisfies it.)
+**`@trigger` vs `@behavior` is a per-node question, judged — never linted.** `@trigger` is legal
+only *where the node genuinely owns the routing decision*, and two different deciders qualify:
+
+- the **harness** — a model matching this config's `description` against a user query. Here the
+  decision is **co-owned** (description prose × harness × sibling set) and the node holds one of the
+  three, so freezing it on the node is the seam issue #304 raises.
+- **an agent applying the node's own doctrine** — e.g. a coordinator reading this doctrine to decide
+  whether it governs the situation at hand. No harness is in the loop and the deciding input is the
+  node's own content, so **the node owns it outright**.
+
+The two look alike in shape and differ only in who decides, so **step form does not classify them**
+and no mechanical check should try (see `.agents/specs/sdd/ssa-lowering/ssa-lowering.feature`, where
+a deletion that read the second case as the first was blocked at the gate and reverted). A
+deterministic, fully-owned decision table that selects *what an already-invoked subject does* is
+conduct, not engagement — it wants `@behavior`.
+
+**`@frozen` is the only file-level tag** — it sits on the `Feature`, not a scenario.
 
 `check-suite` ignores tags it does not recognize, so an unknown tag fails silently rather than
 loudly — spell them exactly as written above.
@@ -212,15 +225,8 @@ Additive and plugin-facing (e.g. ACED); untagged plain suites are unaffected and
 check ignores unrecognized tags.
 
 - **Layer tags** are defined in *The tag set* above; apply `@trigger` only where the node genuinely
-  owns the routing decision.
-- **`@trigger`'s activation contract is enforced, not advisory convention.** A `@trigger`
-  `Scenario Outline` must carry a **`query` column and a `should_trigger` column** — the tag routes
-  the scenario into the trigger-run policy, and that policy reads exactly those. An outline tagged
-  `@trigger` whose table has neither routes the judge into a policy it cannot execute; `check-suite`
-  surfaces it **advisory**, because the repair is a judgment call it cannot make (re-tag, adopt the
-  contract, or retire). An **untagged** outline claims no activation and is never held to this
-  contract, so enumerated decision tables stay sanctioned — a deterministic, fully-owned decision
-  table wants `@behavior`.
+  owns the routing decision, and read that section's two-deciders test before choosing between
+  `@trigger` and `@behavior` — the classification is judged per node, never linted.
 - **`Scenario Outline` is a rare exception, not a default** (DAMP over DRY) — legitimate only for a
   genuinely uniform enumerated set (one varying token, every row the same `Then` shape). Two rows
   wanting different `Then`s are two scenarios, not one Outline. Requires a non-empty `Examples:` table
@@ -249,11 +255,6 @@ graph's semantics, so a green check clears no coverage question. A spec with no 
 section is skipped, not failed — run as `check-suite`
 (`spec-gate/scripts/check-suite.mts`): the spec-producer self-runs it before returning, and the spec
 gate runs it fail-closed before the cold judge.
-
-`check-suite` reports in **two tiers**. Everything above is **blocking** (`✗`, exit 1). A finding is
-**advisory** (`⚠`, exit unaffected, the judge still spawns) only when the check can prove the defect
-but **cannot pick the repair** — currently the `@trigger` activation contract above. A blocking
-violation beside an advisory finding still fails closed; the tiers never trade.
 
 **Form only** — coverage adequacy, discrimination,
 selection, pairwise consistency, and apparatus independence are **judged**, never linted, and a green

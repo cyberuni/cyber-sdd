@@ -82,6 +82,13 @@ alignment**, which the scheduler depends on and which no declaration suspends (A
 is **advisory** — it **gates no mission**; it points the Warden and Council at a degrading partition
 so the **declared** layout can be re-asserted, or deliberately re-declared.
 
+**Measuring it, when a pass wants the number.** `sdd:check-partition-quality` computes this signal
+from the project's git history — the parallelizable share of change pairs under the declared layout,
+against a shuffled control, optionally compared with a candidate cut. **Opt-in**: it reads `git log`,
+so a pass runs it deliberately rather than every time, and its output is a measurement, never a
+verdict. Read its headline (the parallelizable share) and ignore its labelled diagnostics — both
+reward a coarser partition for being coarse.
+
 ## The Warden's self-clear-vs-escalate verdict
 
 The Warden is **rubric-subject**, exactly as the conductor is at a gate, and has **no direct user

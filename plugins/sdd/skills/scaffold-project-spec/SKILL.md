@@ -94,6 +94,14 @@ Present **one recommendation + its rationale + the alternative**; the user choos
   false-conflict rate earns it). Mirror is **boundary-aligned** (step 4). **Detection mode only** —
   there is no source tree to mirror in intent mode.
 
+**Offer to measure, rather than argue.** In **detection mode** on a repo with real history, offer to
+run `sdd:check-partition-quality` before the choice is made: it reports, from this project's own
+commits, how much parallel work each candidate layout would permit. Opt-in — it reads `git log`, so
+it is slow on a large repo and says nothing useful on a young one, and it renders no verdict. When it
+runs, present its parallelizable shares alongside the recommendation so the user chooses on their own
+numbers rather than on doctrine. Skip it silently in intent mode: a greenfield project has no history
+to measure.
+
 **Do not require a restructuring before the first spec.** An existing project adopting SDD keeps the
 shape it has; capability-first is the destination, reached on evidence, not an entry toll. Recommend
 capability-first, accept mirror-source with its cost stated, and let the data drive the migration.

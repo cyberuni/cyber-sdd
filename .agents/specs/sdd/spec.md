@@ -177,7 +177,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability workf
 | `routing` | `gateway/` (behavior) · `gateway/dispatch/` (behavior) · `gateway/manage/` (behavior) |
 | `setup` | `gateway/init/` (behavior) |
 | `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-gate/` (behavior) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `mission/solution-producer/` (behavior) |
-| `spec-structure` | `authoring/scaffold-project-spec/` (behavior) · `common-governances/spec-structure/` (reference) · `corpus/discovery/` (behavior) · `corpus/spec-anchors/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) · `project-spec/align-spec/` (behavior) · `project-spec/check-spec-structure/` (behavior) · `project-spec/concept-index/` (behavior) · `project-spec/digest/` (behavior) · `project-spec/place-node/` (behavior) · `project-spec/scenario-overlap/` (behavior) |
+| `spec-structure` | `authoring/scaffold-project-spec/` (behavior) · `common-governances/spec-structure/` (reference) · `corpus/discovery/` (behavior) · `corpus/spec-anchors/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) · `project-spec/align-spec/` (behavior) · `project-spec/check-spec-structure/` (behavior) · `project-spec/concept-index/` (behavior) · `project-spec/digest/` (behavior) · `project-spec/partition-quality/` (behavior) · `project-spec/place-node/` (behavior) · `project-spec/scenario-overlap/` (behavior) |
 
 <!-- END generated: by-concept -->
 

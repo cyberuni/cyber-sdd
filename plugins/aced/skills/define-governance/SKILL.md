@@ -48,6 +48,8 @@ Ask the user:
    - **Mixed** — more than one of the above
 5. **Rules or criteria** — the actual content; collect from the user or from an existing document
 
+Draft no file until the name, the content type, and the rules are gathered.
+
 If improving an existing file, read it first. Ask only about gaps or issues found.
 
 ## Draft the governance file
@@ -81,7 +83,16 @@ Rules for the body:
 - Lead `description` with the `"Partial Skill:"` prefix (recommended form `"Partial Skill: invoke by name only — …"`) — a self-declaration for the reader; keep it minimal and non-trigger-shaped so the harness (which still sees the description) does not auto-match it
 - Do not include `## Why`, `## Rationale`, or causal prose — put that in ADRs
 - Encode decisions and criteria, not facts the model already knows
-- Keep each rule atomic and independently falsifiable
+- Keep each rule atomic and independently falsifiable. To decide whether a multi-clause rule splits,
+  ask what each clause has left to check when the other clause is false:
+  - **Split it** when each clause states its own demand — something still checkable when the other
+    clause fails. *"Every skill has a README and its description names a trigger"* splits: a skill can
+    have a README whose description names no trigger, and a trigger-naming description with no README.
+  - **Keep it as one rule** when a clause *qualifies* another — it constrains how the other clause is
+    satisfied rather than adding a demand of its own, so it has nothing left to check once that clause
+    fails. *"the description names when to trigger, and does so in the user's own phrasing"* stays one
+    rule: if the description names no trigger, there is no naming whose phrasing could be wrong.
+  The joining word does not decide this — `and` appears in both examples. Test the clause, not the seam.
 
 ## Create symlinks
 
@@ -119,5 +130,5 @@ Summarize:
 - Canonical file path
 - Runtime symlinks created
 - Content type(s) encoded
-- Quality check outcome
+- Quality check outcome — name every check that failed, including failures below the fix bar left unfixed
 - Suggested next step: run `sdd:start-mission` (the conductor resolves the ACED roles) to spec and eval for this governance file

@@ -61,6 +61,23 @@ Feature: define-governance — author a reference-only governance
     When define-governance links the canonical file
     Then it creates a runtime symlink for Claude Code and for Cursor that resolves to the canonical file
 
+  Scenario: an unclear scope is asked about before any path is derived
+    Given the user asks for a governance without saying whether it belongs to this repo, to all their projects, or inside a plugin, and nothing in the context settles it
+    When define-governance resolves placement
+    Then it asks the user to choose the scope and derives no canonical path until the user answers
+
+  # ---- Gathering requirements ----
+
+  Scenario: the name, consumers, content type, and rules are asked for
+    Given the user asks for a governance and supplies only the topic it should cover
+    When define-governance gathers requirements
+    Then it asks the user for the name, the consumers, the content type, and the rules
+
+  Scenario: no file is drafted until the drafting requirements are gathered
+    Given the user asks for a governance and supplies only the topic it should cover
+    When define-governance gathers requirements
+    Then it drafts no file until the name, the content type, and the rules are gathered
+
   # ---- Drafting ----
 
   Scenario: the governance body opens with a scope line and matches the content type
@@ -82,6 +99,26 @@ Feature: define-governance — author a reference-only governance
     Given the user offers a justification for a rule
     When define-governance writes the canonical file
     Then the body carries no Why or Rationale section
+
+  Scenario: a compound rule is split into independently falsifiable rules
+    Given the user supplies the single rule "Every skill has a README and its description names a trigger"
+    When define-governance writes the canonical file
+    Then the body carries the README requirement and the trigger-naming requirement as two rules that can each be falsified without the other
+
+  Scenario: a rule whose second clause qualifies the first is left as one rule
+    Given the user supplies the single rule "the description names when to trigger, and does so in the user's own phrasing"
+    When define-governance writes the canonical file
+    Then the body carries that rule as one rule and does not split it in two
+
+  Scenario: a rule whose clauses share one object but state separate demands is split
+    Given the user supplies the single rule "the description names when to trigger and is under 500 characters"
+    When define-governance writes the canonical file
+    Then the body carries the trigger-naming requirement and the length requirement as two rules that can each be falsified without the other
+
+  Scenario: a non-kebab-case name is normalized and matches the file stem
+    Given the user names the governance "Commit Discipline"
+    When define-governance finishes drafting
+    Then the frontmatter name is the kebab-case slug commit-discipline and the file stem is the same slug
 
   # ---- Improving an existing governance ----
 
@@ -106,3 +143,8 @@ Feature: define-governance — author a reference-only governance
     Given a completed governance file
     When define-governance reports
     Then it states the canonical path, the runtime symlinks, the content type, and points the user at start-mission to spec and eval it
+
+  Scenario: a quality failure below the fix bar is still reported
+    Given a drafted governance whose only failing quality check is the medium-severity no-workflow-steps check, left unfixed
+    When define-governance reports
+    Then the report names the no-workflow-steps check as failing

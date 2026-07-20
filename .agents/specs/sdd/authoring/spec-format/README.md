@@ -61,7 +61,7 @@ stakeholder) — so legibility is part of the bar. The producer **actively enric
 wall of prose:
 
 - **Draw the picture** where a diagram carries the idea better than words (architecture, sequence,
-  state, data flow, decision tree) — a fenced Mermaid (or equivalent) diagram.
+  state, data flow, control-flow) — a fenced Mermaid (or equivalent) diagram.
 - **Format for humans** — clear heading hierarchy, tables for structured comparisons, short
   paragraphs, callouts for the load-bearing decisions.
 - **Readable vocabulary — assume the reader does not know the jargon.** Never leave a specialized

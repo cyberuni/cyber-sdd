@@ -11,8 +11,8 @@ metadata:
 # Architect-Spec Governance — the structural-fit bar (spec gate)
 
 The **Architect** bar at the **spec gate**: does this **capability** fit the project's structure, and
-is its decision graph well-placed? Judges the capability (read from its spec + suite), not the
-document's prose — that is `sdd:spec-format-governance`. The SDD default for the `architect` spec bar;
+is its control-flow graph (CFG) well-placed? Judges the capability (read from its spec + suite), not
+the document's prose — that is `sdd:spec-format-governance`. The SDD default for the `architect` spec bar;
 a plugin may bind its own per artifact-type, and this loads when the registry leaves `architect`/`spec`
 unbound.
 
@@ -35,8 +35,8 @@ unbound.
   scattered capability degrades the schedule toward serial (ADR-0025). **One capability per node,
   never smeared across nodes**, holds under every strategy, and a layered / framework-first *top*
   level stays discouraged however it is declared.
-- **A well-formed logic graph.** Its decision graph connects — every decision reachable, no dangling
-  branch — and the suite's sections mirror it.
+- **A well-formed CFG.** Its control-flow graph connects — every decision reachable, no
+  dangling branch — and the suite's sections mirror it.
 - **An orthogonal axis.** Structural fit judges a property the builder was not optimizing — a real
   independent check even from the same hand.
 - **Structural concerns are deferred.** A structural problem in another capability is an observation
@@ -55,5 +55,5 @@ from `spec.md` + the suite only — the solution is out of view (grader independ
    boundaries.
 2. **Placement matches the *declared* layout** (`sdd:spec-structure-governance`), not a preferred
    one; one capability per node either way, never smeared across nodes.
-3. **A well-formed logic graph** the suite's sections mirror.
+3. **A well-formed CFG** the suite's sections mirror.
 4. **Structural concerns in another capability are deferred** — an observation that spawns a new spec.

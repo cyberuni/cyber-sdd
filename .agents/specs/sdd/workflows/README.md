@@ -7,8 +7,8 @@ concept: [lifecycle, autonomy, resolution, delivery, provenance]
 
 The **workflows suite** — cross-capability usage flows: the scenarios that exercise SDD
 end-to-end and **span capabilities**, the project-level analog of a use case (a path through
-the composed capabilities, the way a use case is a path through a node's logic graph).
-Consumed by `../mission/`'s step-3 verify (the impl gate). **Not a loop step.** Unit
+the composed capabilities, the way a use case is a path through a node's control-flow
+graph (CFG)). Consumed by `../mission/`'s step-3 verify (the impl gate). **Not a loop step.** Unit
 scenarios stay colocated with their capability folder; only cross-capability workflow
 scenarios live here.
 

@@ -7,8 +7,8 @@ It describes how a capability's `.feature` suite — the executable scenarios th
 
 Every behavioral spec carries such a suite, and every scenario in it collapses to one pass/fail at
 the point of verification — never a score. The core idea: the suite **is** the capability's
-decision graph. Each scenario pins one branch the capability takes; the suite as a whole covers
-every branch, and nothing that is not a branch.
+**control-flow graph (CFG)**. Each scenario pins one branch the capability takes; the suite as a
+whole covers every branch, and nothing that is not a branch.
 
 ## What it requires
 
@@ -32,7 +32,7 @@ order, stepping down from the happy path to its branches and errors.
 
 - **`@pinned`** — a **user-owned** seed scenario. Only the user applies it; the agent may propose a
   change or removal but never executes one without in-session user authorization. A pin marks a
-  behavior the decision graph did not reach, and the agent grows the graph around it. It is the one
+  behavior the CFG did not reach, and the agent grows the CFG around it. It is the one
   override to strict.
 - **`@frozen`** — freeze is per `.feature` file. Adding a scenario folds in and self-clears; a pure
   move preserves the freeze; a narrowing or rewrite unfreezes and fires Clearance at the gate.
@@ -42,7 +42,7 @@ order, stepping down from the happy path to its branches and errors.
 The mechanical rules — Gherkin validity, boolean `Then`s, section comments, Outline coverage, and
 the scenario-map binding — are linted by `check-suite` (`spec-gate/scripts/check-suite.mts`). The
 spec-producer self-runs it before returning, and the spec gate runs it fail-closed before the cold
-judge. It checks **form only**: whether the map's rows actually cover the drawn graph — coverage,
+judge. It checks **form only**: whether the map's rows actually cover the drawn CFG — coverage,
 discrimination, consistency — is judged, never linted, so a green check clears no coverage
 question.
 
@@ -58,8 +58,8 @@ question.
 
 This bar owns how the **`.feature` suite** is written. Its neighbors own everything around that:
 
-- **`spec-format-governance`** — how the `spec.md` is written: the use-case groups, the drawn logic
-  graph, and the `## Scenario map` table this suite binds to. Spec-format owns the `spec.md`;
+- **`spec-format-governance`** — how the `spec.md` is written: the use-case groups, the drawn
+  CFG, and the `## Scenario map` table this suite binds to. Spec-format owns the `spec.md`;
   suite-format owns the `.feature` that mirrors it.
 - **`lifecycle-governance`** — the freeze/unfreeze *model* and its risk trigger; this bar carries
   only the `@frozen` marker's mechanics.

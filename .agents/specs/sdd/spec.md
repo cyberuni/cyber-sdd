@@ -7,12 +7,12 @@ approval:
     by: unional
   impl:
     verdict: approve
-    by: agent
+    by: unional
     why:
-      floor: none
-      blast: medium — three co-gated CRs; new shipped skill (spec-structure-governance) + measurement engine (check-partition-quality) + the test-framework governance rebuild; all behavior-changing, all against frozen suites
-      novelty: low — no new autonomy floor; the impl gate ran its standard cold re-derive-and-verify per CR
-      confidence: high — three cold impl-judges, one per CR, each re-derived its scenarios' oracles independently and ran pnpm verify itself. test-framework-rebuild passed round 1 clean. spec-organization-rebuild failed one scenario (formation routing-table disjunct), fixed at the bar not the cited lines, round 2 verified the root-cause claim independently. partition-quality took four rounds — one rule-4 halt and owner re-plan (a context seam at main's boundary) — converging when a round-4 adversarial hunt across five new mutant classes produced zero survivors. Root verify 34/34
+      floor: none — freeze preserved and proven by structural diff (modified 0, removed 0, addOnly true) rather than asserted; the one .feature hit was a comment, so nothing narrowed and no Clearance was owed
+      blast: medium — the control-flow-graph (CFG) rename across four shipped governance skills, one gate-script comment, six corpus documents, and the mandated section heading `## Logic` -> `## Control Flow`; terminology only, no behavior added and nothing narrowed
+      novelty: low — no new autonomy floor; the name was settled upstream and both scope rulings (the heading renames; all decision-graph sites are in scope) were taken from the owner before any edit landed
+      confidence: high — a cold judge re-derived its own oracle across six axes (completeness, collateral, prose coherence, first-use convention, glossary, semantic drift) and returned substance PASS on all six, failing only prose rewrap, which was remediated and recorded as a judge-iteration correction. Discovery ran twice by independent methods; the whitespace-normalized pass found two occurrences wrapped across a line break that every single-line sweep missed, including the one behind the originating site table — the failure mode this CR exists to prevent. The heading rename was cleared against the gate scripts before it landed (check-spec-state keys only on `## Use Cases`, check-suite only on `## Scenario map`). Residual in-scope hits zero. Root verify 34/34
 ---
 
 # Spec-Driven Development (SDD)

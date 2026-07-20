@@ -20,6 +20,16 @@ Feature: manage-model-runners — maintain the per-model runner agent-def family
     When manage-model-runners resolves the target models
     Then it proposes a model list from the curated config or the known model aliases and confirms it with the user rather than guessing
 
+  Scenario: add with an explicit model list resolves to exactly those models
+    Given an add request that names an explicit model list
+    When manage-model-runners resolves the target models
+    Then it resolves to exactly the named models and does not fall back to the curated config or the default aliases
+
+  Scenario: add prefers the curated models config over the default aliases when it is present
+    Given an add request with no explicit model list and a curated models config present
+    When manage-model-runners resolves the target models
+    Then it resolves to the curated config's model list rather than proposing the default aliases
+
   Scenario: add creates a runner def for each model that has none
     Given a confirmed target model list and some models without a runner def
     When manage-model-runners runs add

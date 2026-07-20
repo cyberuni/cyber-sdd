@@ -54,6 +54,16 @@ Feature: The check-scenario-overlap procedure — detect one behavior in two own
     When check-scenario-overlap computes their fingerprints
     Then the two fingerprints differ
 
+  Scenario: two Scenario Outlines with identical steps but differing Examples rows are not an exact-duplicate
+    Given two Scenario Outlines with byte-identical steps whose Examples tables carry different rows
+    When check-scenario-overlap audits the project-spec
+    Then it emits no exact-duplicate candidate for those outlines
+
+  Scenario: two Scenario Outlines with identical steps and identical Examples rows are still an exact-duplicate
+    Given two Scenario Outlines with byte-identical steps whose Examples tables carry the same header and rows
+    When check-scenario-overlap audits the project-spec
+    Then it emits an exact-duplicate candidate naming both nodes and the overlapping scenario
+
   # ── Severity & check mode (CI) ──
 
   Scenario: an exact-duplicate is a blocking candidate

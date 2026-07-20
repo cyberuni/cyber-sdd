@@ -13,10 +13,15 @@
 // scenario) — no engine code here.
 //
 // The fingerprint is computed from step BODIES only (title/tags/comments/prose never reach it), so
-// the signal is behavior-shaped, not cosmetic. Detection is cross-node only: a within-node duplicate
-// and a once-corpus-wide scenario both raise nothing. Pure derivation, writes nothing, no deps (the
-// repo's node->=23.6 / no-deps convention). Pure functions are exported for node:test; running the
-// file directly drives the CLI.
+// the signal is behavior-shaped, not cosmetic. For a `Scenario Outline` the steps are a template —
+// every canonical `@trigger` outline shares byte-identical steps by construction — so the outline's
+// `Examples` table (header + rows, normalized) is folded into the fingerprint too: two outlines are
+// an exact-duplicate only when their steps AND their rows match. Title and tags stay excluded from
+// both — a plain `Scenario` and an outline's Examples rows are the only places distinguishing
+// content can live. Detection is cross-node only: a within-node duplicate and a once-corpus-wide
+// scenario both raise nothing. Pure derivation, writes nothing, no deps (the repo's node->=23.6 /
+// no-deps convention). Pure functions are exported for node:test; running the file directly drives
+// the CLI.
 
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -28,7 +33,7 @@ export type Severity = 'blocking' | 'advisory'
 
 export interface Scenario {
 	title: string
-	/** Normalized ordered step bodies joined — the behavior fingerprint. */
+	/** Normalized ordered step bodies, plus an outline's Examples rows — the behavior fingerprint. */
 	fingerprint: string
 	/** Normalized title — the weaker signal. */
 	titleKey: string
@@ -53,24 +58,37 @@ export function normalize(s: string): string {
 	return s.trim().replace(/\s+/g, ' ').toLowerCase()
 }
 
-// ── Parse a .feature into its scenarios (steps only reach the fingerprint) ──
+// ── Parse a .feature into its scenarios (steps + an outline's Examples rows reach the fingerprint) ──
 const STEP = /^\s*(Given|When|Then|And|But)\s+(.*\S)\s*$/
 const SCENARIO = /^\s*Scenario(?: Outline)?:\s*(.*\S)\s*$/
+const TABLE_ROW = /^\s*\|(.*)\|\s*$/
+
+// Normalize one `| cell | cell |` row cell-by-cell so a row survives reordered
+// whitespace inside a cell but not a reordered or differing cell.
+function normalizeRow(line: string): string {
+	const inner = TABLE_ROW.exec(line)?.[1] ?? line
+	return inner
+		.split('|')
+		.map((cell) => normalize(cell))
+		.join('|')
+}
 
 export function parseFeature(featureText: string): Scenario[] {
 	const scenarios: Scenario[] = []
 	let title: string | null = null
 	let steps: string[] = []
+	let exampleRows: string[] = []
 	const flush = () => {
 		if (title !== null) {
-			scenarios.push({
-				title,
-				titleKey: normalize(title),
-				fingerprint: steps.map(normalize).join('\n'),
-			})
+			const fingerprint =
+				exampleRows.length === 0
+					? steps.map(normalize).join('\n')
+					: `${steps.map(normalize).join('\n')}\n EXAMPLES \n${exampleRows.join('\n')}`
+			scenarios.push({ title, titleKey: normalize(title), fingerprint })
 		}
 		title = null
 		steps = []
+		exampleRows = []
 	}
 	for (const line of featureText.split('\n')) {
 		const sc = SCENARIO.exec(line)
@@ -81,7 +99,11 @@ export function parseFeature(featureText: string): Scenario[] {
 		}
 		if (title === null) continue
 		const st = STEP.exec(line)
-		if (st) steps.push(st[2])
+		if (st) {
+			steps.push(st[2])
+			continue
+		}
+		if (TABLE_ROW.test(line)) exampleRows.push(normalizeRow(line))
 	}
 	flush()
 	return scenarios

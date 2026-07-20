@@ -11,7 +11,9 @@ node scripts/check-scenario-overlap.mts --spec-dir <spec> --check  # CI guard (f
 ```
 
 Two deterministic candidate kinds — **exact-duplicate** (blocking: two nodes share an identical
-normalized step fingerprint) and **title-overlap** (advisory: two nodes share a scenario title,
-differing steps) — plus a Warden `@rubric` arm that confirms real overlap and assigns a single owning
-node. The fingerprint is step-bodies-only; detection is cross-node only. Read-only, writes nothing.
+normalized fingerprint) and **title-overlap** (advisory: two nodes share a scenario title, differing
+fingerprints) — plus a Warden `@rubric` arm that confirms real overlap and assigns a single owning
+node. The fingerprint is step-bodies-only for a plain `Scenario`; a `Scenario Outline`'s fingerprint
+also folds in its normalized `Examples` table (header + rows), since its steps are a template shared
+by every canonical outline. Detection is cross-node only. Read-only, writes nothing.
 See [`SKILL.md`](./SKILL.md) for the full contract. Not user-invocable.

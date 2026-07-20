@@ -130,11 +130,12 @@ test('every engine is handed the spec dir it was resolved to', () => {
 	for (const e of ENGINES) assert.ok(e.args('SPECDIR').includes('SPECDIR'), `${e.name} drops the spec dir`)
 })
 
-test('check-scenario-overlap is held out of the per-project set', () => {
-	// It reports pre-existing @trigger sibling-deference duplicates whose removal
-	// is a Clearance-bound narrowing; it still runs corpus-wide at the root.
+test('check-scenario-overlap is in the per-project set', () => {
+	// #304 step 1 fixed the outline fingerprint (folds Examples into it), which
+	// dissolved #314's deferral premise (10 engine-artifact findings, not corpus
+	// duplication) — so the check now joins the per-project set it was held out of.
 	assert.equal(
 		ENGINES.some((e) => e.name === 'check-scenario-overlap'),
-		false,
+		true,
 	)
 })

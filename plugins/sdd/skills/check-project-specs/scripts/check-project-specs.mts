@@ -43,16 +43,12 @@ export const ENGINES: Engine[] = [
 		args: (d) => ['--spec-dir', d, '--check'],
 	},
 	{ name: 'align-spec', script: 'align-spec/scripts/align-spec.mts', args: (d) => ['--spec-dir', d, '--check'] },
+	{
+		name: 'check-scenario-overlap',
+		script: 'check-scenario-overlap/scripts/check-scenario-overlap.mts',
+		args: (d) => ['--spec-dir', d, '--check'],
+	},
 ]
-
-// check-scenario-overlap is deliberately NOT here yet. Run per-project it reports
-// 10 pre-existing exact-duplicate scenarios across three projects, every one a
-// @trigger sibling-deference row — the subject of the open @trigger-outline issue.
-// Resolving one means deleting a frozen scenario from its non-owning node, which
-// is a narrowing and Clearance-bound, so it is not this engine's call to force.
-// It still runs corpus-wide at the root exactly as before, so no coverage is lost;
-// it joins this set in the CR that resolves those duplicates under a granted
-// clearance.
 
 // ─── repo root ────────────────────────────────────────────────────────────────
 

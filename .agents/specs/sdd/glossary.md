@@ -35,6 +35,12 @@ only.
 | **suite** | the scenarios of a spec taken as behavior. The word for what is specified. |
 | **`.feature`** | the file and format the suite is written in. The word for the artifact only. |
 | **scenario** | one acceptance case — a decision the capability makes, asserted as an observable boolean. |
+| **`@trigger`** | tags a scenario asserting the subject's **engage decision** — does it engage when it should, and stay out when it should not. Legal only where the node owns that decision (see *owned routing decision*). |
+| **`@behavior`** | tags a scenario asserting the subject's **conduct once engaged** — does it take the right steps and honor its rules. |
+| **`@quality`** | tags a scenario asserting the **result** the subject produced. |
+| **owned routing decision** | the test for a legal `@trigger`: the node must own the decision the scenario freezes. An agent applying the node's *own doctrine* qualifies (the node's content decides). A **harness** matching `description` prose against a user query does not — that is co-owned by (description × harness × sibling set). The two share a shape and differ only in the decider, so this is **judged per node, never linted**. |
+| **rubric** (`@rubric`) | a scenario graded against inline named dimensions and a threshold rather than a boolean `Then`. Sets the assertion *form*, so it is independent of `@trigger` / `@behavior` / `@quality` — a scenario may carry both. |
+| **pin** (`@pinned`) | a user-owned seed scenario. The one scenario class the agent does not own: it may propose a change but never execute one without in-session user authorization. Only the user pins. |
 | **freeze** (`@frozen`) | a per-file flag marking a suite as the agreed contract. Protects scenario **content**, not file location: a pure rename preserves it, a content change does not. |
 | **additive** | a new scenario that widens the contract. It cannot break existing implementation, so it self-clears into a frozen file without escalation. |
 | **Clearance** | the escalation required to *narrow or rewrite* a frozen scenario. Granted by the owner, recorded before the edit, never assumed. |

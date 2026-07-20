@@ -83,6 +83,43 @@ explicit **scenario-map** table (`sdd:spec-format-governance`). The suite **mirr
   non-variance is a design decision, not an invariant.
 - **barred** — the `Then` asserts an edge that must **not** exist (an option never offered).
 
+## The tag set — every tag a `.feature` may carry
+
+This bar defines the tag **vocabulary** — what each tag *means*. It does **not** define how a judge
+measures the tagged scenario: run counts, thresholds, corpora and pass bars are the resolved
+plugin's (ACED, for agent-config domains). Tag = interface, plugin = implementation. A governance
+that mentions a tag is a consumer. The rules live in the sections named below; this table is the index.
+
+| Tag | Names | Scope | Applied by | Means |
+| --- | --- | --- | --- | --- |
+| `@trigger` | the engage decision | scenario | producer | Does the subject **engage** when it should, and stay out when it should not? |
+| `@behavior` | conduct once engaged | scenario | producer | Having engaged, does it take the right steps and honor its rules? |
+| `@quality` | the result | scenario | producer | Is what it produced good? |
+| `@rubric` | the assertion form | scenario | producer | Graded against an inline rubric (named dimensions + threshold) rather than a boolean `Then` — see *Form 2*. Independent of the tags above; a scenario may carry both. |
+| `@pinned` | ownership | scenario | **user only** | A user-owned seed scenario the agent may propose against but never change unilaterally — see *`@pinned`*. |
+| `@frozen` | lifecycle state | **file** | the gate | The suite is the agreed contract; narrowing it needs Clearance — see *The `@frozen` marker*. |
+
+**`@trigger` vs `@behavior` is a per-node question, judged — never linted.** `@trigger` is legal
+only *where the node genuinely owns the routing decision*, and two different deciders qualify:
+
+- the **harness** — a model matching this config's `description` against a user query. Here the
+  decision is **co-owned** (description prose × harness × sibling set) and the node holds one of the
+  three, so freezing it on the node is the seam issue #304 raises.
+- **an agent applying the node's own doctrine** — e.g. a coordinator reading this doctrine to decide
+  whether it governs the situation at hand. No harness is in the loop and the deciding input is the
+  node's own content, so **the node owns it outright**.
+
+The two look alike in shape and differ only in who decides, so **step form does not classify them**
+and no mechanical check should try (see `.agents/specs/sdd/ssa-lowering/ssa-lowering.feature`, where
+a deletion that read the second case as the first was blocked at the gate and reverted). A
+deterministic, fully-owned decision table that selects *what an already-invoked subject does* is
+conduct, not engagement — it wants `@behavior`.
+
+**`@frozen` is the only file-level tag** — it sits on the `Feature`, not a scenario.
+
+`check-suite` ignores tags it does not recognize, so an unknown tag fails silently rather than
+loudly — spell them exactly as written above.
+
 ## `@pinned` — user-owned seed scenarios
 
 A **user** may mark a scenario `@pinned`. It is **user-owned** (`sdd:ownership-governance`) — the one
@@ -182,13 +219,17 @@ state do not contradict. **Specialization is not contradiction** — a specific 
 conflict. The remedy is a `Given` narrowing. Judged, not linted; the `Conflict` hard floor is the
 post-freeze backstop.
 
-## Optional conventions — layer tags and enumerated cases
+## Optional conventions — scenario tagging and enumerated cases
 
 Additive and plugin-facing (e.g. ACED); untagged plain suites are unaffected and the structural
 check ignores unrecognized tags.
 
-- **Layer tags** route a scenario to a resolved judge's evaluation layer (`@behavior`, `@quality`,
-  and — where the node genuinely owns the routing decision — `@trigger`). Orthogonal to `@rubric`.
+- **`@trigger`, `@behavior` and `@quality`** are defined in *The tag set* above. There is no
+  collective noun for them and none is wanted: they are three separate tags, not a stack or a
+  pipeline, and naming them as a group invites generalizations that do not hold. Apply `@trigger`
+  only where the node genuinely owns the routing decision, and read that section's two-deciders test
+  before choosing between `@trigger` and `@behavior` — the classification is judged per node, never
+  linted.
 - **`Scenario Outline` is a rare exception, not a default** (DAMP over DRY) — legitimate only for a
   genuinely uniform enumerated set (one varying token, every row the same `Then` shape). Two rows
   wanting different `Then`s are two scenarios, not one Outline. Requires a non-empty `Examples:` table
@@ -216,7 +257,9 @@ every scenario carries a map row, every row names a real scenario, and no two ro
 graph's semantics, so a green check clears no coverage question. A spec with no `## Scenario map`
 section is skipped, not failed — run as `check-suite`
 (`spec-gate/scripts/check-suite.mts`): the spec-producer self-runs it before returning, and the spec
-gate runs it fail-closed before the cold judge. **Form only** — coverage adequacy, discrimination,
+gate runs it fail-closed before the cold judge.
+
+**Form only** — coverage adequacy, discrimination,
 selection, pairwise consistency, and apparatus independence are **judged**, never linted, and a green
 `check-suite` clears none of them.
 

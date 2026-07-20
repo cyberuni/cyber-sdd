@@ -590,11 +590,11 @@ The mechanical form covers **form only**. Selection, discrimination, and pairwis
 The baseline rule "no rubric in the `.feature`" is relaxed to **"no rubric in an *untagged* scenario."**
 Rubric form is legal only inside a `@rubric`-tagged scenario; the tag is the guard that keeps the boolean gate contract intact for everything else.
 
-## Optional conventions — layer tags and enumerated cases
+## Optional conventions — scenario tagging and enumerated cases
 
 Both are **additive** and plugin-facing (e.g. ACED for agent-config domains); untagged, plain suites are unaffected and the mechanical check ignores tags it does not recognize.
 
-- **Layer tags** — tag a scenario with the evaluation layer a resolved judge routes it through: `@trigger`, `@behavior`, `@quality`. Orthogonal to `@rubric` (a scenario may carry both, e.g. `@behavior @rubric`). The tag is metadata; it never changes the one-boolean-per-scenario contract.
+- **`@trigger`, `@behavior`, `@quality`** — tag a scenario with what it asserts about its subject: `@trigger` the **engage decision** (does the subject engage when it should), `@behavior` its **conduct once engaged**, `@quality` the **result**. They carry no collective noun — they are three separate tags, not a stack or a pipeline. Each names a *meaning*; how a resolved judge measures it (run counts, thresholds, corpora, pass bars) is that plugin's implementation, never this bar's. `@trigger` is legal only where the node genuinely owns the routing decision — a per-node judged call, never a lint. Independent of `@rubric` (a scenario may carry both, e.g. `@behavior @rubric`). The tag is metadata; it never changes the one-boolean-per-scenario contract.
 - **Enumerated cases — `Scenario Outline` is a rare exception, not a default.** Default to specific scenarios (**DAMP over DRY**). An Outline forces one uniform `Given/When/Then` shape, so it is legitimate **only** for a genuinely uniform enumerated set — one varying token, every row the same `Then` shape (e.g. a trigger-query corpus of `{ query, should_trigger }`). The tell it is wrong: **two example rows that want different `Then`s are two scenarios, not one Outline.** When the uniform case applies, use a `Scenario Outline` with an `Examples:` table — one row per case, `<placeholder>` tokens bound to columns. The mechanical check requires a non-empty `Examples:` table whose header covers every `<placeholder>` used in the steps; a bare outline with no table (or a table missing a placeholder's column) is a structural failure.
 
 ```gherkin

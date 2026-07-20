@@ -57,6 +57,14 @@ uncovered surface is a hole, not a silent gap in prose. `check-suite` lints it. 
 the CFG did not reach enters as a **seed** the agent grows the CFG around, adding the discovered
 edges to the map.
 
+### On backfill — draw the CFG and the scenario map, don't stop at Use Cases
+When the implementation already exists (a **backfill**), the four sections are **still mandatory**.
+Read the source, then **draw the `## Control Flow` CFG from the code** and its 1:1 `## Scenario map` —
+a spec that stops at `## Use Cases` has named its entry points but neither the decisions the
+capability takes nor their coverage. The suite is **re-derived from that CFG**, not patched from the
+standing one (`sdd:suite-format-governance`). `check-spec-structure`'s `incomplete-node` flags a
+behavioral leaf that skips a required section.
+
 ### `## References` *(optional — any spec-type)*
 Where a decision in this node rests on **research or an external standard**, cite it here: the source
 and **what it backs**. Not a bibliography — a line earns its place only by carrying a decision that

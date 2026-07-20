@@ -61,6 +61,15 @@ inert.* Plausible, not strawman — a memorizer, a copier, a single-brancher, ne
 Discrimination is **judged, not linted**; a **measured ceiling is a tell an edge cannot be lost**,
 not evidence it works. Rubric-dimension discrimination detail: `references/rubric.md`.
 
+**Backfilling from existing code — derive, don't patch.** When the implementation already exists,
+draw the CFG from the code (`sdd:spec-format-governance` owns the `## Control Flow` + `## Scenario
+map` sections) and **re-derive the whole scenario set from its edges** — one scenario per `(path
+class, edge)` pair, every guard paired with a positive companion. Any pre-existing `.feature` or
+legacy corpus (a retired golden set) is **reference only**: each entry is a **claim to verify against
+the current code**, never the baseline to patch. Reading the standing suite and filling only the gaps
+a diff notices is not this procedure — it leaves stale scenarios in place and misses edges the CFG
+mandates (ADR-0029).
+
 ## Sections mirror the spec's use-case groups; every scenario binds to a map edge
 
 `spec.md` sections the node by **use-case group**, each carrying a drawn **CFG** and an

@@ -63,16 +63,16 @@ Recommend, let the user override, never assume:
 **Colocate by default.** Hoist only when the spec **cannot be kept out of what ships** — nesting alone is
 never the reason.
 
-- **colocated** — `<project>/.agents/spec/` (singular). The default, including for a **nested** project.
+- **`<project>/.agents/spec/`** (colocated).
   An npm package colocates fine: `files` / `.npmignore` excludes `.agents/` from the tarball.
-- **hoisted** — `<repo>/.agents/specs/<name>/` (plural, named by the package). Only when the project dir is
-  copied **wholesale**, with no include/exclude mechanism to leave the spec behind. The one identified case
-  is an **agentic plugin**: plugin install copies the whole plugin directory, so a colocated spec would ship
-  to every consumer. If a new packaging format has the same all-or-nothing copy, it joins this case;
-  otherwise colocate.
-- **monorepo-member** — for a **monorepo**, offer to lay out **every package** (each hoisted) plus the outer
-  project (`<repo>/.agents/spec/`). Run steps 1–6 **per selected project**, producing several draft trees
-  (the evidence mode is picked once, in step 0, for the whole run).
+- **`<repo>/.agents/specs/<name>/`** (hoisted — named by the package). Only when the project dir is
+  distributed **wholesale**, with no include/exclude mechanism to leave the spec behind. The one identified
+  case is an **agentic plugin**: plugin install distributes the whole plugin directory, so a colocated spec
+  would ship to every consumer. If a new packaging format has the same all-or-nothing distribution, it joins
+  this case; otherwise colocate.
+- **monorepo** — offer to lay out **every package** (each hoisted to `<repo>/.agents/specs/<name>/`) plus the
+  outer project (`<repo>/.agents/spec/`). Run steps 1–6 **per selected project**, producing several draft
+  trees (the evidence mode is picked once, in step 0, for the whole run).
 
 In **intent mode** apply the same test to the **kind of project** established in step 1: an agentic plugin
 hoists, everything else colocates at the `project-path` given. Confirm with the user; never re-ask location

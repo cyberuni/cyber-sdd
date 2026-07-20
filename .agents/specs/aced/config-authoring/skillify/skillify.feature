@@ -76,6 +76,18 @@ Feature: skillify — generalize the current session into a reusable skill
     When skillify resolves placement
     Then it asks the user to resolve the scope before writing the SKILL.md rather than assuming one
 
+  @behavior
+  Scenario: a personal session workflow resolves to the user placement
+    Given a session workflow that is personal and not tied to any specific codebase
+    When skillify resolves placement
+    Then it selects the user placement rather than a project-scoped one
+
+  @behavior
+  Scenario: a tool-centered session workflow resolves to the tool-based pattern
+    Given a session workflow centered on calling tools or external systems
+    When skillify resolves the pattern
+    Then it selects the tool-based pattern rather than the process pattern
+
   # ── Drafting ──
 
   @behavior

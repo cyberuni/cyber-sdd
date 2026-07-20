@@ -3,10 +3,11 @@
 This is an internal SDD governance about the Builder's bar at the **spec gate**.
 
 It answers one question: is this **capability** fully and testably specified? In SDD, a capability's
-contract is written down twice — as a `spec.md` (the decisions it makes, drawn as a decision graph)
-and as a `.feature` suite (one test scenario per branch of that graph). This bar judges whether that
-contract is complete and checkable *before* anyone builds against it. It judges the contract itself,
-read from the spec plus its suite — not how the document is written, which is a different bar
+contract is written down twice — as a `spec.md` (the decisions it makes, drawn as a **control-flow
+graph**, or CFG) and as a `.feature` suite (one test scenario per branch of that CFG). This bar
+judges whether that contract is complete and checkable *before* anyone builds against it. It judges
+the contract itself, read from the spec plus its suite — not how the document is written, which is a
+different bar
 (`spec-format-governance`).
 
 It is one half of a matched pair: this bar asks "is the contract testable and covered?" at the spec
@@ -17,7 +18,7 @@ contract?" at the impl gate.
 
 | Requirement | What it means |
 | --- | --- |
-| **Every branch is covered** | Each edge of the capability's decision graph has its scenario, and every guard/negative edge is paired with a positive companion. The scenario map is 1:1 in both directions — no orphan scenario, no uncovered edge. |
+| **Every branch is covered** | Each edge of the capability's CFG has its scenario, and every guard/negative edge is paired with a positive companion. The scenario map is 1:1 in both directions — no orphan scenario, no uncovered edge. |
 | **Every scenario is testable** | Each scenario asserts an observable outcome a check can confirm — a boolean, no "sometimes". A behavior the capability cannot expose cannot be specced. |
 | **A graded subject is still a boolean** | A non-deterministic capability (one whose output varies run to run) still reaches a per-scenario boolean, through a rubric plus a threshold over N runs. The rubric form stays out of the boolean `.feature`, carried as a judge-only `@rubric` scenario. |
 

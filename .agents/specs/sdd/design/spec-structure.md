@@ -38,7 +38,7 @@ Every node in the spec tree is one of **three types**, told apart on two axes �
 
 - **Descriptive** describes the system or a rule and attaches to **no subject**. Two roles — a terminal model doc (in `design/`) and an index / table-of-contents (the root `spec.md`, a capability overview README) — but identical on every axis the taxonomy uses, so **one type, two roles**.
 - **Reference artifact** specifies a real shipped thing with **no testable surface of its own**; its conformance is checked through a *consumer's* suite, not its own. It opens with a `## Subject` section (the artifact, its contract surface, and where conformance is verified) in place of `## Use Cases`.
-- **Behavioral artifact** specifies a testable subject and owns a `.feature`. "**unit spec**" is the everyday word for one; the `../workflows/` suite is the same type at project scope (its use cases are workflows). **Only this type carries the node sections** — `## What`, `## Use Cases`, `## Logic`, `## Scenario map` (`sdd:spec-format-governance`).
+- **Behavioral artifact** specifies a testable subject and owns a `.feature`. "**unit spec**" is the everyday word for one; the `../workflows/` suite is the same type at project scope (its use cases are workflows). **Only this type carries the node sections** — `## What`, `## Use Cases`, `## Control Flow`, `## Scenario map` (`sdd:spec-format-governance`).
 
 **Declared, not inferred.** A node's type lives in its frontmatter, never guessed:
 
@@ -119,7 +119,7 @@ The behavior suite is **part of the project-spec**, carried by the **behavioral*
 - **unit suites** — one per capability node — that **colocate** with their capability folder, one `.feature` per unit;
 - a **workflow suite** in `../workflows/` — how the capabilities compose into coherent usage flows (the cross-capability scenarios), consumed by step 3's verify.
 
-A **workflow is the project-level analog of a use case** — a path through the composed capabilities, the way a use case is a path through a node's logic graph; the root `spec.md` **capability map** is the project's logic graph. The workflow/unit split is **test organization within the one project-spec**, not separate lifecycles to re-gate.
+A **workflow is the project-level analog of a use case** — a path through the composed capabilities, the way a use case is a path through a node's control-flow graph (CFG); the root `spec.md` **capability map** is the project's CFG. The workflow/unit split is **test organization within the one project-spec**, not separate lifecycles to re-gate.
 (How suites are written and judged: `../authoring/suite-format/README.md`.)
 
 ## The folder skeleton maps to the loops

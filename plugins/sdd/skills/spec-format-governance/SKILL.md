@@ -27,15 +27,15 @@ implementation surface** (a CLI verb, a public function, an endpoint), given as
 the suite, and the code on **one screaming structure**: the builder gives each use case its own
 module, so each change stays local.
 
-### `## Logic`
-The **decision graph** the capability runs once invoked, **drawn** as a fenced Mermaid graph — nodes
-are decisions, edges are branches. Use cases **enter** this graph, and several usually share it
-(many-to-one). When use cases run genuinely distinct decision logic (common for CLI verbs), section
-`## Logic` by sub-graph and have each use case name the one it enters. A single-branch capability may
-state its decision in a line.
+### `## Control Flow`
+The **control-flow graph (CFG)** the capability runs once invoked, **drawn** as a fenced Mermaid
+graph — nodes are decisions, edges are branches. Use cases **enter** the CFG, and several usually
+share one (many-to-one). When use cases run genuinely distinct decision logic (common for CLI verbs),
+section `## Control Flow` by sub-graph and have each use case name the one it enters. A single-branch
+capability may state its decision in a line.
 
 ### `## Scenario map`
-The **explicit maintained table** binding the graph to the suite, **grouped by use case**, with three
+The **explicit maintained table** binding the CFG to the suite, **grouped by use case**, with three
 columns — **`| Edge | Path (Given) | Scenario |`**. The unit is the **(path class, edge)** pair, not
 the edge alone: a scenario's `Given` is the path reaching the edge, its `When` is the edge under test
 (`sdd:suite-format-governance`).
@@ -54,7 +54,7 @@ Three columns make the shape legible at a glance: a `Path` column reading `any` 
 claim (the outcome does not vary), and an edge repeated with different paths shows exactly which
 distinctions the contract cares about. The grouping keeps coverage **visible per use case** — an
 uncovered surface is a hole, not a silent gap in prose. `check-suite` lints it. A `@pinned` behavior
-the graph did not reach enters as a **seed** the agent grows the graph around, adding the discovered
+the CFG did not reach enters as a **seed** the agent grows the CFG around, adding the discovered
 edges to the map.
 
 ### `## References` *(optional — any spec-type)*
@@ -92,15 +92,15 @@ Enrichment (diagrams, formatting) is `spec.md` only; the suite stays plain Gherk
 
 ## Key points (read-check)
 
-1. **Four sections in order** — `## What` (overview + non-goals), `## Use Cases`, `## Logic`,
+1. **Four sections in order** — `## What` (overview + non-goals), `## Use Cases`, `## Control Flow`,
    `## Scenario map` — plus an optional `## References` last, citing research that backs a decision
    (the claim it supports, not the topic).
 2. **A use case is an entry point named to its impl surface** (CLI verb / function / endpoint) — spec,
    suite, and code share one screaming structure.
-3. **The logic graph is shared** — use cases enter it (many-to-one); section by sub-graph only when
-   the logic genuinely differs.
+3. **The CFG is shared** — use cases enter it (many-to-one); section by sub-graph only when the
+   decision logic genuinely differs.
 4. **The scenario map is 1:1 and grouped by use case** — coverage visible per use case; `check-suite`
    lints it.
-5. **A `@pinned` behavior enters as a seed** the agent grows the graph around.
+5. **A `@pinned` behavior enters as a seed** the agent grows the CFG around.
 6. **Plain language is a gate bar** — a reader with no domain context follows the spec (and its
    suite) on first read; define every term, simplify the writing not the domain.

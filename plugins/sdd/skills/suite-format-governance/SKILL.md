@@ -29,9 +29,9 @@ A suite specifies **acceptance** — the observable **decisions** the node owns 
   scope** (Oracle relocates or kills it).
 - The only escape from strict is a user **pin** (below).
 
-## The suite is the capability's decision graph
+## The suite is the capability's control-flow graph
 
-The suite **is** the node's decision graph at acceptance level. Author it as one:
+The suite **is** the node's **control-flow graph (CFG)** at acceptance level. Author it as one:
 
 - **One scenario = one (path class, edge) pair.** The `Given` is the **path** — the decisions already
   made on the way here; the `When` is the **edge under test**; the `Then` is the **branch taken**. The
@@ -63,7 +63,7 @@ not evidence it works. Rubric-dimension discrimination detail: `references/rubri
 
 ## Sections mirror the spec's use-case groups; every scenario binds to a map edge
 
-`spec.md` sections the node by **use-case group**, each carrying a drawn **logic graph** and an
+`spec.md` sections the node by **use-case group**, each carrying a drawn **CFG** and an
 explicit **scenario-map** table (`sdd:spec-format-governance`). The suite **mirrors** it:
 
 - Group scenarios under `# ── <use-case group> ──` comments — same groups, same order — screaming
@@ -130,8 +130,8 @@ scenario class the agent does not own:
   ratification (positional, not relayable, not self-assertable within leash). Ownership is
   lifecycle-independent: the pin holds in `draft` and survives a re-open; freeze does not enter.
 - **Only the user pins.** The agent never applies `@pinned`.
-- **A pin is a seed.** It marks a behavior the decision graph did not reach; the agent **grows the
-  graph around it** — proposing the sibling branches, guards, and companions the pinned behavior
+- **A pin is a seed.** It marks a behavior the CFG did not reach; the agent **grows the
+  CFG around it** — proposing the sibling branches, guards, and companions the pinned behavior
   implies (agent-owned; only the seed stays pinned).
 - It is the **override to strict** — kept whatever strict would prune.
 
@@ -253,8 +253,8 @@ first, then its branches and errors; a `@rubric` scenario sorts into its group l
 The mechanical rules — Gherkin validity, every untagged `Then` a boolean, no leaked rubric lingo,
 `Scenario Outline` Examples coverage, `# ── ── ` section comments, and **scenario-map binding** —
 every scenario carries a map row, every row names a real scenario, and no two rows share an edge
-*and* a path class. Whether the rows **cover the graph** is judged, not linted: that needs the drawn
-graph's semantics, so a green check clears no coverage question. A spec with no `## Scenario map`
+*and* a path class. Whether the rows **cover the CFG** is judged, not linted: that needs the drawn
+CFG's semantics, so a green check clears no coverage question. A spec with no `## Scenario map`
 section is skipped, not failed — run as `check-suite`
 (`spec-gate/scripts/check-suite.mts`): the spec-producer self-runs it before returning, and the spec
 gate runs it fail-closed before the cold judge.
@@ -270,7 +270,7 @@ compressed form of this bar, not as a summary that replaces it:
 
 1. **Acceptance only, strict** — a suite specifies the decisions the node owns; invariants and
    co-owned seams are out of scope.
-2. **The suite is the decision graph** — one scenario per **(path class, edge)** pair, cover every
+2. **The suite is the CFG** — one scenario per **(path class, edge)** pair, cover every
    branch, collapse reconverged paths whose outcome does not differ, and pair every guard/negative
    edge with a positive companion on the same path (a lone negative is inert).
 3. **Each edge isolates a specific condition** — the `Given` hands over no part of the verdict, and a
@@ -281,7 +281,7 @@ compressed form of this bar, not as a summary that replaces it:
    class**; an edge may carry several rows (permutation coverage) — a duplicate is same edge *and*
    same path. Sections mirror the spec's use-case groups.
 6. **`@pinned` is user-owned** — the agent proposes but never executes a change or removal without
-   user authorization; only the user pins; a pin seeds graph growth.
+   user authorization; only the user pins; a pin seeds CFG growth.
 7. **A `Given` is a test vector** — the precondition binds, the apparatus binds nothing (swap test);
    no absorption.
 8. **A `Then` is legal when you can name the artifact that settles it** — the test is the **trace,

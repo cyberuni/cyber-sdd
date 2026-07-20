@@ -3,9 +3,9 @@
 This is an internal SDD governance about structural fit at the spec gate.
 
 It is the **Architect** actor's bar — the question it answers is: does this **capability** fit the
-project's structure, and is its decision graph well-placed? It judges the capability itself, read
-from its spec and test suite — not the wording of the document. How the prose is written is a
-different bar (`spec-format-governance`).
+project's structure, and is its control-flow graph (CFG) well-placed? It judges the capability
+itself, read from its spec and test suite — not the wording of the document. How the prose is
+written is a different bar (`spec-format-governance`).
 
 This is the SDD default for the `architect` bar at the spec gate: a plugin may bind its own version
 per artifact-type, and this one loads whenever the registry leaves `architect`/`spec` unbound. Its
@@ -21,7 +21,7 @@ asked of the implementation instead of the spec.
 | **No conflict** | The capability does not contradict established conventions, module boundaries, or an existing capability's contract. |
 | **Placement matches the declared layout** | The project declares its layout strategy in its root `spec.md` placement map; placement is judged *within* that declaration, not against a preferred one. Under the screaming-architecture default a capability lives in a folder named for its intent; a project that declared `mirror-source` is correctly placed when it mirrors its source. |
 | **…and the layout preserves the partition** | The declaration is not a licence. Layouts are ranked by whether they keep node ↔ capability one-to-one, because the mission scheduler cuts one mission per node and a scattered capability degrades the schedule toward serial (ADR-0025). **One capability per node, never smeared across nodes** holds under every strategy, and a layered / framework-first top level stays discouraged however it is declared. |
-| **A well-formed logic graph** | The capability's decision graph connects — every decision reachable, no dangling branch — and the suite's sections mirror it. |
+| **A well-formed CFG** | The capability's control-flow graph connects — every decision reachable, no dangling branch — and the suite's sections mirror it. |
 | **An orthogonal axis** | Structural fit judges a property the builder was not optimizing — a real independent check even from the same hand. |
 | **Structural concerns are deferred** | A structural problem in *another* capability is an observation that spawns a new spec — never a marker in the one being built. |
 

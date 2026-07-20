@@ -17,9 +17,9 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
 
 ## The bar
 
-- **Every branch of the capability is covered.** Each edge of its decision graph has its scenario, and
-  every guard/negative edge is paired with a positive companion. The **scenario map is 1:1** — no
-  orphan scenario, no uncovered edge (`sdd:suite-format-governance`).
+- **Every branch of the capability is covered.** Each edge of its control-flow graph (CFG) has its
+  scenario, and every guard/negative edge is paired with a positive companion. The **scenario map
+  is 1:1** — no orphan scenario, no uncovered edge (`sdd:suite-format-governance`).
 - **Every scenario is testable.** Each asserts an observable outcome a check can confirm — a boolean,
   no "sometimes". A behavior the capability cannot expose cannot be specced.
 - **A graded subject is still a boolean.** For a non-deterministic capability the contract reaches a

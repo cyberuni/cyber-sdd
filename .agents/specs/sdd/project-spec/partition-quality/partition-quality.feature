@@ -95,5 +95,5 @@ Feature: check-partition-quality — does this layout permit parallel work
     Then the headline reflects the parallel work each permits rather than rewarding fewer nodes
 
   # The read-only and no-verdict properties hold on every path, so they sit on no edge the
-  # ## Logic graph draws: invariants, not decisions. Acceptance-only-strict leaves them to the
+  # ## Control Flow graph draws: invariants, not decisions. Acceptance-only-strict leaves them to the
   # engine's own unit suite, which covers both (`sdd:suite-format-governance`).

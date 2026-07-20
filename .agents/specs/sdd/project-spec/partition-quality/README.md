@@ -32,9 +32,10 @@ one, so both call sites are opt-in. It is **not a restructuring tool** — it ne
 | **compare** — a strategy is being chosen or reconsidered | the repo, a scope, and two or more candidate partitions | each candidate's parallelizable share over the same commits, so the choice is made on the project's own numbers |
 | **signal** — a formation pass wants the layout-quality reading it already describes | the repo and the declared partition | the same measurement, surfaced as the advisory layout-quality signal (`../../formation/`) |
 
-## Logic
+## Control Flow
 
-All three use cases enter one graph and differ only at **D3** (one partition or several).
+All three use cases enter one control-flow graph (CFG) and differ only at **D3** (one partition
+or several).
 
 ```mermaid
 flowchart TD

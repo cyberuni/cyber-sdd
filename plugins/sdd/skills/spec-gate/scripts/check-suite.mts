@@ -421,8 +421,8 @@ export function checkFilePaths(
 // ─── scenario-map binding ─────────────────────────────────────────────────────
 // The sibling spec's `## Scenario map` binds each scenario to a (path class, edge) pair
 // (`| Edge | Path (Given) | Scenario |`). Form only: this checks the BINDING is complete and
-// non-duplicated. Whether the edges cover the graph is judged, not linted — that needs the drawn
-// graph's semantics, and a green check clears no coverage question.
+// non-duplicated. Whether the edges cover the control-flow graph (CFG) is judged, not linted — that
+// needs the drawn CFG's semantics, and a green check clears no coverage question.
 //
 // A spec carrying no `## Scenario map` section is SKIPPED, not failed: the map is the rebuilt node
 // format, and a node still on the older shape is not in violation of a section it does not claim.

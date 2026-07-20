@@ -56,10 +56,10 @@ spec location).
 | **greenfield** — a new project with no source tree yet | the capabilities the user states the project will have + the user's **location** and **strategy** choices | the same scaffolded **draft** spec tree, reached through **intent mode**: no source is read, and the strategy is never silently defaulted |
 | **monorepo** — a repo with multiple package anchors | the repo + the user's per-project selection | one **bootstrap** per chosen package (each hoisted to `<repo>/.agents/specs/<pkg>/`) plus the outer project (`<repo>/.agents/spec/`) — several draft trees in one pass |
 
-## Logic
+## Control Flow
 
-All three use cases enter one graph; they differ only at **D1** (which evidence mode) and **D3**
-(whether the run fans out per package).
+All three use cases enter one control-flow graph (CFG); they differ only at **D1** (which evidence
+mode) and **D3** (whether the run fans out per package).
 
 ```mermaid
 flowchart TD
@@ -115,7 +115,7 @@ flowchart TD
   DECL --> HB["hand back at status draft"]
 ```
 
-**Barred branches** — options the graph never offers, enforced as their own scenarios: layering or
+**Barred branches** — options the CFG never offers, enforced as their own scenarios: layering or
 arc42 sections as the *top* level (they nest inside a capability), and ADR as a strategy (it is the
 decisions facet).
 

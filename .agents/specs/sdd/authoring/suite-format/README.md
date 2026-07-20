@@ -39,8 +39,8 @@ independent axes. They are separate:
 "Boundary" is a **level**, not a category of scenario. A suite that names a level in its contract has
 leaked axis 2 into axis 1.
 
-**Combinatorics still move down** — for a reason that survives the reframing. A suite is a **decision
-graph**, not a combinatorial cover: it carries one scenario per `(path class, edge)` pair, so it
+**Combinatorics still move down** — for a reason that survives the reframing. A suite is a **control-flow graph
+(CFG)**, not a combinatorial cover: it carries one scenario per `(path class, edge)` pair, so it
 structurally cannot exhaust a truth table, and a suite that tries **churns without end** (the
 `github-315` `deps.feature` cost 13 Builder-lens judge rounds; ADR-0028).
 

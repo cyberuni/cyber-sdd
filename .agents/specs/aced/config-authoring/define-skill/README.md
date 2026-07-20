@@ -52,7 +52,7 @@ is judged, not asserted.
 | Audit before handing back | a freshly drafted or improved skill | the structural audit runs before presentation and any CRITICAL-or-HIGH finding is fixed first |
 | Hand off by entry mode | the entry the capability was reached through | standalone and impl-producer point at the ACED eval loop; the escaped entry reports and stops; no legacy trigger-query eval file is embedded either way |
 
-## Logic
+## Control Flow
 
 Two decisions are set before the body runs and shape everything after: **how the capability was
 reached** (the entry mode, fixed at dispatch) and **what is being asked for** (the route). The

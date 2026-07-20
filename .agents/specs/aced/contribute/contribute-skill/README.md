@@ -48,7 +48,7 @@ carry signal.
 | Land and open the PR | the confirmed, mapped changed files | all changed files (across one or several skills in one PR) land in a single commit under their `skills/<name>/` trees, and one PR is opened on the default base branch |
 | Report the result | the opened PR | it outputs the PR URL and advises running `npx skills update` in the consumer after merge |
 
-## Logic
+## Control Flow
 
 Two guards frame the whole flow: **nothing is written outside `skills/<name>/`** in the source, and
 **nothing is pushed before the diffs are shown and confirmed**. Everything below runs inside those.

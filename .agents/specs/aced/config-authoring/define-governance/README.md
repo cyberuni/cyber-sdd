@@ -46,7 +46,7 @@ drafting behavior is judged rather than asserted.
 | Verify before handing back | a freshly written or edited governance | the quality checks run; failures above the fix bar are repaired before the file is shown, and failures below it are reported rather than silently dropped |
 | Report the outcome | a completed governance | the canonical path, the symlinks, the content type and every failing check are named, and the user is pointed at the next step |
 
-## Logic
+## Control Flow
 
 ```mermaid
 flowchart TD

@@ -15,7 +15,7 @@ tools, now that one project is **one spec**. It carries a self-contained `.mts` 
 node-≥23.6 / no-deps convention). It is the **node-shape** sibling of `align-spec` (prose↔suite
 alignment) and `concept-index` (the by-concept view).
 
-## The two deterministic checks (and two judgment arms)
+## The three deterministic checks (and two judgment arms)
 
 - **untagged-node** (blocking) — a spec-typed node README carrying no `concept:` tag, so it never
   appears in the by-concept index (`concept-index`). `--check` fails on it.
@@ -24,6 +24,13 @@ alignment) and `concept-index` (the by-concept view).
   (`@rubric`-preceded) scenario count, and section-cluster count (comment headers of either
   `# ── … ──` or `# ---- … ----` style) as a soft breadth hint — and prescribes **no route**.
   Surfaced in the audit but **never** fails `--check`.
+- **incomplete-node** (advisory) — a **behavioral leaf spec** (a README with `spec-type: behavioral`
+  and a colocated `.feature`) whose `spec.md` is missing one of the four required sections —
+  `## What`, `## Use Cases`, `## Control Flow`, `## Scenario map` (`sdd:spec-format-governance`). A
+  spec that stops at `## Use Cases` never draws its CFG or scenario map. Spec-type-aware: a reference
+  artifact (`## Subject`, no scenario map) and an index node (no colocated `.feature`) are **not**
+  held to the shape. **Advisory** while a corpus is brought up to the four-section shape; flip it to
+  **blocking** with a follow-up once the corpus is clean.
 - **breadth-vs-depth routing** and **intra-spec contradiction** are **Warden judgments** (the spec's
   `@rubric` scenarios) — the engine ships no code for them. The Warden reads the shape profile and
   routes: breadth (many clusters/plain scenarios) → propose a node split; depth with a deterministic

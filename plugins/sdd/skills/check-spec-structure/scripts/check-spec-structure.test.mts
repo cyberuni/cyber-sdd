@@ -6,15 +6,19 @@ import { test } from 'node:test'
 import {
 	audit,
 	checkGlossary,
+	checkIncomplete,
 	checkOversized,
 	checkUntagged,
 	countScenarios,
 	hasBlocking,
 	main,
 	parseNodeFrontmatter,
+	parseSectionHeadings,
 	profileFeature,
 	scanProjectSpec,
 } from './check-spec-structure.mts'
+
+const FOUR_SECTIONS = '## What\n\nw\n\n## Use Cases\n\nu\n\n## Control Flow\n\nc\n\n## Scenario map\n\nm\n'
 
 function mkCorpus(): string {
 	return mkdtempSync(join(tmpdir(), 'check-spec-structure-'))
@@ -70,6 +74,18 @@ test('countScenarios counts Scenario lines only', () => {
 	assert.equal(countScenarios('@frozen\nFeature: x\n  Scenario: a\n  Scenario: b\n    Then z\n'), 2)
 })
 
+test('parseSectionHeadings extracts level-2 headings and strips backticks', () => {
+	assert.deepEqual(parseSectionHeadings('# Title\n\n## What\n\n## `## Control Flow`\n\n### sub\n'), [
+		'What',
+		'## Control Flow',
+	])
+})
+
+test('parseSectionHeadings ignores ## lines inside a fenced code block', () => {
+	const text = '## Real\n\n```bash\n## not a heading\n```\n\n## Also Real\n'
+	assert.deepEqual(parseSectionHeadings(text), ['Real', 'Also Real'])
+})
+
 // ── Audit node-shape (deterministic) ──
 
 test('a spec-typed node missing a concept tag is flagged as an untagged orphan', () => {
@@ -85,6 +101,57 @@ test('a node carrying a concept tag raises no untagged finding', () => {
 	const d = mkCorpus()
 	seedNode(d, 'corpus', 'tagged', { specType: 'behavioral', concept: 'spec-structure', scenarios: 3 })
 	assert.equal(checkUntagged(scanProjectSpec(d)).length, 0)
+})
+
+test('a behavioral leaf spec that stops at ## Use Cases is flagged incomplete (advisory)', () => {
+	const d = mkCorpus()
+	seedNode(d, 'corpus', 'partial', {
+		specType: 'behavioral',
+		concept: 'spec-structure',
+		scenarios: 3,
+		body: '## Use Cases\n\nu\n',
+	})
+	const findings = checkIncomplete(scanProjectSpec(d))
+	assert.equal(findings.length, 1)
+	assert.match(findings[0].node, /partial/)
+	assert.equal(findings[0].severity, 'advisory')
+	assert.match(findings[0].detail, /## What/)
+	assert.match(findings[0].detail, /## Control Flow/)
+	assert.match(findings[0].detail, /## Scenario map/)
+	// advisory only — it never fails --check
+	assert.equal(hasBlocking(findings), false)
+})
+
+test('a behavioral leaf with all four sections raises no incomplete finding', () => {
+	const d = mkCorpus()
+	seedNode(d, 'corpus', 'complete', {
+		specType: 'behavioral',
+		concept: 'spec-structure',
+		scenarios: 3,
+		body: FOUR_SECTIONS,
+	})
+	assert.equal(checkIncomplete(scanProjectSpec(d)).length, 0)
+})
+
+test('a reference-type node is not held to the four-section shape', () => {
+	const d = mkCorpus()
+	seedNode(d, 'corpus', 'ref', {
+		specType: 'reference',
+		concept: 'spec-structure',
+		scenarios: 3,
+		body: '## What\n\nw\n\n## Subject\n\ns\n',
+	})
+	assert.equal(checkIncomplete(scanProjectSpec(d)).length, 0)
+})
+
+test('an index node with no colocated feature is not flagged incomplete', () => {
+	const d = mkCorpus()
+	seedNode(d, 'corpus', 'index', {
+		specType: 'behavioral',
+		concept: 'spec-structure',
+		body: '## Use Cases\n\nu\n',
+	})
+	assert.equal(checkIncomplete(scanProjectSpec(d)).length, 0)
 })
 
 test('a node whose suite exceeds the granularity threshold is flagged oversized with a shape profile', () => {
@@ -105,7 +172,12 @@ test('a node within the granularity threshold raises no oversized finding', () =
 
 test('a structurally clean project-spec produces no findings', () => {
 	const d = mkCorpus()
-	seedNode(d, 'corpus', 'a', { specType: 'behavioral', concept: 'spec-structure', scenarios: 3 })
+	seedNode(d, 'corpus', 'a', {
+		specType: 'behavioral',
+		concept: 'spec-structure',
+		scenarios: 3,
+		body: FOUR_SECTIONS,
+	})
 	seedNode(d, 'corpus', 'b', { specType: 'reference', concept: 'spec-structure' })
 	assert.deepEqual(audit(scanProjectSpec(d), 40), [])
 })

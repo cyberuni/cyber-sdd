@@ -100,6 +100,11 @@ Feature: define-skill — author a workflow skill
     When define-skill scaffolds the skill
     Then it writes a README beside the SKILL.md with a title, when-to-use, what-it-does, and install line
 
+  Scenario: a user-global skill is still written at the user-global path
+    Given the user selects the user-global scope for a skill named "format-changelog"
+    When define-skill scaffolds the skill
+    Then it writes the SKILL.md at ~/.agents/skills/format-changelog/SKILL.md
+
   Scenario: a user-global skill gets no README
     Given the user selects the user-global scope
     When define-skill scaffolds the skill
@@ -107,10 +112,17 @@ Feature: define-skill — author a workflow skill
 
   # ---- Drafting ----
 
-  Scenario: the SKILL.md carries a matching name and a trigger-bearing description
-    Given a gathered name, scope, trigger phrasing, and body steps
+  Scenario: the SKILL.md frontmatter name is the kebab-case directory name
+    Given the gathered skill is scaffolded at the directory "format-changelog"
     When define-skill writes the SKILL.md
-    Then the frontmatter name is kebab-case and matches the directory and the description carries a capability, a "Use when" trigger, and an implicit-phrasing example
+    Then the frontmatter name is the kebab-case string "format-changelog"
+
+  Scenario: a user-triggered skill's description carries the capability, the trigger, and an implicit phrasing
+    Given a gathered scope, trigger phrasing, and body steps for a skill the user invokes directly
+    When define-skill writes the SKILL.md
+    Then the description states the capability the skill performs
+    And the description carries a "Use when" trigger clause
+    And the description carries an example of an implicit phrasing the user might say instead
 
   Scenario: a partial skill's description carries the Partial Skill prefix to prevent accidental activation
     Given the skill is a partial skill other skills call by name rather than a user-triggered one
@@ -134,6 +146,12 @@ Feature: define-skill — author a workflow skill
     When define-skill improves it
     Then it changes only the description and leaves the rest intact
 
+  Scenario: improving an existing skill preserves a section its own template never generates
+    Given an existing SKILL.md whose body carries a "## Rollback" section that no define-skill template emits
+    And the only gap found in it is a weak description
+    When define-skill improves it
+    Then the file it leaves still carries the "## Rollback" section with its original text
+
   # ---- Quality audit ----
 
   Scenario: the structural audit runs before the skill is presented
@@ -146,17 +164,44 @@ Feature: define-skill — author a workflow skill
     When define-skill finishes the audit
     Then it fixes the CRITICAL finding before presenting the skill
 
+  Scenario: a HIGH audit finding with no CRITICAL alongside it is still fixed before handoff
+    Given the audit reports one HIGH severity finding and no CRITICAL finding on the drafted skill
+    When define-skill finishes the audit
+    Then it fixes the HIGH finding before presenting the skill
+
   # ---- Handoff to the ACED eval loop ----
 
   Scenario: the report names the artifacts and points at the ACED eval loop
-    Given a completed skill that carries triggering behavior
+    Given the user invoked define-skill standalone, not through the non-durable escape hatch
+    And the completed skill carries triggering behavior
     When define-skill reports
     Then it states the SKILL.md path, the README, the runtime symlinks, and the audit outcome, and points the user at start-mission to spec and eval the skill
 
-  Scenario: no legacy trigger-query eval file is embedded as the test step
-    Given a completed skill
+  Scenario: a standalone run producing a non-triggering partial skill still points at the eval loop
+    Given the user invoked define-skill standalone, not through the non-durable escape hatch
+    And the completed skill is a partial skill that carries no triggering behavior
     When define-skill reports
-    Then it does not embed a legacy trigger-query eval file as the test step and defers scoring to the ACED eval loop
+    Then it points the user at start-mission to spec and eval the skill
+
+  Scenario: an impl-producer run reports the eval loop as the next step
+    Given the conductor dispatched define-skill as the ACED impl-producer against a frozen feature
+    And define-skill has written the SKILL.md and run the structural audit on it
+    When define-skill reports
+    Then the report names the ACED eval loop as where the skill is specced and scored next
+
+  Scenario: an escaped-entry skill is reported and stopped without pointing at the eval loop
+    Given the gateway or start-mission resolved the request non-durable and invoked define-skill directly, with no change request open
+    And define-skill has scaffolded the SKILL.md and run the structural audit on it
+    When define-skill reports
+    Then it states the SKILL.md path and the audit outcome
+    And the report names neither start-mission nor the ACED eval loop as a next step
+
+  Scenario: a request to bake a trigger-query eval file into the skill is answered with the ACED eval loop
+    Given the user invoked define-skill standalone, not through the non-durable escape hatch
+    And the skill is complete and its author asks define-skill to add an eval file listing trigger queries and their expected activations as the skill's test step
+    When define-skill reports
+    Then it names the ACED eval loop as where the skill is scored
+    And the skill directory it hands back contains no trigger-query eval file
 
   # ---- Gate-role naming ----
 
@@ -175,6 +220,12 @@ Feature: define-skill — author a workflow skill
     When define-skill runs its quality checks
     Then the gate-role naming check flags the name at HIGH severity and define-skill renames it to the gate-and-scope form before presenting the skill
 
+  Scenario: a gate scorer named for its action rather than its gate is flagged even when the name is not a bare verdict word
+    Given a drafted partial-skill subagent named "eval-runner" whose role is to score the spec gate for the quill domain
+    When define-skill runs its quality checks
+    Then the gate-role naming check flags the name at HIGH severity
+    And define-skill renames it to "quill-spec-judge" before presenting the skill
+
   Scenario: a non-scorer producer subagent keeps its action-oriented name
     Given the subagent's role is to produce an artifact rather than score a gate or case, named like scenario-writer or doc-writer
     When define-skill runs its quality checks
@@ -182,10 +233,13 @@ Feature: define-skill — author a workflow skill
 
   # ---- Impl-producer dual mode ----
 
-  Scenario: dispatched against a frozen suite it co-produces the eval suite
-    Given the conductor dispatches define-skill as the ACED impl-producer against a frozen feature
+  Scenario: dispatched against a frozen suite it builds the SKILL.md to pass that suite
+    Given the conductor dispatches define-skill as the ACED impl-producer against a frozen feature carrying six scenarios
+    And the spec directory beside that frozen feature already carries an eval.md naming the subject under test and the judge model and run counts
     When define-skill produces the implementation
-    Then it writes the SKILL.md and an eval suite carrying one eval per frozen scenario
+    Then it writes the SKILL.md so that the six frozen scenarios pass against it
+    And it writes no eval file carrying one eval per frozen scenario
+    And the eval.md it leaves still names that same subject under test, that same judge model, and those same run counts, and nothing further
 
   Scenario: invoked standalone it produces only the skill
     Given define-skill is invoked with no frozen feature

@@ -219,14 +219,17 @@ state do not contradict. **Specialization is not contradiction** — a specific 
 conflict. The remedy is a `Given` narrowing. Judged, not linted; the `Conflict` hard floor is the
 post-freeze backstop.
 
-## Optional conventions — layer tags and enumerated cases
+## Optional conventions — scenario tagging and enumerated cases
 
 Additive and plugin-facing (e.g. ACED); untagged plain suites are unaffected and the structural
 check ignores unrecognized tags.
 
-- **Layer tags** are defined in *The tag set* above; apply `@trigger` only where the node genuinely
-  owns the routing decision, and read that section's two-deciders test before choosing between
-  `@trigger` and `@behavior` — the classification is judged per node, never linted.
+- **`@trigger`, `@behavior` and `@quality`** are defined in *The tag set* above. There is no
+  collective noun for them and none is wanted: they are three separate tags, not a stack or a
+  pipeline, and naming them as a group invites generalizations that do not hold. Apply `@trigger`
+  only where the node genuinely owns the routing decision, and read that section's two-deciders test
+  before choosing between `@trigger` and `@behavior` — the classification is judged per node, never
+  linted.
 - **`Scenario Outline` is a rare exception, not a default** (DAMP over DRY) — legitimate only for a
   genuinely uniform enumerated set (one varying token, every row the same `Then` shape). Two rows
   wanting different `Then`s are two scenarios, not one Outline. Requires a non-empty `Examples:` table

@@ -53,7 +53,27 @@ Feature: scenario-writer — the spec-producer role
     When scenario-writer writes the spec.md body
     Then it uses headings and tables rather than a single wall of prose
 
+  Scenario: a backfilled spec carries all four sections
+    Given an existing subject being backfilled rather than authored new
+    When scenario-writer writes the spec.md body
+    Then the spec.md contains a Control Flow section with a CFG and a Scenario map, not only a Use Cases section
+
   # ---- Producing the .feature ----
+
+  Scenario: every scenario it writes carries concrete trigger context
+    Given a subject whose situations — who the user is, what they said, the state of the tree — are readable
+    When scenario-writer writes the behavior scenarios
+    Then every scenario it writes carries a concrete situation sufficient to simulate the agent without ambiguity
+
+  Scenario: two scenarios sharing a When never demand opposite verdicts
+    Given scenario-writer has drafted two scenarios that share a When
+    When it reads the scenarios against each other before returning
+    Then it does not return two scenarios demanding opposite verdicts on one constructible snapshot, and narrows one Given instead
+
+  Scenario: on a backfill the scenario set is re-derived from the CFG
+    Given an existing subject whose standing .feature and any retired golden set are available
+    When scenario-writer authors the suite as a backfill
+    Then it re-derives the scenario set from the configuration's control-flow edges and treats the standing .feature as reference only, not the baseline to patch
 
   Scenario: a strong-fit subject covers triggering both ways
     Given a strong-fit skill that fires only when the user asks to stage and commit work
@@ -95,6 +115,21 @@ Feature: scenario-writer — the spec-producer role
     When it selects the form of each criterion
     Then it does not add a dimension re-grading that property to the rubric
     And it leaves the property to its boolean scenario rather than smuggling it into the compensatory sum
+
+  Scenario: a double-barreled dimension is split before it is selected
+    Given a candidate dimension whose name bundles two distinct properties
+    When scenario-writer selects the form of each criterion
+    Then it splits the double-barreled dimension into its two properties before selecting a form for each
+
+  Scenario: a non-substitutable rule stays a boolean not a dimension
+    Given a subject rule nobody would trade strength elsewhere for, such as shipping no npx dependency
+    When scenario-writer selects the form of that criterion
+    Then it authors the rule as a boolean Then step and not as a rubric dimension
+
+  Scenario: every dimension can register a miss
+    Given scenario-writer authoring a @rubric for a graded subject
+    When it selects each dimension
+    Then every dimension it authors can register a miss, and it authors no dimension grading mere presence, restatement, or procedure of the config
 
   # ---- Gaps and guards ----
 

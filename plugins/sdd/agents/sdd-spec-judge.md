@@ -45,9 +45,29 @@ them):
 
 ```
 ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH
+PRODUCER_GOVERNANCES_DECLARED: [ the spec-producer's declared governances_loaded, relayed by the conductor — or [] ]
 ```
 
 The `<unit>.solution.md` is **not** in view — do not request or read it.
+
+## Governance pre-flight check — run first, before any lens
+
+The spec-producer declares which governances it loaded (`sdd:spec-producer-governance`); a producer
+that skipped pre-flight and one that ran it correctly otherwise look identical — both just show up as
+an output gap. This narrows that (it is a self-reported declaration, not an attested one — it catches
+an **honest** omission, not a skip-and-claim; see `governance pre-flight check` in the gate README)
+before reading spec.md for content:
+
+1. **Derive your own expected set** from the governances you loaded in "Governances to load" above
+   (the fixed-universal floor plus the resolved-actor bar candidates for this `ARTIFACT_TYPE`) — never
+   from `PRODUCER_GOVERNANCES_DECLARED`, which is untrusted input, not the standard.
+2. **Check `expected ⊆ PRODUCER_GOVERNANCES_DECLARED`.** On a miss, stop here: do **not** run the three
+   lenses or read `spec.md`/`.feature` for content. Return `STATUS: blocked`, `ALIGNED: false`, and
+   `PREFLIGHT: { result: fail, finding-kind: governance-preflight-missing, missing: [ <each expected
+   governance absent from the declared set> ] }`. The conductor advances no status on this verdict, the
+   same as any other judge failure.
+3. **A superset raises no finding.** A declared set covering every expected governance — with or
+   without extras — passes; report `PREFLIGHT: { result: pass }` and proceed to the lenses below.
 
 ## Split the work
 
@@ -186,6 +206,7 @@ narrowing that fires **Clearance**, so never demand it of one.
 
 ```
 STATUS:            complete | needs-input | blocked
+PREFLIGHT:         { result: pass | fail, finding-kind: governance-preflight-missing | null, missing: [ ... ] }
 LENS:              { oracle: pass | fail, builder: pass | fail, architect: pass | fail }
 ALIGNED:           true | false        # false ⇒ which artifacts are out of sync
 SCENARIOS_PASSING: [ titles ]
@@ -196,6 +217,8 @@ CONTENT_GAPS:      [ { artifact, location, gap } ]
 OBSERVATIONS:      [ { owner: architect | strategist, note, evidence } ]
 ```
 
+`PREFLIGHT.result: fail` short-circuits everything below it — `LENS` is omitted, `ALIGNED` is `false`,
+and `BLOCKER` names the missing governances (see "Governance pre-flight check" above). Otherwise
 `ALIGNED` is `true` only when all three lenses pass and no open marker remains. The conductor
 synthesizes the gate verdict and the leash from this rollup — never advance with any lens failing,
-any open marker, or `ALIGNED: false`.
+any open marker, a failed preflight, or `ALIGNED: false`.

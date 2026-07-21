@@ -133,6 +133,37 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate runs
     Then the gate fails closed and advances nothing
 
+  # ---- Governance pre-flight check (spec-judge) ----
+
+  Scenario: the spec-judge derives its expected governance set from what it loaded itself
+    Given the spec-judge has loaded the governances it needs to judge a diff
+    When it derives its expected governance set
+    Then it derives the set from what it itself loaded
+    And it does not derive the set from the producer's declaration
+
+  Scenario: a declared set missing an expected governance halts before content analysis
+    Given the spec-judge receives a producer_governances_declared set that omits a governance it expects
+    When the spec-judge runs its pre-flight check
+    Then it emits a change verdict carrying finding-kind governance-preflight-missing
+    And it lists each expected governance absent from the declared set
+    And it renders no content-analysis findings
+
+  Scenario: a declared set covering every expected governance proceeds to content analysis
+    Given the spec-judge receives a producer_governances_declared set that includes every governance it expects
+    When the spec-judge runs its pre-flight check
+    Then it raises no governance-preflight-missing finding
+    And it proceeds to judge the diff's content
+
+  Scenario: extra declared governances beyond what is expected raise no finding
+    Given the spec-judge receives a producer_governances_declared set that includes every governance it expects plus additional governances
+    When the spec-judge runs its pre-flight check
+    Then it raises no governance-preflight-missing finding
+
+  Scenario: the gate never advances on a governance-preflight-missing verdict
+    Given the spec-judge's verdict carries a governance-preflight-missing finding
+    When the spec gate evaluates the diff
+    Then it advances no status and reports the blocker
+
   # ---- Spec-type reconcile ----
 
   Scenario: a reference node carrying a .feature fails the gate closed

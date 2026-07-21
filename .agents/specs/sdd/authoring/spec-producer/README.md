@@ -125,6 +125,10 @@ The producer writes the **spec body and the `.feature`**, nothing else:
   those are the conductor's and the gate's (`../../design/provenance-model.md`).
 - Scoring lingo appears **only** inside a `@rubric`-tagged scenario; every untagged scenario
   stays a pure boolean assertion (`../suite-format/README.md`).
+- It declares `governances_loaded` — every governance it loaded before writing — as a **required**
+  field in its structured output, listing an empty set rather than omitting the field when it loaded
+  none. This is provenance for the spec-judge's pre-flight check (`../spec-gate/README.md`), carried
+  through the dispatch channel — it is never written into `spec.md` or the `.feature`.
 
 **Producer/judge separation.** The producer authors the diff; a **distinct judge** actor
 verifies it (`../spec-gate/`). The producer self-aligns against the same governances the

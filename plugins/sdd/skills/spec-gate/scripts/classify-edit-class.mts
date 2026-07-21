@@ -195,10 +195,13 @@ function readGitShow(base: string, path: string, cwd: string): string {
 
 // Thin exec wrapper around the pinned `gherkin-cli@0.0.2 diff` — never a re-implemented differ.
 // classifyFromDiff / classifyFromFileResult carry the tested logic; this is the binary boundary.
-export type GherkinDiffRunner = (base: string, path: string, cwd: string) => GherkinDiffOutput
+// Takes a batch of paths (the CLI's `diff <files...>` is already variadic) so a multi-file caller
+// pays for one `npx` spawn instead of one per file — that startup cost, not gherkin-cli's own
+// parse work, is what makes a per-file loop slow.
+export type GherkinDiffRunner = (base: string, paths: string[], cwd: string) => GherkinDiffOutput
 
-export const runGherkinDiff: GherkinDiffRunner = (base, path, cwd) => {
-	const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'diff', path, '--base', base, '--format', 'json'], {
+export const runGherkinDiff: GherkinDiffRunner = (base, paths, cwd) => {
+	const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'diff', ...paths, '--base', base, '--format', 'json'], {
 		encoding: 'utf8',
 		cwd,
 	})
@@ -207,15 +210,15 @@ export const runGherkinDiff: GherkinDiffRunner = (base, path, cwd) => {
 
 // ─── per-file classification ────────────────────────────────────────────────────
 
-// `diff` is injected so the tests can drive the differ's failure branch — a binary that exits
-// without a readable result is a real, reachable path (a bad base ref makes the CLI exit nonzero
-// with no `files` array), and it must escalate rather than resolve to a reassuring class.
-export function classifyFile(
-	path: string,
-	base: string,
-	cwd = '.',
-	diffWith: GherkinDiffRunner = runGherkinDiff,
-): ClassificationResult {
+// The frozen-tag and rename checks a path resolves before ever needing a diff. `early` is set when
+// those checks alone decide the classification (no gherkin-cli call needed); its absence means the
+// caller still owes this path a diff lookup.
+interface PreCheckedFile {
+	path: string
+	early?: ClassificationResult
+}
+
+function preCheckFile(path: string, base: string, cwd: string): PreCheckedFile {
 	let currentText: string
 	try {
 		currentText = readFileSync(join(cwd, path), 'utf8')
@@ -227,18 +230,43 @@ export function classifyFile(
 	// Skip files carrying no feature-level @frozen tag in EITHER the baseline or the working
 	// version — the edit-class routing this engine feeds only applies to frozen files.
 	if (!hasFeatureFrozenTag(currentText) && !hasFeatureFrozenTag(baselineText)) {
-		return { file: path, classification: 'unfrozen-skip', scenarios: [] }
+		return { path, early: { file: path, classification: 'unfrozen-skip', scenarios: [] } }
 	}
 
 	// A pure rename is not a gate-able edit regardless of what gherkin-cli would (mis)report at
 	// the new path — check git's rename detection before ever calling gherkin-cli.
 	if (detectPureRename(base, path, cwd)) {
-		return { file: path, classification: 'no-content-change', scenarios: [] }
+		return { path, early: { file: path, classification: 'no-content-change', scenarios: [] } }
 	}
+
+	return { path }
+}
+
+// The CLI echoes each path as given, so an exact match is the expected case. A diff that reports
+// under a different path (rather than omitting it) still resolves for a single-file batch — but
+// with multiple files reported and no exact match, which one is "this file" is not knowable, so it
+// falls through to `undefined` and classifyFromFileResult's no-result escalation.
+function classifyFromDiffOutput(path: string, diff: GherkinDiffOutput): ClassificationResult {
+	const fileResult = diff.files.find((f) => f.file === path) ?? (diff.files.length === 1 ? diff.files[0] : undefined)
+	const { classification, reason } = classifyFromFileResult(fileResult)
+	return { file: path, classification, scenarios: fileResult?.scenarios ?? [], reason }
+}
+
+// `diff` is injected so the tests can drive the differ's failure branch — a binary that exits
+// without a readable result is a real, reachable path (a bad base ref makes the CLI exit nonzero
+// with no `files` array), and it must escalate rather than resolve to a reassuring class.
+export function classifyFile(
+	path: string,
+	base: string,
+	cwd = '.',
+	diffWith: GherkinDiffRunner = runGherkinDiff,
+): ClassificationResult {
+	const pre = preCheckFile(path, base, cwd)
+	if (pre.early) return pre.early
 
 	let diff: GherkinDiffOutput
 	try {
-		diff = diffWith(base, path, cwd)
+		diff = diffWith(base, [path], cwd)
 	} catch {
 		return {
 			file: path,
@@ -247,25 +275,43 @@ export function classifyFile(
 			reason: 'the structural differ produced no readable result',
 		}
 	}
-
-	// The CLI echoes the path as given, so an exact match is the expected case. A single-file diff
-	// that reports under a different path (rather than omitting it) still resolves — but with
-	// multiple files reported and no exact match, which one is "this file" is not knowable, so it
-	// falls through to `undefined` and classifyFromFileResult's no-result escalation.
-	const fileResult = diff.files.find((f) => f.file === path) ?? (diff.files.length === 1 ? diff.files[0] : undefined)
-	const { classification, reason } = classifyFromFileResult(fileResult)
-	return { file: path, classification, scenarios: fileResult?.scenarios ?? [], reason }
+	return classifyFromDiffOutput(path, diff)
 }
 
 // The classification is scoped to the CR's touched .feature files only — a caller passes the
-// explicit touched-path list, never a tree-wide sweep.
+// explicit touched-path list, never a tree-wide sweep. Pre-checks (frozen tag, rename) run per file
+// with no subprocess cost; only the paths still needing a structural diff after that are batched
+// into a SINGLE `gherkin-cli diff` call, so an N-file touch set pays for one `npx` spawn, not N.
 export function classifyFiles(
 	paths: string[],
 	base: string,
 	cwd = '.',
 	diffWith: GherkinDiffRunner = runGherkinDiff,
 ): ClassificationResult[] {
-	return paths.filter((p) => p.endsWith('.feature')).map((p) => classifyFile(p, base, cwd, diffWith))
+	const preChecked = paths.filter((p) => p.endsWith('.feature')).map((path) => preCheckFile(path, base, cwd))
+	const needsDiff = preChecked.filter((r) => r.early === undefined).map((r) => r.path)
+
+	let diff: GherkinDiffOutput | undefined
+	if (needsDiff.length > 0) {
+		try {
+			diff = diffWith(base, needsDiff, cwd)
+		} catch {
+			diff = undefined
+		}
+	}
+
+	return preChecked.map(({ path, early }) => {
+		if (early) return early
+		if (diff === undefined) {
+			return {
+				file: path,
+				classification: 'unclassifiable',
+				scenarios: [],
+				reason: 'the structural differ produced no readable result',
+			}
+		}
+		return classifyFromDiffOutput(path, diff)
+	})
 }
 
 // ─── output ──────────────────────────────────────────────────────────────────

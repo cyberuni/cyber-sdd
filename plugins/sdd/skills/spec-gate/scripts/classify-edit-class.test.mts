@@ -9,9 +9,11 @@ import {
 	classifyFiles,
 	classifyFromDiff,
 	classifyFromFileResult,
+	type GherkinDiffRunner,
 	hasFeatureFrozenTag,
 	main,
 	parseRenameStatus,
+	runGherkinDiff,
 } from './classify-edit-class.mts'
 
 // ─── real git-repo fixture helper ───────────────────────────────────────────
@@ -344,6 +346,55 @@ describe('spec:authoring/spec-gate', () => {
 			const results = classifyFiles(['specs/sample.feature'], 'HEAD', dir)
 			assert.equal(results.length, 1)
 			assert.equal(results[0].file, 'specs/sample.feature')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('classifyFiles batches every path still needing a structural diff into a single differ call', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			writeFileSync(join(dir, 'specs/other.feature'), FROZEN_BASELINE.replace('sample', 'other'))
+			commitAll(dir, 'baseline')
+			// Narrow both — both need a real structural diff, neither is unfrozen-skip/rename.
+			writeFileSync(join(dir, 'specs/sample.feature'), ORPHAN_REASSIGNED)
+			writeFileSync(join(dir, 'specs/other.feature'), ORPHAN_REASSIGNED.replace('sample', 'other'))
+
+			const calls: string[][] = []
+			const spyDiff: GherkinDiffRunner = (base, paths, cwd) => {
+				calls.push(paths)
+				return runGherkinDiff(base, paths, cwd)
+			}
+
+			const results = classifyFiles(['specs/sample.feature', 'specs/other.feature'], 'HEAD', dir, spyDiff)
+			assert.equal(calls.length, 1, 'exactly one differ invocation for the whole touched set')
+			assert.deepEqual(calls[0].slice().sort(), ['specs/other.feature', 'specs/sample.feature'])
+			assert.equal(results.length, 2)
+			assert.notEqual(results.find((r) => r.file === 'specs/sample.feature')?.classification, 'additive')
+			assert.notEqual(results.find((r) => r.file === 'specs/other.feature')?.classification, 'additive')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('classifyFiles skips the differ call entirely when every path resolves at the pre-check', () => {
+		const dir = initRepo()
+		try {
+			const unfrozen = FROZEN_BASELINE.replace('@frozen\n', '')
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozen)
+			commitAll(dir, 'baseline')
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozen.replace('beta holds', 'beta holds now'))
+
+			let calls = 0
+			const spyDiff: GherkinDiffRunner = (base, paths, cwd) => {
+				calls++
+				return runGherkinDiff(base, paths, cwd)
+			}
+
+			const results = classifyFiles(['specs/sample.feature'], 'HEAD', dir, spyDiff)
+			assert.equal(calls, 0, 'unfrozen-skip resolves without ever invoking the differ')
+			assert.equal(results[0].classification, 'unfrozen-skip')
 		} finally {
 			rmSync(dir, { recursive: true, force: true })
 		}

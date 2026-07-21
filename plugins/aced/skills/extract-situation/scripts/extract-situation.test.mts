@@ -1023,7 +1023,9 @@ test('the entrypoint guard is neither version-conditional nor encoding-fragile',
 	// `file://${process.argv[1]}` mismatches a percent-encoded import.meta.url on any path holding a
 	// space. The spaced-path test catches that one, but pin the correct form here too.
 	assert.doesNotMatch(code, /file:\/\/\$\{/)
-	assert.match(code, /import\.meta\.url === pathToFileURL\(process\.argv\[1\]\)\.href/)
+	// On macOS, /var is a symlink to /private/var. Node resolves symlinks for import.meta.url but
+	// pathToFileURL does not, so the guard must realpathSync argv[1] first.
+	assert.match(code, /import\.meta\.url === pathToFileURL\(realpathSync\(process\.argv\[1\]\)\)\.href/)
 })
 
 // ─── the Examples table must reach the BRIEF, not just the Situation ──────────

@@ -14,7 +14,7 @@
 // Pure functions are exported for node:test; running the file directly drives the CLI. No
 // dependencies — plain node strips the types.
 
-import { readFileSync } from 'node:fs'
+import { readFileSync, realpathSync } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -282,6 +282,6 @@ export function main(argv: string[]): number {
 // `pathToFileURL`, not `file://${process.argv[1]}`: `import.meta.url` percent-encodes, so the naive
 // concat mismatches on any path holding a space (or #, ?, %) and silently reproduces that same
 // never-fires bug — the trigger merely moves from a Node version to an install path.
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
 	process.exit(main(process.argv.slice(2)))
 }

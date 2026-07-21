@@ -46,7 +46,7 @@ The canonical file lives at the canonical path. All runtime locations are symlin
 
 Ask the user:
 
-1. **Name** — kebab-case slug (e.g. `conductor`, `code-reviewer`). If the agent's role is to **score or verify a specific gate or case**, name it by that gate/scope, not a bare action verb: `<domain>-<gate>-judge` for a gate scorer (e.g. `sdd-impl-judge`, `aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aces-case-judge`). Reject `implementer`, `judge`, `validator`, `reviewer`, `checker` alone. A producer/worker agent (e.g. `scenario-writer`, `doc-writer`) keeps its action-oriented name — this convention only applies to gate/case scorers.
+1. **Name** — kebab-case slug (e.g. `conductor`, `code-reviewer`). If the agent's role is to **score or verify a specific gate or case**, name it by that gate/scope, not a bare action verb: `<domain>-<gate>-judge` for a gate scorer (e.g. `sdd-impl-judge`, `aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aces-case-judge`). Flag any gate/case scorer whose name is not in that form — bare verdict verbs (`implementer`, `judge`, `validator`, `reviewer`, `checker`) and non-verdict action names (`eval-runner`, `grader`) alike. A producer/worker agent (e.g. `scenario-writer`, `doc-writer`) keeps its action-oriented name — this convention only applies to gate/case scorers.
 2. **Role** — one sentence: "You are a [seniority] [role] focused on [bounded concern]."
 3. **Responsibilities** — what does this agent do? (3–6 bounded concerns)
 4. **Output format** — what does it produce? (file, report, JSON, confirmation, etc.)
@@ -140,7 +140,7 @@ After writing, evaluate the agent definition against these checks:
 | B1 | Body opens with "You are a [seniority] [role]…" | HIGH |
 | B5 | Irreversible actions have confirmation rules | HIGH |
 | B8 | Body under 200 lines | MEDIUM |
-| B9 | A gate- or case-scorer agent is named `<domain>-<gate>-judge` or `<domain>-case-judge`, not a bare action verb (`implementer`, `judge`, `validator`, `reviewer`, `checker`); does not fire for a non-scorer producer agent | HIGH |
+| B9 | A gate- or case-scorer agent is named in `<domain>-<gate>-judge` or `<domain>-case-judge` form; flags any gate/case scorer whose name is not in that form (`implementer`, `judge`, `validator`, `reviewer`, `checker`, and non-verdict action names like `eval-runner`); does not fire for a non-scorer producer agent | HIGH |
 
 Report results. Fix any CRITICAL or HIGH failures before presenting the final file to the user.
 

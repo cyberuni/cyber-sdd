@@ -42,6 +42,11 @@ Feature: list-skills — discover and summarize installed skills
     When list-skills scans that source
     Then the directory is not reported as a skill
 
+  Scenario: a source directory that does not exist contributes no skills and raises no error
+    Given one of the four fixed sources has no directory on disk
+    When list-skills scans all sources
+    Then that source contributes no skills and the scan completes without error, reporting the skills found in the sources that do exist
+
   # ---- dedupe ----
 
   Scenario: a name found in more than one source is reported once, repo taking precedence

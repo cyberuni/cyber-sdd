@@ -19,7 +19,7 @@ it does not produce.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
+| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite / `governance-preflight-missing` finding (`## The governance pre-flight check`) → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
 | **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
@@ -124,6 +124,45 @@ Before any verdict the gate applies the structural provenance checks
 `correction` cause **fail closed**; an uninstalled-but-valid recorded producer only **flags**. A
 required role with no resolvable producer also fails closed. The gate stays verdict-only — it
 writes no setup frontmatter to resolve any of these.
+
+## The governance pre-flight check
+
+The spec-judge cannot see whether the spec-producer ran its pre-flight (loaded its required
+governances before writing) — a producer that skipped pre-flight and one that ran it correctly both
+show up, absent this check, as an indistinguishable output gap. So the check runs as the spec-judge's
+**own first act**, before the three lenses do any content judgment:
+
+- The judge **derives its own expected governance set** from what it itself loaded to judge this
+  diff — never from the producer's declaration, which is untrusted input, not the standard.
+- It reads **`producer_governances_declared`** from the dispatch channel (the conductor's relay of
+  the producer's `governances_loaded`, `../../mission/conductor/README.md`) and checks
+  `expected ⊆ declared`.
+- **On a miss**, it emits a **`change`** verdict carrying **finding-kind `governance-preflight-missing`**,
+  listing each expected governance absent from the declared set, and renders **no content-analysis
+  findings** — the check halts before the oracle/builder/architect lenses run, so a preflight gap is
+  never conflated with a content defect. The gate never advances on this verdict, same as any other
+  judge failure.
+- A declared set that is a **superset** of the expected set (extra governances beyond what the judge
+  itself needed) raises no finding — declaring more than required is not a violation.
+
+This surfaced from a multi-round backfill where round 1 was entirely structural because the producer
+started writing without loading `sdd:spec-format-governance` and `sdd:suite-format-governance` first
+— a preflight check would have caught **that honest omission** before the judge ever reasoned about
+content.
+
+**What it catches, and what it does not — the declaration is self-reported, not attested.**
+`producer_governances_declared` is a value the producer *asserts*; nothing here observes the actual
+load. So the check is a **forcing-function against honest omission** (the motivating case — a producer
+that loaded a subset and truthfully declares it), **not** an attestation. It does **not** catch a
+producer that skips the load and declares the full set anyway — and because the expected set is
+**derivable from the artifact-type**, that full set is guessable, so the check has little adversarial
+strength. It also does **not** catch a producer that loaded every governance and *applied* one badly;
+that is a content defect the three lenses still own. Mechanical *verification* of the declaration is
+not portable — no agent harness exposes a stable, cross-harness "governance X was loaded" signal (skill
+loading is silent context injection on most, and the one harness that models it as an observable tool
+call does not observe a **spawned** producer's calls). A portable attested version would capture the
+load at a **repo-owned loader seam** rather than from harness telemetry — tracked as a follow-up, not
+built here.
 
 ## The suite-form pre-filter
 

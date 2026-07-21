@@ -36,6 +36,7 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
 | **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff |
+| **governance provenance relay** | forward the spec-producer's declared `governances_loaded` through the dispatch channel as `producer_governances_declared` (a brief field for a cold subagent, a mail envelope field for an agent pool) — a pure relay, rendering no opinion on which governances were required |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the rebase-onto-target last deliver act, the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
@@ -168,6 +169,16 @@ slot is the doctrine Scanner's), and — on a self-asserted gate within leash �
 `approval.<gate>` entry. It **never** writes `status` (the skill owns it) or a human ratification
 verdict (`by: <name>`) when running headless. A **gate-review segment that runs no producer is
 read-only** — it writes nothing, only reads the artifacts and emits the gate report.
+
+## Governance provenance relay
+
+The spec-producer's structured output declares `governances_loaded` (`../../authoring/spec-producer/README.md`)
+— the governances it loaded before writing. The conductor forwards that set through the dispatch
+channel it is already using for the spec-judge, keyed **`producer_governances_declared`**: a brief
+field when the judge is dispatched as a cold subagent, a mail envelope field when it runs through an
+agent pool. The conductor **stays a pure relay** — it forwards the declared set verbatim (including
+an empty one) and renders **no opinion** on which governances were actually required; that judgment
+belongs to the spec-judge's own pre-flight check (`../../authoring/spec-gate/README.md`).
 
 ## Explore — build to learn (step 2)
 

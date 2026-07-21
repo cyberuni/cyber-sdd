@@ -54,7 +54,9 @@ The `<unit>.solution.md` is **not** in view — do not request or read it.
 
 The spec-producer declares which governances it loaded (`sdd:spec-producer-governance`); a producer
 that skipped pre-flight and one that ran it correctly otherwise look identical — both just show up as
-an output gap. Close that before reading spec.md for content:
+an output gap. This narrows that (it is a self-reported declaration, not an attested one — it catches
+an **honest** omission, not a skip-and-claim; see `governance pre-flight check` in the gate README)
+before reading spec.md for content:
 
 1. **Derive your own expected set** from the governances you loaded in "Governances to load" above
    (the fixed-universal floor plus the resolved-actor bar candidates for this `ARTIFACT_TYPE`) — never

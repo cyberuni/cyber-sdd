@@ -147,7 +147,22 @@ show up, absent this check, as an indistinguishable output gap. So the check run
 
 This surfaced from a multi-round backfill where round 1 was entirely structural because the producer
 started writing without loading `sdd:spec-format-governance` and `sdd:suite-format-governance` first
-— a preflight check would have caught it before the judge ever reasoned about content.
+— a preflight check would have caught **that honest omission** before the judge ever reasoned about
+content.
+
+**What it catches, and what it does not — the declaration is self-reported, not attested.**
+`producer_governances_declared` is a value the producer *asserts*; nothing here observes the actual
+load. So the check is a **forcing-function against honest omission** (the motivating case — a producer
+that loaded a subset and truthfully declares it), **not** an attestation. It does **not** catch a
+producer that skips the load and declares the full set anyway — and because the expected set is
+**derivable from the artifact-type**, that full set is guessable, so the check has little adversarial
+strength. It also does **not** catch a producer that loaded every governance and *applied* one badly;
+that is a content defect the three lenses still own. Mechanical *verification* of the declaration is
+not portable — no agent harness exposes a stable, cross-harness "governance X was loaded" signal (skill
+loading is silent context injection on most, and the one harness that models it as an observable tool
+call does not observe a **spawned** producer's calls). A portable attested version would capture the
+load at a **repo-owned loader seam** rather than from harness telemetry — tracked as a follow-up, not
+built here.
 
 ## The suite-form pre-filter
 

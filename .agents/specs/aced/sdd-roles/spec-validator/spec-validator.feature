@@ -40,12 +40,22 @@ Feature: spec-validator — the spec-judge role
     When spec-validator is asked to grade its suite
     Then it reports the subject recused rather than a per-scenario verdict
 
+  Scenario: a recused wrong-squad subject is routed to the SDD-default builder
+    Given a subject spec-validator has determined wrong-squad for ACED
+    When it reports the recusal
+    Then it routes the subject to the SDD-default builder with a script harness rather than grading it scenario by scenario
+
   # ---- The criteria ----
 
   Scenario: a vague stand-in fails trigger-context
     Given a scenario whose situation says only "a file" where the value matters for simulation
     When spec-validator checks trigger-context
     Then it reports that scenario failing on trigger-context
+
+  Scenario: a partial-fit subject with no firing scenarios passes trigger-context
+    Given a partial-fit suite whose subject makes no activation decision and asserts no firing
+    When spec-validator checks trigger-context
+    Then it does not report the suite failing on trigger-context
 
   Scenario: an uncovered rule fails rule-coverage
     Given a subject rule that no scenario in the suite exercises
@@ -135,6 +145,11 @@ Feature: spec-validator — the spec-judge role
     Then it does not report either dimension failing on selection for sharing a criterion
     And it classifies by whether a boolean scenario in the suite decides the property rather than by comparing the two dimensions to each other
 
+  Scenario: a failing dimension is not remedied by a per-dimension minimum
+    Given a @rubric dimension spec-validator reports failing on selection
+    When it records what the dimension needs
+    Then it does not prescribe a per-dimension minimum, which would make the sum conjunctive rather than compensatory
+
   # ---- Discrimination — the scenario must be able to register a miss ----
 
   Scenario: a well-formed @rubric whose every dimension a memorizer scores at max fails discrimination
@@ -177,6 +192,21 @@ Feature: spec-validator — the spec-judge role
     Given a @rubric carrying a dimension a config-quoting memorizer scores below max, whose summed score without it sits under the threshold
     When spec-validator checks discrimination
     Then it does not report that scenario failing on discrimination
+
+  Scenario: a dimension grading mere presence fails discrimination
+    Given a @rubric dimension that scores whether a required line is present rather than the judgment behind it
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a rubric clearing the bar by a single point is not failed on the margin alone
+    Given a @rubric whose config-quoting memorizer floor sits under the threshold and whose honest score clears it by a single point
+    When spec-validator checks discrimination
+    Then it does not fail that scenario on discrimination for the size of the margin alone
+
+  Scenario: a scenario whose discriminability cannot be classified is escalated not passed
+    Given a scenario spec-validator can neither name a plausible wrong config for nor confirm that none exists
+    When spec-validator checks discrimination
+    Then it escalates that scenario as one it cannot classify and does not report it passing
 
   # ---- Pairwise consistency — the scenarios read against each other ----
 

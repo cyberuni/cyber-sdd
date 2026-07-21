@@ -29,6 +29,24 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it infers the what, why, and decisions from source, tests, and history
     And it does not ask the up-front grill questions
 
+  # ---- Governance pre-flight declaration ----
+
+  Scenario: the producer declares the governances it loaded in its structured output
+    Given the spec-producer has completed a diff after loading its required governances
+    When it returns its structured output
+    Then the output carries a governances_loaded field listing each governance name it loaded
+
+  Scenario: the declaration field is never omitted even when the loaded set is empty
+    Given the spec-producer completes a diff without having loaded any governance
+    When it returns its structured output
+    Then the output still carries a governances_loaded field
+    And the field lists an empty set rather than being absent
+
+  Scenario: the declared field is never written into a spec artifact
+    Given the spec-producer's structured output carries a governances_loaded field
+    When it writes spec.md and the .feature
+    Then neither file contains a governances_loaded field or its contents
+
   # ---- Grilling discipline ----
 
   Scenario: the producer settles the prose before editing the suite

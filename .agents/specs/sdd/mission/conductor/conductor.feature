@@ -204,6 +204,31 @@ Feature: The conductor — running one mission segment
     Then the units stay warm for reuse within that mission
     And the conductor does not tear them down between uses in the mission
 
+  # ---- Governance provenance relay — producer_governances_declared ----
+
+  Scenario: the conductor forwards the declared governances in a cold-subagent brief
+    Given a spec-producer's structured output declares governances_loaded
+    When the conductor dispatches the spec-judge as a cold subagent
+    Then the brief carries producer_governances_declared with that same set
+
+  Scenario: the conductor forwards the declared governances in a mail envelope for an agent pool
+    Given a spec-producer's structured output declares governances_loaded
+    And the dispatch capability routes the spec-judge through an agent pool
+    When the conductor dispatches the spec-judge
+    Then the mail envelope carries producer_governances_declared with that same set
+
+  Scenario: the conductor relays an empty declared set without judging it
+    Given a spec-producer's structured output declares an empty governances_loaded set
+    When the conductor dispatches the spec-judge
+    Then it forwards an empty producer_governances_declared set
+    And it renders no opinion on whether that set is sufficient
+
+  Scenario: the conductor is a pure relay for the declared governance set
+    Given a spec-producer's structured output declares governances_loaded
+    When the conductor forwards it as producer_governances_declared
+    Then it does not decide which governances were required
+    And it does not filter or amend the declared set
+
   # ---- Explore — build to learn (step 2) ----
 
   Scenario: explore spikes the impl-producer against the non-frozen suite

@@ -1,0 +1,2 @@
+{"seq": 1, "kind": "leash", "cr": "github-349-governance-provenance-check", "leash": "auto-all", "by": "derived", "blast": "low", "approach": ["no-spike"]}
+{"seq": 2, "kind": "gate", "cr": "github-349-governance-provenance-check", "gate": "spec", "verdict": "approve", "by": "agent", "cause": "dimension", "frozen": ["authoring/spec-producer/spec-producer.feature", "mission/conductor/conductor.feature", "authoring/spec-gate/spec-gate.feature"]}

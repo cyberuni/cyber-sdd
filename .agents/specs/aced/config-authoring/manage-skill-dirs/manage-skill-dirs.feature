@@ -92,6 +92,11 @@ Feature: The skill-dirs config — declare and curate the extra locations the va
     When the engine edits it to a malformed pattern
     Then the edit is rejected and the config on disk is unchanged
 
+  Scenario: editing a custom pattern to a fixed default root is rejected
+    Given a config containing a custom pattern
+    When the engine edits it to one of the two fixed default roots
+    Then the edit is rejected and the fixed default stays implicit and unwritten in the config
+
   # ── Induce a pattern from a sample path ──
 
   Scenario: induce offers a literal directory candidate for a sample path
@@ -104,8 +109,18 @@ Feature: The skill-dirs config — declare and curate the extra locations the va
     When the engine induces skill-dir patterns
     Then a candidate replacing that segment with a * glob is offered
 
+  Scenario: induce offers only the literal candidate when the sample path has no variable segment
+    Given a repo-relative single-segment sample path with no parent segment to generalize
+    When the engine induces skill-dir patterns
+    Then only the literal-directory candidate is offered and no glob generalization is proposed
+
   Scenario: induce rejects a sample path that does not resolve inside the repo
     Given a sample path that does not exist under the repo root
+    When the engine induces skill-dir patterns
+    Then it reports the path as unusable and offers no candidate
+
+  Scenario: induce rejects a sample path that escapes the repo via ..
+    Given a sample path that uses .. to point at a real directory outside the repo root
     When the engine induces skill-dir patterns
     Then it reports the path as unusable and offers no candidate
 

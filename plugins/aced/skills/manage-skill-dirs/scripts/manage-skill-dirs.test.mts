@@ -277,6 +277,18 @@ test('induce offers a * generalization replacing a variable segment such as a pl
 	}
 })
 
+test('induce offers only the literal candidate when the sample path has no variable segment', () => {
+	const dir = tmp()
+	try {
+		seedSkill(dir, 'topskills/manage-skill-dirs')
+		const r = inducePatterns(dir, 'topskills')
+		assert.ok(r.ok)
+		assert.deepEqual(r.ok && r.candidates, ['topskills'])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
 test('induce rejects a sample path that does not resolve inside the repo', () => {
 	const dir = tmp()
 	try {

@@ -42,6 +42,11 @@ Feature: repair-private-skills — validate and repair repo-private skill hygien
     When validate-private checks it
     Then it reports a missing_metadata_internal issue for that entry
 
+  Scenario: validate reports ok when the private skills directory does not exist
+    Given a repo with no .agents/skills directory at all
+    When validate-private runs
+    Then it reports an ok result with no issues and treats the absent directory as clean, not an error
+
   Scenario: validate reports ok when every entry passes all checks
     Given a set of repo-private skills that all pass every check
     When validate-private checks them
@@ -53,6 +58,11 @@ Feature: repair-private-skills — validate and repair repo-private skill hygien
     Then no file on disk is created, modified, or deleted
 
   # ---- repair-private (writes) ----
+
+  Scenario: repair makes no change when the private skills directory does not exist
+    Given a repo with no .agents/skills directory at all
+    When repair-private runs
+    Then it makes no filesystem change and records no action, treating the absent directory as clean
 
   Scenario: repair deletes a stray symlink resolving into the public skills tree
     Given a repo-private skill directory that is a symlink resolving into the public skills tree
@@ -68,6 +78,16 @@ Feature: repair-private-skills — validate and repair repo-private skill hygien
     Given a repo-private SKILL.md whose frontmatter already has metadata.internal true
     When repair-private runs
     Then it makes no write to that file and records an already_internal action
+
+  Scenario: repair inserts internal metadata under an existing metadata block, preserving its other keys
+    Given a repo-private SKILL.md whose frontmatter has a metadata block with other keys but no internal true
+    When repair-private runs
+    Then it adds internal true inside that existing metadata block, keeps the block's other keys, adds no duplicate metadata block, and records an updated_metadata action
+
+  Scenario: repair records a skipped_missing_skill for an entry with no SKILL.md and no augmentation file
+    Given a repo-private skill directory with no SKILL.md, SKILL.local.md, or SKILL.project.md
+    When repair-private runs
+    Then it makes no write to that directory and records a skipped_missing_skill action
 
   Scenario: repair skips an augmentation-only directory with no SKILL.md
     Given a repo-private skill directory containing only a SKILL.local.md or SKILL.project.md

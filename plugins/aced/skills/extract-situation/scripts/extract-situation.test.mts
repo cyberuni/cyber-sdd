@@ -1399,6 +1399,11 @@ test('a non-integer row exits non-zero and emits no brief', () => {
 			const r = runMain(['--feature', path, '--scenario', 'it fires on a commit request', '--row', bad])
 			assert.notEqual(r.code, 0, `--row ${bad} must fail`)
 			assert.equal(r.stdout, '', `--row ${bad} must emit no brief`)
+			// Bind the guard, not merely a non-zero exit: a downstream `allRows[NaN]`/RowOutOfRange
+			// crash also exits non-zero with empty stdout, so assert the argument-error message the
+			// `main` guard emits BEFORE any file read or Examples lookup — that is what "fails closed
+			// before any Examples table is consulted" means.
+			assert.match(r.stderr, /--row must be a non-negative integer/, `--row ${bad} must fail on the argument guard`)
 		}
 	} finally {
 		rmSync(dir, { recursive: true, force: true })

@@ -43,6 +43,8 @@ For each unit the CR touches:
 
 **The grill loop (the user loop).** You are the conductor. Run the spec-producer **inline** (load `sdd:spec-producer-governance`, or persona-load a plugin specialist for the `artifact-types`), **dispatch the cold spec-judge** each round — through the dispatch capability's intent seam when one is available (preferring its **warm** unit, context-cleared fresh via `npx cyberlegion@<version> unit clear <ref>` before each round's judgment), else a portable cold subagent — and for build-to-learn **dispatch the impl-producer builder** the same way (its warm unit **keeps** its context across spikes; no reset) in `explore` mode against the **non-frozen** suite — spikes are thrown away; their learnings feed the live grill to steer the spec + suite. Set an **iteration cap** (default **3**; honor a user-named cap), then loop:
 
+**Governance provenance relay.** When you dispatch the cold spec-judge, forward the inline spec-producer's declared `governances_loaded` (`sdd:spec-producer-governance`) verbatim through the same dispatch channel, keyed **`producer_governances_declared`** — a brief field when the judge is a cold subagent, a mail envelope field when it runs through an agent pool. Forward it **as-is, including an empty set** — you render **no opinion** on which governances were actually required; that check is the spec-judge's own pre-flight (`sdd:sdd-spec-judge`).
+
 1. Grill the user **live** with the node path, `artifact-types`, and the seed intent (or `backfill` / `revise`); write the draft `spec.md` + `.feature`.
 2. Spawn the cold spec-judge; incorporate its verdict and any `<!-- open: -->` markers.
 3. On convergence → exit to the spec gate.

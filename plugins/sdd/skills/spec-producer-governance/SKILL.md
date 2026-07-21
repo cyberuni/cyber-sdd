@@ -10,6 +10,8 @@ The procedure the **conductor** follows when it runs the **spec-producer** role 
 
 Load alongside this governance: `sdd:spec-format-governance` (the required `## Use Cases` section and the `spec.md` enrichment / human-readability rule), `sdd:suite-format-governance` (the `.feature` format bar and scenario-ordering convention), and the resolved **oracle**, **builder**, and **architect** actor bars — **forward** face — to self-align before writing (scope and kill-or-ship, testability/coverage, structural fit). These are exactly the bars the spec-judge grades **backward** at the spec gate, so the producer self-aligns to the same lens set it will be graded against. Load `sdd:ownership-governance` for the write-ownership matrix — which fields the spec-producer may write and which belong to the conductor or the gate skill.
 
+**Track every governance you load.** The spec-judge cannot otherwise tell a skipped pre-flight from a correctly run one — both look like the same output gap. Keep a running list of each governance name as you load it (this governance plus every bar named above) and declare the full list as `governances_loaded` in your structured output — a **required** field, listed even when empty, and **never** written into `spec.md` or the `.feature`.
+
 ## Inputs (folded in by the conductor)
 
 ```
@@ -73,11 +75,12 @@ rule governing the artifact · account for provenance, where a regression stops 
 ## Output (the conductor collects)
 
 ```
-REMEDIATION:      <per finding answered: verdict, rule, swept, ruled-out, provenance — `sdd:remediation-governance`; omit when no verdict was answered>
-STATUS:            complete | needs-input | blocked
-SCENARIOS_WRITTEN: <count>
-NOTES:             <what was written / revised>
-QUESTIONS:         [ batched, when needs-input ]
-CONTENT_GAPS:      [ { artifact, location, gap } ]   # become <!-- open: --> markers
-OBSERVATIONS:      [ { owner: architect | strategist, note, evidence } ]
+REMEDIATION:       <per finding answered: verdict, rule, swept, ruled-out, provenance — `sdd:remediation-governance`; omit when no verdict was answered>
+STATUS:             complete | needs-input | blocked
+SCENARIOS_WRITTEN:  <count>
+NOTES:              <what was written / revised>
+GOVERNANCES_LOADED: [ every governance name loaded before writing — required, [] when none, never written into spec.md or the .feature ]
+QUESTIONS:          [ batched, when needs-input ]
+CONTENT_GAPS:       [ { artifact, location, gap } ]   # become <!-- open: --> markers
+OBSERVATIONS:       [ { owner: architect | strategist, note, evidence } ]
 ```

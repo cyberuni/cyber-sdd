@@ -9,7 +9,7 @@ Generate a project-wide health dashboard across all eval suites.
 
 ## Discover eval suites
 
-Scan `artifacts/specs/` for immediate subdirectories that contain `eval.md` at their root. For each, read:
+Scan the project spec (`.agents/specs/`) for behavioral-leaf nodes carrying an `eval.md` (subject + run policy) alongside their `<node>.feature`. For each, read:
 - `eval.md` for target path and threshold
 - The most recent file in `results/` (sort by filename descending)
 - The second-most-recent file in `results/` for trend (if it exists)

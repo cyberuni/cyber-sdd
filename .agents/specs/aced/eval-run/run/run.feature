@@ -122,6 +122,11 @@ Feature: run — score the current config against its frozen .feature suite
     When run finishes
     Then it writes a timestamped results record under the suite's results directory
 
+  Scenario: run records for a target are kept under the shared aced results directory
+    Given completed runs for more than one target
+    When run persists each record
+    Then each timestamped record is written under the shared aced results directory, keyed by its target
+
   Scenario: an all-passing run points to widening coverage
     Given a run in which every case passes
     When run reports the outcome

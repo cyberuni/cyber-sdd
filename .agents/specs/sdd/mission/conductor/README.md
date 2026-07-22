@@ -84,6 +84,8 @@ The lockfile itself need not exist: an **absent** `.agents/universal-plugin.json
 resolves to zero plugins, so every role falls to its SDD default. A **malformed** lockfile (not
 valid JSON, or missing the `sdd-plugins` array) instead **hard-fails closed** — the same
 structural-error class below — because a registry that cannot be read cannot be trusted to resolve.
+The per-role branch itself — named delegate / omitted-key `<plugin>-<role>` convention / explicit-`null`
+SDD default / no-squad-match SDD default — is the matcher unit's own contract (`../resolution/`).
 
 A required role **always lands on a real delegate** or the conductor **hard-fails closed** and
 records nothing (no inline sentinel) — the same fail-closed structural-error class as a malformed
@@ -225,7 +227,10 @@ A **segment** is one run within a cycle (suspend-and-resume). The conductor:
 - **Records content gaps as durable `<!-- open: -->` markers** (block Draft→Approved) rather than
   as transient questions; the iteration cap **blocks-and-asks** rather than auto-accepting.
 - **Surfaces non-blocking `OBSERVATIONS`** (typed by owning lens) without acting on them — they
-  route to the plan, not into the contract.
+  route to the plan, not into the contract. When **several** producers each surface observations in
+  one segment, the conductor forwards **every** one — dropping or filtering none — and **spawns no
+  spec of its own** from them (a split observation becomes the plan's or the user's call, never the
+  conductor's).
 
 ## The impl gate
 

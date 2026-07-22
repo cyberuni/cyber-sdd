@@ -39,6 +39,9 @@ choice for resume) is [`../conductor/`](../conductor/README.md); the precedence 
 | **disambiguate / validate** — the matcher checks the registry is resolvable | the registry + an `artifact-type` (or none) | an artifact-type claimed by **two** plugins returns **needs-input**; with no artifact-type, the registry is validated well-formed + unambiguous |
 
 Every scenario in [`resolution.feature`](./resolution.feature) maps to one of these two entry points.
+A registry that is **present but claims none** of the artifact-type is **not** an ambiguity — it floors
+every role to the SDD default and returns **no `needs-input`**, exactly as an absent registry does;
+`needs-input` is reserved for the two-plugins-claim-one-type case alone.
 
 ## Matcher, not composer — the load-bearing boundary
 

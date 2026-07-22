@@ -18,7 +18,7 @@ import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, wr
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { ensureResultsIgnored, isIgnored, RESULTS_DIR_RULE, resolveRepoRoot } from '../../../../../plugins/aced/skills/init-aced/scripts/ensure-results-ignored.mts'
+import { ensureResultsIgnored, isIgnored, RESULTS_DIR_RULE, resolveRepoRoot } from './ensure-results-ignored.mts'
 
 const PROBE = '.agents/aced/results/some-run.json'
 
@@ -205,7 +205,7 @@ test('CLI: main reports success and returns 0 for a fresh repo', () => {
 		mkdirSync(join(dir, '.git'), { recursive: true }) // no-op if already present, keeps intent explicit
 		const out = execFileSync(
 			process.execPath,
-			[join(import.meta.dirname, '..', '..', '..', '..', '..', 'plugins/aced/skills/init-aced/scripts/ensure-results-ignored.mts'), '--root', dir],
+			[join(import.meta.dirname, 'ensure-results-ignored.mts'), '--root', dir],
 			{ encoding: 'utf8' },
 		)
 		assert.match(out, /appended/)

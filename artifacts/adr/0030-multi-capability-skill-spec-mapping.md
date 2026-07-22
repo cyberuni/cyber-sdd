@@ -99,10 +99,19 @@ frozen `.feature`; the README map reconciles to it.
 | Direction | Mechanism |
 |---|---|
 | spec → impl | `subject:` names the narrowest **dedicated** artifact (1:1) |
-| spec → test | `.feature` / `.test.mts` **colocated** in the node dir |
+| spec → `.feature` | the `.feature` **colocated** in the spec-node dir |
+| spec → test (deterministic node) | via `subject:` → the `.test.mts` **colocated with the subject script** (impl-side), where CI's plugin glob runs it |
 | impl → spec (backfill) | reverse-lookup on `subject:` returns exactly one node (unambiguous ∵ 1:1) |
-| test → spec (backfill) | colocated in the node dir — already at the spec |
+| test → spec (backfill) | the `.test.mts` sits beside its subject script → reverse-lookup on `subject:` → the one node |
 | facade → capabilities (Pattern B) | README route map (`## Use Cases` / `## Scenario map`), each route linked to its node |
+
+**Test placement (deterministic nodes).** A deterministic (`node:test`-assertable) node's `.test.mts`
+tests the **subject code**, so it lives **next to the subject script** (impl-colocated) — not in the
+spec-node dir. This keeps it inside the existing CI test glob (a colocated-in-spec test is otherwise
+never run — the "frozen ≠ ever ran" trap) and matches the ordinary test-next-to-code convention. The
+`.feature` (the contract) stays in the spec-node dir; the spec→test hop goes through `subject:`. An
+ACED-graded node has **no** separate test file — its `.feature` is both contract and verification
+(judge-run).
 
 ## Consequences
 

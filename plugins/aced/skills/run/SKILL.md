@@ -86,7 +86,7 @@ which.
 
 ## Write results
 
-Write to the node's `results/<ISO8601-timestamp>.json` under its project-spec directory:
+Write to `.agents/aced/results/<target-slug>/<ISO8601-timestamp>.json` — the shared, git-ignored ACED results directory at the repo root, keyed by the target (a filesystem-safe slug of the target agent-configuration path), not scattered under each project-spec directory:
 
 ```json
 {

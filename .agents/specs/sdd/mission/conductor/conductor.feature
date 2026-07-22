@@ -231,6 +231,12 @@ Feature: The conductor — running one mission segment
 
   # ---- Explore — build to learn (step 2) ----
 
+  Scenario: explore is entered from a non-frozen suite, not from a mode input
+    Given a unit whose .feature is not yet frozen
+    When the conductor derives its phase for the segment
+    Then it enters explore because the suite is not frozen
+    And it takes no caller-supplied mode to make that choice
+
   Scenario: explore spikes the impl-producer against the non-frozen suite
     Given the conductor runs explore in-session
     When it spikes the impl-producer to learn
@@ -328,6 +334,13 @@ Feature: The conductor — running one mission segment
     When the segment continues
     Then the observation is routed to the plan
     And it is not folded into the contract
+
+  Scenario: observations from several producers are forwarded without loss
+    Given more than one production-chain producer surfaces a non-blocking observation
+    When the conductor completes the segment
+    Then it forwards every producer's observation to the plan
+    And it drops or filters none of them
+    And it spawns no spec of its own from them
 
   # ---- Rebase onto the target before the impl gate ----
 

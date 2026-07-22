@@ -20,8 +20,8 @@ Code has a type-checker, a linter, and a test suite. Agent configuration has non
 ACED applies [spec-driven development](/sdd/overview/) to the agent configuration layer:
 
 1. Register ACED with [`init-aced`](/aced/init-aced/), then author or improve the artifact itself with [`define-skill`](/aced/define-skill/), [`define-agent`](/aced/define-agent/), or [`define-governance`](/aced/define-governance/).
-2. Build a **golden set** of labeled test cases for the artifact via `sdd:start-mission` — the SDD conductor resolves ACED's spec-producer (`aced-scenario-writer`) to author the `.feature` and the impl-producer to author `eval.md` + `golden-set/`.
-3. **Score** the current artifact against each case using an LLM judge on a 1–5 rubric, via [`run`](/aced/run/).
+2. Build a **golden set** — the scenarios in the artifact's frozen `.feature` — via `sdd:start-mission`. The SDD conductor resolves ACED's spec-producer (`aced-scenario-writer`) to author the `.feature` (boolean scenarios, inline `@rubric` scenarios, and a `@trigger` `Scenario Outline`) and the impl-producer to author the node's `eval.md` run policy.
+3. **Score** the current artifact against each scenario using an LLM judge — a `@rubric` scenario scores per named dimension against that dimension's own `max`, passing when the total meets the threshold — via [`run`](/aced/run/).
 4. **Compare** scores before and after an edit with [`compare`](/aced/compare/) — block commits on regression.
 5. **Improve** the artifact by diagnosing failing cases and applying targeted edits with [`improve`](/aced/improve/).
 
@@ -68,17 +68,23 @@ Run `init-aced` once per project to register the plugin. Author or improve the a
 
 ## Eval suite structure
 
+An artifact's eval lives entirely in its project-spec node. The frozen `.feature` is the single eval source; `eval.md` carries only the subject binding and run policy.
+
 ```
-artifacts/specs/<suite-name>/
-  eval.md               # target, judge model, threshold, enabled layers
-  golden-set/
-    001-<slug>.md       # one test case per file
-    002-<slug>.md
-  results/
-    <ISO8601>.json      # run output: pass rate, mean score, per-case results
+.agents/specs/<project>/…/<node>/
+  README.md             # what the node specifies
+  <node>.feature        # the golden set: boolean, @rubric (inline), and @trigger scenarios
+  eval.md               # subject + run policy: layers, judge model, default threshold, trigger policy
 ```
 
-Suites live in `artifacts/specs/` alongside SDD specs. Each suite has its own pass threshold — different artifacts warrant different bars.
+Run output is written to the shared, git-ignored ACED results directory at the repo root, keyed by the target:
+
+```
+.agents/aced/results/<target-slug>/
+  <ISO8601>.json        # per-scenario dimension scores, totals, thresholds, pass/fail
+```
+
+The node lives in the SDD spec tree. Each suite has its own pass threshold — different artifacts warrant different bars.
 
 ## Health classification
 

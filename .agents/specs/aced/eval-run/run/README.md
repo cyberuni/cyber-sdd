@@ -104,6 +104,7 @@ One scenario per row, following the suite's section order. Each CFG edge is boun
 | `compute` totals vs own max | scenarios whose maxima differ | `totals are reported against their own maximum, not as comparable raw numbers` |
 | `rep` failing worst-first | a completed run with at least one failing case | `failing cases are listed worst-first` |
 | `write` timestamped record | a completed run | `the run is persisted as a timestamped record` |
+| `write` → shared results dir, keyed by target | completed runs for more than one target | `run records for a target are kept under the shared aced results directory` |
 | `allpass` → widen | a run in which every case passes | `an all-passing run points to widening coverage` |
 
 Cross-capability e2e scenarios live in `../../workflows/`.

@@ -28,7 +28,7 @@ Invokable mode scaffolds a companion command file alongside the agent definition
 
 ## Role as ACED impl-producer
 
-When the SDD conductor dispatches this skill against a frozen `.feature`, it co-produces the agent definition **and** its verification — the scenario→rubric eval suite (`eval.md` + `golden-set/`) that the impl-judge runs. Invoked standalone (no frozen `.feature`), it produces only the agent definition.
+When the SDD conductor dispatches this skill against a frozen `.feature`, it co-produces the agent definition **and** its verification — the eval suite (the frozen `.feature`'s scenarios plus the node's `eval.md` run policy) that the impl-judge runs. Invoked standalone (no frozen `.feature`), it produces only the agent definition.
 
 ## Next step
 

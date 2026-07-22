@@ -60,6 +60,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` |
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
+| [`setup/`](./setup/README.md) | descriptive index | prepare the local ACED environment — `init-aced` (ignore run output) |
 | [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
 | [`design/`](./design/README.md) | descriptive | the eval model + the `decisions/` ADR log |
 | [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: author → run → improve → compare) |
@@ -75,6 +76,7 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 - **a new way to *grow or fix* the golden set** → `suite-authoring/`.
 - **a new SDD delegate role** → `sdd-roles/` (matched to the plugin-contract roles).
 - **plugin registration / discovery** → `registry/`.
+- **local-environment onboarding** (ready a repo to run ACED — e.g. ignore run output) → `setup/`.
 - **a manage-level (non-mission) operation** (inspect / maintain the tooling corpus, not author or
   score) → routed through `manage/`; a new such engine that authors config lives under its capability
   folder (e.g. `config-authoring/manage-model-runners/`) and is added to the `manage/` routing table.
@@ -104,6 +106,7 @@ never as a top-level folder.
 | `registry` | `registry/` (behavior) |
 | `routing` | `manage/` (behavior) |
 | `sdd-roles` | `sdd-roles/extract-situation/` (behavior) · `sdd-roles/impl-judge/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/scenario-writer/` (behavior) · `sdd-roles/spec-validator/` (behavior) |
+| `setup` | `setup/ignore-run-output/` (behavior) |
 | `suite-authoring` | `suite-authoring/add-scenario/` (behavior) · `suite-authoring/improve/` (behavior) |
 
 <!-- END generated: by-concept -->

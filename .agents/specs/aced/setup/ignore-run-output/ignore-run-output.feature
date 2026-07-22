@@ -1,9 +1,11 @@
 Feature: ignore-run-output — keep ACED run output out of version control
   Unit suite for the deterministic engine init-aced invokes to ensure the ACED results directory
-  (.agents/aced/results/) is git-ignored. Behavior is idempotent and fail-closed: it changes nothing
-  it cannot guarantee. Writing the run output is run's; registering the role-map is registry's.
-  Every Given names the apparatus that DISCRIMINATES — a starting .gitignore state the outcome must
-  reach or preserve. Cross-capability e2e lives in ../../workflows/, not here.
+  (.agents/aced/results/) is git-ignored. The rule is appended as the LAST line, so gitignore's
+  last-match-wins guarantees the path is ignored with no post-write check. Behavior is idempotent and
+  fail-closed: every failure exits before any write, so it changes nothing it cannot guarantee. Writing
+  the run output is run's; registering the role-map is registry's. Every Given names the apparatus that
+  DISCRIMINATES — a starting .gitignore state the outcome must reach or preserve. Cross-capability e2e
+  lives in ../../workflows/, not here.
 
   # ---- Emit the guarantee ----
 
@@ -26,6 +28,11 @@ Feature: ignore-run-output — keep ACED run output out of version control
     Given a .gitignore that already ignores the results directory via a broader pattern
     When the engine runs
     Then no rule is appended and the file is left byte-for-byte unchanged
+
+  Scenario: an earlier un-ignore of the path is overridden by the appended rule
+    Given a .gitignore whose existing lines re-include the results directory with a later negation
+    When the engine runs
+    Then the rule is appended after them and a path under the results directory is reported ignored by git
 
   Scenario: the results directory is git-ignored after the engine runs
     Given any starting state in which the engine succeeds

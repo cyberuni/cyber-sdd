@@ -114,3 +114,10 @@ Feature: The resolution procedure — match governance bars for an artifact-type
     When the matcher resolves a bar
     Then it binds no plugin
     And the bar floors to its sdd default
+
+  Scenario: a present registry with no squad for the artifact-type resolves to the sdd defaults
+    Given a registry that is present but whose squads claim none of the artifact-type
+    When the matcher resolves that artifact-type
+    Then it binds no plugin
+    And every role floors to its sdd default
+    And it does not return needs-input

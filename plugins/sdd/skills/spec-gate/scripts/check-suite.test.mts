@@ -943,3 +943,79 @@ test('a spec carrying no scenario map section is SKIPPED, not failed', () => {
 	// The map is the rebuilt node format; a node still on the older shape is not in violation.
 	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, '# demo\n\nno map here\n'), [])
 })
+
+// Scenario: the scenario-map header and separator rows raise no unparseable-row violation
+test('the header and separator rows raise no unparseable-row violation', () => {
+	// SPEC_OK's first row is the `| Edge | Path (Given) | Scenario |` header and its second the
+	// dashed separator; recognized positionally, neither may surface as an unparseable data row.
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, SPEC_OK)
+	assert.equal(
+		v.filter((m) => /no backtick-wrapped Scenario cell/.test(m)).length,
+		0,
+		`header/separator must not be flagged, got: ${JSON.stringify(v)}`,
+	)
+})
+
+// Scenario: a backtick-quoted prose mention of the map heading is not a scenario-map section
+test('a backtick-quoted prose mention of the map heading is not treated as a map section', () => {
+	// A spec that documents the scenario map (e.g. "carries no `## Scenario map` section") must not
+	// be misread as HAVING one — the heading match is anchored to a real heading line.
+	const spec = '# demo\n\nThe check skips a spec carrying no `## Scenario map` section, reporting nothing.\n'
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, spec), [])
+})
+
+test('a grouped map with per-use-case sub-tables reports nothing (per-block header/separator)', () => {
+	// The map is grouped by use case: each `###` group restarts the header + separator. A later
+	// group's header must NOT be misread as a malformed data row.
+	const spec = `# demo
+
+## Scenario map
+
+### group one
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | a thing | \`alpha branches left\` |
+
+### group two
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | another thing | \`beta branches right\` |
+`
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, spec), [])
+})
+
+test('a data row whose Scenario cell is not backtick-wrapped is reported, not silently skipped', () => {
+	// The exact issue-#60 fail-open: a complete, correct map authored without backticks.
+	const spec = `# demo
+
+## Scenario map
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | a thing | alpha branches left |
+| D1 | another thing | beta branches right |
+`
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.ok(
+		v.some((m) => /scenario-map data row has no backtick-wrapped Scenario cell/.test(m)),
+		`expected an unparseable-row violation, got: ${JSON.stringify(v)}`,
+	)
+	// Both un-backticked rows are surfaced — neither vanishes.
+	assert.equal(v.filter((m) => /no backtick-wrapped Scenario cell/.test(m)).length, 2)
+})
+
+// Scenario: the scenario-map section ends at the next heading
+test('a following ## References table is not misread as scenario-map rows', () => {
+	// The section is bounded at the next `## ` heading, so a References row with a backtick cell
+	// does not leak into the map as a phantom row naming no scenario.
+	const spec = `${SPEC_OK}
+## References
+
+| Claim | Source |
+|---|---|
+| some claim | \`some-source.md\` |
+`
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, spec), [])
+})

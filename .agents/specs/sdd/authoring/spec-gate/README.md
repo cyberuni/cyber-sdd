@@ -22,7 +22,7 @@ it does not produce.
 | **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite / `governance-preflight-missing` finding (`## The governance pre-flight check`) → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
-| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
+| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none); a `## Use Cases` data row whose `Scenario` cell is non-empty but carries no backtick reference → **fail closed**, the unparseable row reported never skipped; a touched `.feature`'s sibling `## Scenario map` binding checked — every scenario one map row, every row a real scenario, each `(edge, path class)` pair unique — with a data row whose `Scenario` cell is not backtick-wrapped **reported as an unparseable row, never skipped** (a spec carrying no `## Scenario map` section raises none) |
 
 Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
@@ -236,6 +236,47 @@ judge spawn. This mechanizes the recurring coverage gap (`../spec-format/README.
 **non-mandating**: a reference/descriptive spec.md carries no Use Cases section and a prose/EARS use
 case carries no row to link, so both stay silent and the spec-judge remains the coverage backstop for
 the un-tabled forms.
+
+**A present-but-unparseable row is a violation, not a silent skip.** Once a `## Use Cases` table
+carries a `Scenario` column, every data row under it (after the header and its dashed separator) is a
+link that must resolve. A data row whose `Scenario` cell is **non-empty but carries no backtick-wrapped
+reference** — a title written without backticks, a stray note — is **reported and fails closed**, never
+dropped. Skipping it would be the same fail-open the coverage check exists to close: a row that reads
+as covered to a human but binds nothing to the checker. The non-mandating cases above are recognized *structurally*
+(no table, or a table with no `Scenario` column), never by a row quietly failing to parse.
+
+## The scenario-map binding check
+
+For every touched `.feature` that parses cleanly and has a sibling `README.md`/`spec.md`, the gate
+binds the suite to that spec's `## Scenario map` — the maintained table pairing each control-flow
+edge with the one scenario covering it (`sdd:spec-format-governance`). The binding is **form only**: it
+checks that the map is **complete and non-duplicated**, not that the edges cover the drawn CFG (that
+needs the graph's semantics and stays a judge concern). Three violations:
+
+- **every scenario is on the map** — a `Scenario:` in the `.feature` that no map row names is reported;
+- **every row names a real scenario** — a map row whose `Scenario` cell names no sibling `Scenario:` is
+  reported;
+- **each `(edge, path class)` pair is unique** — two rows sharing the same edge and path cover
+  different scenarios by the same key, so a repeated pair is reported.
+
+A spec that carries **no `## Scenario map` section** is **skipped, not failed** — the map is the
+rebuilt-node format, and a node still on the older shape is not in violation of a section it does not
+claim. The section is recognized only by a **real `## Scenario map` heading line** — a spec that
+mentions the heading inside prose or a backtick span (a doc *about* the map, like this one) is not
+misread as having one — and it **ends at the next `## ` heading**, so a following section's table
+(e.g. `## References`) is never read as map rows.
+
+**A present-but-unparseable data row is a violation, not a silent skip.** The map is a markdown
+table: its **first row is the column header** (`| Edge | Path (Given) | Scenario |`) and its **second
+is the dashed separator**; every row after those is a **data row**, and each data row must name its
+scenario in a **backtick-wrapped `Scenario` cell**. A data row whose `Scenario` cell is **not**
+backtick-wrapped is **reported as an unparseable row** — never dropped. This is the fail-open this
+check exists to close: the backtick match must **discriminate a data row from the header/separator**,
+not double as the *only* signal that a row exists at all. Conflating the two means a fully-authored
+map — every scenario present, titles verbatim, one row each — whose cells were written without
+backticks **binds nothing while reading as complete to a human**: the exact "skip rather than fail"
+shape the scenario map itself exists to prevent. The header and separator rows, recognized
+**positionally**, raise no unparseable-row violation.
 
 ## Structural edit-class classification (freeze integrity)
 

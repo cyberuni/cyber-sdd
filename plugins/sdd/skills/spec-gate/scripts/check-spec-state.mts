@@ -436,6 +436,9 @@ export function filterProseMdInSpecTree(paths: string[]): string[] {
 export interface UseCaseScenarioRefs {
 	hasSection: boolean
 	refs: string[]
+	// Trimmed text of each DATA row whose Scenario cell is non-empty but carries no backtick
+	// reference — a present-but-unparseable row, surfaced as a violation rather than silently dropped.
+	unparseable: string[]
 }
 
 // A markdown table row: strip the leading/trailing `|` then split on `|`, trimming each cell.
@@ -465,17 +468,20 @@ export function extractUseCaseScenarioRefs(text: string): UseCaseScenarioRefs {
 	// would erase the very refs this function extracts).
 	const body = text.replace(/```[\s\S]*?```/g, '')
 	const section = extractSection(body, 'Use Cases')
-	if (section === null) return { hasSection: false, refs: [] }
+	if (section === null) return { hasSection: false, refs: [], unparseable: [] }
 	const lines = section.split('\n')
 	const headerIdx = lines.findIndex((l) => l.trim().startsWith('|'))
-	if (headerIdx === -1) return { hasSection: true, refs: [] } // prose or EARS — no table
+	if (headerIdx === -1) return { hasSection: true, refs: [], unparseable: [] } // prose or EARS — no table
 	const header = splitTableRow(lines[headerIdx])
 	const scenarioIdx = header.findIndex((c) => /^scenario$/i.test(c))
-	if (scenarioIdx === -1) return { hasSection: true, refs: [] } // table with no Scenario column
+	if (scenarioIdx === -1) return { hasSection: true, refs: [], unparseable: [] } // table with no Scenario column
 
 	const refs: string[] = []
+	const unparseable: string[] = []
 	// data rows start after the header separator (`|---|---|`); stop at the first
-	// non-`|` line, which ends the contiguous table block.
+	// non-`|` line, which ends the contiguous table block. A data row whose Scenario
+	// cell is present but carries no backtick reference is collected as unparseable —
+	// never silently skipped, which would fail this coverage check open.
 	for (let i = headerIdx + 2; i < lines.length; i++) {
 		if (!lines[i].trim().startsWith('|')) break
 		const cells = splitTableRow(lines[i])
@@ -483,8 +489,9 @@ export function extractUseCaseScenarioRefs(text: string): UseCaseScenarioRefs {
 		if (!cell) continue
 		const ref = /`([^`\n]+)`/.exec(cell)
 		if (ref) refs.push(ref[1].trim())
+		else unparseable.push(lines[i].trim())
 	}
-	return { hasSection: true, refs }
+	return { hasSection: true, refs, unparseable }
 }
 
 function escapeRegExp(s: string): string {
@@ -520,8 +527,13 @@ export function findSiblingFeature(dir: string): string | null {
 export function checkUseCaseCoverage(slug: string, dir: string, text: string): string[] {
 	const v: string[] = []
 	const tag = (msg: string) => v.push(`${slug}: ${msg}`)
-	const { hasSection, refs } = extractUseCaseScenarioRefs(text)
-	if (!hasSection || refs.length === 0) return v
+	const { hasSection, refs, unparseable } = extractUseCaseScenarioRefs(text)
+	if (!hasSection) return v
+
+	for (const raw of unparseable) {
+		tag(`Use Cases data row has no backtick-wrapped Scenario cell — ${raw}`)
+	}
+	if (refs.length === 0) return v
 
 	const featurePath = findSiblingFeature(dir)
 	const featureText = featurePath ? readFileSync(featurePath, 'utf8') : ''

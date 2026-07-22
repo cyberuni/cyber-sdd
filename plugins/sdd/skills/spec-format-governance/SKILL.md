@@ -41,6 +41,11 @@ the edge alone: a scenario's `Given` is the path reaching the edge, its `When` i
 (`sdd:suite-format-governance`).
 
 - **1:1 scenario↔row** — every scenario has exactly one row, every row one scenario.
+- **Name the scenario in backticks.** The `Scenario` cell holds the scenario's title **backtick-wrapped**
+  (`` `send text types literal text and presses no Enter` ``). This is how `check-suite` tells a data
+  row from the header and separator: a data row whose `Scenario` cell is **not** backtick-wrapped is
+  reported as an **unparseable row**, not silently skipped — a map that reads complete but binds nothing
+  is the exact gap the map exists to prevent.
 - **An edge may carry several rows.** That is **permutation coverage**, not duplication — legitimate
   when each row's path class yields a *different* outcome. Same edge *and* same path class twice is a
   duplicate.

@@ -62,6 +62,11 @@ Feature: judge — the internal scorer
     When judge scores that case
     Then every dimension's verdict is derived from that returned transcript, and the context that scores never produces a simulation of its own
 
+  Scenario: a thin transcript is scored as it stands rather than completed
+    Given the blind context returns a thin transcript that omits steps the case expects
+    When judge scores that case
+    Then it scores the thin transcript as returned, and never re-derives, completes, or fixes up the missing steps in the context that scores
+
   Scenario: the context that scores reads the expected outcome
     Given a case whose must-not-do guards and expected behaviors live in its Then steps
     When judge scores the returned transcript
@@ -71,6 +76,11 @@ Feature: judge — the internal scorer
     Given the extractor emits an empty brief while reporting success
     When judge would dispatch the simulation
     Then it reports a blocker and scores nothing, rather than simulating from nothing
+
+  Scenario: a non-zero extractor exit fails closed
+    Given the extractor exits non-zero when composing the brief
+    When judge would dispatch the simulation
+    Then it reports a blocker and scores nothing, rather than simulating from a brief the extractor could not produce
 
   Scenario: a dispatch returning no transcript fails closed
     Given the dispatched context returns no transcript
@@ -162,6 +172,16 @@ Feature: judge — the internal scorer
     Given any completed evaluation of a trigger case
     When judge returns its result
     Then it emits an INVOKE, an EXPECTED, a PASS, a WHAT WORKED, and a WHAT FAILED, with no preamble or extra text
+
+  Scenario: the output of a boolean case carries the fixed fields and nothing else
+    Given any completed evaluation of a boolean case
+    When judge returns its result
+    Then it emits a PASS, a WHAT WORKED, and a WHAT FAILED naming the first Then that did not hold, with no dimension scores and no preamble or extra text
+
+  Scenario: a rubric dimension name colliding with the output format is a blocker
+    Given a rubric whose dimension is named TOTAL, THRESHOLD, or PASS, or whose name carries a colon
+    When judge would render its result
+    Then it reports a blocker on the rubric and renders no score, rather than emitting a line that collides with the fixed output fields
 
   Scenario: a flawless simulation reports nothing failed
     Given a simulation that meets every expected behavior and trips no must-not-do

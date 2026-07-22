@@ -23,7 +23,7 @@ Read both versions in full before proceeding. **If the "before" version cannot b
 
 ## Run evals on both versions
 
-For each version, run every scenario in the frozen `artifacts/specs/<feature-name>/<feature-name>.feature` through `aced-case-judge` (same process as `run`) — passing the `.feature` path and the scenario name, never the scenario body. The judge blinds its own simulating context; handing it the `Then` or the rubric would defeat that.
+For each version, run every scenario in the node's frozen `<node>.feature` in the project spec through `aced-case-judge` (same process as `run`) — passing the `.feature` path and the scenario name, never the scenario body. The judge blinds its own simulating context; handing it the `Then` or the rubric would defeat that.
 
 Label results as **before** and **after**.
 

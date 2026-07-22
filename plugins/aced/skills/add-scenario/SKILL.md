@@ -11,8 +11,9 @@ it widens the contract and cannot break existing impl, so it **self-clears** and
 
 ## Locate the suite
 
-Find `artifacts/specs/<feature-name>/` from user context or ask. Read `eval.md` for the `subject` and
-the `eval:` run policy (`eval.judge.default_threshold`).
+Find the target's node in the project spec — `.agents/specs/<project>/…/<node>/` (discovered through
+the SDD spec tree; the node's `eval.md` names the subject) — from user context or ask. Read the
+node's colocated `eval.md` for the `subject` and the `eval:` run policy (`eval.judge.default_threshold`).
 
 ## Gather input
 
@@ -66,7 +67,7 @@ Show the draft to the user and ask for confirmation before writing. Adjust based
 
 ## Write the scenario
 
-Append the scenario to `artifacts/specs/<feature-name>/<feature-name>.feature`, sorted into its
+Append the scenario to the node's frozen `<node>.feature` in the project spec, sorted into its
 lifecycle-stage section (per the scenario-ordering convention). Keep the feature-level `@frozen` tag —
 adding a scenario self-clears. Run `check-suite --files <path>` to confirm the suite is still
 well-formed.

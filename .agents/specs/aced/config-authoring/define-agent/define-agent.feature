@@ -17,6 +17,11 @@ Feature: define-agent — author an agent definition
     When ACED routes the request
     Then define-agent handles it
 
+  Scenario: a request to create a workflow skill defers to define-skill
+    Given the user asks to create a skill that formats their changelog entries
+    When ACED routes the request
+    Then define-agent does not handle it and define-skill does
+
   Scenario: a request for a reference-only governance defers to define-governance
     Given the user asks to write a rule set that other skills load on demand
     When ACED routes the request
@@ -78,10 +83,20 @@ Feature: define-agent — author an agent definition
     When define-agent writes the canonical file
     Then the frontmatter omits the model field
 
+  Scenario: the model field carries the named model when the user names one
+    Given the user asks for the agent to run on a specific model
+    When define-agent writes the canonical file
+    Then the frontmatter carries that model in the model field
+
   Scenario: the tools field is omitted for an in-context-only agent
     Given the user picks the in-context-only mode
     When define-agent writes the canonical file
     Then the frontmatter omits the tools field
+
+  Scenario: the tools field is present for a delegated agent
+    Given the user picks the delegated mode and names the tools the agent may use
+    When define-agent writes the canonical file
+    Then the frontmatter carries the tools field with those tools
 
   Scenario: an irreversible action carries a confirmation rule
     Given the agent performs an irreversible action
@@ -129,6 +144,11 @@ Feature: define-agent — author an agent definition
     When define-agent runs its quality checks
     Then the gate-role naming check flags the name at HIGH severity and define-agent renames it to the gate-and-scope form before presenting the file
 
+  Scenario: a gate scorer named for its action rather than its gate is flagged even when the name is not a bare verdict word
+    Given a drafted gate-scorer agent named eval-runner whose role is to score the impl gate for the quill domain
+    When define-agent runs its quality checks
+    Then the gate-role naming check flags the name at HIGH severity and define-agent renames it to quill-impl-judge before presenting the file
+
   Scenario: a non-scorer producer agent keeps its action-oriented name
     Given the agent's role is to produce an artifact rather than score a gate or case, named like scenario-writer or doc-writer
     When define-agent runs its quality checks
@@ -136,10 +156,10 @@ Feature: define-agent — author an agent definition
 
   # ---- Impl-producer dual mode ----
 
-  Scenario: dispatched against a frozen suite it co-produces the eval suite
+  Scenario: dispatched as impl-producer against a frozen suite it writes only the definition
     Given the conductor dispatches define-agent as the ACED impl-producer against a frozen feature
     When define-agent produces the implementation
-    Then it writes the agent definition and an eval suite carrying one eval per frozen scenario
+    Then it writes the agent definition and no separate eval suite — the frozen .feature is the verification
 
   Scenario: invoked standalone it produces only the definition
     Given define-agent is invoked with no frozen feature

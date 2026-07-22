@@ -27,7 +27,8 @@ full. If the artifact type or path is not clear from context, ask.
 
 ## Determine ACED-tracked status
 
-Check for `artifacts/specs/<feature-name>/eval.md` for this target.
+Check for the target's node in the project spec — `.agents/specs/<project>/…/<node>/` (discovered
+through the SDD spec tree) — carrying a colocated `eval.md` for this target.
 
 - **ACED-tracked (eval suite exists):** ensure a recent result exists — run `run` first if the
   latest `results/` file is stale or missing. Then load `aced-impl-producer` to identify failing

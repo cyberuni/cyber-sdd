@@ -16,7 +16,7 @@ Defer to a sibling when the request is about one specific target: `run` to score
 
 ## What it does
 
-Scans `artifacts/specs/*/eval.md`, computes per-suite pass rate, mean %max (each scenario's total over its own maximum, normalized before averaging), and trend from the two most recent `results/` files, classifies each suite as healthy / degraded / critical / no-data / trending-down, and prints a dashboard with a "needs attention" list and suggested next action per suite.
+Scans the project spec (`.agents/specs/`) for behavioral-leaf nodes' `eval.md`, computes per-suite pass rate, mean %max (each scenario's total over its own maximum, normalized before averaging), and trend from the two most recent `results/` files, classifies each suite as healthy / degraded / critical / no-data / trending-down, and prints a dashboard with a "needs attention" list and suggested next action per suite.
 
 ## Install
 

@@ -27,6 +27,16 @@ Feature: improve — diagnose failures and propose config fixes
     When ACED routes the request
     Then improve does not handle it and compare does
 
+  Scenario: scaffolding a brand-new config defers to define
+    Given the user asks to create a new skill from scratch
+    When ACED routes the request
+    Then improve does not handle it and define-skill does
+
+  Scenario: auditing a SKILL file's structure defers to improve-skill
+    Given the user asks to check a SKILL file's structure and compliance
+    When ACED routes the request
+    Then improve does not handle it and improve-skill does
+
   # ---- Loading context ----
 
   Scenario: the target and latest results are read together
@@ -38,6 +48,16 @@ Feature: improve — diagnose failures and propose config fixes
     Given a suite that has never been run and has no results record
     When improve loads the context
     Then it tells the user to run first and proposes no edits
+
+  Scenario: the artifact type is identified and the config read in full
+    Given a target that may be a skill, subagent, command, or AGENTS.md section
+    When improve locates the target
+    Then it identifies the artifact type and reads the configuration in full
+
+  Scenario: an untracked config gets a general review instead of a failure diagnosis
+    Given a target with no eval suite in the project spec
+    When improve determines how to proceed
+    Then it reviews the configuration against the fit classifier and the matching builder bar rather than diagnosing failing cases
 
   # ---- Identifying and grouping failures ----
 
@@ -84,3 +104,8 @@ Feature: improve — diagnose failures and propose config fixes
     Given the user approves the proposed edits
     When improve applies them
     Then it edits the configuration and then runs compare over the before and after revisions
+
+  Scenario: an untracked config is not given a fabricated verdict
+    Given an untracked target that has been reviewed and has no suite to run
+    When improve verifies the outcome
+    Then it offers to author a suite rather than asserting a pass or fail verdict

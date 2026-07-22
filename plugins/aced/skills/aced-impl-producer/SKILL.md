@@ -17,10 +17,12 @@ When the conductor dispatches `define-agent`, `define-skill`, or `define-governa
 
 ## Load context
 
-Find `artifacts/specs/<feature-name>/`:
+Find the target's node in the project spec — `.agents/specs/<project>/…/<node>/` (discovered through
+the SDD spec tree; the node's `eval.md` names the subject) — which holds the frozen `<node>.feature`
+and its colocated `eval.md` (subject + run policy):
 - Read `eval.md` for the `subject` agent configuration path and the `eval:` run policy
 - Read the `subject` agent configuration in full
-- Read the frozen `<feature-name>.feature` (the eval source)
+- Read the frozen `<node>.feature` (the eval source)
 - Read the most recent result file from `results/` (sort by filename descending, take first)
 
 If no results exist, run `run` first.

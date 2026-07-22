@@ -82,6 +82,11 @@ Feature: extract-situation — the blind-brief extractor
     When the engine is asked for that scenario
     Then no tag, no line of the Feature description, and no step of a sibling scenario appears in the output
 
+  Scenario: a leading And does not inherit the previous scenario's keyword
+    Given a .feature whose first scenario ends on a Given step, followed by a second scenario opening with an And step
+    When the engine is asked for that second scenario
+    Then that And step appears nowhere in the output, having no keyword to inherit across the scenario boundary
+
   # ---- Scenario Outline ----
 
   Scenario: an outline keeps the placeholders its situation references
@@ -150,6 +155,23 @@ Feature: extract-situation — the blind-brief extractor
     Given an invocation omitting either the .feature path or the scenario name
     When the engine runs
     Then it exits non-zero with a usage error and emits no brief
+
+  Scenario: a malformed row argument fails closed
+    Given an invocation whose --row value is negative or not an integer
+    When the engine runs
+    Then it exits non-zero with an argument error and emits no brief, before any Examples table is consulted
+
+  # ---- Output format ----
+
+  Scenario: the json format emits the situation regrouped by keyword
+    Given a scenario carrying both a Given and a When step, requested in json format
+    When the engine is asked for that scenario
+    Then the json carries the emitted steps in the file's order and regroups the same steps under given and when
+
+  Scenario: the json format withholds the answer key like the brief does
+    Given a scenario whose name, Then step, and inline rubric each state the verdict, requested in json format
+    When the engine is asked for that scenario
+    Then that name, that Then step, and no line of that rubric appears anywhere in the json
 
   # ---- Read-only ----
 

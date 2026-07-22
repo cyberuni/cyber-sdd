@@ -11,10 +11,12 @@ in it. `eval.md` carries only the subject binding and run policy.
 
 ## Locate the suite
 
-If the user specifies a target, find `artifacts/specs/<feature-name>/` — it holds `eval.md` and the
-frozen `<feature-name>.feature`. If no target is specified and only one `artifacts/specs/` directory
-with an `eval.md` exists, use it. If multiple exist, ask which to run. **If no suite exists at all,
-report that no eval suite is initialized and stop — do not run.**
+If the user specifies a target, find the target's node in the project spec —
+`.agents/specs/<project>/…/<node>/` (discovered through the SDD spec tree; the node's `eval.md` names
+the subject) — which holds the frozen `<node>.feature` and its colocated `eval.md` (subject + run
+policy). If no target is specified and only one node in the project spec carries an `eval.md`, use it.
+If multiple exist, ask which to run. **If no suite exists at all, report that no eval suite is
+initialized and stop — do not run.**
 
 Read `eval.md` for the **measurement policy** (two-level shape):
 
@@ -84,7 +86,7 @@ which.
 
 ## Write results
 
-Write to `artifacts/specs/<feature-name>/results/<ISO8601-timestamp>.json`:
+Write to the node's `results/<ISO8601-timestamp>.json` under its project-spec directory:
 
 ```json
 {

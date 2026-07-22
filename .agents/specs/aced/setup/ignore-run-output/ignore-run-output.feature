@@ -1,3 +1,4 @@
+@frozen
 Feature: ignore-run-output — keep ACED run output out of version control
   Unit suite for the deterministic engine init-aced invokes to ensure the ACED results directory
   (.agents/aced/results/) is git-ignored. The rule is appended as the LAST line, so gitignore's

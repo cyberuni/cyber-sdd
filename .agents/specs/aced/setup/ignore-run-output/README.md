@@ -10,8 +10,9 @@ commits timestamped, non-deterministic judge output into the tracked tree. The r
 **last** line of `.gitignore`, so gitignore's last-match-wins makes the path ignored **by
 construction** — the engine never needs, and never performs, a post-write re-check. The behavior is
 **idempotent** (a second run adds nothing) and **fail-closed** (every failure exits before any write,
-so it changes nothing it cannot guarantee). The `init-aced` skill invokes this engine as one
-onboarding step; registering ACED as the SDD plugin is the separate concern of `../../registry/`.
+so it changes nothing it cannot guarantee). The `init-aced` skill invokes this engine
+(`scripts/ensure-results-ignored.mts` under the init-aced skill) as one onboarding step; registering
+ACED as the SDD plugin is the separate concern of `../../registry/`.
 
 ## Use Cases
 
@@ -65,7 +66,7 @@ cannot guarantee" literally true — the only failures are the pre-write `X1` / 
 
 ## Scenario map
 
-Every scenario binds 1:1 to a CFG edge; every edge has a scenario.
+Every scenario maps to exactly one CFG edge; every edge is covered (some by more than one scenario).
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|

@@ -341,6 +341,21 @@ test('buildLoadPlan returns needs-input on an ambiguous artifact-type', () => {
 	assert.equal(plan.roles.length, 0)
 })
 
+test('buildLoadPlan floors a present registry with no squad for the type to SDD defaults, not needs-input', () => {
+	// A parsed, present registry whose squads claim none of the artifact-type
+	// resolves the same as an absent lockfile — every role to its SDD default —
+	// and is NOT the two-plugins ambiguity, so it never returns needs-input.
+	const plan = buildLoadPlan('unknown', REG, [])
+	assert.equal(plan.status, 'complete')
+	assert.equal(plan.plugin, null)
+	assert.deepEqual(plan.ambiguous, [])
+	assert.ok(plan.roles.length > 0)
+	assert.ok(
+		plan.roles.every((r) => r.agent.source === 'sdd'),
+		'every role floors to its SDD default',
+	)
+})
+
 // ─── validateRegistry ───────────────────────────────────────────────────────────
 
 test('validateRegistry passes a clean registry', () => {

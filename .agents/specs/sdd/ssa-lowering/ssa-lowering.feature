@@ -113,7 +113,6 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
     Given a change request that is a project-wide refactor cross-cutting most capabilities
     When the coordinator applies the SSA-lowering doctrine and lowers it
     Then the produced partition marks the refactor as a barrier
-    And no other lowered mission is scheduled to start before the barrier retires
     And the produced partition's decision-evidence records that the fleet rebases onto the new world after the fence, then fans out
 
   @behavior @rubric

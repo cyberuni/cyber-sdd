@@ -28,6 +28,7 @@ import {
 	operationOf,
 	orphanHead,
 	proposeEdge,
+	proposeNode,
 	quarantinedIds,
 	readEvents,
 	readOrphanLines,
@@ -231,6 +232,278 @@ test('scenario: two WAW-paired frontier missions never both surface', () => {
 	const graph = fold([node('M1', { status: 'open', touchSet: ['f'] }), node('M2', { status: 'open', touchSet: ['f'] })])
 	const ids = ready(graph).map((f) => f.id)
 	assert.ok(!(ids.includes('M1') && ids.includes('M2')))
+})
+
+// ── ready — the barrier fence ──
+
+test('scenario: a node records that it is a barrier and the project it fences', () => {
+	const graph = fold([node('B1', { barrier: true, project: 'P' })])
+	const b = graph.nodes.get('B1')
+	assert.equal(b?.barrier, true)
+	assert.equal(b?.project, 'P')
+})
+
+test('scenario: a node appended without a barrier marking is a normal mission', () => {
+	const graph = fold([node('A')])
+	assert.equal(graph.nodes.get('A')?.barrier, false)
+})
+
+test('scenario: the write path rejects a barrier marking on a node that is not a mission', () => {
+	const graph = fold([])
+	const decision = proposeNode(graph, { v: 1, type: 'node', id: 'Op1', kind: 'operation', barrier: true })
+	assert.equal(decision.accepted, false)
+})
+
+test('scenario: a later event cannot fold a barrier onto a node that is not a mission', () => {
+	const graph = fold([node('X', { barrier: true, project: 'P' })])
+	const decision = proposeNode(graph, { v: 1, type: 'node', id: 'X', kind: 'operation' })
+	assert.equal(decision.accepted, false)
+})
+
+test('scenario: the write path rejects marking a node a barrier when it already has a RAW predecessor that is an operation', () => {
+	const graph = fold([
+		{ v: 1, type: 'node', id: 'Op1', kind: 'operation', status: 'open', touchSet: [] },
+		node('X'),
+		edge('RAW', 'Op1', 'X'),
+	])
+	const decision = proposeNode(graph, { v: 1, type: 'node', id: 'X', barrier: true, project: 'P' })
+	assert.equal(decision.accepted, false)
+})
+
+test('scenario: the write path rejects a RAW edge from an operation into a barrier', () => {
+	const graph = fold([
+		{ v: 1, type: 'node', id: 'Op1', kind: 'operation', status: 'open', touchSet: [] },
+		node('X', { barrier: true, project: 'P' }),
+	])
+	const decision = proposeEdge(graph, { kind: 'RAW', from: 'Op1', to: 'X' })
+	assert.equal(decision.accepted, false)
+})
+
+test('scenario: the write path rejects a claim that would put two barriers of one project in-flight at once', () => {
+	const graph = fold([
+		node('B1', { barrier: true, project: 'P', status: 'claimed' }),
+		node('B2', { barrier: true, project: 'P', status: 'open' }),
+	])
+	const decision = proposeNode(graph, { v: 1, type: 'node', id: 'B2', status: 'claimed' })
+	assert.equal(decision.accepted, false)
+})
+
+test('scenario: an un-retired barrier holds the other missions of the project it fences', () => {
+	const graph = fold([node('B', { barrier: true, project: 'P' }), node('M', { project: 'P', touchSet: ['x'] })])
+	assert.ok(!ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: a barrier with an empty declared touch-set still holds its project', () => {
+	const graph = fold([
+		node('B', { barrier: true, project: 'P', touchSet: [] }),
+		node('M', { project: 'P', touchSet: [] }),
+	])
+	assert.ok(!ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: a barrier does not fence a project it does not fence', () => {
+	const graph = fold([node('B', { barrier: true, project: 'P' }), node('M', { project: 'Q' })])
+	assert.ok(ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: a graph holding no barrier is not fenced at all', () => {
+	const graph = fold([node('A'), node('B')])
+	const ids = ready(graph).map((f) => f.id)
+	assert.deepEqual(ids.sort(), ['A', 'B'])
+})
+
+test('scenario: a barrier fences the default project of a store that declares no projects', () => {
+	const graph = fold([node('B', { barrier: true }), node('M')])
+	assert.ok(!ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: the default project is a project of its own, not a wildcard', () => {
+	const graph = fold([node('B', { barrier: true }), node('M', { project: 'named' })])
+	assert.ok(ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: an in-flight barrier still fences its project', () => {
+	const graph = fold([node('B', { barrier: true, project: 'P', status: 'claimed' }), node('M', { project: 'P' })])
+	assert.ok(!ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: a retired barrier no longer fences its project', () => {
+	const graph = fold([node('B', { barrier: true, project: 'P', status: 'retired' }), node('M', { project: 'P' })])
+	assert.ok(ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: the fence holds a RAW-satisfied mission downstream of the exempt closure', () => {
+	const graph = fold([
+		node('B', { barrier: true, project: 'P' }),
+		node('X', { status: 'retired', project: 'P' }), // exempt (RAW pred of B), retired
+		node('M', { project: 'P' }), // downstream of X, RAW-satisfied, but NOT in B's pred closure
+		edge('RAW', 'X', 'B'),
+		edge('RAW', 'X', 'M'),
+	])
+	assert.ok(!ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: a RAW predecessor of an un-retired barrier is exempt from the fence', () => {
+	const graph = fold([node('B', { barrier: true, project: 'P' }), node('X', { project: 'P' }), edge('RAW', 'X', 'B')])
+	assert.ok(ready(graph).some((f) => f.id === 'X'))
+})
+
+test('scenario: exemption reaches the whole RAW-predecessor closure but never lifts RAW satisfaction', () => {
+	const graph = fold([
+		node('B', { barrier: true, project: 'P' }),
+		node('X', { project: 'P' }), // head of chain, no RAW predecessor
+		node('Y', { project: 'P' }), // between X and B, blocked because X is not retired
+		edge('RAW', 'X', 'Y'),
+		edge('RAW', 'Y', 'B'),
+	])
+	const ids = ready(graph).map((f) => f.id)
+	assert.ok(ids.includes('X'))
+	assert.ok(!ids.includes('Y'))
+})
+
+test("scenario: a predecessor of one project's barrier is exempt from another project's fence", () => {
+	const graph = fold([
+		node('Bq', { barrier: true, project: 'Q' }),
+		node('Bp', { barrier: true, project: 'P' }),
+		node('X', { project: 'Q' }), // RAW pred of Bp (project P's barrier), sits in project Q
+		edge('RAW', 'X', 'Bp'),
+	])
+	assert.ok(ready(graph).some((f) => f.id === 'X'))
+})
+
+test('scenario: retiring a barrier withdraws the exemption it granted', () => {
+	const graph = fold([
+		node('B1', { barrier: true, project: 'P1', status: 'retired' }),
+		node('B2', { barrier: true, project: 'P2' }),
+		node('M', { project: 'P2' }), // in retired B1's pred closure, but not any un-retired barrier's
+		edge('RAW', 'M', 'B1'),
+	])
+	assert.ok(!ready(graph).some((f) => f.id === 'M'))
+})
+
+test('scenario: a barrier is not held by the fence of the project it fences', () => {
+	const graph = fold([node('B', { barrier: true, project: 'P' }), node('M', { project: 'P' })])
+	assert.ok(ready(graph).some((f) => f.id === 'B'))
+})
+
+test('scenario: two barriers fencing one project never both surface', () => {
+	const graph = fold([
+		node('B1', { barrier: true, project: 'P', touchSet: [] }),
+		node('B2', { barrier: true, project: 'P', touchSet: [] }),
+	])
+	const ids = ready(graph).map((f) => f.id)
+	assert.ok(!(ids.includes('B1') && ids.includes('B2')))
+	assert.ok(ids.includes('B1')) // lowest id offered
+})
+
+test('scenario: an open barrier is not offered while another barrier of its project is in-flight', () => {
+	const graph = fold([
+		node('B1', { barrier: true, project: 'P', status: 'claimed', touchSet: [] }),
+		node('B2', { barrier: true, project: 'P', status: 'open', touchSet: [] }),
+	])
+	assert.ok(!ready(graph).some((f) => f.id === 'B2'))
+})
+
+test('scenario: a quarantined lower-id barrier does not hold a ready barrier of its project', () => {
+	const graph = fold([
+		node('B1', { barrier: true, project: 'P' }),
+		node('B2', { barrier: true, project: 'P' }),
+		edge('RAW', 'B1', 'B1'), // self-loop -> quarantines B1
+	])
+	assert.ok(ready(graph).some((f) => f.id === 'B2'))
+})
+
+test("scenario: a barrier that RAW-precedes another project's barrier is still capped by its own project", () => {
+	const graph = fold([
+		node('P-b1', { barrier: true, project: 'P' }), // lower id -> fills P's barrier slot
+		node('P-b2', { barrier: true, project: 'P' }), // higher id; RAW-precedes Q's barrier (would be exempt if barriers could be)
+		node('Q-b', { barrier: true, project: 'Q' }),
+		edge('RAW', 'P-b2', 'Q-b'), // P-b2 in Q-b's strict RAW-predecessor closure
+	])
+	const ids = ready(graph).map((f) => f.id)
+	// Barriers are never exempt: P-b2 stays subject to P's at-most-one cap and is held; only the lowest-id P barrier surfaces.
+	assert.ok(!ids.includes('P-b2'), 'P-b2 must be held by P’s cap, never lifted past it by exemption')
+	assert.ok(ids.includes('P-b1'), 'P-b1 (lower id) fills P’s barrier slot')
+})
+
+test("scenario: a barrier surfaces alongside its project's exempt work when their touch-sets are disjoint", () => {
+	const graph = fold([
+		node('Bq', { barrier: true, project: 'Q' }),
+		node('Bp', { barrier: true, project: 'P', touchSet: ['a'] }),
+		node('X', { project: 'P', touchSet: ['b'] }), // exempt via Bq, sibling of Bp's project
+		edge('RAW', 'X', 'Bq'),
+	])
+	const ids = ready(graph).map((f) => f.id)
+	assert.ok(ids.includes('Bp') && ids.includes('X'))
+})
+
+test("scenario: a barrier waits behind its project's exempt sibling when their touch-sets collide", () => {
+	const graph = fold([
+		node('Bq', { barrier: true, project: 'Q' }),
+		node('Bp', { barrier: true, project: 'P', touchSet: ['a'] }),
+		node('A', { project: 'P', touchSet: ['a'] }), // exempt via Bq, collides with Bp, sorts before Bp
+		edge('RAW', 'A', 'Bq'),
+	])
+	const ids = ready(graph).map((f) => f.id)
+	assert.ok(ids.includes('A'))
+	assert.ok(!ids.includes('Bp'))
+})
+
+test("scenario: a barrier predecessor does not stop its project's barrier surfacing", () => {
+	const graph = fold([
+		node('B1', { barrier: true, project: 'P' }),
+		node('B2', { barrier: true, project: 'P' }),
+		edge('RAW', 'B2', 'B1'), // B2 is a RAW predecessor of B1; B2 itself has none
+	])
+	const ids = ready(graph).map((f) => f.id)
+	assert.ok(ids.includes('B2'))
+	assert.ok(!ids.includes('B1'))
+})
+
+test('scenario: a fenced mission does not consume the WAW tie-break slot from an exempt one', () => {
+	const graph = fold([
+		node('B', { barrier: true, project: 'P' }),
+		node('AHeld', { project: 'P', touchSet: ['t'] }), // held by the fence; sorts strictly BEFORE ZExempt under compareIds
+		node('ZExempt', { project: 'P', touchSet: ['t'] }), // exempt (RAW pred of B), WAW-collides with AHeld
+		edge('RAW', 'ZExempt', 'B'),
+	])
+	// If the fence ran AFTER the WAW mutex, AHeld (lower id, non-exempt) would win the tie-break slot and
+	// starve ZExempt; the fence must run FIRST so AHeld is held before the mutex and ZExempt surfaces.
+	assert.ok(ready(graph).some((f) => f.id === 'ZExempt'))
+})
+
+test('scenario: exemption lifts the fence but not the WAW-mutex against in-flight work', () => {
+	const graph = fold([
+		node('B', { barrier: true, project: 'P' }),
+		node('InFlight', { project: 'P', status: 'claimed', touchSet: ['t'] }),
+		node('Exempt', { project: 'P', touchSet: ['t'] }),
+		edge('RAW', 'Exempt', 'B'),
+	])
+	assert.ok(!ready(graph).some((f) => f.id === 'Exempt'))
+})
+
+test('scenario: two exempt missions that are WAW-paired never both surface', () => {
+	const graph = fold([
+		node('B', { barrier: true, project: 'P' }),
+		node('E1', { project: 'P', touchSet: ['t'] }),
+		node('E2', { project: 'P', touchSet: ['t'] }),
+		edge('RAW', 'E1', 'B'),
+		edge('RAW', 'E2', 'B'),
+	])
+	const ids = ready(graph).map((f) => f.id)
+	assert.ok(!(ids.includes('E1') && ids.includes('E2')))
+})
+
+test("scenario: two projects whose barriers each wait on the other's work still offer progress", () => {
+	const graph = fold([
+		node('Bp', { barrier: true, project: 'P' }),
+		node('Bq', { barrier: true, project: 'Q' }),
+		node('Xq', { project: 'Q' }), // Bp's RAW predecessor, sits in project Q
+		node('Xp', { project: 'P' }), // Bq's RAW predecessor, sits in project P
+		edge('RAW', 'Xq', 'Bp'),
+		edge('RAW', 'Xp', 'Bq'),
+	])
+	assert.ok(ready(graph).length > 0)
 })
 
 // ── ready — determinism and read-only ──

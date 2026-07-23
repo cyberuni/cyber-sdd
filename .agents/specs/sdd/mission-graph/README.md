@@ -61,6 +61,9 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **needs-a-human** (HITL — "human in the loop") | a person must approve this step before it proceeds |
 | **runs-on-its-own** (AFK — "away from keyboard") | safe to run automatically, with no person present |
 | **blast** | how much of the project a Mission could disturb — its risk / reach |
+| **barrier** (fence) | a Mission that reshapes a whole project at once — everyone else in that project must wait for it and then rebuild on top of it, rather than run alongside it |
+| **project** | which project a Mission belongs to, and the thing a barrier fences — a list may hold work from several projects at once; work that names no project all sits in one default project together |
+| **exempt** | a Mission a fence deliberately lets through — some barrier is *waiting on* it, so holding it back would leave both stuck forever. Being let through only lifts the *fence*; the job still waits on its own dependencies and on the collision rule |
 | **schema version** | a version number stamped on every entry so the format can grow later without breaking old entries |
 | **orphan ref** | a git storage slot that holds *only* the work list (not a copy of the code) and is shared by every working copy of the repo, so the list reads the same no matter which branch you are on |
 | **branch-independent** | the same list is seen from every branch — because it lives in the shared orphan ref, not in the files of whatever branch you happen to have checked out |
@@ -83,6 +86,7 @@ of parallel agents (all later work). It **plans and reports**; it does not do th
 | **see what can start now** | the work list | the Missions with nothing left to wait for and no clash with started work — the same answer every time for the same list | `Scenario: a mission whose RAW predecessor is retired is in the frontier` |
 | **keep clashing work apart** — two Missions would change the same thing | the list + each Mission's touch-set | at most **one** of a clashing pair is ever offered at once (the other waits its turn) | `Scenario: a candidate whose touch-set intersects an in-flight mission is held back` |
 | **catch a knotted plan** — the links accidentally form a loop | the work list | it never crashes; every Mission caught in the loop is set aside, and the loop is reported as something to fix | `Scenario: the fold quarantines a cycle instead of failing` |
+| **hold a project for a reshaping job** — one Mission is about to change the whole project | the list + a Mission marked as a barrier and the project it fences | the rest of that project waits; the jobs the barrier is itself waiting on are still let through; barriers are handed out one at a time | `Scenario: an un-retired barrier holds the other missions of the project it fences` |
 | **check a shippable group** — is this Operation shippable, and how far along | an Operation's declared Missions + its capstone | whether nothing needed is missing (missing prerequisites flagged), what the smallest ship-set is, and a done-so-far count | `Scenario: an Operation whose capstone closure exceeds the declared set is flagged` |
 
 Every scenario in [`mission-graph.feature`](./mission-graph.feature) maps to one of these entries or to
@@ -154,6 +158,124 @@ Key points:
   — the capability atom a Mission owns — is always written in full, so the two never collide. The
   `node` *field* here carries the vertex kind; enriching it to instead carry the mission's **owned
   spec-node** is a follow-up **engine** change, tracked in issue #184.)
+
+## The barrier fence — "hold this project, one big job is reshaping it"
+
+Some jobs reshape a **whole project** at once (renaming a core idea used everywhere, say). Running other
+work alongside one is wasteful: it would all have to be redone on top afterwards. So such a job is marked
+a **barrier** and names the **project it fences**. Elsewhere in the system, `formation` is what *declares*
+a barrier and names its project, and `ssa-lowering` is what *spots* one; **this list is what honors it** —
+the three are separate jobs on purpose, so a barrier is decided once and obeyed everywhere.
+
+Only a **Mission** can be a barrier. Marking a group (an Operation) as one is refused when it is
+written, because a group is never handed out as work — so it could never finish, and its fence would
+never lift.
+
+**The fence is explicit — it does not lean on what the barrier touches.** A barrier may even declare
+that it changes *nothing*, and the fence still holds its project. (An earlier design made the barrier's
+touch-set cover the whole project and let the ordinary **collision rule** do the holding; that quietly
+fails, because the collision rule sees an empty touch-set as clashing with nothing, so it would let the
+project's work run right beside such a barrier.) So the fence holds the project **outright**, as its own
+rule, in three parts read off the list each time:
+
+1. **Let through the jobs a barrier is waiting on.** If a barrier cannot start until some other job
+   finishes, that job is let through **every** fence — including a fence in a *different* project. Only
+   *ordinary* jobs are let through this way: a **barrier is never let through another barrier's fence**
+   (see below).
+2. **Hand out barriers one at a time, per project.** Of a project's barriers, at most one is ever
+   offered: if one is already **in-flight**, it holds the project's single barrier slot and every other
+   barrier of that project waits; otherwise the lowest-id ready barrier is offered and the rest wait.
+   This is decided in the reading itself — it does **not** depend on what the barriers touch, so two
+   barriers that happen to change different things still never both go out.
+3. **Hold everything else in that project.** Every other job of a fenced project waits. A project with
+   **no** barrier is untouched by any of this. Work that names no project sits in the default project,
+   which is a **real** project: a barrier there fences the other no-project work and nothing else — it
+   is not a wildcard.
+
+**A barrier is never held by its own project's fence.** Rule 3 holds the project's *other* work; the
+barrier itself is decided only by rule 2, by its own dependencies, and by the collision rule. One
+consequence is deliberate and bounded: a barrier **may** go out beside a job of its own project that was
+*let through* by rule 1 (because some **other** project's barrier is waiting on that job and it must
+run) — when the two change different things. That job has to run regardless, so letting the barrier run
+too is the honest answer, not a leak.
+
+**Why a barrier is never let through (rule 1's carve-out).** If a barrier that is a prerequisite of a
+*different* project's barrier were let through, it would skip its own project's one-at-a-time rule — and
+its project's other barrier could go out at the same time. Two barriers of one project, side by side —
+the exact failure the one-at-a-time rule exists to prevent. So only ordinary jobs are ever let through.
+
+**Why rule 1 reaches across projects.** If it only let through jobs in the barrier's *own* project,
+then project A's barrier could sit waiting on a job in project B that B's *own* fence is holding back
+— and the reverse at the same time. Nobody moves, forever. Because "waiting on" links are not confined
+to one project, the let-through rule must not be either.
+
+**These rules decide ORDER, not what may run side by side.** Being let through only lifts the *fence*.
+A let-through job still has to clear everything else — its own dependencies, the knot check, and the
+collision rule — so a let-through job that clashes with started work still waits its turn.
+
+**Two things the write path guarantees, so the reading stays safe.** Because the list is append-only, a
+would-be barrier is checked against the entry the records **add up to**, not each record alone: (a) a
+barrier is refused on a group (an Operation), since a group is never handed out and its fence would never
+lift; (b) a barrier is refused if it would wait on a **group** — a group never finishes, so the barrier
+would fence its project *forever* while the knot-check still reads clean; and (c) a second barrier of a
+project is refused the in-flight mark while one is already in-flight, so "one at a time" holds even for
+work already started, not only for what is offered.
+
+**Why this is worth being careful about.** The fence is worked out **while reading** the list, not
+stored as a "wait for" link (the same choice the collision rule makes). That keeps the reading
+side-effect-free — but it means a stuck project leaves **no loop in the plan**, so the knot-check
+(`cycles`) reports a clean bill while nothing at all can start. A stall here would be **silent**. So
+the list is checked both ways: that two projects whose barriers each wait on the other's work
+**always** offer something to start (never stuck), *and* that the fence **actually holds** what it
+should (never quietly lets everything through — a fence that holds nothing would pass the never-stuck
+check perfectly).
+
+### The fence decision, and where each scenario lands
+
+For every candidate that is already **RAW-satisfied, not quarantined, and not-yet-started**, the fold
+walks this decision before the collision rule (WAW-mutex) runs. Each leaf is one edge of the behavior;
+the scenario map underneath pins every edge to the frozen scenario(s) that fix it — the scenarios are
+**derived from this graph, one per edge**, not read back off the suite.
+
+```mermaid
+flowchart TD
+  C["candidate c<br/>(RAW-satisfied · not quarantined · open)"] --> Q1{"c is a barrier?"}
+  Q1 -- yes --> Q2{"another un-retired barrier<br/>of c's project is in-flight?"}
+  Q2 -- yes --> H1["HELD — the in-flight barrier fills the slot"]
+  Q2 -- no --> Q3{"a lower-id ready barrier<br/>of c's project exists?"}
+  Q3 -- yes --> H2["HELD — the lower-id barrier wins the slot"]
+  Q3 -- no --> P1["OFFER c → collision rule"]
+  Q1 -- no --> Q4{"c is exempt?<br/>(non-barrier in a live barrier's<br/>RAW-pred closure — graph-global)"}
+  Q4 -- yes --> P2["clause 1 — lifted from every fence → collision rule"]
+  Q4 -- no --> Q5{"c's project has a live barrier?"}
+  Q5 -- yes --> H3["clause 3 — HELD outright (touch-set irrelevant)"]
+  Q5 -- no --> P3["unfenced — → collision rule"]
+  P1 --> M["collision rule (WAW-mutex) + lowest-id tie-break → frontier"]
+  P2 --> M
+  P3 --> M
+```
+
+The write path is a second, smaller decision: on every append, fold-then-check refuses a barrier on an
+Operation (INV-1), a barrier that would wait on an Operation (INV-2), and a second in-flight barrier of
+a project (INV-3).
+
+| Decision edge | Frozen scenario(s) that fix it |
+|---|---|
+| store records the barrier marking + its project | `a node records that it is a barrier and the project it fences` · `a node appended without a barrier marking is a normal mission` |
+| barrier · another barrier of its project in-flight → **held** | `an open barrier is not offered while another barrier of its project is in-flight` |
+| barrier · a lower-id ready barrier exists → **held** | `two barriers fencing one project never both surface` · `a barrier predecessor does not stop its project's barrier surfacing` |
+| barrier · the lower-id one is quarantined/blocked → **not** held | `a quarantined lower-id barrier does not hold a ready barrier of its project` |
+| barrier · passes the cap → **offered** | `a barrier is not held by the fence of the project it fences` · `a barrier that RAW-precedes another project's barrier is still capped by its own project` |
+| non-barrier · exempt → **lifted** (clause 1, graph-global, before the fenced-project check) | `a RAW predecessor of an un-retired barrier is exempt from the fence` · `exemption reaches the whole RAW-predecessor closure but never lifts RAW satisfaction` · `a predecessor of one project's barrier is exempt from another project's fence` · `retiring a barrier withdraws the exemption it granted` |
+| non-barrier · not exempt · fenced project → **held** (clause 3, touch-set irrelevant) | `an un-retired barrier holds the other missions of the project it fences` · `a barrier with an empty declared touch-set still holds its project` · `an in-flight barrier still fences its project` · `a barrier fences the default project of a store that declares no projects` · `the fence holds a RAW-satisfied mission downstream of the exempt closure` |
+| non-barrier · not exempt · unfenced project → **offered** | `a barrier does not fence a project it does not fence` · `a graph holding no barrier is not fenced at all` · `a retired barrier no longer fences its project` · `the default project is a project of its own, not a wildcard` |
+| fence runs **before** the collision rule | `a fenced mission does not consume the WAW tie-break slot from an exempt one` |
+| a lifted mission is still subject to the collision rule | `exemption lifts the fence but not the WAW-mutex against in-flight work` · `two exempt missions that are WAW-paired never both surface` |
+| a barrier runs beside its project's *disjoint* exempt work (bounded residual) | `a barrier surfaces alongside its project's exempt work when their touch-sets are disjoint` · `a barrier waits behind its project's exempt sibling when their touch-sets collide` |
+| liveness — two mutually-waiting projects are never silently stuck | `two projects whose barriers each wait on the other's work still offer progress` |
+| write guard INV-1 — a barrier is a mission, never an Operation | `the write path rejects a barrier marking on a node that is not a mission` · `a later event cannot fold a barrier onto a node that is not a mission` |
+| write guard INV-2 — no barrier waits on an Operation (the silent wedge) | `the write path rejects marking a node a barrier when it already has a RAW predecessor that is an operation` · `the write path rejects a RAW edge from an operation into a barrier` |
+| write guard INV-3 — at most one barrier of a project is ever in-flight | `the write path rejects a claim that would put two barriers of one project in-flight at once` |
 
 ## `cycles` — "did the plan tie itself in a knot?"
 

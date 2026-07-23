@@ -6,5 +6,12 @@
 	"homepage": "https://github.com/cyberuni/cyberplace",
 	"repository": "https://github.com/cyberuni/cyberplace",
 	"version": "0.0.0",
-	"skills": "./skills"
+	"skills": "./skills",
+	"agents": [
+		"./agents/sdd-automaton.md",
+		"./agents/sdd-impl-judge.md",
+		"./agents/sdd-scanner.md",
+		"./agents/sdd-spec-judge.md",
+		"./agents/sdd-warden.md"
+	]
 }

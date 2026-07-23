@@ -8,5 +8,10 @@
 	"repository": "https://github.com/cyberuni/cyberplace",
 	"commands": "./commands",
 	"skills": "./skills",
-	"agents": "./agents"
+	"agents": [
+		"./agents/aced-case-judge.md",
+		"./agents/aced-impl-judge.md",
+		"./agents/aced-scenario-writer.md",
+		"./agents/aced-spec-validator.md"
+	]
 }

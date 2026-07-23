@@ -610,6 +610,6 @@ test('the engine writes nothing to the filesystem', () => {
 
 test('the scenario set comes from gherkin-cli, not a re-implemented parser', () => {
 	const src = readFileSync(new URL('./verify-scenarios.mts', import.meta.url), 'utf8')
-	assert.match(src, /npx.*gherkin-cli/)
+	assert.match(src, /from 'gherkin-cli'/)
 	assert.doesNotMatch(src, /Feature:\s|Scenario:\s/)
 })

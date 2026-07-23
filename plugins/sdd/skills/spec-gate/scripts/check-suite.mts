@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 // Static .feature analysis for SDD specs — Gherkin validity, boolean form, and
 // scenario ordering/sectioning checks. Pure functions are exported for node:test;
-// running the file directly drives the CLI. No dependencies — plain node strips
-// the types.
+// running the file directly drives the CLI.
 
-import { execFileSync } from 'node:child_process'
 import { type Dirent, readdirSync, readFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
+import { validateFeatures } from 'gherkin-cli'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -140,39 +139,18 @@ export interface ParseError {
 	message: string
 }
 
-// Pure parse of `gherkin-cli@0.0.2 validate --format json`'s stdout. Maps each reported file to
-// its errors (empty array when it parses) so callers can look a path up directly.
-export function parseGherkinValidateOutput(stdout: string): Map<string, ParseError[]> {
-	const parsed = JSON.parse(stdout) as { files: { file: string; errors: { line: number; message: string }[] }[] }
+// Maps the pinned parser's per-file report to its errors (empty array when it parses) so callers
+// can look a path up directly.
+export function runGherkinValidate(paths: string[]): Map<string, ParseError[]> {
+	const { files } = validateFeatures(paths)
 	const out = new Map<string, ParseError[]>()
-	for (const f of parsed.files) {
+	for (const f of files) {
 		out.set(
 			f.file,
 			f.errors.map((e) => ({ line: e.line, message: e.message })),
 		)
 	}
 	return out
-}
-
-// The exec boundary around the pinned parser. `validate` exits 1 when any file fails to parse but
-// still writes the full JSON report to stdout — execFileSync THROWS on that nonzero exit, so a
-// throw alone is not proof the parser could not run; recover `err.stdout` and parse it as the
-// normal parse-failure report. Only an empty/missing stdout means the parser genuinely didn't run.
-export function runGherkinValidate(paths: string[], cwd = '.'): Map<string, ParseError[]> {
-	try {
-		const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'validate', ...paths, '--format', 'json'], {
-			encoding: 'utf8',
-			cwd,
-			stdio: ['ignore', 'pipe', 'pipe'],
-		})
-		return parseGherkinValidateOutput(stdout)
-	} catch (err) {
-		const stdout = (err as { stdout?: string }).stdout
-		if (typeof stdout === 'string' && stdout.length > 0) {
-			return parseGherkinValidateOutput(stdout)
-		}
-		throw new Error(`gherkin-cli validate did not run: ${(err as Error).message}`)
-	}
 }
 
 // ─── dead rubric — a rubric whose attainable maximum can't reach its threshold ─
@@ -360,15 +338,11 @@ export function discoverSuiteDirs(root: string): { slug: string; files: string[]
 // gate must never silently pass a file it could not read.
 //
 // `validate` is injected so the unit tests exercise this wiring with a fake parser (fast,
-// offline) while `main` wires the real pinned-npx boundary. The parser is the SOLE source of
+// offline) while `main` wires the real pinned in-process parser. The parser is the SOLE source of
 // Gherkin validity — if it cannot be run at all, every readable path fails closed rather than
 // falling back to the permissive scan; if it runs but omits a path from its report, that path
 // fails closed too rather than defaulting to "parses fine".
-export function checkFilePaths(
-	paths: string[],
-	cwd = '.',
-	validate: typeof runGherkinValidate = runGherkinValidate,
-): string[] {
+export function checkFilePaths(paths: string[], validate: typeof runGherkinValidate = runGherkinValidate): string[] {
 	const violations: string[] = []
 	const readable: { path: string; text: string }[] = []
 	for (const p of paths) {
@@ -382,10 +356,7 @@ export function checkFilePaths(
 
 	let parseErrorsByPath: Map<string, ParseError[]>
 	try {
-		parseErrorsByPath = validate(
-			readable.map((r) => r.path),
-			cwd,
-		)
+		parseErrorsByPath = validate(readable.map((r) => r.path))
 	} catch (err) {
 		for (const { path } of readable) {
 			violations.push(`${path}: cannot verify Gherkin validity — ${(err as Error).message}`)

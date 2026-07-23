@@ -35,11 +35,12 @@
 // feature scenario KEY: UNBOUND if no result; PASS if ≥1 result and none fail; FAIL if any fails.
 // EXTRA = bound result keys matching no feature scenario key (diagnostic, not a failure).
 //
-// Pure functions are exported for node:test; running the file directly drives the CLI. No deps.
+// Pure functions are exported for node:test; running the file directly drives the CLI.
 
-import { execFileSync, execSync } from 'node:child_process'
+import { execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
+import { parseFeatures } from 'gherkin-cli'
 
 // Resolves a path argument against `--root`: relative paths join beneath root (which defaults to the
 // current directory); an absolute path is used verbatim, never double-prefixed under root.
@@ -90,6 +91,9 @@ export interface GherkinScenario {
 	tags: string[]
 }
 
+// Narrower than gherkin-cli's real `ParseResult` — this function reads only `files[].scenarios`,
+// so its signature stays structural rather than demanding fields (summary, per-file counts) it
+// never touches; a real `ParseResult` value satisfies this shape and passes straight through.
 interface GherkinParseOutput {
 	files: { scenarios: GherkinScenario[] }[]
 }
@@ -116,16 +120,10 @@ export function scenarioKeysFromParse(parsed: GherkinParseOutput): ScenarioKey[]
 }
 
 // `featureRoot` resolves `featurePath` (defaults to `root` at the call site when the CLI omits
-// `--feature-root` — see main()); `cwd` for the gherkin-cli shell-out is the bridge/report root
-// regardless, so relative behavior elsewhere in the process is unaffected.
+// `--feature-root` — see main()).
 export function getScenarioKeys(root: string, featurePath: string, featureRoot: string = root): ScenarioKey[] {
 	const abs = underRoot(featureRoot, featurePath)
-	const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'parse', abs, '--format', 'json'], {
-		encoding: 'utf8',
-		cwd: root,
-	})
-	const parsed = JSON.parse(stdout) as GherkinParseOutput
-	return scenarioKeysFromParse(parsed)
+	return scenarioKeysFromParse(parseFeatures([abs]))
 }
 
 // ── JUnit parsing (hand-rolled, no xml dep) ──

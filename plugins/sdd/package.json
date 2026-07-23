@@ -1,10 +1,20 @@
 {
-	"name": "@cyberplace/sdd-plugin",
-	"private": true,
+	"name": "cyber-sdd",
 	"version": "0.0.0",
 	"type": "module",
 	"bin": {
 		"sdd-check-specs": "./skills/check-project-specs/scripts/check-project-specs.mts"
+	},
+	"files": [
+		"skills",
+		"agents",
+		".plugin",
+		".codex-plugin",
+		".claude-plugin",
+		"!skills/**/*.test.mts"
+	],
+	"dependencies": {
+		"gherkin-cli": "0.0.2"
 	},
 	"scripts": {
 		"check:spec": "sdd-check-specs",

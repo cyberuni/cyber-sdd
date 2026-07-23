@@ -12,8 +12,8 @@ import {
 	main,
 	type ParseError,
 	parseFilesArg,
-	parseGherkinValidateOutput,
 	parseSuite,
+	runGherkinValidate,
 } from './check-suite.mts'
 
 const CLEAN_SUITE = [
@@ -727,17 +727,20 @@ const UNPARSEABLE_AND_HEDGED = [
 	'    Then it sometimes holds',
 ].join('\n')
 
-test('parseGherkinValidateOutput maps each reported file to its errors', () => {
-	const stdout = JSON.stringify({
-		summary: { files: 2, errors: 1 },
-		files: [
-			{ file: 'a.feature', ok: false, errors: [{ line: 6, message: 'boom', code: 'EPARSE' }] },
-			{ file: 'b.feature', ok: true, errors: [] },
-		],
-	})
-	const map = parseGherkinValidateOutput(stdout)
-	assert.deepEqual(map.get('a.feature'), [{ line: 6, message: 'boom' }])
-	assert.deepEqual(map.get('b.feature'), [])
+test('runGherkinValidate maps each reported file to its errors', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-validate-map-'))
+	try {
+		const a = join(root, 'a.feature')
+		const b = join(root, 'b.feature')
+		writeFileSync(a, UNPARSEABLE_AND_HEDGED)
+		writeFileSync(b, CLEAN_SUITE)
+		const map = runGherkinValidate([a, b])
+		assert.equal(map.get(a)?.length, 1)
+		assert.equal(map.get(a)?.[0].line, 6)
+		assert.deepEqual(map.get(b), [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
 })
 
 test('checkSuite fails closed and reports the line when parse errors are passed', () => {
@@ -764,7 +767,7 @@ test('checkFilePaths fails closed on a file the injected validator reports a par
 		const broken = join(root, 'broken.feature')
 		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
 		const fakeValidate = () => new Map([[broken, [{ line: 6, message: 'expected: #EOF, got bad token' }]]])
-		const v = checkFilePaths([broken], root, fakeValidate)
+		const v = checkFilePaths([broken], fakeValidate)
 		assert.equal(v.length, 1)
 		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
 		assert.ok(!v.some((m) => /non-boolean hedge/.test(m)))
@@ -779,7 +782,7 @@ test('checkFilePaths raises no parse violation for a file the injected validator
 		const clean = join(root, 'clean.feature')
 		writeFileSync(clean, CLEAN_SUITE)
 		const fakeValidate = () => new Map([[clean, []]])
-		const v = checkFilePaths([clean], root, fakeValidate)
+		const v = checkFilePaths([clean], fakeValidate)
 		assert.deepEqual(v, [])
 	} finally {
 		rmSync(root, { recursive: true, force: true })
@@ -794,7 +797,7 @@ test('checkFilePaths fails closed when the validator omits a file from its repor
 		// The validator's map has no entry at all for `clean` — defaulting the missing entry to
 		// "parses fine" (an empty array) is the exact fail-open bug this guard closes.
 		const fakeValidate = () => new Map<string, ParseError[]>()
-		const v = checkFilePaths([clean], root, fakeValidate)
+		const v = checkFilePaths([clean], fakeValidate)
 		assert.ok(v.some((m) => /returned no result for this file/.test(m)))
 	} finally {
 		rmSync(root, { recursive: true, force: true })
@@ -811,7 +814,7 @@ test('checkFilePaths fails every readable path closed when the validator throws'
 		const fakeValidate = () => {
 			throw new Error('parser genuinely could not run')
 		}
-		const v = checkFilePaths([a, b], root, fakeValidate)
+		const v = checkFilePaths([a, b], fakeValidate)
 		assert.equal(v.length, 2)
 		assert.ok(v.every((m) => /cannot verify Gherkin validity/.test(m)))
 	} finally {
@@ -826,7 +829,7 @@ test('runGherkinValidate against the real pinned parser reports a real EPARSE fo
 	try {
 		const broken = join(root, 'broken.feature')
 		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
-		const v = checkFilePaths([broken], root)
+		const v = checkFilePaths([broken])
 		assert.equal(v.length, 1, 'the real parser replaces the form findings with the one parse violation')
 		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
 	} finally {

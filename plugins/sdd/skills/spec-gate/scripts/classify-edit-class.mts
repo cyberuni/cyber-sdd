@@ -9,9 +9,8 @@
 // The classification is STRUCTURAL, never a raw git line-diff. A raw line-diff is fooled by a
 // trailing step orphaned off a frozen scenario onto a newly added adjacent scenario: the orphan
 // shows no `-` line and reads as purely additive, so a narrowing self-clears silently and
-// Clearance never fires. The pinned `gherkin-cli@0.0.2 diff --base <ref> <file> --format json`
-// (`../../design/gherkin-cli-dependency.md`) is AST-level and is not fooled — it reports the
-// losing baseline scenario as `modified` (`addOnly: false`).
+// Clearance never fires. The pinned `gherkin-cli@0.0.2` `diffFeatures(paths, {base})` is AST-level
+// and is not fooled — it reports the losing baseline scenario as `modified` (`addOnly: false`).
 //
 // The pin is load-bearing, not incidental. Through `0.0.1` the differ's scenario identity covered
 // step keyword + text only, so a step's DocString / DataTable could be rewritten while the scenario
@@ -31,12 +30,12 @@
 //   narrowing        — at least one baseline scenario is modified or removed (no scenario added).
 //   mixed            — both a whole-scenario addition AND a modified/removed baseline scenario.
 //
-// Pure functions are exported for node:test; running the file directly drives the CLI. No
-// dependencies — plain node strips the types.
+// Pure functions are exported for node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
+import { type DiffReader, diffFeatures, GitError } from 'gherkin-cli'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -193,20 +192,63 @@ function readGitShow(base: string, path: string, cwd: string): string {
 	}
 }
 
-// Thin exec wrapper around the pinned `gherkin-cli@0.0.2 diff` — never a re-implemented differ.
-// classifyFromDiff / classifyFromFileResult carry the tested logic; this is the binary boundary.
-// Takes a batch of paths (the CLI's `diff <files...>` is already variadic) so a multi-file caller
-// pays for one `npx` spawn instead of one per file — that startup cost, not gherkin-cli's own
-// parse work, is what makes a per-file loop slow.
+// Thin boundary around the pinned `gherkin-cli` `diffFeatures` — never a re-implemented differ.
+// classifyFromDiff / classifyFromFileResult carry the tested logic; this only wires the engine in.
+// Takes a batch of paths (`diffFeatures` is already variadic over paths) so a multi-file caller
+// pays for one parse pass, not one per file.
 export type GherkinDiffRunner = (base: string, paths: string[], cwd: string) => GherkinDiffOutput
 
-export const runGherkinDiff: GherkinDiffRunner = (base, paths, cwd) => {
-	const stdout = execFileSync('npx', ['gherkin-cli@0.0.2', 'diff', ...paths, '--base', base, '--format', 'json'], {
-		encoding: 'utf8',
-		cwd,
-	})
-	return JSON.parse(stdout) as GherkinDiffOutput
+// `diffFeatures`'s default reader resolves each path via `path.resolve(file)` against
+// `process.cwd()` and derives git's own cwd from THAT resolved location (`dirname` of the
+// resolved path, then `git ls-files --full-name` to recover the repo-relative path) — it never
+// trusts a caller-supplied cwd for the git commands at all. That self-derivation is why the
+// original CLI boundary tolerated a caller's relative-path bookkeeping being off: whatever `file`
+// resolves to, the reader walks UP from there to find the right repo and the right relative path.
+// This reader is the library's own extension seam ("Injectable so tests can skip git"), replicated
+// verbatim with the one substitution that matters here — `resolve(cwd, file)` instead of
+// `resolve(file)` — so a caller's `cwd` participates without discarding that self-correction.
+function makeCwdReader(cwd: string): DiffReader {
+	return (file, base) => {
+		const abs = resolve(cwd, file)
+		const dir = dirname(abs)
+		let head: string | undefined
+		try {
+			head = readFileSync(abs, 'utf8')
+		} catch {
+			head = undefined
+		}
+		const gitIo = {
+			cwd: dir,
+			encoding: 'utf8' as const,
+			stdio: ['ignore', 'pipe', 'ignore'] as ['ignore', 'pipe', 'ignore'],
+		}
+		let rel: string
+		try {
+			rel = execFileSync('git', ['ls-files', '--full-name', '--', abs], gitIo).trim()
+		} catch (err) {
+			throw new GitError(`git ls-files failed for ${file}: ${(err as Error).message}`)
+		}
+		if (rel === '') {
+			const top = execFileSync('git', ['rev-parse', '--show-toplevel'], gitIo).trim()
+			rel = relative(top, abs).split(sep).join('/')
+		}
+		let baseText: string | undefined
+		try {
+			baseText = execFileSync('git', ['show', `${base}:${rel}`], gitIo)
+		} catch {
+			try {
+				execFileSync('git', ['rev-parse', '--verify', '--quiet', `${base}^{commit}`], { cwd: dir, stdio: 'ignore' })
+				baseText = undefined
+			} catch {
+				throw new GitError(`git could not resolve base ref '${base}'`)
+			}
+		}
+		return { head, base: baseText }
+	}
 }
+
+export const runGherkinDiff: GherkinDiffRunner = (base, paths, cwd) =>
+	diffFeatures(paths, { base, reader: makeCwdReader(cwd) })
 
 // ─── per-file classification ────────────────────────────────────────────────────
 
@@ -281,7 +323,7 @@ export function classifyFile(
 // The classification is scoped to the CR's touched .feature files only — a caller passes the
 // explicit touched-path list, never a tree-wide sweep. Pre-checks (frozen tag, rename) run per file
 // with no subprocess cost; only the paths still needing a structural diff after that are batched
-// into a SINGLE `gherkin-cli diff` call, so an N-file touch set pays for one `npx` spawn, not N.
+// into a SINGLE `gherkin-cli diff` call, so an N-file touch set pays for one parse pass, not N.
 export function classifyFiles(
 	paths: string[],
 	base: string,

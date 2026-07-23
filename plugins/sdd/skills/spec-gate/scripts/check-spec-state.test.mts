@@ -620,21 +620,43 @@ test('extractUseCaseScenarioRefs reads backtick-wrapped Scenario titles and @tag
 	assert.deepEqual(extractUseCaseScenarioRefs(text), {
 		hasSection: true,
 		refs: ['Scenario: a happens and resolves', '@shared-tag'],
+		unparseable: [],
 	})
 })
 
 test('extractUseCaseScenarioRefs reports no section when absent', () => {
-	assert.deepEqual(extractUseCaseScenarioRefs('# x\n\nno use cases here\n'), { hasSection: false, refs: [] })
+	assert.deepEqual(extractUseCaseScenarioRefs('# x\n\nno use cases here\n'), {
+		hasSection: false,
+		refs: [],
+		unparseable: [],
+	})
 })
 
 test('extractUseCaseScenarioRefs reports the section with no refs for a prose/EARS form', () => {
 	const text = '## Use Cases\n\nWhen X happens, Y results. No table here.\n'
-	assert.deepEqual(extractUseCaseScenarioRefs(text), { hasSection: true, refs: [] })
+	assert.deepEqual(extractUseCaseScenarioRefs(text), { hasSection: true, refs: [], unparseable: [] })
 })
 
 test('extractUseCaseScenarioRefs reports no refs for a table with no Scenario column', () => {
 	const text = ['## Use Cases', '', '| Trigger | Inputs | Outcome |', '|---|---|---|', '| a | b | c |', ''].join('\n')
-	assert.deepEqual(extractUseCaseScenarioRefs(text), { hasSection: true, refs: [] })
+	assert.deepEqual(extractUseCaseScenarioRefs(text), { hasSection: true, refs: [], unparseable: [] })
+})
+
+test('extractUseCaseScenarioRefs collects a data row whose Scenario cell has no backtick reference', () => {
+	const text = [
+		'## Use Cases',
+		'',
+		'| Trigger | Scenario |',
+		'|---|---|',
+		'| a happens | `Scenario: a happens and resolves` |',
+		'| b happens | b happens and resolves |', // no backticks — must not vanish
+		'',
+	].join('\n')
+	assert.deepEqual(extractUseCaseScenarioRefs(text), {
+		hasSection: true,
+		refs: ['Scenario: a happens and resolves'],
+		unparseable: ['| b happens | b happens and resolves |'],
+	})
 })
 
 test('resolveScenarioRef matches an exact Scenario title', () => {
@@ -704,6 +726,29 @@ test('checkUseCaseCoverage raises nothing when every row resolves', () => {
 			'',
 		].join('\n')
 		assert.deepEqual(checkUseCaseCoverage('node', join(root, 'node'), text), [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: a Use Cases row whose Scenario cell holds no backtick reference fails the gate closed
+test('checkUseCaseCoverage flags a data row whose Scenario cell has no backtick reference', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		mkdirSync(join(root, 'node'), { recursive: true })
+		writeFileSync(join(root, 'node', 'node.feature'), 'Feature: x\n\n  Scenario: the real one\n    Then y\n')
+		const text = [
+			'## Use Cases',
+			'',
+			'| Trigger | Scenario |',
+			'|---|---|',
+			'| a | `Scenario: the real one` |',
+			'| b | the real one but written without backticks |', // present but unparseable — must not vanish
+			'',
+		].join('\n')
+		const v = checkUseCaseCoverage('node', join(root, 'node'), text)
+		assert.equal(v.length, 1)
+		assert.match(v[0], /Use Cases data row has no backtick-wrapped Scenario cell/)
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}

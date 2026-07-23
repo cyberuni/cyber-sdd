@@ -403,46 +403,79 @@ export interface MapRow {
 	scenario: string
 }
 
-export function parseScenarioMap(specText: string): MapRow[] | undefined {
-	const start = specText.indexOf('## Scenario map')
-	if (start === -1) return undefined
-	const body = specText.slice(start)
+export interface ScenarioMap {
+	rows: MapRow[]
+	// Trimmed text of each DATA row whose Scenario cell is not backtick-wrapped — a
+	// present-but-unparseable row, surfaced as a violation rather than silently dropped.
+	unparseable: string[]
+}
+
+// Parse the `## Scenario map` section's tables. The map is grouped by use case, so the section
+// holds one or more markdown tables — a `###` sub-header or a blank line breaks a table block.
+// Within each contiguous `|`-row block the first row is the column header and the second the dashed
+// separator (recognized POSITIONALLY); every row after those is a DATA row whose Scenario cell
+// (column 3) must be backtick-wrapped. A data row that is not is collected in `unparseable`: the
+// backtick match discriminates a data row's cell, it is never the sole signal that a row exists —
+// conflating the two silently dropped a fully-authored-but-un-backticked map (the fail-open closed
+// here). The section is bounded at the next `## ` heading so a following section's table (e.g.
+// `## References`) is not misread as map rows.
+export function parseScenarioMap(specText: string): ScenarioMap | undefined {
+	// Anchor to a real `## Scenario map` HEADING line — not a mid-line or backtick-quoted prose
+	// mention of the string (a spec that documents the map must not be misread as having one).
+	const heading = /^## Scenario map[ \t]*$/m.exec(specText)
+	if (heading === null) return undefined
+	const after = specText.slice(heading.index + heading[0].length)
+	const nextHeading = after.search(/\n## /)
+	const body = nextHeading === -1 ? after : after.slice(0, nextHeading)
+
 	const rows: MapRow[] = []
+	const unparseable: string[] = []
+	let blockRow = -1 // index within the current contiguous |-row block; -1 = not in a block
 	for (const line of body.split('\n')) {
 		const t = line.trim()
-		if (!t.startsWith('|')) continue
+		if (!t.startsWith('|')) {
+			blockRow = -1 // any non-table line ends the current block
+			continue
+		}
+		blockRow++
+		if (blockRow < 2) continue // this block's header (0) and dashed separator (1)
 		const cells = t
 			.split('|')
 			.slice(1, -1)
 			.map((c) => c.trim())
-		if (cells.length !== 3) continue
-		const scenario = cells[2] ?? ''
-		// Skip the header row and its separator; a data row names its scenario in backticks.
+		const scenario = cells.length === 3 ? (cells[2] ?? '') : ''
 		const m = scenario.match(/^`(.+)`$/)
-		if (m === null) continue
+		if (m === null) {
+			unparseable.push(t)
+			continue
+		}
 		rows.push({ edge: cells[0] ?? '', path: cells[1] ?? '', scenario: m[1] ?? '' })
 	}
-	return rows
+	return { rows, unparseable }
 }
 
 export function checkScenarioMap(slug: string, file: string, featureText: string, specText: string): string[] {
-	const rows = parseScenarioMap(specText)
-	if (rows === undefined) return []
+	const map = parseScenarioMap(specText)
+	if (map === undefined) return []
 	const tag = (msg: string) => `${slug}/${file}: ${msg}`
 	const v: string[] = []
 
+	for (const raw of map.unparseable) {
+		v.push(tag(`scenario-map data row has no backtick-wrapped Scenario cell — ${raw}`))
+	}
+
 	const titles = [...featureText.matchAll(/^\s*Scenario(?: Outline)?:\s*(.+?)\s*$/gm)].map((m) => m[1] ?? '')
-	const mapped = new Set(rows.map((r) => r.scenario))
+	const mapped = new Set(map.rows.map((r) => r.scenario))
 
 	for (const t of titles) {
 		if (!mapped.has(t)) v.push(tag(`scenario is not on the scenario map — "${t}"`))
 	}
 	const titleSet = new Set(titles)
-	for (const r of rows) {
+	for (const r of map.rows) {
 		if (!titleSet.has(r.scenario)) v.push(tag(`scenario map row names no such scenario — "${r.scenario}"`))
 	}
 	const seen = new Map<string, string>()
-	for (const r of rows) {
+	for (const r of map.rows) {
 		const key = `${r.edge}\u0000${r.path}`
 		const prior = seen.get(key)
 		if (prior !== undefined) {

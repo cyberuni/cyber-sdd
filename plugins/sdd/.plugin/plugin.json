@@ -5,6 +5,7 @@
 	"author": { "name": "unional" },
 	"homepage": "https://github.com/cyberuni/cyberplace",
 	"repository": "https://github.com/cyberuni/cyberplace",
+	"version": "0.0.0",
 	"skills": "./skills",
 	"agents": "./agents"
 }

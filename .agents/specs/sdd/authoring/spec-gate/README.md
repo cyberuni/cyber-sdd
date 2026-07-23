@@ -19,7 +19,7 @@ it does not produce.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite / `governance-preflight-missing` finding (`## The governance pre-flight check`) → advance nothing, report the blocker |
+| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite / `governance-preflight-missing` finding (`## The governance pre-flight check`) → advance nothing, report the blocker; a **spec-format conformance warning** (`## The spec-format conformance warning`) → **surfaced in the report, never a block on its own** |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
 | **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none); a `## Use Cases` data row whose `Scenario` cell is non-empty but carries no backtick reference → **fail closed**, the unparseable row reported never skipped; a touched `.feature`'s sibling `## Scenario map` binding checked — every scenario one map row, every row a real scenario, each `(edge, path class)` pair unique — with a data row whose `Scenario` cell is not backtick-wrapped **reported as an unparseable row, never skipped** (a spec carrying no `## Scenario map` section raises none) |
@@ -163,6 +163,35 @@ loading is silent context injection on most, and the one harness that models it 
 call does not observe a **spawned** producer's calls). A portable attested version would capture the
 load at a **repo-owned loader seam** rather than from harness telemetry — tracked as a follow-up, not
 built here.
+
+## The spec-format conformance warning
+
+The spec-judge already loads `sdd:spec-format-governance` — the bar for how a **behavioral**
+`spec.md` is structured (`../spec-format/README.md`): the required sections `## What`, `## Use
+Cases`, `## Control Flow` (the control-flow graph, **CFG**), and `## Scenario map`. Reading it
+backward, the judge also **reports when those sections are missing** — a **conformance warning**,
+distinct from the three lenses and from the deterministic structural checks:
+
+- **What it checks.** For each touched **behavioral** `spec.md`, whether the required spec-format
+  sections are present — **especially the three the corpus most often skips on a backfill: `## Use
+  Cases`, `## Control Flow` (CFG), and `## Scenario map`**. A missing section is named in the
+  warning; all present is a clean `pass`.
+- **Behavioral only.** A `reference` node carries `## Subject` (not the four sections) and a
+  `descriptive` index carries none, so **neither raises a conformance warning** — the check keys off
+  the node's `spec-type`, never a blind scan for the headings.
+- **A warning, never a block on its own.** It is **surfaced in the gate report** and does **not**
+  fail the gate, set `ALIGNED: false`, or halt the advance by itself — matching how the gate treats
+  every other judge-emitted structural finding (`CONTENT_GAPS`, an introduced-reference finding).
+  The judge's conformance read covers **all four** behavioral sections uniformly; in the normal gate
+  flow a missing `## Use Cases` is already caught by the **deterministic** `## Use Cases` fail-closed
+  above (`check-spec-state`), which runs **first** and gates that case before the judge is ever
+  spawned — so the warning's **load-bearing** contribution is the two sections that deterministic
+  check does **not** enforce, the **CFG and the scenario map**, with `## Use Cases` named too when
+  the judge does read a spec.md that lacks it.
+
+The judge carries the result on a `CONFORMANCE: { result: pass | warn, missing: [ … ] }` field,
+parallel to `PREFLIGHT` but **non-blocking**: a `warn` never short-circuits the lenses and never
+forbids the advance the way a failed preflight does.
 
 ## The suite-form pre-filter
 

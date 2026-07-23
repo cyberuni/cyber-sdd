@@ -164,6 +164,32 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the spec gate evaluates the diff
     Then it advances no status and reports the blocker
 
+  # ---- Spec-format conformance warning (spec-judge) ----
+
+  Scenario: a behavioral spec.md missing required spec-format sections warns on conformance
+    Given a touched behavioral spec.md that carries no Use Cases, no Control Flow, and no Scenario map section
+    When the spec-judge reads the spec.md for spec-format conformance
+    Then it emits a conformance result of warn
+    And it names Use Cases, Control Flow, and Scenario map as the missing sections
+
+  Scenario: a behavioral spec.md carrying every required spec-format section warns on nothing
+    Given a touched behavioral spec.md that carries its What, Use Cases, Control Flow, and Scenario map sections
+    When the spec-judge reads the spec.md for spec-format conformance
+    Then it emits a conformance result of pass
+    And it names no missing section
+
+  Scenario: the spec-format conformance warning never blocks the gate on its own
+    Given the spec-judge's verdict carries a conformance warning naming a missing spec-format section
+    When the spec gate evaluates the diff
+    Then the gate surfaces the conformance warning in its report
+    And the conformance warning alone does not block the gate
+
+  Scenario: a reference node raises no spec-format conformance warning
+    Given a touched reference node whose spec carries a Subject section and none of the behavioral spec-format sections
+    When the spec-judge reads the spec for spec-format conformance
+    Then it emits a conformance result of pass
+    And it raises no conformance warning for the missing behavioral sections
+
   # ---- Spec-type reconcile ----
 
   Scenario: a reference node carrying a .feature fails the gate closed

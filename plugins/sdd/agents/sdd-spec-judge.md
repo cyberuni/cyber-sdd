@@ -69,6 +69,32 @@ before reading spec.md for content:
 3. **A superset raises no finding.** A declared set covering every expected governance — with or
    without extras — passes; report `PREFLIGHT: { result: pass }` and proceed to the lenses below.
 
+## Spec-format conformance read — a non-blocking warning
+
+`sdd:spec-format-governance` (a fixed-universal you already loaded) sets the required sections of a
+**behavioral** `spec.md`: `## What`, `## Use Cases`, `## Control Flow` (the control-flow graph,
+**CFG**), and `## Scenario map`. Read that bar backward here: for each touched **behavioral**
+`spec.md`, check those sections are present and **emit a conformance warning naming any that are
+missing** — **especially `## Use Cases`, `## Control Flow` (CFG), and `## Scenario map`**, the three
+a backfill most often skips.
+
+- **Behavioral only — key off `spec-type`, never a blind heading scan.** A `reference` node carries
+  `## Subject` in place of the four sections and a `descriptive` index carries none, so **neither
+  raises a conformance warning**: check a node's `spec-type` first and read the required sections
+  only for a behavioral one. A reference/descriptive node's result is always `pass`.
+- **A warning, not a lens failure.** The conformance read is **distinct from the three lenses and
+  from the deterministic checks**. A missing section is a `warn`, surfaced for the gate to report —
+  it does **not** fail a lens, does **not** set `ALIGNED: false`, and does **not** short-circuit the
+  lenses the way a failed `PREFLIGHT` does. Grade the lenses regardless.
+- **The normal-flow overlap.** In the gate's normal flow a behavioral node missing `## Use Cases` is
+  already caught by the deterministic `check-spec-state` fail-closed **before you are spawned**, so
+  the warning's **load-bearing** contribution is the CFG and the scenario map — but name `## Use
+  Cases` too whenever you do read a behavioral `spec.md` that lacks it.
+
+Carry the result on the `CONFORMANCE` output field: `{ result: pass | warn, missing: [ <each
+required behavioral spec-format section absent from a touched behavioral spec.md> ] }`. All sections
+present (or a reference/descriptive node) ⇒ `{ result: pass, missing: [] }`.
+
 ## Split the work
 
 - **Optional deterministic step** — two NodeJS static-analysis CLIs for the mechanical checks
@@ -207,6 +233,7 @@ narrowing that fires **Clearance**, so never demand it of one.
 ```
 STATUS:            complete | needs-input | blocked
 PREFLIGHT:         { result: pass | fail, finding-kind: governance-preflight-missing | null, missing: [ ... ] }
+CONFORMANCE:       { result: pass | warn, missing: [ <required behavioral spec-format sections absent — e.g. Use Cases, Control Flow, Scenario map> ] }
 LENS:              { oracle: pass | fail, builder: pass | fail, architect: pass | fail }
 ALIGNED:           true | false        # false ⇒ which artifacts are out of sync
 SCENARIOS_PASSING: [ titles ]
@@ -218,7 +245,10 @@ OBSERVATIONS:      [ { owner: architect | strategist, note, evidence } ]
 ```
 
 `PREFLIGHT.result: fail` short-circuits everything below it — `LENS` is omitted, `ALIGNED` is `false`,
-and `BLOCKER` names the missing governances (see "Governance pre-flight check" above). Otherwise
-`ALIGNED` is `true` only when all three lenses pass and no open marker remains. The conductor
+and `BLOCKER` names the missing governances (see "Governance pre-flight check" above).
+`CONFORMANCE.result: warn` **short-circuits nothing** — the lenses still run, and it never on its own
+sets `ALIGNED: false` or blocks the advance (see "Spec-format conformance read" above); the gate
+surfaces it as a warning. Otherwise `ALIGNED` is `true` only when all three lenses pass and no open
+marker remains. The conductor
 synthesizes the gate verdict and the leash from this rollup — never advance with any lens failing,
 any open marker, a failed preflight, or `ALIGNED: false`.

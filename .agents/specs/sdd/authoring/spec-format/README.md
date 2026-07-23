@@ -18,7 +18,11 @@ through a suite of its own.
   is laid out for human review.
 - **Conformance** — verified by the **spec-judge** at the spec gate (it applies this bar backward),
   never by this artifact itself. A reference artifact carries this `## Subject` in place of a
-  `## Use Cases` section and a `.feature`.
+  `## Use Cases` section and a `.feature`. When a **behavioral** `spec.md` is missing a required
+  section — **especially `## Use Cases`, `## Control Flow` (the CFG), or `## Scenario map`** — the
+  judge emits a **conformance warning** naming the missing sections, surfaced in the gate report
+  (non-blocking; `../spec-gate/README.md`). A `reference` or `descriptive` node carries none of the
+  four behavioral sections and so raises no such warning.
 - **Boundary** — the `.feature` Gherkin/rubric form and scenario ordering belong to `suite-format`;
   spec *granularity* (when a spec grows too big → carve it into more folders/units) belongs to
   `../../design/spec-structure.md`. This bar owns only `spec.md` structure.

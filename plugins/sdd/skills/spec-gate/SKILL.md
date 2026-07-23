@@ -109,8 +109,17 @@ Resolve the **spec-judge** for each `artifact-types` (a plugin judge or the SDD 
 **{oracle, builder, architect}**. Then take the judge's **contract-sync verdict** (derived at this
 gate, never stored) and **derive the leash** (the conductor's autonomy bar,
 baked into `start-mission`) in-session. Collect the judge's `STATUS`,
-`ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, `OBSERVATIONS`, and the gate
-report. The judge is a **distinct cold actor** and never edits the artifact it grades.
+`ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, `CONFORMANCE`, `OBSERVATIONS`, and
+the gate report. The judge is a **distinct cold actor** and never edits the artifact it grades.
+
+**A `CONFORMANCE.result: warn` is surfaced, never a block.** When the judge reports a spec-format
+conformance warning (a touched **behavioral** `spec.md` missing a required section — especially
+`## Use Cases`, `## Control Flow` / CFG, or `## Scenario map`), **surface it in the gate report** and
+**do not** let it advance, block, or set `ALIGNED: false` on its own — it is a non-blocking finding
+like `CONTENT_GAPS` or an introduced-reference finding, distinct from the deterministic structural
+fail-closed checks and from a lens failure. The advance is governed by the lenses, the open markers,
+and the alignment verdict exactly as before; the conformance warning rides alongside them in the
+report.
 
 **Never advance** — by self-assertion or human verdict — with judge failures, any remaining open
 markers, or a misaligned suite. They fail the confidence dimension, so they forbid self-assertion
@@ -192,6 +201,9 @@ nothing, advances no status, renders no verdict**. Fixed sections:
 ## Report
 
 - PASS / FAIL per lens, relayed from the judge
+- **Spec-format conformance:** the judge's `CONFORMANCE` — on `warn`, a **warning** line naming each
+  missing required section (Use Cases / Control Flow / Scenario map) on the touched behavioral
+  `spec.md`; non-blocking, surfaced alongside the verdict, never a block on its own
 - `ALIGNED: true | false`; if false, which artifacts are out of sync
 - Open markers / failing scenarios still blocking, if any
 - The leash derivation and the effective leash for this gate

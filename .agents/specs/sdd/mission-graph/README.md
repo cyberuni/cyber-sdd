@@ -230,6 +230,53 @@ the list is checked both ways: that two projects whose barriers each wait on the
 should (never quietly lets everything through — a fence that holds nothing would pass the never-stuck
 check perfectly).
 
+### The fence decision, and where each scenario lands
+
+For every candidate that is already **RAW-satisfied, not quarantined, and not-yet-started**, the fold
+walks this decision before the collision rule (WAW-mutex) runs. Each leaf is one edge of the behavior;
+the scenario map underneath pins every edge to the frozen scenario(s) that fix it — the scenarios are
+**derived from this graph, one per edge**, not read back off the suite.
+
+```mermaid
+flowchart TD
+  C["candidate c<br/>(RAW-satisfied · not quarantined · open)"] --> Q1{"c is a barrier?"}
+  Q1 -- yes --> Q2{"another un-retired barrier<br/>of c's project is in-flight?"}
+  Q2 -- yes --> H1["HELD — the in-flight barrier fills the slot"]
+  Q2 -- no --> Q3{"a lower-id ready barrier<br/>of c's project exists?"}
+  Q3 -- yes --> H2["HELD — the lower-id barrier wins the slot"]
+  Q3 -- no --> P1["OFFER c → collision rule"]
+  Q1 -- no --> Q4{"c is exempt?<br/>(non-barrier in a live barrier's<br/>RAW-pred closure — graph-global)"}
+  Q4 -- yes --> P2["clause 1 — lifted from every fence → collision rule"]
+  Q4 -- no --> Q5{"c's project has a live barrier?"}
+  Q5 -- yes --> H3["clause 3 — HELD outright (touch-set irrelevant)"]
+  Q5 -- no --> P3["unfenced — → collision rule"]
+  P1 --> M["collision rule (WAW-mutex) + lowest-id tie-break → frontier"]
+  P2 --> M
+  P3 --> M
+```
+
+The write path is a second, smaller decision: on every append, fold-then-check refuses a barrier on an
+Operation (INV-1), a barrier that would wait on an Operation (INV-2), and a second in-flight barrier of
+a project (INV-3).
+
+| Decision edge | Frozen scenario(s) that fix it |
+|---|---|
+| store records the barrier marking + its project | `a node records that it is a barrier and the project it fences` · `a node appended without a barrier marking is a normal mission` |
+| barrier · another barrier of its project in-flight → **held** | `an open barrier is not offered while another barrier of its project is in-flight` |
+| barrier · a lower-id ready barrier exists → **held** | `two barriers fencing one project never both surface` · `a barrier predecessor does not stop its project's barrier surfacing` |
+| barrier · the lower-id one is quarantined/blocked → **not** held | `a quarantined lower-id barrier does not hold a ready barrier of its project` |
+| barrier · passes the cap → **offered** | `a barrier is not held by the fence of the project it fences` · `a barrier that RAW-precedes another project's barrier is still capped by its own project` |
+| non-barrier · exempt → **lifted** (clause 1, graph-global, before the fenced-project check) | `a RAW predecessor of an un-retired barrier is exempt from the fence` · `exemption reaches the whole RAW-predecessor closure but never lifts RAW satisfaction` · `a predecessor of one project's barrier is exempt from another project's fence` · `retiring a barrier withdraws the exemption it granted` |
+| non-barrier · not exempt · fenced project → **held** (clause 3, touch-set irrelevant) | `an un-retired barrier holds the other missions of the project it fences` · `a barrier with an empty declared touch-set still holds its project` · `an in-flight barrier still fences its project` · `a barrier fences the default project of a store that declares no projects` · `the fence holds a RAW-satisfied mission downstream of the exempt closure` |
+| non-barrier · not exempt · unfenced project → **offered** | `a barrier does not fence a project it does not fence` · `a graph holding no barrier is not fenced at all` · `a retired barrier no longer fences its project` · `the default project is a project of its own, not a wildcard` |
+| fence runs **before** the collision rule | `a fenced mission does not consume the WAW tie-break slot from an exempt one` |
+| a lifted mission is still subject to the collision rule | `exemption lifts the fence but not the WAW-mutex against in-flight work` · `two exempt missions that are WAW-paired never both surface` |
+| a barrier runs beside its project's *disjoint* exempt work (bounded residual) | `a barrier surfaces alongside its project's exempt work when their touch-sets are disjoint` · `a barrier waits behind its project's exempt sibling when their touch-sets collide` |
+| liveness — two mutually-waiting projects are never silently stuck | `two projects whose barriers each wait on the other's work still offer progress` |
+| write guard INV-1 — a barrier is a mission, never an Operation | `the write path rejects a barrier marking on a node that is not a mission` · `a later event cannot fold a barrier onto a node that is not a mission` |
+| write guard INV-2 — no barrier waits on an Operation (the silent wedge) | `the write path rejects marking a node a barrier when it already has a RAW predecessor that is an operation` · `the write path rejects a RAW edge from an operation into a barrier` |
+| write guard INV-3 — at most one barrier of a project is ever in-flight | `the write path rejects a claim that would put two barriers of one project in-flight at once` |
+
 ## `cycles` — "did the plan tie itself in a knot?"
 
 A knot means the plan is **wrong** — two Missions each waiting on the other, so *neither* can ever start.

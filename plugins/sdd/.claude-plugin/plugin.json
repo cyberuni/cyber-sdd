@@ -1,11 +1,10 @@
 {
-	"$schema": "https://raw.githubusercontent.com/cyberuni/marketplace/main/schema/claude/plugin.json",
+	"$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
 	"name": "sdd",
 	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 	"author": { "name": "unional" },
 	"homepage": "https://github.com/cyberuni/cyberplace",
 	"repository": "https://github.com/cyberuni/cyberplace",
 	"version": "0.0.0",
-	"skills": "./skills",
-	"agents": "./agents"
+	"skills": "./skills"
 }

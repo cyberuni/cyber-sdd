@@ -413,6 +413,19 @@ test('scenario: a quarantined lower-id barrier does not hold a ready barrier of 
 	assert.ok(ready(graph).some((f) => f.id === 'B2'))
 })
 
+test("scenario: a barrier that RAW-precedes another project's barrier is still capped by its own project", () => {
+	const graph = fold([
+		node('P-b1', { barrier: true, project: 'P' }), // lower id -> fills P's barrier slot
+		node('P-b2', { barrier: true, project: 'P' }), // higher id; RAW-precedes Q's barrier (would be exempt if barriers could be)
+		node('Q-b', { barrier: true, project: 'Q' }),
+		edge('RAW', 'P-b2', 'Q-b'), // P-b2 in Q-b's strict RAW-predecessor closure
+	])
+	const ids = ready(graph).map((f) => f.id)
+	// Barriers are never exempt: P-b2 stays subject to P's at-most-one cap and is held; only the lowest-id P barrier surfaces.
+	assert.ok(!ids.includes('P-b2'), 'P-b2 must be held by P’s cap, never lifted past it by exemption')
+	assert.ok(ids.includes('P-b1'), 'P-b1 (lower id) fills P’s barrier slot')
+})
+
 test("scenario: a barrier surfaces alongside its project's exempt work when their touch-sets are disjoint", () => {
 	const graph = fold([
 		node('Bq', { barrier: true, project: 'Q' }),
@@ -450,11 +463,13 @@ test("scenario: a barrier predecessor does not stop its project's barrier surfac
 test('scenario: a fenced mission does not consume the WAW tie-break slot from an exempt one', () => {
 	const graph = fold([
 		node('B', { barrier: true, project: 'P' }),
-		node('Held', { project: 'P', touchSet: ['t'] }), // held by the fence, sorts before Exempt
-		node('Exempt', { project: 'P', touchSet: ['t'] }), // exempt, WAW-collides with Held
-		edge('RAW', 'Exempt', 'B'),
+		node('AHeld', { project: 'P', touchSet: ['t'] }), // held by the fence; sorts strictly BEFORE ZExempt under compareIds
+		node('ZExempt', { project: 'P', touchSet: ['t'] }), // exempt (RAW pred of B), WAW-collides with AHeld
+		edge('RAW', 'ZExempt', 'B'),
 	])
-	assert.ok(ready(graph).some((f) => f.id === 'Exempt'))
+	// If the fence ran AFTER the WAW mutex, AHeld (lower id, non-exempt) would win the tie-break slot and
+	// starve ZExempt; the fence must run FIRST so AHeld is held before the mutex and ZExempt surfaces.
+	assert.ok(ready(graph).some((f) => f.id === 'ZExempt'))
 })
 
 test('scenario: exemption lifts the fence but not the WAW-mutex against in-flight work', () => {

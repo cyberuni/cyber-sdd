@@ -260,6 +260,11 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
     When ready is folded
     Then the RAW-satisfied barrier is in the frontier, because the at-most-one cap ranks only RAW-satisfied barriers and a quarantined one never fills the slot
 
+  Scenario: a barrier that RAW-precedes another project's barrier is still capped by its own project
+    Given two RAW-satisfied open barriers fencing one project and a barrier fencing a second project, where the higher-id barrier of the first project RAW-precedes the second project's barrier, with nothing in-flight
+    When ready is folded
+    Then the higher-id barrier of the first project is not in the frontier, because a barrier is never exempt and so is never lifted past its own project's at-most-one cap, even when another project's barrier is waiting on it
+
   Scenario: a barrier surfaces alongside its project's exempt work when their touch-sets are disjoint
     Given a RAW-satisfied open barrier and a RAW-satisfied non-barrier mission of the project it fences that is exempt by way of a barrier fencing another project, their declared touch-sets disjoint, with nothing in-flight
     When ready is folded

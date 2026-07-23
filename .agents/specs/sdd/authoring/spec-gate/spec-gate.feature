@@ -332,6 +332,61 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate runs the use-case-coverage check
     Then the check covers only the touched files, not the whole tree
 
+  Scenario: a Use Cases row whose Scenario cell holds no backtick reference fails the gate closed
+    Given a touched behavioral spec.md whose Use Cases table row carries a non-empty Scenario cell with no backtick-wrapped scenario reference
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+    And the check reports the unparseable row rather than silently skipping it
+
+  # ---- Scenario-map binding ----
+
+  Scenario: every feature scenario maps one-to-one to a scenario-map row
+    Given a touched .feature whose every scenario appears as exactly one row on the sibling spec's Scenario map
+    When the gate runs the scenario-map binding check
+    Then the binding check raises no violation
+
+  Scenario: a feature scenario named by no scenario-map row is a violation
+    Given a touched .feature carrying a scenario that no Scenario map row names
+    When the gate runs the scenario-map binding check
+    Then the check reports the scenario as not on the scenario map
+
+  Scenario: a scenario-map row naming no real scenario is a violation
+    Given a Scenario map row naming a scenario absent from the sibling .feature
+    When the gate runs the scenario-map binding check
+    Then the check reports the row as naming no such scenario
+
+  Scenario: a duplicate edge and path pair on the scenario map is a violation
+    Given two Scenario map rows sharing the same edge and path class
+    When the gate runs the scenario-map binding check
+    Then the check reports the duplicate pair
+
+  Scenario: a scenario-map data row whose Scenario cell is not backtick-wrapped is a violation
+    Given a Scenario map whose header and dashed separator are followed by a data row whose Scenario cell is present but not backtick-wrapped
+    When the gate runs the scenario-map binding check
+    Then the check reports the unparseable row rather than silently skipping it
+
+  Scenario: the scenario-map header and separator rows raise no unparseable-row violation
+    Given a Scenario map whose first row is the column header and whose second row is the dashed separator
+    When the gate runs the scenario-map binding check
+    Then neither the header row nor the separator row is reported as an unparseable row
+
+  Scenario: a spec carrying no scenario-map section is skipped by the binding check
+    Given a touched .feature whose sibling spec carries no Scenario map section
+    When the gate runs the scenario-map binding check
+    Then the binding check raises no violation for that file
+
+  Scenario: a backtick-quoted prose mention of the map heading is not a scenario-map section
+    Given a touched spec that names the scenario-map heading only inside prose or a backtick span, with no real heading line
+    When the gate runs the scenario-map binding check
+    Then the spec is treated as carrying no scenario-map section
+    And the binding check raises no violation for that file
+
+  Scenario: the scenario-map section ends at the next heading
+    Given a Scenario map section followed by another section whose table is not part of the map
+    When the gate runs the scenario-map binding check
+    Then a row in the following section is not read as a scenario-map row
+
   # ---- Structural edit-class classification (freeze integrity) ----
 
   Scenario: the edit class of a touched frozen file comes from a per-scenario structural diff, not a raw line diff

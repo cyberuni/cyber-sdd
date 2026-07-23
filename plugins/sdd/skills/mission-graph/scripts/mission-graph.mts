@@ -50,6 +50,12 @@ export interface NodeEvent {
 	origin?: string[]
 	/** Set only on an Operation node: the Mission that marks it "done enough to ship". */
 	capstone?: string
+	/** Which project the node belongs to. Absent -> the default project (a real project, the
+	 *  sentinel `DEFAULT_PROJECT` — NOT a wildcard). */
+	project?: string
+	/** Marks the node a barrier — a project-wide mission the fleet must rebase onto before fanning
+	 *  out again. Only a Mission may ever be a barrier (write-time INV-1). */
+	barrier?: boolean
 }
 
 export interface EdgeEvent {
@@ -89,6 +95,8 @@ export interface GraphNode {
 	briefPointer: string
 	origin: string[]
 	capstone?: string
+	project: string
+	barrier: boolean
 	/** The schema version stamped on the node's latest event (forward-compat placeholder — v1
 	 *  only exists today; a later version arrives on newer events and rides along unread). */
 	schemaVersion: number
@@ -105,6 +113,10 @@ export interface Graph {
 	edges: GraphEdge[]
 }
 
+/** The shared default project — a REAL project every project-less node belongs to together, not a
+ *  wildcard that matches every project. */
+export const DEFAULT_PROJECT = ''
+
 const NODE_DEFAULTS = {
 	kind: 'mission' as NodeKind,
 	status: 'open' as NodeStatus,
@@ -112,6 +124,8 @@ const NODE_DEFAULTS = {
 	hitlOrAfk: 'hitl' as HitlOrAfk,
 	modelTier: 'unspecified',
 	briefPointer: '',
+	project: DEFAULT_PROJECT,
+	barrier: false,
 }
 
 function edgeKey(kind: EdgeKind, from: string, to: string): string {
@@ -163,6 +177,8 @@ export function fold(events: readonly MissionGraphEvent[]): Graph {
 			briefPointer: typeof fields.briefPointer === 'string' ? fields.briefPointer : NODE_DEFAULTS.briefPointer,
 			origin: Array.isArray(fields.origin) ? [...(fields.origin as string[])] : [],
 			capstone: typeof fields.capstone === 'string' ? fields.capstone : undefined,
+			project: typeof fields.project === 'string' ? fields.project : NODE_DEFAULTS.project,
+			barrier: typeof fields.barrier === 'boolean' ? fields.barrier : NODE_DEFAULTS.barrier,
 			schemaVersion: typeof fields.v === 'number' ? fields.v : 1,
 		})
 	}
@@ -338,6 +354,93 @@ export function proposeEdge(
 			reason: `would close a RAW cycle (${proposed.to} already reaches ${proposed.from})`,
 		}
 	}
+	if (proposed.kind === 'RAW') {
+		const candidate: Graph = {
+			nodes: graph.nodes,
+			edges: [...graph.edges, { kind: proposed.kind, from: proposed.from, to: proposed.to }],
+		}
+		const violation = checkBarrierInvariants(candidate)
+		if (violation) return { accepted: false, reason: violation }
+	}
+	return { accepted: true }
+}
+
+// ── The barrier write-time guards — all fold-then-check: apply the proposed change to the
+//    already-folded graph, then reject if the resulting state violates an invariant. Re-run on
+//    EVERY append (node or edge) so no ordering of "mark barrier" vs "add the offending edge"
+//    can slip a violation through. ──
+
+/**
+ * checkBarrierInvariants — runs INV-1/INV-2/INV-3 over an already-simulated (post-append) graph.
+ * Returns the first violation's reason, or null when the graph is clean.
+ *   INV-1: only a Mission may carry a barrier marking.
+ *   INV-2: no un-retired barrier may have a RAW predecessor that is an Operation (an Operation
+ *     never retires, so such a barrier would fence its project forever, invisibly to `cycles`).
+ *   INV-3: no two un-retired barriers of one project may both be `claimed` at once.
+ */
+function checkBarrierInvariants(graph: Graph): string | null {
+	for (const n of graph.nodes.values()) {
+		if (n.barrier && n.kind !== 'mission') {
+			return 'INV-1: a barrier marking is only valid on a mission node'
+		}
+	}
+	for (const n of graph.nodes.values()) {
+		if (!n.barrier || n.status === 'retired') continue
+		for (const predId of rawPredecessors(graph, n.id)) {
+			if (graph.nodes.get(predId)?.kind === 'operation') {
+				return 'INV-2: an un-retired barrier may not have a RAW predecessor that is an operation'
+			}
+		}
+	}
+	const claimedBarriersByProject = new Map<string, number>()
+	for (const n of graph.nodes.values()) {
+		if (n.barrier && n.status === 'claimed') {
+			claimedBarriersByProject.set(n.project, (claimedBarriersByProject.get(n.project) ?? 0) + 1)
+		}
+	}
+	for (const count of claimedBarriersByProject.values()) {
+		if (count > 1) return 'INV-3: at most one barrier of a project may be claimed at once'
+	}
+	return null
+}
+
+/**
+ * applyNodeEventSimulated — shallow-merges one more node event onto an already-folded graph's
+ * existing node (or NODE_DEFAULTS when absent), mirroring `fold`'s per-field merge semantics
+ * without re-folding the whole event log — the guard only needs the ONE resulting node.
+ */
+function applyNodeEventSimulated(graph: Graph, event: NodeEvent): Graph {
+	const prev = graph.nodes.get(event.id)
+	const merged: GraphNode = {
+		id: event.id,
+		kind: event.kind ?? prev?.kind ?? NODE_DEFAULTS.kind,
+		status: event.status ?? prev?.status ?? NODE_DEFAULTS.status,
+		touchSet: event.touchSet ? [...event.touchSet] : (prev?.touchSet ?? []),
+		blast: event.blast ?? prev?.blast ?? NODE_DEFAULTS.blast,
+		hitlOrAfk: event.hitlOrAfk ?? prev?.hitlOrAfk ?? NODE_DEFAULTS.hitlOrAfk,
+		modelTier: event.modelTier ?? prev?.modelTier ?? NODE_DEFAULTS.modelTier,
+		briefPointer: event.briefPointer ?? prev?.briefPointer ?? NODE_DEFAULTS.briefPointer,
+		origin: event.origin ? [...event.origin] : (prev?.origin ?? []),
+		capstone: event.capstone ?? prev?.capstone,
+		project: event.project ?? prev?.project ?? NODE_DEFAULTS.project,
+		barrier: event.barrier ?? prev?.barrier ?? NODE_DEFAULTS.barrier,
+		schemaVersion: typeof event.v === 'number' ? event.v : (prev?.schemaVersion ?? 1),
+	}
+	const nodes = new Map(graph.nodes)
+	nodes.set(event.id, merged)
+	return { nodes, edges: graph.edges }
+}
+
+/**
+ * proposeNode — the write-time guard for a node event: simulates the merge onto the already-
+ * folded graph, then rejects (INV-1/INV-2/INV-3) if the resulting state is invalid. Fold-then-
+ * check, exactly like `proposeEdge` — so marking a node a barrier AFTER an Operation RAW edge
+ * already exists is caught exactly like the reverse order.
+ */
+export function proposeNode(graph: Graph, event: NodeEvent): EdgeDecision {
+	const candidate = applyNodeEventSimulated(graph, event)
+	const violation = checkBarrierInvariants(candidate)
+	if (violation) return { accepted: false, reason: violation }
 	return { accepted: true }
 }
 
@@ -442,6 +545,59 @@ function whyReady(graph: Graph, id: string): string {
 	return `RAW-satisfied: ${[...preds].sort(compareIds).join(', ')} retired`
 }
 
+/** An un-retired barrier — open or claimed — is "live": it grants exemption (clause 1), fences its
+ *  project (clause 3), and occupies its project's at-most-one slot (clause 2). */
+function isLiveBarrier(n: GraphNode): boolean {
+	return n.barrier && n.status !== 'retired'
+}
+
+/**
+ * fenceExempt — clause 1's exempt set: every NON-barrier mission in the STRICT RAW-predecessor
+ * closure of any live (un-retired) barrier, graph-global (not scoped to the barrier's own
+ * project — an acyclic two-project deadlock needs the exemption to cross project lines). Barriers
+ * are NEVER exempt, so a barrier that is itself a RAW predecessor of another project's barrier
+ * cannot use exemption to dodge its own project's at-most-one cap (clause 2).
+ */
+function fenceExempt(graph: Graph): Set<string> {
+	const exempt = new Set<string>()
+	for (const b of graph.nodes.values()) {
+		if (!isLiveBarrier(b)) continue
+		for (const id of rawClosure(graph, b.id)) {
+			if (id === b.id) continue // strict — rawClosure is reflexive
+			const m = graph.nodes.get(id)
+			if (m && !m.barrier) exempt.add(id)
+		}
+	}
+	return exempt
+}
+
+/**
+ * barrierHeldByCap — clause 2, the at-most-one-barrier-per-project offer cap, evaluated over
+ * UN-RETIRED barriers of `candidate`'s project (open ∪ claimed, never just the open `candidates`
+ * set — a claimed barrier still fills the slot even though it's no longer itself a candidate).
+ * Holds `candidate` when either another un-retired barrier of the project is already claimed, or a
+ * lower-id OPEN RAW-satisfied barrier of the project exists (a quarantined or RAW-blocked one never
+ * fills the slot).
+ */
+function barrierHeldByCap(
+	graph: Graph,
+	quarantined: ReadonlySet<string>,
+	liveBarriersOfProject: readonly GraphNode[],
+	candidate: GraphNode,
+): boolean {
+	const claimedElsewhere = liveBarriersOfProject.some((b) => b.id !== candidate.id && b.status === 'claimed')
+	if (claimedElsewhere) return true
+	const lowerIdOpenRawSatisfied = liveBarriersOfProject.some(
+		(b) =>
+			b.id !== candidate.id &&
+			b.status === 'open' &&
+			!quarantined.has(b.id) &&
+			isRawSatisfied(graph, quarantined, b.id) &&
+			compareIds(b.id, candidate.id) < 0,
+	)
+	return lowerIdOpenRawSatisfied
+}
+
 /**
  * ready — reads the graph without changing it and returns every Mission that is both RAW-satisfied
  * (every RAW predecessor retired, transitively — realized here as each direct predecessor's own
@@ -450,17 +606,43 @@ function whyReady(graph: Graph, id: string): string {
  * (claimed) mission's is held; (2) among the remaining RAW-satisfied candidates, an intersecting
  * pair never both surface — the pinned lowest-id tie-break (compareIds) admits one and holds the
  * rest, guaranteeing the frontier never contains a WAW pair. A cycle-quarantined mission (and
- * anything depending on it) is excluded regardless of its recorded status. Deterministic: same
- * graph in, same frontier in the same order out. Read-only: never mutates `graph`.
+ * anything depending on it) is excluded regardless of its recorded status.
+ *
+ * Before the WAW-mutex, the RAW-satisfied non-quarantined candidates pass through the barrier
+ * fence (fold-time, never a stored edge — see the .feature "ready — the barrier fence" block):
+ * clause 1 lifts a non-barrier in any live barrier's strict RAW-predecessor closure from every
+ * fence (graph-global); clause 2 caps each project to at most one offered barrier (counting
+ * open+claimed, so an in-flight barrier still fills the slot); clause 3 holds every other
+ * non-barrier, non-exempt candidate of a fenced project outright, regardless of touch-set (an
+ * empty-touch-set barrier still fences — the fence never delegates to the WAW-mutex).
+ *
+ * Deterministic: same graph in, same frontier in the same order out. Read-only: never mutates
+ * `graph`.
  */
 export function ready(graph: Graph): FrontierEntry[] {
 	const quarantined = quarantinedIds(graph)
 	const missions = [...graph.nodes.values()].filter((n) => n.kind === 'mission')
 	const inFlightTouchSets = missions.filter((n) => n.status === 'claimed').map((n) => n.touchSet)
 
-	const candidates = missions.filter(
+	const rawSatisfiedOpen = missions.filter(
 		(n) => n.status === 'open' && !quarantined.has(n.id) && isRawSatisfied(graph, quarantined, n.id),
 	)
+
+	// ── The barrier fence (fold-time, applied to the RAW-satisfied candidates before the WAW-mutex) ──
+	const liveBarriers = missions.filter(isLiveBarrier)
+	const exempt = fenceExempt(graph)
+	const fencedProjects = new Set(liveBarriers.map((b) => b.project))
+
+	const candidates = rawSatisfiedOpen.filter((c) => {
+		if (c.barrier) {
+			const ofProject = liveBarriers.filter((b) => b.project === c.project)
+			return !barrierHeldByCap(graph, quarantined, ofProject, c)
+		}
+		if (exempt.has(c.id)) return true // clause 1 — lifted from every fence, graph-global
+		if (fencedProjects.has(c.project)) return false // clause 3 — held outright, regardless of touch-set
+		return true
+	})
+
 	const notHeldByInFlight = candidates.filter((n) => !inFlightTouchSets.some((t) => intersects(t, n.touchSet)))
 
 	// Trigger 2: the pinned lowest-id tie-break. Processing in ascending id order and admitting a
@@ -657,6 +839,15 @@ export function appendEdgeChecked(
 	return decision
 }
 
+/** Append a node event through the write-time barrier guards (INV-1/INV-2/INV-3); only appends
+ *  when the guard accepts. */
+export function appendNodeChecked(root: string, event: NodeEvent): EdgeDecision {
+	const graph = fold(readEvents(root))
+	const decision = proposeNode(graph, event)
+	if (decision.accepted) appendEvent(root, event)
+	return decision
+}
+
 // ── Render (TOON — the token-efficient tabular form the repo's other sdd engines emit) ──
 
 function toonQuote(v: string): string {
@@ -736,7 +927,14 @@ function runAppendNode(rest: string[], root: string): number {
 	if (briefPointer !== undefined) event.briefPointer = briefPointer
 	const capstone = flag(rest, '--capstone')
 	if (capstone !== undefined) event.capstone = capstone
-	appendEvent(root, event)
+	const project = flag(rest, '--project')
+	if (project !== undefined) event.project = project
+	if (hasFlag(rest, '--barrier')) event.barrier = true
+	const decision = appendNodeChecked(root, event)
+	if (!decision.accepted) {
+		process.stderr.write(`mission-graph append node: rejected — ${decision.reason}\n`)
+		return 1
+	}
 	process.stdout.write(`mission-graph: appended node ${id}\n`)
 	return 0
 }

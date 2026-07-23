@@ -44,20 +44,25 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
     When the node is offered to the write path
     Then the write-time guard rejects it, because only a mission is ever scheduled and a barrier that could never surface would fence its project forever
 
-  Scenario: the write path rejects a barrier whose declared touch-set does not cover the project it fences
-    Given a barrier node whose declared touch-set does not cover every mission of the project it fences
-    When the node is offered to the write path
-    Then the write-time guard rejects it, because the barrier's declared touch-set is what holds its project's work back while it runs
-
   Scenario: a later event cannot fold a barrier onto a node that is not a mission
     Given a folded mission barrier and a later event re-appending that same id as an operation
     When the later event is offered to the write path
     Then the write-time guard rejects it, because the guard checks the node the events fold to rather than each event alone
 
-  Scenario: a later event cannot fold a barrier's declared touch-set below the project it fences
-    Given a folded barrier and a later event re-appending it with a touch-set that no longer covers the project it fences
+  Scenario: the write path rejects marking a node a barrier when it already has a RAW predecessor that is an operation
+    Given a mission that already carries a RAW edge into it from an operation, and a later event marking that mission a barrier
     When the later event is offered to the write path
-    Then the write-time guard rejects it, because the guard checks the node the events fold to rather than each event alone
+    Then the write-time guard rejects it, because an operation is never scheduled to retire, so the barrier would never be RAW-satisfied and would fence its project forever under a clean cycles report
+
+  Scenario: the write path rejects a RAW edge from an operation into a barrier
+    Given a barrier and a later event adding a RAW edge into it from an operation
+    When the edge is offered to the write path
+    Then the write-time guard rejects it, because the guard checks the node the events fold to, so either append order that would leave a barrier permanently un-RAW-satisfied is refused
+
+  Scenario: the write path rejects a claim that would put two barriers of one project in-flight at once
+    Given a claimed barrier fencing a project and a later event claiming a second barrier fencing that same project
+    When the later claim is offered to the write path
+    Then the write-time guard rejects it, because at most one barrier of a project is ever active and ready never offers a second while one is claimed
 
   Scenario: the fold tolerates a node carrying a later additive schema field
     Given a store holding a v1 node and a node carrying an unknown later-version field
@@ -142,29 +147,43 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
   # rule, never a stored edge (see `WAW and WAR relationships are not stored as edges` and
   # `ready derives with no side effects`).
   #
-  # The WRITE path guarantees a barrier's declared touch-set covers the project it fences. That one
-  # invariant lets the frozen WAW-mutex do all the CONCURRENCY work, so the fold rule below only
-  # decides ORDER — it never restates the mutex:
-  #   - a barrier intersects every mission of its project, so none runs alongside it;
-  #   - two barriers of one project necessarily intersect, so at most one is ever offered.
-  #
-  # The fold is two clauses over a snapshot:
-  #   1. EXEMPT — a mission in the RAW-predecessor closure of ANY un-retired barrier of ANY project
-  #      is exempt from every fence. Graph-global.
-  #   2. HOLD   — every other mission of a fenced project is held.
-  # Barriers are never fenced at all: RAW satisfaction and the WAW-mutex decide them alone.
+  # The fence is EXPLICIT — it does NOT lean on the WAW-mutex or on any touch-set the barrier
+  # declares. (A barrier may declare an empty touch-set; `intersects` is false on an empty set, so a
+  # mutex-delegated fence would let a project's work run beside such a barrier. The fold holds it
+  # outright instead.) Three clauses over a snapshot, applied before the WAW-mutex:
+  #   1. EXEMPT — a NON-barrier mission in the strict RAW-predecessor closure of ANY un-retired
+  #      barrier of ANY project is lifted from every fence. Graph-global. Barriers are NEVER exempt.
+  #   2. AT-MOST-ONE-BARRIER — among the barriers of a fenced project, at most one is offered: a
+  #      claimed barrier of the project fills the slot (every open barrier of the project is held);
+  #      otherwise the lowest-id RAW-satisfied open barrier is offered and the rest held. The cap
+  #      counts open AND claimed barriers, so it is never blind to an in-flight barrier.
+  #   3. HOLD — every OTHER mission of a fenced project (non-barrier, non-exempt) is held outright.
   #
   # Clause 1 is graph-global rather than per-project because RAW closure is not project-scoped: a
   # project-scoped exemption lets one project's barrier wait on a mission another project's fence
-  # holds, and symmetrically — an acyclic deadlock the `cycles` view cannot see.
+  # holds, and symmetrically — an acyclic deadlock the `cycles` view cannot see. Barriers are excluded
+  # from EXEMPT so a barrier that RAW-precedes another project's barrier cannot escape its own
+  # project's at-most-one cap (that escape surfaces two barriers of one project at once).
   # Exemption lifts the FENCE only. RAW satisfaction, cycle quarantine and the WAW-mutex still apply
   # to an exempt mission, so "exempt" never means "surfaces".
+  # A barrier is itself never held by clause 3; only its at-most-one cap and its own RAW satisfaction
+  # and the WAW-mutex decide it. So a barrier may surface alongside its project's EXEMPT work when
+  # their touch-sets are disjoint — a bounded, accepted residual: that work is let through only
+  # because another project's barrier is waiting on it and must run.
+  # The write path guarantees no un-retired barrier is RAW-behind an operation (an operation never
+  # retires, so such a barrier would fence its project forever under a clean `cycles`), and that no
+  # two barriers of one project are ever claimed at once.
   # "Un-retired" covers open and claimed alike.
 
   Scenario: an un-retired barrier holds the other missions of the project it fences
     Given an un-retired barrier and a RAW-satisfied mission in the project it fences that is in no un-retired barrier's RAW-predecessor closure and whose id sorts before the barrier's
     When ready is folded
     Then that mission is not in the frontier
+
+  Scenario: a barrier with an empty declared touch-set still holds its project
+    Given an un-retired barrier whose declared touch-set is empty and a RAW-satisfied mission in the project it fences that is in no un-retired barrier's RAW-predecessor closure, with nothing in-flight
+    When ready is folded
+    Then that mission is not in the frontier, because the fence holds the project outright rather than through the barrier's touch-set, which an empty set could never do
 
   Scenario: a barrier does not fence a project it does not fence
     Given an un-retired barrier fencing one project and a RAW-satisfied mission in a different project that is in no un-retired barrier's RAW-predecessor closure
@@ -227,14 +246,29 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
     Then the barrier is in the frontier, because the fence decides the order of a project's other work and never holds the barrier itself
 
   Scenario: two barriers fencing one project never both surface
-    Given two RAW-satisfied un-retired barriers fencing one project, with nothing in-flight
+    Given two RAW-satisfied open barriers fencing one project, each with an empty declared touch-set, with nothing in-flight
     When ready is folded
-    Then at most one of them is in the frontier, because each covers the project it fences so the two necessarily collide
+    Then at most one of them is in the frontier, because the at-most-one-barrier cap offers only the lowest-id barrier of a project regardless of touch-sets
 
-  Scenario: a barrier does not surface alongside the work of the project it fences
-    Given a RAW-satisfied un-retired barrier and a RAW-satisfied mission of the project it fences that is exempt by way of a barrier fencing another project, with nothing in-flight
+  Scenario: an open barrier is not offered while another barrier of its project is in-flight
+    Given a claimed barrier fencing a project and a second RAW-satisfied open barrier fencing that same project, both with empty declared touch-sets
     When ready is folded
-    Then at most one of them is in the frontier, because the barrier covers the project it fences
+    Then the open barrier is not in the frontier, because the claimed barrier already fills the project's single barrier slot and the cap counts in-flight barriers, not only open ones
+
+  Scenario: a quarantined lower-id barrier does not hold a ready barrier of its project
+    Given two open barriers fencing one project where the lower-id barrier sits on a RAW cycle and the higher-id barrier is RAW-satisfied, with nothing in-flight
+    When ready is folded
+    Then the RAW-satisfied barrier is in the frontier, because the at-most-one cap ranks only RAW-satisfied barriers and a quarantined one never fills the slot
+
+  Scenario: a barrier surfaces alongside its project's exempt work when their touch-sets are disjoint
+    Given a RAW-satisfied open barrier and a RAW-satisfied non-barrier mission of the project it fences that is exempt by way of a barrier fencing another project, their declared touch-sets disjoint, with nothing in-flight
+    When ready is folded
+    Then both are in the frontier, because exemption lifts the fence for the sibling, the barrier is never held by clause 3, and disjoint touch-sets leave the WAW-mutex nothing to hold
+
+  Scenario: a barrier waits behind its project's exempt sibling when their touch-sets collide
+    Given a RAW-satisfied open barrier whose id sorts after a RAW-satisfied non-barrier mission of the project it fences that is exempt by way of a barrier fencing another project, their declared touch-sets intersecting, with nothing in-flight
+    When ready is folded
+    Then the exempt sibling is in the frontier and the barrier is not, because the WAW-mutex admits the lower-id sibling and holds the barrier until it retires — a bounded, transient residual, not the fence
 
   Scenario: a barrier predecessor does not stop its project's barrier surfacing
     Given two un-retired barriers fencing one project, with a RAW edge from the second to the first, the second having no RAW predecessor and nothing in-flight

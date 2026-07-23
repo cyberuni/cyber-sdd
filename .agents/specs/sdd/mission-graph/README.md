@@ -171,26 +171,38 @@ Only a **Mission** can be a barrier. Marking a group (an Operation) as one is re
 written, because a group is never handed out as work — so it could never finish, and its fence would
 never lift.
 
-**A barrier must say what it touches, and it must cover its whole project.** That is checked when it
-is written, and it is the load-bearing rule here. A barrier's touch-set is what makes the ordinary
-**collision rule** hold the project's work back while the barrier runs — so the fence itself never has
-to. Both checks are made against the entry the records **add up to**, not each record on its own,
-because the list is append-only: two records that each look fine can still add up to a barrier on a
-group, or to a barrier that quietly stops covering its project.
-
-With that guaranteed, reading the list needs only two rules:
+**The fence is explicit — it does not lean on what the barrier touches.** A barrier may even declare
+that it changes *nothing*, and the fence still holds its project. (An earlier design made the barrier's
+touch-set cover the whole project and let the ordinary **collision rule** do the holding; that quietly
+fails, because the collision rule sees an empty touch-set as clashing with nothing, so it would let the
+project's work run right beside such a barrier.) So the fence holds the project **outright**, as its own
+rule, in three parts read off the list each time:
 
 1. **Let through the jobs a barrier is waiting on.** If a barrier cannot start until some other job
-   finishes, that job is let through **every** fence — including a fence in a *different* project.
-2. **Hold everything else in that project.** A project with **no** barrier is untouched by any of
-   this. Work that names no project sits in the default project, which is a **real** project: a
-   barrier there fences the other no-project work and nothing else — it is not a wildcard.
+   finishes, that job is let through **every** fence — including a fence in a *different* project. Only
+   *ordinary* jobs are let through this way: a **barrier is never let through another barrier's fence**
+   (see below).
+2. **Hand out barriers one at a time, per project.** Of a project's barriers, at most one is ever
+   offered: if one is already **in-flight**, it holds the project's single barrier slot and every other
+   barrier of that project waits; otherwise the lowest-id ready barrier is offered and the rest wait.
+   This is decided in the reading itself — it does **not** depend on what the barriers touch, so two
+   barriers that happen to change different things still never both go out.
+3. **Hold everything else in that project.** Every other job of a fenced project waits. A project with
+   **no** barrier is untouched by any of this. Work that names no project sits in the default project,
+   which is a **real** project: a barrier there fences the other no-project work and nothing else — it
+   is not a wildcard.
 
-**Barriers themselves are never held by these rules.** They do not need to be. Because a barrier
-covers its own project, the collision rule already does two jobs for free: nothing of that project
-runs beside it, and two barriers of one project can never both be handed out at once. Earlier drafts
-wrote those out as extra scheduling rules; that turned out to be the same mutex written twice, and the
-duplication is what made them contradict each other.
+**A barrier is never held by its own project's fence.** Rule 3 holds the project's *other* work; the
+barrier itself is decided only by rule 2, by its own dependencies, and by the collision rule. One
+consequence is deliberate and bounded: a barrier **may** go out beside a job of its own project that was
+*let through* by rule 1 (because some **other** project's barrier is waiting on that job and it must
+run) — when the two change different things. That job has to run regardless, so letting the barrier run
+too is the honest answer, not a leak.
+
+**Why a barrier is never let through (rule 1's carve-out).** If a barrier that is a prerequisite of a
+*different* project's barrier were let through, it would skip its own project's one-at-a-time rule — and
+its project's other barrier could go out at the same time. Two barriers of one project, side by side —
+the exact failure the one-at-a-time rule exists to prevent. So only ordinary jobs are ever let through.
 
 **Why rule 1 reaches across projects.** If it only let through jobs in the barrier's *own* project,
 then project A's barrier could sit waiting on a job in project B that B's *own* fence is holding back
@@ -200,6 +212,14 @@ to one project, the let-through rule must not be either.
 **These rules decide ORDER, not what may run side by side.** Being let through only lifts the *fence*.
 A let-through job still has to clear everything else — its own dependencies, the knot check, and the
 collision rule — so a let-through job that clashes with started work still waits its turn.
+
+**Two things the write path guarantees, so the reading stays safe.** Because the list is append-only, a
+would-be barrier is checked against the entry the records **add up to**, not each record alone: (a) a
+barrier is refused on a group (an Operation), since a group is never handed out and its fence would never
+lift; (b) a barrier is refused if it would wait on a **group** — a group never finishes, so the barrier
+would fence its project *forever* while the knot-check still reads clean; and (c) a second barrier of a
+project is refused the in-flight mark while one is already in-flight, so "one at a time" holds even for
+work already started, not only for what is offered.
 
 **Why this is worth being careful about.** The fence is worked out **while reading** the list, not
 stored as a "wait for" link (the same choice the collision rule makes). That keeps the reading

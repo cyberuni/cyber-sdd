@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 // Static .feature analysis for SDD specs — Gherkin validity, boolean form, and
 // scenario ordering/sectioning checks. Pure functions are exported for node:test;
-// running the file directly drives the CLI. No dependencies — plain node strips
-// the types.
+// running the file directly drives the CLI.
 
 import { type Dirent, readdirSync, readFileSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
+import { validateFeatures } from 'gherkin-cli'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -24,6 +24,9 @@ export interface ParsedScenario {
 	isOutline: boolean
 	placeholders: string[]
 	examples: { header: string[]; rows: string[][] } | null
+	// Step DocStrings (`"""..."""` blocks), in encounter order. A @rubric scenario's
+	// rubric YAML lives in one of these — the permissive scan otherwise skips them.
+	docStrings: string[]
 }
 
 // ─── hedge words that signal probabilistic / rubric assertions ────────────────
@@ -50,9 +53,29 @@ export function parseSuite(text: string): ParsedSuite {
 	let current: ParsedScenario | null = null
 	// Tags on the line(s) above a Scenario apply to the scenario that follows.
 	let pendingTags: string[] = []
+	// A step DocString (`"""` ... `"""`) attaches to the step immediately above it —
+	// content is captured verbatim (not keyword-parsed) until the closing `"""`.
+	let inDocString = false
+	let docStringLines: string[] = []
 
 	for (const raw of lines) {
 		const line = raw.trimStart()
+
+		if (inDocString) {
+			if (line.startsWith('"""')) {
+				inDocString = false
+				if (current) current.docStrings.push(docStringLines.join('\n'))
+				docStringLines = []
+			} else {
+				docStringLines.push(raw)
+			}
+			continue
+		}
+
+		if (current && line.startsWith('"""')) {
+			inDocString = true
+			continue
+		}
 
 		if (/^Feature:/i.test(line)) {
 			hasFeatureLine = true
@@ -75,7 +98,7 @@ export function parseSuite(text: string): ParsedSuite {
 			if (current) scenarios.push(current)
 			const isOutline = /^Scenario Outline:/i.test(line)
 			const name = line.replace(/^Scenario(?: Outline)?:/i, '').trim()
-			current = { name, steps: [], tags: pendingTags, isOutline, placeholders: [], examples: null }
+			current = { name, steps: [], tags: pendingTags, isOutline, placeholders: [], examples: null, docStrings: [] }
 			pendingTags = []
 			continue
 		}
@@ -109,10 +132,83 @@ export function parseSuite(text: string): ParsedSuite {
 	return { hasFeatureLine, scenarios, sectionCommentCount }
 }
 
+// ─── Gherkin validity — the pinned parser, not the permissive scan below ───────
+
+export interface ParseError {
+	line: number
+	message: string
+}
+
+// Maps the pinned parser's per-file report to its errors (empty array when it parses) so callers
+// can look a path up directly.
+export function runGherkinValidate(paths: string[]): Map<string, ParseError[]> {
+	const { files } = validateFeatures(paths)
+	const out = new Map<string, ParseError[]>()
+	for (const f of files) {
+		out.set(
+			f.file,
+			f.errors.map((e) => ({ line: e.line, message: e.message })),
+		)
+	}
+	return out
+}
+
+// ─── dead rubric — a rubric whose attainable maximum can't reach its threshold ─
+
+export interface DeadRubric {
+	dimensionsTotal: number
+	threshold: number
+}
+
+// Hand-rolled line scan (no YAML dependency) over a rubric DocString of the shape:
+//   dimensions:
+//     - name: correctness
+//       max: 3
+//   threshold: 4
+// Sums every `max:` value (at any indent, so it doesn't depend on YAML nesting rules)
+// and reads the (last) `threshold:` value. Returns the violation only when the sum is
+// STRICTLY less than the threshold — sum === threshold is a legal all-or-nothing bar
+// and must never be reported. Missing/non-numeric threshold or no `max:` lines found
+// return null: malformed rubric form is not this check's job to police.
+export function findDeadRubric(docString: string): DeadRubric | null {
+	let dimensionsTotal = 0
+	let sawMax = false
+	let threshold: number | null = null
+
+	for (const raw of docString.split('\n')) {
+		const line = raw.trim()
+		const maxMatch = /^max:\s*(-?\d+(?:\.\d+)?)\s*$/.exec(line)
+		if (maxMatch) {
+			sawMax = true
+			dimensionsTotal += Number(maxMatch[1])
+			continue
+		}
+		const thresholdMatch = /^threshold:\s*(-?\d+(?:\.\d+)?)\s*$/.exec(line)
+		if (thresholdMatch) {
+			threshold = Number(thresholdMatch[1])
+		}
+	}
+
+	if (!sawMax || threshold === null) return null
+	if (dimensionsTotal >= threshold) return null
+	return { dimensionsTotal, threshold }
+}
+
 // ─── checks ──────────────────────────────────────────────────────────────────
 
-export function checkSuite(slug: string, file: string, text: string): string[] {
+// `parseErrors` carries the pinned parser's verdict for this file (empty when it parses, or
+// omitted by 3-arg callers that predate this guard). A parse failure REPLACES every other
+// finding below rather than joining them: every other check reads the file through the
+// permissive `parseSuite` scan, so on an unparseable file those findings come from a partial
+// view and are not evidence — reporting them as "the form" would still be the fail-open this
+// guard exists to close, just with company.
+export function checkSuite(slug: string, file: string, text: string, parseErrors: ParseError[] = []): string[] {
 	const tag = (msg: string) => `${slug}/${file}: ${msg}`
+
+	if (parseErrors.length > 0) {
+		return parseErrors.map((e) => tag(`cannot parse as Gherkin at line ${e.line} — ${e.message}`))
+	}
+
 	const v: string[] = []
 	const ref = parseSuite(text)
 
@@ -128,6 +224,22 @@ export function checkSuite(slug: string, file: string, text: string): string[] {
 		// threshold lingo is the contract, not a leaked grade. Skip the rubric-noun
 		// ban for it (adverb hedges still apply — a rubric is not an excuse to hedge).
 		const isRubric = scenario.tags.includes('@rubric')
+
+		// Dead rubric: sum(dimension max) < threshold means no subject can ever reach
+		// the cut — the rubric grades nothing. Only checked for @rubric scenarios;
+		// sum === threshold is a legal strict (all-or-nothing) bar, not a violation.
+		if (isRubric) {
+			for (const docString of scenario.docStrings) {
+				const dead = findDeadRubric(docString)
+				if (dead) {
+					v.push(
+						tag(
+							`${label}: rubric cannot be passed — dimensions total ${dead.dimensionsTotal}, threshold ${dead.threshold}`,
+						),
+					)
+				}
+			}
+		}
 
 		// Must have at least one step
 		if (steps.length === 0) {
@@ -224,19 +336,157 @@ export function discoverSuiteDirs(root: string): { slug: string; files: string[]
 // --files mode the caller passes an explicit path list and only those files are
 // checked (tree discovery is skipped). An unreadable path fails closed — the
 // gate must never silently pass a file it could not read.
-export function checkFilePaths(paths: string[]): string[] {
+//
+// `validate` is injected so the unit tests exercise this wiring with a fake parser (fast,
+// offline) while `main` wires the real pinned in-process parser. The parser is the SOLE source of
+// Gherkin validity — if it cannot be run at all, every readable path fails closed rather than
+// falling back to the permissive scan; if it runs but omits a path from its report, that path
+// fails closed too rather than defaulting to "parses fine".
+export function checkFilePaths(paths: string[], validate: typeof runGherkinValidate = runGherkinValidate): string[] {
 	const violations: string[] = []
+	const readable: { path: string; text: string }[] = []
 	for (const p of paths) {
-		let text: string
 		try {
-			text = readFileSync(p, 'utf8')
+			readable.push({ path: p, text: readFileSync(p, 'utf8') })
 		} catch {
 			violations.push(`${p}: cannot read file`)
+		}
+	}
+	if (readable.length === 0) return violations
+
+	let parseErrorsByPath: Map<string, ParseError[]>
+	try {
+		parseErrorsByPath = validate(readable.map((r) => r.path))
+	} catch (err) {
+		for (const { path } of readable) {
+			violations.push(`${path}: cannot verify Gherkin validity — ${(err as Error).message}`)
+		}
+		return violations
+	}
+
+	for (const { path: p, text } of readable) {
+		const errs = parseErrorsByPath.get(p)
+		if (errs === undefined) {
+			// Defaulting a missing report to "parses fine" is the exact fail-open bug being fixed —
+			// the parser said nothing about this file, so it cannot be classified as valid.
+			violations.push(`${p}: the Gherkin parser returned no result for this file`)
 			continue
 		}
-		violations.push(...checkSuite(dirname(p), basename(p), text))
+		violations.push(...checkSuite(dirname(p), basename(p), text, errs))
+		if (errs.length === 0) {
+			const specPath = join(dirname(p), 'README.md')
+			let specText: string | undefined
+			try {
+				specText = readFileSync(specPath, 'utf8')
+			} catch {
+				specText = undefined
+			}
+			if (specText !== undefined) {
+				violations.push(...checkScenarioMap(dirname(p), basename(p), text, specText))
+			}
+		}
 	}
 	return violations
+}
+
+// ─── scenario-map binding ─────────────────────────────────────────────────────
+// The sibling spec's `## Scenario map` binds each scenario to a (path class, edge) pair
+// (`| Edge | Path (Given) | Scenario |`). Form only: this checks the BINDING is complete and
+// non-duplicated. Whether the edges cover the control-flow graph (CFG) is judged, not linted — that
+// needs the drawn CFG's semantics, and a green check clears no coverage question.
+//
+// A spec carrying no `## Scenario map` section is SKIPPED, not failed: the map is the rebuilt node
+// format, and a node still on the older shape is not in violation of a section it does not claim.
+export interface MapRow {
+	edge: string
+	path: string
+	scenario: string
+}
+
+export interface ScenarioMap {
+	rows: MapRow[]
+	// Trimmed text of each DATA row whose Scenario cell is not backtick-wrapped — a
+	// present-but-unparseable row, surfaced as a violation rather than silently dropped.
+	unparseable: string[]
+}
+
+// Parse the `## Scenario map` section's tables. The map is grouped by use case, so the section
+// holds one or more markdown tables — a `###` sub-header or a blank line breaks a table block.
+// Within each contiguous `|`-row block the first row is the column header and the second the dashed
+// separator (recognized POSITIONALLY); every row after those is a DATA row whose Scenario cell
+// (column 3) must be backtick-wrapped. A data row that is not is collected in `unparseable`: the
+// backtick match discriminates a data row's cell, it is never the sole signal that a row exists —
+// conflating the two silently dropped a fully-authored-but-un-backticked map (the fail-open closed
+// here). The section is bounded at the next `## ` heading so a following section's table (e.g.
+// `## References`) is not misread as map rows.
+export function parseScenarioMap(specText: string): ScenarioMap | undefined {
+	// Anchor to a real `## Scenario map` HEADING line — not a mid-line or backtick-quoted prose
+	// mention of the string (a spec that documents the map must not be misread as having one).
+	const heading = /^## Scenario map[ \t]*$/m.exec(specText)
+	if (heading === null) return undefined
+	const after = specText.slice(heading.index + heading[0].length)
+	const nextHeading = after.search(/\n## /)
+	const body = nextHeading === -1 ? after : after.slice(0, nextHeading)
+
+	const rows: MapRow[] = []
+	const unparseable: string[] = []
+	let blockRow = -1 // index within the current contiguous |-row block; -1 = not in a block
+	for (const line of body.split('\n')) {
+		const t = line.trim()
+		if (!t.startsWith('|')) {
+			blockRow = -1 // any non-table line ends the current block
+			continue
+		}
+		blockRow++
+		if (blockRow < 2) continue // this block's header (0) and dashed separator (1)
+		const cells = t
+			.split('|')
+			.slice(1, -1)
+			.map((c) => c.trim())
+		const scenario = cells.length === 3 ? (cells[2] ?? '') : ''
+		const m = scenario.match(/^`(.+)`$/)
+		if (m === null) {
+			unparseable.push(t)
+			continue
+		}
+		rows.push({ edge: cells[0] ?? '', path: cells[1] ?? '', scenario: m[1] ?? '' })
+	}
+	return { rows, unparseable }
+}
+
+export function checkScenarioMap(slug: string, file: string, featureText: string, specText: string): string[] {
+	const map = parseScenarioMap(specText)
+	if (map === undefined) return []
+	const tag = (msg: string) => `${slug}/${file}: ${msg}`
+	const v: string[] = []
+
+	for (const raw of map.unparseable) {
+		v.push(tag(`scenario-map data row has no backtick-wrapped Scenario cell — ${raw}`))
+	}
+
+	const titles = [...featureText.matchAll(/^\s*Scenario(?: Outline)?:\s*(.+?)\s*$/gm)].map((m) => m[1] ?? '')
+	const mapped = new Set(map.rows.map((r) => r.scenario))
+
+	for (const t of titles) {
+		if (!mapped.has(t)) v.push(tag(`scenario is not on the scenario map — "${t}"`))
+	}
+	const titleSet = new Set(titles)
+	for (const r of map.rows) {
+		if (!titleSet.has(r.scenario)) v.push(tag(`scenario map row names no such scenario — "${r.scenario}"`))
+	}
+	const seen = new Map<string, string>()
+	for (const r of map.rows) {
+		const key = `${r.edge}\u0000${r.path}`
+		const prior = seen.get(key)
+		if (prior !== undefined) {
+			v.push(
+				tag(
+					`duplicate map pair — edge "${r.edge}" and path "${r.path}" cover both "${prior}" and "${r.scenario}"; a repeated edge needs a DIFFERENT path class`,
+				),
+			)
+		} else seen.set(key, r.scenario)
+	}
+	return v
 }
 
 // Collect the path list following --files, stopping at the next flag.
@@ -263,13 +513,14 @@ export function main(argv: string[]): number {
 		violations = checkFilePaths(paths)
 	} else {
 		const root = argv.includes('--root') ? argv[argv.indexOf('--root') + 1] : '.agents/specs'
+		// The tree-wide sweep must fail closed on a parse failure exactly like --files — route the
+		// full discovered path list through the same validated path rather than the bare parseSuite
+		// scan, so an unparseable suite anywhere in the corpus fails the sweep closed.
+		const paths: string[] = []
 		for (const { slug, files } of discoverSuiteDirs(root)) {
-			const slugDir = join(root, slug)
-			for (const file of files) {
-				const text = readFileSync(join(slugDir, file), 'utf8')
-				violations = violations.concat(checkSuite(slug, file, text))
-			}
+			for (const file of files) paths.push(join(root, slug, file))
 		}
+		violations = checkFilePaths(paths)
 	}
 
 	if (violations.length) {

@@ -2,7 +2,7 @@
 Feature: The impl-producer procedure — build the implementation + its verification
   Unit suite for the impl-producer-governance procedure (the deliver-phase builder). Producer
   behaviors only — no gate verdict (that is ../impl-judge/ and ../conductor/), no contract
-  edits. Cross-capability e2e scenarios live in ../../acceptance/.
+  edits. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Modes — explore (draft) vs implement (frozen) ----
 
@@ -114,6 +114,38 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     When the impl-producer authors that verification
     Then the rubric or threshold never appears in the feature
     And it lives in the verification only
+
+  # ---- Test levels — acceptance boundary + inner-rule units ----
+
+  Scenario: the acceptance verification is authored at the inner boundary
+    Given a deterministic domain whose only external dependency sits behind an interface seam
+    When the impl-producer authors the verification for a frozen scenario
+    Then it exercises the behavior against a substitute at that interface seam
+    And it does not require reaching the real external dependency or running the shipped artifact end to end
+
+  Scenario: inner-rule combinatorics are covered by unit tests the producer authors
+    Given a deterministic domain whose inner rules form a combinatorial space the acceptance feature does not enumerate
+    When the impl-producer builds
+    Then it authors unit tests that cover that inner-rule combinatorial space
+    And that coverage is separate from the one verification per frozen scenario
+
+  Scenario: the inner-rule unit tests are drawn from the rules, not the frozen scenarios
+    Given the impl-producer choosing which inner-rule cases to cover
+    When it authors the inner-rule unit tests
+    Then the cases are derived from the inner rules the implementation composes
+    And they are not produced by enumerating the frozen acceptance scenarios
+
+  Scenario: each inner rule has a single home in the implementation
+    Given an inner rule that several operations depend on
+    When the impl-producer builds the implementation
+    Then the rule is implemented in one place the operations share
+    And it is not duplicated across the operation handlers
+
+  Scenario: a domain with no deterministic inner layer gets no manufactured inner-rule unit tests
+    Given a domain whose behavior is a graded non-deterministic subject with no deterministic inner layer
+    When the impl-producer builds
+    Then it does not manufacture inner-rule unit tests for a deterministic layer that does not exist
+    And it authors only the one verification per frozen scenario at the boundary
 
   # ---- Boundaries ----
 

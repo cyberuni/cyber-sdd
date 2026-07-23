@@ -2,7 +2,7 @@
 Feature: run — score the current config against its frozen .feature suite
   Unit suite for the run skill: resolve the frozen .feature suite and its eval.md, judge every
   scenario, and report. Scoring a single case is aced-case-judge's contract; diff and roll-up are
-  compare/report. Cross-capability e2e scenarios live in ../../acceptance/.
+  compare/report. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 
@@ -65,6 +65,36 @@ Feature: run — score the current config against its frozen .feature suite
     When run executes a scenario tagged with that layer
     Then it skips that layer for the scenario
 
+  Scenario: an untagged scenario is treated as a behavior scenario
+    Given a scenario with no layer tag
+    When run determines its layer
+    Then it treats the scenario as a behavior scenario
+
+  Scenario: the judge receives the scenario location, not its body
+    Given a resolved suite and a scenario to score
+    When run invokes the case judge
+    Then it passes the .feature path and the scenario name and never the steps, the Then, or the rubric
+
+  Scenario: a scenario's own inline pass bar overrides the default
+    Given a scenario declaring its own inline pass bar and an eval.md default pass bar
+    When run scores that scenario
+    Then it judges against the scenario's own inline pass bar rather than the eval.md default
+
+  Scenario: a trigger outline is judged once per Examples row
+    Given a trigger Scenario Outline with several Examples rows
+    When run executes that scenario
+    Then it invokes the judge once for each Examples row
+
+  Scenario: the trigger layer is scored over its configured run count
+    Given an eval.md whose trigger run policy sets more than one run
+    When run executes a trigger scenario
+    Then it judges the scenario over that many runs rather than once
+
+  Scenario: a behavior scenario is judged once unless the caller sets a run count
+    Given a behavior scenario and no caller-set run count
+    When run executes that scenario
+    Then it judges the scenario once rather than over the trigger run count
+
   Scenario: a failing scenario does not stop the run
     Given a frozen .feature where an early scenario fails
     When run executes the suite
@@ -77,6 +107,11 @@ Feature: run — score the current config against its frozen .feature suite
     When run reports the outcome
     Then it states the overall pass rate and the per-layer pass rate
 
+  Scenario: totals are reported against their own maximum, not as comparable raw numbers
+    Given scenarios whose maxima differ
+    When run reports the outcome
+    Then it reports each total against its own maximum rather than averaging the raw totals into one number
+
   Scenario: failing cases are listed worst-first
     Given a completed run with at least one failing case
     When run reports the outcome
@@ -86,6 +121,11 @@ Feature: run — score the current config against its frozen .feature suite
     Given a completed run
     When run finishes
     Then it writes a timestamped results record under the suite's results directory
+
+  Scenario: run records for a target are kept under the shared aced results directory
+    Given completed runs for more than one target
+    When run persists each record
+    Then each timestamped record is written under the shared aced results directory, keyed by its target
 
   Scenario: an all-passing run points to widening coverage
     Given a run in which every case passes

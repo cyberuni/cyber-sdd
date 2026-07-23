@@ -48,6 +48,19 @@ The procedure runs in two **modes** — the freeze is the boundary; every scenar
   place it under a `spec:<node>` describe namespace and give it the **verbatim scenario name** as its
   title (or an `@id:<slug>` leaf), so the test report binds back to the frozen scenario and the
   impl-judge can consume the bridge instead of re-verifying it by hand.
+- **Two axes — the frozen contract, and the level you verify it at.** The frozen `.feature` is the
+  **acceptance** contract and says nothing about level; choosing the **verification level** per
+  scenario is yours (`sdd:builder-impl-governance`): as **high as it doesn't hurt**, recorded with
+  its reason. The inner boundary — substituting the external dependency at its interface seam rather
+  than running the real service — is the honest substitute where a higher level is infeasible or
+  unsafe, not the default the contract prescribes.
+  Where the domain has a **deterministic inner layer**, the rule combinatorics the acceptance suite
+  deliberately does not enumerate (truth tables, matrices, boundary semantics) are covered by **unit
+  tests you author** — their cases drawn from the inner rules, never by enumerating the frozen
+  scenarios. Develop both levels **together with** the implementation and **refactor** until each
+  inner rule has a single shared home (no rule copy-pasted across handlers)
+  (`../../authoring/suite-format/README.md`). A domain with **no** deterministic inner layer has no
+  such offload (agent-config is judged through `@rubric` instead).
 - **The producer's own test run is a pre-filter, not a verdict.** The builder iterates to green on
   its own checks to learn it is done; that passing run **gates entry to judging, never the gate
   outcome**. The impl-judge decides. A scenario left without a verification is the gap the cold

@@ -11,13 +11,16 @@
 // Examples row.
 //
 // Operations:
-//   --feature <path>    frozen .feature to verify (required)
-//   --node <path>       the spec node to bind against, e.g. cyberlegion/identity (required)
-//   --config <toml>     .agents/sdd/scenario-bridge.toml (default, resolved under --root)
-//   --root <dir>        project root sources/paths resolve against (default cwd)
-//   --report <xml>      bypass --config: a single ad-hoc junit report (resolved under --root)
-//   --run               execute each source's `command` before reading its report
-//   --format toon|json  machine output (default: a readable text map)
+//   --feature <path>       frozen .feature to verify (required)
+//   --node <path>          the spec node to bind against, e.g. cyberlegion/identity (required)
+//   --config <toml>        .agents/sdd/scenario-bridge.toml (default, resolved under --root)
+//   --root <dir>           bridge/report root: --config's default, --report, and every source's
+//                          reportPath resolve here (default cwd)
+//   --feature-root <dir>   where --feature resolves; defaults to --root when omitted (monorepo:
+//                          specs at repo root, bridge/report under the project's own root)
+//   --report <xml>         bypass --config: a single ad-hoc junit report (resolved under --root)
+//   --run                  execute each source's `command` before reading its report
+//   --format toon|json     machine output (default: a readable text map)
 //
 // Config `.agents/sdd/scenario-bridge.toml` is an array-of-tables of sources:
 //   [[source]]
@@ -32,11 +35,12 @@
 // feature scenario KEY: UNBOUND if no result; PASS if ≥1 result and none fail; FAIL if any fails.
 // EXTRA = bound result keys matching no feature scenario key (diagnostic, not a failure).
 //
-// Pure functions are exported for node:test; running the file directly drives the CLI. No deps.
+// Pure functions are exported for node:test; running the file directly drives the CLI.
 
-import { execFileSync, execSync } from 'node:child_process'
+import { execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
+import { parseFeatures } from 'gherkin-cli'
 
 // Resolves a path argument against `--root`: relative paths join beneath root (which defaults to the
 // current directory); an absolute path is used verbatim, never double-prefixed under root.
@@ -87,6 +91,9 @@ export interface GherkinScenario {
 	tags: string[]
 }
 
+// Narrower than gherkin-cli's real `ParseResult` — this function reads only `files[].scenarios`,
+// so its signature stays structural rather than demanding fields (summary, per-file counts) it
+// never touches; a real `ParseResult` value satisfies this shape and passes straight through.
 interface GherkinParseOutput {
 	files: { scenarios: GherkinScenario[] }[]
 }
@@ -112,14 +119,11 @@ export function scenarioKeysFromParse(parsed: GherkinParseOutput): ScenarioKey[]
 	return out
 }
 
-export function getScenarioKeys(root: string, featurePath: string): ScenarioKey[] {
-	const abs = underRoot(root, featurePath)
-	const stdout = execFileSync('npx', ['gherkin-cli@0.0.1', 'parse', abs, '--format', 'json'], {
-		encoding: 'utf8',
-		cwd: root,
-	})
-	const parsed = JSON.parse(stdout) as GherkinParseOutput
-	return scenarioKeysFromParse(parsed)
+// `featureRoot` resolves `featurePath` (defaults to `root` at the call site when the CLI omits
+// `--feature-root` — see main()).
+export function getScenarioKeys(root: string, featurePath: string, featureRoot: string = root): ScenarioKey[] {
+	const abs = underRoot(featureRoot, featurePath)
+	return scenarioKeysFromParse(parseFeatures([abs]))
 }
 
 // ── JUnit parsing (hand-rolled, no xml dep) ──
@@ -354,6 +358,7 @@ export function exitCode(report: FoldReport): number {
 
 export function main(argv: string[]): number {
 	const root = flag(argv, '--root') ?? '.'
+	const featureRoot = flag(argv, '--feature-root') ?? root
 	const feature = flag(argv, '--feature')
 	const node = flag(argv, '--node')
 	const format = flag(argv, '--format') ?? 'text'
@@ -362,7 +367,7 @@ export function main(argv: string[]): number {
 
 	if (!feature || !node) {
 		w(
-			'usage: verify-scenarios --feature <path> --node <path> [--config <toml>] [--root <dir>] [--report <xml>] [--run] [--format toon|json]',
+			'usage: verify-scenarios --feature <path> --node <path> [--config <toml>] [--root <dir>] [--feature-root <dir>] [--report <xml>] [--run] [--format toon|json]',
 		)
 		return 1
 	}
@@ -370,7 +375,7 @@ export function main(argv: string[]): number {
 	const sources = resolveSources(argv, root)
 
 	const results = sources.flatMap((s) => runSource(s, root, run))
-	const scenarioKeys = getScenarioKeys(root, feature)
+	const scenarioKeys = getScenarioKeys(root, feature, featureRoot)
 	const report = foldResults(scenarioKeys, results, node)
 
 	w(renderReport(report, format))

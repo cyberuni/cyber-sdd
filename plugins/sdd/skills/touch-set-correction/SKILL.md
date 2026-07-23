@@ -23,7 +23,7 @@ and lines them up against the guess:
 
 It **composes three tools**, never reimplementing any of them: `git diff --name-status` (the
 changed files), [`resolve-governances`](../resolve-governances/SKILL.md) (each file's artifact-type,
-best-effort — `unknown` when it doesn't resolve), and the pinned `gherkin-cli@0.0.1 diff` (a touched
+best-effort — `unknown` when it doesn't resolve), and the pinned `gherkin-cli@0.0.2 diff` (a touched
 `.feature`'s changed scenario names — the same tool `classify-edit-class` uses).
 
 Work-area recovery is **capability-first**: a changed file under a declared project root maps to

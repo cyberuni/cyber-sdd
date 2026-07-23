@@ -3,7 +3,7 @@ Feature: The resolve-tracking procedure — resolve an artifact's tracking signa
   Unit suite for the resolve-tracking tool. Derivation behaviors only — the four-step
   resolution order, the optional .sddignore override file (gitignore syntax, last-match-wins),
   and the fixed kind-default location conventions. Cross-capability e2e scenarios live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ── Step 1 — explicit override wins first ──
 

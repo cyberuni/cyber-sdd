@@ -6,7 +6,7 @@ Feature: list-skills — discover and summarize installed skills
   an optional glob-style name filter, and reports each surviving skill's name, foundIn source,
   description, and package-managed status. Read-only — validating or repairing skill content is
   repair-private-skills; maintaining the per-model runner family is manage-model-runners.
-  Cross-capability e2e scenarios live in ../../acceptance/.
+  Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Reach ----
 
@@ -41,6 +41,11 @@ Feature: list-skills — discover and summarize installed skills
     Given a directory under a scanned source with no SKILL.md file
     When list-skills scans that source
     Then the directory is not reported as a skill
+
+  Scenario: a source directory that does not exist contributes no skills and raises no error
+    Given one of the four fixed sources has no directory on disk
+    When list-skills scans all sources
+    Then that source contributes no skills and the scan completes without error, reporting the skills found in the sources that do exist
 
   # ---- dedupe ----
 

@@ -2,7 +2,7 @@
 Feature: report — project-wide eval health
   Unit suite for the report skill: discover every eval suite, classify each one's health, and
   render a project dashboard with attention flags. Single-suite scoring is run; two-version diff
-  is compare. Cross-capability e2e scenarios live in ../../acceptance/.
+  is compare. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 
@@ -77,7 +77,32 @@ Feature: report — project-wide eval health
     When report renders the dashboard
     Then it shows each suite's pass rate, mean, and trend and lists the suites needing attention
 
+  Scenario: the mean column normalizes each scenario rather than averaging raw totals
+    Given a suite whose scenarios declare different rubric maxima
+    When report computes the suite's mean
+    Then it means each scenario's total over its own maximum and never averages the raw totals
+
+  Scenario: a suite with no rubric scenarios shows no mean
+    Given a suite whose scenarios are all boolean or trigger with no rubric maximum
+    When report computes the suite's mean
+    Then it renders the mean as not-applicable rather than a raw score
+
+  Scenario: a request for one suite's detail lists its failing cases
+    Given the user asks for the detail on a specific suite
+    When report renders that suite
+    Then it lists every failing case with its per-dimension scores and what failed
+
+  Scenario: the needs-attention entry names the suite's worst failing case
+    Given a suite that needs attention with at least one failing case
+    When report renders the needs-attention list
+    Then it names the worst failing case and its total against its own maximum
+
   Scenario: each suite is given a matching next action
     Given suites across several health classes
     When report suggests next actions
     Then it points a critical or trending-down suite at improve, a no-data suite at run, and an all-healthy project at add
+
+  Scenario: a degraded suite is pointed at run for detail
+    Given a suite classified degraded
+    When report suggests next actions
+    Then it points the degraded suite at run for details before improve

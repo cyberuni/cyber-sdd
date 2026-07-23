@@ -45,7 +45,7 @@ surfaced as an **architectural smell** to consider splitting (surfacing only —
 
 It **composes** the sibling [`touch-set-correction`](../touch-set-correction/README.md)'s
 `collectChangedFiles` (which itself composes `resolve-governances` for artifact-type and the pinned
-`gherkin-cli@0.0.1 diff` for changed scenarios — never a reimplemented differ) and adds one finer source,
+`gherkin-cli@0.0.2 diff` for changed scenarios — never a reimplemented differ) and adds one finer source,
 `git diff -U0` line-hunks (the region rung).
 
 Pure derivations (`classify`, `classifyFile`, `hunksDisjoint`, `isFeature`, `isCode`, `confidenceRank`,

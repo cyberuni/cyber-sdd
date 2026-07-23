@@ -1,9 +1,20 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { test } from 'node:test'
-import { checkFilePaths, checkSuite, discoverSuiteDirs, main, parseFilesArg, parseSuite } from './check-suite.mts'
+import {
+	checkFilePaths,
+	checkScenarioMap,
+	checkSuite,
+	discoverSuiteDirs,
+	findDeadRubric,
+	main,
+	type ParseError,
+	parseFilesArg,
+	parseSuite,
+	runGherkinValidate,
+} from './check-suite.mts'
 
 const CLEAN_SUITE = [
 	'Feature: clean',
@@ -229,6 +240,171 @@ test('a @rubric tag does not excuse a probabilistic hedge', () => {
 	].join('\n')
 	const v = checkSuite('slug', 'x.feature', text)
 	assert.ok(v.some((m) => /non-boolean hedge/.test(m)))
+})
+
+// ─── findDeadRubric — vacuous rubric (sum(max) < threshold) ────────────────
+
+test('findDeadRubric flags sum(max) < threshold', () => {
+	const doc = [
+		'dimensions:',
+		'  - name: correctness',
+		'    max: 3',
+		'  - name: completeness',
+		'    max: 2',
+		'threshold: 6',
+	].join('\n')
+	assert.deepEqual(findDeadRubric(doc), { dimensionsTotal: 5, threshold: 6 })
+})
+
+test('findDeadRubric does NOT flag sum(max) === threshold (legal strict bar)', () => {
+	const doc = [
+		'dimensions:',
+		'  - name: correctness',
+		'    max: 3',
+		'  - name: completeness',
+		'    max: 2',
+		'threshold: 5',
+	].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric does not flag sum(max) > threshold', () => {
+	const doc = [
+		'dimensions:',
+		'  - name: correctness',
+		'    max: 3',
+		'  - name: completeness',
+		'    max: 2',
+		'threshold: 4',
+	].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric returns null on a missing threshold', () => {
+	const doc = ['dimensions:', '  - name: correctness', '    max: 3'].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric returns null on no max: lines (no dimensions found)', () => {
+	const doc = ['threshold: 4', 'notes: nothing here'].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+test('findDeadRubric returns null on non-numeric threshold, no crash', () => {
+	const doc = ['dimensions:', '  - name: correctness', '    max: 3', 'threshold: many'].join('\n')
+	assert.equal(findDeadRubric(doc), null)
+})
+
+// ─── checkSuite — dead rubric wiring (@rubric scenarios only) ─────────────
+
+test('a @rubric scenario whose rubric sums below threshold is a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: some name',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 6',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(
+		v.some((m) => /rubric cannot be passed — dimensions total 5, threshold 6/.test(m)),
+		v.join('\n'),
+	)
+})
+
+test('a @rubric scenario whose rubric sums exactly to threshold is NOT a violation (control)', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: some name',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 5',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)), v.join('\n'))
+})
+
+test('a @rubric scenario whose rubric sums above threshold is not a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: some name',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 4',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)))
+})
+
+test('a non-@rubric scenario with similar-looking DocString text is not a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  Scenario: some name without the tag',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'      """',
+		'      dimensions:',
+		'        - name: correctness',
+		'          max: 3',
+		'        - name: completeness',
+		'          max: 2',
+		'      threshold: 6',
+		'      """',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)))
+})
+
+test('a @rubric scenario with a malformed/absent rubric DocString does not crash and is not a violation', () => {
+	const text = [
+		'Feature: rubric',
+		'',
+		'  @rubric',
+		'  Scenario: no docstring at all',
+		'    Given the agent produces output',
+		'    When the output is evaluated',
+		'    Then the judge evaluates the scenario against the rubric',
+		'    And the rubric score is at least the threshold',
+	].join('\n')
+	assert.doesNotThrow(() => checkSuite('slug', 'x.feature', text))
+	const v = checkSuite('slug', 'x.feature', text)
+	assert.ok(!v.some((m) => /rubric cannot be passed/.test(m)))
 })
 
 // ─── checkSuite — meta-spec exemptions (a spec about rubrics is not a rubric) ──
@@ -519,4 +695,330 @@ test('main --files returns 0 on a clean file and 1 on a violation', () => {
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}
+})
+
+// ─── Gherkin parse guard — fail closed, never fail open ───────────────────────
+// A soft-wrapped step has no Gherkin continuation form, so the pinned parser rejects it at the
+// wrapped line — an EPARSE the permissive `parseSuite` scan cannot see (it just reads the wrapped
+// remainder as a bare, ignored line). The fixture below also carries a "sometimes" hedge on its
+// Then step, so a permissive read would ADDITIONALLY trip the boolean-form check — proving the
+// parse violation REPLACES that finding rather than joining it.
+// Unparseable to the pinned parser, yet FLAWLESS to the permissive scan: the wrapped remainder
+// starts with no step keyword, so parseSuite simply skips it and sees Feature + Given + Then. No
+// hedge, no rubric, no missing step. A check that fails this file closed can only be reading the
+// real parser's verdict — nothing else here is failable, which is what makes it a valid probe.
+const UNPARSEABLE_ONLY = [
+	'@frozen',
+	'Feature: broken',
+	'',
+	'  Scenario: wrapped step',
+	'    Given a step that wraps',
+	'      onto the next line',
+	'    Then it holds',
+].join('\n')
+
+const UNPARSEABLE_AND_HEDGED = [
+	'@frozen',
+	'Feature: broken',
+	'',
+	'  Scenario: wrapped step',
+	'    Given a step that wraps',
+	'      onto the next line',
+	'    Then it sometimes holds',
+].join('\n')
+
+test('runGherkinValidate maps each reported file to its errors', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-validate-map-'))
+	try {
+		const a = join(root, 'a.feature')
+		const b = join(root, 'b.feature')
+		writeFileSync(a, UNPARSEABLE_AND_HEDGED)
+		writeFileSync(b, CLEAN_SUITE)
+		const map = runGherkinValidate([a, b])
+		assert.equal(map.get(a)?.length, 1)
+		assert.equal(map.get(a)?.[0].line, 6)
+		assert.deepEqual(map.get(b), [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkSuite fails closed and reports the line when parse errors are passed', () => {
+	const parseErrors: ParseError[] = [{ line: 6, message: 'expected: #EOF, got bad token' }]
+	const v = checkSuite('slug', 'broken.feature', UNPARSEABLE_AND_HEDGED, parseErrors)
+	assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+})
+
+test('a parse failure replaces the form findings rather than joining them', () => {
+	const parseErrors: ParseError[] = [{ line: 6, message: 'expected: #EOF, got bad token' }]
+	const v = checkSuite('slug', 'broken.feature', UNPARSEABLE_AND_HEDGED, parseErrors)
+	assert.equal(v.length, 1, 'only the parse violation is reported')
+	assert.ok(!v.some((m) => /non-boolean hedge/.test(m)), 'the hedge finding from the permissive scan is absent')
+})
+
+test('a file that parses (no parse errors passed) raises no parse violation', () => {
+	const v = checkSuite('greet', 'greet.feature', CLEAN_SUITE, [])
+	assert.ok(!v.some((m) => /cannot parse as Gherkin/.test(m)))
+})
+
+test('checkFilePaths fails closed on a file the injected validator reports a parse error for, replacing form findings', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const broken = join(root, 'broken.feature')
+		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
+		const fakeValidate = () => new Map([[broken, [{ line: 6, message: 'expected: #EOF, got bad token' }]]])
+		const v = checkFilePaths([broken], fakeValidate)
+		assert.equal(v.length, 1)
+		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+		assert.ok(!v.some((m) => /non-boolean hedge/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths raises no parse violation for a file the injected validator reports clean', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const clean = join(root, 'clean.feature')
+		writeFileSync(clean, CLEAN_SUITE)
+		const fakeValidate = () => new Map([[clean, []]])
+		const v = checkFilePaths([clean], fakeValidate)
+		assert.deepEqual(v, [])
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths fails closed when the validator omits a file from its report', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const clean = join(root, 'clean.feature')
+		writeFileSync(clean, CLEAN_SUITE)
+		// The validator's map has no entry at all for `clean` — defaulting the missing entry to
+		// "parses fine" (an empty array) is the exact fail-open bug this guard closes.
+		const fakeValidate = () => new Map<string, ParseError[]>()
+		const v = checkFilePaths([clean], fakeValidate)
+		assert.ok(v.some((m) => /returned no result for this file/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('checkFilePaths fails every readable path closed when the validator throws', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-'))
+	try {
+		const a = join(root, 'a.feature')
+		const b = join(root, 'b.feature')
+		writeFileSync(a, CLEAN_SUITE)
+		writeFileSync(b, CLEAN_SUITE)
+		const fakeValidate = () => {
+			throw new Error('parser genuinely could not run')
+		}
+		const v = checkFilePaths([a, b], fakeValidate)
+		assert.equal(v.length, 2)
+		assert.ok(v.every((m) => /cannot verify Gherkin validity/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ── integration: the real pinned npx boundary (one per engine, proves the wiring) ──
+
+test('runGherkinValidate against the real pinned parser reports a real EPARSE for an unparseable file', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-parse-real-'))
+	try {
+		const broken = join(root, 'broken.feature')
+		writeFileSync(broken, UNPARSEABLE_AND_HEDGED)
+		const v = checkFilePaths([broken])
+		assert.equal(v.length, 1, 'the real parser replaces the form findings with the one parse violation')
+		assert.ok(v.some((m) => /cannot parse as Gherkin at line 6/.test(m)))
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// ─── the tree-wide --root sweep ───────────────────────────────────────────────
+// These drive main(['--root', ...]) rather than checkFilePaths, because the sweep's contract is a
+// claim about the COMPOSITION (discoverSuiteDirs feeding the validated path), not about
+// checkFilePaths in isolation. Reverting main's --root branch to a bare parseSuite scan leaves
+// every checkFilePaths-level test green, so only this level can catch that regression.
+
+function withCorpus(files: Record<string, string>, run: (root: string) => void): void {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-corpus-'))
+	try {
+		for (const [rel, body] of Object.entries(files)) {
+			const full = join(root, rel)
+			mkdirSync(dirname(full), { recursive: true })
+			writeFileSync(full, body)
+		}
+		run(root)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+}
+
+test('the corpus sweep fails closed on an unparseable suite', () => {
+	withCorpus({ 'unit/broken.feature': UNPARSEABLE_ONLY, 'unit/fine.feature': CLEAN_SUITE }, (root) => {
+		assert.equal(main(['--root', root]), 1, 'an unparseable suite anywhere in the corpus fails the sweep closed')
+	})
+})
+
+test('the corpus sweep names the unparseable file', () => {
+	withCorpus({ 'unit/broken.feature': UNPARSEABLE_ONLY }, (root) => {
+		const errors: string[] = []
+		const restore = console.error
+		console.error = (m: string) => errors.push(String(m))
+		try {
+			main(['--root', root])
+		} finally {
+			console.error = restore
+		}
+		assert.ok(
+			errors.some((m) => /broken\.feature/.test(m) && /cannot parse as Gherkin/.test(m)),
+			'the sweep names the unparseable file and why it failed',
+		)
+	})
+})
+
+test('the corpus sweep raises no parse violation when every suite parses', () => {
+	withCorpus({ 'unit/a.feature': CLEAN_SUITE, 'nested/deep/b.feature': CLEAN_SUITE }, (root) => {
+		assert.equal(main(['--root', root]), 0, 'a corpus that parses wholly does not fail the sweep closed')
+	})
+})
+
+// ─── scenario-map binding ─────────────────────────────────────────────────────
+
+const FEAT = `@frozen
+Feature: demo
+
+  Scenario: alpha branches left
+    Given a thing
+    When it runs
+    Then it goes left
+
+  Scenario: beta branches right
+    Given another thing
+    When it runs
+    Then it goes right
+`
+
+const SPEC_OK = `# demo
+
+## Scenario map
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | a thing | \`alpha branches left\` |
+| D1 | another thing | \`beta branches right\` |
+`
+
+test('a complete scenario map reports nothing', () => {
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, SPEC_OK), [])
+})
+
+test('an edge repeated under a DIFFERENT path is permutation coverage, not a duplicate', () => {
+	// Both rows sit on D1; they differ by path class, which is exactly what the model allows.
+	assert.equal(checkScenarioMap('demo', 'demo.feature', FEAT, SPEC_OK).length, 0)
+})
+
+test('a scenario absent from the map is reported as an orphan', () => {
+	const spec = SPEC_OK.replace('| D1 | another thing | `beta branches right` |\n', '')
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.equal(v.length, 1)
+	assert.match(v[0] ?? '', /not on the scenario map — "beta branches right"/)
+})
+
+test('a map row naming no such scenario is reported', () => {
+	const spec = `${SPEC_OK}| D2 | ghost path | \`gamma that does not exist\` |\n`
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.equal(v.length, 1)
+	assert.match(v[0] ?? '', /names no such scenario — "gamma that does not exist"/)
+})
+
+test('two rows sharing an edge AND a path class are a duplicate', () => {
+	const spec = SPEC_OK.replace('| D1 | another thing |', '| D1 | a thing |')
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.equal(v.length, 1)
+	assert.match(v[0] ?? '', /duplicate map pair/)
+})
+
+test('a spec carrying no scenario map section is SKIPPED, not failed', () => {
+	// The map is the rebuilt node format; a node still on the older shape is not in violation.
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, '# demo\n\nno map here\n'), [])
+})
+
+// Scenario: the scenario-map header and separator rows raise no unparseable-row violation
+test('the header and separator rows raise no unparseable-row violation', () => {
+	// SPEC_OK's first row is the `| Edge | Path (Given) | Scenario |` header and its second the
+	// dashed separator; recognized positionally, neither may surface as an unparseable data row.
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, SPEC_OK)
+	assert.equal(
+		v.filter((m) => /no backtick-wrapped Scenario cell/.test(m)).length,
+		0,
+		`header/separator must not be flagged, got: ${JSON.stringify(v)}`,
+	)
+})
+
+// Scenario: a backtick-quoted prose mention of the map heading is not a scenario-map section
+test('a backtick-quoted prose mention of the map heading is not treated as a map section', () => {
+	// A spec that documents the scenario map (e.g. "carries no `## Scenario map` section") must not
+	// be misread as HAVING one — the heading match is anchored to a real heading line.
+	const spec = '# demo\n\nThe check skips a spec carrying no `## Scenario map` section, reporting nothing.\n'
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, spec), [])
+})
+
+test('a grouped map with per-use-case sub-tables reports nothing (per-block header/separator)', () => {
+	// The map is grouped by use case: each `###` group restarts the header + separator. A later
+	// group's header must NOT be misread as a malformed data row.
+	const spec = `# demo
+
+## Scenario map
+
+### group one
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | a thing | \`alpha branches left\` |
+
+### group two
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | another thing | \`beta branches right\` |
+`
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, spec), [])
+})
+
+test('a data row whose Scenario cell is not backtick-wrapped is reported, not silently skipped', () => {
+	// The exact issue-#60 fail-open: a complete, correct map authored without backticks.
+	const spec = `# demo
+
+## Scenario map
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| D1 | a thing | alpha branches left |
+| D1 | another thing | beta branches right |
+`
+	const v = checkScenarioMap('demo', 'demo.feature', FEAT, spec)
+	assert.ok(
+		v.some((m) => /scenario-map data row has no backtick-wrapped Scenario cell/.test(m)),
+		`expected an unparseable-row violation, got: ${JSON.stringify(v)}`,
+	)
+	// Both un-backticked rows are surfaced — neither vanishes.
+	assert.equal(v.filter((m) => /no backtick-wrapped Scenario cell/.test(m)).length, 2)
+})
+
+// Scenario: the scenario-map section ends at the next heading
+test('a following ## References table is not misread as scenario-map rows', () => {
+	// The section is bounded at the next `## ` heading, so a References row with a backtick cell
+	// does not leak into the map as a phantom row naming no scenario.
+	const spec = `${SPEC_OK}
+## References
+
+| Claim | Source |
+|---|---|
+| some claim | \`some-source.md\` |
+`
+	assert.deepEqual(checkScenarioMap('demo', 'demo.feature', FEAT, spec), [])
 })

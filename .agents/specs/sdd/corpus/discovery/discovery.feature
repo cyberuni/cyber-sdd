@@ -5,7 +5,7 @@ Feature: The discovery procedure — find specs at the SDD spec locations, named
   them by status shape, naming each project, and resolving a name over the list. Deterministic
   scenarios are node:test-verified; the two @rubric scenarios are agentic (judged by hand / by ACED
   when wired) because they assert agent behavior, not script output. Cross-capability e2e scenarios
-  live in ../../acceptance/.
+  live in ../../workflows/.
 
   # ── List the specs — the three spec locations ──
 

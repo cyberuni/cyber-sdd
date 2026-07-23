@@ -3,7 +3,7 @@ Feature: The concept-index procedure — render the by-concept view of one proje
   Unit suite for the concept-index tool. Scanning a project-spec for concept: frontmatter, grouping
   nodes by concern, annotating each with its facet kind, and maintaining the generated block in the
   root spec.md. Deterministic scenarios are node:test-verified. Cross-capability e2e scenarios live
-  in ../../acceptance/.
+  in ../../workflows/.
 
   # ── Scan and group — concept: tags are the source ──
 
@@ -30,18 +30,18 @@ Feature: The concept-index procedure — render the by-concept view of one proje
     When concept-index renders the project-spec
     Then the node's facet kind is "rule"
 
-  Scenario: an acceptance/ node is annotated as e2e
-    Given a node under acceptance/ tagged with a concept
+  Scenario: a workflows/ node is annotated as workflow
+    Given a node under workflows/ tagged with a concept
     When concept-index renders the project-spec
-    Then the node's facet kind is "e2e"
+    Then the node's facet kind is "workflow"
 
   Scenario: a reference node is annotated as reference
-    Given a node with spec-type reference tagged with a concept, outside design/ and acceptance/
+    Given a node with spec-type reference tagged with a concept, outside design/ and workflows/
     When concept-index renders the project-spec
     Then the node's facet kind is "reference"
 
   Scenario: a behavioral node is annotated as behavior
-    Given a node with spec-type behavioral tagged with a concept, outside design/ and acceptance/
+    Given a node with spec-type behavioral tagged with a concept, outside design/ and workflows/
     When concept-index renders the project-spec
     Then the node's facet kind is "behavior"
 

@@ -144,6 +144,16 @@ test('validate flags a SKILL.md missing metadata.internal true', () => {
 	})
 })
 
+test('validate reports ok when the private skills directory does not exist', () => {
+	withTempRepo((root) => {
+		// no .agents/skills created at all
+		const result = validatePrivateSkills(root)
+
+		assert.equal(result.ok, true)
+		assert.equal(result.issues.length, 0)
+	})
+})
+
 test('validate reports ok when every entry passes all checks', () => {
 	withTempRepo((root) => {
 		writeSkill(root, 'audit-skill', '---\nname: audit-skill\ndescription: x\nmetadata:\n  internal: true\n---\n')
@@ -192,6 +202,18 @@ test('validate makes no filesystem changes', () => {
 
 // ── repair (writes) ──
 
+test('repair makes no change when the private skills directory does not exist', () => {
+	withTempRepo((root) => {
+		const before = snapshot(root)
+		const result = repairPrivateSkills(root)
+		const after = snapshot(root)
+
+		assert.deepEqual(after, before)
+		assert.equal(result.changed, false)
+		assert.equal(result.actions.length, 0)
+	})
+})
+
 test('repair deletes a stray symlink resolving into the public skills tree', () => {
 	withTempRepo((root) => {
 		const publicSkillDir = join(root, 'skills', 'create-skill')
@@ -236,6 +258,20 @@ test('repair leaves a SKILL.md that already declares metadata.internal true unch
 
 		assert.equal(after, body)
 		assert.ok(result.actions.some((a) => a.action === 'already_internal' && a.skill === 'audit-skill'))
+	})
+})
+
+test('repair records a skipped_missing_skill for an entry with no SKILL.md and no augmentation file', () => {
+	withTempRepo((root) => {
+		const skillDir = join(root, '.agents', 'skills', 'empty-skill')
+		mkdirSync(skillDir, { recursive: true })
+
+		const before = snapshot(root)
+		const result = repairPrivateSkills(root)
+		const after = snapshot(root)
+
+		assert.deepEqual(after, before)
+		assert.ok(result.actions.some((a) => a.action === 'skipped_missing_skill' && a.skill === 'empty-skill'))
 	})
 })
 

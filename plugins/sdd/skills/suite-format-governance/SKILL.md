@@ -1,186 +1,299 @@
 ---
 name: suite-format-governance
-description: "Partial Skill: invoke by name only — the SDD suite-format bar for how a .feature behavior suite is written and judged. Loaded by the spec-producer and the spec-judge, and named by the impl-producer and impl-judge bars for the test-vector rule; not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 ---
 
-# Suite-Format Governance — the .feature behavior-suite bar
+# Suite-Format Governance — the acceptance behavior-suite bar
 
-How a `.feature` behavior suite is **written and judged**. A fixed-universal SDD governance — the
-spec-producer loads it to self-align before writing scenarios, and the spec-judge loads it to grade
-the suite backward at the spec gate. It governs the `.feature` of a **behavioral** spec only;
-descriptive and reference nodes carry no suite.
+Form authority for a behavior suite: how it is written and judged. Fixed-universal SDD
+governance — the spec-producer self-aligns to it, and each actor bar (`oracle` / `architect` /
+`builder`) judges its slice of it backward at the gates. Governs the suite of a **behavioral**
+spec only; descriptive and reference nodes carry no suite. Every scenario collapses to **one
+pass/fail** at the verification point — never a score.
 
-Boundary: the `spec.md` structure (the required `## Use Cases` section and enrichment) belongs to
-`sdd:spec-format-governance`; the freeze/unfreeze *model* (when freeze fires, the unfreeze trigger,
-iteration economy) belongs to the SDD lifecycle bar. This governance owns the `.feature` form.
+## The suite specifies acceptance only — strict
 
-## The gate sees one boolean per scenario
+A suite specifies **acceptance** — the observable **decisions** the node owns — and nothing else.
 
-Every scenario collapses to a single **pass/fail** at the verification point — the judge reports
-one boolean per frozen scenario, never a score. Two forms reach that boolean.
+- **Decisions only — and the map is the test.** A scenario tests a **decision** — a branch the
+  capability takes. The mechanical filter is **can you name the edge it sits on?** A scenario with no
+  nameable edge is a non-branch **invariant** ("output is valid JSON", "idempotent"): not acceptance,
+  not specified here, covered by the implementation's own tests.
+  Do **not** cut a scenario merely because it reads like a property. A constraint that holds across
+  every path *still sits on an edge* — "the envelope is the same for every strategy" is the
+  **convergence** shape at that edge (below), asserting the outcome does not vary, which is a design
+  decision. Unmappable is the cut; property-sounding is not.
+- **The node's own decisions.** A property **co-owned** across a seam — activation/routing (does this
+  config fire?), a sibling's behavior, harness wiring — is not this node's to freeze; it is **out of
+  scope** (Oracle relocates or kills it).
+- The only escape from strict is a user **pin** (below).
+
+## The suite is the capability's control-flow graph
+
+The suite **is** the node's **control-flow graph (CFG)** at acceptance level. Author it as one:
+
+- **One scenario = one (path class, edge) pair.** The `Given` is the **path** — the decisions already
+  made on the way here; the `When` is the **edge under test**; the `Then` is the **branch taken**. The
+  unit is not the edge alone: one edge needs several scenarios when its outcome differs by the path
+  reaching it.
+- **State the least specific `Given` that determines the outcome.** Paths that **reconverge** and leave
+  no distinguishing state **collapse into one scenario** — `a→b→d` and `a→c→d` are the same scenario
+  when the outcome at `d` does not depend on whether `b` or `c` was taken. Name the reconvergence
+  point, never the route. This is what keeps the suite finite: without it, every upstream branch
+  multiplies every downstream one.
+- **Add a permutation only when the outcome differs.** Same outcome under two prefixes ⇒ one scenario.
+- **An over-specific `Given` is a defect.** Naming state the outcome does *not* depend on
+  **manufactures a false permutation** — it implies a sibling scenario for the other value and invites
+  exactly the explosion the collapse rule prevents.
+- **Cover every branch.** A decision whose only covered edges are its "no" branches is incomplete: a
+  **kill / reject / guard edge is paired with a positive companion** driving the same path in its
+  firing direction. A lone negative is passed by a do-nothing subject (the sorted list that "stays
+  sorted" under `sort = identity`).
+- **Each edge isolates a specific condition** — the `Given` sets up the exact state forcing *this*
+  branch and not its sibling, and hands over **no** part of the verdict. A scenario asserting a finding
+  asserts its **binding consequence** (withholds the pass, blocks the gate), never just its emission.
+
+A **dead edge** — one no plausible wrong subject takes the wrong way — measures nothing: a missing
+guard, an orphaned negative, or a `Given` that states its own answer. The **miss test** settles it:
+*name a plausible wrong subject and check it takes the wrong branch; if none can, the edge is
+inert.* Plausible, not strawman — a memorizer, a copier, a single-brancher, never an empty artifact.
+Discrimination is **judged, not linted**; a **measured ceiling is a tell an edge cannot be lost**,
+not evidence it works. Rubric-dimension discrimination detail: `references/rubric.md`.
+
+**Backfilling from existing code — derive, don't patch.** When the implementation already exists,
+draw the CFG from the code (`sdd:spec-format-governance` owns the `## Control Flow` + `## Scenario
+map` sections) and **re-derive the whole scenario set from its edges** — one scenario per `(path
+class, edge)` pair, every guard paired with a positive companion. Any pre-existing `.feature` or
+legacy corpus (a retired golden set) is **reference only**: each entry is a **claim to verify against
+the current code**, never the baseline to patch. Reading the standing suite and filling only the gaps
+a diff notices is not this procedure — it leaves stale scenarios in place and misses edges the CFG
+mandates (ADR-0029).
+
+## Sections mirror the spec's use-case groups; every scenario binds to a map edge
+
+`spec.md` sections the node by **use-case group**, each carrying a drawn **CFG** and an
+explicit **scenario-map** table (`sdd:spec-format-governance`). The suite **mirrors** it:
+
+- Group scenarios under `# ── <use-case group> ──` comments — same groups, same order — screaming
+  the intents; never sectioned by layer, output format, or "misc rules".
+- **The map is 1:1 scenario↔row**, and each row names **both** the edge and the path class
+  (`| Edge | Path (Given) | Scenario |`). A scenario off the map is an orphan; an edge with **no** row
+  is a coverage hole. An edge with **several** rows is **not** a duplicate — it is permutation
+  coverage, and legitimate exactly when each row's path class yields a different outcome. Two rows
+  with the same edge *and* the same path class **is** a duplicate. `check-suite` lints orphans,
+  uncovered edges, and same-edge-same-path duplicates.
+
+**Three shapes sit on the map**, all of them acceptance:
+
+- **branch** — the `Given` pins one path class; the `Then` names the branch taken.
+- **convergence** — the `Given` deliberately **spans** classes ("for every strategy"); the `Then`
+  asserts the outcome **does not vary**. One scenario legitimately covers many permutations, and that
+  non-variance is a design decision, not an invariant.
+- **barred** — the `Then` asserts an edge that must **not** exist (an option never offered).
+
+## The tag set — every tag a `.feature` may carry
+
+This bar defines the tag **vocabulary** — what each tag *means*. It does **not** define how a judge
+measures the tagged scenario: run counts, thresholds, corpora and pass bars are the resolved
+plugin's (ACED, for agent-config domains). Tag = interface, plugin = implementation. A governance
+that mentions a tag is a consumer. The rules live in the sections named below; this table is the index.
+
+| Tag | Names | Scope | Applied by | Means |
+| --- | --- | --- | --- | --- |
+| `@trigger` | the engage decision | scenario | producer | Does the subject **engage** when it should, and stay out when it should not? |
+| `@behavior` | conduct once engaged | scenario | producer | Having engaged, does it take the right steps and honor its rules? |
+| `@quality` | the result | scenario | producer | Is what it produced good? |
+| `@rubric` | the assertion form | scenario | producer | Graded against an inline rubric (named dimensions + threshold) rather than a boolean `Then` — see *Form 2*. Independent of the tags above; a scenario may carry both. |
+| `@pinned` | ownership | scenario | **user only** | A user-owned seed scenario the agent may propose against but never change unilaterally — see *`@pinned`*. |
+| `@frozen` | lifecycle state | **file** | the gate | The suite is the agreed contract; narrowing it needs Clearance — see *The `@frozen` marker*. |
+
+**`@trigger` vs `@behavior` is a per-node question, judged — never linted.** `@trigger` is legal
+only *where the node genuinely owns the routing decision*, and two different deciders qualify:
+
+- the **harness** — a model matching this config's `description` against a user query. Here the
+  decision is **co-owned** (description prose × harness × sibling set) and the node holds one of the
+  three, so freezing it on the node is the seam issue #304 raises.
+- **an agent applying the node's own doctrine** — e.g. a coordinator reading this doctrine to decide
+  whether it governs the situation at hand. No harness is in the loop and the deciding input is the
+  node's own content, so **the node owns it outright**.
+
+The two look alike in shape and differ only in who decides, so **step form does not classify them**
+and no mechanical check should try (see `.agents/specs/sdd/ssa-lowering/ssa-lowering.feature`, where
+a deletion that read the second case as the first was blocked at the gate and reverted). A
+deterministic, fully-owned decision table that selects *what an already-invoked subject does* is
+conduct, not engagement — it wants `@behavior`.
+
+**`@frozen` is the only file-level tag** — it sits on the `Feature`, not a scenario.
+
+`check-suite` ignores tags it does not recognize, so an unknown tag fails silently rather than
+loudly — spell them exactly as written above.
+
+## `@pinned` — user-owned seed scenarios
+
+A **user** may mark a scenario `@pinned`. It is **user-owned** (`sdd:ownership-governance`) — the one
+scenario class the agent does not own:
+
+- **Agent proposes, user disposes.** The agent may propose changing or removing a `@pinned` scenario;
+  it may **not execute** the change without in-session user authorization — the authority of a human
+  ratification (positional, not relayable, not self-assertable within leash). Ownership is
+  lifecycle-independent: the pin holds in `draft` and survives a re-open; freeze does not enter.
+- **Only the user pins.** The agent never applies `@pinned`.
+- **A pin is a seed.** It marks a behavior the CFG did not reach; the agent **grows the
+  CFG around it** — proposing the sibling branches, guards, and companions the pinned behavior
+  implies (agent-owned; only the seed stays pinned).
+- It is the **override to strict** — kept whatever strict would prune.
+
+## One behavior per scenario — SRP and dedup
+
+One (path class, edge) per scenario; one canonical scenario per pair. A scenario with several unrelated `Then`s
+churns and its name lies — split it. Two scenarios sharing a `When`+`Then` core are a duplicate —
+dedup to the canonical (never dedup away a `@pinned` scenario without consent).
 
 ## Form 1 — pure-boolean Gherkin (default)
 
-A plain `Given / When / Then` scenario whose every `Then` is an **observable, deterministic boolean
-assertion** — no scores, probabilities, or rubric lingo. Assert outputs, exit codes, side effects,
-emitted events — never internal state, function names, or implementation steps. Use it whenever the
-behavior is directly checkable. Cover at least one happy-path and one error-case per operation.
+`Given / When / Then` whose every `Then` is an **observable, deterministic boolean**. Use whenever the
+branch is directly checkable.
+
+**The test is the trace, not the verb.** A `Then` is legal when you can name the artifact a verifier
+reads to settle it — an output, an exit code, a written file, an emitted event, a returned field.
+Asserting an *act* is not the defect; asserting an act that records nothing is. Follow these:
+
+- **Name the artifact before writing the `Then`. If nothing records it, do not assert it.**
+- **Assert an act only when the act leaves a trace.** `Then it reads the role-to-agent map from the
+  registry` is legal — the resolved squad is checkable against the registry. `Then it sweeps the
+  corpus` is not: no artifact records a sweep.
+- **When an act matters but records nothing, add the record — do not delete the act.** Give the role
+  an `Output` field, a written report, or a ledger line, then assert *that*.
+- **Never assert how the artifact came to be authored** — "co-developed", "written test-first",
+  "authored in this order". Nothing in the artifact or a run reveals authoring sequence. Assert the
+  end state instead, and keep production discipline in governance prose.
+- **Never assert internal state or a function name.** Neither is readable at the verification point.
 
 ## Form 2 — rubric Gherkin (`@rubric`, judged by hand)
 
-A gradient judgment ("good enough across several dimensions") cannot be faithfully encoded in a
-single flat boolean. The rubric form admits scoring criteria into the scenario and collapses them
-to one boolean, preserving the gate contract. It is **purely additive** — it never changes how
-untagged scenarios work. Convention:
-
-1. **Tag** the scenario `@rubric`.
-2. **Embed the rubric** in a `Then` step as a docstring (`"""..."""`) — named dimensions, each with
-   a `max:` value, plus exactly one `threshold:` line.
-3. **Close** with a boolean-collapsing `Then`: `And the rubric score is at least the threshold`.
-
-```gherkin
-@rubric
-Scenario: <name>
-  Given ...
-  When  ...
-  Then the judge evaluates the scenario against the rubric
-    """
-    dimensions:
-      - name: correctness
-        max: 3
-      - name: completeness
-        max: 2
-    threshold: 4
-    """
-  And the rubric score is at least the threshold
-```
-
-The final `Then` yields exactly one boolean — the gate sees pass/fail, not a score. The rubric is
-internal evaluation detail, judged **by hand**.
+For a branch whose correctness is a **gradient judgment** across dimensions no single boolean
+captures. Structure: a rubric block with named dimensions, per-dimension `max`, exactly one
+`threshold`, a collapsing `Then`, **no double-barreled dimension**. Selection (is a dimension
+substitutable), threshold policy, and cSEM: load `references/rubric.md` before authoring or judging
+one. Collapses to one boolean per scenario at the verification point, like every other scenario.
 
 ## A `Given` is a test vector, not specification
 
-The implementation owes conformance to the `Then`. It owes nothing to the `Given`'s apparatus.
+The implementation owes conformance to the `Then`, nothing to the `Given`'s apparatus. A `Given`
+carries a **precondition** (the state the `Then` is asserted under — contract, the impl handles it)
+and **apparatus** (domain, names, framing — a test vector, binds nothing). **Swap test:** substitute
+the domain for an unrelated one; if the `Then` still holds, what was swapped is apparatus. **No
+absorption** — no producer lifts a `Given`'s apparatus into the artifact as a worked example, and no
+artifact illustration is lifted into a `Given`; each draws from a domain the other does not probe.
+Judged semantically, not lexically.
 
-A `Given` fixes two separable things:
+### A `Given` must be a **scaffoldable state**
 
-| Element | Status | Binds |
-|---|---|---|
-| **Precondition** — the state the `Then` is asserted under | contract | the implementation must handle it |
-| **Apparatus** — the domain, entities, names, and framing that make the precondition concrete | test vector | nothing |
+The `Given` is what the impl-producer **builds** and the impl-judge **checks it built**. If the two
+can read it and picture different fixtures, the gate churns — the producer writes a defensive step
+carrying flags and branches, and the judge disagrees about what was even set up. A step definition
+that needs conditionals is the tell that the step is wrong **upstream**, not that the automation is
+hard.
 
-**The swap test** discriminates: substitute the `Given`'s domain for an unrelated one; if the `Then`
-still holds, what was swapped is apparatus. Apply it **per element** — one `Given` routinely carries
-both — and the producer's own label for an element decides nothing.
+- **A state, not a procedure.** Declarative: *what holds*, never the keystrokes that got there.
+- **Observable, not evaluative.** Bar judgment words — *discernible, valid, appropriate, clear,
+  proper, reasonable*. They read as precision and carry none: each reader supplies their own
+  threshold. Name the fact instead.
+- **Present, not absent.** A state defined by what is *missing* ("no X and no Y") is unbuildable —
+  absence has infinitely many fixtures. Name the concrete shape that *has* the property.
+- **One condition per step.** Split a conjunction into `Given` + `And`. Each step then stands alone
+  and is reusable across scenarios, which is what makes a step library accumulate instead of
+  fragment.
+- **The build test:** *could two people, given only this line, construct the same fixture?* If no, it
+  is not yet a `Given`.
 
-> A `Given` reads *"a purchase order whose shipping address is in a country the tax table does not
-> list"*. Swap the domain — *"a sensor reading whose unit is absent from the conversion table"* — and
-> the `Then` (*the operation halts and names the missing entry*) still holds. Purchase orders,
-> addresses, and tax tables are **apparatus**; *a lookup key absent from its table* is the
-> **precondition**. The implementation handles the missing key; it never ships purchase orders as its
-> illustration.
+**Worked correction.** `Given a project with no discernible capability decomposition and no
+feature-first source layout` fails three ways at once — *discernible* is evaluative, the state is
+doubly absent, and it is a conjunction. It becomes:
 
-**Absorption** is lifting apparatus into an artifact as a worked example, illustration, or
-special-cased literal. An element that survives the swap test and still appears in the artifact is
-absorbed. Both copying directions are barred:
+```gherkin
+Given a project in detection mode
+And its src/ is organized by layer rather than by feature
+```
 
-- **spec-producer** — a `Given`'s apparatus is never lifted from the artifact's own worked examples
-  (revise) or from the illustrations read out of source (backfill).
-- **impl-producer** — an artifact's illustrations are never lifted from a `Given`; each is drawn from
-  a domain the suite does not probe.
+Two buildable steps, no judgment words, and the path class is named outright.
 
-The rule constrains what a producer **quotes**, never what it **reads**: every producer reads the
-whole `.feature`, `Given` steps included — the `.feature` is the contract, and no part of it is
-excluded from the read.
+## Pairwise consistency — no two scenarios contradict on one snapshot
 
-A decoupled artifact — illustrations sharing no apparatus with any `Given` — is the **required end
-state**, never drift to reconcile.
+Within one suite, no two scenarios may demand **opposite verdicts** on a single constructible state.
+A contradiction needs a shared `When` **and** an overlapping `Given`; different `When`s over one
+state do not contradict. **Specialization is not contradiction** — a specific scenario whose narrower
+`Given` carves an exception wins on it; read a pair as generic/specific before reading it as a
+conflict. The remedy is a `Given` narrowing. Judged, not linted; the `Conflict` hard floor is the
+post-freeze backstop.
 
-Independence is **judged, not linted** — semantic, not lexical. Apparatus is usually lifted by
-paraphrase, so shared wording is neither necessary nor sufficient: shared wording between a `Feature`
-description and the artifact's own description is not absorption, and a paraphrase sharing no wording
-is. No lexical or n-gram probe stands in for the read; `check-suite` does not check it.
+## Optional conventions — scenario tagging and enumerated cases
 
-## Judging — structure is universal, scoring is per-resolved-judge
+Additive and plugin-facing (e.g. ACED); untagged plain suites are unaffected and the structural
+check ignores unrecognized tags.
 
-| Scenario type | What the judge validates |
-|---|---|
-| Untagged | Every `Then` is a boolean assertion — no scores, probabilities, or rubric lingo. |
-| `@rubric`-tagged | **Structure (universal):** rubric block present with named dimensions + per-dimension `max` + exactly one `threshold`; collapsing `Then` present. **Scoring (per-resolved-judge):** reads the rubric, scores each dimension, applies the threshold, emits pass/fail. |
-
-The structural check is **universal** — every resolved judge enforces it identically. A resolved
-judge does **not** reject scoring lingo *inside* a `@rubric` scenario (the sanctioned form), and it
-rejects a malformed `@rubric` scenario (missing threshold or named dimensions) structurally, before
-scoring begins. A plugin may supply a more capable scoring judge (e.g. ACED for agent-config
-domains).
-
-## Optional conventions — layer tags and enumerated cases
-
-Both are **additive** and plugin-facing (e.g. ACED for agent-config domains); untagged, plain suites
-are unaffected and the structural check ignores tags it does not recognize.
-
-- **Layer tags** — tag a scenario with the evaluation layer a resolved judge should route it through:
-  `@trigger`, `@behavior`, `@quality`. Orthogonal to `@rubric` (a scenario may carry both, e.g.
-  `@behavior @rubric`). The tag is metadata; it never changes the one-boolean-per-scenario contract.
-- **Enumerated cases** — when one scenario is exercised over an enumerated set (e.g. a trigger-query
-  corpus of `{ query, should_trigger }`), use a `Scenario Outline` with an `Examples:` table — one row
-  per case, `<placeholder>` tokens bound to columns:
-
-  ```gherkin
-  @trigger
-  Scenario Outline: the config activates on a matching query
-    Given a user query "<query>"
-    When the agent decides whether to invoke the config
-    Then invocation is "<should_trigger>"
-
-    Examples:
-      | query        | should_trigger |
-      | make a chart | yes            |
-      | book a flight| no             |
-  ```
-
-  `check-suite` requires a non-empty `Examples:` table whose header covers every `<placeholder>` used
-  in the steps — a bare outline with no table (or a table missing a placeholder's column) is a
-  structural failure.
-
-## The executable form — `check-suite`
-
-The universal structural rules above (Gherkin validity, every untagged `Then` a boolean assertion,
-no hedge adverbs or leaked rubric lingo, `Scenario Outline` Examples-table coverage, scenario
-sectioning) have a deterministic executable form:
-the `check-suite` engine (`scripts/check-suite.mts` in the `spec-gate` skill). It runs at **two
-per-CR runtime touchpoints**, not only in CI:
-
-- The **spec-producer self-runs it** over the `.feature` it just authored (`--files <paths>`) and
-  fixes any violation before returning — a mechanical defect never costs a cold-judge round.
-- The **spec gate runs it fail-closed** over the CR's touched `.feature` files (`--files <paths>`),
-  **before the cold judge is spawned**, so the qualitative judge only ever sees well-formed suites.
-
-A tree-wide `--root` sweep stays the CI backstop. The mechanical check settles form deterministically;
-the resolved judge spends its rounds on the qualitative bars, never on catching a hedge word.
-
-## Scenario ordering (step-down)
-
-Order scenarios to trace the workflow top-to-bottom:
-
-- Each lifecycle stage in sequence; within a stage, happy path first, then its branches and errors.
-- Group each stage under a `# ── <stage> ──` section comment, so completeness is auditable.
-- A `@rubric` scenario sorts into its stage like any other.
+- **`@trigger`, `@behavior` and `@quality`** are defined in *The tag set* above. There is no
+  collective noun for them and none is wanted: they are three separate tags, not a stack or a
+  pipeline, and naming them as a group invites generalizations that do not hold. Apply `@trigger`
+  only where the node genuinely owns the routing decision, and read that section's two-deciders test
+  before choosing between `@trigger` and `@behavior` — the classification is judged per node, never
+  linted.
+- **`Scenario Outline` is a rare exception, not a default** (DAMP over DRY) — legitimate only for a
+  genuinely uniform enumerated set (one varying token, every row the same `Then` shape). Two rows
+  wanting different `Then`s are two scenarios, not one Outline. Requires a non-empty `Examples:` table
+  covering every `<placeholder>`.
 
 ## The `@frozen` marker
 
-Freeze is **per `.feature` file**: a frozen suite file carries a feature-level **`@frozen` tag**,
-metadata **excluded from the contract content** the freeze protects (toggling it is not a scenario
-edit).
+Freeze is **per `.feature` file** (a feature-level `@frozen` tag; metadata, excluded from the
+protected content). An **additive** scenario folds in and **self-clears**; a **pure move/rename**
+(`git mv`, zero content delta) **preserves** the freeze; a **narrowing or rewrite** unfreezes and
+fires **Clearance** at the gate. Vocabulary is **freeze / unfreeze**. The model and its risk trigger
+are `sdd:lifecycle-governance`; the write constraint is `sdd:ownership-governance`.
 
-- An **additive** scenario folds into a frozen file without unfreezing it — it widens the contract,
-  cannot break existing impl, and **self-clears**.
-- A **pure move/rename** (`git mv`, zero content delta) **preserves the freeze** — a freeze protects
-  the scenario content, not the file's path, so relocating a frozen node is not a scenario edit and is
-  not gate-able (the freeze/unfreeze model lives in the SDD lifecycle bar).
-- A **narrowing or rewriting** edit **unfreezes** the file; at the gate that fires **Clearance**.
+## Scenario ordering (step-down)
 
-Vocabulary is **freeze / unfreeze** — never lock/unlock (reserved for the concurrency layer). When
-freeze fires, the unfreeze risk trigger, and iteration economy live in the SDD lifecycle bar; this
-governance owns only the marker and the suite-edit rule above.
+Trace the workflow top-to-bottom: each use-case group in sequence; within a group, the happy path
+first, then its branches and errors; a `@rubric` scenario sorts into its group like any other.
+
+## The executable form — `check-suite`
+
+The mechanical rules — Gherkin validity, every untagged `Then` a boolean, no leaked rubric lingo,
+`Scenario Outline` Examples coverage, `# ── ── ` section comments, and **scenario-map binding** —
+every scenario carries a map row, every row names a real scenario, and no two rows share an edge
+*and* a path class. Whether the rows **cover the CFG** is judged, not linted: that needs the drawn
+CFG's semantics, so a green check clears no coverage question. A spec with no `## Scenario map`
+section is skipped, not failed — run as `check-suite`
+(`spec-gate/scripts/check-suite.mts`): the spec-producer self-runs it before returning, and the spec
+gate runs it fail-closed before the cold judge.
+
+**Form only** — coverage adequacy, discrimination,
+selection, pairwise consistency, and apparatus independence are **judged**, never linted, and a green
+`check-suite` clears none of them.
+
+## Key points (read-check)
+
+The load-bearing directives below are the ones whose misreading is expensive — read them as the
+compressed form of this bar, not as a summary that replaces it:
+
+1. **Acceptance only, strict** — a suite specifies the decisions the node owns; invariants and
+   co-owned seams are out of scope.
+2. **The suite is the CFG** — one scenario per **(path class, edge)** pair, cover every
+   branch, collapse reconverged paths whose outcome does not differ, and pair every guard/negative
+   edge with a positive companion on the same path (a lone negative is inert).
+3. **Each edge isolates a specific condition** — the `Given` hands over no part of the verdict, and a
+   scenario asserting a finding asserts its binding consequence, not just its emission.
+4. **A dead edge measures nothing** — run the miss test (a plausible wrong subject takes the wrong
+   branch); a measured ceiling is a tell it cannot be lost, not evidence.
+5. **The scenario map is 1:1 scenario<->row**, each row naming both the **edge** and the **path
+   class**; an edge may carry several rows (permutation coverage) — a duplicate is same edge *and*
+   same path. Sections mirror the spec's use-case groups.
+6. **`@pinned` is user-owned** — the agent proposes but never executes a change or removal without
+   user authorization; only the user pins; a pin seeds CFG growth.
+7. **A `Given` is a test vector** — the precondition binds, the apparatus binds nothing (swap test);
+   no absorption.
+8. **A `Then` is legal when you can name the artifact that settles it** — the test is the **trace,
+   not the verb**. Asserting an *act* is fine when the act leaves a trace; where it records nothing,
+   **add the record and assert that**, rather than dropping the act. Never assert how the artifact
+   was authored, nor internal state.

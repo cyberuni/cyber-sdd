@@ -123,11 +123,18 @@ the conductor — never passed by default, never silently resolved as no-finding
 
 0. **For a deterministic artifact-type with a scenario bridge, run the bridge first and partition.**
    When the `ARTIFACT_TYPE` is deterministic (a runnable test suite proves it) **and** the project
-   carries a `.agents/sdd/scenario-bridge.toml`, run `verify-scenarios` (the
-   `mission/verify-scenarios` engine) over the frozen `.feature` — it classifies each scenario
-   **PASS / FAIL / UNBOUND** from the project's own test reports (a **BOUND** scenario has a bound
-   result — PASS or FAIL; **UNBOUND** has none). Then spend your by-hand budget only
-   where the **run-level leash** says a wrong verdict costs something:
+   carries a `.agents/sdd/scenario-bridge.toml` **under its own `project-path`** — the root
+   `spec.md` frontmatter field the mission already resolved to reach this domain (the conductor
+   already knows it when it dispatches you); check `<project-path>/.agents/sdd/scenario-bridge.toml`,
+   never a single hardcoded repo-root path, so a monorepo member's bridge is found instead of
+   silently missed — run `verify-scenarios` (the `mission/verify-scenarios` engine) over the frozen
+   `.feature` — it classifies each scenario **PASS / FAIL / UNBOUND** from the project's own test
+   reports (a **BOUND** scenario has a bound result — PASS or FAIL; **UNBOUND** has none). The
+   bridge/report root and the feature's location are **independent**: pass `--root <project-path>`
+   (where the config, `--report`, and every source's `reportPath` resolve) and `--feature-root` at
+   wherever the frozen `.feature` actually resolves — typically the repo root / cwd, since specs live
+   at `.agents/specs/<project>/`. Then spend your by-hand budget only where the **run-level leash**
+   says a wrong verdict costs something:
    - **UNBOUND** — no bound test proves it → **judge it by hand** (steps 1–3 below), always.
    - **FAIL** — a bound test fails → the scenario is `failing`, mechanically.
    - **BOUND + PASS at high blast radius** — **judge it by hand** (re-derive + exercise backstop);

@@ -1,7 +1,7 @@
 @frozen
 Feature: The align-spec procedure — detect & reconcile prose↔suite drift
   Unit suite for the align-spec tool. Detect and reconcile behaviors only — on-demand and CI
-  alignment over the project spec's nodes. Cross-capability e2e scenarios live in ../../acceptance/.
+  alignment over the project spec's nodes. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── Detect ──
 

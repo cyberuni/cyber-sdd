@@ -1,14 +1,17 @@
 ---
 name: impl-producer-governance
-description: "Partial Skill: invoke by name only — the SDD default impl-producer procedure. Loaded by the spawned generic builder the conductor dispatches for the impl-producer role, not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 ---
 
 # Impl-Producer Governance — the default build procedure
 
-The procedure the **spawned builder** follows when the conductor runs the **impl-producer** role from the SDD default — no plugin covers the domain and no model-tuned producer agent is named, so the conductor **spawns a generic builder** that **loads this governance and builds** (recorded `produced-by.impl-producer: sdd:automaton`). Unlike the spec / solution-producer (run inline by the conductor — the live grill), the impl-producer is **mechanical and spawned** on every surface (the D-G conductor model). This is the SDD-default builder made explicit as a loadable procedure — what the retired "generic Builder (no agent)" / fabricated `sdd:builder` was always groping for.
-
-Load alongside this governance: the resolved **builder** + **architect** actor bars — to self-align **and** to author the verification — and `sdd:ownership-governance` for the write-ownership matrix. The grader is separate: a **cold impl-judge** (`sdd:sdd-impl-judge` or the plugin's judge) runs the verification this role authored; this governance never declares its own pass verdict.
+The procedure the **spawned builder** follows when the conductor runs the **impl-producer** role from
+the SDD default — no plugin covers the domain and no model-tuned producer is named, so the conductor
+spawns a generic builder that loads this and builds. Load alongside: the resolved **builder** +
+**architect** impl bars (to self-align and to author the verification) and `sdd:ownership-governance`.
+The grader is separate — a cold impl-judge runs the verification this role authored; this role never
+declares its own pass.
 
 ## Inputs (folded in by the conductor)
 
@@ -19,30 +22,64 @@ MODE: explore | implement
 
 ## Procedure
 
-1. **Read the contract.** Read the `.feature` — **every scenario in full, `Given` steps included**; no part of it is excluded from what you read. In `implement` (deliver) mode it is **frozen** — the sealed orders; build against it as the fixed bar. In `explore` mode it is a **draft** — spike against it to probe the contract; a discovery (the chosen solution needs a behavior the `.feature` omits) returns as a `CONTENT_GAP` / `OBSERVATIONS`, never written into `spec.md` or the `.feature`. The ship-quality impl-judge does not run during explore.
+1. **Read the contract.** Read the suite — every scenario in full, `Given` steps included. In
+   `implement` mode it is **frozen**: build against it as the fixed bar. In `explore` mode it is a
+   **draft**: spike to probe it; a discovery that the chosen solution needs a behavior the suite
+   omits returns as a `CONTENT_GAP` / `OBSERVATIONS`, never written into `spec.md` or the suite.
 
-2. **Build the implementation** against the `.feature`, applying the **builder** + **architect** bars (testability/coverage; structural fit — no duplication or conflict). The product/test split is a private detail — it is not surfaced.
+2. **Build against the suite,** applying the builder + architect bars. **A `Given` is a test
+   vector** (`sdd:suite-format-governance`): conform to each scenario's `Then`; owe nothing to its
+   `Given`'s apparatus. Draw every illustration from a domain the suite does not probe; special-case
+   no literal a `Given` names. Self-check with the **swap test**.
 
-   **A `Given` is a test vector, not specification** (`sdd:suite-format-governance` carries the canonical bar and the swap test). Conform to each scenario's `Then`; owe nothing to its `Given`'s apparatus.
+3. **Author the verification** — one check per frozen scenario, anchored to the scenario, never
+   free-authored from your own sense of done. **Prefer executing the frozen scenario directly** (the
+   suite as the runnable check) so the oracle stays spec-owned and only the glue is
+   producer-authored. Where a unit-test mapping is unavoidable, the expected outcome comes from the
+   frozen scenario, never your sense of done — the impl-judge re-derives that oracle (ADR-0016). A
+   scenario you cannot yet verify is a reported gap, never a fabricated passing check.
 
-   - The `Given`'s **precondition** — the state the `Then` is asserted under — is **contract**: the implementation handles it.
-   - The `Given`'s **apparatus** — its domain, entities, names, framing — **binds nothing**: no illustration or worked example you author reuses it, and no branch special-cases a literal it names.
-   - **Draw every illustration from a domain the suite does not probe.** An artifact whose illustrations share no apparatus with any `Given` is the required end state, not drift.
+4. **Verify as high as it doesn't hurt.** Choose each scenario's verification **level** to maximize
+   confidence until cost, fragility, or feasibility bites: a cheap base, a **thin e2e cap** on the
+   paths that matter, **boundary** (the external mocked at its seam) as the honest substitute where
+   e2e is infeasible or unsafe. **Record the level and why.** Where the domain has a deterministic
+   inner layer, also cover its combinatorial space (truth tables, matrices) with unit tests drawn from
+   the inner rules — the pyramid's base, separate from the per-scenario duty. A non-deterministic
+   subject has no such layer — verify at the acceptance level only.
 
-   Self-check with the **swap test**: substituting a scenario's apparatus for an unrelated domain leaves your implementation unchanged. Apply it per element — one `Given` routinely carries both a precondition and its apparatus.
+5. **Never modify `spec.md` or the suite** — four-eyes. A behavior-changing gap is a
+   `CONTENT_GAP` / `BLOCKER`, never an in-place edit. Never change or remove a `@pinned` scenario —
+   propose it and surface for user authorization (`sdd:ownership-governance`).
 
-3. **Author the verification** — one functional test/eval per frozen scenario, anchored to the frozen scenarios, **not** free-authored from your own sense of done. **Prefer executing the frozen scenario directly** (the `.feature` itself as the runnable check) over mapping it to a hand-written unit test — direct execution keeps the **oracle spec-owned** and only the glue producer-authored. Where a unit-test mapping is unavoidable, the assertion's **expected outcome (oracle) comes from the frozen scenario** (a faithful mapping), never from your own sense of done — the cold impl-judge re-derives that oracle and checks the mapping is faithful (ADR-0016). Any rubric/threshold/score is a validation detail — it never appears in the `.feature`. The impl-judge **runs** this verification; this role does not run it as the gate. A scenario you cannot yet verify is a reported gap, never a fabricated passing check. **When the verification is a runnable test a `verify-scenarios` bridge will read** (a deterministic artifact-type with a `.agents/sdd/scenario-bridge.toml`), author it to bind: place the test under a `spec:<node>` describe namespace and title it with the **verbatim frozen scenario name** (or an `@id:<slug>` leaf) so its report binds back to the scenario and the impl-judge can consume the bridge instead of re-verifying it by hand.
+## Responding to a `change` verdict
 
-4. **Never modify `spec.md` or the `.feature`** — four-eyes (the builder does not set its own bar). A behavior-changing gap is a `CONTENT_GAP` / `BLOCKER`, never an in-place edit.
+Load `sdd:remediation-governance` — the findings are **evidence, not a work order**. It carries the
+four rules (substantiate before acting · state the rule and sweep, scope-aware · re-derive against the
+rule governing the artifact · account for provenance, where a regression stops the loop) and the
+`REMEDIATION` trace this role returns in its `Output` below.
 
 ## Output (the conductor collects)
 
 ```
+REMEDIATION:      <per finding answered: verdict, rule, swept, ruled-out, provenance — `sdd:remediation-governance`; omit when no verdict was answered>
 STATUS:               complete | needs-input | blocked
 ARTIFACTS_WRITTEN:    [ paths ]
-VERIFICATION_WRITTEN: [ paths ]   # one per frozen scenario
+VERIFICATION_WRITTEN: [ paths ]   # one per frozen scenario, each with its level + why
 CHANGES_MADE:         <what was built>
 QUESTIONS:            [ batched, when needs-input ]
 CONTENT_GAPS:         [ { artifact, location, gap } ]
 OBSERVATIONS:         [ { owner: architect | strategist, note, evidence } ]
 ```
+
+## Key points (read-check)
+
+1. **Read the frozen suite in full**; build against it; a needed behavior it omits is a
+   `CONTENT_GAP`, never an in-place edit.
+2. **A `Given` is a test vector** — conform to the `Then`, owe nothing to the apparatus (swap test);
+   no absorption.
+3. **Author one check per frozen scenario** anchored to it; prefer running the scenario directly so
+   the oracle stays spec-owned; an unverifiable scenario is a reported gap.
+4. **Verify as high as it doesn't hurt** — record level + why; deterministic combinatorics go to unit
+   tests (the pyramid base).
+5. **Never modify `spec.md` / the suite; never touch a `@pinned` scenario without user
+   authorization.**

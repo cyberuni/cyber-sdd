@@ -19,7 +19,7 @@ Creates or improves a **workflow skill** — a process, tool-based, or standard 
 
 ## Three entry points
 
-- **Impl-producer** (dispatched by the SDD conductor against a frozen `.feature`) — co-produces the `SKILL.md` **and** its verification (`eval.md` + `golden-set/`, one eval per frozen scenario) that [`run`](/aced/run/) will score.
+- **Impl-producer** (dispatched by the SDD conductor against a frozen `.feature`) — co-produces the `SKILL.md` **and** its verification (the frozen `.feature`'s scenarios plus the node's `eval.md` run policy) that [`run`](/aced/run/) will score.
 - **Standalone** — the user invokes it directly, outside any change request. Scaffolds the skill, then offers the ACED eval loop rather than assuming it.
 - **Escaped** — invoked directly after the request resolves `ignored` (before any change request opens). Scaffolds, audits, reports, and stops — no eval loop.
 

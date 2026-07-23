@@ -10,7 +10,7 @@ re-derived. The third doc in the structure trio: `project-unit.md` fixes the *ex
 to one spec), `spec-structure.md` fixes the *node taxonomy* (descriptive / reference / behavioral) and names
 **screaming architecture** as the default; this doc generalizes that single recommendation into a small
 **menu of strategies** with a selection rule, a fit reconciliation, and a declared record — the model behind
-the `backfill-project-spec` authoring unit (`../authoring/backfill-project-spec/`).
+the `scaffold-project-spec` authoring unit (`../authoring/scaffold-project-spec/`).
 
 The problem it answers ([#35](https://github.com/cyberuni/cyberplace/issues/35)): placing a concept
 correctly today needs the whole system in your head. The owner places fast; a newcomer is slow and
@@ -42,7 +42,7 @@ in (scope, terminology, conformance, references):
 |---|---|---|
 | `spec.md` (root) | `project-path` frontmatter + the descriptive index + the **declared organization** (the **placement map**, which names the strategy) | descriptive |
 | `design/` | the architecture, rules/model, and the **`design/decisions/` ADR log** (the "why") | descriptive |
-| `acceptance/` | the e2e behavior suite (cross-capability outcomes) | behavioral |
+| `workflows/` | the workflows suite (cross-capability usage flows) | behavioral |
 | a **tooling/project** home | build, CI, packaging, deps — the carve-out *every* scheme needs | descriptive |
 | **glossary** | the ubiquitous language (load-bearing under bounded-context) | reference |
 
@@ -86,7 +86,39 @@ overall design in `design/`.
   already exist — ideal for backfill.
 - **Con:** **inherits the code's organization quality** and risks coupling the spec to source churn —
   mitigated by **boundary-aligned** mirroring (cap depth at the unit boundary; see *Spec-org vs source-org*).
-- **Fits:** code already well-organized (ideally feature-first); engineer-authored, code-adjacent specs.
+- **Fits:** any existing codebase a team navigates by code — **feature-first source is the best case,
+  not the entry condition** (see below); engineer-authored, code-adjacent specs.
+
+**Offered over a layered source too — with its cost named (the adoption stake).** Mirror-source was
+once conditioned on the source already being feature-first, because that is what makes it
+capability-aligned. That condition made SDD unusable for exactly the projects most likely to want it:
+an established codebase whose layout predates the tool. Requiring a restructuring **before** the first
+spec is an entry toll, and a tool nobody adopts partitions nothing at all.
+
+What makes relaxing it safe is that a coarse partition costs **precision, not correctness**. The
+scheduler is conservative: a collision it cannot resolve **serializes**, so the worst case of a poor
+partition is a slower schedule, never a corrupted one. Concretely:
+
+- **The collision ladder recovers most of the loss.** A node-level collision descends —
+  file, region, semantic, symbol — so two missions sharing a layered node but touching different
+  symbols classify **soft** and still co-wave (`../collision-ladder/`). The residue is
+  `symbol-rung-deferred`: when symbols cannot be inferred the pair stays hard, which is where a
+  layered layout genuinely still bites.
+- **Worktrees dissolve file-level false dependencies** until write-back (register renaming).
+- **The concept axis carries the capability view the folders do not.** In a mirrored tree the folders
+  name source areas, but `concept:` tags still name capabilities, so capability navigation survives
+  through the by-concept index.
+
+**The migration path — evidence, not a mandate.** A concept whose facets span many nodes *is* the
+measured signal of a capability wanting its own home, and the scheduler's **false-conflict rate**
+says when that scattering is actually costing throughput. So a project adopts on its existing shape,
+accumulates concept tags as it writes nodes, and **hoists one capability at a time when the data
+earns the move** — reaching capability-first as a destination rather than paying it as a toll.
+
+**Still true:** capability-first remains the recommendation, layered/framework-first remains
+discouraged as a *chosen* top level for a project free to choose, and the one-capability-per-node
+invariant holds under every strategy. Mirroring an existing layered source is a *starting position*,
+not an endorsement of layering.
 
 ### Alternatives under investigation
 
@@ -200,9 +232,12 @@ people and the placement ops that consume it already read, the **body of the roo
 - **The spec `location` mode** (`colocated | hoisted | monorepo-member`) is **derived** from the
   `project-path` frontmatter (hoisted iff `project-path` is not the spec's own dir) — not declared.
 
-**Who writes it.** `backfill-project-spec` — the only step that *decides* the layout (it ran detection +
-the compass with the user) — writes the placement map (and `project-path`) at its scaffold step, in the
-same act that writes root `spec.md`. **Who reads it.** `start-mission`'s explore consults the routing
+**Who writes it.** `scaffold-project-spec` — the step that *decides* the layout, running the compass with
+the user from whichever evidence the project affords: **detection mode** reads an existing source tree,
+**intent mode** has none to read and asks what the project will be. It writes the placement map (and
+`project-path`) at its scaffold step, in the same act that writes root `spec.md`. (An earlier wording
+called it "the only step that decides … it ran detection", which silently assumed every project arrives
+with source to detect — greenfield projects then had no decider at all.) **Who reads it.** `start-mission`'s explore consults the routing
 table for its **provisional** placement; the **handoff** Warden pass re-reads it to **finalize** placement
 (below); the post-mission Warden reads it to judge cross-mission structural fit. A normal node-add never
 re-derives the organization; the **Warden** rewrites the placement map only during a deliberate

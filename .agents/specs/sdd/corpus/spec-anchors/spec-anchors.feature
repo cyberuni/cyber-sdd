@@ -2,9 +2,9 @@
 Feature: The spec-anchors config — declare and curate the extra anchors discovery scans
   Unit suite for the spec-anchors config and its curation engine (manage-spec-anchors). The config
   format, listing fixed + custom anchors, CRUD over the custom ones, inducing a pattern from a sample
-  path, and previewing a pattern's effect. Deterministic scenarios are node:test-verified; the one
-  @rubric scenario is agentic (the manage skill confirming before it persists). Cross-capability e2e
-  scenarios live in ../../acceptance/.
+  path, and previewing a pattern's effect. Deterministic scenarios are node:test-verified; the
+  one @rubric scenario is agentic (the manage skill confirming before it persists).
+  Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── The config format ──
 

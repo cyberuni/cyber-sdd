@@ -65,4 +65,4 @@ State whether the statusline was enabled or declined, the chosen mode (if enable
 
 ## Boundaries
 
-Writes **only** operational config (`.claude/settings.json`, `.gitignore`) — never a `spec.md`, `status`, `approval`, or freeze. Opens no CR, invokes no gate. Never wires the **global** settings file — SDD is repo-scoped, a user's global status line is theirs; the global file is read only to detect a statusLine to compose against, never written. Does not move `backfill-project-spec` / `manage-spec-anchors` / `manage-ignore` into itself. Never writes or clears the statusline **value** — that is the conductor's during the mission loop.
+Writes **only** operational config (`.claude/settings.json`, `.gitignore`) — never a `spec.md`, `status`, `approval`, or freeze. Opens no CR, invokes no gate. Never wires the **global** settings file — SDD is repo-scoped, a user's global status line is theirs; the global file is read only to detect a statusLine to compose against, never written. Does not move `scaffold-project-spec` / `manage-spec-anchors` / `manage-ignore` into itself. Never writes or clears the statusline **value** — that is the conductor's during the mission loop.

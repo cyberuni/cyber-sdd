@@ -3,7 +3,7 @@ Feature: The plan-discovery procedure — find resumable missions by their plan 
   Unit suite for the plan-discovery tool (the discover-plans engine). Derivation behaviors
   only — locating the mission plan briefs under the SDD plans location, treating each present
   brief as an unretired/resumable mission, reporting its todo tally and resume lead, and
-  resolving a CR ref over the returned list. Cross-capability e2e scenarios live in ../../acceptance/.
+  resolving a CR ref over the returned list. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── List the plans — the plans location ──
 

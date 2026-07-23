@@ -6,7 +6,7 @@ Feature: skillify — generalize the current session into a reusable skill
   script-extraction candidates, validate it, and place and link it. Scaffolding a skill from scratch
   is define-skill; diagnosing why a skill's evals fail is improve; an agent or persona is define-agent;
   a reference-only rule set is define-governance. Cross-capability e2e scenarios live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ── Triggering ──
 
@@ -75,6 +75,18 @@ Feature: skillify — generalize the current session into a reusable skill
     Given a session workflow whose scope is unclear between a personal and a project skill
     When skillify resolves placement
     Then it asks the user to resolve the scope before writing the SKILL.md rather than assuming one
+
+  @behavior
+  Scenario: a personal session workflow resolves to the user placement
+    Given a session workflow that is personal and not tied to any specific codebase
+    When skillify resolves placement
+    Then it selects the user placement rather than a project-scoped one
+
+  @behavior
+  Scenario: a tool-centered session workflow resolves to the tool-based pattern
+    Given a session workflow centered on calling tools or external systems
+    When skillify resolves the pattern
+    Then it selects the tool-based pattern rather than the process pattern
 
   # ── Drafting ──
 

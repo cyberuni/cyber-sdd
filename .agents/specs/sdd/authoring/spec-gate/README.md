@@ -19,10 +19,10 @@ it does not produce.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite → advance nothing, report the blocker |
+| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite / `governance-preflight-missing` finding (`## The governance pre-flight check`) → advance nothing, report the blocker |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
-| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none) |
+| **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / off-enum `correction` / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none); a `## Use Cases` data row whose `Scenario` cell is non-empty but carries no backtick reference → **fail closed**, the unparseable row reported never skipped; a touched `.feature`'s sibling `## Scenario map` binding checked — every scenario one map row, every row a real scenario, each `(edge, path class)` pair unique — with a data row whose `Scenario` cell is not backtick-wrapped **reported as an unparseable row, never skipped** (a spec carrying no `## Scenario map` section raises none) |
 
 Every scenario in [`spec-gate.feature`](./spec-gate.feature) maps to one of these four
 use cases. Gate *rules* live in `../../design/` — legal-state transitions and the freeze model
@@ -61,6 +61,18 @@ The three gate verbs at the spec gate (it judges the *contract*, so each verb ed
 contract): **approve** → land the diff and freeze each touched `.feature` file (set its
 `@frozen` tag); **change** → revise the diff, nothing freezes yet; **reject** → scope-kill, drop
 the delta.
+
+**A `change` verdict's findings are evidence, not a work order.** Remediating them one cited line at
+a time fixes instances and leaves the defect — and can introduce new defects the next round then
+reports. The producer therefore: **substantiates** each finding before acting (an unsubstantiated one
+is contested with evidence, not edited away); states the **rule** each finding instantiates and
+**sweeps** for its other instances, reporting the ruled-out candidates as well as the hits;
+**re-derives** each correction against the rule *governing the artifact*, since a correction that
+clears the finding while contradicting that rule is worse than the defect it replaced; and accounts
+for findings by **provenance** each round. All findings pre-existing ⇒ the loop is **converging**.
+Any finding introduced by the previous round's remediation ⇒ the loop is **diverging**, which halts
+iteration for a re-plan rather than another remediation round. Frozen in
+[`../../workflows/gate-verdicts.feature`](../../workflows/gate-verdicts.feature) (theme E).
 
 **Freeze on approval is per file.** Each touched `.feature` is **hard-frozen** via its own
 `@frozen` tag; untouched files keep their state. What may be done to a frozen file depends on the
@@ -113,6 +125,45 @@ Before any verdict the gate applies the structural provenance checks
 required role with no resolvable producer also fails closed. The gate stays verdict-only — it
 writes no setup frontmatter to resolve any of these.
 
+## The governance pre-flight check
+
+The spec-judge cannot see whether the spec-producer ran its pre-flight (loaded its required
+governances before writing) — a producer that skipped pre-flight and one that ran it correctly both
+show up, absent this check, as an indistinguishable output gap. So the check runs as the spec-judge's
+**own first act**, before the three lenses do any content judgment:
+
+- The judge **derives its own expected governance set** from what it itself loaded to judge this
+  diff — never from the producer's declaration, which is untrusted input, not the standard.
+- It reads **`producer_governances_declared`** from the dispatch channel (the conductor's relay of
+  the producer's `governances_loaded`, `../../mission/conductor/README.md`) and checks
+  `expected ⊆ declared`.
+- **On a miss**, it emits a **`change`** verdict carrying **finding-kind `governance-preflight-missing`**,
+  listing each expected governance absent from the declared set, and renders **no content-analysis
+  findings** — the check halts before the oracle/builder/architect lenses run, so a preflight gap is
+  never conflated with a content defect. The gate never advances on this verdict, same as any other
+  judge failure.
+- A declared set that is a **superset** of the expected set (extra governances beyond what the judge
+  itself needed) raises no finding — declaring more than required is not a violation.
+
+This surfaced from a multi-round backfill where round 1 was entirely structural because the producer
+started writing without loading `sdd:spec-format-governance` and `sdd:suite-format-governance` first
+— a preflight check would have caught **that honest omission** before the judge ever reasoned about
+content.
+
+**What it catches, and what it does not — the declaration is self-reported, not attested.**
+`producer_governances_declared` is a value the producer *asserts*; nothing here observes the actual
+load. So the check is a **forcing-function against honest omission** (the motivating case — a producer
+that loaded a subset and truthfully declares it), **not** an attestation. It does **not** catch a
+producer that skips the load and declares the full set anyway — and because the expected set is
+**derivable from the artifact-type**, that full set is guessable, so the check has little adversarial
+strength. It also does **not** catch a producer that loaded every governance and *applied* one badly;
+that is a content defect the three lenses still own. Mechanical *verification* of the declaration is
+not portable — no agent harness exposes a stable, cross-harness "governance X was loaded" signal (skill
+loading is silent context injection on most, and the one harness that models it as an observable tool
+call does not observe a **spawned** producer's calls). A portable attested version would capture the
+load at a **repo-owned loader seam** rather than from harness telemetry — tracked as a follow-up, not
+built here.
+
 ## The suite-form pre-filter
 
 Alongside the structural checks, and **before the cold judge is spawned**, the gate runs the
@@ -123,6 +174,27 @@ no status and the judge is not spawned, so a well-formed suite is the only thing
 judge ever sees, and a mechanical bar never rides on the judge catching a hedge word. The check is
 **scoped to the touched files**, not the whole tree (the tree-wide sweep stays a CI backstop). The
 gate stays verdict-only — it fixes nothing, it reports the form violation for the producer to fix.
+
+**Gherkin validity is the pinned parser's verdict, not a lenient read.** A `.feature` the pinned
+Gherkin parser (`../../design/gherkin-cli-dependency.md`) **rejects** is a **fail closed** — the check
+reports the parse failure and the line it occurred on, and the judge is not spawned. The parse
+failure **replaces** the form findings rather than joining them: every other form check reads the
+file through a permissive scan, so on an unparseable file those findings are read from a partial
+view and are not evidence. Reporting "no violations" from a file the parser could not read is the
+**fail-open** this guard exists to close — a permissive scan cannot see a `Scenario:` the parser
+rejects, so it reports the reassuring answer instead of the true one.
+
+A parse failure is a **form violation like any other** — it needs no special surface and gets none.
+It fails the gate's touched-scope check closed and the CI backstop's tree-wide sweep closed by the
+same path every other form violation already takes. What makes it worth naming is only **where the
+verdict comes from**: the pinned parser, never the permissive scan the other form checks read
+through.
+
+The guard is specified to **discriminate, not merely to refuse**: a `.feature` that parses raises no
+parse violation, and a corpus that parses wholly raises none either. A check that always fails
+closed would be as useless as one that always passes — it would just fail in the safe direction, and
+"safe" is not the same as "measuring". Both directions are frozen so neither can be satisfied by a
+constant.
 
 ## The referenced-artifact-exists pre-filter
 
@@ -165,6 +237,47 @@ judge spawn. This mechanizes the recurring coverage gap (`../spec-format/README.
 case carries no row to link, so both stay silent and the spec-judge remains the coverage backstop for
 the un-tabled forms.
 
+**A present-but-unparseable row is a violation, not a silent skip.** Once a `## Use Cases` table
+carries a `Scenario` column, every data row under it (after the header and its dashed separator) is a
+link that must resolve. A data row whose `Scenario` cell is **non-empty but carries no backtick-wrapped
+reference** — a title written without backticks, a stray note — is **reported and fails closed**, never
+dropped. Skipping it would be the same fail-open the coverage check exists to close: a row that reads
+as covered to a human but binds nothing to the checker. The non-mandating cases above are recognized *structurally*
+(no table, or a table with no `Scenario` column), never by a row quietly failing to parse.
+
+## The scenario-map binding check
+
+For every touched `.feature` that parses cleanly and has a sibling `README.md`/`spec.md`, the gate
+binds the suite to that spec's `## Scenario map` — the maintained table pairing each control-flow
+edge with the one scenario covering it (`sdd:spec-format-governance`). The binding is **form only**: it
+checks that the map is **complete and non-duplicated**, not that the edges cover the drawn CFG (that
+needs the graph's semantics and stays a judge concern). Three violations:
+
+- **every scenario is on the map** — a `Scenario:` in the `.feature` that no map row names is reported;
+- **every row names a real scenario** — a map row whose `Scenario` cell names no sibling `Scenario:` is
+  reported;
+- **each `(edge, path class)` pair is unique** — two rows sharing the same edge and path cover
+  different scenarios by the same key, so a repeated pair is reported.
+
+A spec that carries **no `## Scenario map` section** is **skipped, not failed** — the map is the
+rebuilt-node format, and a node still on the older shape is not in violation of a section it does not
+claim. The section is recognized only by a **real `## Scenario map` heading line** — a spec that
+mentions the heading inside prose or a backtick span (a doc *about* the map, like this one) is not
+misread as having one — and it **ends at the next `## ` heading**, so a following section's table
+(e.g. `## References`) is never read as map rows.
+
+**A present-but-unparseable data row is a violation, not a silent skip.** The map is a markdown
+table: its **first row is the column header** (`| Edge | Path (Given) | Scenario |`) and its **second
+is the dashed separator**; every row after those is a **data row**, and each data row must name its
+scenario in a **backtick-wrapped `Scenario` cell**. A data row whose `Scenario` cell is **not**
+backtick-wrapped is **reported as an unparseable row** — never dropped. This is the fail-open this
+check exists to close: the backtick match must **discriminate a data row from the header/separator**,
+not double as the *only* signal that a row exists at all. Conflating the two means a fully-authored
+map — every scenario present, titles verbatim, one row each — whose cells were written without
+backticks **binds nothing while reading as complete to a human**: the exact "skip rather than fail"
+shape the scenario map itself exists to prevent. The header and separator rows, recognized
+**positionally**, raise no unparseable-row violation.
+
 ## Structural edit-class classification (freeze integrity)
 
 The gate routes a touched `.feature`'s change by its **edit class** — an *additive* scenario
@@ -190,3 +303,64 @@ context-line reassignment can no longer route a narrowing down the additive path
 The classification is scoped to the CR's **touched** `.feature` files. A whole-scenario addition stays
 additive and self-clears; only a baseline scenario that is genuinely `modified`/`removed` is a narrowing,
 and its outcome is Clearance (per the floor), not a bare block.
+
+### A scenario's structural identity includes its steps' arguments
+
+A step's **DocString** and **DataTable** are part of that step, not decoration around it — so they are
+part of the scenario's structural identity. A signature over **step text alone** reads a rewritten
+argument as **no change at all**, and that hole is not evenly distributed: a `@rubric` lives **wholly**
+inside a DocString, so it is exactly the **graded** scenarios that lose their freeze. A frozen rubric
+could be renamed and its `threshold: 3` moved to `threshold: 0` — every subject then passing — while
+the diff reported `unchanged` / `addOnly: true` and the gate printed `NO-CONTENT-CHANGE`: a self-clear
+route, Clearance never firing, the discrimination bar satisfied at freeze time guaranteeing nothing
+thereafter. The identity therefore covers each step's **argument content**, and a rewritten argument is
+a `modified` scenario taking the same narrowing → Clearance path as a rewritten step.
+
+Only what an argument **says** counts, never how it is written — and that holds for **each** argument
+kind on **both** faces, not for the DocString the defect was reported against:
+
+| | a change to what it says → `modified` | a change to how it is written → `unchanged` |
+| --- | --- | --- |
+| **DocString** | its content, or its **media type** (which selects how the content is read, so it is identity, not decoration) | re-indenting it; swapping its delimiter between `"""` and back-ticks |
+| **DataTable** | its cell values | realigning its column padding |
+| **either** | — | its source location: a scenario pushed down the file by an insertion above it stays `unchanged`, and the edit stays purely additive |
+
+Three of those exclusions — the delimiter, the padding, and the source location — are **independent
+implementation choices** rather than consequences of "only content counts": dropping a DataTable's
+padding means reducing its rows to cell *values*, which a naive hash of the raw rows would not do. So
+each is **frozen by its own scenario** rather than inferred, because an identity that hashed a
+delimiter, a cell's padding, or a line number would satisfy every *other* scenario here while
+re-classifying ordinary formatting and ordinary additive edits as narrowings. A DocString's
+indentation is the exception that proves the rule: the parser strips it before the identity is
+computed, so there is no field to exclude — its scenario guards a **dependency's** property rather than
+a choice of ours, and it is frozen so that a parser swap cannot quietly take it away.
+
+Keeping the identity off form is what stops it over-firing — and a floor that fires on a re-indent is a
+floor that gets ignored.
+
+### An input the classifier cannot classify
+
+The structural differ reports a per-file **parse error** when either side of the comparison fails to
+parse, and it reports that error **alongside a fully reassuring result**: `addOnly: true`, zero
+changed scenarios. That pairing is not a measurement — a file that yields **no scenarios** gives the
+differ nothing to compare, so "nothing changed" is **structurally guaranteed rather than observed**.
+A classifier that reads `addOnly` and ignores the error field therefore returns `no-content-change`
+for a diff that rewrote the whole suite, and the edit **self-clears with Clearance never firing**.
+
+So the classifier **never derives a class from `addOnly`** — it reads the error field first, and any
+input it cannot classify becomes **`unclassifiable`**, which **escalates to Clearance** and advances
+no status. Three distinct inputs collapse to it: a **parse error** on either side, a differ that
+returns **no per-file result** for a touched file, and a differ that **produces no readable result at
+all**. Each is a case where the classifier has no evidence — and the absence of evidence is never
+read as evidence of no change. A check that cannot classify its input **escalates; it never exempts**.
+
+Two boundaries keep the escalation honest rather than merely loud:
+
+- **A pure rename still classifies as `no-content-change`**, even when the file does not parse. That
+  verdict comes from **git's** rename detection (a 100% similarity score across the tree), which
+  **measures** a zero-content delta without ever parsing the file. The classifier has evidence here,
+  so it needs no escalation — the rename check runs before the differ for exactly this reason.
+- **An unparseable file with no `@frozen` tag stays `unfrozen-skip`.** Edit-class routing exists to
+  protect a freeze, and there is no freeze to protect. This is not an exemption: the file is still
+  touched, so the **form check above fails the gate closed on it** regardless. The two checks are
+  independent, and the gate needs only one of them to hold.

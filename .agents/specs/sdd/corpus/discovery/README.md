@@ -65,7 +65,7 @@ A consumer resolves a name → spec, so each entry carries a **name** and a **`n
 flags how trustworthy it is — because a project's name is not always derivable from its location:
 
 - **`declared`** — the frontmatter `name` field (authoritative; set at spec creation, see
-  `../../authoring/backfill-project-spec/`). Required in practice for a **nested** project, whose
+  `../../authoring/scaffold-project-spec/`). Required in practice for a **nested** project, whose
   folder may not be the name the user uses (a `package.json` name, an acronym, …).
 - **`derived`** — reliably inferred: the repo-root single-project (`.agents/spec`) takes the
   assumable name `repo`; a `.agents/specs/<project>` folder names itself; an extra anchor whose

@@ -109,7 +109,7 @@ Scanner neither convenes the Council nor prunes the corpus itself.
 Unit scenarios for the Scanner loop (the six triggers, the sole-writer / observe-not-write / 
 post-hoc invariants, the combat-log-alone reader coverage, episodic surfacing) **colocate** in
 this folder. The cross-capability outcome — a ratified strategy re-tuning doctrine end-to-end —
-lives in `../../acceptance/`.
+lives in `../../workflows/`.
 
 ## Source
 

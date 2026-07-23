@@ -13,9 +13,9 @@
 //     a live git diff or the live mission-graph store.
 //   - readChangedFiles / resolveArtifactType / changedScenarios / collectChangedFiles /
 //     discoverLayouts are the thin IO SEAM: they shell out to `git`, `resolve-governances.mts`, and
-//     `npx gherkin-cli@0.0.1 diff` (the pinned differ classify-edit-class.mts also uses — this tool
-//     never reimplements a differ). NOT unit-tested (network/binary/fs boundary) — the tested logic
-//     is everything downstream of the file list.
+//     the pinned `gherkin-cli@0.0.2` `diffFeatures` (the same differ classify-edit-class.mts uses —
+//     this tool never reimplements a differ). NOT unit-tested (binary/fs boundary) — the tested
+//     logic is everything downstream of the file list.
 //   - main() is a thin CLI: argv -> collectChangedFiles + assembleCorrection, rendering TOON by
 //     default or `--format json`.
 //
@@ -24,12 +24,13 @@
 // NOT classify a collision hard/soft, run the finer-than-node ladder, descend to region/hunk tier,
 // or do SSA lowering (all deferred, issue #189 remainder).
 //
-// No dependencies (the repo's node-≥23.6 / no-deps convention). Pure functions are exported for
-// node:test; running the file directly drives the CLI.
+// Pure functions are exported for node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
-import { dirname, join } from 'node:path'
+import { readFileSync } from 'node:fs'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { type DiffReader, diffFeatures } from 'gherkin-cli'
 
 // ── Types ──
 
@@ -225,34 +226,62 @@ export function resolveArtifactType(path: string, root: string, cwd: string): st
 	}
 }
 
-interface GherkinScenarioChange {
-	name: string
-	change: 'added' | 'modified' | 'removed' | 'unchanged'
-}
+// `diffFeatures`'s default reader resolves paths against `process.cwd()` and derives git's own cwd
+// from that resolved location (`git ls-files --full-name` to recover the repo-relative path) —
+// this reader is that same algorithm, re-pointed at `cwd` (same seam classify-edit-class.mts
+// uses), so it stays robust to a caller whose relative-path bookkeeping doesn't line up with its
+// own `cwd`. Any failure (bad ref, unreadable file) surfaces as `undefined` text, which the differ
+// reads as "absent" — the outer `changedScenarios` catch-all is this call site's real fail-open
+// boundary, so a thrown `GitError` here is caught there rather than escalated.
+const cwdReader =
+	(cwd: string): DiffReader =>
+	(file, base) => {
+		const abs = resolve(cwd, file)
+		const dir = dirname(abs)
+		let head: string | undefined
+		try {
+			head = readFileSync(abs, 'utf8')
+		} catch {
+			head = undefined
+		}
+		const gitIo = {
+			cwd: dir,
+			encoding: 'utf8' as const,
+			stdio: ['ignore', 'pipe', 'ignore'] as ['ignore', 'pipe', 'ignore'],
+		}
+		let rel: string
+		try {
+			rel = execFileSync('git', ['ls-files', '--full-name', '--', abs], gitIo).trim()
+		} catch {
+			return { head, base: undefined }
+		}
+		if (rel === '') {
+			try {
+				const top = execFileSync('git', ['rev-parse', '--show-toplevel'], gitIo).trim()
+				rel = relative(top, abs).split(sep).join('/')
+			} catch {
+				return { head, base: undefined }
+			}
+		}
+		let baseText: string | undefined
+		try {
+			baseText = execFileSync('git', ['show', `${base}:${rel}`], gitIo)
+		} catch {
+			baseText = undefined
+		}
+		return { head, base: baseText }
+	}
 
-interface GherkinDiffFileResult {
-	file: string
-	scenarios: GherkinScenarioChange[]
-}
-
-interface GherkinDiffOutput {
-	files: GherkinDiffFileResult[]
-}
-
-/** The changed scenario names of a touched `.feature`, via the pinned `gherkin-cli@0.0.1 diff`
- *  (same tool classify-edit-class.mts uses — never a reimplemented differ). Gated by isFeature —
- *  a non-.feature never calls out. On any failure returns []. Reads any `.feature` regardless of
- *  freeze — the freeze gate is a separate concern (spec-gate), not this tool's business. */
+/** The changed scenario names of a touched `.feature`, via the pinned `gherkin-cli@0.0.2`
+ *  `diffFeatures` (same tool classify-edit-class.mts uses — never a reimplemented differ). Gated
+ *  by isFeature — a non-.feature never calls out. On any failure returns []. Reads any `.feature`
+ *  regardless of freeze — the freeze gate is a separate concern (spec-gate), not this tool's
+ *  business. */
 export function changedScenarios(base: string, path: string, cwd: string): string[] {
 	if (!isFeature(path)) return []
 	try {
-		const out = execFileSync('npx', ['gherkin-cli@0.0.1', 'diff', path, '--base', base, '--format', 'json'], {
-			encoding: 'utf8',
-			cwd,
-			stdio: ['ignore', 'pipe', 'ignore'],
-		})
-		const parsed = JSON.parse(out) as GherkinDiffOutput
-		const fileResult = parsed.files.find((f) => f.file === path) ?? parsed.files[0]
+		const { files } = diffFeatures([path], { base, reader: cwdReader(cwd) })
+		const fileResult = files.find((f) => f.file === path) ?? files[0]
 		return (fileResult?.scenarios ?? []).filter((s) => s.change !== 'unchanged').map((s) => s.name)
 	} catch {
 		return []

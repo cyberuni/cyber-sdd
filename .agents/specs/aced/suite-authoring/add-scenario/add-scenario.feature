@@ -1,9 +1,10 @@
 @frozen
-Feature: add-scenario — add a test case to the golden set
-  Unit suite for the add-scenario skill: capture a failure, edge, or gap as one golden-set case with a
-  scenario, expected behaviors, must-not-do guards, and a scoring guide. Fixing the config when
-  cases fail is improve; scoring is run; diffing is compare. Cross-capability e2e scenarios live
-  in ../../acceptance/.
+Feature: add-scenario — add a test case to the frozen .feature suite
+  Unit suite for the add-scenario skill: capture a failure, edge, or gap, resolve its layer, scaffold
+  it in its layer's shape (a trigger Examples row, a boolean scenario, or a graded scenario with its
+  scoring guide inline), and append it to the frozen .feature, which stays frozen because adding a
+  scenario self-clears. Fixing the config when cases fail is improve; scoring is run; diffing is
+  compare. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 
@@ -18,7 +19,7 @@ Feature: add-scenario — add a test case to the golden set
     Then add-scenario does not handle it and improve does
 
   Scenario: a request to score the suite defers to run
-    Given the user asks to score the configuration against its golden set
+    Given the user asks to score the configuration against its suite
     When ACED routes the request
     Then add-scenario does not handle it and run does
 
@@ -58,6 +59,16 @@ Feature: add-scenario — add a test case to the golden set
     When add-scenario determines the layer
     Then it assigns the case to the trigger layer
 
+  Scenario: a skipped-step input is inferred as a behavior case
+    Given an input describing the agent invoking correctly but skipping a step
+    When add-scenario determines the layer
+    Then it assigns the case to the behavior layer
+
+  Scenario: a poor-output input is inferred as a quality case
+    Given an input describing the agent doing the step but producing poor output
+    When add-scenario determines the layer
+    Then it assigns the case to the quality layer
+
   Scenario: an ambiguous input prompts the user for the layer
     Given an input that fits more than one layer
     When add-scenario determines the layer
@@ -70,10 +81,25 @@ Feature: add-scenario — add a test case to the golden set
 
   # ---- Scaffolding and writing ----
 
-  Scenario: the draft carries every required section
+  Scenario: the draft is a Gherkin scenario tagged with its resolved layer
     Given a captured input and a resolved layer
     When add-scenario scaffolds the test case
-    Then the draft contains a scenario, an expected-behaviors list, a must-not-do list, and a scoring guide
+    Then the draft is a single Gherkin scenario tagged with that layer
+
+  Scenario: a trigger case is scaffolded as a trigger Examples row
+    Given a captured input resolved to the trigger layer
+    When add-scenario scaffolds the test case
+    Then the draft adds a row to the trigger Scenario Outline Examples, starting the outline if the suite has none
+
+  Scenario: a deterministic behavior case is scaffolded as a boolean scenario
+    Given a captured input resolved to the behavior layer with an observable action
+    When add-scenario scaffolds the test case
+    Then the draft is a boolean scenario whose Then asserts the observable action
+
+  Scenario: a graded case is scaffolded with its scoring guide inline
+    Given a captured input resolved to a graded behavior or quality case
+    When add-scenario scaffolds the test case
+    Then the draft is a graded scenario carrying its scoring guide inline
 
   Scenario: the draft is shown before anything is written
     Given a scaffolded draft
@@ -85,17 +111,22 @@ Feature: add-scenario — add a test case to the golden set
     When add-scenario handles the rejection
     Then it revises the draft and still writes no file
 
-  Scenario: a confirmed case is written with the next sequence number
-    Given the user confirms the draft and the golden set already holds numbered cases
+  Scenario: a confirmed case is appended to the frozen .feature in its lifecycle section
+    Given the user confirms the draft
     When add-scenario writes the case
-    Then it writes the file as the next NNN-slug under the golden-set directory
+    Then it appends the scenario to the feature file, sorted into its lifecycle-stage section
 
-  Scenario: the first case in an empty golden set starts the sequence
-    Given the user confirms the draft and the golden set holds no numbered cases yet
+  Scenario: appending a scenario keeps the suite frozen
+    Given a confirmed draft appended to an already-frozen suite
     When add-scenario writes the case
-    Then it writes the file as the first 001-slug under the golden-set directory
+    Then it keeps the suite's frozen tag because adding a scenario self-clears
 
-  Scenario: the written case reports its path and points to scoring
+  Scenario: the suite is checked for well-formedness after the write
+    Given a scenario has just been appended
+    When add-scenario finishes the write
+    Then it runs the suite check to confirm the feature is still well-formed
+
+  Scenario: the written case reports the added scenario and points to scoring
     Given a case has just been written
     When add-scenario finishes
-    Then it reports the file path and suggests running run against the new case
+    Then it reports the added scenario name and suggests running run against it

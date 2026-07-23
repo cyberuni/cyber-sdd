@@ -71,7 +71,7 @@ done?` mirror to merge or split. So each is **one skill**, not an `(actor, gate)
 
 `autonomy` is **descriptive + baked-in**: the rubric lives in `design/autonomy-rubric.md` and the
 self-clear-vs-escalate verdict is the conductor's **baked-in logic**, not a loaded skill. It is
-exercised by the `acceptance/` ACED golden suite, not a reference node. (`autonomy-rubric.md` is
+exercised by the `workflows/` ACED golden suite, not a reference node. (`autonomy-rubric.md` is
 canonical; the runtime verdict comes from the conductor's own logic, never from loading the rubric.)
 
 ### Reconciles resolved (reasoned to intent, not tallied)

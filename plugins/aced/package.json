@@ -1,5 +1,11 @@
 {
 	"name": "@cyberplace/aced-plugin",
 	"private": true,
-	"type": "module"
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"check:spec": "sdd-check-specs",
+		"test": "node --test \"skills/*/scripts/*.test.mts\"",
+		"typecheck": "tsc -p tsconfig.json"
+	}
 }

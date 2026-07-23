@@ -125,7 +125,7 @@ exported for `node:test`; running the file directly drives the CLI.
 
 Unit scenarios for the sweep (decoupling, the two-file tracked deletion, fail-closed clearance,
 idempotency) **colocate** in this folder. The cross-capability outcome — a full mission distilled
-then its plan retired end-to-end — lives in `../../acceptance/`.
+then its plan retired end-to-end — lives in `../../workflows/`.
 
 ## Source
 

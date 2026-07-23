@@ -46,7 +46,7 @@ When a derived list would exceed four, present only the most-actionable few (≤
 
 For **Help me choose** — and whenever it needs to locate the project spec or rank the most-actionable few — the gateway runs the **`discover-specs`** skill, the frontmatter-only engine for `corpus/discovery`. It returns the TOON list of every project spec at the SDD spec locations — the three fixed conventions plus any opt-in extra anchors a project declared (ADR-0019) — with its `status`, `project-path`, and gate `approvals`; the gateway ranks from that and never opens a spec body. This is a read, not production logic — the same category as counting `ledger/` shard lines for pending strategy — so the thin-classifier rule still holds.
 
-**No spec found offers spec anchors.** When `discover-specs` finds no spec for a target project, do not assume it was simply never scaffolded — its spec may sit off the three fixed conventions and need a declared extra anchor. Offer `manage-spec-anchors` (via `manage`) alongside `backfill-project-spec` as entry points, rather than routing straight to backfill.
+**No spec found offers spec anchors.** When `discover-specs` finds no spec for a target project, do not assume it was simply never scaffolded — its spec may sit off the three fixed conventions and need a declared extra anchor. Offer `manage-spec-anchors` (via `manage`) alongside `scaffold-project-spec` as entry points, rather than routing straight to backfill.
 
 ## The routing table is the user-skill→capability index
 

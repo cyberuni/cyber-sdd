@@ -8,15 +8,19 @@ import {
 	classifyFile,
 	classifyFiles,
 	classifyFromDiff,
+	classifyFromFileResult,
+	type GherkinDiffRunner,
 	hasFeatureFrozenTag,
+	main,
 	parseRenameStatus,
+	runGherkinDiff,
 } from './classify-edit-class.mts'
 
 // ─── real git-repo fixture helper ───────────────────────────────────────────
 // Each frozen scenario's structural claim (a step reassignment fooling a raw line-diff, a rename
 // preserving freeze, a whole-scenario addition self-clearing) is a claim about a real gherkin-cli
 // + git interaction, not about the classifier's internal plumbing — so these fixtures are real
-// temp git repos, and classifyFile drives the actual `git`/`npx gherkin-cli@0.0.1` subprocesses.
+// temp git repos, and classifyFile drives the actual `git`/`npx gherkin-cli@0.0.2` subprocesses.
 
 function git(cwd: string, ...args: string[]): string {
 	return execFileSync('git', args, { cwd, encoding: 'utf8' })
@@ -112,6 +116,72 @@ const WHOLE_ADDITIVE = [
 	'    When a wholly new event fires',
 	'    Then gamma holds',
 ].join('\n')
+
+// ── step-argument fixtures ──
+// A `@rubric` lives wholly inside a DocString, so hashing step text alone let a frozen rubric be
+// renamed and its `threshold: 3` moved to `threshold: 0` while the scenario still reported
+// `unchanged` — a narrowing self-clearing with Clearance never firing. These fixtures pin both
+// argument kinds on both faces: what the argument SAYS is identity, how it is WRITTEN is not.
+// classifyFile drives the real pinned gherkin-cli, so they exercise the published differ's identity
+// rather than a stand-in that would inherit the bug.
+
+function frozenFeature(...scenarioLines: string[]): string {
+	return ['@frozen', 'Feature: sample', '', ...scenarioLines].join('\n')
+}
+
+const graded = (dimension: string, threshold: string, indent = '      ', delimiter = '"""') => [
+	'  @rubric',
+	'  Scenario: graded',
+	'    Given a subject',
+	'    Then the voice is graded',
+	`${indent}${delimiter}`,
+	`${indent}dimension: ${dimension}`,
+	`${indent}threshold: ${threshold}`,
+	`${indent}${delimiter}`,
+	'',
+]
+
+const tabled = (row: string) => [
+	'  Scenario: tabled',
+	'    Given the bar is set',
+	'      | dimension | threshold |',
+	row,
+	'    Then it grades',
+]
+
+const typed = (mediaType: string) => [
+	'  Scenario: typed',
+	'    Then the payload is graded',
+	'      ```' + mediaType,
+	'      threshold: 3',
+	'      ```',
+]
+
+const ARG_BASELINE = frozenFeature(...graded('warmth', '3'), ...tabled('      | warmth    | 3         |'))
+const ARG_DOCSTRING_REWRITTEN = frozenFeature(...graded('vibes', '0'), ...tabled('      | warmth    | 3         |'))
+const ARG_DATATABLE_REWRITTEN = frozenFeature(...graded('warmth', '3'), ...tabled('      | vibes     | 0         |'))
+// Cosmetic-only variants — the baseline's meaning is untouched in each.
+const ARG_DOCSTRING_REINDENTED = frozenFeature(
+	...graded('warmth', '3', '          '),
+	...tabled('      | warmth    | 3         |'),
+)
+const ARG_DELIMITER_SWAPPED = frozenFeature(
+	...graded('warmth', '3', '      ', '```'),
+	...tabled('      | warmth    | 3         |'),
+)
+const ARG_DATATABLE_REALIGNED = frozenFeature(...graded('warmth', '3'), ...tabled('      |   warmth |   3 |'))
+// A whole scenario added ABOVE the frozen one, pushing its every line down.
+const ARG_SCENARIO_PUSHED_DOWN = frozenFeature(
+	'  Scenario: inserted above',
+	'    Given a wholly new precondition',
+	'    Then it holds',
+	'',
+	...graded('warmth', '3'),
+	...tabled('      | warmth    | 3         |'),
+)
+
+const MEDIA_BASELINE = frozenFeature(...typed('json'))
+const MEDIA_REWRITTEN = frozenFeature(...typed('yaml'))
 
 describe('spec:authoring/spec-gate', () => {
 	// ── unit-level: the tested pure logic ──
@@ -281,6 +351,225 @@ describe('spec:authoring/spec-gate', () => {
 		}
 	})
 
+	test('classifyFiles batches every path still needing a structural diff into a single differ call', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			writeFileSync(join(dir, 'specs/other.feature'), FROZEN_BASELINE.replace('sample', 'other'))
+			commitAll(dir, 'baseline')
+			// Narrow both — both need a real structural diff, neither is unfrozen-skip/rename.
+			writeFileSync(join(dir, 'specs/sample.feature'), ORPHAN_REASSIGNED)
+			writeFileSync(join(dir, 'specs/other.feature'), ORPHAN_REASSIGNED.replace('sample', 'other'))
+
+			const calls: string[][] = []
+			const spyDiff: GherkinDiffRunner = (base, paths, cwd) => {
+				calls.push(paths)
+				return runGherkinDiff(base, paths, cwd)
+			}
+
+			const results = classifyFiles(['specs/sample.feature', 'specs/other.feature'], 'HEAD', dir, spyDiff)
+			assert.equal(calls.length, 1, 'exactly one differ invocation for the whole touched set')
+			assert.deepEqual(calls[0].slice().sort(), ['specs/other.feature', 'specs/sample.feature'])
+			assert.equal(results.length, 2)
+			assert.notEqual(results.find((r) => r.file === 'specs/sample.feature')?.classification, 'additive')
+			assert.notEqual(results.find((r) => r.file === 'specs/other.feature')?.classification, 'additive')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('classifyFiles skips the differ call entirely when every path resolves at the pre-check', () => {
+		const dir = initRepo()
+		try {
+			const unfrozen = FROZEN_BASELINE.replace('@frozen\n', '')
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozen)
+			commitAll(dir, 'baseline')
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozen.replace('beta holds', 'beta holds now'))
+
+			let calls = 0
+			const spyDiff: GherkinDiffRunner = (base, paths, cwd) => {
+				calls++
+				return runGherkinDiff(base, paths, cwd)
+			}
+
+			const results = classifyFiles(['specs/sample.feature'], 'HEAD', dir, spyDiff)
+			assert.equal(calls, 0, 'unfrozen-skip resolves without ever invoking the differ')
+			assert.equal(results[0].classification, 'unfrozen-skip')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	// ── the unclassifiable escalation boundary — a parse error is never read as no-change ──
+
+	test('classifyFromFileResult: undefined (no per-file result) is unclassifiable', () => {
+		const result = classifyFromFileResult(undefined)
+		assert.equal(result.classification, 'unclassifiable')
+		assert.match(result.reason ?? '', /returned no result/)
+	})
+
+	test('classifyFromFileResult: THE REGRESSION TEST — an error alongside addOnly:true and no scenarios is unclassifiable, not no-content-change', () => {
+		// This is exactly the reported bug's shape: the differ reports a parse error for the file
+		// AND a fully reassuring addOnly:true, scenarios:[] — because a file with no parseable
+		// scenarios gives the differ nothing to compare. Reading addOnly here silently guarantees
+		// "nothing changed" instead of measuring it.
+		const result = classifyFromFileResult({
+			file: 'specs/sample.feature',
+			addOnly: true,
+			scenarios: [],
+			error: { code: 'EPARSE', message: 'failed to parse feature' },
+		})
+		assert.equal(result.classification, 'unclassifiable')
+		assert.notEqual(result.classification, 'no-content-change')
+		assert.match(result.reason ?? '', /EPARSE/)
+	})
+
+	test('classifyFromFileResult: no error delegates to classifyFromDiff unchanged', () => {
+		const additive = classifyFromFileResult({
+			file: 'x',
+			addOnly: true,
+			scenarios: [{ name: 'gamma', change: 'added' }],
+		})
+		assert.equal(additive.classification, 'additive')
+		assert.equal(additive.reason, undefined)
+
+		const narrowing = classifyFromFileResult({
+			file: 'x',
+			addOnly: false,
+			scenarios: [{ name: 'beta', change: 'modified' }],
+		})
+		assert.equal(narrowing.classification, 'narrowing')
+	})
+
+	// ── end-to-end: a real unparseable frozen file over a real git+gherkin-cli boundary ──
+
+	// Gherkin has no step-continuation syntax — a soft-wrapped step's remainder is a bare token the
+	// pinned parser rejects (EPARSE), unlike the permissive form-check scan.
+	const UNPARSEABLE_NARROWED = [
+		'@frozen',
+		'Feature: sample',
+		'',
+		'  Scenario: wrapped step',
+		'    Given a step that wraps',
+		'      onto the next line',
+		'    Then it holds',
+	].join('\n')
+
+	test('an unparseable, materially narrowed frozen file classifies unclassifiable end-to-end, never no-content-change', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(join(dir, 'specs/sample.feature'), UNPARSEABLE_NARROWED)
+
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir)
+			assert.equal(result.classification, 'unclassifiable')
+			assert.notEqual(result.classification, 'no-content-change')
+			assert.notEqual(result.classification, 'additive')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	// ── the differ's own failure branch ──
+	// A differ that exits without a readable result is reachable in production: a bad base ref makes
+	// the pinned CLI exit nonzero with no `files` array, so execFileSync throws inside the runner.
+	// The runner is injected here because that branch cannot be driven through the real binary
+	// without also breaking the git fixture the other scenarios depend on.
+
+	test('a structural differ that produces no readable result is classified unclassifiable', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(
+				join(dir, 'specs/sample.feature'),
+				`${FROZEN_BASELINE}\n  Scenario: gamma\n    Given g\n    Then g\n`,
+			)
+
+			const throwingDiff = () => {
+				throw new Error('gherkin-cli diff exited 1 with no report')
+			}
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir, throwingDiff)
+
+			assert.equal(result.classification, 'unclassifiable')
+			assert.notEqual(result.classification, 'no-content-change')
+			assert.notEqual(result.classification, 'additive')
+			assert.match(result.reason ?? '', /no readable result/)
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('a differ failure escalates rather than resolving to a reassuring class, even on an additive edit', () => {
+		// The working edit here is genuinely additive — a classifier that fell back to inspecting the
+		// file itself, or that defaulted the catch to a benign class, would report `additive` and
+		// self-clear. Only escalation is correct: the differ never rendered a verdict.
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(
+				join(dir, 'specs/sample.feature'),
+				`${FROZEN_BASELINE}\n  Scenario: delta\n    Given d\n    Then d\n`,
+			)
+
+			const throwingDiff = () => {
+				throw new Error('boom')
+			}
+			assert.equal(classifyFile('specs/sample.feature', 'HEAD', dir, throwingDiff).classification, 'unclassifiable')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('main returns 1 (not 0) when the classified file is unclassifiable', () => {
+		const dir = initRepo()
+		const cwd = process.cwd()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), FROZEN_BASELINE)
+			commitAll(dir, 'baseline')
+			writeFileSync(join(dir, 'specs/sample.feature'), UNPARSEABLE_NARROWED)
+
+			process.chdir(dir)
+			const exit = main(['--files', 'specs/sample.feature', '--base', 'HEAD'])
+			assert.equal(exit, 1)
+		} finally {
+			process.chdir(cwd)
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('a pure rename of an unparseable frozen file still classifies no-content-change (rename detection runs before the differ)', () => {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), UNPARSEABLE_NARROWED)
+			commitAll(dir, 'baseline')
+			git(dir, 'mv', 'specs/sample.feature', 'specs/renamed.feature')
+
+			const result = classifyFile('specs/renamed.feature', 'HEAD', dir)
+			assert.equal(result.classification, 'no-content-change')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
+	test('an unparseable file with no @frozen tag in either version stays unfrozen-skip', () => {
+		const dir = initRepo()
+		try {
+			const unfrozenUnparseable = UNPARSEABLE_NARROWED.replace('@frozen\n', '')
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozenUnparseable)
+			commitAll(dir, 'baseline')
+			// Still unparseable, still no @frozen tag in either version.
+			writeFileSync(join(dir, 'specs/sample.feature'), unfrozenUnparseable.replace('it holds', 'it still holds'))
+
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir)
+			assert.equal(result.classification, 'unfrozen-skip')
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+
 	// ── unfrozen-skip (supporting behavior the classification depends on) ──
 
 	test('a file with no feature-level @frozen tag in baseline or working version is skipped', () => {
@@ -296,5 +585,78 @@ describe('spec:authoring/spec-gate', () => {
 		} finally {
 			rmSync(dir, { recursive: true, force: true })
 		}
+	})
+
+	// ── the 7 frozen step-argument scenarios (real git + gherkin-cli fixtures) ──
+
+	// Drives the real pinned differ over a baseline/head pair and returns both the named scenario's
+	// own change and the file's classification — the two things every scenario below asserts on.
+	function classifyEdit(baseline: string, head: string, scenario: string) {
+		const dir = initRepo()
+		try {
+			writeFileSync(join(dir, 'specs/sample.feature'), baseline)
+			commitAll(dir, 'baseline')
+			writeFileSync(join(dir, 'specs/sample.feature'), head)
+			const result = classifyFile('specs/sample.feature', 'HEAD', dir)
+			return {
+				change: result.scenarios.find((s) => s.name === scenario)?.change,
+				classification: result.classification,
+			}
+		} finally {
+			rmSync(dir, { recursive: true, force: true })
+		}
+	}
+
+	test('a rewritten step DocString is classified as a narrowing', () => {
+		// The reported defect: only the rubric's DocString content changes — the dimension renamed and
+		// the threshold dropped to 0 so every subject passes — while every step's text is untouched.
+		const { change, classification } = classifyEdit(ARG_BASELINE, ARG_DOCSTRING_REWRITTEN, 'graded')
+		assert.equal(change, 'modified')
+		assert.notEqual(classification, 'additive')
+		assert.notEqual(classification, 'no-content-change')
+	})
+
+	test('a rewritten step DataTable is classified as a narrowing', () => {
+		const { change, classification } = classifyEdit(ARG_BASELINE, ARG_DATATABLE_REWRITTEN, 'tabled')
+		assert.equal(change, 'modified')
+		assert.notEqual(classification, 'additive')
+		assert.notEqual(classification, 'no-content-change')
+	})
+
+	test('a rewritten step DocString media type is classified as a narrowing', () => {
+		const { change, classification } = classifyEdit(MEDIA_BASELINE, MEDIA_REWRITTEN, 'typed')
+		assert.equal(change, 'modified')
+		assert.notEqual(classification, 'additive')
+		assert.notEqual(classification, 'no-content-change')
+	})
+
+	// The three below MUST stay unchanged: an identity that fired Clearance on a reformat would train
+	// the floor to be ignored. Each pins one exclusion the differ makes deliberately.
+
+	test('a re-indented step DocString is classified as no content change', () => {
+		const { change, classification } = classifyEdit(ARG_BASELINE, ARG_DOCSTRING_REINDENTED, 'graded')
+		assert.equal(change, 'unchanged')
+		assert.equal(classification, 'no-content-change')
+	})
+
+	test('a swapped step DocString delimiter is classified as no content change', () => {
+		const { change, classification } = classifyEdit(ARG_BASELINE, ARG_DELIMITER_SWAPPED, 'graded')
+		assert.equal(change, 'unchanged')
+		assert.equal(classification, 'no-content-change')
+	})
+
+	test('a realigned step DataTable is classified as no content change', () => {
+		const { change, classification } = classifyEdit(ARG_BASELINE, ARG_DATATABLE_REALIGNED, 'tabled')
+		assert.equal(change, 'unchanged')
+		assert.equal(classification, 'no-content-change')
+	})
+
+	test('a frozen scenario pushed down the file by an insertion above it is classified as no content change', () => {
+		// Source locations are excluded, so an insertion above a frozen scenario shifts its every line
+		// without touching its identity: the addition self-clears rather than dragging the untouched
+		// scenario into a narrowing with it.
+		const { change, classification } = classifyEdit(ARG_BASELINE, ARG_SCENARIO_PUSHED_DOWN, 'graded')
+		assert.equal(change, 'unchanged')
+		assert.equal(classification, 'additive')
 	})
 })

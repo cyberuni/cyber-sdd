@@ -16,7 +16,13 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
   mission-graph store does), classify a collision (collision-ladder does), or emit its decision-evidence
   automatically (SQ-F5 #194, deferred). Working node name only — the final name is SQ-name #195.
 
-  # ── Activation: fires when a change request must be partitioned ──
+  # ── Applicability: does this doctrine govern the situation at hand ──
+  # Restored 2026-07-19 after the spec gate. The #304 deletion misread this as harness activation
+  # ("does this config fire?"), which IS a co-owned seam — but the `When` here is the COORDINATOR
+  # deciding whether the doctrine governs a situation, reading the doctrine itself. That decision is
+  # the node's own, and `sdd:suite-format-governance` admits `@trigger` exactly "where the node
+  # genuinely owns the routing decision". Deleting it dropped a measurement rather than relocating
+  # one, which is the standard this CR applies to the 14 sibling suites it declined to sweep.
 
   @trigger
   Scenario Outline: the lowering doctrine activates only when a change request must be cut into missions
@@ -70,6 +76,31 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
     And the rubric score is at least the threshold
 
+  # Deliberately titled for the SITUATION, not the graded verdict — unlike its Oracle siblings, whose
+  # titles ("a stale change request is…", "a misaligned change request is…") name the branch they grade.
+  # aced-case-judge receives the scenario's NAME and simulates the agent from it, so a title stating the
+  # per-part branch mapping would hand the simulator the answer this scenario exists to withhold. The
+  # sibling titles carry the same leak against a single branch; retitling them is a frozen-scenario edit
+  # (a re-open), out of scope here. The simulator is also handed this rubric itself — see #252.
+  @behavior @rubric
+  Scenario: the Oracle gate judges a change request that carries two separate asks
+    Given a change request filed last year against a music-engraving library, asking for a single place to set staff spacing and page margins for a score and for the instrument parts extracted from it
+    And the same change request also asks for a playback cursor that highlights each note as the score is played back
+    And a house-style document has shipped since the change request was filed, carrying staff spacing, page margins, and beam angles, and passed to the engrave call for a whole score
+    And the instrument parts are produced by a separate extract path that assembles its own score document and takes no house-style argument
+    And the library ships as one synchronous call that takes a score and returns an SVG string, holds no state between calls, reads no clock, and publishes the contract that the same score returns the same bytes on every machine and every run
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: spacing-part-on-supersession
+          max: 3          # derives that the shipped house-style document already delivers the score-wide spacing and margins this part of the request was filed to get, so this part fails on supersession and not on direction-fit; no step of the situation states that any goal is covered. 3 = reshapes this part down to the one remnant the situation leaves genuinely uncovered — the extract path that assembles its own score document and takes no house-style argument; 1 = drops the spacing request whole as covered, discarding that live remnant; 0 = cuts a mission to build the score-wide spacing option the house-style document already delivers, or rejects this part on direction-fit
+        - name: cursor-part-on-direction-fit
+          max: 3          # infers the library's stateless, deterministic direction from how it ships (one synchronous call, no state between calls, no clock, the same score returning the same bytes on every run) and finds the playback cursor contradicts it on direction-fit — nothing in the situation supersedes the cursor, and no step declares the direction as a slogan. 3 = kills this part or reshapes it toward the direction, emitting no mission that builds the cursor as filed; 1 = records the direction concern but lowers it as filed anyway; 0 = treats the cursor as live work merely left uncovered by the house-style document and partitions it as filed, or calls it stale
+      threshold: 5
+      """
+    And the rubric score is at least the threshold
+
   Scenario: a killed change request lowers to zero missions
     Given a change request whose goal a shipped change has fully superseded
     When the coordinator applies the SSA-lowering doctrine and kills the change request
@@ -87,6 +118,23 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
           max: 3          # re-runs the Oracle legitimacy check on frontier arrival rather than trusting the filing-time verdict
         - name: verdict-reflects-current-state
           max: 3          # the re-confirm or newly-kill decision reflects the shifted ground, not the stale filing verdict
+      threshold: 5
+      """
+    And the rubric score is at least the threshold
+
+  @behavior @rubric
+  Scenario: a change request that fits the product direction clears the Oracle gate and is lowered
+    Given a change request asking that the read-only CI check also report, per finding, which config file enabled the rule that produced it
+    And the tool ships as a read-only CI check that runs with no write credentials, and its README promises it will never open a pull request or touch a branch
+    And no shipped change supersedes the ask, and the request was filed against the current release
+    When the coordinator applies the SSA-lowering doctrine to the change request
+    Then the judge evaluates the produced plan against the rubric
+      """
+      dimensions:
+        - name: clears-the-gate
+          max: 3          # finds the CR consistent with how the tool ships (reporting more about findings is still read-only) and neither reshapes nor kills it; a coordinator that reshapes or kills anyway scores 0
+        - name: lowers-the-work
+          max: 3          # carries the cleared CR into the partition — the produced plan contains at least one mission owning the reporting work, rather than an empty partition
       threshold: 5
       """
     And the rubric score is at least the threshold
@@ -141,11 +189,16 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
   # A boolean guard, not a rubric: this situation confines the work to ONE spec-node, and single-writer
   # already guarantees one node lands in exactly one mission — so the assertion is entailed and cannot
   # register a miss. Graded, it scored 3/3 even with the doctrine's cohesion rule deleted whole.
-  # Cohesion's miss is OVER-SPLIT — scattering one node into fragments — so grading it as judgment
-  # needs a situation planting an over-split temptation: coupled work whose seams read as separable
-  # capabilities. (An over-merge temptation would not de-entail it — single-writer still forces the
-  # coupled node into one mission however many other nodes exist — and over-merge is already graded
-  # by disjoint-nodes-not-fused.) That is a Given edit: issue #250.
+  # Cohesion's miss is OVER-SPLIT — scattering one node into fragments. An over-merge temptation would
+  # not de-entail it — single-writer still forces the coupled node into one mission however many other
+  # nodes exist.
+  # CORRECTION (#241 ablation): this comment used to add "and over-merge is already graded by
+  # disjoint-nodes-not-fused". That is measured FALSE — ablating step 2's anti-fuse rule and screaming
+  # placement whole left that dimension at 3/3, Delta = 0. It is unloseable; it grades over-merge only
+  # in its wording. The over-merge temptation #250 asks for belongs on the regroup scenario, not here.
+  # Cohesion stays boolean on independent grounds: it is NON-SUBSTITUTABLE (no strength elsewhere pays
+  # for scattering a coupled node), so per suite-format-governance's selection rule it is a boolean
+  # Then at any max and any threshold. De-entailing it would not make a rubric legal. See README.
   Scenario: coupled work in one spec-node stays in a single cohesive mission
     Given a change request whose changes to one spec-node are tightly coupled and cannot be verified apart
     When the coordinator applies the SSA-lowering doctrine to the change request
@@ -154,8 +207,8 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
 
   @behavior @rubric
   Scenario: two change requests regroup by ownership into missions that cross CR boundaries
-    Given two change requests that each touch the shared authentication spec-node from a different angle
-    And each also touches a spec-node the other does not
+    Given a change request that touches the authentication spec-node and the billing spec-node
+    And a second change request that touches the authentication spec-node and the search spec-node
     When the coordinator applies the SSA-lowering doctrine across both change requests together
     Then the judge evaluates the produced plan against the rubric
       """
@@ -163,7 +216,7 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
         - name: regroup-by-ownership
           max: 3          # the shared authentication node is owned by one mission drawing on both CRs rather than split per CR — missions cut by ownership (N CRs to M missions), not one-per-CR
         - name: disjoint-nodes-not-fused
-          max: 3          # the two nodes only one CR touches stay their own missions; regrouping the shared node does not pull the disjoint work into it, which would trade the under-merge error for an over-merge that serializes independent writes
+          max: 3          # billing and search — each touched by only one CR — stay their own missions; regrouping the shared authentication node does not pull them in, which would trade the under-merge error for an over-merge that serializes independent writes
       threshold: 5
       """
     And the rubric score is at least the threshold

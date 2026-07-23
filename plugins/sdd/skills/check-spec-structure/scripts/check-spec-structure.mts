@@ -10,20 +10,33 @@
 //   - oversized-node (advisory) — a node whose sibling `.feature` scenario count exceeds the
 //     granularity threshold; carries a deterministic shape profile (plain/tagged counts + section-
 //     cluster count) but prescribes no route. Never fails `--check`.
+//   - missing-glossary (advisory) — the project spec has no root `glossary.md`, so its ubiquitous
+//     language has no home and a term can be used without ever being defined. A root FILE, not a
+//     folder: every mandated folder is an exception to screaming architecture. Never fails `--check`.
+//   - incomplete-node (advisory) — a behavioral leaf spec (a README with `spec-type: behavioral` and
+//     a colocated `.feature`) missing one of the four required `spec.md` sections (`## What`,
+//     `## Use Cases`, `## Control Flow`, `## Scenario map` — `sdd:spec-format-governance`). A spec
+//     that stops at `## Use Cases` never draws its CFG or scenario map. Advisory while a corpus is
+//     brought up to the four-section shape; a follow-up flips it to blocking once clean.
 // Breadth-vs-depth routing and intra-spec contradiction are Warden judgment (the @rubric scenarios)
 // — no engine code here.
 //
-// Pure derivation from frontmatter + scenario counts: no node body reaches a finding, and the
-// engine writes nothing. No dependencies (the repo's node-≥23.6 / no-deps convention). Pure
-// functions are exported for node:test; running the file directly drives the CLI.
+// Pure derivation from frontmatter + scenario counts + the README's level-2 section headings (the
+// four-section-shape signal): no node *prose* reaches a finding, and the engine writes nothing. No
+// dependencies (the repo's node-≥23.6 / no-deps convention). Pure functions are exported for
+// node:test; running the file directly drives the CLI.
 
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.turbo', '.next', 'coverage'])
 export const DEFAULT_MAX_SCENARIOS = 40
 
-export type FindingKind = 'untagged-node' | 'oversized-node'
+// The four `spec.md` sections a behavioral leaf spec must carry, in order
+// (`sdd:spec-format-governance`). `## References` is optional and not required here.
+export const REQUIRED_BEHAVIORAL_SECTIONS = ['What', 'Use Cases', 'Control Flow', 'Scenario map']
+
+export type FindingKind = 'untagged-node' | 'oversized-node' | 'missing-glossary' | 'incomplete-node'
 export type Severity = 'blocking' | 'advisory'
 
 export interface NodeRecord {
@@ -36,6 +49,8 @@ export interface NodeRecord {
 	concepts: string[]
 	specType?: string
 	hasFeature: boolean
+	/** Level-2 `## ` headings in the README body, in document order. */
+	sectionHeadings: string[]
 	scenarioCount: number
 	plainCount: number
 	taggedCount: number
@@ -99,6 +114,23 @@ export function parseScalarOrFlow(value: string): string[] {
 
 function unquote(v: string): string {
 	return v.replace(/^["']|["']$/g, '')
+}
+
+// ── Section headings — the four-section shape signal (level-2 `## ` headings, fence-aware) ──
+export function parseSectionHeadings(text: string): string[] {
+	const headings: string[] = []
+	let inFence = false
+	for (const raw of text.split('\n')) {
+		const line = raw.replace(/\r$/, '')
+		if (/^\s*(```|~~~)/.test(line)) {
+			inFence = !inFence
+			continue
+		}
+		if (inFence) continue
+		const m = /^##\s+(.+?)\s*$/.exec(line)
+		if (m) headings.push(m[1].replace(/`/g, '').trim())
+	}
+	return headings
 }
 
 // ── Scenario count — the granularity signal (frontmatter-free, count `Scenario:` lines) ──
@@ -169,8 +201,10 @@ function walk(dir: string, specDir: string, out: NodeRecord[]): void {
 		if (entry.isDirectory()) {
 			walk(full, specDir, out)
 		} else if (entry.name === 'README.md') {
-			const fm = parseNodeFrontmatter(readFileSync(full, 'utf8'))
+			const readmeText = readFileSync(full, 'utf8')
+			const fm = parseNodeFrontmatter(readmeText)
 			if (fm.specType === undefined && fm.concepts.length === 0) continue
+			const sectionHeadings = parseSectionHeadings(readmeText)
 			const features = entries.filter((e) => e.isFile() && e.name.endsWith('.feature'))
 			const hasFeature = features.length > 0
 			const profile = hasFeature
@@ -183,6 +217,7 @@ function walk(dir: string, specDir: string, out: NodeRecord[]): void {
 				display: displayPath(relPath),
 				concepts: fm.concepts,
 				specType: fm.specType,
+				sectionHeadings,
 				hasFeature,
 				scenarioCount: profile.scenarioCount,
 				plainCount: profile.plainCount,
@@ -218,8 +253,46 @@ export function checkOversized(records: NodeRecord[], maxScenarios: number): Fin
 		}))
 }
 
-export function audit(records: NodeRecord[], maxScenarios: number): Finding[] {
-	return [...checkUntagged(records), ...checkOversized(records, maxScenarios)]
+// A project spec with no root glossary.md has nowhere to define its ubiquitous language → advisory.
+export function checkGlossary(specDir: string): Finding[] {
+	if (existsSync(join(specDir, 'glossary.md'))) return []
+	return [
+		{
+			kind: 'missing-glossary' as const,
+			severity: 'advisory' as const,
+			node: 'glossary.md',
+			detail:
+				'no root glossary.md — the project has no home for its ubiquitous language, so a term can be used without ever being defined; a root file, never a folder',
+		},
+	]
+}
+
+// A behavioral leaf spec (README with `spec-type: behavioral` + a colocated `.feature`) whose
+// spec.md stops short of the four required sections never drew its CFG or scenario map → advisory
+// until a corpus is brought up to the four-section shape, then flipped to blocking by a follow-up.
+export function checkIncomplete(records: NodeRecord[]): Finding[] {
+	return records
+		.filter((r) => r.specType === 'behavioral' && r.hasFeature)
+		.map((r) => {
+			const missing = REQUIRED_BEHAVIORAL_SECTIONS.filter((s) => !r.sectionHeadings.includes(s))
+			return { record: r, missing }
+		})
+		.filter(({ missing }) => missing.length > 0)
+		.map(({ record, missing }) => ({
+			kind: 'incomplete-node' as const,
+			severity: 'advisory' as const,
+			node: record.display,
+			detail: `behavioral leaf spec missing required section(s): ${missing.map((s) => `## ${s}`).join(', ')} — a spec that stops at ## Use Cases never draws its CFG or scenario map (sdd:spec-format-governance)`,
+		}))
+}
+
+export function audit(records: NodeRecord[], maxScenarios: number, specDir?: string): Finding[] {
+	return [
+		...checkUntagged(records),
+		...checkOversized(records, maxScenarios),
+		...checkIncomplete(records),
+		...(specDir === undefined ? [] : checkGlossary(specDir)),
+	]
 }
 
 export function hasBlocking(findings: Finding[]): boolean {
@@ -252,7 +325,7 @@ export function main(argv: string[]): number {
 		else if (a === '--max-scenarios') maxScenarios = Number(argv[++i] ?? DEFAULT_MAX_SCENARIOS)
 		else if (a === '--format') format = (argv[++i] as 'toon' | 'json') ?? 'toon'
 	}
-	const findings = audit(scanProjectSpec(specDir), maxScenarios)
+	const findings = audit(scanProjectSpec(specDir), maxScenarios, specDir)
 	if (mode === 'check') {
 		if (hasBlocking(findings)) {
 			process.stderr.write(

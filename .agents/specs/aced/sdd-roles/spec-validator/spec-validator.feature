@@ -3,7 +3,7 @@ Feature: spec-validator — the spec-judge role
   Unit suite for the ACED spec-judge the conductor dispatches at the spec gate: grade an agent-config
   .feature against the agent-scenario criteria and report a per-scenario verdict. Authoring the suite
   is scenario-writer; running the evals is implementer; scoring one case is judge. Cross-capability
-  e2e (a gate pass over a real produced suite) lives in ../../acceptance/, not here.
+  e2e (a gate pass over a real produced suite) lives in ../../workflows/, not here.
 
   # ---- Role boundary ----
 
@@ -40,12 +40,22 @@ Feature: spec-validator — the spec-judge role
     When spec-validator is asked to grade its suite
     Then it reports the subject recused rather than a per-scenario verdict
 
+  Scenario: a recused wrong-squad subject is routed to the SDD-default builder
+    Given a subject spec-validator has determined wrong-squad for ACED
+    When it reports the recusal
+    Then it routes the subject to the SDD-default builder with a script harness rather than grading it scenario by scenario
+
   # ---- The criteria ----
 
   Scenario: a vague stand-in fails trigger-context
     Given a scenario whose situation says only "a file" where the value matters for simulation
     When spec-validator checks trigger-context
     Then it reports that scenario failing on trigger-context
+
+  Scenario: a partial-fit subject with no firing scenarios passes trigger-context
+    Given a partial-fit suite whose subject makes no activation decision and asserts no firing
+    When spec-validator checks trigger-context
+    Then it does not report the suite failing on trigger-context
 
   Scenario: an uncovered rule fails rule-coverage
     Given a subject rule that no scenario in the suite exercises
@@ -82,10 +92,153 @@ Feature: spec-validator — the spec-judge role
     When spec-validator checks rubric-structure
     Then it reports that scenario failing on rubric-structure before any scoring
 
+  Scenario: a dimension naming two criteria fails rubric-structure
+    Given a @rubric carrying one dimension scoring both that a migration is reversible and how thoroughly it is documented
+    When spec-validator checks rubric-structure
+    Then it reports that scenario failing on rubric-structure before any scoring
+
+  # ---- Selection — every dimension must be substitutable (checked before discrimination) ----
+
+  Scenario: a dimension scoring a criterion no strength elsewhere pays for fails selection
+    Given a @rubric for a schema migration carrying a dimension scoring row preservation alongside dimensions scoring column naming and comment coverage
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+
+  Scenario: a rubric whose dimensions a reviewer would genuinely trade passes selection
+    Given a @rubric for a schema migration whose dimensions score column naming and comment coverage
+    When spec-validator checks selection
+    Then it does not report that scenario failing on selection
+
+  Scenario: an arguable trade the judge can rule against is ruled on, not escalated
+    Given a @rubric for a release note scoring breaking-change coverage alongside prose readability, whose trade spec-validator can rule that it rejects
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+    And it does not escalate the dimension as one it cannot classify
+
+  Scenario: a trade the judge can rule neither way on is escalated rather than passed
+    Given a @rubric for a data retention policy whose trade spec-validator can rule neither that it accepts nor that it rejects
+    When spec-validator checks selection
+    Then it escalates the dimension as one it cannot classify
+    And it does not report that scenario passing selection
+
+  Scenario: a recorded trade does not rescue a dimension the judge rejects on its own
+    Given a @rubric for a password reset flow scoring token expiry alongside copy clarity, carrying the producer's recorded trade that clearer copy pays for a longer-lived token
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+    And it does not treat the recorded trade as settling the question
+
+  Scenario: the producer's recorded trade is not the judge's object of selection
+    Given a @rubric for a container image build carrying the producer's recorded trade, whose dimensions spec-validator re-derives as ones a reviewer would genuinely trade
+    When spec-validator checks selection
+    Then it does not report that scenario failing on selection
+    And it does not report the recorded trade as a violation
+
+  Scenario: a dimension re-grading a property a boolean scenario in the same suite decides fails selection
+    Given a @rubric whose dimension scores a property that a boolean scenario in the same suite already decides pass or fail
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+    And it treats the dimension as an untradeable boolean smuggled into the compensatory sum
+
+  Scenario: two dimensions sharing a criterion with no boolean twin pass selection
+    Given a @rubric whose two dimensions score related criteria while no boolean scenario in the suite decides either property
+    When spec-validator checks selection
+    Then it does not report either dimension failing on selection for sharing a criterion
+    And it classifies by whether a boolean scenario in the suite decides the property rather than by comparing the two dimensions to each other
+
+  Scenario: a failing dimension is not remedied by a per-dimension minimum
+    Given a @rubric dimension spec-validator reports failing on selection
+    When it records what the dimension needs
+    Then it does not prescribe a per-dimension minimum, which would make the sum conjunctive rather than compensatory
+
+  # ---- Discrimination — the scenario must be able to register a miss ----
+
+  Scenario: a well-formed @rubric whose every dimension a memorizer scores at max fails discrimination
+    Given a @rubric scenario that passes rubric-structure
+    And a config-quoting memorizer scores every one of its dimensions at max
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a rubric dimension drawn from the subject's own vocabulary fails discrimination
+    Given a @rubric dimension whose terms are lifted from the subject configuration's own prose
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a memorizer floor reaching the bar on free dimensions alone fails discrimination
+    Given a @rubric whose memorizer scores every dimension but one at max, and needs a single point of the remaining dimension to reach the threshold
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: an untagged scenario that no plausible wrong configuration fails is reported on discrimination
+    Given an untagged scenario that every plausible wrong configuration passes
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a dimension grading that the steps were followed fails discrimination
+    Given a @rubric dimension that scores whether the config executed the doctrine's steps in order, where the judgment those steps serve is what the scenario tests
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a scenario a single-brancher configuration always passes fails discrimination
+    Given a scenario that a configuration always taking the same branch of the decision passes
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: an empty configuration does not clear discrimination
+    Given the only configuration that fails a scenario is an empty file that fails every scenario
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a loseable rubric passes discrimination
+    Given a @rubric carrying a dimension a config-quoting memorizer scores below max, whose summed score without it sits under the threshold
+    When spec-validator checks discrimination
+    Then it does not report that scenario failing on discrimination
+
+  Scenario: a dimension grading mere presence fails discrimination
+    Given a @rubric dimension that scores whether a required line is present rather than the judgment behind it
+    When spec-validator checks discrimination
+    Then it reports that scenario failing on discrimination
+
+  Scenario: a rubric clearing the bar by a single point is not failed on the margin alone
+    Given a @rubric whose config-quoting memorizer floor sits under the threshold and whose honest score clears it by a single point
+    When spec-validator checks discrimination
+    Then it does not fail that scenario on discrimination for the size of the margin alone
+
+  Scenario: a scenario whose discriminability cannot be classified is escalated not passed
+    Given a scenario spec-validator can neither name a plausible wrong config for nor confirm that none exists
+    When spec-validator checks discrimination
+    Then it escalates that scenario as one it cannot classify and does not report it passing
+
+  # ---- Pairwise consistency — the scenarios read against each other ----
+
+  Scenario: two scenarios contradicting on one snapshot fail pairwise consistency
+    Given two scenarios in one suite sharing a When
+    And one constructible snapshot satisfies both of their Givens
+    And their Thens demand opposite verdicts
+    When spec-validator checks pairwise consistency
+    Then it reports the suite failing on pairwise-consistency
+
+  Scenario: overlapping Givens whose Thens agree pass pairwise consistency
+    Given two scenarios in one suite sharing a When whose Givens both hold of one snapshot
+    And their Thens assert different compatible aspects of it
+    When spec-validator checks pairwise consistency
+    Then it does not report the suite failing on pairwise-consistency
+
+  Scenario: two scenarios naming different operations pass pairwise consistency
+    Given two scenarios whose Givens both hold of one snapshot
+    And their Whens name different operations
+    When spec-validator checks pairwise consistency
+    Then it does not report the suite failing on pairwise-consistency
+
+  Scenario: a specific scenario carving an exception from a general sibling passes pairwise consistency
+    Given two scenarios sharing a When whose narrower Given carves out an exception from the general one and gives the other verdict
+    And the general Given does not itself exclude that exception
+    When spec-validator checks pairwise consistency
+    Then it does not report the suite failing on pairwise-consistency
+
   # ---- Reporting and guards ----
 
   Scenario: a clean suite passes every criterion
-    Given a .feature that meets trigger-context, rule-coverage, trigger-balance, edge-coverage, boolean-form, and rubric-structure
+    Given a .feature that meets trigger-context, rule-coverage, trigger-balance, edge-coverage, boolean-form, rubric-structure, discrimination, and pairwise-consistency
     When spec-validator grades the suite
     Then it reports every scenario passing and emits no blocker
 

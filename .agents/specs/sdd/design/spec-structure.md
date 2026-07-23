@@ -34,11 +34,11 @@ Every node in the spec tree is one of **three types**, told apart on two axes �
 |---|---|---|---|---|---|
 | **Descriptive** | none | no | — | none (default) | `design/` rule docs; indexes — the root `spec.md`, a capability overview README |
 | **Reference artifact** | a non-testable thing | no (by design) | a `## Subject` descriptor | `spec-type: reference` | a shipped governance (e.g. the spec-format bar) |
-| **Behavioral artifact** | a testable unit | **yes** | `## Use Cases` (per node) | `spec-type: behavioral` | a **unit spec** (`../authoring/spec-producer/`); the `../acceptance/` e2e suite is the project-outcome flavor |
+| **Behavioral artifact** | a testable unit | **yes** | `## What` … `## Scenario map` (per node) | `spec-type: behavioral` | a **unit spec** (`../authoring/spec-producer/`); the `../workflows/` suite is the project-level (cross-capability) flavor |
 
 - **Descriptive** describes the system or a rule and attaches to **no subject**. Two roles — a terminal model doc (in `design/`) and an index / table-of-contents (the root `spec.md`, a capability overview README) — but identical on every axis the taxonomy uses, so **one type, two roles**.
 - **Reference artifact** specifies a real shipped thing with **no testable surface of its own**; its conformance is checked through a *consumer's* suite, not its own. It opens with a `## Subject` section (the artifact, its contract surface, and where conformance is verified) in place of `## Use Cases`.
-- **Behavioral artifact** specifies a testable subject and owns a `.feature`. "**unit spec**" is the everyday word for one; the `../acceptance/` e2e suite is the same type at project-outcome scope. **Only this type carries `## Use Cases`** (each use case → ≥1 scenario; `../authoring/suite-format/README.md`).
+- **Behavioral artifact** specifies a testable subject and owns a `.feature`. "**unit spec**" is the everyday word for one; the `../workflows/` suite is the same type at project scope (its use cases are workflows). **Only this type carries the node sections** — `## What`, `## Use Cases`, `## Control Flow`, `## Scenario map` (`sdd:spec-format-governance`).
 
 **Declared, not inferred.** A node's type lives in its frontmatter, never guessed:
 
@@ -52,7 +52,7 @@ Inference would break both ways: a behavioral node has no `.feature` *yet* mid-e
 
 ## The concept axis — cross-cutting navigation
 
-The folder tree organizes by **capability** (the loop-step a node serves — `gateway`, `intake`, `mission`, …). But a single concern — `lifecycle`, `provenance`, `governance`, `resolution`, `autonomy`, `artifact-type` — is **enacted across several capabilities**, so its facets scatter: `resolution` is a rule in `design/`, behavior in `mission/`, an e2e in `acceptance/`, and bars in `common-governances/`. Capability and concept are **two cross-cutting axes**; a folder tree can only privilege one, so the other must be carried as metadata.
+The folder tree organizes by **capability** (the loop-step a node serves — `gateway`, `intake`, `mission`, …). But a single concern — `lifecycle`, `provenance`, `governance`, `resolution`, `autonomy`, `artifact-type` — is **enacted across several capabilities**, so its facets scatter: `resolution` is a rule in `design/`, behavior in `mission/`, a workflow in `workflows/`, and bars in `common-governances/`. Capability and concept are **two cross-cutting axes**; a folder tree can only privilege one, so the other must be carried as metadata.
 
 - **`concept:` frontmatter** (string or list) declares the cross-cutting concern(s) a node serves. It is **declared, not inferred** — the same principle `spec-type` follows. The **capability** axis needs no field: it *is* the node's folder.
 - **The by-concept index** (root `spec.md`, generated) re-unifies a concept's scattered facets for lookup — `concept → {its nodes across every folder}`. It is **pure derivation** from `concept:` tags (the `corpus/discovery` no-drift rule), regenerated on demand, never hand-maintained. This is how a reader or the agent finds every facet of a concern without holding the tree in their head — healing scatter by **indexing, not moving**.
@@ -77,10 +77,25 @@ The solution is **per-unit and durable** — distinct from the per-CR execution 
 ## Screaming architecture — the default layout
 
 **Screaming architecture** organizes top-level folders by **capability** — the folder names scream what the
-project *does* — with two exceptions:
+project *does* — with these non-capability exceptions:
 
-- **`design/`** — the abstract idea: the rules and model.
-- **`acceptance/`** — the outcome contract: the e2e behavior suite.
+- **`design/`** — the **rules**: the model, the *why* (descriptive docs).
+- **`workflows/`** — the **usage**: how the capabilities compose into coherent flows (the project-level suite).
+- **`ledger/`** — the **provenance**: durable audit shards (leash / gate / followup / strategy lines) — data, not a spec node, outside the node taxonomy above.
+
+(`workflows/` was `acceptance/`: every suite is acceptance now, so the folder is named for what actually distinguishes it — project-level **workflows**.)
+
+**Root files, not folders.** Every mandated folder is an exception to screaming architecture, so the
+mandated set stays as small as possible: anything that is one document lives as a **root file beside
+`spec.md`**, never as a folder of its own.
+
+- **`glossary.md`** — the project's **ubiquitous language**: every load-bearing term defined once, in
+  plain words. Required (advisory) of every project spec. It is a *root file* precisely so it does not
+  claim a top-level folder that would read as a capability.
+
+A glossary is **not** the same artifact as a terminology pin-list (SDD's own `TERMINOLOGY.md` — "not a
+glossary, only the collision-prone pairs"): the glossary defines the vocabulary, the pin-list separates
+near-neighbours that are each already defined. A project may carry both; only the glossary is expected.
 
 It is the **default**, not the only, layout. The full menu of organization strategies (capability-first,
 mirror-source, bounded-context, layered, doc-envelope), the selection rule, and how each reconciles with the
@@ -101,11 +116,11 @@ This keeps `design/` readable as a model while the capabilities stay testable as
 
 The behavior suite is **part of the project-spec**, carried by the **behavioral** specs, organized as:
 
-- an **e2e suite** in `../acceptance/` — the project's outcome-level contract (the important cross-capability scenarios), consumed by step 3's verify;
-- **unit suites** — for the smaller internal pieces — that **colocate** with their capability folder, one `.feature` per unit.
+- **unit suites** — one per capability node — that **colocate** with their capability folder, one `.feature` per unit;
+- a **workflow suite** in `../workflows/` — how the capabilities compose into coherent usage flows (the cross-capability scenarios), consumed by step 3's verify.
 
-The e2e/unit split is **test organization within the one project-spec**, not separate lifecycles to re-gate.
-(How scenarios are written and judged: `../authoring/suite-format/README.md`.)
+A **workflow is the project-level analog of a use case** — a path through the composed capabilities, the way a use case is a path through a node's control-flow graph (CFG); the root `spec.md` **capability map** is the project's CFG. The workflow/unit split is **test organization within the one project-spec**, not separate lifecycles to re-gate.
+(How suites are written and judged: `../authoring/suite-format/README.md`.)
 
 ## The folder skeleton maps to the loops
 
@@ -113,14 +128,14 @@ The top-level skeleton:
 
 ```
 design/ gateway/ intake/ authoring/ mission/{conductor,solution-producer,impl-producer,impl-judge,handoff}
-campaign/ formation/ doctrine/ forge/ corpus/ project-spec/ plugin/ acceptance/
+campaign/ formation/ doctrine/ forge/ corpus/ project-spec/ plugin/ workflows/ ledger/
 ```
 
-The **Mission Loop (steps 1–4)** maps to folders — `intake/` (1, the CR subsystem that **feeds** the loop) → `authoring/` (2, explore; owns the spec verification, **invoked** by the mission) → the `mission/` deliver units (3, build to keep; `impl-producer/` + `impl-judge/`, overview in `mission/delivery.md`; verifies vs `acceptance/` + unit) → `mission/handoff/` (4, landing).
+The **Mission Loop (steps 1–4)** maps to folders — `intake/` (1, the CR subsystem that **feeds** the loop) → `authoring/` (2, explore; owns the spec verification, **invoked** by the mission) → the `mission/` deliver units (3, build to keep; `impl-producer/` + `impl-judge/`, overview in `mission/delivery.md`; verifies vs `workflows/` + unit) → `mission/handoff/` (4, landing).
 `mission/` is the **orchestrator** — the conductor — that sequences the loop.
 The `gateway/` is the **universal router/door** — not a loop step.
 The four outer-loop folders (`campaign/`, `formation/`, `doctrine/`, `forge/`) fire **post-mission**, not as part of the Mission Loop (see `loops.md`).
-`design/`, `corpus/`, `project-spec/`, `plugin/`, and `acceptance/` are cross-cutting, not loop steps.
+`design/`, `corpus/`, `project-spec/`, `plugin/`, `workflows/`, and `ledger/` are cross-cutting, not loop steps.
 Three internal outer loops evolve a standing subject — campaign → capabilities, formation → structure (`corpus/` + `project-spec/`), doctrine → `design/`; the external **forge** loop has no folder subject — it improves SDD itself from opt-in end-user field corrections.
 
 ## Depth cap — two levels (`<capability>/<unit>`)

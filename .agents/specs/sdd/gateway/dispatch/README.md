@@ -109,4 +109,4 @@ because it is a distinct, self-contained loop (as `../manage/` is a distinct rou
 ## Scenarios (colocated)
 
 The behavior suite is [`dispatch.feature`](./dispatch.feature). Cross-capability outcomes that run an
-approved mission end-to-end through dispatch live in `../../acceptance/`.
+approved mission end-to-end through dispatch live in `../../workflows/`.

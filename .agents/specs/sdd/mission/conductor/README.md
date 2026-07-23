@@ -36,6 +36,7 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
 | **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff |
+| **governance provenance relay** | forward the spec-producer's declared `governances_loaded` through the dispatch channel as `producer_governances_declared` (a brief field for a cold subagent, a mail envelope field for an agent pool) — a pure relay, rendering no opinion on which governances were required |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
 | **impl gate** | Approved → Implemented — the rebase-onto-target last deliver act, the three actions, the suite-run pass condition, verdict-not-station, fail-closed |
@@ -83,6 +84,8 @@ The lockfile itself need not exist: an **absent** `.agents/universal-plugin.json
 resolves to zero plugins, so every role falls to its SDD default. A **malformed** lockfile (not
 valid JSON, or missing the `sdd-plugins` array) instead **hard-fails closed** — the same
 structural-error class below — because a registry that cannot be read cannot be trusted to resolve.
+The per-role branch itself — named delegate / omitted-key `<plugin>-<role>` convention / explicit-`null`
+SDD default / no-squad-match SDD default — is the matcher unit's own contract (`../resolution/`).
 
 A required role **always lands on a real delegate** or the conductor **hard-fails closed** and
 records nothing (no inline sentinel) — the same fail-closed structural-error class as a malformed
@@ -147,7 +150,7 @@ never shared into another mission's context.
 The five roles apply three **lenses** (governances, not agents): **Oracle** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the
 spec-judge and impl-judge **apply** them backward. There is no "Builder judge" or "Oracle
-agent" — a verdict has a Oracle-lens face, a Builder-lens face, and an Architect-lens face.
+agent" — a verdict has an Oracle-lens face, a Builder-lens face, and an Architect-lens face.
 
 The constraint that forces the judge split is **`producer ≠ judge`**, enforced by context
 separation: the hand that writes an artifact never signs off on it. Tagline: **"the conductor
@@ -168,6 +171,16 @@ slot is the doctrine Scanner's), and — on a self-asserted gate within leash �
 `approval.<gate>` entry. It **never** writes `status` (the skill owns it) or a human ratification
 verdict (`by: <name>`) when running headless. A **gate-review segment that runs no producer is
 read-only** — it writes nothing, only reads the artifacts and emits the gate report.
+
+## Governance provenance relay
+
+The spec-producer's structured output declares `governances_loaded` (`../../authoring/spec-producer/README.md`)
+— the governances it loaded before writing. The conductor forwards that set through the dispatch
+channel it is already using for the spec-judge, keyed **`producer_governances_declared`**: a brief
+field when the judge is dispatched as a cold subagent, a mail envelope field when it runs through an
+agent pool. The conductor **stays a pure relay** — it forwards the declared set verbatim (including
+an empty one) and renders **no opinion** on which governances were actually required; that judgment
+belongs to the spec-judge's own pre-flight check (`../../authoring/spec-gate/README.md`).
 
 ## Explore — build to learn (step 2)
 
@@ -214,12 +227,15 @@ A **segment** is one run within a cycle (suspend-and-resume). The conductor:
 - **Records content gaps as durable `<!-- open: -->` markers** (block Draft→Approved) rather than
   as transient questions; the iteration cap **blocks-and-asks** rather than auto-accepting.
 - **Surfaces non-blocking `OBSERVATIONS`** (typed by owning lens) without acting on them — they
-  route to the plan, not into the contract.
+  route to the plan, not into the contract. When **several** producers each surface observations in
+  one segment, the conductor forwards **every** one — dropping or filtering none — and **spawns no
+  spec of its own** from them (a split observation becomes the plan's or the user's call, never the
+  conductor's).
 
 ## The impl gate
 
 Mission **owns the impl gate** (Approved → Implemented), exercised in `../delivery.md`. The gate
-judges the implementation against the **frozen contract** — `../../acceptance/` (the e2e outcome
+judges the implementation against the **frozen contract** — `../../workflows/` (the workflow outcome
 suite) **plus the colocated unit suites**. The gate is verdict-only and **fails closed**; it
 writes no setup frontmatter.
 

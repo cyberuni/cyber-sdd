@@ -8,6 +8,7 @@ import {
 	foldResults,
 	formatText,
 	formatToon,
+	getScenarioKeys,
 	junitResultsFromXml,
 	junitTestcaseToResult,
 	main,
@@ -431,6 +432,114 @@ test('every root-relative resolution goes through underRoot — no bare join(roo
 	assert.equal(bareJoins.length, 1, 'join(root, …) must appear only inside underRoot')
 })
 
+// ── Monorepo rooting (feature-root vs. bridge/report-root) ──
+
+test('getScenarioKeys: a feature-root argument resolves --feature beneath it instead of --root', () => {
+	const featureDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-feature-'))
+	const rootDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-root-'))
+	try {
+		writeFileSync(join(featureDir, 'x.feature'), 'Feature: x\n  Scenario: one\n    Given a\n    When b\n    Then c\n')
+		// featureRoot distinct from root: only underRoot(featureRoot, 'x.feature') resolves to a real file.
+		const keys = getScenarioKeys(rootDir, 'x.feature', featureDir)
+		assert.deepEqual(keys, [{ name: 'one', key: 'one' }])
+	} finally {
+		rmSync(featureDir, { recursive: true, force: true })
+		rmSync(rootDir, { recursive: true, force: true })
+	}
+})
+
+test('getScenarioKeys: without feature-root, --feature falls back to resolving beneath root (same as before feature-root existed)', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'verify-scenarios-'))
+	try {
+		writeFileSync(join(dir, 'x.feature'), 'Feature: x\n  Scenario: one\n    Given a\n    When b\n    Then c\n')
+		// no third argument -> featureRoot defaults to root
+		const keys = getScenarioKeys(dir, 'x.feature')
+		assert.deepEqual(keys, [{ name: 'one', key: 'one' }])
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('the config default path, --report, and every source reportPath stay rooted under --root regardless of --feature-root', () => {
+	// resolveSources and runSource both take only `root`, never `featureRoot` — confirmed structurally:
+	// no call site in the source threads featureRoot into underRoot for config/report/reportPath.
+	const src = readFileSync(new URL('./verify-scenarios.mts', import.meta.url), 'utf8')
+	const configLine = src.match(/const configPath = underRoot\(([^,]+),/)
+	const reportLine = src.match(/const reportPath = underRoot\(([^,]+),/)
+	assert.ok(configLine && configLine[1].trim() === 'root', 'config path resolves under root, not featureRoot')
+	assert.ok(reportLine && reportLine[1].trim() === 'root', 'source reportPath resolves under root, not featureRoot')
+})
+
+test('main: a relative --report resolves beneath --root, not --feature-root, and binds a passing scenario', () => {
+	// End-to-end through main()'s own wiring (not just the callees) — a relative --report seeded only
+	// under rootDir must be found even though featureDir (holding the .feature) is a different root.
+	const featureDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-feature-'))
+	const rootDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-root-'))
+	try {
+		writeFileSync(join(featureDir, 'x.feature'), 'Feature: x\n  Scenario: one\n    Given a\n    When b\n    Then c\n')
+		writeFileSync(join(rootDir, 'report.xml'), '<testsuite><testcase classname="c" name="spec:n/x > one"/></testsuite>')
+		// report.xml exists only under rootDir; if main() mistakenly resolved --report under featureRoot
+		// instead of root, the file would not be found and the scenario would come back UNBOUND (exit 1).
+		const code = main([
+			'--feature',
+			'x.feature',
+			'--node',
+			'n/x',
+			'--root',
+			rootDir,
+			'--feature-root',
+			featureDir,
+			'--report',
+			'report.xml',
+		])
+		assert.equal(code, 0, 'the one scenario is BOUND + passing — report.xml was found under --root')
+	} finally {
+		rmSync(featureDir, { recursive: true, force: true })
+		rmSync(rootDir, { recursive: true, force: true })
+	}
+})
+
+test('main: --feature-root is threaded to getScenarioKeys, distinct from --root', () => {
+	const featureDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-feature-'))
+	const rootDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-root-'))
+	try {
+		writeFileSync(join(featureDir, 'x.feature'), 'Feature: x\n  Scenario: one\n    Given a\n    When b\n    Then c\n')
+		writeFileSync(join(rootDir, 'x.feature'), 'this is not a valid feature and would fail to parse')
+		const code = main([
+			'--feature',
+			'x.feature',
+			'--node',
+			'n/x',
+			'--root',
+			rootDir,
+			'--feature-root',
+			featureDir,
+			'--report',
+			join(rootDir, 'does-not-exist.xml'),
+		])
+		// exits non-zero (UNBOUND scenario), proving it parsed featureDir's x.feature, not rootDir's malformed one
+		assert.equal(code, 1)
+	} finally {
+		rmSync(featureDir, { recursive: true, force: true })
+		rmSync(rootDir, { recursive: true, force: true })
+	}
+})
+
+test('an absolute --feature path is used verbatim even with a distinct feature-root', () => {
+	const featureDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-feature-'))
+	const otherDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-other-'))
+	try {
+		const absFeature = join(featureDir, 'x.feature')
+		writeFileSync(absFeature, 'Feature: x\n  Scenario: one\n    Given a\n    When b\n    Then c\n')
+		// featureRoot points elsewhere; a naive join(featureRoot, absFeature) would double-prefix and find nothing.
+		const keys = getScenarioKeys(otherDir, absFeature, otherDir)
+		assert.deepEqual(keys, [{ name: 'one', key: 'one' }])
+	} finally {
+		rmSync(featureDir, { recursive: true, force: true })
+		rmSync(otherDir, { recursive: true, force: true })
+	}
+})
+
 test('resolveSources: an absolute --config is read even when root differs, not double-prefixed', () => {
 	const configDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-config-'))
 	const rootDir = mkdtempSync(join(tmpdir(), 'verify-scenarios-root-'))
@@ -501,6 +610,6 @@ test('the engine writes nothing to the filesystem', () => {
 
 test('the scenario set comes from gherkin-cli, not a re-implemented parser', () => {
 	const src = readFileSync(new URL('./verify-scenarios.mts', import.meta.url), 'utf8')
-	assert.match(src, /npx.*gherkin-cli/)
+	assert.match(src, /from 'gherkin-cli'/)
 	assert.doesNotMatch(src, /Feature:\s|Scenario:\s/)
 })

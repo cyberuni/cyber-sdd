@@ -1,0 +1,85 @@
+# glossary — SDD ubiquitous language
+
+Every load-bearing SDD term, defined once in plain words. A term used in a spec, a suite, or a
+governance is expected to appear here.
+
+This is **not** [`TERMINOLOGY.md`](./TERMINOLOGY.md), which pins *collision-prone pairs* against each
+other (`plan` vs `solution`). The glossary defines the vocabulary; the pin-list separates
+near-neighbours that are each already defined here. A term that has no confusable twin belongs here
+only.
+
+## The three levels
+
+| Term | Meaning |
+|---|---|
+| **corpus** | every project spec in a repo, taken together. Operations named *corpus-level* act across projects. |
+| **project spec** | one project's whole durable spec — one `spec.md`, one behavior suite, one gate/freeze baseline. A directory tree, not a single file. Never split into sibling specs; growth is absorbed by adding folders. |
+| **node** | one unit's `spec.md` (plus its `.feature`) inside a project spec, at `<capability>/<unit>/`. |
+| **project** | the thing a project spec maps to: a repo harness, an agent plugin, an npm package, a website, or one package inside a monorepo. |
+
+## Node kinds
+
+| Term | Meaning |
+|---|---|
+| **descriptive** | a node that describes the system or a rule and attaches to no subject — a `design/` model doc, or an index. Carries no marker. |
+| **reference artifact** | a node specifying a real shipped thing with no testable surface of its own (a governance, a config). Marked `spec-type: reference`, carries `## Subject` in place of `## Use Cases`, owns no suite. |
+| **behavioral artifact** | a node specifying a testable subject; owns a `.feature`. Marked `spec-type: behavioral`. The everyday word is **unit spec**. Only this kind carries the four node sections. |
+| **capability** | what a project *does* — the unit its top-level folders are named for under screaming architecture. |
+| **use case** | one distinct way a capability is invoked, given as trigger / inputs / outcome. Answers *"when, and with what, is this invoked?"* — never *"given this state, does it do that?"*, which is a scenario. |
+| **control-flow graph (CFG)** | the decisions a capability makes once invoked, taken as one connected structure — nodes are decisions, edges are branches. Drawn in the node's `## Control Flow` section. A **use case is a path through it**; several use cases usually enter the same one. It is a *graph*, not a tree: paths loop, join, and reconverge on the same node. Distinct from the project-level **mission graph** (scheduling) and from SDD's own **process** control flow (the mission loop). |
+| **workflow** | the project-level analogue of a use case: a path through several composed capabilities. Lives in `workflows/`. |
+
+## Suite and verification
+
+| Term | Meaning |
+|---|---|
+| **suite** | the scenarios of a spec taken as behavior. The word for what is specified. |
+| **`.feature`** | the file and format the suite is written in. The word for the artifact only. |
+| **scenario** | one acceptance case — a decision the capability makes, asserted as an observable boolean. |
+| **`@trigger`** | tags a scenario asserting the subject's **engage decision** — does it engage when it should, and stay out when it should not. Legal only where the node owns that decision (see *owned routing decision*). |
+| **`@behavior`** | tags a scenario asserting the subject's **conduct once engaged** — does it take the right steps and honor its rules. |
+| **`@quality`** | tags a scenario asserting the **result** the subject produced. |
+| **owned routing decision** | the test for a legal `@trigger`: the node must own the decision the scenario freezes. An agent applying the node's *own doctrine* qualifies (the node's content decides). A **harness** matching `description` prose against a user query does not — that is co-owned by (description × harness × sibling set). The two share a shape and differ only in the decider, so this is **judged per node, never linted**. |
+| **rubric** (`@rubric`) | a scenario graded against inline named dimensions and a threshold rather than a boolean `Then`. Sets the assertion *form*, so it is independent of `@trigger` / `@behavior` / `@quality` — a scenario may carry both. |
+| **pin** (`@pinned`) | a user-owned seed scenario. The one scenario class the agent does not own: it may propose a change but never execute one without in-session user authorization. Only the user pins. |
+| **freeze** (`@frozen`) | a per-file flag marking a suite as the agreed contract. Protects scenario **content**, not file location: a pure rename preserves it, a content change does not. |
+| **additive** | a new scenario that widens the contract. It cannot break existing implementation, so it self-clears into a frozen file without escalation. |
+| **Clearance** | the escalation required to *narrow or rewrite* a frozen scenario. Granted by the owner, recorded before the edit, never assumed. |
+| **gate** | the checkpoint a spec passes: the **spec gate** (draft → approved, freezing the suite) and the **impl gate** (approved → implemented). |
+
+## Organization
+
+| Term | Meaning |
+|---|---|
+| **screaming architecture** | organizing top-level folders by capability, so the folder names say what the project does. The default layout. |
+| **organization strategy** | how one project spec's body is decomposed — `capability-first`, `mirror-source`, and others. A **choice**, so it is declared, never derived. |
+| **placement map** | the table in the root `spec.md` body naming the chosen strategy and routing a concept to its home. Written once when the spec is laid out; read thereafter, never re-derived. |
+| **home** | the folder a given concept's node belongs in. A **fact** about the current tree, derived from `concept:` tags — never stored, because a stored list goes stale. |
+| **concept** | a cross-cutting concern a node serves, declared in frontmatter. The folder tree organizes by capability, so concepts are recovered through the generated by-concept index instead. |
+| **evidence mode** | which evidence a layout decision is made from: **detection mode** reads an existing source tree; **intent mode** has none to read, so it asks what the project will be. Detected, not chosen. |
+| **envelope** | the files and folders every project spec gets regardless of strategy — root `spec.md`, `design/`, `workflows/`, a tooling home, and `glossary.md`. |
+| **colocated / hoisted** | where a project spec sits. A nested project's spec is *hoisted* out of its package dir to `<repo>/.agents/specs/<name>/`; the outer project's stays *colocated* at `<repo>/.agents/spec/`. Derived from `project-path`, never stored. |
+
+## Mission
+
+| Term | Meaning |
+|---|---|
+| **mission** | one run of the loop that changes a project spec: explore → spec gate → deliver → impl gate → handoff. |
+| **change request (CR)** | the unit of intended change a mission carries. |
+| **plan brief** | the tracked `.agents/plans/<cr-ref>.plan.md` holding a mission's state, so any later session can resume it. |
+| **ledger** | the durable append-only provenance record under `ledger/`. Data, not a spec node; never frozen, never gated. |
+
+## Retired terms
+
+Recorded so they are not reintroduced.
+
+| Term | Status |
+|---|---|
+| **consolidated spec** | Retired — use **project spec**. It distinguished a unified spec from a *spec fleet* (many per-feature specs per project); the project-spec model made one-spec-per-project an invariant, so an unconsolidated spec is a state the model forbids. |
+| **spec fleet** | Retired — the superseded model in which one project carried many specs. |
+| **Director** (as a gate lens) | Retired — use **Oracle**. The gate lens triad is **Oracle/Builder/Architect**. **Scope:** retired *only* as a lens name inside this project spec. `artifacts/specs/motive-model/` uses **Director** for a different concept — one of four *motives* (intend / generate / structure / accumulate) — and is untouched by this retirement, as are the ADRs and ledger lines that record the rename as history. Fixed at instances in ledger seq 9 and seq 24 without ever being recorded here, and so reintroduced a third time; recorded now so the next occurrence is caught as a rule rather than rediscovered. |
+| **logic graph** | Retired — use **control-flow graph (CFG)**. One of three names the corpus carried for the same structure, none of them defined here. |
+| **decision graph** | Retired — use **control-flow graph (CFG)**. The most widespread of the three old names; it read as a sibling of *mission graph* / *work graph*, which are different structures. |
+| **decision tree** | Retired — use **control-flow graph (CFG)**, and **control-flow** where the word names a *diagram kind* (alongside *state*, *data flow*). It is not a tree: paths loop, join, and reconverge on the same node, which is exactly what a tree cannot do. **Scope:** retired inside this project spec. Unrelated authoring guidance elsewhere in the repo uses "decision tree" for a different thing and is untouched. |
+| **`## Logic`** | Retired as a section name — use **`## Control Flow`**. The heading named the wrong thing once the structure it holds got its own name. |
+| **acceptance/** | Retired as a folder name — use **`workflows/`**. Every suite is acceptance now, so the folder is named for what actually distinguishes it: project-level workflows. |

@@ -2,7 +2,7 @@
 Feature: compare — diff two config versions for regressions
   Unit suite for the compare skill: score a before-version and an after-version against the same
   golden set and classify the per-case change, gating on regressions. Single-version scoring is
-  run; the project roll-up is report. Cross-capability e2e scenarios live in ../../acceptance/.
+  run; the project roll-up is report. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
 
@@ -20,6 +20,11 @@ Feature: compare — diff two config versions for regressions
     Given the user asks for the eval health across all suites
     When ACED routes the request
     Then compare does not handle it and report does
+
+  Scenario: a request to author or fix a case defers to add-scenario
+    Given the user asks to add a new case to the eval suite
+    When ACED routes the request
+    Then compare does not handle it and add-scenario does
 
   # ---- Resolving the versions ----
 
@@ -65,6 +70,11 @@ Feature: compare — diff two config versions for regressions
     When compare reports the diff
     Then it reports the net change in passing cases across the golden set
 
+  Scenario: raw totals are not averaged across scenarios into one score
+    Given per-case totals whose maxima differ across the golden set
+    When compare reports the diff
+    Then it aggregates by net passing change and per-dimension delta and reports no single averaged total across cases
+
   Scenario: a diff is not persisted by default
     Given a completed diff and no request to record it
     When compare reports
@@ -79,6 +89,11 @@ Feature: compare — diff two config versions for regressions
 
   Scenario: a regressed case blocks the commit with a warning
     Given a diff in which a case dropped from passing to failing
+    When compare applies the regression gate
+    Then it warns explicitly and advises against committing until the regression is resolved
+
+  Scenario: a dimension that drops while the case still passes is flagged as a regression
+    Given a diff in which a case stays passing but one dimension's score dropped
     When compare applies the regression gate
     Then it warns explicitly and advises against committing until the regression is resolved
 

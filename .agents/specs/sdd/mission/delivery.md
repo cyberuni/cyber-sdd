@@ -48,7 +48,7 @@ The deliver phase produces the artifacts the impl gate judges. Its two units spl
 **producer ≠ judge** line: the impl-producer builds, the cold impl-judge grades. The unit of test
 is the skill — **one `.feature` per unit**. The gate's verdict mechanics, the leash, self-assertion
 vs stop, and positional ratification authority are the [`conductor`](conductor/README.md) unit's,
-not these. Cross-capability outcome (e2e) scenarios live in `../acceptance/`.
+not these. Cross-capability outcome (e2e) scenarios live in `../workflows/`.
 
 | Unit | Type | Spec | Role |
 |---|---|---|---|

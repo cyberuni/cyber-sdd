@@ -3,7 +3,7 @@ Feature: The verify-scenarios procedure — bridge frozen scenarios to test repo
   Unit suite for the verify-scenarios engine. Deterministic scenario→test-report bridge: derive a
   frozen .feature's scenario set, union the configured sources' results, and classify each scenario
   PASS / FAIL / UNBOUND so the impl-judge reasons by hand only over the UNBOUND set. Read-only and
-  advisory. Cross-capability e2e scenarios live in ../../acceptance/.
+  advisory. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ── Read the source set ──
 
@@ -163,6 +163,28 @@ Feature: The verify-scenarios procedure — bridge frozen scenarios to test repo
     Given a --feature, --report, or --config given as a path relative to --root
     When verify-scenarios resolves it against --root
     Then it resolves beneath --root, which defaults to the current directory
+
+  # ── Monorepo rooting (feature-root vs. bridge/report-root) ──
+
+  Scenario: a feature-root argument resolves --feature beneath it instead of --root
+    Given a --feature-root distinct from --root
+    When verify-scenarios resolves a relative --feature path
+    Then it resolves beneath --feature-root rather than --root
+
+  Scenario: without feature-root, --feature falls back to resolving beneath root
+    Given no --feature-root argument
+    When verify-scenarios resolves a relative --feature path
+    Then it resolves beneath --root, the same as before feature-root existed
+
+  Scenario: the config default path, --report, and every source's reportPath stay rooted under root regardless of feature-root
+    Given a --feature-root distinct from --root
+    When verify-scenarios resolves --config's default path, an ad-hoc --report, or a source's reportPath
+    Then each still resolves beneath --root, never --feature-root
+
+  Scenario: an absolute --feature path is used verbatim even with a distinct feature-root
+    Given a --feature-root distinct from --root and a --feature given as an absolute path
+    When verify-scenarios resolves --feature
+    Then the absolute path is used as-is rather than joined beneath --feature-root
 
   # ── Boundaries ──
 

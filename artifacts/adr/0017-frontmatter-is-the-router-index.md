@@ -90,7 +90,7 @@ run** — not at draft. Everything else is removed from the durable spec frontma
   frontmatter-only scan.
 - **organization strategy** (`capability-first | mirror-source | …`) — **moved out of frontmatter**
   to a one-line body declaration + the `design/spec-layout.md` taxonomy; read on demand by placement
-  ops (`backfill-project-spec`, the formation Warden), off the router's hot path.
+  ops (`scaffold-project-spec`, the formation Warden), off the router's hot path.
 - **run-level `strategy` (leash) block — removed** from the durable spec; it is session-local
   (`autonomy-rubric.md`) and lives on the `ledger.jsonl` / `.plan.md`.
 
@@ -164,7 +164,7 @@ names to the user, so a human-facing **project name** earns a frontmatter slot u
 It is **optional**: `discover-specs` derives the name when it can (repo-root single-project → `repo`;
 a `.agents/specs/<project>` folder names itself) and only a **nested** project — whose folder
 basename is a `guessed` name that may differ from the user's (a `package.json` name, an acronym) —
-needs the declared `name`, written at spec creation (`backfill-project-spec`). Each discovered entry
+needs the declared `name`, written at spec creation (`scaffold-project-spec`). Each discovered entry
 carries a `name-source` (`declared | derived | guessed`) so a consumer knows when to confirm.
 
 ## Related Decisions

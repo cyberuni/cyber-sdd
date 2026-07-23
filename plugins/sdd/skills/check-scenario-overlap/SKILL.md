@@ -27,8 +27,9 @@ cross-*node* overlap **inside** a project had no detector until this one.
 ## The two deterministic candidate kinds (and one judgment arm)
 
 - **exact-duplicate** (blocking) — two **distinct** nodes whose suites each carry a scenario with an
-  **identical normalized step fingerprint** (the ordered Given/When/Then step bodies, whitespace- and
-  case-normalized). A near-certain one-behavior-two-nodes violation; `--check` fails on it.
+  **identical normalized fingerprint** (the ordered Given/When/Then step bodies, whitespace- and
+  case-normalized; for a `Scenario Outline`, its normalized `Examples` table too). A near-certain
+  one-behavior-two-nodes violation; `--check` fails on it.
 - **title-overlap** (advisory) — two distinct nodes sharing a **normalized scenario title** but with
   **differing** fingerprints. A weaker hint (same words may name different behavior); **never** fails
   `--check`.
@@ -36,10 +37,14 @@ cross-*node* overlap **inside** a project had no detector until this one.
   engine ships no verdict. The Warden confirms the candidate is the same behavior (not a coincidental
   text match) and **assigns a single owning node** for the dedup.
 
-The fingerprint is computed from **step bodies only** — a scenario's title, tags, comments, and the
-`.feature` prose never reach it, so the signal is behavior-shaped, not cosmetic. Detection is
-**cross-node only**: a scenario duplicated **within one node** raises no candidate, and a scenario
-appearing **once** corpus-wide raises nothing.
+The fingerprint is computed from **step bodies only** for a plain `Scenario` — its title, tags,
+comments, and the `.feature` prose never reach it, so the signal is behavior-shaped, not cosmetic. A
+`Scenario Outline`'s steps are a **template**, not its content: every canonical `@trigger` outline
+shares byte-identical steps by construction, so its fingerprint also folds in its **`Examples` table**
+(header + rows, normalized cell-by-cell) — two outlines are an exact-duplicate only when their steps
+**and** their rows match. Title and tags stay excluded from both shapes. Detection is **cross-node
+only**: a scenario duplicated **within one node** raises no candidate, and a scenario appearing
+**once** corpus-wide raises nothing.
 
 ## Run the scan
 

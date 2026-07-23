@@ -77,6 +77,39 @@ Phase 2 — the suite:
   behavior); the rule excludes them only from the apparatus you author. This is **not** settled by
   the mechanical form check below — probe independence has no deterministic form, so a green form
   check never clears an entangled `Given`.
+- **Route every criterion through the substitutability test before you write it as a dimension**
+  (`../suite-format/README.md`). A criterion belongs in a `@rubric` **only if** you accept that
+  strength elsewhere may pay for weakness here — say the trade out loud (*"great scope makes up for
+  shipping an npx dependency"* — nobody accepts that). If you do not accept it, the criterion is
+  **not in the sum**: write it as a boolean `Then`. A rule graded as a dimension becomes
+  **tradeable**, and no threshold repairs that. Split a **double-barreled** dimension (two criteria
+  joined by *and*) before selecting — the halves routinely land in different forms. **Write the trade
+  down** in the same record that carries the cut's reason, naming it and **what pays for it** — an unrecorded trade is an unowned selection nobody can disagree with. Record it for
+  each dimension you author or revise. The duty is **yours alone**: no judge reports a missing record,
+  so nothing catches you skipping it.
+- **Apply the miss test to every scenario and every `@rubric` dimension you author**
+  (`../suite-format/README.md`). Name a **plausible wrong subject** — a memorizer, a copier, a
+  procedure-follower, a single-brancher — and check that it *loses*. A scenario every plausible
+  subject passes measures nothing and is dead weight, whatever its form. The wrong subject must be
+  plausible: an empty artifact fails everything, and its failure clears nothing. For a `@rubric`,
+  sum what each named wrong subject **banks** — never zero a dimension to make a point — and that
+  sum sits **strictly under** the threshold (a tie passes). Rewrite a dimension that grades
+  **presence** (a line is emitted), **restatement** (the doctrine's own words), or **procedure**
+  (the steps, not the judgment). Like probe independence, this is **not** settled by the mechanical
+  form check — a green form check never clears an unloseable dimension. Two further shapes fail the
+  miss test and are rewritten on sight: a **toothless finding** (a `Then` asserting a signal is
+  *raised* but not its binding consequence — the wrong subject raises it and acts on nothing) and a
+  **process `Then`** (asserting how the artifact was produced — "co-developed", "written test-first",
+  "refactored before completing" — which is unobservable and belongs in prose, not a scenario).
+- **Check coverage before returning** (`../suite-format/README.md`). Every outcome and every
+  **carve-out** the node's `## Use Cases` / README states has at least one scenario; a claim named
+  only in prose is unspecified. A **mirrored duty** (a producer/judge, sender/receiver pair) is
+  specified on **both** sides — a behavior on one node implies its mirror on the counterpart.
+- **Read your authored scenarios against each other** (`../suite-format/README.md`). No two
+  scenarios sharing a `When` may demand opposite verdicts on one constructible snapshot; narrow one
+  `Given` to exclude the overlap. Overlapping `Given`s whose `Then`s agree, and scenarios whose
+  `When`s name different operations, are not contradictions — the bar is the contradiction, never
+  the overlap.
 - Step-down ordering and stage grouping still hold after the edits.
 - **Self-check the form before returning** — run the deterministic `.feature`-form check (the
   executable form of `../suite-format/README.md`) over the authored suite and fix any violation (a
@@ -92,6 +125,10 @@ The producer writes the **spec body and the `.feature`**, nothing else:
   those are the conductor's and the gate's (`../../design/provenance-model.md`).
 - Scoring lingo appears **only** inside a `@rubric`-tagged scenario; every untagged scenario
   stays a pure boolean assertion (`../suite-format/README.md`).
+- It declares `governances_loaded` — every governance it loaded before writing — as a **required**
+  field in its structured output, listing an empty set rather than omitting the field when it loaded
+  none. This is provenance for the spec-judge's pre-flight check (`../spec-gate/README.md`), carried
+  through the dispatch channel — it is never written into `spec.md` or the `.feature`.
 
 **Producer/judge separation.** The producer authors the diff; a **distinct judge** actor
 verifies it (`../spec-gate/`). The producer self-aligns against the same governances the

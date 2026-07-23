@@ -45,9 +45,29 @@ them):
 
 ```
 ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH
+PRODUCER_GOVERNANCES_DECLARED: [ the spec-producer's declared governances_loaded, relayed by the conductor — or [] ]
 ```
 
 The `<unit>.solution.md` is **not** in view — do not request or read it.
+
+## Governance pre-flight check — run first, before any lens
+
+The spec-producer declares which governances it loaded (`sdd:spec-producer-governance`); a producer
+that skipped pre-flight and one that ran it correctly otherwise look identical — both just show up as
+an output gap. This narrows that (it is a self-reported declaration, not an attested one — it catches
+an **honest** omission, not a skip-and-claim; see `governance pre-flight check` in the gate README)
+before reading spec.md for content:
+
+1. **Derive your own expected set** from the governances you loaded in "Governances to load" above
+   (the fixed-universal floor plus the resolved-actor bar candidates for this `ARTIFACT_TYPE`) — never
+   from `PRODUCER_GOVERNANCES_DECLARED`, which is untrusted input, not the standard.
+2. **Check `expected ⊆ PRODUCER_GOVERNANCES_DECLARED`.** On a miss, stop here: do **not** run the three
+   lenses or read `spec.md`/`.feature` for content. Return `STATUS: blocked`, `ALIGNED: false`, and
+   `PREFLIGHT: { result: fail, finding-kind: governance-preflight-missing, missing: [ <each expected
+   governance absent from the declared set> ] }`. The conductor advances no status on this verdict, the
+   same as any other judge failure.
+3. **A superset raises no finding.** A declared set covering every expected governance — with or
+   without extras — passes; report `PREFLIGHT: { result: pass }` and proceed to the lenses below.
 
 ## Split the work
 
@@ -73,7 +93,9 @@ The `<unit>.solution.md` is **not** in view — do not request or read it.
   no scope creep; every `## Use Cases` outcome has a scenario home; the CR is worth shipping.
 - **Builder** (`builder-spec`) — testability & coverage: every operation in the surface has at least
   one happy-path and one error-case scenario; scenarios describe **observable behavior only** (no
-  internal state or function names); no placeholder text.
+  internal state or function names); no placeholder text; every scenario and `@rubric` dimension can
+  **register a miss** (discrimination), and no two scenarios contradict on one snapshot (pairwise
+  consistency).
 - **Architect** (`architect-spec`) — structural fit: no duplication or contradiction with sibling
   specs; the node sits at the right layer; `spec.md` and the `.feature` do not contradict each other.
 
@@ -91,15 +113,82 @@ rubric form, so scoring lingo inside it is **not** rejected. Two parts:
 
 - **Structure (universal — every resolved judge enforces it identically):** the rubric block is
   present with named dimensions, a per-dimension `max`, and exactly one `threshold`; a
-  boolean-collapsing `Then` is present (`the rubric score is at least the threshold`). A missing
-  threshold, missing named dimensions, or absent collapsing `Then` is a structural failure — the
-  judge names the missing element as the cause and **scoring does not begin**.
+  boolean-collapsing `Then` is present (`the rubric score is at least the threshold`); and **no
+  dimension is double-barreled** (two criteria joined by *and*, e.g. `harness_agnostic_and_mcp_free`
+  — it has no honest score, since a subject satisfying one half and failing the other makes every
+  awardable number report something false). A missing threshold, missing named dimensions, an absent
+  collapsing `Then`, or a double-barreled dimension is a structural failure — the judge names the
+  element as the cause and **scoring does not begin**.
 - **Scoring (per-resolved-judge — capability varies by the domain's resolved spec-judge):** the
   judge reads the rubric, scores each dimension, sums, applies the threshold, and emits a single
   pass/fail (`total ≥ threshold ⇒ pass`) — never a raw score. This default `sdd-spec-judge` performs
   baseline by-hand scoring and is the **reference implementation** of the bar; a domain whose
   registry resolves a more capable spec-judge may score with more rigor. The structural check above
   is identical across all resolved judges; only scoring capability differs.
+
+**Selection (Builder — judged, every `@rubric` dimension; runs BEFORE discrimination):** a `@rubric`
+is a **compensatory** model — the sum lets strength on one dimension pay for weakness on another —
+so every dimension in it must be **substitutable**: you must accept that trade.
+
+- **Fail a `@rubric` that sums a non-substitutable criterion.** Say the trade out loud: *"great scope
+  makes up for shipping an npx dependency"* is one nobody accepts, so `no_npx_dependency` belongs in
+  a boolean `Then`, not in the sum. Graded as a dimension it becomes **tradeable**, which is the one
+  thing a rule must never be, and no `max` or `threshold` repairs it.
+- **Do not demand per-dimension hurdles instead.** A minimum on each dimension is **conjunctive**
+  scoring: less reliable, not safer — the least-reliable subscore controls the outcome and it buys
+  fewer false passes with more **false negative classification errors**. The remedy is that the
+  criterion never enters the rubric, not that it gains a floor.
+- **Run this check first.** A criterion that does not belong in the sum needs no discrimination
+  analysis, and every dimension reaching the miss test below has already cleared selection.
+- **Rule when you can; escalate only when you cannot.** A trade you **can rule that you reject** is a
+  **fail** — not an escalation, **however arguable it is**. Escalate only the trade you can rule
+  **neither** way on. Arguable is not the trigger; **unrulable** is.
+- **Re-derive the trade; never grade the producer's account of it.** A dimension may record the trade
+  it accepts and what pays for it — that record is for the **owner**, not for you. Do not grade it,
+  do not fail a dimension over it, and do not report one that is missing. Judge the **dimensions**.
+  The producer's own account of its trade is not evidence.
+- **Selection has no second reader.** Discrimination cannot back it up: the subject that would expose
+  a smuggled criterion is a blemished good subject the miss test bars, and selection runs first, so
+  nothing downstream re-asks. Rule carefully; there is no backstop under you.
+
+**Discrimination (Builder — judged, every scenario and every `@rubric` dimension; runs AFTER
+selection):** each must be able to **register a miss** — a **plausible wrong subject** must exist
+that fails the scenario, or that scores below the dimension's `max`. Structure, selection, and
+discrimination are **distinct checks**: a well-formed `@rubric` passes structure and may still sum a
+criterion that never belonged in it, a substitutable dimension may still be one no wrong subject can
+lose, and a green deterministic check clears none of the three. **Well-formed is never acceptance.**
+
+- Name the wrong subject explicitly — a **memorizer** (reproduces the doctrine's words), a **copier**
+  (echoes the artifact's worked examples), a **procedure-follower** (executes the steps without the
+  judgment), a **single-brancher**. It must be **plausible**: an empty artifact fails everything and
+  clears nothing.
+- Fail a dimension grading **presence** (a line is emitted, where the subject makes emission
+  trivial), **restatement** (the doctrine's own words — the memorizer scores max and the reasoner no
+  higher), or **procedure** (the steps, where the judgment is under test).
+- For a `@rubric`, **sum what each named wrong subject banks** — never zero a dimension to make a
+  point — and that sum sits **strictly under** the threshold (a tie passes). A floor reaching
+  threshold on the free dimensions alone leaves the discriminating dimensions decorative.
+- **Do not decree a margin.** How far under is your judge's noise at the cut (**cSEM**), a measured
+  property of the instrument. Never fail a rubric for clearing by "only one point"; fail it for a
+  dimension no wrong subject can lose.
+- A **measured ceiling is not evidence** — max on every run with zero variance is a tell the
+  dimension cannot be lost, not a finding that the subject is good.
+- **Escalate a scenario you cannot classify rather than passing it.**
+
+**Pairwise consistency (Builder — judged, the suite, not a scenario):** no two scenarios sharing a `When`
+demand opposite verdicts on one constructible snapshot. `Given`s need not be disjoint — two
+scenarios may share a precondition when their `Then`s assert different, compatible aspects; the
+check is the **contradiction**, never the overlap, and two scenarios whose `When`s name different
+operations do not contradict. Name both scenarios in the rejection. This is the authoring-time read
+of the defect the **`Conflict`** hard floor otherwise catches at the impl gate, post-freeze.
+
+**Specialization is not contradiction** — do not over-fire. A **general** scenario and a **specific**
+sibling whose narrower `Given` carves out an exception do not contradict, even when the general
+`Given` does not literally exclude that exception: the specific one names the narrower case and wins
+on it. Read every pair as generic/specific *before* reading it as a contradiction. A contradiction is
+a pair with **no intended winner** — the `Conflict` floor's own definition. A frozen suite may
+legitimately rely on this convention: retrofitting the exclusion into a frozen general `Given` is a
+narrowing that fires **Clearance**, so never demand it of one.
 
 **Agent-level (per lens, above):**
 - At least one happy-path and one error-case scenario per operation in the command surface (Builder).
@@ -117,6 +206,7 @@ rubric form, so scoring lingo inside it is **not** rejected. Two parts:
 
 ```
 STATUS:            complete | needs-input | blocked
+PREFLIGHT:         { result: pass | fail, finding-kind: governance-preflight-missing | null, missing: [ ... ] }
 LENS:              { oracle: pass | fail, builder: pass | fail, architect: pass | fail }
 ALIGNED:           true | false        # false ⇒ which artifacts are out of sync
 SCENARIOS_PASSING: [ titles ]
@@ -127,6 +217,8 @@ CONTENT_GAPS:      [ { artifact, location, gap } ]
 OBSERVATIONS:      [ { owner: architect | strategist, note, evidence } ]
 ```
 
+`PREFLIGHT.result: fail` short-circuits everything below it — `LENS` is omitted, `ALIGNED` is `false`,
+and `BLOCKER` names the missing governances (see "Governance pre-flight check" above). Otherwise
 `ALIGNED` is `true` only when all three lenses pass and no open marker remains. The conductor
 synthesizes the gate verdict and the leash from this rollup — never advance with any lens failing,
-any open marker, or `ALIGNED: false`.
+any open marker, a failed preflight, or `ALIGNED: false`.

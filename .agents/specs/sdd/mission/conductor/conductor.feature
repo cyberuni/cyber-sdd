@@ -4,7 +4,7 @@ Feature: The conductor — running one mission segment
   the five-role production chain, explore orchestration, segment mechanics, the impl gate, and
   stop-provenance. The grilling workflow and the spec gate are ../../authoring/'s; the
   impl-producer build and impl-judge run colocate as sibling mission units (../impl-producer/, ../impl-judge/); cross-capability e2e
-  scenarios live in ../../acceptance/.
+  scenarios live in ../../workflows/.
 
   # ---- Classification — a file's artifact-type ----
 
@@ -204,7 +204,38 @@ Feature: The conductor — running one mission segment
     Then the units stay warm for reuse within that mission
     And the conductor does not tear them down between uses in the mission
 
+  # ---- Governance provenance relay — producer_governances_declared ----
+
+  Scenario: the conductor forwards the declared governances in a cold-subagent brief
+    Given a spec-producer's structured output declares governances_loaded
+    When the conductor dispatches the spec-judge as a cold subagent
+    Then the brief carries producer_governances_declared with that same set
+
+  Scenario: the conductor forwards the declared governances in a mail envelope for an agent pool
+    Given a spec-producer's structured output declares governances_loaded
+    And the dispatch capability routes the spec-judge through an agent pool
+    When the conductor dispatches the spec-judge
+    Then the mail envelope carries producer_governances_declared with that same set
+
+  Scenario: the conductor relays an empty declared set without judging it
+    Given a spec-producer's structured output declares an empty governances_loaded set
+    When the conductor dispatches the spec-judge
+    Then it forwards an empty producer_governances_declared set
+    And it renders no opinion on whether that set is sufficient
+
+  Scenario: the conductor is a pure relay for the declared governance set
+    Given a spec-producer's structured output declares governances_loaded
+    When the conductor forwards it as producer_governances_declared
+    Then it does not decide which governances were required
+    And it does not filter or amend the declared set
+
   # ---- Explore — build to learn (step 2) ----
+
+  Scenario: explore is entered from a non-frozen suite, not from a mode input
+    Given a unit whose .feature is not yet frozen
+    When the conductor derives its phase for the segment
+    Then it enters explore because the suite is not frozen
+    And it takes no caller-supplied mode to make that choice
 
   Scenario: explore spikes the impl-producer against the non-frozen suite
     Given the conductor runs explore in-session
@@ -303,6 +334,13 @@ Feature: The conductor — running one mission segment
     When the segment continues
     Then the observation is routed to the plan
     And it is not folded into the contract
+
+  Scenario: observations from several producers are forwarded without loss
+    Given more than one production-chain producer surfaces a non-blocking observation
+    When the conductor completes the segment
+    Then it forwards every producer's observation to the plan
+    And it drops or filters none of them
+    And it spawns no spec of its own from them
 
   # ---- Rebase onto the target before the impl gate ----
 

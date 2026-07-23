@@ -76,4 +76,4 @@ should be** — and nothing else.
 ## Scenarios
 
 Unit scenarios for this loop colocate in this folder; cross-capability outcome scenarios that
-exercise a grow/prune CR end-to-end live in `acceptance/`.
+exercise a grow/prune CR end-to-end live in `workflows/`.

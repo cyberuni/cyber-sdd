@@ -44,6 +44,20 @@ prioritize the structural pass there first. It reads **never** the combat log (t
 input, retired at retro) and **never** live subagent context — like the other outer loops it fires
 strictly post-mission.
 
+**Read the declared strategy before judging.** Each project spec's root `spec.md` carries a
+**placement map** naming the layout strategy it chose (`capability-first | mirror-source | …`). Read
+it and judge structural fit **against that**, never against a default: a project that declared
+`mirror-source` is not misplaced for mirroring its source tree. **Never infer the strategy from the
+tree** — that makes the audit circular (the shape the corpus has becomes the standard it is judged
+by) and, on a half-migrated corpus, judges it against the layout it is migrating away from. A map
+naming no strategy is judged against the **capability-first** default, and the missing declaration
+is itself a finding. **Read the map's routing table too, not only its strategy:** a node placed by an
+explicit routing-table row (the "concept of kind K lives in home H" taxonomy and its tie-breaks) is
+correctly placed even where the strategy's own derivation would put it elsewhere, so report a node
+misplaced only when it **neither** follows the declared strategy **nor** matches a routing-table row
+— judging on the strategy alone raises false findings against placements a human already adjudicated. A declared layout settles *where a node goes*; it never licenses a capability to
+scatter across nodes. (Strategy is policy — read it; homes are data — derive them.)
+
 ## The intra-spec structural acts
 
 It acts on each spec's **structure**, not its content — one project is **one spec**, so structural
@@ -63,10 +77,21 @@ two nodes that specify **no** shared behavior raise **no** dedup finding. The ac
 not run unconditionally.
 
 Alongside its findings a pass surfaces an **advisory layout-quality signal** — the scheduler's
-**false-conflict rate** doubles as a **code-partition-quality metric** (capability-first keeps
-node↔folder clean and the rate low; a layered / framework-first layout scatters a capability and
-drives it up). The signal is **advisory** — it **gates no mission**; it points the Warden and Council
-at a degrading partition so the capability-first recommendation can be re-asserted.
+**false-conflict rate** doubles as a **partition-quality metric**: a layout that keeps node↔folder
+clean holds the rate low, and one that scatters a single concern across folders drives it up. Read
+the signal **against the strategy the project declared** — a high rate under `mirror-source` means the
+source tree itself scatters the concern, which is a different finding from a capability-first spec
+drifting toward layers. But the rate measures the same thing either way: **node <-> capability
+alignment**, which the scheduler depends on and which no declaration suspends (ADR-0025). The signal
+is **advisory** — it **gates no mission**; it points the Warden and Council at a degrading partition
+so the **declared** layout can be re-asserted, or deliberately re-declared.
+
+**Measuring it, when a pass wants the number.** `sdd:check-partition-quality` computes this signal
+from the project's git history — the parallelizable share of change pairs under the declared layout,
+against a shuffled control, optionally compared with a candidate cut. **Opt-in**: it reads `git log`,
+so a pass runs it deliberately rather than every time, and its output is a measurement, never a
+verdict. Read its headline (the parallelizable share) and ignore its labelled diagnostics — both
+reward a coarser partition for being coarse.
 
 ## The Warden's self-clear-vs-escalate verdict
 
@@ -112,4 +137,4 @@ Formation owns corpus **structure** only and emits **no** out-of-loop decision:
 - a **per-spec gate structural check** → **declined**; formation does not run as the gate check.
 
 Cross-capability outcome scenarios (a split or reconcile carried end-to-end) live in
-`../acceptance/`; the loop and verdict behaviors are in `formation/formation.feature`.
+`../workflows/`; the loop and verdict behaviors are in `formation/formation.feature`.

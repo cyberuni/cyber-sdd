@@ -3,7 +3,7 @@ Feature: The impl-judge procedure — run the verification against the frozen co
   Unit suite for the default impl-judge (sdd-impl-judge). Judge behaviors only — it runs the
   verification the impl-producer authored and advises; it never authors tests, sets the bar, or
   writes the gate verdict (that is ../conductor/). Cross-capability e2e scenarios live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ---- Map and run ----
 
@@ -95,6 +95,16 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Given a domain with no scenario bridge configured
     When the impl-judge judges the implementation
     Then it judges every frozen scenario by hand rather than consuming a bridge report
+
+  Scenario: the bridge is discovered under the project's own root, not a single repo-root path
+    Given a monorepo project whose spec lives at a repo-root spec corpus and whose code, config, and report live under its own project-path
+    When the impl-judge checks whether a scenario bridge is configured
+    Then it looks for scenario-bridge.toml under the project's project-path rather than only the repo root
+
+  Scenario: the judge resolves the feature location independently of the bridge root
+    Given a monorepo project whose frozen feature and scenario-bridge.toml resolve under different roots
+    When the impl-judge runs verify-scenarios
+    Then it resolves the feature at its own location and the config, report, and reportPath under the project's project-path
 
   # ---- The absorption read ----
 
@@ -190,6 +200,33 @@ Feature: The impl-judge procedure — run the verification against the frozen co
     Given a run where every frozen scenario has a passing check
     When the impl-judge rolls up its result
     Then it reports the implementation passing
+
+  # ---- Two test levels — acceptance boundary + inner-rule coverage ----
+
+  Scenario: for a deterministic domain the gate checks both test levels
+    Given a deterministic domain whose acceptance feature covers intents and whose inner rules form a combinatorial space
+    When the impl-judge judges the implementation
+    Then it confirms every frozen acceptance scenario passes at the boundary
+    And it confirms the inner-rule combinatorial space has unit coverage
+
+  Scenario: the gate never demands the acceptance feature enumerate a combinatorial space
+    Given a frozen acceptance feature that covers an intent without enumerating its inner-rule combinatorics
+    When the impl-judge judges that feature's coverage
+    Then it does not fail the intent for leaving the combinatorics to unit tests
+    And it does not require the feature to carry one scenario per combinatorial case
+
+  Scenario: missing inner-rule unit coverage is a finding distinct from an acceptance failure
+    Given a deterministic domain whose inner-rule combinatorial space has no unit coverage
+    When the impl-judge rolls up its verdict
+    Then it raises the missing inner-rule coverage as a finding
+    And it reports that finding distinctly from any per-scenario acceptance failure
+    And it does not report the implementation passing while that finding stands
+
+  Scenario: a domain with no deterministic inner layer is not held to inner-rule unit coverage
+    Given a domain whose behavior is a graded non-deterministic subject with no deterministic inner layer to push combinatorics down to
+    When the impl-judge judges the implementation
+    Then it does not require unit coverage of a deterministic inner layer that does not exist
+    And it judges the graded behavior at the suite boundary instead
 
   # ---- Boundaries ----
 

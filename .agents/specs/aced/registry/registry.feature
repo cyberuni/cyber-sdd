@@ -2,7 +2,7 @@
 Feature: registry — register ACED as the agent-config SDD plugin
   Unit suite for the init-aced skill: upsert the ACED entry in .agents/universal-plugin.json so the
   conductor resolves ACED for the agent-config artifact-types. Idempotent, fail-closed. Cross-
-  capability e2e scenarios live in ../acceptance/.
+  capability e2e scenarios live in ../workflows/.
 
   # ---- Triggering ----
 
@@ -33,6 +33,11 @@ Feature: registry — register ACED as the agent-config SDD plugin
     When init-aced registers ACED
     Then it creates the registry file with the aced entry
 
+  Scenario: a registry without an sdd-plugins array gets one created
+    Given a registry file that exists and parses but holds no sdd-plugins array
+    When init-aced registers ACED
+    Then it creates the sdd-plugins array and appends the aced entry
+
   Scenario: other plugins' entries are left untouched
     Given a registry holding entries for other plugins
     When init-aced registers ACED
@@ -42,6 +47,11 @@ Feature: registry — register ACED as the agent-config SDD plugin
 
   Scenario: a legacy-shape entry is rewritten to squads
     Given an aced entry in the legacy domains shape
+    When init-aced registers ACED
+    Then it rewrites the entry to the squads shape
+
+  Scenario: a legacy role-key entry is rewritten to squads
+    Given an aced entry using the legacy scenario-advisor and implementer role keys
     When init-aced registers ACED
     Then it rewrites the entry to the squads shape
 

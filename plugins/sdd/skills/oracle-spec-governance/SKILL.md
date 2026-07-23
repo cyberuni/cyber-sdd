@@ -1,6 +1,6 @@
 ---
 name: oracle-spec-governance
-description: "Partial Skill: invoke by name only — the Oracle actor bar at the spec gate — scope and kill-or-ship. Loaded by the spec-producer and the cold spec-judge, not user-triggered."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 metadata:
   actor: oracle
@@ -10,22 +10,36 @@ metadata:
 
 # Oracle-Spec Governance — the scope & kill-or-ship bar
 
-The **Oracle** bar at the **spec gate**: is the intent worth committing? One merged bar loaded by
-**both** faces — the **spec-producer** reads it forward to self-align on scope before writing, and
-the **cold spec-judge** reads it backward to judge kill-or-ship. `producer ≠ judge` holds at the
-agent level. Oracle applies at the spec gate only — there is no Oracle impl face.
-
-The SDD default for the `oracle` bar — a plugin may bind its own per artifact-type (governance resolution); this loads when the registry leaves `oracle` unbound.
+The **Oracle** bar at the **spec gate**: is this **capability** worth committing, and is its scope the
+node's to hold? Judges the capability (read from its spec + suite), not the document's prose — that is
+`sdd:spec-format-governance`. Loaded by both faces — the spec-producer self-aligns on scope before
+writing, the cold spec-judge judges kill-or-ship. Oracle has no impl face. The SDD default for the
+`oracle` bar; a plugin may bind its own per artifact-type, and this loads when the registry leaves
+`oracle` unbound.
 
 ## The bar
 
-- **One coherent intent.** The spec frames a single, nameable outcome. Two unrelated concerns ⇒
-  split into two specs.
-- **Scope is bounded.** What is explicitly out of scope is stated. A spec that keeps absorbing
+- **One coherent intent.** The capability delivers a single nameable outcome. **Two concerns are two
+  capabilities** — split them, each into its own node. Test: can you name the outcome without "and"?
+- **Scope is bounded and stated.** What is out of scope is named. A capability that keeps absorbing
   adjacent problems is scope creep — cut it back.
-- **Worth shipping.** The Why names a real problem and who feels it. If the value does not clear the
-  cost of building, the verdict is **kill**, not ship.
-- **Kill-or-revert is allowed.** A scenario that passes every check but turns out fatal sends the
-  whole spec back to Draft. Surface the deal-breaker; do not patch around it.
-- **No premature commitment.** Defer a decision that does not need to be made yet to the last
-  responsible moment rather than freezing a guess.
+- **The suite's decisions are the node's to hold.** Every scenario tests a **decision the node owns**.
+  A property **co-owned** across a seam — activation/routing, a sibling's behavior, harness wiring —
+  is out of scope: relocate it to the node that owns it, or kill it.
+- **Strict — a non-decision is killed.** An **invariant** that always holds is not acceptance and does
+  not enter the suite. The one exception is a user **`@pinned`** scenario, kept whatever strict prunes.
+- **Worth shipping, or kill.** The Why names a real problem and who feels it. If value does not clear
+  the cost of building, the verdict is **kill**.
+- **Kill-or-revert is allowed.** A capability that passes every check but proves fatal goes back to
+  Draft — surface the deal-breaker.
+- **No premature commitment.** Defer a decision that need not be made yet to the last responsible
+  moment.
+
+## Key points (read-check)
+
+1. **One coherent intent** — two concerns are two capabilities; bounded and stated scope.
+2. **Every scenario tests a decision the node owns** — a co-owned seam property is out of scope
+   (relocate or kill).
+3. **Strict** — an invariant / non-decision does not enter the suite; only a user `@pinned` scenario
+   escapes.
+4. **Worth shipping or kill** — value must clear the build cost; a fatal proof reverts to Draft.

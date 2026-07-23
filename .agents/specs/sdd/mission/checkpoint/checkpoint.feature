@@ -3,7 +3,7 @@ Feature: The checkpoint procedure — write a mission's state into its plan brie
   Unit suite for the checkpoint unit (the pause-mission skill). Writing the live session state back
   into the plan brief so a later session resumes, and clearing a reviewed mission for headless
   dispatch by setting status: approved. It writes only the plan brief. Cross-capability e2e
-  scenarios live in ../../acceptance/.
+  scenarios live in ../../workflows/.
 
   # ---- Checkpoint the mission ----
 

@@ -4,22 +4,22 @@ project-path: plugins/aced
 approval:
   spec:
     verdict: approve
-    by: agent
-    cause: dimension
+    by: unional
+    cause: clearance
     why:
-      floor: none — CR github-140 is additive (4 new boolean scenarios per suite on the already-frozen define-agent.feature + define-skill.feature, self-clearing; no scenario narrowed); no Clearance floor
-      blast: low — advisory gate-role naming convention in ACED define-agent + define-skill; two spec suites + two READMEs widened, no impl behavior change yet
-      novelty: low — encodes a doctrine-ratified naming rule (role+scope not bare verb) already applied reactively 3× across 2 plugins; canonical forms only
-      confidence: high — cold aced-spec-validator ALIGNED, all bars PASS, BLOCKER null; near-miss discriminates; gherkin parse clean
+      floor: clearance — RATIFIED LIVE by the owner, scoped to TWO frozen judge.feature scenarios ("invoked for one case it emits the four-field result", "the output is exactly the four fields"); both assert the scalar four-field output the per-dimension contract contradicts, so no additive path exists. Structural gherkin-cli diff vs base: 2 removed / 0 modified / 9 unchanged — no untouched frozen scenario narrowed. extract-situation.feature is a new node, frozen additively.
+      blast: medium — the shared measurement instrument for every @rubric scenario in every ACED suite; fixed once in the protocol so no individual suite can fix it locally. Callers keep a one-invoke contract, so caller wiring is unchanged.
+      novelty: high — a NEW deterministic engine (extract-situation) now composes the simulator's brief, moving redaction out of the judge's own judgment; owner blessed the scope growth beyond the aced/case-judge touch-set.
+      confidence: high — cold aced-spec-validator ALIGNED on judge at round 3 (a scalar impl fails 3 independent scenarios, a one-context impl fails 5); three rounds closed the transcript-provenance hole, a dropped trigger-output shape, and a PASS-vs-must-not-do contradiction. extract-situation is recused from ACED grading (deterministic, node:test-assertable — no Fit line, per the sdd authoring/spec-gate precedent) and verified by mutation instead: 13 of 24 mutations initially survived, all 13 now caught, control mutation still survives. pnpm verify 21/21 green.
   impl:
     verdict: approve
-    by: agent
+    by: unional
     cause: dimension
     why:
-      floor: none — impl built against the frozen suite; the two SKILL.md bodies changed to meet it, no .feature/README/frontmatter/script touched
-      blast: low — in-skill HIGH gate-role naming check added to define-agent (checks-table row B9) and define-skill (in-skill subsection, explicitly separate from mechanical audit validate)
-      novelty: low — advisory authoring guidance, native to each host skill's existing quality mechanism; no new script or validate.mts check
-      confidence: high — cold aced-impl-judge re-derived all 8 frozen scenarios independently → 8/8 PASS, in-skill-not-mechanical constraint met, clean gate (no correction iteration); pnpm verify 20/20 green
+      floor: none — impl built against the frozen suites; every later scenario was ADDITIVE (gherkin-cli addOnly, 0 modified), so the ratified Clearance was never re-entered. One out-of-touch-set break was found and reconciled WITHOUT a re-open: report.feature:78's "mean" is unqualified, so report renders a normalized mean (%max) instead of the raw cross-suite mean the CR's own thesis forbids.
+      blast: medium — the shared measurement instrument for every @rubric scenario in every ACED suite, plus a new deterministic engine composing the simulator's brief. Callers keep a one-invoke contract, so no suite can bypass the blindness locally.
+      novelty: high — a blind two-pass protocol with the redaction moved out of the judge's own judgment into tested code; the asymmetry is explicit (the simulating context is blind; the scoring context reads the whole scenario, because the guards it gates on live only in the Then).
+      confidence: medium-high — cold impl-judge round 4: judge.feature 30/30, extract-situation 27/27 on behavior, scope clean; its sole blocker (three fail-closed Thens bound only by a proxy) closed and proven by the judge's own ablations. Convergence measured before stopping: rounds 1-2 plus an independent reader found 6 engine/body defects; rounds 3-4 and a 97-mutation sweep found ZERO — only harness gaps, whose seam migrated each round. 88 tests, verify 21/21. NOT high, and deliberately so: the impl-judge invokes aced-case-judge, so with case-judge as the subject its method is circular. It refused and read by hand, so all 30 judge.feature verdicts are a static contract-binding read, NOT a measurement — the protocol has never been executed. Filed as a blocking follow-up.
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer
@@ -28,7 +28,7 @@ produced-by:
 # ACED — Agent Config Evaluation & Development
 
 > Root project spec — the **descriptive** top index for ACED. Rules live in [`design/`](./design/README.md);
-> behaviors live in the capability folders. Scaffolded by `backfill-project-spec` at `status: draft`; each
+> behaviors live in the capability folders. Scaffolded by `scaffold-project-spec` at `status: draft`; each
 > behavioral node's `## Use Cases` + `.feature` are authored in per-unit explore.
 
 ## What ACED is
@@ -60,10 +60,11 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` |
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
+| [`setup/`](./setup/README.md) | descriptive index | prepare the local ACED environment — `init-aced` (ignore run output) |
 | [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
 | [`design/`](./design/README.md) | descriptive | the eval model + the `decisions/` ADR log |
-| [`acceptance/`](./acceptance/README.md) | descriptive | the e2e behavior suite (author → run → improve → compare) |
-| [`glossary/`](./glossary/README.md) | reference | the agent-config eval vocabulary |
+| [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: author → run → improve → compare) |
+| [`glossary.md`](./glossary.md) | reference | the agent-config eval vocabulary |
 
 ## Placement map
 
@@ -75,14 +76,15 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 - **a new way to *grow or fix* the golden set** → `suite-authoring/`.
 - **a new SDD delegate role** → `sdd-roles/` (matched to the plugin-contract roles).
 - **plugin registration / discovery** → `registry/`.
+- **local-environment onboarding** (ready a repo to run ACED — e.g. ignore run output) → `setup/`.
 - **a manage-level (non-mission) operation** (inspect / maintain the tooling corpus, not author or
   score) → routed through `manage/`; a new such engine that authors config lives under its capability
   folder (e.g. `config-authoring/manage-model-runners/`) and is added to the `manage/` routing table.
 - **a rule or model** (an eval layer, the mapping, a scoring convention) → `design/` (descriptive); a
   **decision + its rationale** → `design/decisions/` (ADR); a **unit's design fork** → that unit's
   `<unit>.solution.md`.
-- **a cross-capability outcome** (spans ≥2 folders) → `acceptance/`, never a capability folder.
-- **a term** → `glossary/`.
+- **a cross-capability outcome** (spans ≥2 folders) → `workflows/`, never a capability folder.
+- **a term** → `glossary.md`.
 
 The nesting rule: capabilities at the top; any layering or doc-section structure nests *inside* a capability,
 never as a top-level folder.
@@ -97,13 +99,14 @@ never as a top-level folder.
 |---|---|
 | `audit` | `config-authoring/improve-skill/` (behavior) |
 | `benchmarking` | `config-authoring/manage-model-runners/` (behavior) |
-| `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/improve-skill/` (behavior) · `config-authoring/list-skills/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/repair-private-skills/` (behavior) · `config-authoring/skillify/` (behavior) |
+| `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/improve-skill/` (behavior) · `config-authoring/list-skills/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/manage-skill-dirs/` (behavior) · `config-authoring/repair-private-skills/` (behavior) · `config-authoring/skillify/` (behavior) |
 | `contribution` | `contribute/contribute-skill/` (behavior) |
+| `discovery` | `config-authoring/manage-skill-dirs/` (behavior) |
 | `eval-run` | `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
-| `glossary` | `glossary/` (reference) |
 | `registry` | `registry/` (behavior) |
 | `routing` | `manage/` (behavior) |
-| `sdd-roles` | `sdd-roles/impl-judge/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/scenario-writer/` (behavior) · `sdd-roles/spec-validator/` (behavior) |
+| `sdd-roles` | `sdd-roles/extract-situation/` (behavior) · `sdd-roles/impl-judge/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/scenario-writer/` (behavior) · `sdd-roles/spec-validator/` (behavior) |
+| `setup` | `setup/ignore-run-output/` (behavior) |
 | `suite-authoring` | `suite-authoring/add-scenario/` (behavior) · `suite-authoring/improve/` (behavior) |
 
 <!-- END generated: by-concept -->

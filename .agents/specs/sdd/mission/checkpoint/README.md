@@ -92,4 +92,4 @@ loop selects on the `approved` flag this node sets.
 ## Scenarios (colocated)
 
 The behavior suite is [`checkpoint.feature`](./checkpoint.feature). Cross-capability outcomes that run
-a mission through checkpoint → dispatch end-to-end live in `../../acceptance/`.
+a mission through checkpoint → dispatch end-to-end live in `../../workflows/`.

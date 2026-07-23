@@ -170,6 +170,61 @@ test('normalize collapses whitespace and lowercases', () => {
 	assert.equal(normalize('  Foo   BAR  '), 'foo bar')
 })
 
+// ── Scenario Outline: the Examples table reaches the fingerprint (#304 step 1) ──
+
+const CANONICAL_OUTLINE = (title: string, examples: [string, string][]) => `Feature: F
+  Scenario Outline: ${title}
+    Given a user query "<query>"
+    When cyberspace routes the request
+    Then invocation is "<should_trigger>"
+
+    Examples:
+      | query | should_trigger |
+${examples.map(([q, s]) => `      | ${q} | ${s} |`).join('\n')}
+`
+
+test('two outlines with identical steps but DIFFERING Examples rows are not an exact-duplicate', () => {
+	const dir = mkCorpus()
+	seedNode(dir, 'cap', 'mechanic', CANONICAL_OUTLINE('mechanic', [['tune this agent so it uses opus', 'yes']]))
+	seedNode(
+		dir,
+		'cap',
+		'operator',
+		CANONICAL_OUTLINE('operator', [['stand up the first ship so an agent can start on this project', 'yes']]),
+	)
+	const c = detect(scanSuites(dir))
+	assert.equal(
+		c.filter((x) => x.kind === 'exact-duplicate').length,
+		0,
+		'byte-identical steps alone must not fingerprint two different outlines as duplicates',
+	)
+})
+
+test('two outlines with identical steps AND identical Examples rows are still caught as exact-duplicate', () => {
+	const dir = mkCorpus()
+	const rows: [string, string][] = [['tune this agent so it uses opus', 'yes']]
+	seedNode(dir, 'cap', 'nodeA', CANONICAL_OUTLINE('nodeA outline', rows))
+	seedNode(dir, 'cap', 'nodeB', CANONICAL_OUTLINE('nodeB outline', rows))
+	const c = detect(scanSuites(dir))
+	const dup = c.find((x) => x.kind === 'exact-duplicate')
+	assert.ok(dup, 'identical steps + identical Examples rows is a real cross-node duplicate')
+	assert.deepEqual([...dup!.nodes].sort(), ['cap/nodeA/', 'cap/nodeB/'])
+})
+
+test('an Examples row differing only in whitespace/case still fingerprints as identical', () => {
+	const a = fpOf(CANONICAL_OUTLINE('a', [['some Query', 'YES']]))
+	const b = fpOf(CANONICAL_OUTLINE('b', [['  some   query  ', 'yes']]))
+	assert.equal(a, b)
+})
+
+test('a plain Scenario duplicate is still caught (no Examples table involved)', () => {
+	const dir = mkCorpus()
+	seedNode(dir, 'cap', 'nodeA', MAIL_DELIVERED)
+	seedNode(dir, 'cap', 'nodeB', MAIL_DELIVERED_VARIANT)
+	const c = detect(scanSuites(dir))
+	assert.ok(c.some((x) => x.kind === 'exact-duplicate'))
+})
+
 // Guards frozen scenarios #12/#16 ("writes no artifact" / "writes no file") two ways:
 // (1) static — the engine imports no fs WRITE API (a stray write mutation would have to add one);
 // (2) behavioral — the spec dir is byte-identical after audit + check over a colliding corpus.

@@ -2,7 +2,7 @@
 Feature: The spec gate — judge a spec + suite diff and freeze on approve
   Unit suite for the spec-gate skill (the gate unit). Gate behaviors only — the
   producer's grilling/authoring behaviors live in ../spec-producer/spec-producer.feature; the
-  cross-capability CR lifecycle lives in ../../acceptance/.
+  cross-capability CR lifecycle lives in ../../workflows/.
 
   # ---- Verdict ----
 
@@ -133,6 +133,37 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate runs
     Then the gate fails closed and advances nothing
 
+  # ---- Governance pre-flight check (spec-judge) ----
+
+  Scenario: the spec-judge derives its expected governance set from what it loaded itself
+    Given the spec-judge has loaded the governances it needs to judge a diff
+    When it derives its expected governance set
+    Then it derives the set from what it itself loaded
+    And it does not derive the set from the producer's declaration
+
+  Scenario: a declared set missing an expected governance halts before content analysis
+    Given the spec-judge receives a producer_governances_declared set that omits a governance it expects
+    When the spec-judge runs its pre-flight check
+    Then it emits a change verdict carrying finding-kind governance-preflight-missing
+    And it lists each expected governance absent from the declared set
+    And it renders no content-analysis findings
+
+  Scenario: a declared set covering every expected governance proceeds to content analysis
+    Given the spec-judge receives a producer_governances_declared set that includes every governance it expects
+    When the spec-judge runs its pre-flight check
+    Then it raises no governance-preflight-missing finding
+    And it proceeds to judge the diff's content
+
+  Scenario: extra declared governances beyond what is expected raise no finding
+    Given the spec-judge receives a producer_governances_declared set that includes every governance it expects plus additional governances
+    When the spec-judge runs its pre-flight check
+    Then it raises no governance-preflight-missing finding
+
+  Scenario: the gate never advances on a governance-preflight-missing verdict
+    Given the spec-judge's verdict carries a governance-preflight-missing finding
+    When the spec gate evaluates the diff
+    Then it advances no status and reports the blocker
+
   # ---- Spec-type reconcile ----
 
   Scenario: a reference node carrying a .feature fails the gate closed
@@ -179,6 +210,39 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate applies its structural checks
     Then the feature-form check raises no violation
     And the gate spawns the cold judge
+
+  Scenario: a touched feature the Gherkin parser rejects fails the gate closed
+    Given a touched .feature the pinned Gherkin parser cannot parse
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+
+  Scenario: a parse failure is reported with the line it occurred on
+    Given a touched .feature the pinned Gherkin parser cannot parse
+    When the gate runs the feature-form check
+    Then the check reports the parse failure and the line it occurred on
+
+  Scenario: a parse failure replaces the form findings rather than joining them
+    Given a touched .feature the pinned Gherkin parser cannot parse
+    When the gate runs the feature-form check
+    Then the check reports the parse failure for that file
+    And it reports no form finding read from that file
+
+  Scenario: the corpus sweep fails closed on an unparseable suite
+    Given a .feature in the corpus the pinned Gherkin parser cannot parse
+    When the feature-form check runs over the whole corpus
+    Then the check fails closed and names the unparseable file
+
+  Scenario: the corpus sweep raises no parse violation when every suite parses
+    Given every .feature in the corpus parses
+    When the feature-form check runs over the whole corpus
+    Then the check raises no parse violation
+    And the check does not fail closed
+
+  Scenario: a touched feature that parses raises no parse violation
+    Given a touched .feature the pinned Gherkin parser parses
+    When the gate runs the feature-form check
+    Then the check raises no parse violation for that file
 
   # ---- Referenced-artifact-exists pre-filter ----
 
@@ -268,6 +332,61 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate runs the use-case-coverage check
     Then the check covers only the touched files, not the whole tree
 
+  Scenario: a Use Cases row whose Scenario cell holds no backtick reference fails the gate closed
+    Given a touched behavioral spec.md whose Use Cases table row carries a non-empty Scenario cell with no backtick-wrapped scenario reference
+    When the gate applies its structural checks
+    Then the gate fails closed and advances nothing
+    And it does not spawn the cold judge
+    And the check reports the unparseable row rather than silently skipping it
+
+  # ---- Scenario-map binding ----
+
+  Scenario: every feature scenario maps one-to-one to a scenario-map row
+    Given a touched .feature whose every scenario appears as exactly one row on the sibling spec's Scenario map
+    When the gate runs the scenario-map binding check
+    Then the binding check raises no violation
+
+  Scenario: a feature scenario named by no scenario-map row is a violation
+    Given a touched .feature carrying a scenario that no Scenario map row names
+    When the gate runs the scenario-map binding check
+    Then the check reports the scenario as not on the scenario map
+
+  Scenario: a scenario-map row naming no real scenario is a violation
+    Given a Scenario map row naming a scenario absent from the sibling .feature
+    When the gate runs the scenario-map binding check
+    Then the check reports the row as naming no such scenario
+
+  Scenario: a duplicate edge and path pair on the scenario map is a violation
+    Given two Scenario map rows sharing the same edge and path class
+    When the gate runs the scenario-map binding check
+    Then the check reports the duplicate pair
+
+  Scenario: a scenario-map data row whose Scenario cell is not backtick-wrapped is a violation
+    Given a Scenario map whose header and dashed separator are followed by a data row whose Scenario cell is present but not backtick-wrapped
+    When the gate runs the scenario-map binding check
+    Then the check reports the unparseable row rather than silently skipping it
+
+  Scenario: the scenario-map header and separator rows raise no unparseable-row violation
+    Given a Scenario map whose first row is the column header and whose second row is the dashed separator
+    When the gate runs the scenario-map binding check
+    Then neither the header row nor the separator row is reported as an unparseable row
+
+  Scenario: a spec carrying no scenario-map section is skipped by the binding check
+    Given a touched .feature whose sibling spec carries no Scenario map section
+    When the gate runs the scenario-map binding check
+    Then the binding check raises no violation for that file
+
+  Scenario: a backtick-quoted prose mention of the map heading is not a scenario-map section
+    Given a touched spec that names the scenario-map heading only inside prose or a backtick span, with no real heading line
+    When the gate runs the scenario-map binding check
+    Then the spec is treated as carrying no scenario-map section
+    And the binding check raises no violation for that file
+
+  Scenario: the scenario-map section ends at the next heading
+    Given a Scenario map section followed by another section whose table is not part of the map
+    When the gate runs the scenario-map binding check
+    Then a row in the following section is not read as a scenario-map row
+
   # ---- Structural edit-class classification (freeze integrity) ----
 
   Scenario: the edit class of a touched frozen file comes from a per-scenario structural diff, not a raw line diff
@@ -281,6 +400,45 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate classifies its edit class
     Then the losing baseline scenario is classified as modified
     And the change is not classified as purely additive
+
+  Scenario: a rewritten step DocString is classified as a narrowing
+    Given a touched frozen .feature whose baseline scenario has only a step's DocString content rewritten
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as modified
+    And the change is not classified as purely additive
+
+  Scenario: a rewritten step DataTable is classified as a narrowing
+    Given a touched frozen .feature whose baseline scenario has only a step's DataTable cell values rewritten
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as modified
+    And the change is not classified as purely additive
+
+  Scenario: a rewritten step DocString media type is classified as a narrowing
+    Given a touched frozen .feature whose baseline scenario has only a step's DocString media type rewritten
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as modified
+    And the change is not classified as purely additive
+
+  Scenario: a re-indented step DocString is classified as no content change
+    Given a touched frozen .feature whose baseline scenario has a step's DocString re-indented with its content intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+
+  Scenario: a swapped step DocString delimiter is classified as no content change
+    Given a touched frozen .feature whose baseline scenario has a step's DocString delimiter swapped with its content intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+
+  Scenario: a realigned step DataTable is classified as no content change
+    Given a touched frozen .feature whose baseline scenario has a step's DataTable column padding realigned with its cell values intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+
+  Scenario: a frozen scenario pushed down the file by an insertion above it is classified as no content change
+    Given a touched frozen .feature whose baseline scenario is pushed down the file by a whole scenario added above it, its own steps and arguments intact
+    When the gate classifies its edit class
+    Then that baseline scenario is classified as unchanged
+    And the change is classified as purely additive
 
   Scenario: a narrowing detected on a frozen file fires Clearance rather than self-clearing
     Given the edit class of a touched frozen file is a narrowing of a baseline scenario
@@ -310,3 +468,51 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Given a CR that touched a subset of the project's .feature files
     When the gate classifies edit classes
     Then it classifies only the touched files, not the whole tree
+
+  # ---- Structural edit-class: an input it cannot classify ----
+
+  Scenario: a touched frozen file the structural differ cannot parse is classified unclassifiable
+    Given a touched frozen .feature whose structural diff reports a parse error for it
+    When the gate classifies its edit class
+    Then the change is classified as unclassifiable
+    And the gate escalates it to Clearance rather than self-clearing
+
+  Scenario: a parse error is never read as an absence of change
+    Given a touched frozen .feature whose structural diff reports a parse error for it
+    When the gate classifies its edit class
+    Then the change is not classified as no content change
+    And the change is not classified as additive
+
+  Scenario: the classifier does not trust addOnly when the differ reports a parse error
+    Given a structural diff reporting addOnly true and a parse error for the same file
+    When the gate classifies its edit class
+    Then the classification comes from the parse error and not from addOnly
+
+  Scenario: a file the structural differ returns no result for is classified unclassifiable
+    Given a touched frozen .feature the structural differ returns no per-file result for
+    When the gate classifies its edit class
+    Then the change is classified as unclassifiable
+    And the gate escalates it rather than self-clearing
+
+  Scenario: a structural differ that produces no readable result is classified unclassifiable
+    Given the structural differ exits without producing a readable result for a touched frozen .feature
+    When the gate classifies its edit class
+    Then the change is classified as unclassifiable
+    And the gate escalates it rather than self-clearing
+
+  Scenario: an unclassifiable edit class advances no status
+    Given a touched frozen .feature whose edit class is unclassifiable
+    When the gate evaluates the diff
+    Then the gate advances no status
+
+  Scenario: a pure rename of an unparseable frozen file stays no content change
+    Given a touched frozen .feature the parser cannot parse, relocated by a pure rename with no content delta
+    When the gate classifies its edit class
+    Then the change is classified as no content change
+    And the classification comes from the rename detection and not from the structural differ
+
+  Scenario: an unparseable file carrying no frozen tag is skipped by the edit-class routing
+    Given a touched .feature the parser cannot parse that carries no frozen tag in either version
+    When the gate classifies its edit class
+    Then the file is skipped by the edit-class routing
+    And the feature-form check still fails the gate closed on it

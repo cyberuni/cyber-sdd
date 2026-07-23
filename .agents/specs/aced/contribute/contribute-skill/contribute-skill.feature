@@ -7,7 +7,7 @@ Feature: contribute-skill — contribute a locally-improved installed skill back
   changed files in a single commit, open the PR, and report its URL. A repo-native skill whose source IS
   this repo does not fire; scaffolding a new skill from scratch is define-skill; generalizing the current
   session is skillify; diagnosing failing evals is improve. Cross-capability e2e scenarios live in
-  ../../acceptance/.
+  ../../workflows/.
 
   # ── Triggering ──
 
@@ -117,6 +117,12 @@ Feature: contribute-skill — contribute a locally-improved installed skill back
   # ── Access and commit ──
 
   @behavior
+  Scenario: with push access the branch is created on the source and the repo is not forked
+    Given the source repo reports push access true for the current user
+    When contribute-skill prepares the branch to push
+    Then it creates the branch on the source repo itself and does not fork the source
+
+  @behavior
   Scenario: no push access forks the source and branches on the fork
     Given the source repo reports push access false for the current user
     When contribute-skill prepares the branch to push
@@ -127,6 +133,12 @@ Feature: contribute-skill — contribute a locally-improved installed skill back
     Given three changed files mapped under skills/<name>/ are ready to contribute
     When contribute-skill pushes the contribution
     Then the branch gains exactly one new commit containing all three files and not one commit per file
+
+  @behavior
+  Scenario: several related skills confirmed for one PR land in a single commit across their trees
+    Given the user confirms contributing two related skills, skill-a and skill-b, each with changed files, in one pull request
+    When contribute-skill pushes the contribution
+    Then the branch gains exactly one new commit containing every changed file under both skills/skill-a/ and skills/skill-b/, and it opens a single pull request
 
   # ── Reporting ──
 

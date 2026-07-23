@@ -1,5 +1,5 @@
 {
-	"$schema": "https://raw.githubusercontent.com/cyberuni/marketplace/main/schema/claude/plugin.json",
+	"$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
 	"name": "quill",
 	"version": "0.1.0",
 	"description": "Documentation SDD plugin. Spec, write, and verify documentation — guides, tutorials, articles, reference pages, and READMEs — as implementation artifacts with verifiable structure.",
@@ -7,5 +7,5 @@
 	"homepage": "https://github.com/cyberuni/cyberplace",
 	"repository": "https://github.com/cyberuni/cyberplace",
 	"skills": "./skills",
-	"agents": "./agents"
+	"agents": ["./agents/quill-doc-writer.md", "./agents/quill-judge.md", "./agents/quill-spec-writer.md"]
 }

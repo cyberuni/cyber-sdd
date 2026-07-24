@@ -9,6 +9,30 @@ concept: orchestration
 > deliberately **not settled yet** (tracked as SQ-name, issue #195). Everything below describes the
 > **judgment**, not the name.
 
+## What "SSA-lowering" means — the compiler analogy
+
+The name borrows two ideas from compilers, and the whole doctrine falls out of them.
+
+- **SSA (static single assignment)** is an internal form in which **every variable is assigned exactly
+  once**. When a value would be updated, the compiler does not overwrite it — it mints a **new version**
+  (`x₁`, `x₂`, …) and threads the dependency forward, so every use points at exactly one definition and
+  the data-flow is never ambiguous.
+- **Lowering** is the compiler pass that translates a **high-level** representation into a **more
+  concrete, lower-level** one — closer to what actually runs.
+
+This node is that pass, applied to work. A **change request** is the high-level intent; the
+**spec-nodes** it would touch are the "variables"; a **Mission** is one assignment to a variable.
+**SSA-lowering** *lowers* the change request into concrete Missions such that **no two Missions ever
+write one spec-node at the same time** — single *static* assignment becomes **single-writer-at-a-time**,
+so two Missions can never fight over one capability. A spec-node may still be written by several
+Missions **in sequence**: when two concerns must write the same one, the doctrine does exactly what SSA
+does with a reassignment — it **versions** the write — do-first produces `X_v1`, rework-second produces
+`X_v2`, with an order (a RAW edge) between them — instead of letting two writers race. Each *version*
+has one writer; the underlying spec-node may have several, strictly ordered, never concurrent. The rare
+case where **no** order can be imposed is the analogue of a genuinely conflicting concurrent write: an
+**irreducible hard collision**, serialized and flagged. That is the entire name: **lower a change
+request into SSA form — at most one writer per spec-node at any instant.**
+
 When a change request (a stakeholder's "please do X") lands, someone has to decide **how to chop it
 up** into the actual pieces of work the fleet will build in parallel. That decision is not mechanical:
 it asks *should we even do this?*, *where does each piece belong?*, and *which pieces are allowed to
@@ -50,8 +74,8 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **write-set** | everything a change request would create or modify — the raw material the cut partitions |
 | **spec-node** (`project + capability + artifact-type`) | SDD's stable work atom — the capability a Mission owns, its contract being its frozen `.feature`; the thing the cut hands out |
 | **the cut** (lowering) | the act of splitting a change request's write-set into Missions — the core judgment this node guides |
-| **SSA — one owning mission per spec-node** (single static assignment) | the target shape of a good cut: **exactly one** Mission is allowed to write each spec-node, so two Missions can never fight over the same capability |
-| **single-writer** | the property that follows from SSA — no spec-node is assigned to two Missions at once |
+| **SSA — single-writer per spec-node** (single static assignment) | the target shape of a good cut: **no two Missions write a spec-node at the same time**, so two Missions can never fight over the same capability. A second writer is allowed only **in sequence** — serialized into a new version behind a RAW edge (see *versioned-RAW*) |
+| **single-writer** | the property that follows from SSA — no spec-node is written by two Missions **at once**; a genuine second writer is ordered *after* the first (versioned), never concurrent with it |
 | **cohesion** | keeping tightly-coupled work *together* in one Mission instead of scattering it — the opposite failure from splitting a node |
 | **contention** | two different concerns both wanting to write the **same** spec-node — the case versioning resolves |
 | **versioned-RAW** | resolving a contention by **imposing an order**: do concern A first, then rebase/rework concern B on top — turning a "they clash" into a plain "B waits for A" dependency |
@@ -92,7 +116,7 @@ execute, store, or classify.
 | **not waste effort on dead work** — a CR filed long ago may be stale | a change request whose goal a shipped change already covers | the CR is **killed or reshaped before lowering**; a killed CR lowers to **zero** Missions | `Scenario: a stale change request is killed or reshaped before any lowering` |
 | **hoist a fence** — a project-wide refactor can't ride a normal schedule | a CR that renames/re-shapes something touching most of a project | it is called out as a **barrier** and **hoisted early**, not scheduled as a normal node-owning Mission | `Scenario: a project-wide refactor is recognized as a barrier and hoisted early` |
 | **place each piece where it screams** — new work needs a home | a CR that introduces two distinct new capabilities | each capability lands in its **own** screaming-architecture spec-node | `Scenario: the cut places each new capability in its own node` |
-| **never let two Missions fight over one capability** | a write-set spanning several spec-nodes | **exactly one** owning Mission per spec-node (single-writer) | `Scenario: every spec-node in the write-set is owned by exactly one mission` |
+| **never let two Missions fight over one capability** | a write-set spanning several spec-nodes | **no two Missions write one spec-node concurrently** (single-writer-at-a-time); a second writer is serialized behind a RAW edge | `Scenario: every spec-node in the write-set is owned by exactly one mission` |
 | **keep coupled work together** — don't scatter a tightly-linked change | a CR whose changes to one spec-node are tightly coupled | the coupled work stays in **one cohesive** Mission — not over-split | `Scenario: coupled work in one spec-node stays in a single cohesive mission` |
 | **regroup by ownership, not by ticket** | two CRs that both touch a shared capability | Missions **cross CR boundaries** — N CRs → M Missions, each recording its originating CR(s) as provenance, its ref minted locally | `Scenario: two change requests regroup by ownership into missions that cross CR boundaries` |
 | **turn a clash into an order** — two concerns want the same node | a same-node contention where an order **can** be imposed | it becomes a **versioned-RAW** (do-first, rework-second), **not** two concurrent writers | `Scenario: a same-node contention is resolved by imposing an order into a versioned-RAW edge` |
@@ -131,8 +155,9 @@ partitioner:
 
 Then the **SSA cut** partitions the write-set toward **one owning Mission per spec-node**:
 
-- **Single-writer.** Each spec-node the write-set touches is assigned to **exactly one** Mission. A
-  new node is single-writer by construction; contention only ever arises on an **existing shared** node.
+- **Single-writer.** No spec-node the write-set touches is written by two Missions **at the same
+  time**; where two must, they are **ordered** (versioned), never run concurrently. A new node has a
+  single writer by construction; contention only ever arises on an **existing shared** node.
 - **High cohesion.** Tightly-coupled work in one node stays in one Mission — don't over-split coupled
   work into many thin Missions.
 - **Crosses CR boundaries.** Missions regroup work by **ownership**, not by originating CR — so N CRs
@@ -146,6 +171,93 @@ Then the **SSA cut** partitions the write-set toward **one owning Mission per sp
 - **Lower lazily.** Deeply lower only the **frontier**; leave far work coarse until it approaches.
   Start **conservative-first** — a low-confidence or unproven overlap is treated as a hard clash and
   relaxed to parallel only as finer evidence arrives, never optimistically parallelized.
+
+## The lowering decision — the CFG, and where each scenario lands
+
+The doctrine is one pass with four stages: **Oracle** (should we?) → **Architect** (where/what shape?)
+→ **SSA cut** (one owning mission per spec-node, contention versioned) → **lazy lowering** (frontier
+deep, far coarse), and a **decision-evidence** record trails the whole thing. Each leaf below is one
+edge of the behavior; the scenario map underneath pins every edge to the frozen scenario(s) that fix
+it — the scenarios are **derived from this graph, one per edge**, not read back off the suite.
+
+The **recognition/act split is the load-bearing structure**: every decision edge is either a
+**judgment** ("did the doctrine make the right *call*?" → a `@rubric` dimension) or a **structural
+outcome** ("does the produced partition *carry* the artifact the call demands?" → a plain boolean
+guard). Presence is never graded; judgment is never asserted as a boolean. This is the node's own rule
+(above), and the CFG is where it is enforced edge by edge.
+
+```mermaid
+flowchart TD
+  CR["one or more change requests arrive"] --> O{"Oracle — still legitimate?"}
+  O -- "stale: a shipped change superseded it" --> OK1["kill / reshape before lowering<br/>· a killed CR lowers to zero missions"]
+  O -- "misaligned: wrong product direction" --> OK2["reshape / kill on direction-fit"]
+  O -- "carries two separate asks" --> OK3["judge each ask on its own axis<br/>(supersession vs direction-fit)"]
+  O -- "far-horizon, parked" --> OK4["re-validate at the frontier<br/>(monadic re-check, never trust filing)"]
+  O -- "fits the direction" --> A{"Architect — where / what shape?"}
+  OK2 --> A
+  OK3 --> A
+  OK4 --> A
+  A -- "project-wide refactor" --> AB["barrier: detected + hoisted early<br/>· never a normal node-owning mission"]
+  A -- "new capability" --> AP["each capability its own screaming node<br/>(not fused, not layer-pooled)"]
+  A -- "coupled work" --> AC["stays one cohesive mission (not over-split)"]
+  AB --> S["SSA cut — one owning mission per spec-node"]
+  AP --> S
+  AC --> S
+  S --> SR["regroup by ownership across CRs (N→M)<br/>· provenance recorded, ref minted local"]
+  S --> SW["single-writer per node<br/>· independent nodes: no fabricated dependency"]
+  S --> CON{"contention on a shared node?"}
+  CON -- "an order can be imposed" --> C1["RECOGNIZE order-imposable (judgment)<br/>+ emit versioned-RAW, no concurrent writers (act)"]
+  CON -- "order-less, irreducible" --> C2["RECOGNIZE irreducible (judgment)<br/>+ serialize, no concurrent writers (act)<br/>+ flag rework (judgment)"]
+  CON -- "low-confidence overlap" --> C3["CLASSIFY as hard (judgment)<br/>+ serialize, no concurrent writers (act)<br/>+ relax-on-evidence (judgment)"]
+  C1 --> L["lazy lowering — frontier deep, far coarse"]
+  C2 --> L
+  C3 --> L
+  SR --> L
+  SW --> L
+  L --> EV["a decision-evidence record accompanies the partition"]
+```
+
+**The three contention branches are the same shape and must be tested the same way** — a judgment edge
+(is this order-imposable / irreducible / low-confidence?) and an act edge (the partition serializes
+rather than emitting two concurrent writers of the node). The **order-imposable** branch already does
+this: its recognition is a `@rubric` dimension and its act is a **boolean guard**. The **irreducible**
+and **low-confidence** branches do not — their act is **fused into the recognition dimension** and has
+**no boolean guard**, so a doctrine that recognizes the clash and then starts both writes concurrently
+loses only part of one dimension and can still clear the threshold. That asymmetry is the defect
+tracked in **#308**, and the fix is to make all three branches land the same way on this graph.
+
+| Decision edge | Kind | Frozen scenario(s) that fix it |
+|---|---|---|
+| the doctrine governs this request at all | applicability | `Scenario Outline: the lowering doctrine activates only when a change request must be cut into missions` (`@trigger`) |
+| Oracle · stale CR is caught and flushed | judgment | `a stale change request is killed or reshaped before any lowering` (`catches-staleness`, `kill-or-reshape`) |
+| Oracle · misaligned CR is caught and flushed | judgment | `a misaligned change request is reshaped or killed before any lowering` (`catches-misalignment`, `reshape-or-kill`) |
+| Oracle · a two-ask CR is judged per ask on its own axis | judgment | `the Oracle gate judges a change request that carries two separate asks` (`spacing-part-on-supersession`, `cursor-part-on-direction-fit`) |
+| Oracle · a far-horizon CR is re-validated at the frontier | judgment | `a far-horizon change request is re-validated when it reaches the frontier` (`re-checked-not-trusted`, `verdict-reflects-current-state`) |
+| Oracle · an aligned CR clears the gate and is carried into the cut | judgment | `a change request that fits the product direction clears the Oracle gate and is lowered` (`clears-the-gate`, `lowers-the-work`) |
+| Oracle · a killed CR produces no work | structural | `a killed change request lowers to zero missions` |
+| Architect · a project-wide refactor is a hoisted barrier | judgment | `a project-wide refactor is recognized as a barrier and hoisted early` (`barrier-detected`, `hoisted-early`) |
+| Architect · a barrier is never a normal node-owning mission | structural | `a barrier mission is not scheduled as a normal node-owning mission` |
+| Architect · each capability lands in its own screaming node | judgment | `the cut places each new capability in its own node` (`distinct-nodes`, `screaming-placement`) |
+| SSA · each distinct spec-node gets a single owner, no two writers at once | structural | `every spec-node in the write-set is owned by exactly one mission` |
+| SSA · coupled work stays one cohesive mission | structural | `coupled work in one spec-node stays in a single cohesive mission` |
+| SSA · missions regroup by ownership across CR boundaries | judgment | `two change requests regroup by ownership into missions that cross CR boundaries` (`regroup-by-ownership`, `disjoint-nodes-not-fused`) |
+| SSA · a regrouped mission records provenance, mints its ref local | structural | `a mission drawn from two change requests records both as provenance and mints its ref locally` |
+| contention · **order-imposable** — recognition | judgment | `a same-node contention is resolved by imposing an order into a versioned-RAW edge` (`order-imposed`, `versioned-raw-edge`) |
+| contention · **order-imposable** — act (no concurrent writers) | structural | `an order-imposable contention does not emit two concurrent writers of one node` |
+| contention · **irreducible** — recognition | judgment | `an order-less concurrent co-write is left as an irreducible hard collision` (`irreducible-recognized`, `rework-flagged`) |
+| contention · **irreducible** — act (serialize, no concurrent writers) | structural | **#308 gap — no boolean guard; the act is fused into `irreducible-recognized`** |
+| contention · **low-confidence** — classification | judgment | `a low-confidence touch-set is treated as a hard collision` (`conservative-default`, `relax-on-evidence`) |
+| contention · **low-confidence** — act (serialize, no concurrent writers) | structural | **#308 gap — no boolean guard; the act is fused into `conservative-default`** |
+| SSA · genuinely independent nodes carry no fabricated dependency | structural | `independent spec-nodes are lowered without a fabricated dependency between them` |
+| lazy lowering · frontier deep, far coarse | judgment | `only the frontier is deeply lowered while far work is left coarse` (`frontier-lowered-deeply`, `far-work-left-coarse`) |
+| decision-evidence · a record accompanies the partition | structural | `the produced partition is accompanied by a decision-evidence record` |
+
+The two **#308 gap** rows are the mission's target: split the fused act out of `irreducible-recognized`
+and `conservative-default`, add the two missing boolean act-guards (mirroring the order-imposable
+guard), so every contention branch has both a judgment edge and a structural edge. `catches-misalignment`
+is a related but distinct case — a judgment edge whose *description* fuses two cognitive sub-clauses
+(infer the direction · find the contradiction) rather than a judgment fused with an act; its fix is a
+re-word, not a new guard (see *Where the margin is thin* for the fold that produced it).
 
 ## How it's tested
 

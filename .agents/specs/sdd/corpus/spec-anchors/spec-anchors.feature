@@ -136,7 +136,7 @@ Feature: The spec-anchors config — declare and curate the extra anchors discov
     When the skill curates the anchor
     Then the skill is judged against the rubric
       """
-      dimension: induces a pattern and previews the matched projects to the user (max 1)
+      dimension: previews the matched projects to the user (max 1)
       dimension: confirms with the user before writing the config (max 1)
       threshold: 2
       """

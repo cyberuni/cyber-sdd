@@ -62,14 +62,14 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
 
   @behavior @rubric
   Scenario: a misaligned change request is reshaped or killed before any lowering
-    Given a change request asking to add an autofix mode that rewrites the user's source files in place to clear findings
-    And the tool ships as a read-only CI check that runs with no write credentials, and its README promises it will never open a pull request or touch a branch
+    Given a change request asking to add a mode that sorts the output records by timestamp before they are emitted, so downstream consumers always receive a fully time-ordered stream
+    And the tool ships as a stream processor that reads its input in a single pass and emits each record the moment it is read, holding memory flat no matter how large the input, and whose README highlights that it routinely runs on inputs far larger than the machine's memory
     When the coordinator applies the SSA-lowering doctrine to the change request
     Then the judge evaluates the produced plan against the rubric
       """
       dimensions:
         - name: catches-misalignment
-          max: 3          # finds the CR contradicts the product's direction on direction-fit (not supersession) — inferring that non-mutating direction from how the tool ships (read-only, no write credentials, the no-PR promise); no step declares the direction as a slogan, and nothing in the situation supersedes the CR
+          max: 3          # finds the CR contradicts the product's direction on direction-fit (not supersession) — inferring that single-pass, bounded-memory, unbounded-input streaming direction from how the tool ships (reads once, emits each record as it is read, memory flat regardless of size, routinely handles inputs larger than memory); a total sort is buildable and nothing supersedes it, and adding a sort is a reasonable ask for most tools, so a doctrine judging only supersession lowers it as filed — but sorting the whole stream must buffer the entire input, breaking the single-pass, memory-bounded direction, a conflict only reading the product's direction and reasoning about what a sort requires reveals; no step declares the direction as a slogan, and nothing in the situation supersedes the CR
         - name: reshape-or-kill
           max: 3          # acts on the verdict: reshapes the CR toward the product direction or kills it, rather than partitioning it as filed
       threshold: 5

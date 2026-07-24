@@ -258,7 +258,9 @@ so every contention branch has both a judgment edge and a structural edge. Ablat
 margin is thin*) confirmed the irreducible guard binds and the narrowed dimension stays loseable.
 `catches-misalignment` was the related but distinct case — a judgment edge whose *description* fused
 two cognitive sub-clauses (infer the direction · find the contradiction) rather than a judgment fused
-with an act; its fix was a re-word (one criterion, inference as the means), not a new guard.
+with an act; its #308 fix was a re-word (one criterion, inference as the means), not a new guard. Its
+`Given` was later re-cut under **#371** to make the dimension ablation-loseable (the re-word alone left
+it fixture-limited — see *Where the margin is thin*).
 
 ## How it's tested
 
@@ -386,6 +388,37 @@ one — and, for the one probe that has a measured failing read, so a future pas
   over-determined, so this dimension's loseability is **fixture-limited**, corroborating the
   non-reproducing 2.33/3.00 above. The re-word is a wording clarification and did not cause this;
   closing it needs a **less-blatant Given** (tracked as a follow-up), not a rubric change.
+  **#371 update — the Given is re-cut and the scenario is now LIVE.** The read-only-vs-autofix Given was
+  replaced by a **buildable-but-off-direction** one: a CR asking to add a mode that **sorts the whole
+  output stream by timestamp** against a tool that ships as a **single-pass, bounded-memory, unbounded-input
+  stream processor** (reads once, emits each record as it is read, memory flat regardless of size,
+  routinely runs on inputs larger than memory). The sort is buildable and nothing supersedes it, and
+  adding a sort is a reasonable ask for most tools — so a doctrine judging **only supersession** lowers it
+  as filed; only reading the product's direction and reasoning that a total sort must **buffer the whole
+  input** reveals the conflict. Two levers were needed over #308's read: (1) the conflict is **inferential**,
+  not a direct textual negation (unlike autofix-vs-read-only), so the general "should we?" framing does not
+  catch it for free; (2) the ablation was a **full scrub** to a supersession-only Oracle — the Misaligned
+  bullet deleted **and** its restatements removed (step-1 header/intro, *When to run*'s "judges legitimacy",
+  the decision-evidence line, the description's "should we?") — because #308's minimal deletion left the
+  general legitimacy license, which by itself catches a stated invariant-violation. Measured blind,
+  production separated from scoring (N=3/arm, one blind judge per anonymized plan, threshold 5 of 6):
+
+  | dimension | arm A (intact) | arm B (supersession-only) | Δ |
+  |---|---|---|---|
+  | `catches-misalignment` | 3.00 (3,3,3) | 2.33 (3,1,3) | −0.67 |
+  | `reshape-or-kill` | 3.00 (3,3,3) | 1.00 (0,0,3) | −2.00 |
+  | **total** | **6.00** | **3.33** | **−2.67** |
+
+  Arm A **3/3 PASS** (positive companion holds); arm B **2/3 FAIL**, mean 3.33 below the threshold of 5 —
+  the scenario now registers a real miss where the old fixture passed 5/5 ablated. The drop concentrates in
+  **`reshape-or-kill`** (the act): ablated producers **notice** the tension but, without the direction-fit
+  rule's license to act, **ship the sort as filed** and defer to a downstream gate (0 on the act).
+  **`catches-misalignment` bleeds partially** — recognition is readable from the situation, so two ablated
+  producers still scored it 3; only one (scoring 1) fully missed the direction framing. This is the #308
+  shape restated: **recognition-only is parrotable and the act carries the protection** — see
+  [[feedback_blatant_fixtures_resist_ablation]]. The one ablated PASS caught the CR via general
+  **infeasibility** competence ("you can't sort an unbounded stream in bounded memory"), the residual
+  bleed-through; it does not rescue the arm. Clearance floor (frozen `Given` re-cut); threshold unchanged.
 - **`barrier`'s margin is now *unmeasured*, and that is a change from what was once measured.** The
   only dimension this suite has ever measured with real run-to-run variance was
   `fleet-rebase-reasoned` (1, 1, 2 against a *correct* doctrine). That variance was **instrument
@@ -463,7 +496,9 @@ one — and, for the one probe that has a measured failing read, so a future pas
   the doctrine: a CR routed straight to the mission loop is Oracle-vetted by nothing until SQ-intake
   (#196) lands.
 
-- **`catches-misalignment` is UNLOSEABLE — via its `Given`, not via any missing rule. Measured.**
+- **`catches-misalignment` WAS UNLOSEABLE — via its `Given`, not via any missing rule. Measured — then
+  RESOLVED by #371's `Given` re-cut (see the *Where the margin is thin* bullet above; scenario now LIVE at
+  Δ = −2.67, arm B 2/3 FAIL).** The history below records the defect the re-cut fixed.**
   [#254](https://github.com/cyberuni/cyberplace/issues/254) filed this as a *subject* gap: the doctrine
   teaches direction only from a declared slogan and carries no rule for inferring direction from how a
   product ships. The gap is real. **Fixing it changes nothing.** The doctrine's worked example (the
@@ -483,6 +518,15 @@ one — and, for the one probe that has a measured failing read, so a future pas
   This is the shape already flagged on `irreducible` below — a situation that hands over the answers it
   grades. `catches-misalignment` has the same defect and it went unnoticed. It reclassifies #254 from a
   subject gap to a **suite** defect: a cued `Given`, whose fix is a frozen `Given` edit → **Clearance**.
+
+  **#371 did exactly that.** The re-cut swapped the answer-containing Given (a direct textual negation the
+  situation stated outright) for a **buildable-but-off-direction** one whose conflict is **inferential** —
+  and paired it with a full supersession-only scrub. The dimension now loses points under ablation. Two
+  refinements over #254's read carried the fix: (a) a cued *situation* is not the only failure mode — a
+  situation whose conflict is a **direct negation** is caught by generic legitimacy reasoning even with the
+  rule deleted; the conflict must be inferential; (b) deleting the named rule is not enough when its
+  **general license** ("judge whether the CR should be done at all") is left standing — the scrub must be
+  full, as the barrier ablation was.
 
 - **`disjoint-nodes-not-fused` is UNLOSEABLE. Measured.**
   [#255](https://github.com/cyberuni/cyberplace/issues/255) filed this as a subject gap too: the
@@ -528,11 +572,13 @@ its vocabulary from the rest of the subject** (a partial scrub yields a dud muta
 nothing), re-score blind. A dimension that holds its score does not guard that rule. Never watch a mean
 against a correct subject — a ceiling is equally consistent with a dimension that cannot fail.
 
-**Measured so far — 3 of 11 `@rubric` scenarios ablated. Two came back dead; one came back LIVE:**
+**Measured so far — 3 of 11 `@rubric` scenarios ablated. One is dead; two are LIVE — one of those
+(`catches-misalignment`) flipped from dead after #371's `Given` re-cut:**
 
 | dimension | ablation | Δ | verdict |
 |---|---|---|---|
-| `catches-misalignment` | worked example stripped; inference rule added | **0.00** | unloseable — its `Given` states the direction three times |
+| `catches-misalignment` | **#371 re-cut `Given`** + full supersession-only scrub (old fixture: **0.00**, #254) | **−0.67** | **LIVE** — 2.33 ablated; recognition bleeds, the act carries the drop |
+| `reshape-or-kill` | (same #371 ablation) | **−2.00** | **LIVE** — 1.00 ablated; the scenario's load-bearing drop (2/3 FAIL) |
 | `disjoint-nodes-not-fused` | anti-fuse **and** screaming placement deleted whole | **0.00** | unloseable — the SSA framing makes one-node-one-Mission the default |
 | `barrier-detected` | step 2's barrier rule deleted whole + vocabulary scrubbed | **−3.00** | **LIVE** — 0.00 (SD 0) ablated; fails 9/9 judge×run cells (#319) |
 | `hoisted-early` | (same ablation) | **−1.33** | **LIVE** — 1.67 ablated |
@@ -556,9 +602,11 @@ scenarios are **unfalsified, not earned**.
 cell to come back **LIVE** under a full scrub — Δ = −4.33, arm B at 1.67 against a threshold of 5. So
 the standing summary that *every probe of this suite finds dead weight* is now **false**, and it was
 the more dangerous half of the claim: it invited treating "unablated" as "presumed dead" and the
-ablation as a formality that confirms it. Ablation is a **measurement with two outcomes**. Two of the
-three cells probed are dead, one is live and binds — that is the finding, and it is the reason the
-remaining eight must each be measured rather than assumed in either direction.
+ablation as a formality that confirms it. Ablation is a **measurement with two outcomes**. Of the three
+cells probed, **one is dead and two are live** — and one of the two (`catches-misalignment`) was itself
+dead until #371 re-cut its `Given`, which is the sharper lesson: a dead cell is dead **against its
+current fixture**, not forever — a less-blatant `Given` can revive it. That is the finding, and it is the
+reason the remaining eight must each be measured rather than assumed in either direction.
 
 **One absorption hit, found and fixed.** The regroup rule illustrated with *"(e.g. a shared
 authentication or billing node)"* while the suite probes it with *"the shared authentication
@@ -600,7 +648,10 @@ because its dimension grades the modeling call (*not one node-owning mission amo
 - **`threshold = combined max − 1`** is calibrated against the **one** off-ceiling score ever measured
   on this suite (`catches-misalignment`, 2.33/3 mean, produced by a **correct** doctrine). If an
   `eval.judge.model` swap shifts the scoring distribution, the one-point slack must be **re-measured,
-  not assumed**.
+  not assumed**. (That 2.33 was measured on the pre-#371 read-only-vs-autofix fixture, now retired; the
+  #371 re-cut's intact arm measured `catches-misalignment` at 3.00/3 and the scenario at 6.00/6 — so the
+  one off-ceiling datum the slack rests on no longer has a live fixture behind it. The slack is unchanged
+  and remains a policy call, not evidence-backed.)
 - **`cohesion` is a boolean guard, not a rubric — because ablation proved its dimension unloseable.**
   It was first kept as a single-dimension rubric at `threshold = max`, on the reasoning that its
   situation admits exactly one judgment. The impl gate tested that by **deleting the cohesion rule

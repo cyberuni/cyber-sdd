@@ -71,6 +71,91 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     When the Scanner observes it
     Then it does not run the numeric token-waste analysis
 
+  # ---- Validate before drafting: a plan or log is a hypothesis, not present truth ----
+
+  Scenario: a plan-surfaced gap already resolved in current code is cut, not drafted
+    Given a plan surfaces a candidate improvement whose gap current code already resolves
+    When the Scanner validates the candidate before drafting
+    Then it records the candidate as resolved
+    And it drafts no strategy to build or fix it
+
+  Scenario: a plan-surfaced gap still open in current code is drafted
+    Given a plan surfaces a candidate improvement whose gap current code does not resolve
+    When the Scanner validates the candidate before drafting
+    Then it drafts strategy for the still-open improvement
+
+  Scenario: validation reads current code, not the plan's assertion
+    Given a plan asserts a gap as present
+    When the Scanner validates the candidate
+    Then it checks the current codebase for the gap
+    And it does not treat the plan's assertion as present truth
+
+  Scenario: a log-surfaced defect since fixed or superseded is cut as resolved
+    Given a combat log surfaces a candidate defect that current code has since fixed or superseded
+    When the Scanner validates the candidate before drafting
+    Then it records the candidate as resolved
+    And it drafts no strategy to fix it
+
+  Scenario: a log-surfaced defect still present in current code is drafted
+    Given a combat log surfaces a candidate defect that current code still exhibits
+    When the Scanner validates the candidate before drafting
+    Then it drafts strategy for the still-open defect
+
+  Scenario: a distilled retro lesson is drafted without a current-code gap check
+    Given a candidate that distills a retro lesson rather than asserting an unmet gap
+    When the Scanner drafts strategy from it
+    Then it drafts the lesson without validating a gap against current code
+
+  # ---- The cut disposition: a resolved candidate is recorded durably, not silently dropped ----
+
+  Scenario: a cut candidate is recorded as a resolved-disposition strategy line
+    Given a candidate the Scanner validated as already resolved
+    When it records the cut
+    Then it appends a strategy entry marked disposition resolved
+    And the entry carries the current-code evidence that resolved the candidate
+
+  Scenario: a resolved-disposition entry does not count toward pending strategy
+    Given a strategy entry the Scanner marked disposition resolved
+    When the Scanner records it
+    Then the entry does not count toward pending strategy
+
+  Scenario: a drafted still-open strategy is disposition open and counts as pending
+    Given the Scanner drafts strategy for a validated still-open improvement
+    When it records the entry
+    Then the entry is disposition open
+    And it counts toward pending strategy
+
+  # ---- Improvement output: a validated-open finding becomes a tracked issue ----
+
+  Scenario: a validated-open improvement is emitted as a tracked issue
+    Given an improvement the Scanner validated as still open against current code
+    When the Scanner records it
+    Then it emits a new tracked issue for the improvement
+    And the issue cross-links the evidence that drove it
+
+  Scenario: a candidate cut as resolved emits no tracked issue
+    Given a candidate the Scanner validated as already resolved
+    When the Scanner records it
+    Then it emits no tracked issue for it
+
+  Scenario: issue emission dedupes against existing issues before filing
+    Given a validated-open improvement that matches an existing open or closed issue
+    When the Scanner would emit its issue
+    Then it files no duplicate issue
+
+  Scenario: emitting an issue neither ratifies the strategy nor dispatches work
+    Given the Scanner emits an issue for a validated-open improvement
+    When it records the strategy
+    Then the strategy entry stays unratified
+    And the Scanner neither ratifies it nor dispatches a mission for it
+
+  Scenario: an emitted issue meets the outward-publish floor
+    Given the Scanner emits an issue for a validated-open improvement
+    When it composes the issue body
+    Then the body is self-contained
+    And it carries no production-internal artifact reference
+    And it carries an agent-filed marker
+
   # ---- Write boundaries ----
 
   Scenario: the Scanner is the sole writer of strategy

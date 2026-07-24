@@ -58,6 +58,16 @@ Feature: The gateway — classify a request and load the handling skill in-sessi
     When the Council re-enters through the gateway
     Then the gateway surfaces no pending-strategy entry point
 
+  Scenario: a resolved-disposition strategy line is excluded from the pending count
+    Given an unratified strategy line marked disposition resolved exists in the project's ledger
+    When the Council re-enters through the gateway
+    Then the gateway does not count that line toward pending strategy
+
+  Scenario: an open-disposition strategy line is included in the pending count
+    Given an unratified strategy line with disposition open or absent exists in the project's ledger
+    When the Council re-enters through the gateway
+    Then the gateway counts that line toward pending strategy
+
   Scenario: in-progress missions are surfaced on re-entry
     Given resumable mission plan briefs exist under the plans location
     When the user re-enters through the gateway

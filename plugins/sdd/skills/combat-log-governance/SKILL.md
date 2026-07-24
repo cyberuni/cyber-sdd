@@ -211,6 +211,28 @@ its combat log (`sdd:plan-retirement` — the gate keys on `distills`, **never**
 and an **unratified** entry still counts). Milestone / drift / token-waste strategy that has **no
 single subject mission omits `distills`** — only a Ship or Kill distillation gates a retirement.
 
+**The `disposition` subject (`open | resolved`).** Before drafting, the Scanner validates each
+plan/log-surfaced candidate against **current code** (a persisted plan or log is history, a
+*hypothesis* about a gap — not present truth). The `disposition` field records that validation verdict:
+
+- **`disposition: open`** (the default; a line without the field grandfathers as `open`) — current
+  code does **not** resolve the candidate. It is an actionable recommendation: it **counts toward
+  pending strategy** and drives the Scanner's issue emission.
+- **`disposition: resolved`** — current code **already resolves** the candidate (built / fixed /
+  superseded). The entry is a **tombstone**, not a recommendation: it carries the resolving
+  current-code evidence in `evidence`, emits **no** issue, and is **not counted toward pending
+  strategy**. It exists so the cut is auditable and a later run does not silently re-surface the same
+  closed candidate.
+
+```jsonl
+{"seq": 3, "handle": "sdd-scanner", "kind": "strategy", "disposition": "resolved", "recommendation": "no action — coverage-gap mechanism already shipped", "evidence": ["current-code: checkReferencedArtifacts + checkUseCaseCoverage live in spec-gate/scripts/check-spec-state.mts"], "ratified": false}
+```
+
+`disposition` is set **once at write** and never flipped (the append-only invariant) — the Scanner's
+pre-draft validation cut is a distinct act from the **Council's** keep-or-cut on a drafted
+`disposition: open` line. **Pending strategy** counted at the gateway is `kind: strategy`,
+`ratified: false`, `disposition: open`-or-absent — a `disposition: resolved` line is excluded.
+
 ### `followup` — a recorded follow-up (ledger)
 
 The durable record of work handoff identified but held out of scope. Written by the **conductor at

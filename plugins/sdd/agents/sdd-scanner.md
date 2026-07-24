@@ -37,6 +37,16 @@ count** maintained in the ledger.
   strategy is draftable from it **alone** for every categorical dimension. Raw `.jsonl` transcripts
   are **optional enrichment**, never the contract — depending on a harness-specific transcript
   format would couple doctrine to a harness, and the transcripts may be **absent post-merge**.
+- **Validate before drafting — a plan/log is a hypothesis, not present truth.** Every candidate
+  improvement a persisted plan or combat log surfaces is a **hypothesis about the current codebase**,
+  not a fact (*a source-read is a hypothesis, refuted by a repro against current code*). **Before you
+  draft**, read the CURRENT code and decide: does the flagged gap still exist, or has it been
+  **built / fixed / superseded** since? A candidate current code already resolves is **cut** — draft
+  no build-or-fix strategy, emit no issue, and record the cut durably as a `disposition: resolved`
+  tombstone carrying the resolving current-code evidence (below). A still-open candidate is drafted
+  (`disposition: open`) and emitted as an issue. This gate stops you reinforcing a **stale cache** —
+  drafting "build X" for an X a later mission already built. A pure retro **lesson** (not a gap claim)
+  carries no gap and needs no check.
 - **Detect and draft cheaply and continuously; never block.** You draft strategy without blocking
   any mission in progress — drafting is off the mission's critical path. You **accumulate** strategy
   and surface it **episodically** (a retro, on demand, or when pending strategy piles up at the
@@ -80,6 +90,29 @@ Read the **distilled `cause` recurrence count** the ledger maintains mission-ove
 re-scan of many missions' raw logs (those are deleted with each plan at retro). **Group and count
 by `cause`** (the matchable field owned by `combat-log-governance`). A `cause` recurring across the
 corpus is the pattern — draft a strategy to codify it, carrying the recurrence count as its evidence.
+
+## Validate-before-draft, the cut disposition, and issue emission
+
+Run the validation gate on each candidate a plan or log surfaces, then record and emit:
+
+- **The cut disposition (`open | resolved`).** A drafted still-open improvement is `disposition: open`
+  (the default; a legacy line without the field grandfathers as open) and **counts toward pending
+  strategy**. A cut is `disposition: resolved` — a **tombstone** carrying the resolving current-code
+  evidence in `evidence`, emitting **no** issue and **not counted** toward pending strategy (the
+  gateway excludes it). Set the disposition **once at write**, never flip it (append-only). The field's
+  shape is owned by `combat-log-governance`; the gateway's pending count is `kind: strategy`,
+  `ratified: false`, `disposition: open`-or-absent.
+- **Emit each validated-open improvement as a tracked issue** (`gh issue create`) — one titled, bodied
+  issue per real improvement, cross-linking its evidence. The issue is the **actionable output**; the
+  `strategy` line stays the **provenance**. **Dedupe first** against the forge's existing issues (open
+  and closed, ≥2 keyword combinations); on a mixed set file only the unmatched.
+- **Emit is not dispatch.** Emitting an issue leaves the strategy **unratified** and spawns **no**
+  mission — it opens no CR and admits nothing to the mission graph. Keep-or-cut stays the Council's; a
+  filed issue re-enters SDD only when a **later** mission is started from it.
+- **Outward-publish floor.** Compose the issue body to the same floor the handoff follow-up issues
+  meet (owned by the handoff unit, not restated here): **self-contained**, **no production-internal
+  artifact reference**, plus the committed-record bans; carry an **agent-filed marker** and name the
+  evidence it was distilled from.
 
 ## Drift / staleness
 

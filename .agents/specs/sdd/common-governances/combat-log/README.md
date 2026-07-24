@@ -37,6 +37,16 @@ doctrine-loop Scanner; invariant per role.
   (`../../doctrine/plan-retirement`) — an unratified `strategy` (`ratified: false`) still counts as a
   distillation. Milestone / drift / token-waste strategy that has no single subject mission may omit
   it; only Ship and Kill distillations gate a retirement.
+- **The `disposition` subject (`open | resolved`)** — before drafting, the Scanner validates each
+  plan/log-surfaced candidate against **current code** (a persisted plan or log is history, a
+  hypothesis about a gap, not present truth). `disposition` records that verdict on the `strategy`
+  entry: **`open`** (default; absent grandfathers as open) = current code does not resolve it, an
+  actionable recommendation that **counts toward pending strategy** and drives issue emission;
+  **`resolved`** = current code already resolves it (built / fixed / superseded), a **tombstone**
+  carrying the resolving current-code evidence, emitting **no** issue and **not counted** toward
+  pending strategy. Set **once at write**, never flipped (append-only) — the Scanner's pre-draft
+  validation cut is distinct from the Council's keep-or-cut on a drafted `open` line. **Pending
+  strategy** is `kind: strategy`, `ratified: false`, `disposition: open`-or-absent.
 - **The `followup` record (`class`)** — the durable record of a follow-up the mission identified but
   held out of scope, written by the **conductor at handoff** to its own ledger shard, **unconditionally**
   (no permission, no forge, no human) and **before any filing is attempted**. It carries a `class` —

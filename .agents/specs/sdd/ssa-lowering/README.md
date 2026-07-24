@@ -245,19 +245,20 @@ tracked in **#308**, and the fix is to make all three branches land the same way
 | contention · **order-imposable** — recognition | judgment | `a same-node contention is resolved by imposing an order into a versioned-RAW edge` (`order-imposed`, `versioned-raw-edge`) |
 | contention · **order-imposable** — act (no concurrent writers) | structural | `an order-imposable contention does not emit two concurrent writers of one node` |
 | contention · **irreducible** — recognition | judgment | `an order-less concurrent co-write is left as an irreducible hard collision` (`irreducible-recognized`, `rework-flagged`) |
-| contention · **irreducible** — act (serialize, no concurrent writers) | structural | **#308 gap — no boolean guard; the act is fused into `irreducible-recognized`** |
+| contention · **irreducible** — act (serialize, no concurrent writers) | structural | `an irreducible hard collision serializes rather than emitting concurrent writers` (added #308) |
 | contention · **low-confidence** — classification | judgment | `a low-confidence touch-set is treated as a hard collision` (`conservative-default`, `relax-on-evidence`) |
-| contention · **low-confidence** — act (serialize, no concurrent writers) | structural | **#308 gap — no boolean guard; the act is fused into `conservative-default`** |
+| contention · **low-confidence** — act (serialize, no concurrent writers) | structural | `a low-confidence overlap serializes rather than optimistically parallelizing` (added #308) |
 | SSA · genuinely independent nodes carry no fabricated dependency | structural | `independent spec-nodes are lowered without a fabricated dependency between them` |
 | lazy lowering · frontier deep, far coarse | judgment | `only the frontier is deeply lowered while far work is left coarse` (`frontier-lowered-deeply`, `far-work-left-coarse`) |
 | decision-evidence · a record accompanies the partition | structural | `the produced partition is accompanied by a decision-evidence record` |
 
-The two **#308 gap** rows are the mission's target: split the fused act out of `irreducible-recognized`
-and `conservative-default`, add the two missing boolean act-guards (mirroring the order-imposable
-guard), so every contention branch has both a judgment edge and a structural edge. `catches-misalignment`
-is a related but distinct case — a judgment edge whose *description* fuses two cognitive sub-clauses
-(infer the direction · find the contradiction) rather than a judgment fused with an act; its fix is a
-re-word, not a new guard (see *Where the margin is thin* for the fold that produced it).
+The two former **#308 gap** rows are now closed: the fused act was split out of `irreducible-recognized`
+and `conservative-default` and added back as boolean act-guards (mirroring the order-imposable guard),
+so every contention branch has both a judgment edge and a structural edge. Ablation (see *Where the
+margin is thin*) confirmed the irreducible guard binds and the narrowed dimension stays loseable.
+`catches-misalignment` was the related but distinct case — a judgment edge whose *description* fused
+two cognitive sub-clauses (infer the direction · find the contradiction) rather than a judgment fused
+with an act; its fix was a re-word (one criterion, inference as the means), not a new guard.
 
 ## How it's tested
 
@@ -377,6 +378,14 @@ one — and, for the one probe that has a measured failing read, so a future pas
   *added* load to that dimension (folding `not-mistaken-for-stale` into it, so it must now judge on
   direction-fit *rather than* supersession), which is a reason to keep the slack rather than tighten
   it, but the slack is **not** evidence-backed and must not be reported as though it were.
+  **#308 update:** the dimension was re-worded to a single criterion (find the direction-fit
+  contradiction, with inference as the means; the fused "infer *and* find" surface removed). An
+  ablation deleting the direction-fit rule (a supersession-only doctrine) measured **Δ≈0** — 5/5
+  producers, intact and ablated alike, caught the misalignment and refused the autofix mission. The
+  read-only-vs-autofix fixture is **too blatant to ablation-test**: the contradiction is common-sense
+  over-determined, so this dimension's loseability is **fixture-limited**, corroborating the
+  non-reproducing 2.33/3.00 above. The re-word is a wording clarification and did not cause this;
+  closing it needs a **less-blatant Given** (tracked as a follow-up), not a rubric change.
 - **`barrier`'s margin is now *unmeasured*, and that is a change from what was once measured.** The
   only dimension this suite has ever measured with real run-to-run variance was
   `fleet-rebase-reasoned` (1, 1, 2 against a *correct* doctrine). That variance was **instrument
@@ -417,15 +426,19 @@ one — and, for the one probe that has a measured failing read, so a future pas
   first clause — but the dimension grades the **modeling consequence**, which the `Given` does not
   supply and which no ablated producer reached in 3 of 3 runs. A cued clause is not a cued dimension:
   what makes this one loseable is the *consequence* half, which the situation cannot parrot.
-- **`irreducible` is the weakest rubric.** Its situation states that the two concerns *"must both
-  write the same spec-node with no order that avoids rework either way"* — which hands over **both**
-  answers the rubric grades (the irreducibility *and* the rework). A doctrine lacking step 4's rule
-  can parrot the situation to roughly 3 against a threshold of 4, failing by a single point — and on
-  a generous read it can reach **4 and pass outright** (2 for the parroted irreducibility, 2 for the
-  rework the situation names). This is the one rubric a parroting doctrine can plausibly clear, and
-  it is held down only by the fold of `serialized-not-parallel` into `irreducible-recognized`, which
-  adds an *act* the situation does not hand over. Treat this cell as not yet trustworthy. Closing it
-  needs a situation that withholds the answer, i.e. a Given edit — out of scope here.
+- **`irreducible` is the weakest rubric, and #308 restructured — not closed — that weakness.** Its
+  situation states the two concerns *"must both write the same spec-node with no order that avoids
+  rework either way"* — which hands over the recognition the rubric grades, so a parroting doctrine
+  can echo it. Before #308 the dimension *also* graded the **act** (serialize-not-parallel), which the
+  Given does not hand over — that fold held the cell down. **#308 split that act out into a boolean
+  guard** (`an irreducible hard collision serializes rather than emitting concurrent writers`), so the
+  rubric now grades recognition alone (**more** parrotable) while the act is a hard must-pass. Ablation
+  measured both halves: a mutant that knows only versioned-RAW **dropped `irreducible-recognized` from
+  3.0 → 0.0** across 5 blind judges (the dim binds to the recognition rule) **and** forced a bogus
+  versioned-RAW **3/3**, firing the new guard. What ablation did **not** clear is the *parroting* read —
+  a doctrine that echoes the Given's "no order" without reasoning still scores the recognition; the
+  boolean guard now partially compensates (it must actually serialize), but fully closing it still
+  needs a Given that withholds the answer — a Given edit, out of scope here.
 - **`misaligned`'s contradiction with the `@trigger` outline is RESOLVED — in the doctrine, not the
   suite** ([#249](https://github.com/cyberuni/cyberplace/issues/249)). The outline says the doctrine
   must **not** run on *"a single-capability change to one artifact-type"*, and the `misaligned`

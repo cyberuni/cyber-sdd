@@ -64,6 +64,59 @@ post-merge loop keeps the dimension; the **numeric** breakdown lives only in tra
 never under it without a request). No raw token-cost number is written to the committed log — only
 the categorical class (the safe-to-publish floor, `sdd:combat-log-governance`).
 
+## Validate before drafting — a plan or log is a hypothesis, not present truth
+
+A persisted plan, combat log, or ledger line is **history**, never authoritative present truth. Every
+candidate improvement it surfaces — a gap to build, a defect to fix — is a **hypothesis about the
+current codebase** (the repo's own principle: *a source-read is a hypothesis, refuted by a repro
+against current code*). **Before you draft**, run a validation gate on each candidate: read the
+CURRENT code and decide whether the flagged gap still exists, or has since been **built / fixed /
+superseded** (by a later mission, a landed PR, a governance change).
+
+- **Resolved → cut.** A candidate current code already resolves is **cut**: draft **no** build-or-fix
+  strategy and emit **no** issue. Record the cut **explicitly, never silently** — append a `strategy`
+  entry marked **`disposition: resolved`** to your own shard, carrying the **resolving current-code
+  evidence** (the repro that refuted the hypothesis) in `evidence`. A `disposition: resolved` line is
+  a **tombstone**: not an actionable recommendation, so it emits no issue and is **not counted toward
+  pending strategy** at the gateway. It exists so the cut is auditable and a later run does not
+  silently re-surface the same closed candidate.
+- **Still open → draft.** A candidate current code does **not** resolve is a real improvement: draft
+  `strategy` for it marked **`disposition: open`** (the default; a line without the field grandfathers
+  as open), which counts toward pending strategy, and emit its issue (below).
+
+The gate applies to any candidate that asserts an **unmet gap or defect**, whether surfaced by a
+**plan or a combat log** (symmetric — each source has both a resolved→cut and a still-open→draft
+path). A pure distilled **retro lesson** (a success pattern, not a gap claim) carries no gap to
+validate and is drafted without a current-code check. Set the disposition **once at write** — never
+flip it (append-only); the Council's later keep-or-cut on a `disposition: open` line is a separate act
+(the keep-or-cut plan), not a field edit. The `disposition` field's shape is owned by
+`sdd:combat-log-governance`.
+
+This gate is what stops the loop reinforcing a **stale cache** — drafting "build X" for an X a later
+mission already built.
+
+## Improvement output — validated-open findings become tracked issues
+
+The loop's **actionable output** for a validated-open improvement is a **new tracked issue**
+(`gh issue create`) — one titled, bodied issue per real improvement, **cross-linking the evidence**
+that drove it. This grounds the improvement plan in current code, not the stale narrative of a retired
+plan. The ledger `strategy` line stays the **provenance**; the issue is what a later mission is started
+from.
+
+- **Dedupe first.** Before filing, dedupe against the forge's existing issues — **open and closed**
+  (at least two keyword combinations: the full title, then the core noun/verb) — and on a mixed set
+  file only the unmatched.
+- **Emit is not dispatch.** Emitting an issue leaves the `strategy` **unratified** and spawns **no**
+  mission — it opens no CR and admits nothing to the mission graph (that is the graph's single writer's
+  act). Keep-or-cut stays the Council's; the issue re-enters SDD only when a **later** mission is
+  started from it.
+- **Outward-publish floor.** Compose the issue body to the same outward-publish floor the handoff
+  follow-up issues meet (owned by the handoff unit — do not restate it): **self-contained** (a reader
+  who cannot see the mission's internal artifacts can act on it), **no production-internal artifact
+  reference** (no ledger shard filename, no combat-log or plan-brief path), plus everything the
+  committed-record floor bans (absolute paths, `$HOME`/`$USER`, usernames, secrets, raw numbers).
+  Carry an **agent-filed marker** and name the evidence it was distilled from.
+
 ## Where strategy lands
 
 Every `strategy` entry lands in the **one project ledger** — the `ledger/` directory sibling of the
@@ -72,7 +125,9 @@ random hex once per session), so two concurrent Scanner runs write distinct shar
 There is no per-spec log to route to under the project-spec model. The Scanner's `handle` is
 `sdd-scanner`. Every entry is **unratified** (`ratified: false`) and carries its **driving evidence**
 (the distilled `cause` recurrence that drove it), per the shape in `sdd:combat-log-governance`. The
-shard is append-only — the next `seq` within it, never an edit; ledger lines carry **no `ts`**.
+shard is append-only — the next `seq` within it, never an edit; ledger lines carry **no `ts`**. Every
+entry also carries its validation **`disposition`** (`open` for a drafted still-open improvement,
+`resolved` for a validation tombstone; see *Validate before drafting* above) — set once at write.
 
 **Record the distilled subject.** When the entry is drafted from a **Ship** (`→ implemented`) or
 **Kill** (`→ deprecated`), set `distills: <cr-ref>` to the **one mission it was distilled from** —

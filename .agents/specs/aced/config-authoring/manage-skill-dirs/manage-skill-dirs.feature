@@ -162,7 +162,7 @@ Feature: The skill-dirs config — declare and curate the extra locations the va
     Then the skill is judged against the rubric
       """
       dimensions:
-        - name: induces_and_previews_matched_skills
+        - name: previews_matched_skills
           max: 1
         - name: confirms_before_writing_config
           max: 1

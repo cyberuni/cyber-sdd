@@ -69,7 +69,7 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: catches-misalignment
-          max: 3          # infers the product's non-mutating direction from how the tool ships (read-only, no write credentials, the no-PR promise) and finds the CR contradicts it, on direction-fit rather than supersession; no step declares the direction as a slogan, and nothing in the situation supersedes the CR
+          max: 3          # finds the CR contradicts the product's direction on direction-fit (not supersession) — inferring that non-mutating direction from how the tool ships (read-only, no write credentials, the no-PR promise); no step declares the direction as a slogan, and nothing in the situation supersedes the CR
         - name: reshape-or-kill
           max: 3          # acts on the verdict: reshapes the CR toward the product direction or kills it, rather than partitioning it as filed
       threshold: 5
@@ -259,12 +259,18 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: irreducible-recognized
-          max: 3          # recognizes no clean order exists so a versioned-RAW would not resolve it, and serializes the two writes rather than starting them concurrently
+          max: 3          # recognizes no clean order exists so a versioned-RAW would not resolve it
         - name: rework-flagged
           max: 2          # flags that the second write needs real rework because the first moved the ground, not a clean replay
       threshold: 4
       """
     And the rubric score is at least the threshold
+
+  Scenario: an irreducible hard collision serializes rather than emitting concurrent writers
+    Given two concerns that must both write the same spec-node with no order that avoids rework either way
+    When the coordinator applies the SSA-lowering doctrine and resolves the contention
+    Then the produced partition does not contain two missions writing that spec-node concurrently
+    And the collision is left as an irreducible hard collision, not reduced to a clean versioned-RAW
 
   # ── Monadic lowering and conservative-first defaults ──
 
@@ -291,12 +297,18 @@ Feature: The SSA-lowering doctrine — cut a change request into one owning miss
       """
       dimensions:
         - name: conservative-default
-          max: 3          # treats the unproven overlap as a hard collision and serializes, rather than optimistically parallelizing the two missions on a guess
+          max: 3          # treats the unproven overlap as a hard collision rather than optimistically parallelizing the two missions on a guess
         - name: relax-on-evidence
           max: 2          # gets the relaxation condition right — parallel becomes available only once finer evidence proves the writes disjoint, not on elapsed time, mission size, or a re-guess
       threshold: 4
       """
     And the rubric score is at least the threshold
+
+  Scenario: a low-confidence overlap serializes rather than optimistically parallelizing
+    Given two missions whose predicted touch-sets overlap on a node but the overlap is only partially known
+    When the coordinator applies the SSA-lowering doctrine and there is no finer evidence of disjointness
+    Then the produced partition does not run the two missions as concurrent writers of the shared node
+    And it serializes them rather than optimistically parallelizing on the unproven overlap
 
   # ── Guard against over-serializing a clean split ──
 

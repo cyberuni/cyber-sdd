@@ -76,8 +76,11 @@ not an up-front classifier, so ambiguity is routed in and decided during explore
   sibling of the root `spec.md`) — the doctrine loop's keep-or-cut — as an entry point. The gateway
   only *surfaces* the count: it never drafts strategy (the Scanner's job) nor ratifies it (the
   Council's positional act). A zero count is not surfaced. Only `kind: strategy` lines with
-  `ratified: false` are counted — the conductor's `kind: leash` run-start blocks are **not** strategy
-  and never counted. (`strategy` lives in the durable `ledger/` shards, never in the
+  `ratified: false` **and `disposition: open`-or-absent** are counted — the conductor's `kind: leash`
+  run-start blocks are **not** strategy and never counted, and a `disposition: resolved` line is a
+  **tombstone** (the Scanner's pre-draft validation cut, `../common-governances/combat-log/`) that is
+  **never counted** even though it is `kind: strategy`, `ratified: false`.
+  (`strategy` lives in the durable `ledger/` shards, never in the
   per-mission `*.log.jsonl` combat log — `../common-governances/combat-log/`.)
 - **Surface in-progress missions.** On re-entry, surface the **resumable missions** — the plan
   briefs under `.agents/plans` — as a resume entry point, via the **`discover-plans`** engine

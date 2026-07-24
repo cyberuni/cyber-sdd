@@ -2,7 +2,13 @@
 
 ## Status
 
-Accepted
+Accepted; dual-marker requirement superseded by [ADR-0031](0031-selection-is-not-visibility.md)
+
+> **Superseded in part (2026-07-24):** The core decision — reference content lives in a skill loaded
+> by other agents, not via `governance show` — stands. The **dual marker** below does not.
+> `user-invocable: false` is a *visibility* flag only and never signals how a skill is selected, and
+> the `Internal skill:` description prefix is replaced by a description that is exactly
+> `"By name only"`. See [ADR-0031](0031-selection-is-not-visibility.md).
 
 > **Update note (2026-06-28):** Core decision current. Two refs are stale: the path
 > `artifacts/specs/sdd-orchestrator/` no longer exists, and `sdd:spec-governance` was renamed

@@ -14,7 +14,7 @@ Defer when the intent is narrower than "improve this config":
 
 | The request is really about… | Defer to |
 |---|---|
-| scaffolding a **new** skill, agent, or governance from scratch | `define-skill` / `define-agent` / `define-governance` |
+| scaffolding a **new** skill, agent, command, or governance from scratch | `define-skill` / `define-agent` / `define-command` / `define-governance` |
 | **scoring** a config against its frozen `.feature` suite | `run` |
 | **adding** a new scenario | `add-scenario` |
 | **diffing** two versions before committing a change | `compare` |

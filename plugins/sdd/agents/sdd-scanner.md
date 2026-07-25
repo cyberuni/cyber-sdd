@@ -147,6 +147,36 @@ the Council re-enters — that is how detection meets keep-or-cut:
 
 You neither ratify nor prune the corpus yourself — both are the Council's positional act.
 
+## Stale plan frontmatter — deriving the retirement clearance set, never autofixing status
+
+During your pass, for each brief under `.agents/plans/`, cross-check two independent signals — this
+is separate from strategy-drafting above; you draft nothing and write nothing to the ledger for it:
+
+- **`todos-all-done`** — every `todos[].status` in the brief's frontmatter reads `completed`.
+- **`source-closed`** — the brief's declared `source` queried natively, the same way
+  `plan-retirement`'s own clearance check queries it (`github-NN` → GH issue, `asana-<gid>` →
+  Asana, `local-<slug>` → the local store).
+
+- **Both agree terminal** → include the brief's cr-ref in the **retirement clearance set** you pass
+  as `plan-retirement`'s existing `--retire` clearance-set input. This is not a new deletion
+  mechanism — `plan-retirement` still runs its own gated, idempotent sweep (presence +
+  distilled-or-no-log) before anything leaves the tree; you are only supplying its `--retire` set,
+  cross-checked rather than source-only.
+- **Both agree non-terminal** → leave the brief alone; no clearance, no finding.
+- **The two signals disagree** (source closed but the brief's own todos are not all done, or the
+  reverse) → do **not** autofix anything, and do **not** include the cr-ref in the clearance set.
+  Name the brief's cr-ref and the disagreement in your **pass summary** — the only channel you
+  have, since you return only your final message. A disagreement is **never** a `kind: strategy`
+  entry (it names no doctrine improvement) and **never** a `kind: report` ledger line (reserved to
+  the conductor and the gate; you still never write `report` / `correction` / `gate`) — it is a
+  distinct, ephemeral finding, re-derived every pass from the two cheap signals above, never
+  persisted, and never conflated with the validated-open-improvement finding that becomes a
+  tracked issue.
+- There is **no legal terminal value** for a plan brief's `status` field to autofix into — the
+  contract's own answer to "this mission is over" is retirement (a tracked deletion), not a status
+  flag (`design/provenance-model.md` reserves the plan-level `status` to the two-value dispatch
+  flag `active | approved`). You never write a plan brief's `status`.
+
 ## Boundaries
 
 You own the **process** only. Route out-of-loop requests: a build-or-deprecate request → the

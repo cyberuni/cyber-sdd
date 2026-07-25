@@ -7,8 +7,11 @@ gated, idempotent **tracked deletion** of a retired mission plan. It holds a sel
 **Distill and delete are decoupled.** The Scanner distills the combat log into ledger `strategy`
 early (at `→ implemented`); this sweep deletes the plan **later**, gated on source = `done`/merged
 **and** distilled. The two signals **split by verifiability**: **source** stays the caller's
-judgment (`sdd:doctrine-loop` Scanner passes the source-cleared set via `--retire`; it needs
-network/`gh`), while **distilled** is **verified mechanically by the sweep** against the project
+judgment (`sdd:doctrine-loop`'s Scanner is the standard caller — during its pass it cross-checks
+each brief's own `todos-all-done` against `source-closed` and passes `--retire` only the cr-refs
+where **both** agree terminal; a disagreement is held back and flagged, never passed through on
+source alone; querying source natively needs network/`gh`), while **distilled** is **verified
+mechanically by the sweep** against the project
 ledger (`--ledger <dir>`) — a `strategy` entry with `distills == <cr-ref>` must exist (keyed on the
 `distills` field, never an `evidence` mention; unratified still counts). The distilled gate guards
 an **existing** combat log: a cr-ref whose `<cr-ref>.log.jsonl` was **never written** (a non-gated

@@ -145,8 +145,31 @@ strategy re-enters as a **new CR** that re-tunes the doctrine and grows the corp
 **PRUNE** removes the stale convention). On **cut**, it stays unratified and absent from the
 corpus.
 
+## Stale plan frontmatter — deriving the retirement clearance set, never autofixing status
+
+A plan brief's frontmatter `status` can lag reality (its own todos finish, or its source issue
+closes, without the value being flipped) but there is **no legal terminal value** to autofix it
+into — the plan-level `status` is a two-value dispatch flag (`active | approved`), and the
+contract's own answer to "this mission is over" is **retirement**, not a status write
+(`sdd:combat-log-governance`'s home, `design/provenance-model.md`). So during its pass, for each
+brief under `.agents/plans/`, the Scanner cross-checks `todos-all-done` (every `todos[].status`
+completed) against `source-closed` (the declared `source` queried natively, the same way
+`plan-retirement`'s own clearance check queries it) — never writing `status` either way:
+
+- **Both agree terminal** → the cr-ref is included in the **retirement clearance set** the Scanner
+  passes as `plan-retirement`'s existing `--retire` input. No new deletion mechanism —
+  `plan-retirement` still runs its own gated sweep.
+- **Both agree non-terminal** → no clearance, no finding.
+- **They disagree** → excluded from the clearance set; the Scanner surfaces a flagged finding
+  naming the disagreement in its pass summary (its only channel — it returns only its final
+  message), for a human to resolve. A flagged finding is ephemeral and never a ledger write — it
+  is neither a `kind: strategy` entry nor a `kind: report` line, and it is distinct from the
+  validated-open-improvement finding above that becomes a tracked issue.
+
 ## Plan retirement
 
 Doctrine's **last retro step** — the gated, idempotent **tracked deletion** of a retired plan — is
 a separate unit (`sdd:plan-retirement`). The distill (writing `strategy` here) fires early, at
-`→ implemented`; the delete is a later step gated on source = `done`/merged **and** distilled.
+`→ implemented`; the delete is a later step gated on source = `done`/merged **and** distilled. The
+source-cleared set `plan-retirement` consumes via `--retire` is, per above, the Scanner's derived
+retirement clearance set — never a raw, uncross-checked source-only judgment.

@@ -174,8 +174,21 @@ For each brief under `.agents/plans/`, the Scanner computes two independent sign
 - **Both agree non-terminal** → the brief is left alone; no clearance, no finding.
 - **The two signals disagree** (source closed but the brief's own todos are not all done, or the
   reverse) → the Scanner does **not** autofix anything. It excludes the cr-ref from the clearance
-  set and surfaces a **flagged finding** naming the disagreement in its report, for a human to
-  resolve.
+  set and names the brief's cr-ref and the disagreement in its **pass summary to the invoking
+  session** (its final message, the only channel a subagent has — `../../gateway/`), for a human
+  to resolve.
+
+**A flagged finding is not a ledger write, and it is a different thing from the spec's other
+"finding."** It is ephemeral, re-derived every pass from the two cheap signals above — the whole
+point of deriving the clearance set (rather than writing a new durable field, per the Findings this
+capability replaces) is that nothing new needs to persist. So a flagged finding is **never** a
+`kind: strategy` entry (it names no build-or-fix improvement to doctrine) and **never** a
+`kind: report` ledger line (that kind is reserved to the conductor and the gate; the Non-goals
+above hold unchanged — the Scanner still never writes `report` / `correction` / `gate`). It is also
+**distinct** from *"a validated-open improvement"* (above, "Improvement output") — that finding
+survives as a `strategy` entry and a tracked issue; a flagged plan-frontmatter disagreement does
+neither. Reusing the same English word for two different shapes is a hazard this spec calls out
+explicitly so a future edit does not conflate them.
 
 ## Where each strategy entry lands
 

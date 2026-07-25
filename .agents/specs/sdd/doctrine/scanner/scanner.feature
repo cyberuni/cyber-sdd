@@ -256,22 +256,29 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Then it excludes the brief's cr-ref from the clearance set
     And it drafts no flagged finding
 
-  Scenario: the source is closed but the plan's own todos are still open, drafting a flagged finding
+  Scenario: the source is closed but the plan's own todos are still open, surfacing a flagged finding
     Given a plan brief whose declared source is closed but whose own todos are not all completed
     When the Scanner computes the retirement clearance set
     Then it excludes the brief's cr-ref from the clearance set
-    And it surfaces a flagged finding naming the disagreement in its report
+    And it names the brief's cr-ref and the disagreement in its pass summary to the invoking session
     And it does not autofix the plan brief's frontmatter
+    And it writes no ledger entry for the disagreement
 
-  Scenario: the plan's todos are all completed but the source is still open, drafting a flagged finding
+  Scenario: the plan's todos are all completed but the source is still open, surfacing a flagged finding
     Given a plan brief whose todos are all completed but whose declared source is still open
     When the Scanner computes the retirement clearance set
     Then it excludes the brief's cr-ref from the clearance set
-    And it surfaces a flagged finding naming the disagreement in its report
+    And it names the brief's cr-ref and the disagreement in its pass summary to the invoking session
+
+  Scenario: a flagged finding is a different thing from a strategy-driven finding, and is never a kind report line
+    Given a disagreement the Scanner surfaces in its pass summary
+    When it composes that summary
+    Then the disagreement is neither a kind strategy entry nor a kind report ledger line
+    And it is distinct from the validated-open improvement that becomes a tracked issue
 
   Scenario: the retirement clearance set feeds plan-retirement's existing input, not a new mechanism
     Given the Scanner has computed a retirement clearance set
-    When it hands the set to the retro step
+    When it hands the set to the plan-retirement step
     Then it passes the set as plan-retirement's existing retire clearance-set input
     And it introduces no new deletion mechanism
 

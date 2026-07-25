@@ -242,6 +242,50 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     Then the Scanner does not block the mission
     And the pending strategy is surfaced episodically through the gateway count
 
+  # ---- Stale plan frontmatter ----
+
+  Scenario: both retirement signals agree terminal, so the plan feeds the retirement clearance set
+    Given a plan brief whose todos are all completed and whose declared source is closed
+    When the Scanner computes the retirement clearance set
+    Then it includes the brief's cr-ref in the clearance set it passes to plan-retirement
+    And it writes no status value into the plan brief's frontmatter
+
+  Scenario: neither retirement signal is terminal, so the plan is left alone
+    Given a plan brief whose todos are still open and whose declared source is still open
+    When the Scanner computes the retirement clearance set
+    Then it excludes the brief's cr-ref from the clearance set
+    And it drafts no flagged finding
+
+  Scenario: the source is closed but the plan's own todos are still open, drafting a flagged finding
+    Given a plan brief whose declared source is closed but whose own todos are not all completed
+    When the Scanner computes the retirement clearance set
+    Then it excludes the brief's cr-ref from the clearance set
+    And it surfaces a flagged finding naming the disagreement in its report
+    And it does not autofix the plan brief's frontmatter
+
+  Scenario: the plan's todos are all completed but the source is still open, drafting a flagged finding
+    Given a plan brief whose todos are all completed but whose declared source is still open
+    When the Scanner computes the retirement clearance set
+    Then it excludes the brief's cr-ref from the clearance set
+    And it surfaces a flagged finding naming the disagreement in its report
+
+  Scenario: the retirement clearance set feeds plan-retirement's existing input, not a new mechanism
+    Given the Scanner has computed a retirement clearance set
+    When it hands the set to the retro step
+    Then it passes the set as plan-retirement's existing retire clearance-set input
+    And it introduces no new deletion mechanism
+
+  Scenario: source-closed is queried the same way plan-retirement's own clearance check queries it
+    Given a plan brief with a declared source
+    When the Scanner checks whether the source is closed
+    Then it queries the source natively, the same way plan-retirement's clearance check does
+
+  Scenario: the Scanner never writes a terminal status value into a plan brief's frontmatter
+    Given any outcome of the retirement clearance computation
+    When the Scanner records what it found
+    Then it writes no status field into the plan brief's frontmatter
+    And retirement, a tracked deletion, remains the only terminal act on a plan brief
+
   # ---- Out-of-loop routing ----
 
   Scenario: an out-of-loop request is routed to its owning loop

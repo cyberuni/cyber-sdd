@@ -140,7 +140,7 @@ name and both need unmatchable descriptions. A distinction no check can act on b
   prefix check to "description carries text beyond the marker", and exempt name-only skills from the
   trigger-language and description-word-count checks.
 - Selection is documented on the website under Skills; the corpus census behind this decision is in
-  `docs/research/2026-07-skill-kind-axes.md`.
+  `.research/skill-kind-axes/conclusion.md`.
 
 ## Related Decisions
 

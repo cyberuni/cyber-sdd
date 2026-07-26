@@ -33,7 +33,7 @@ tests pass."* Adopt a layered model, cheap→expensive, scaled by the autonomy l
 
 ## Landed in
 
-- ADR-0016 (decision + why), `docs/research/2026-06-impl-judge-independence.md` (the survey the ADR
+- ADR-0016 (decision + why), `survey.md` in this dossier (the survey the ADR
   cites).
 - `.agents/specs/sdd/mission/deliver/impl-judge/` (the layered verdict model + suite),
   `.../impl-producer/` (green = pre-filter; prefer direct exec; faithful mapping),

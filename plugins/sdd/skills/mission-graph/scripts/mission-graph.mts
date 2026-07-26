@@ -898,6 +898,215 @@ export function migrate(root: string): MigrateResult {
 	return { migrated, reason, count, retired, retiredReason }
 }
 
+// ── sync — the one deliberate step that carries the orphan ref to/from a shared remote ──
+// refs/sdd/* sits outside refs/heads/*, which git's default refspec is the only thing it copies,
+// so the ref is shared by every WORKTREE of one clone and travels no further on its own. `sync`
+// names the ref explicitly on every command it runs — so it needs no git configuration and writes
+// none — and is fast-forward only in both directions: a diverged pair is refused, never merged.
+// See the node README's sync table for the exhaustive 7-case partition this function realizes.
+
+const SYNC_TMP_REF = 'refs/mission-graph-sync/remote-tmp'
+
+export interface SyncResult {
+	backend: StoreBackend
+	ok: boolean
+	action: 'no-op' | 'no-remote' | 'unreachable' | 'both-empty' | 'push' | 'collect' | 'agree' | 'refuse'
+	message: string
+	localHead: string | null
+	remoteHead: string | null
+}
+
+function refTransferSpec(refName: string): string {
+	return `${refName}:${refName}`
+}
+
+/** A remote NAME is configured at all (distinct from being reachable — see `remoteReachable`). */
+function remoteConfigured(root: string, remote: string): boolean {
+	try {
+		git(root, ['remote', 'get-url', remote])
+		return true
+	} catch {
+		return false
+	}
+}
+
+/** Whether the remote can actually be talked to right now. Deliberately checked SEPARATELY from
+ *  "does it have the ref" — `git ls-remote` reports an unreachable remote and an empty one the
+ *  same way, so establishing reachability first (and failing loudly when it cannot be) is the
+ *  only way to avoid conflating the two. */
+function remoteReachable(root: string, remote: string): boolean {
+	try {
+		git(root, ['ls-remote', remote])
+		return true
+	} catch {
+		return false
+	}
+}
+
+/** The remote's current orphan-ref tip, or null when the remote has no such ref (but IS
+ *  reachable — reachability is checked by the caller before this is ever consulted). */
+function remoteOrphanHead(root: string, remote: string): string | null {
+	const out = git(root, ['ls-remote', remote, ORPHAN_REF])
+	if (out === '') return null
+	const [hash] = out.split('\n')[0].split('\t')
+	return hash ?? null
+}
+
+function gitFetchOrphanRef(root: string, remote: string): void {
+	git(root, ['fetch', remote, refTransferSpec(ORPHAN_REF)])
+}
+
+function gitPushOrphanRef(root: string, remote: string): void {
+	git(root, ['push', remote, refTransferSpec(ORPHAN_REF)])
+}
+
+function deleteSyncTmpRef(root: string): void {
+	try {
+		git(root, ['update-ref', '-d', SYNC_TMP_REF])
+	} catch {
+		// Nothing to delete — fine.
+	}
+}
+
+function isAncestor(root: string, ancestor: string, descendant: string): boolean {
+	try {
+		execFileSync('git', ['merge-base', '--is-ancestor', ancestor, descendant], { cwd: root })
+		return true
+	} catch {
+		return false
+	}
+}
+
+/**
+ * syncStore — carries the orphan ref between this clone and `remote`, fast-forward only. Two
+ * prechecks run first, in this exact order: (1) backend — under the in-tree backend, sync is a
+ * no-op that reports the active backend, even when the remote is unreachable (an in-tree project
+ * must not fail merely for being offline); (2) reachability — an unreachable remote, or no remote
+ * configured at all, is a loud non-zero failure, never reported as "no list there". Only once both
+ * are settled does the 7-case partition of (local ref, remote ref) apply — see the README's sync
+ * table. Writes no git configuration, ever; never uses the forced (`+`-prefixed) refspec form.
+ */
+export function syncStore(root: string, remote = 'origin'): SyncResult {
+	const backend = resolveBackend(root)
+	if (backend !== 'orphan-ref') {
+		return {
+			backend,
+			ok: true,
+			action: 'no-op',
+			message: `the ${backend} backend is in use; sync only carries the shared orphan ref, so this is a no-op`,
+			localHead: null,
+			remoteHead: null,
+		}
+	}
+	if (!remoteConfigured(root, remote)) {
+		return {
+			backend,
+			ok: false,
+			action: 'no-remote',
+			message: `no remote '${remote}' is configured to reach`,
+			localHead: orphanHead(root),
+			remoteHead: null,
+		}
+	}
+	if (!remoteReachable(root, remote)) {
+		return {
+			backend,
+			ok: false,
+			action: 'unreachable',
+			message: `could not reach remote '${remote}'`,
+			localHead: orphanHead(root),
+			remoteHead: null,
+		}
+	}
+
+	const localHead = orphanHead(root)
+	const remoteHead = remoteOrphanHead(root, remote)
+
+	if (localHead === null && remoteHead === null) {
+		return {
+			backend,
+			ok: true,
+			action: 'both-empty',
+			message: 'neither side holds a store ref',
+			localHead: null,
+			remoteHead: null,
+		}
+	}
+	if (localHead !== null && remoteHead === null) {
+		gitPushOrphanRef(root, remote)
+		return {
+			backend,
+			ok: true,
+			action: 'push',
+			message: 'published the local-only store ref to the remote',
+			localHead,
+			remoteHead: localHead,
+		}
+	}
+	if (localHead === null && remoteHead !== null) {
+		gitFetchOrphanRef(root, remote)
+		return {
+			backend,
+			ok: true,
+			action: 'collect',
+			message: 'collected the remote store ref',
+			localHead: remoteHead,
+			remoteHead,
+		}
+	}
+	// Both present.
+	if (localHead === remoteHead) {
+		return {
+			backend,
+			ok: true,
+			action: 'agree',
+			message: 'the store refs already agree',
+			localHead,
+			remoteHead,
+		}
+	}
+
+	deleteSyncTmpRef(root)
+	try {
+		git(root, ['fetch', remote, `${ORPHAN_REF}:${SYNC_TMP_REF}`])
+		const remoteTip = git(root, ['rev-parse', SYNC_TMP_REF])
+		if (isAncestor(root, localHead as string, remoteTip)) {
+			// The local ref is an ancestor of the remote's — the remote is ahead; fast-forward local.
+			gitFetchOrphanRef(root, remote)
+			return {
+				backend,
+				ok: true,
+				action: 'collect',
+				message: 'fast-forwarded the local store ref to the remote',
+				localHead: remoteHead,
+				remoteHead,
+			}
+		}
+		if (isAncestor(root, remoteTip, localHead as string)) {
+			// The remote's ref is an ancestor of the local's — this clone is ahead; publish.
+			gitPushOrphanRef(root, remote)
+			return {
+				backend,
+				ok: true,
+				action: 'push',
+				message: 'published the ahead store ref to the remote',
+				localHead,
+				remoteHead: localHead,
+			}
+		}
+		return {
+			backend,
+			ok: false,
+			action: 'refuse',
+			message: `refused: the store refs have diverged (local ${localHead}, remote ${remoteHead}) — see the node README's "Getting out of a refusal"`,
+			localHead,
+			remoteHead,
+		}
+	} finally {
+		deleteSyncTmpRef(root)
+	}
+}
+
 /** Append a proposed RAW/parent-child/discovered-from edge through the write-time cycle guard;
  *  only appends when the guard accepts (or the caller overrides it). */
 export function appendEdgeChecked(
@@ -941,6 +1150,17 @@ export function renderCyclesToon(items: RepairItem[]): string {
 	const header = `cycles[${items.length}]{scc,members}:`
 	const rows = items.map((item, i) => `  scc-${i + 1},"${item.members.join(';')}"`)
 	return [header, ...rows].join('\n')
+}
+
+export function renderSyncToon(result: SyncResult): string {
+	return [
+		`backend: ${result.backend}`,
+		`action: ${result.action}`,
+		`ok: ${result.ok}`,
+		`message: ${result.message}`,
+		`localHead: ${result.localHead ?? ''}`,
+		`remoteHead: ${result.remoteHead ?? ''}`,
+	].join('\n')
 }
 
 export function renderOperationToon(id: string, check: OperationCheck): string {
@@ -1104,9 +1324,15 @@ export function main(argv: string[]): number {
 		)
 		return result.reason === 'not a git work-tree' ? 1 : 0
 	}
+	if (cmd === 'sync') {
+		const remote = flag(rest, '--remote') ?? 'origin'
+		const result = syncStore(root, remote)
+		process.stdout.write(`${format === 'json' ? JSON.stringify(result, null, 2) : renderSyncToon(result)}\n`)
+		return result.ok ? 0 : 1
+	}
 
 	process.stderr.write(
-		'mission-graph: usage: ready | cycles | operation --id <id> | append <node|edge|tombstone> ... | migrate\n',
+		'mission-graph: usage: ready | cycles | operation --id <id> | append <node|edge|tombstone> ... | migrate | sync [--remote <name>]\n',
 	)
 	return 1
 }

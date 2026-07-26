@@ -37,7 +37,9 @@ import {
 	renderCyclesToon,
 	renderFrontierToon,
 	renderOperationToon,
+	renderSyncToon,
 	resolveBackend,
+	syncStore,
 	type TombstoneEvent,
 	wouldCloseCycle,
 } from './mission-graph.mts'
@@ -868,6 +870,14 @@ function initBareRepo(): string {
 	return dir
 }
 
+/** A bare clone of `origin` — a realistic "shared remote" that already carries `origin`'s branch
+ *  history (so an ordinary `git clone` of it produces a clone with a normal tracked `main`). */
+function initBareFrom(origin: string): string {
+	const dir = mkdtempSync(join(tmpdir(), 'mission-graph-bare-'))
+	execFileSync('git', ['clone', '-q', '--bare', origin, dir])
+	return dir
+}
+
 /** A normal (non-bare) clone of `remotePath` — the "clone" side of every sync fixture. Plain `git
  *  clone` never fetches `refs/sdd/*` (outside the default `refs/heads/*` refspec), so the clone's
  *  orphan ref always starts absent — exactly the reach gap `sync` exists to close. */
@@ -883,6 +893,39 @@ function cloneRepo(remotePath: string): string {
  *  transfer form `syncStore` itself uses, so the fixture never needs a fetch refspec either. */
 function pushOrphanRef(fromRoot: string, remote: string): void {
 	execFileSync('git', ['push', '-q', remote, `${ORPHAN_REF}:${ORPHAN_REF}`], { cwd: fromRoot })
+}
+
+/** Fetches `remote`'s CURRENT orphan-ref tip into `root` under a throwaway local ref name (never
+ *  `ORPHAN_REF` itself), returning the commit hash — used to pull a remote's object into a clone's
+ *  object database before building a new commit whose parent is that object. */
+function fetchOrphanRefInto(root: string, remote: string, localRefName: string): string {
+	execFileSync('git', ['fetch', '-q', remote, `${ORPHAN_REF}:${localRefName}`], { cwd: root })
+	return execFileSync('git', ['rev-parse', localRefName], { cwd: root, encoding: 'utf8' }).trim()
+}
+
+/** Force-sets `root`'s local orphan ref to `hash` with NO compare-and-swap — a raw fixture-only
+ *  primitive (unlike the engine's own `commitOrphan`, which always CAS-checks) used to seed a
+ *  clone's local ref to a known value before building further commits on top of it with
+ *  `commitOrphan` (which then CAS-checks normally against that seeded value). */
+function forceSetOrphanRef(root: string, hash: string): void {
+	execFileSync('git', ['update-ref', ORPHAN_REF, hash], { cwd: root })
+}
+
+function gitConfigGetAll(root: string, key: string): string[] {
+	try {
+		return execFileSync('git', ['config', '--get-all', key], { cwd: root, encoding: 'utf8' })
+			.trim()
+			.split('\n')
+			.filter((l) => l.length > 0)
+	} catch {
+		return []
+	}
+}
+
+function remoteRefHash(remote: string, refName: string): string | null {
+	const out = execFileSync('git', ['ls-remote', remote, refName], { encoding: 'utf8' }).trim()
+	if (out === '') return null
+	return out.split('\t')[0]
 }
 
 // Writes the in-tree JSONL store directly, bypassing backend resolution — used to construct a
@@ -1150,4 +1193,358 @@ test('scenario: an explicit store override selects the named backend', () => {
 	} finally {
 		rmSync(dir, { recursive: true, force: true })
 	}
+})
+
+// ── sync — carrying the orphan ref to/from a shared remote (real bare "remotes" + real clones) ──
+
+test('scenario: sync reports both sides empty when neither holds a store ref', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	try {
+		clone = cloneRepo(bare)
+		assert.equal(resolveBackend(clone, {}), 'orphan-ref') // fresh clone, no in-tree store, no ref
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), null)
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.action, 'both-empty')
+		assert.match(result.message, /neither side/)
+		assert.equal(orphanHead(clone), null)
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), null)
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync publishes a local-only store ref to the remote', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	try {
+		clone = cloneRepo(bare)
+		appendOrphanEvent(clone, node('X'))
+		const localHead = orphanHead(clone)
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), null)
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.action, 'push')
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), localHead)
+		assert.deepEqual(
+			readOrphanLines(bare).map((l) => JSON.parse(l).id),
+			['X'],
+		)
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync publishes a store ref that is ahead of a present remote ref', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	try {
+		const builder = initGitRepo()
+		try {
+			commitOrphan(builder, [JSON.stringify(node('N1'))], null)
+			pushOrphanRef(builder, bare)
+		} finally {
+			rmSync(builder, { recursive: true, force: true })
+		}
+
+		clone = cloneRepo(bare)
+		const hashA = fetchOrphanRefInto(clone, bare, 'refs/heads/_import')
+		forceSetOrphanRef(clone, hashA)
+		const hashB = commitOrphan(clone, [JSON.stringify(node('N1')), JSON.stringify(node('N2'))], hashA)
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.action, 'push')
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), hashB)
+		assert.deepEqual(
+			readOrphanLines(bare)
+				.map((l) => JSON.parse(l).id)
+				.sort(),
+			['N1', 'N2'],
+		)
+		assert.equal(orphanHead(clone), hashB) // clone unchanged — it was already ahead
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync fast-forwards a store ref that is behind the remote', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	const builder = initGitRepo()
+	try {
+		const hashA = commitOrphan(builder, [JSON.stringify(node('N1'))], null)
+		pushOrphanRef(builder, bare)
+
+		clone = cloneRepo(bare)
+		fetchOrphanRefInto(clone, bare, 'refs/heads/_import')
+		forceSetOrphanRef(clone, hashA) // "a clone whose store ref holds one mission node"
+
+		const hashB = commitOrphan(builder, [JSON.stringify(node('N1')), JSON.stringify(node('N2'))], hashA)
+		pushOrphanRef(builder, bare) // "a remote whose store ref is a descendant of the clone's"
+
+		const refspecBefore = gitConfigGetAll(clone, 'remote.origin.fetch')
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.action, 'collect')
+		assert.equal(orphanHead(clone), hashB)
+		assert.deepEqual(
+			readOrphanLines(clone)
+				.map((l) => JSON.parse(l).id)
+				.sort(),
+			['N1', 'N2'],
+		)
+		assert.deepEqual(gitConfigGetAll(clone, 'remote.origin.fetch'), refspecBefore) // unchanged
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		rmSync(builder, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync collects the remote store ref when the clone holds none', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	const builder = initGitRepo()
+	try {
+		const hashA = commitOrphan(builder, [JSON.stringify(node('N1'))], null)
+		pushOrphanRef(builder, bare)
+
+		clone = cloneRepo(bare)
+		assert.equal(orphanHead(clone), null)
+		assert.equal(resolveBackend(clone, {}), 'orphan-ref')
+		const refspecBefore = gitConfigGetAll(clone, 'remote.origin.fetch')
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.action, 'collect')
+		assert.equal(orphanHead(clone), hashA)
+		assert.deepEqual(
+			readOrphanLines(clone).map((l) => JSON.parse(l).id),
+			['N1'],
+		)
+		assert.deepEqual(gitConfigGetAll(clone, 'remote.origin.fetch'), refspecBefore) // unchanged
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		rmSync(builder, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync reports agreement when both store refs are the same commit', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	const builder = initGitRepo()
+	try {
+		const hashA = commitOrphan(builder, [JSON.stringify(node('N1'))], null)
+		pushOrphanRef(builder, bare)
+
+		clone = cloneRepo(bare)
+		fetchOrphanRefInto(clone, bare, 'refs/heads/_import')
+		forceSetOrphanRef(clone, hashA)
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.action, 'agree')
+		assert.equal(orphanHead(clone), hashA)
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), hashA)
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		rmSync(builder, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync refuses a store ref both sides appended to', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	const builder = initGitRepo()
+	try {
+		const hashBase = commitOrphan(builder, [JSON.stringify(node('SHARED'))], null)
+		pushOrphanRef(builder, bare)
+
+		clone = cloneRepo(bare)
+		fetchOrphanRefInto(clone, bare, 'refs/heads/_import')
+		forceSetOrphanRef(clone, hashBase)
+		const hashClone = commitOrphan(
+			clone,
+			[JSON.stringify(node('SHARED')), JSON.stringify(node('CLONE_ONLY'))],
+			hashBase,
+		)
+
+		const hashRemote = commitOrphan(
+			builder,
+			[JSON.stringify(node('SHARED')), JSON.stringify(node('REMOTE_ONLY'))],
+			hashBase,
+		)
+		pushOrphanRef(builder, bare)
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, false)
+		assert.equal(result.action, 'refuse')
+		assert.match(result.message, new RegExp(hashClone))
+		assert.match(result.message, new RegExp(hashRemote))
+		assert.equal(orphanHead(clone), hashClone) // unchanged
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), hashRemote) // unchanged
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		rmSync(builder, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: reading the store never contacts the remote', () => {
+	const dir = initGitRepo()
+	try {
+		appendOrphanEvent(dir, node('A'))
+		const badRemote = join(tmpdir(), 'mission-graph-no-such-remote')
+		execFileSync('git', ['remote', 'add', 'origin', badRemote], { cwd: dir })
+
+		const events = readEvents(dir)
+		assert.equal(events.length, 1)
+		assert.equal((events[0] as NodeEvent).id, 'A') // read succeeded — the bad remote URL was never touched
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync fails loudly when the remote cannot be reached', () => {
+	const dir = initGitRepo()
+	try {
+		assert.equal(resolveBackend(dir, {}), 'orphan-ref') // fresh work-tree, no in-tree store, no ref
+		const badRemote = join(tmpdir(), 'mission-graph-no-such-remote-2')
+		execFileSync('git', ['remote', 'add', 'origin', badRemote], { cwd: dir })
+
+		const result = syncStore(dir, 'origin')
+		assert.equal(result.ok, false)
+		assert.equal(result.action, 'unreachable')
+		assert.ok(!/neither side/.test(result.message))
+
+		assert.equal(main(['sync', '--root', dir]), 1) // exits non-zero
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test("scenario: sync writes no push refspec to the clone's remote configuration", () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	try {
+		clone = cloneRepo(bare)
+		appendOrphanEvent(clone, node('X'))
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.deepEqual(gitConfigGetAll(clone, 'remote.origin.push'), []) // unset
+
+		// An ordinary push still sends the current branch (not silently swallowed).
+		writeFileSync(join(clone, 'extra.txt'), 'x\n')
+		execFileSync('git', ['add', 'extra.txt'], { cwd: clone })
+		execFileSync('git', ['commit', '-q', '-m', 'extra'], { cwd: clone })
+		const cloneMainBefore = execFileSync('git', ['rev-parse', 'main'], { cwd: clone, encoding: 'utf8' }).trim()
+		execFileSync('git', ['push', '-q', 'origin', 'main'], { cwd: clone })
+		const bareMainAfter = execFileSync('git', ['rev-parse', 'main'], { cwd: bare, encoding: 'utf8' }).trim()
+		assert.equal(bareMainAfter, cloneMainBefore)
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync makes no change under the in-tree backend', () => {
+	const origin = initGitRepo()
+	writeInTreeEventDirect(origin, node('A'))
+	execFileSync('git', ['add', '.agents/mission-graph/events.jsonl'], { cwd: origin })
+	execFileSync('git', ['commit', '-q', '-m', 'seed'], { cwd: origin })
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	try {
+		clone = cloneRepo(bare)
+		assert.equal(resolveBackend(clone, {}), 'in-tree')
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), null)
+
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.backend, 'in-tree')
+		assert.match(result.message, /in-tree/)
+		assert.equal(remoteRefHash(bare, ORPHAN_REF), null)
+		assert.equal(orphanHead(clone), null)
+		assert.equal(main(['sync', '--root', clone]), 0) // exits zero
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync no-ops under the in-tree backend even when the remote is unreachable', () => {
+	const dir = initGitRepo()
+	try {
+		writeInTreeEventDirect(dir, node('A'))
+		execFileSync('git', ['add', '.agents/mission-graph/events.jsonl'], { cwd: dir })
+		execFileSync('git', ['commit', '-q', '-m', 'seed'], { cwd: dir })
+		assert.equal(resolveBackend(dir, {}), 'in-tree')
+		const badRemote = join(tmpdir(), 'mission-graph-no-such-remote-3')
+		execFileSync('git', ['remote', 'add', 'origin', badRemote], { cwd: dir })
+
+		const result = syncStore(dir, 'origin')
+		assert.equal(result.ok, true)
+		assert.equal(result.backend, 'in-tree')
+		assert.ok(!/could not reach/.test(result.message))
+		assert.equal(main(['sync', '--root', dir]), 0) // exits zero
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: sync fails loudly when the clone has no remote configured', () => {
+	const dir = initGitRepo()
+	try {
+		assert.equal(resolveBackend(dir, {}), 'orphan-ref')
+		const localHeadBefore = orphanHead(dir)
+
+		const result = syncStore(dir, 'origin')
+		assert.equal(result.ok, false)
+		assert.equal(result.action, 'no-remote')
+		assert.equal(orphanHead(dir), localHeadBefore)
+		assert.equal(main(['sync', '--root', dir]), 1) // exits non-zero
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('renderSyncToon emits the reported fields', () => {
+	const toon = renderSyncToon({
+		backend: 'orphan-ref',
+		ok: true,
+		action: 'agree',
+		message: 'the store refs already agree',
+		localHead: 'abc',
+		remoteHead: 'abc',
+	})
+	assert.match(toon, /backend: orphan-ref/)
+	assert.match(toon, /action: agree/)
 })

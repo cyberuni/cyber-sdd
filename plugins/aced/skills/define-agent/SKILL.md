@@ -9,6 +9,56 @@ Create or improve an agent definition — a named role encoded in a single file.
 
 When the conductor dispatches this skill as a generic builder (`produced-by sdd:automaton`) for the ACED **impl-producer** role (implement mode, against a frozen `.feature`), it builds the **agent definition** to pass the frozen suite. The **verification is the frozen `.feature` itself** — its inline `@rubric` scenarios and `@trigger` `Examples`, authored by `aced-scenario-writer` at explore — so no separate eval suite is authored here; `eval.md` carries only the `subject` binding and run policy. As impl-producer it self-aligns to `sdd:ownership-governance` plus the resolved **builder-impl + architect-impl** bars (the ACED builder-impl is `aced:aced-builder-impl`). (Invoked standalone — no frozen `.feature` — only the agent definition is produced.) If the impl-judge reports scenario failures, load `aced-impl-producer` to run the diagnose-and-refine loop rather than re-deriving it here.
 
+## First: confirm an agent definition is the right artifact
+
+A skill can set `model`, `effort`, `allowed-tools`, `disallowed-tools`, `paths`, and can run itself in
+a subagent via `context: fork` + `agent:`. Wanting a specific model or effort level is **not** a
+reason to author an agent definition.
+
+Author an agent definition when the requirement is one of these, which no skill can express:
+
+| Requirement | Field |
+| --- | --- |
+| A closed tool allowlist — "only these, nothing else" | `tools` |
+| A permission mode for the whole run | `permissionMode` |
+| A turn ceiling | `maxTurns` |
+| Memory that survives across conversations | `memory` |
+| Agent-scoped MCP servers | `mcpServers` |
+| An isolated git worktree | `isolation: worktree` |
+
+Note that a skill's `allowed-tools` **pre-approves** and `disallowed-tools` **denies** — neither
+closes the set, which is why a real allowlist needs the agent definition.
+
+If none of the rows apply and the target is a stance, a voice, or a convention set rather than a
+worker, route to `define-skill` and stop here.
+
+## Keep the content in a skill when more than one caller needs it
+
+Content written into an agent body is reachable two ways only: spawn that agent, or read its file by
+path. Path-reading is brittle and breaks under plugin distribution.
+
+When the same content must serve both a spawned agent and an in-session load, write it as a skill and
+name it in the agent's `skills:` frontmatter. That field injects the skill's full content into the
+agent at startup — one body of text, two entry points, no duplication:
+
+```yaml
+---
+name: <agent-name>
+description: <when to delegate to this agent>
+model: opus
+tools: Read, Write, Edit, Grep, Glob
+skills:
+  - <shared-content-skill>
+---
+```
+
+`skills:` is a preload list, not an access list — it does not restrict what the agent may load later.
+A skill named there must stay model-invocable: `disable-model-invocation: true` blocks preloading.
+
+The inverse direction — `context: fork` on the skill — is for when the **skill** carries the task and
+the agent only supplies tools and system prompt. Do not fork a skill that is pure reference: it
+arrives as guidelines with no actionable prompt and returns nothing useful.
+
 ## Agent definition modes
 
 Present these three modes to the user and ask which fits their use case:
@@ -17,9 +67,16 @@ Present these three modes to the user and ask which fits their use case:
 |------|-------------|-----------------|
 | **Delegated** | Runs as a subagent in its own context; returns a result to the caller | Autonomous workers, fan-out tasks, long-running jobs where interruption isn't needed |
 | **Invokable (dual-mode)** | Can be spawned as a subagent AND loaded in-context via a thin command so the user can steer it, interrupt it, and operate at its level | Conductors, reviewers, personas the user wants to collaborate with interactively |
-| **In-context only** | Loaded via command only; not intended as a subagent | Short personas, voice/register adopters (e.g. a writing style), one-off role activations |
+| **In-context only** | Loaded via command only; not intended as a subagent | One-off role activations where no other caller needs the content |
 
-For **Invokable**, a companion command file is scaffolded alongside the agent definition. The command reads the agent file into the current context. The body is written once; both artifacts share it.
+**In-context only is rarely the right answer now.** If the content is a stance the user loads into a
+session — a voice, a register, a review standard — it is a skill, not an agent definition, and
+`define-skill` owns it. Pick this mode only when the file genuinely must stay an agent definition.
+
+For **Invokable**, a companion command file is scaffolded alongside the agent definition. Prefer
+putting the shared body in a skill (see above) and having both the command and the agent's `skills:`
+field name it. Falling back to a command that reads the agent file by path is acceptable only when no
+skill placement is available to the user.
 
 ## Determine placement
 

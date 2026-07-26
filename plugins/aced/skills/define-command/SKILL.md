@@ -78,7 +78,10 @@ Ask the user:
 2. **Purpose** — one sentence: what does invoking this command do?
 3. **Arguments** — does it accept free text after the command (`$ARGUMENTS`)? What does the caller
    pass?
-4. **Allowed tools** — which tools may this command's body use? (`allowed-tools:` frontmatter)
+4. **Pre-approved tools** — which tools should run without a permission prompt during this
+   command's turn? (`allowed-tools:` frontmatter). This grants; it does not fence. Every other tool
+   stays callable under normal permission settings. If the requirement is "this command must never
+   touch X", that is `disallowed-tools:`, not `allowed-tools:`.
 5. **Steps** — the actual workflow body, numbered
 
 If improving an existing file, read it first. Ask only about gaps or issues found.
@@ -90,7 +93,7 @@ If improving an existing file, read it first. Ask only about gaps or issues foun
 ```markdown
 ---
 description: <one sentence — shown in the `/` menu, keep it scannable, no token-budget pressure since it never enters trigger matching>
-allowed-tools: <tool list, comma-separated>
+allowed-tools: <tools to pre-approve, comma-separated — omit if nothing needs pre-approval>
 ---
 
 <Body — the workflow itself, written as if the user just typed `/name`.>

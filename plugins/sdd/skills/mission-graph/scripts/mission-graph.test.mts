@@ -5,7 +5,7 @@
 // graph — never the live store, which mutates on every retirement.
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { appendFileSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
@@ -25,6 +25,7 @@ import {
 	main,
 	migrate,
 	type NodeEvent,
+	ORPHAN_REF,
 	operationOf,
 	orphanHead,
 	proposeEdge,
@@ -859,6 +860,31 @@ function initGitRepo(): string {
 	return dir
 }
 
+/** A throwaway BARE repo — stands in for "the shared remote" in the sync fixtures below. Never
+ *  the project's real remote; always a temp dir cleaned up by the caller. */
+function initBareRepo(): string {
+	const dir = mkdtempSync(join(tmpdir(), 'mission-graph-bare-'))
+	execFileSync('git', ['init', '-q', '--bare', '-b', 'main'], { cwd: dir })
+	return dir
+}
+
+/** A normal (non-bare) clone of `remotePath` — the "clone" side of every sync fixture. Plain `git
+ *  clone` never fetches `refs/sdd/*` (outside the default `refs/heads/*` refspec), so the clone's
+ *  orphan ref always starts absent — exactly the reach gap `sync` exists to close. */
+function cloneRepo(remotePath: string): string {
+	const dir = mkdtempSync(join(tmpdir(), 'mission-graph-clone-'))
+	execFileSync('git', ['clone', '-q', remotePath, dir])
+	execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir })
+	execFileSync('git', ['config', 'user.name', 'Test'], { cwd: dir })
+	return dir
+}
+
+/** Pushes `fromRoot`'s current orphan ref to `remote`, naming the ref explicitly — exactly the
+ *  transfer form `syncStore` itself uses, so the fixture never needs a fetch refspec either. */
+function pushOrphanRef(fromRoot: string, remote: string): void {
+	execFileSync('git', ['push', '-q', remote, `${ORPHAN_REF}:${ORPHAN_REF}`], { cwd: fromRoot })
+}
+
 // Writes the in-tree JSONL store directly, bypassing backend resolution — used to construct a
 // "pre-migrate" fixture (an in-tree store, no orphan ref) without appendEvent's own backend
 // selection picking the orphan-ref backend on a fresh repo.
@@ -975,17 +1001,110 @@ test('scenario: migrate with no in-tree store to seed from creates no ref', () =
 	}
 })
 
+// ── migrate — retiring the in-tree seed (real git: tracked-and-committed seed files, so the
+//    staged deletion is actually observable via `git status`) ──
+
+/** Writes the in-tree store, `git add`s it, and commits it — a REAL tracked seed file, unlike
+ *  `writeInTreeEventDirect` (which deliberately leaves the file untracked for backend-resolution
+ *  fixtures). The retirement scenarios need a tracked file so the staged deletion is observable. */
+function commitInTreeSeed(dir: string, events: readonly NodeEvent[]): void {
+	const path = join(dir, '.agents', 'mission-graph', 'events.jsonl')
+	mkdirSync(join(dir, '.agents', 'mission-graph'), { recursive: true })
+	writeFileSync(path, `${events.map((e) => JSON.stringify(e)).join('\n')}\n`)
+	execFileSync('git', ['add', '.agents/mission-graph/events.jsonl'], { cwd: dir })
+	execFileSync('git', ['commit', '-q', '-m', 'seed'], { cwd: dir })
+}
+
+function gitStatusPorcelain(dir: string): string {
+	return execFileSync('git', ['status', '--porcelain'], { cwd: dir, encoding: 'utf8' }).trim()
+}
+
+test('scenario: migrate retires the in-tree seed once the orphan ref holds its events', () => {
+	const dir = initGitRepo()
+	try {
+		commitInTreeSeed(dir, [node('A'), node('B')])
+		assert.equal(orphanHead(dir), null) // no orphan ref yet
+
+		const result = migrate(dir)
+		assert.equal(result.migrated, true)
+		assert.equal(result.retired, true)
+		assert.match(result.retiredReason, /commit/i)
+
+		assert.equal(existsSync(join(dir, '.agents', 'mission-graph', 'events.jsonl')), false)
+		const status = gitStatusPorcelain(dir)
+		assert.match(status, /^D {2}\.agents\/mission-graph\/events\.jsonl$/m) // deletion is staged, not committed
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: migrate keeps the in-tree seed when the orphan ref does not hold its events', () => {
+	const dir = initGitRepo()
+	try {
+		commitInTreeSeed(dir, [node('A'), node('B')])
+		appendOrphanEvent(dir, node('A')) // orphan ref exists but is missing B's line
+
+		const result = migrate(dir)
+		assert.equal(result.retired, false)
+		assert.match(result.retiredReason, /does not carry/)
+		assert.equal(existsSync(join(dir, '.agents', 'mission-graph', 'events.jsonl')), true)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: migrate retires a seed an earlier migration left behind', () => {
+	const dir = initGitRepo()
+	try {
+		commitInTreeSeed(dir, [node('A')])
+		appendOrphanEvent(dir, node('A')) // simulates a pre-fix migrate: ref seeded, seed left tracked
+		const refBefore = orphanHead(dir)
+
+		const result = migrate(dir)
+		assert.equal(result.migrated, false) // the ref already existed; migrate did not re-seed it
+		assert.equal(result.retired, true)
+		assert.equal(orphanHead(dir), refBefore) // the orphan ref itself is untouched
+		assert.equal(existsSync(join(dir, '.agents', 'mission-graph', 'events.jsonl')), false)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('scenario: a fresh clone of a migrated project resolves to the orphan-ref backend', () => {
+	const origin = initGitRepo()
+	const bare = initBareRepo()
+	let clone: string | undefined
+	try {
+		commitInTreeSeed(origin, [node('A')])
+		migrate(origin) // seeds the ref, stages the seed's deletion
+		execFileSync('git', ['commit', '-q', '-m', 'retire seed'], { cwd: origin }) // land the staged deletion
+		execFileSync('git', ['push', '-q', bare, 'main'], { cwd: origin })
+		pushOrphanRef(origin, bare)
+
+		clone = cloneRepo(bare)
+		assert.equal(existsSync(join(clone, '.agents', 'mission-graph', 'events.jsonl')), false) // seed never arrives
+		assert.equal(resolveBackend(clone, {}), 'orphan-ref') // no leftover file to shadow it
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
 // Precedence guard for "an existing orphan ref selects the orphan-ref backend": pins that the ref
 // wins over a LEFTOVER in-tree file — the exact steady state after migrate(), which intentionally
 // never deletes the in-tree file. Without this, a resolveBackend precedence regression that silently
 // reverted every post-migrate repo to the stale in-tree file would pass the whole suite (impl-judge
 // coexistence-gap, #190).
+// migrate() now retires a fully-carried seed as its final act (see the new migrate scenarios
+// below), so a "leftover" file can no longer be built by simply calling migrate() — this
+// coexistence state is constructed directly instead, sidestepping the retirement guard entirely.
 test('resolveBackend: an existing orphan ref wins over a leftover in-tree file (post-migrate coexistence)', () => {
 	const dir = initGitRepo()
 	try {
-		writeInTreeEventDirect(dir, node('A'))
-		migrate(dir) // seeds the ref; leaves the in-tree file in place
-		assert.notEqual(orphanHead(dir), null) // ref now exists
+		appendOrphanEvent(dir, node('A')) // seed the ref directly
+		writeInTreeEventDirect(dir, node('A')) // a leftover in-tree file coexisting with the ref
+		assert.notEqual(orphanHead(dir), null) // ref exists
 		assert.equal(resolveBackend(dir, {}), 'orphan-ref') // ref present + in-tree file present -> ref wins
 	} finally {
 		rmSync(dir, { recursive: true, force: true })

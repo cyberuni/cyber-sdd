@@ -19,7 +19,7 @@
 // node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 // ── Schema (v:1) ──
@@ -808,22 +808,94 @@ export interface MigrateResult {
 	migrated: boolean
 	reason: string
 	count: number
+	/** Whether the in-tree seed was retired (deleted + staged) THIS run. */
+	retired: boolean
+	retiredReason: string
+}
+
+function relativeStorePath(): string {
+	return STORE_RELATIVE_PATH.join('/')
+}
+
+/** Every raw seed line must already be present among the orphan ref's lines — the guard that
+ *  keeps retirement from ever being the data loss the migration exists to prevent. An empty seed
+ *  vacuously counts as fully carried (nothing to lose). */
+function seedFullyCarried(root: string): boolean {
+	const seedLines = readInTreeLines(root)
+	if (seedLines.length === 0) return true
+	const orphanLines = new Set(readOrphanLines(root))
+	return seedLines.every((line) => orphanLines.has(line))
+}
+
+/**
+ * retireSeed — migrate's final, guarded act: once (and only once) the orphan ref already carries
+ * every line of the in-tree seed, deletes the seed file and stages the deletion (never commits
+ * it — landing that commit is the caller's next step, and is what actually makes the retirement
+ * reach other clones). Refuses when the ref does not yet carry every seed line. Idempotent and
+ * safe to re-run: a pre-fix project whose seed was left behind by an earlier migrate is repaired
+ * simply by calling migrate again.
+ */
+function retireSeed(root: string): { retired: boolean; retiredReason: string } {
+	const path = storePath(root)
+	if (!existsSync(path)) {
+		return { retired: false, retiredReason: 'no in-tree seed remains to retire' }
+	}
+	if (!seedFullyCarried(root)) {
+		return { retired: false, retiredReason: 'will not retire a seed the orphan ref does not carry' }
+	}
+	rmSync(path)
+	try {
+		git(root, ['add', '--', relativeStorePath()])
+	} catch {
+		// The seed was never tracked by git (e.g. a hand-built test fixture) — nothing to stage;
+		// the file is still deleted from the working tree, which is all that case can promise.
+	}
+	return { retired: true, retiredReason: 'seed deleted; the staged deletion must be committed to reach other clones' }
 }
 
 /**
  * migrate — one-time, idempotent: seeds the orphan ref from the existing in-tree store, copying
- * its raw lines verbatim (never parsed and re-serialized, so exact bytes/order are preserved).
- * A no-op (never throws) when there is nothing to seed from, or the ref is already seeded.
+ * its raw lines verbatim (never parsed and re-serialized, so exact bytes/order are preserved),
+ * then retires the seed (see `retireSeed`) as its final, guarded act — a seed left tracked would
+ * travel to every clone and shadow the (never-fetched) ref there. A no-op on the seeding half
+ * (never throws) when there is nothing to seed from, or the ref is already seeded; the retirement
+ * half still runs either way, so a pre-fix project (ref seeded, seed left behind) is repaired by
+ * simply re-running migrate.
  */
 export function migrate(root: string): MigrateResult {
-	if (!isGitWorkTree(root)) return { migrated: false, reason: 'not a git work-tree', count: 0 }
-	if (orphanRefExists(root)) {
-		return { migrated: false, reason: 'orphan ref already seeded', count: readOrphanLines(root).length }
+	if (!isGitWorkTree(root)) {
+		return {
+			migrated: false,
+			reason: 'not a git work-tree',
+			count: 0,
+			retired: false,
+			retiredReason: 'not a git work-tree',
+		}
 	}
-	const rawLines = readInTreeLines(root)
-	if (rawLines.length === 0) return { migrated: false, reason: 'no in-tree store to seed from', count: 0 }
-	commitOrphan(root, rawLines, null)
-	return { migrated: true, reason: 'seeded orphan ref from in-tree store', count: rawLines.length }
+	let migrated = false
+	let reason: string
+	let count: number
+	if (orphanRefExists(root)) {
+		reason = 'orphan ref already seeded'
+		count = readOrphanLines(root).length
+	} else {
+		const rawLines = readInTreeLines(root)
+		if (rawLines.length === 0) {
+			return {
+				migrated: false,
+				reason: 'no in-tree store to seed from',
+				count: 0,
+				retired: false,
+				retiredReason: 'no in-tree seed remains to retire',
+			}
+		}
+		commitOrphan(root, rawLines, null)
+		migrated = true
+		reason = 'seeded orphan ref from in-tree store'
+		count = rawLines.length
+	}
+	const { retired, retiredReason } = retireSeed(root)
+	return { migrated, reason, count, retired, retiredReason }
 }
 
 /** Append a proposed RAW/parent-child/discovered-from edge through the write-time cycle guard;
@@ -1027,7 +1099,7 @@ export function main(argv: string[]): number {
 			`${
 				format === 'json'
 					? JSON.stringify(result, null, 2)
-					: `migrated: ${result.migrated}\nreason: ${result.reason}\ncount: ${result.count}`
+					: `migrated: ${result.migrated}\nreason: ${result.reason}\ncount: ${result.count}\nretired: ${result.retired}\nretiredReason: ${result.retiredReason}`
 			}\n`,
 		)
 		return result.reason === 'not a git work-tree' ? 1 : 0

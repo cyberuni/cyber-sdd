@@ -922,6 +922,14 @@ function gitConfigGetAll(root: string, key: string): string[] {
 	}
 }
 
+/** Every ref this repository holds, by full name — used to assert that a call created none. */
+function listRefs(root: string): string[] {
+	return execFileSync('git', ['for-each-ref', '--format=%(refname)'], { cwd: root, encoding: 'utf8' })
+		.trim()
+		.split('\n')
+		.filter((l) => l.length > 0)
+}
+
 function remoteRefHash(remote: string, refName: string): string | null {
 	const out = execFileSync('git', ['ls-remote', remote, refName], { encoding: 'utf8' }).trim()
 	if (out === '') return null
@@ -1406,6 +1414,51 @@ test('scenario: sync refuses a store ref both sides appended to', () => {
 		assert.match(result.message, new RegExp(hashRemote))
 		assert.equal(orphanHead(clone), hashClone) // unchanged
 		assert.equal(remoteRefHash(bare, ORPHAN_REF), hashRemote) // unchanged
+	} finally {
+		rmSync(origin, { recursive: true, force: true })
+		rmSync(bare, { recursive: true, force: true })
+		rmSync(builder, { recursive: true, force: true })
+		if (clone) rmSync(clone, { recursive: true, force: true })
+	}
+})
+
+// The divergence check needs the remote's tip OBJECT locally to answer the ancestry question; the
+// implementation gets it with a destination-less fetch, which writes no ref at all.
+//
+// HONEST SCOPE — this test does NOT discriminate against the earlier scratch-ref cut. That cut
+// fetched into a fixed ref name and deleted it in a `finally`, so on a run that completes this path
+// its end state is identical and this assertion passes against it too (verified by ablation, not
+// assumed). Its real value is forward-facing: it fails any FUTURE cut that creates a scratch ref
+// and does not remove it. The properties that actually motivated dropping the scratch ref —
+// survival of a crash mid-path, and two concurrent syncs sharing one fixed ref name — are not
+// reachable from a single-process end-state assertion, and are left unbound here deliberately.
+test('sync leaves no scratch refs behind on the divergence path', () => {
+	const origin = initGitRepo()
+	const bare = initBareFrom(origin)
+	let clone: string | undefined
+	const builder = initGitRepo()
+	try {
+		const hashBase = commitOrphan(builder, [JSON.stringify(node('SHARED'))], null)
+		pushOrphanRef(builder, bare)
+
+		clone = cloneRepo(bare)
+		fetchOrphanRefInto(clone, bare, 'refs/heads/_import')
+		forceSetOrphanRef(clone, hashBase)
+		commitOrphan(clone, [JSON.stringify(node('SHARED')), JSON.stringify(node('CLONE_ONLY'))], hashBase)
+
+		commitOrphan(builder, [JSON.stringify(node('SHARED')), JSON.stringify(node('REMOTE_ONLY'))], hashBase)
+		pushOrphanRef(builder, bare)
+
+		const before = listRefs(clone)
+		const result = syncStore(clone, 'origin')
+		assert.equal(result.action, 'refuse') // the path under test was actually taken
+
+		const created = listRefs(clone).filter((r) => !before.includes(r))
+		assert.deepEqual(created, [], `sync created refs it should not have: ${created.join(', ')}`)
+		assert.deepEqual(
+			listRefs(clone).filter((r) => r.startsWith('refs/mission-graph-sync/')),
+			[],
+		)
 	} finally {
 		rmSync(origin, { recursive: true, force: true })
 		rmSync(bare, { recursive: true, force: true })

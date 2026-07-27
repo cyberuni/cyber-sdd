@@ -905,8 +905,6 @@ export function migrate(root: string): MigrateResult {
 // none — and is fast-forward only in both directions: a diverged pair is refused, never merged.
 // See the node README's sync table for the exhaustive 7-case partition this function realizes.
 
-const SYNC_TMP_REF = 'refs/mission-graph-sync/remote-tmp'
-
 export interface SyncResult {
 	backend: StoreBackend
 	ok: boolean
@@ -958,14 +956,6 @@ function gitFetchOrphanRef(root: string, remote: string): void {
 
 function gitPushOrphanRef(root: string, remote: string): void {
 	git(root, ['push', remote, refTransferSpec(ORPHAN_REF)])
-}
-
-function deleteSyncTmpRef(root: string): void {
-	try {
-		git(root, ['update-ref', '-d', SYNC_TMP_REF])
-	} catch {
-		// Nothing to delete — fine.
-	}
 }
 
 function isAncestor(root: string, ancestor: string, descendant: string): boolean {
@@ -1066,44 +1056,44 @@ export function syncStore(root: string, remote = 'origin'): SyncResult {
 		}
 	}
 
-	deleteSyncTmpRef(root)
-	try {
-		git(root, ['fetch', remote, `${ORPHAN_REF}:${SYNC_TMP_REF}`])
-		const remoteTip = git(root, ['rev-parse', SYNC_TMP_REF])
-		if (isAncestor(root, localHead as string, remoteTip)) {
-			// The local ref is an ancestor of the remote's — the remote is ahead; fast-forward local.
-			gitFetchOrphanRef(root, remote)
-			return {
-				backend,
-				ok: true,
-				action: 'collect',
-				message: 'fast-forwarded the local store ref to the remote',
-				localHead: remoteHead,
-				remoteHead,
-			}
-		}
-		if (isAncestor(root, remoteTip, localHead as string)) {
-			// The remote's ref is an ancestor of the local's — this clone is ahead; publish.
-			gitPushOrphanRef(root, remote)
-			return {
-				backend,
-				ok: true,
-				action: 'push',
-				message: 'published the ahead store ref to the remote',
-				localHead,
-				remoteHead: localHead,
-			}
-		}
+	// Both sides hold a ref and they differ, so which way (if either) this fast-forwards is an
+	// ancestry question — and answering it needs the remote's tip OBJECT in this clone's object
+	// database. A DESTINATION-LESS fetch brings exactly that and writes no ref: nothing to clean up
+	// afterwards, nothing left behind by a crashed run, and no fixed ref name for a concurrent sync
+	// to collide on. The tip HASH is already in hand from `ls-remote` above, so nothing reads
+	// FETCH_HEAD either. Still the plain, non-forced refspec: it names one ref and cannot overwrite.
+	git(root, ['fetch', remote, ORPHAN_REF])
+	if (isAncestor(root, localHead as string, remoteHead as string)) {
+		// The local ref is an ancestor of the remote's — the remote is ahead; fast-forward local.
+		gitFetchOrphanRef(root, remote)
 		return {
 			backend,
-			ok: false,
-			action: 'refuse',
-			message: `refused: the store refs have diverged (local ${localHead}, remote ${remoteHead}) — see the node README's "Getting out of a refusal"`,
-			localHead,
+			ok: true,
+			action: 'collect',
+			message: 'fast-forwarded the local store ref to the remote',
+			localHead: remoteHead,
 			remoteHead,
 		}
-	} finally {
-		deleteSyncTmpRef(root)
+	}
+	if (isAncestor(root, remoteHead as string, localHead as string)) {
+		// The remote's ref is an ancestor of the local's — this clone is ahead; publish.
+		gitPushOrphanRef(root, remote)
+		return {
+			backend,
+			ok: true,
+			action: 'push',
+			message: 'published the ahead store ref to the remote',
+			localHead,
+			remoteHead: localHead,
+		}
+	}
+	return {
+		backend,
+		ok: false,
+		action: 'refuse',
+		message: `refused: the store refs have diverged (local ${localHead}, remote ${remoteHead}) — see the node README's "Getting out of a refusal"`,
+		localHead,
+		remoteHead,
 	}
 }
 

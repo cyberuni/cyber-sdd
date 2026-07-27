@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/sdd
 approval:
   spec:
@@ -14,10 +14,10 @@ approval:
     verdict: approve
     by: unional
     why:
-      floor: none — freeze preserved and proven by structural diff (modified 0, removed 0, addOnly true) rather than asserted; the one .feature hit was a comment, so nothing narrowed and no Clearance was owed
-      blast: medium — the control-flow-graph (CFG) rename across four shipped governance skills, one gate-script comment, six corpus documents, and the mandated section heading `## Logic` -> `## Control Flow`; terminology only, no behavior added and nothing narrowed
-      novelty: low — no new autonomy floor; the name was settled upstream and both scope rulings (the heading renames; all decision-graph sites are in scope) were taken from the owner before any edit landed
-      confidence: high — a cold judge re-derived its own oracle across six axes (completeness, collateral, prose coherence, first-use convention, glossary, semantic drift) and returned substance PASS on all six, failing only prose rewrap, which was remediated and recorded as a judge-iteration correction. Discovery ran twice by independent methods; the whitespace-normalized pass found two occurrences wrapped across a line break that every single-line sweep missed, including the one behind the originating site table — the failure mode this CR exists to prevent. The heading rename was cleared against the gate scripts before it landed (check-spec-state keys only on `## Use Cases`, check-suite only on `## Scenario map`). Residual in-scope hits zero. Root verify 34/34
+      floor: none — the frozen suite was never touched by the implementation: only the engine and its test file changed across all three delivery commits, verified by diffing the whole range against the gate commit rather than asserted
+      blast: medium — two new behaviors in one engine (`plugins/sdd/skills/mission-graph/scripts/mission-graph.mts`): a `sync` verb carrying the orphan ref to and from a remote, and guarded seed retirement in `migrate`. Nothing narrowed; no other package touched. The defect it closes is real but latent — the store reached only worktrees of a single clone, which the current fleet topology happens to satisfy, so this bites on the first second machine rather than today
+      novelty: low — no new autonomy floor and no new route; every design fork was settled before the spec froze, and the one finding raised at the impl gate was fixed in-CR at owner election rather than deferred
+      confidence: high — two cold impl-judge rounds, both IMPLEMENTATION_PASS with no blocker. All 17 frozen scenarios re-derived independently from their Given/When/Then per ADR-0016, never read off the producer's assertions. The checks were proven non-vacuous by mutation, not by inspection: swapping the two `isAncestor` conditions broke exactly the fast-forward and publish-ahead scenarios and nothing else (so the 7 partition cases are 7 distinct branches, not collapsed), and reversing the precheck order broke exactly the in-tree-no-op-when-unreachable scenario. All four git invariants were rebuilt in the judge's own throwaway repos rather than taken from the record. Zero `git config` writes grep-verified file-wide. Root `pnpm verify` 34/34 and the 111-test suite were each reproduced by both the conductor and the judge. Residuals, all filed as followups and none blocking: two of three "both refs differ" tests do not discriminate the object-delivery mechanism (local-path clones hardlink the whole object store, and `isAncestor` catches to false, masking it); the fetched-but-unreferenced object is prune-eligible where the removed scratch ref was a GC root; and `check-suite.mts` still cannot run here, so coverage remains judged, never linted
 ---
 
 # Spec-Driven Development (SDD)

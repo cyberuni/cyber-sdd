@@ -3,7 +3,7 @@ title: SDD Workflow Overview
 description: The players in the Spec-Driven Development workflow — the gateway, the in-session conductor, the headless automaton, the five plugin delegate roles, and the loops — and how they relate.
 ---
 
-This is the **machinery** of Spec-Driven Development: who does what, and how control moves between them. For *why* SDD exists and what a spec is, see [Spec-Driven Development](/concepts/spec-driven-development/); for the actor theory (Oracle, Architect, Builder, Strategist), see [The Four Actors](/motive-model/four-actors/). This page maps the moving parts; [Control Flow](/sdd/control-flow/) traces a run end to end.
+This is the **machinery** of Spec-Driven Development: who does what, and how control moves between them. For *why* SDD exists and what a spec is, see [Spec-Driven Development](/sdd/spec-driven-development/); for the actor theory (Oracle, Architect, Builder, Strategist), see [The Four Actors](/motive-model/four-actors/). This page maps the moving parts; [Control Flow](/sdd/control-flow/) traces a run end to end.
 
 ## There is no separate Operator subagent
 

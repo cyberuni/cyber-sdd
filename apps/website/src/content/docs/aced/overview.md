@@ -3,7 +3,7 @@ title: ACED Overview
 description: Agent Config Evaluation & Development — spec-driven evaluation for skills, AGENTS.md sections, subagent definitions, and commands.
 ---
 
-**ACED** (Agent Config Evaluation & Development) is a plugin that applies spec-driven evaluation to [agent configuration](/concepts/agent-configuration/) — the skills, `AGENTS.md` sections, subagent definitions, and commands that shape how AI agents behave.
+**ACED** (Agent Config Evaluation & Development) is a plugin that applies spec-driven evaluation to [agent configuration](/agent-configuration/overview/) — the skills, `AGENTS.md` sections, subagent definitions, and commands that shape how AI agents behave.
 
 ## The problem
 
@@ -106,6 +106,6 @@ npx skills add cyberuni/cyberplace --plugin aced
 
 ## Related
 
-- [Agent Configuration](/concepts/agent-configuration/) — what agent configuration is and why it needs evaluation
+- [Agent Configuration](/agent-configuration/overview/) — what agent configuration is and why it needs evaluation
 - [SDD Plugin](/sdd/overview/) — spec-driven development; ACED is SDD applied to the agent configuration layer
 - [Skill Design governance](/governances/skill-design/) — authoring rules for `SKILL.md` files

@@ -70,8 +70,8 @@ catalog's **input** — most near-misses are decided by them.
 | Defect | Fires on | Near-miss that must not fire |
 |---|---|---|
 | **Unresolvable presupposition** | a passage treats X as **given** — presupposing it rather than asserting it — when nothing the reader's path traverses before that passage establishes X | a presupposition licensed by a **declared prerequisite**, or by an earlier passage **on that same path**. Content elsewhere in the document licenses nothing if the path does not reach it |
-| **Bare cross-reference** | a pointer stands where the reader needs the content **now** — they cannot complete the decision the passage is asking of them without leaving | a pointer to depth genuinely outside the document's scope, carrying a forwarding address. The discriminator is whether the reader can proceed without following it |
-| **Undefined term at first use** | a load-bearing term is relied on before it is glossed, linked, or shown by example | a term the spec's **declared audience** owns. The audience table names a role plus a goal, and the role decides — not the judge's own familiarity |
+| **Bare cross-reference** | a pointer stands where the reader needs the content **now** — they cannot complete the decision the passage is asking of them without leaving | a pointer to depth genuinely outside the document's scope, carrying a forwarding address. The discriminator is whether the reader can **proceed to the next step of the declared path** without following it — the passage's own local ask is not the test, since a passage may legitimately ask for something the path does not need yet |
+| **Undefined term at first use** | a **load-bearing** term — one the reader must evaluate a claim about, not merely read — is relied on before it is glossed, linked, or shown by example **anywhere the declared path reaches at or before the passage that relies on it** | a term the spec's **declared audience** owns. The audience table names a role plus a goal, and the role decides — not the judge's own familiarity. Also: a term the document names in passing and glosses **later on the same path**, where no decision before the gloss depends on it; and a term shown by a **co-located contrasting pair the reader can generalize from** — but an example discharges a term only when the reader can name the term's *class* from it, never when it merely instantiates the term without marking it as one |
 
 **Citation.** Quote the passage, **name the path**, and list what that path traverses before it.
 These findings are *negatives* — they claim something is absent — so the absence must be demonstrated
@@ -96,7 +96,7 @@ confirm the two locations differ before reporting.
 
 | Defect | Fires on | Near-miss that must not fire |
 |---|---|---|
-| **Declaration mismatch** | prose relies on a sibling document the spec declares **not** a prerequisite, or assumes knowledge the audience table does not grant | prose that **restates that sibling's claim in full**. The sibling is referenced but not relied on, so the reader is not sent anywhere |
+| **Declaration mismatch** | prose relies on a sibling document the spec declares **not** a prerequisite, or assumes knowledge the audience table does not grant | prose that **restates that sibling's claim in full**. The sibling is referenced but not relied on, so the reader is not sent anywhere. Also: a passage a **coverage row requires**, where that row and the prerequisite line pull in opposite directions — report that as an architect observation against the **spec's** internal tension, never as a defect in the document |
 | **Claim without mechanism** | in a document whose declared type is **explanation**, a chain of assertions that never supplies the causal step — the reader is told that X, and that Y follows, but never why | a definition, a table row, a summary recap — or **any passage in a tutorial, how-to, or reference document**. The declared doc type gates this entry entirely |
 | **Orphan claim** | a claim the document lands and then never uses: nothing later depends on it, connects to it, or pays it off | a claim that **is** a payoff — the north star, or a claim serving a coverage row the spec requires for its own sake |
 
@@ -162,20 +162,57 @@ judge reads an entry's standing beside the entry itself:
 
 | Entry | State | False-positive rate | Corpus run |
 |---|---|---|---|
-| A1 unresolvable presupposition | advisory | not measured | — |
-| A2 bare cross-reference | advisory | not measured | — |
-| A3 undefined term at first use | advisory | not measured | — |
-| B1 re-presented as new | advisory | not measured | — |
-| B2 term drift | advisory | not measured | — |
-| B3 contradiction | advisory | not measured | — |
-| C1 declaration mismatch | advisory | not measured | — |
-| C2 claim without mechanism | advisory | not measured | — |
-| C3 orphan claim | advisory | not measured | — |
+| A1 unresolvable presupposition | advisory | not measured | run 1 — fired twice on the weak document, never on the accepted one |
+| A2 bare cross-reference | advisory | not measured | run 1 — near-missed correctly on the accepted document; one borderline firing exposed an ambiguous discriminator, since reworded |
+| A3 undefined term at first use | advisory | not measured | run 1 — **fired twice on the accepted document**; both wordings reworded |
+| B1 re-presented as new | advisory | not measured | run 1 — **untested: fired on neither document** |
+| B2 term drift | advisory | not measured | run 1 — **untested: fired on neither document**, though the accepted document's own drift defect was repaired before acceptance |
+| B3 contradiction | advisory | not measured | run 1 — fired twice on the weak document, near-missed correctly on the accepted one; best discrimination of the nine |
+| C1 declaration mismatch | advisory | not measured | run 1 — fired once on the accepted document (precedence-resolved); **uncitable** on the weak document |
+| C2 claim without mechanism | advisory | not measured | run 1 — **untested** on the accepted document; **uncitable** on the weak one |
+| C3 orphan claim | advisory | not measured | run 1 — **untested** on the accepted document; **uncitable** on the weak one |
+
+`untested` and `uncitable` appear in the Corpus-run column rather than the State column because this
+table's State admits only `advisory` and `calibrated`. That gap is already filed as a follow-up
+against `.agents/specs/quill/`, and run 1 is its first empirical instance: four entries ran and never
+fired, which the prose calls untested and the schema cannot represent.
 
 **Every entry is currently advisory, and the whole catalog is therefore non-blocking.** That is the
 designed starting state, not an outage: the entries are reasoned rather than measured, and reasoning
 is exactly what calibration exists to check. A row moves to `calibrated` only with a rate and a named
 corpus beside it — never on the strength of having been read and found sensible.
+
+#### Run 1 — under-powered, no row moved
+
+A first calibration ran the full blind-then-scored pass over a two-document corpus: known-good
+`apps/website/src/content/docs/agent-configuration/instruction-target.md`, known-weak
+`apps/website/src/content/docs/governances/skill-repo-structure.md`. **No row moved to `calibrated`,
+and the run is recorded as a data point rather than a measurement** — three findings say why, and
+each is a property of the corpus, not of the catalog:
+
+1. **Four of nine entries fired on neither document** (B1, B2, C2, C3). By this section's own rule
+   they are untested, not clean. B2 is the sharpest case: the known-good document *had* a real
+   term-drift defect, repaired before acceptance, so the entry's target existed in this corpus and
+   the corpus can no longer see it.
+2. **One accepted document yields a count, not a rate.** "A3 fired twice" has no denominator, and
+   reporting it as a false-positive rate would be exactly the asserted-rather-than-measured number
+   that corrupts this table permanently.
+3. **An unspecified weak document disables group C, and not neutrally.** C1's and C3's near-misses
+   are the *exculpatory* halves of those entries — full restatement, and the north-star/coverage-row
+   rescue. Removing the spec removes only the rescue, so group C measured against an unspecified
+   document is systematically biased **toward** firing. Those cells are `uncitable`, which is a
+   different result from a miss.
+
+**What the run did earn** — three wordings, fixed above under step 5 rather than left as advice: A3's
+fires-on now requires the reliance to be evaluative and admits a same-path deferred gloss; A3's
+near-miss admits a co-located contrasting pair while denying a bare instantiation; A2's discriminator
+is bound to *the next step of the declared path* rather than the passage's local ask; and C1's
+near-miss routes a coverage-row-versus-prerequisite collision to an architect observation against the
+spec instead of firing on the document.
+
+**What a real calibration needs:** five or six accepted documents **each with a spec node**, plus two
+or three weak ones with specs. A corpus drawn only from specified documents is what keeps group C
+citable. Blind-reader dispatches parallelize, so the cost is breadth, not serial time.
 
 #### Running a calibration
 

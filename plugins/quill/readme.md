@@ -48,7 +48,7 @@ Quill fills these SDD production-chain roles for its domain types:
 | spec-producer | `quill-spec-writer` |
 | impl-producer | `quill-doc-writer` |
 | impl-judge | `quill-judge` |
-| spec-judge | `null` — degenerates to static doc criteria run by `spec-gate` itself, no judge agent |
+| spec-judge | `null` — degenerates to the SDD default, the cold `sdd-spec-judge`, which `spec-gate` spawns after resolving the slot |
 | solution-producer | `null` — uses the SDD default (`solution-producer-governance`, run inline by the conductor) |
 
 Register by running `init-quill` in a project that uses the `sdd` plugin.

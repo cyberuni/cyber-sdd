@@ -22,8 +22,9 @@ carries no `.feature`. Its criteria are exercised through the specs it grades, n
 of its own.
 
 **Two faces read it.** `spec-writer` (`quill-spec-writer`) reads it forward while authoring;
-`spec-gate` reads it backward while grading, since Quill declares `spec-judge: null` and the gate
-enforces these criteria statically rather than dispatching a judge agent.
+the spec gate reads it backward while grading. Quill leaves `spec-judge` unbound, so that slot
+degenerates to the SDD default cold judge (`sdd-spec-judge`) — an unfilled slot resolves to the SDD
+default, never to no judge at all.
 
 **Non-goals** — the four static checks a scenario must be verifiable by (that is
 [`../../design/doc-eval-model.md`](../../design/doc-eval-model.md)); the `.feature` form

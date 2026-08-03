@@ -7,7 +7,7 @@ metadata:
 
 # quill-spec-writer
 
-The **spec-producer** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). It *acts* — writes the `spec.md` body and the `.feature` itself (it does not merely advise). Invoked by the SDD conductor. Quill declares `spec-judge: null`, so `spec-gate` enforces these criteria statically rather than dispatching a judge agent.
+The **spec-producer** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). It *acts* — writes the `spec.md` body and the `.feature` itself (it does not merely advise). Invoked by the SDD conductor. Quill leaves `spec-judge` unbound, so that slot degenerates to the SDD default cold judge (`sdd-spec-judge`) — an unfilled slot resolves to the SDD default, never to no judge at all.
 
 **Load the spec-producer bars — the whole spec-gate lens set `{oracle, builder, architect}`, forward, exactly the set the gate grades backward** (`sdd:plugin-contract-governance`). Where the squad registry binds a plugin bar to a slot, load that bar; where it leaves a slot unbound, fall back to the SDD default:
 

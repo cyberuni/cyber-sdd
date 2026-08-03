@@ -51,12 +51,16 @@ If any reader-path condition cannot be verified by static inspection, mark it SK
 ### 4. Run the document-level integrity pass
 
 Once per document, **not** once per scenario, against `quill:quill-builder-impl`. Read each document
-whole, with the scenario list set aside — the two defects here are relations between passages, so
-they are invisible from any single scenario's seat:
+whole, with the scenario list set aside — these defects are relations between passages, so they are
+invisible from any single scenario's seat:
 
 - **Restatement** — one claim landed in two passages. Report only with **both locations quoted**.
 - **Term drift** — one term predicated of two different classes of subject (a container in one use,
   an act in another). Report only with **both uses quoted**.
+- **Skipped option** — the document enumerates a set, and a later passage routes a case across that
+  set without one of its members. Quote **the enumeration and the routing**.
+- **Contradiction** — two passages whose claims cannot both hold. Quote **both**, and name which one
+  the rest of the document depends on.
 
 An integrity failure is a `BLOCKER` carrying its citations, for the conductor to re-run
 `quill-doc-writer`; do **not** edit the document. Without both citations there is no finding — an

@@ -14,7 +14,7 @@ Verification checks — four scoped to a scenario, one scoped to the whole docum
 | **Structure** | scenario | Required headings and sections are present |
 | **Completeness** | scenario | No placeholder text (TBD, TODO, empty sections) |
 | **Reader path** | scenario | Step-by-step flows reach a stated outcome without gaps |
-| **Integrity** | document | No claim landed twice; no term used past its subject class |
+| **Integrity** | document | No claim landed twice; no term used past its subject class; no route skipping an option the doc named; no two passages contradicting |
 
 The fifth exists because the first four each read only the passage their scenario names, and some
 defects are relations *between* passages — a claim asserted twice passes its scenario twice. It

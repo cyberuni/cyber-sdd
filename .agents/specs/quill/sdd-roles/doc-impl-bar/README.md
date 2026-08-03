@@ -11,15 +11,18 @@ The shipped governance `quill-builder-impl` (`plugins/quill/skills/quill-builder
 **Builder bar at the impl gate**, filling the `builder-impl` slot in the squad's registry entry and
 unioning onto `sdd:builder-impl-governance`.
 
-It specifies what an authored document must satisfy **beyond** conforming to its frozen scenarios:
-a claim lands in **exactly one place** (later passages refer back), and a term keeps **one subject
-class**. Both are graded once per document rather than once per scenario.
+It specifies what an authored document must satisfy **beyond** conforming to its frozen scenarios: a
+claim lands in **exactly one place** (later passages refer back), a term keeps **one subject class**,
+a route reaches **every option the document named**, and no two passages assert **incompatible
+claims**. All four are graded once per document rather than once per scenario.
 
 **Why it cannot be a scenario.** The four checks in
 [`../../design/doc-eval-model.md`](../../design/doc-eval-model.md) are scenario-scoped — each reads
-only the passage its scenario names. These two defects are relations *between* passages: every
+only the passage its scenario names. These defects are relations *between* passages: every
 occurrence is well-formed against its own scenario, and only the pair fails. A restated claim in
-fact satisfies its scenario twice, so an unquantified suite scores redundancy above concision.
+fact satisfies its scenario twice, so an unquantified suite scores redundancy above concision; a
+route that skips an option still lands the destination its scenario asserts, so the sibling it
+dropped never surfaces.
 
 **The boundary against style is evidence.** A finding must quote both locations, which keeps the
 check an inspection and leaves tone, register, length, word choice, and section order unassertable —

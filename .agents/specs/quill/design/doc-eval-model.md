@@ -21,19 +21,21 @@ against the impl bar. Every scenario a doc `.feature` carries must be checkable 
 
 ## The document-scoped check
 
-The four checks above each read only the passage its scenario names. Two defect classes are invisible to
+The four checks above each read only the passage its scenario names. Four defect classes are invisible to
 every one of them, because each occurrence is well-formed on its own and it is the **pair** that fails:
 
 | Defect | Why scenario scope misses it | Fail signal |
 |---|---|---|
 | **Restatement** | a claim asserted in two passages satisfies its scenario twice, so the suite scores redundancy higher than concision | the two locations quoted, both landing the same claim |
 | **Term drift** | a term applied to a subject that cannot take it still asserts the claim the scenario asked for | the term, plus two uses whose subjects belong to different classes |
+| **Skipped option** | a routing scenario asserting a destination passes whether or not that destination is the right one, so the suite ratifies the draft's route | the passage enumerating the set, and the routing that omits a member |
+| **Contradiction** | each claim is present as its own scenario requires; only the pair is impossible | both passages, and which claim the rest of the document depends on |
 
 **Integrity** therefore runs **once per document**, and is anchored to the impl bar
 (`quill-builder-impl`) rather than to a scenario — the frozen `.feature` cannot hold it, since a relation
 between passages is not a property of either one.
 
-It stays inside the no-style boundary by **requiring evidence**: a failure must quote the two locations.
+It stays inside the no-style boundary by **requiring evidence**: a failure must quote both locations.
 *"This reads redundant"* is a judgment and out of scope; *"these two sentences land the same claim, here
 they are"* is an inspection. Tone, register, length, and word choice remain unassertable.
 

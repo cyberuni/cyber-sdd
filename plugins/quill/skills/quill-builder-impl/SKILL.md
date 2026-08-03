@@ -37,10 +37,19 @@ the pair fails. A scenario per pair does not scale and would freeze the structur
   unsound of an act (*a matching carries the target*). Consistent term reuse is a virtue in
   agent-facing prose and is what produces this defect in reader-facing prose: the term propagates
   past the class it was coined for.
+- **A route reaches every option the document named.** Where the document enumerates a set — its
+  mechanisms, its arrangements, its kinds — and a later passage routes a case across that set, an
+  option silently absent is a defect. The dropped option is usually the one introduced *between* the
+  two the routing keeps, because the routing was drafted from the passage before the set was
+  complete. Cite the enumeration and the routing that skips it.
+- **No two passages assert incompatible claims.** A document that establishes *X reaches what Y
+  cannot*, then routes a case away from X on the grounds that only Y is available, has contradicted
+  itself; the second passage is usually the older one. Cite both, and state which claim the rest of
+  the document depends on.
 - **Evidence, or it does not fail.** A failure must quote **both** locations — the two passages
-  landing one claim, or the two uses whose subjects differ in class. An unevidenced integrity
-  finding is not reportable, which is what keeps this check an inspection rather than a style
-  opinion.
+  landing one claim, the two uses whose subjects differ in class, the enumeration and the routing
+  that skips a member, or the two incompatible claims. An unevidenced integrity finding is not
+  reportable, which is what keeps this check an inspection rather than a style opinion.
 - **The producer runs it before the judge does.** `quill-doc-writer` reads this bar forward, over
   the whole document and with no scenario list in hand — the reading position the per-scenario pass
   cannot occupy. Sentences written to satisfy individual scenarios are written to stand alone, so
@@ -62,7 +71,8 @@ An integrity failure is a `BLOCKER` carrying its two citations, returned for the
 
 ## Key points (read-check)
 
-1. **Two document-scoped criteria** — a claim in exactly one place; a term in one subject class.
+1. **Four document-scoped criteria** — a claim in exactly one place; a term in one subject class; a
+   route reaching every option the document named; no two passages asserting incompatible claims.
 2. **They are relations between passages**, so no frozen scenario can hold them — the bar does.
 3. **Evidence or no finding** — quote both locations, or it is a style opinion and out of scope.
 4. **The producer reads it whole and checklist-free**, which is the position that sees the pair.

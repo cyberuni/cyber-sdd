@@ -58,7 +58,7 @@ flowchart TD
   ROUTE -->|extract the session into a delegated agent / persona| DA([defer to define-agent])
   ROUTE -->|capture the session as a reference-only rule set| DG([defer to define-governance])
 
-  MINE[mine the session — trigger, decisions, steps, inputs, outputs;<br/>keep decisions + why, drop documentation the model knows;<br/>encode only steps the session actually performed] --> PLACE
+  MINE["mine the session — trigger, decisions, steps, inputs, outputs;<br/>keep decisions + why, drop documentation the model knows;<br/>encode only steps the session actually performed"] --> PLACE
 
   PLACE{resolve placement}
   PLACE -->|personal, tied to no codebase| USER[user]
@@ -80,7 +80,7 @@ flowchart TD
 
   DRAFT[draft a kebab-case name + a &le;120-char<br/>discriminating "Use this skill when" description] --> WRITE
 
-  WRITE[write the SKILL.md — encode the why per step;<br/>flag deterministic fixed-output steps as script-extraction candidates;<br/>generalize session-specific values, hard-code nothing] --> VALIDATE
+  WRITE["write the SKILL.md — encode the why per step;<br/>flag deterministic fixed-output steps as script-extraction candidates;<br/>generalize session-specific values, hard-code nothing"] --> VALIDATE
 
   VALIDATE{audit the draft via improve-skill}
   VALIDATE -->|CRITICAL finding| FIX[fix it before handoff]

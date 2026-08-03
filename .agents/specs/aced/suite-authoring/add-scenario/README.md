@@ -75,7 +75,7 @@ flowchart TD
   confirm -- no --> revise[revise the draft, write nothing]
   revise --> confirm
   confirm -- yes --> append[append to the .feature, sorted into its lifecycle section]
-  append --> frozen[keep the suite @frozen — adding a scenario self-clears]
+  append --> frozen["keep the suite @frozen — adding a scenario self-clears"]
   frozen --> check[run the suite check for well-formedness]
   check --> report[report the added scenario, suggest run]
 ```

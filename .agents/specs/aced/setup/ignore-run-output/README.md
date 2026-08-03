@@ -56,7 +56,7 @@ flowchart TD
   W -- yes --> C{.gitignore exists?}
   C -- no --> D[create .gitignore whose content is the rule]
   C -- yes --> G[append the rule as the LAST line, preserving existing lines]
-  D --> Z1[exit 0 — the rule is present and last, so the path is ignored]
+  D --> Z1["exit 0 — the rule is present and last, so the path is ignored"]
   G --> Z1
 ```
 

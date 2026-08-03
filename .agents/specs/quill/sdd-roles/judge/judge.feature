@@ -211,6 +211,24 @@ Feature: judge — run the two doc-eval instruments at the impl gate
     Then it reports no finding for it
 
   @behavior
+  Scenario: a claim re-presented with new-information marking is a finding
+    Given the returned transcript reports that the "## Steps" section of docs/setup.md states the install writes to ~/.config/setup
+    And the transcript reports that the "## Rollback" section states that same destination
+    And the "## Rollback" sentence introduces it as "there is a directory at ~/.config/setup that the install writes"
+    When quill-judge scores that candidate
+    Then it reports a finding quoting the "## Steps" sentence and the "## Rollback" sentence
+    And the reported finding names the first-stated framing of the "## Rollback" sentence, not the repetition, as what the entry fires on
+
+  @behavior
+  Scenario: a claim restated with given-information marking is not a finding
+    Given the returned transcript reports that the "## Steps" section of docs/setup.md states the install writes to ~/.config/setup
+    And the transcript reports that the "## Rollback" section states that same destination
+    And the "## Rollback" sentence refers back to it as "the ~/.config/setup directory the install wrote"
+    When quill-judge scores that candidate
+    Then it reports no finding under the "Re-presented as new" entry for the "## Rollback" sentence
+    And it reports no finding of any kind for the repetition of that destination across the two sections
+
+  @behavior
   Scenario: a group C finding quotes the spec line it disagrees with
     Given the returned transcript reports that the "## Choosing" passage tells the reader to apply the network runbook first
     And the spec's prerequisite line names a Node runtime as the one prerequisite

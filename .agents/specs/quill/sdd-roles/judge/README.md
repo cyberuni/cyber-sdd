@@ -127,6 +127,8 @@ flowchart TD
   O -- no --> P{evidence}
   P -- group A absence shown over the declared path --> Q[candidate survives evidence]
   P -- group A absence asserted over the whole document --> P0[not reported]
+  P -- group B recurrence re-marked as new information --> Q
+  P -- group B recurrence marked as given --> P0
   P -- group C quotes the spec line it disagrees with --> Q
   P -- group C carries no spec quote --> P0
   P -- two citations resolve to one location --> P0
@@ -154,10 +156,17 @@ flowchart TD
 ## Scenario map
 
 Every scenario binds 1:1 to a CFG edge, grouped by use case. The **edge** column names the edge each scenario
-puts **under test**; the **path** column names the decisions already taken on the way there. The holding edges of
-the earlier checks (a file present at its declared path, every section carrying prose) and the single-entry
-branch of the subsumption decision are therefore **path**, carried in the `Given` of the rows below rather than
-tested by rows of their own — testing them in isolation would assert nothing a wrong implementation could lose.
+puts **under test**; the **path** column names the decisions already taken on the way there.
+
+**Four** edges are traversed as **path** rather than tested by rows of their own, and all four are the same
+reconvergent *everything held* shape: the two holding edges of the earlier checks (a file present at its
+declared path, every section carrying prose), the single-entry branch of the subsumption decision, and the
+in-scope branch of the anchoring decision (`S -- anchored and in scope --> T2`). The first three are carried in
+the `Given` of the rows below. The fourth is asserted in the `Then`s of every row that reports a finding — the
+defense row `a defense that only asserts deliberateness does not clear the finding` and the group A, group B, and
+group C evidence rows all end at T2 — and it stands as the `Given` of `an advisory judged finding leaves the
+implementation passing`. Testing any of the four in isolation would assert nothing a wrong implementation could
+lose.
 
 ### Cold dispatch
 
@@ -208,6 +217,8 @@ tested by rows of their own — testing them in isolation would assert nothing a
 | defense names what it buys → cleared | the recorded rationale names the audience and what the violation buys it | `a defense naming what the violation buys its reader clears the finding` |
 | group A absence shown over the declared path | the transcript reports a passage treating a term as given | `a group A finding shows the absence over the declared path` |
 | group A absence asserted over the whole document → not reported | the transcript reports a document-wide absence | `a group A candidate evidenced only as a document-wide absence is not reported` |
+| group B recurrence re-marked as new information | the transcript reports one destination stated under two headings | `a claim re-presented with new-information marking is a finding` |
+| group B recurrence marked as given → not reported | the transcript reports one destination stated under two headings | `a claim restated with given-information marking is not a finding` |
 | group C quotes the spec line | the transcript reports a passage relying on a sibling document | `a group C finding quotes the spec line it disagrees with` |
 | group C carries no spec quote → not reported | a candidate carrying one document quote and no spec quote | `a group C candidate carrying no spec quote is not reported` |
 | two citations resolve to one location → not reported | a candidate whose two quotes share a heading and a line | `two citations resolving to one location are not a finding` |

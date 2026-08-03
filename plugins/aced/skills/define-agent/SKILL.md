@@ -165,7 +165,16 @@ question first, because the two shapes are not interchangeable:**
 
 **Getting this wrong is not a style slip — it is the bleed.** An adoption command is a scope statement
 made once; every reply after it accumulates as an unlabeled example, and the voice or stance drifts
-into output it does not govern. If the agent produces an artifact, gateway.
+into output it does not govern.
+
+**When both fit, gateway.** A reviewer that also writes `review.md` matches both rows — its remarks
+are what the user reacts to *and* it produces a file. Gateway is the fail-safe direction: a wrongly
+gatewayed agent costs a round trip, while a wrongly adopted one bleeds.
+
+That trade looks like it forfeits the steering the Invokable mode is for, and it does not: **a
+gateway is steered through the brief, not through the session.** The user shapes the run by what the
+command gathers before dispatch, which is why the gateway asks its questions up front — the subagent
+cannot be interrupted once it starts, so the steering has to happen before it does.
 
 ### Adoption — for an agent whose output is the session
 
@@ -189,9 +198,16 @@ $ARGUMENTS
 The command exists because a subagent is not slash-invokable. It must **not** load the agent's
 instructions into the session — it collects what the subagent cannot ask for, dispatches, and relays.
 
+Bind a **bounded** tool set, as the adoption template does. This is the one session that must not do
+the work itself, so leaving tools open is leaving the failure available: name the runtime's
+subagent-dispatch tool plus whatever read-only tools the command needs to settle the brief, and
+nothing that writes. The dispatch tool's name is runtime-specific — use the name the target runtime
+actually exposes rather than copying one from another runtime's docs.
+
 ```markdown
 ---
 description: <what the user gets> — briefs the <name> subagent and returns its result.
+allowed-tools: <dispatch-tool>, Read, Glob, Grep
 ---
 
 Gateway to the `<name>` subagent. Take the request, brief the subagent, return what it produces.

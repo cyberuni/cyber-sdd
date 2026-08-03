@@ -1,6 +1,6 @@
 ---
 name: define-command
-description: 'Use this skill when the user wants to create or improve a command — a user-invoked-only slash workflow (`/name`) that never auto-triggers from the model. Trigger on "create a command", "add a slash command", "make a /deploy command", "add a user-only workflow", "convert this skill to a command", or "stop this skill from auto-triggering", even if they do not say "command" explicitly. Not for a companion command that loads an agent definition into context (define-agent), an auto-triggered workflow skill (define-skill), or a reference-only rule set (define-governance).'
+description: 'Use this skill when the user wants to create or improve a command — a user-invoked-only slash workflow (`/name`) that never auto-triggers from the model. Trigger on "create a command", "add a slash command", "make a /deploy command", "add a user-only workflow", "convert this skill to a command", or "stop this skill from auto-triggering", even if they do not say "command" explicitly. Not for a companion command scaffolded alongside an agent definition — whether it adopts that agent in-session or gateways to it as a subagent (define-agent) — an auto-triggered workflow skill (define-skill), or a reference-only rule set (define-governance).'
 ---
 
 # Define Command

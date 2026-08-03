@@ -1,6 +1,17 @@
 ---
-status: draft
+status: approved
 project-path: plugins/quill
+approval:
+  spec:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — four new suites on nodes that carried no scenarios at all. Nothing narrowed, nothing rewritten, no pre-existing frozen scenario anywhere in this project, because before this CR the project had none.
+      blast: medium — all four behavioral nodes quill's scaffold deferred to per-unit explore, 94 scenarios across them. No design doc, glossary, or reference node changed at this gate.
+      novelty: medium-high — the project spec carried no .feature anywhere and therefore could not legally reach approved at all; these are its first frozen contracts.
+      confidence: high — two cold aced-spec-validator rounds. Round 1 froze registry and doc-writer on all three lenses and sent two nodes back with one finding each, both the same shape: a bolded rule in the agent definition with zero scenarios and a wrong subject already attested in the corpus. Round 2 verified both remediations, re-deriving the map binding by hand in both directions and cross-checking the new fixtures against the catalog entry they instantiate. Both judges ruled on the producers' flagged calls rather than accepting them, and round 2 recorded a pre-flight failure against a producer while confirming its artifact passes the backward grade.
+      cr: quill-writing-quality
 ---
 
 # Quill — Documentation SDD Plugin

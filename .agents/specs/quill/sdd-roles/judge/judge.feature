@@ -1,3 +1,4 @@
+@frozen
 Feature: judge — run the two doc-eval instruments at the impl gate
   Unit suite for the Quill impl-judge (`quill-judge`) the SDD conductor spawns cold at the impl gate:
   run the four scenario-scoped inspection checks against each frozen scenario, run the document-scoped

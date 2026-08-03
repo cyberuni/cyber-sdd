@@ -1,3 +1,4 @@
+@frozen
 Feature: spec-writer — the Quill spec-producer role
 
   The conductor dispatches quill-spec-writer for a documentation artifact-type. It loads the

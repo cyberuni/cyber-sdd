@@ -66,7 +66,7 @@ Present these three modes to the user and ask which fits their use case:
 | Mode | What it does | When to pick it |
 |------|-------------|-----------------|
 | **Delegated** | Runs as a subagent in its own context; returns a result to the caller | Autonomous workers, fan-out tasks, long-running jobs where interruption isn't needed |
-| **Invokable (dual-mode)** | Can be spawned as a subagent AND loaded in-context via a thin command so the user can steer it, interrupt it, and operate at its level | Conductors, reviewers, personas the user wants to collaborate with interactively |
+| **Invokable (dual-mode)** | Can be spawned as a subagent AND reached by a thin companion command. The command takes one of **two shapes** — see below; picking the wrong one is what makes an agent bleed | Conductors, reviewers and personas the user steers interactively; and delegated workers the user wants slash-reachable |
 | **In-context only** | Loaded via command only; not intended as a subagent | One-off role activations where no other caller needs the content |
 
 **In-context only is rarely the right answer now.** If the content is a stance the user loads into a
@@ -153,7 +153,21 @@ Omit `model:` unless the user specifies one. Omit `tools:` for in-context-only a
 
 ## For Invokable mode: scaffold the companion command
 
-Write a second file at `.agents/commands/<name>.md` (or the plugin-scoped equivalent):
+Write a second file at `.agents/commands/<name>.md` (or the plugin-scoped equivalent). **Ask one
+question first, because the two shapes are not interchangeable:**
+
+> **Where does this agent's output go — into the session, or into something it produces?**
+
+| Its output is… | Command shape | Why |
+|---|---|---|
+| **the session itself** — replies, review remarks, decisions the user reacts to | **Adoption** | The instruction governs the session's own output, so loading it into the session is the point |
+| **a produced artifact** — a document, a file, a draft it hands back | **Gateway** | The instruction governs the artifact. Loading it into the session applies it to output it was never written for |
+
+**Getting this wrong is not a style slip — it is the bleed.** An adoption command is a scope statement
+made once; every reply after it accumulates as an unlabeled example, and the voice or stance drifts
+into output it does not govern. If the agent produces an artifact, gateway.
+
+### Adoption — for an agent whose output is the session
 
 ```markdown
 ---
@@ -168,6 +182,42 @@ Confirm in one line that the <name> role is active. Do not take any action until
 the user gives you a task.
 
 $ARGUMENTS
+```
+
+### Gateway — for an agent that produces an artifact
+
+The command exists because a subagent is not slash-invokable. It must **not** load the agent's
+instructions into the session — it collects what the subagent cannot ask for, dispatches, and relays.
+
+```markdown
+---
+description: <what the user gets> — briefs the <name> subagent and returns its result.
+---
+
+Gateway to the `<name>` subagent. Take the request, brief the subagent, return what it produces.
+
+**Do not load <name>'s instructions into this session.** They govern what it produces, not this
+conversation. The subagent holds them in its own context, which is where they belong.
+
+## The request
+
+$ARGUMENTS
+
+## What to do
+
+1. **Read the request.** If it carries enough to act on, go to step 3.
+2. **Ask only what would change the result.** The subagent cannot ask anything once it starts, so
+   settle what is genuinely undecided here — at most two things, in one message, and only what you
+   cannot settle yourself.
+3. **Brief the subagent.** It starts blank and inherits nothing from this conversation: state the
+   task, name the **source files** (do not paste or summarize their contents), mark what the user
+   settled explicitly so it is not re-derived, and name what is out of scope.
+4. **Return what came back**, and relay the assumptions it declared rather than burying them. A wrong
+   inference is cheapest to catch before the next round.
+
+For a revision, dispatch again with the same completeness — the new subagent has not seen the
+previous result. Do not do the work in this session to save a round trip; that does it without the
+agent's instructions, which is the drift the gateway exists to prevent.
 ```
 
 Symlink `.claude/commands/<name>.md` → `.agents/commands/<name>.md` (and other runtime equivalents the user selected).

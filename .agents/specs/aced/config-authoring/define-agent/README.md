@@ -86,10 +86,13 @@ flowchart TD
 
   %% ---- mode selection: mode drives companion + tools ----
   OFFER --> MODE{which mode?}
-  MODE -->|invokable| INV[scaffold a companion command;<br/>carry the tools field]
+  MODE -->|invokable| OUT{where does the agent's output go?}
+  OUT -->|the session itself| INV_A[scaffold an adoption command;<br/>carry the tools field]
+  OUT -->|something it produces| INV_G[scaffold a gateway command;<br/>carry the tools field]
   MODE -->|delegated| DEL[no companion command;<br/>carry the tools field]
   MODE -->|in-context only| INC[no companion command;<br/>omit the tools field]
-  INV --> PLACE
+  INV_A --> PLACE
+  INV_G --> PLACE
   DEL --> PLACE
   INC --> PLACE
 
@@ -139,6 +142,9 @@ One row per edge in the graph above, one scenario per row. Rows follow the suite
 | `ROUTE` → `DI` | the user asks to fix a failing config | `a request to fix a failing config defers to improve` |
 | `OFFER` (reach) | the user wants a new agent and has named no mode | `the three modes are offered before scaffolding` |
 | `MODE` → invokable | the user picks the invokable dual-mode mode | `the invokable mode scaffolds a companion command` |
+| `OUT` (reach) | the user picks invokable and has not said where the output goes | `the command shape is settled by where the agent's output goes` |
+| `OUT` → the session itself | a code reviewer whose remarks are its output | `an agent whose output is the session gets an adoption command` |
+| `OUT` → something it produces | a writer that hands back a drafted file | `an agent that produces an artifact gets a gateway command` |
 | `MODE` → delegated | the user picks the delegated mode | `the delegated mode scaffolds no companion command` |
 | `PLACE` (path) | the user selects the project scope | `the canonical path is derived from the chosen scope` |
 | `PLACE` (symlink) | the user targets Claude Code and Cursor | `a symlink is created for each selected runtime` |

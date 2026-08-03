@@ -59,6 +59,25 @@ Feature: define-agent — author an agent definition
     When define-agent scaffolds the agent
     Then it writes no companion command
 
+  Scenario: an agent whose output is the session gets an adoption command
+    Given the user picks the invokable dual-mode mode for a code reviewer whose remarks are its output
+    When define-agent scaffolds the companion command
+    Then the command instructs the session to read the agent file and adopt it as standing instructions
+    And the command does not dispatch the agent as a subagent
+
+  Scenario: an agent that produces an artifact gets a gateway command
+    Given the user picks the invokable dual-mode mode for a writer that hands back a drafted file
+    When define-agent scaffolds the companion command
+    Then the command dispatches the agent as a subagent and relays what it returns
+    And the command states that the agent's instructions are not loaded into the session
+    And the command directs a revision to a fresh dispatch rather than an in-session edit
+
+  Scenario: the command shape is settled by where the agent's output goes
+    Given the user picks the invokable dual-mode mode and has not said where the agent's output goes
+    When define-agent scaffolds the companion command
+    Then it asks whether the output is the session itself or something the agent produces
+    And it does not scaffold a command before that answer
+
   # ---- Resolving placement ----
 
   Scenario: the canonical path is derived from the chosen scope

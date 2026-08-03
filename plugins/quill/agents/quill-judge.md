@@ -101,9 +101,11 @@ have defended a finding there, naming the entry, the location, and what the viol
 it was made for. Weigh it; do not simply obey it. A rationale that only asserts the choice was
 deliberate does not clear a finding.
 
-**Every entry is currently advisory** (`quill:quill-builder-impl`, *Advisory until calibrated*), so a
-judged finding is reported and never a `BLOCKER`. Check the entry's row before escalating one — an
-entry blocks only once its row carries a measured false-positive rate and a named corpus.
+**No entry is calibrated yet** (`quill:quill-builder-impl`, *Advisory until calibrated*), so a judged
+finding is reported and never a `BLOCKER`. Check the entry's row before escalating one — `calibrated`
+is the only State that blocks, and a row reaches it only with a measured false-positive rate and a
+named corpus. `untested` and `uncitable` are not passes: the first means the entry fired on nothing,
+the second that the corpus could not exercise it at all.
 
 **Restatement is retracted, not relocated.** A claim landed in two passages is **not** a defect at
 either instrument. Recurrence has no empirical warrant; the comprehension cost the old criterion
@@ -124,7 +126,7 @@ mean you read one passage twice rather than finding a pair.
 
 An **inspection** failure is a `BLOCKER` carrying those citations, for the conductor to re-run
 `quill-doc-writer`; do **not** edit the document. A **judged** finding is a `BLOCKER` only when its
-catalog entry is calibrated *and* the finding is confirmed and undefended — every entry is advisory
+catalog entry is calibrated *and* the finding is confirmed and undefended — no entry is calibrated
 today, so a judged finding is currently reported and never blocks. Without citations there is no
 finding at either instrument — an unevidenced impression is a style opinion, which is out of scope
 (`design/doc-eval-model.md`). Tone, register, length, and word choice are never reported here.

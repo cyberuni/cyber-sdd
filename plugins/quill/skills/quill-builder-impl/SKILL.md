@@ -158,29 +158,41 @@ fires on an accepted document is miscalibrated and stays advisory.
 
 Calibration is **per entry**, not per catalog — the entries fail in different ways, and one
 well-calibrated entry does not vouch for its neighbor. The state lives here, in this table, so the
-judge reads an entry's standing beside the entry itself:
+judge reads an entry's standing beside the entry itself.
+
+**State is one axis: what the corpus established about this entry.** Blocking is derived from it, not
+recorded separately.
+
+| State | Means | Blocks? |
+|---|---|---|
+| `untested` | ran against the corpus and fired on nothing — no evidence either way. **Not the same as clean**: an entry that never fires has not been shown to discriminate | no |
+| `uncitable` | the corpus could not exercise it, because a document it needed lacked a precondition the entry cites against (a group C entry against a document with no spec node) | no |
+| `advisory` | it fired, but no false-positive rate is established against a named corpus — or it fired on an accepted document, which is miscalibration | no |
+| `calibrated` | a measured false-positive rate against a named corpus | yes, on confirmed and undefended |
+
+`untested` and `uncitable` are distinct results and neither is a pass. Collapsing them into
+`advisory` is what hid run 1's real finding: that four entries produced no evidence at all.
 
 | Entry | State | False-positive rate | Corpus run |
 |---|---|---|---|
 | A1 unresolvable presupposition | advisory | not measured | run 1 — fired twice on the weak document, never on the accepted one |
 | A2 bare cross-reference | advisory | not measured | run 1 — near-missed correctly on the accepted document; one borderline firing exposed an ambiguous discriminator, since reworded |
 | A3 undefined term at first use | advisory | not measured | run 1 — **fired twice on the accepted document**; both wordings reworded |
-| B1 re-presented as new | advisory | not measured | run 1 — **untested: fired on neither document** |
-| B2 term drift | advisory | not measured | run 1 — **untested: fired on neither document**, though the accepted document's own drift defect was repaired before acceptance |
+| B1 re-presented as new | `untested` | not measured | run 1 — fired on neither document |
+| B2 term drift | `untested` | not measured | run 1 — fired on neither document, though the accepted document's own drift defect was repaired before acceptance |
 | B3 contradiction | advisory | not measured | run 1 — fired twice on the weak document, near-missed correctly on the accepted one; best discrimination of the nine |
-| C1 declaration mismatch | advisory | not measured | run 1 — fired once on the accepted document (precedence-resolved); **uncitable** on the weak document |
-| C2 claim without mechanism | advisory | not measured | run 1 — **untested** on the accepted document; **uncitable** on the weak one |
-| C3 orphan claim | advisory | not measured | run 1 — **untested** on the accepted document; **uncitable** on the weak one |
+| C1 declaration mismatch | advisory | not measured | run 1 — fired once on the accepted document (precedence-resolved); uncitable on the weak document |
+| C2 claim without mechanism | `uncitable` | not measured | run 1 — fired on neither document, and the weak one carried no spec to cite against |
+| C3 orphan claim | `uncitable` | not measured | run 1 — fired on neither document, and the weak one carried no spec to cite against |
 
-`untested` and `uncitable` appear in the Corpus-run column rather than the State column because this
-table's State admits only `advisory` and `calibrated`. That gap is already filed as a follow-up
-against `.agents/specs/quill/`, and run 1 is its first empirical instance: four entries ran and never
-fired, which the prose calls untested and the schema cannot represent.
+An entry whose per-document results differ takes the strongest evidence: C1 fired somewhere, so it is
+`advisory` and its uncitable cell is recorded beside it. C2 and C3 fired nowhere *and* half the corpus
+could not exercise them, which is weaker than `untested` and is recorded as such.
 
-**Every entry is currently advisory, and the whole catalog is therefore non-blocking.** That is the
-designed starting state, not an outage: the entries are reasoned rather than measured, and reasoning
-is exactly what calibration exists to check. A row moves to `calibrated` only with a rate and a named
-corpus beside it — never on the strength of having been read and found sensible.
+**No entry is calibrated, so the whole catalog is non-blocking.** That is the designed starting
+state, not an outage: the entries are reasoned rather than measured, and reasoning is exactly what
+calibration exists to check. A row moves to `calibrated` only with a rate and a named corpus beside
+it — never on the strength of having been read and found sensible.
 
 #### Run 1 — under-powered, no row moved
 

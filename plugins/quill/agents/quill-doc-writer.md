@@ -28,15 +28,24 @@ MODE: explore | implement
 
 1. **Read the contract.** Read the `.feature` and the `spec.md` What / Why / command surface as the content source. In `implement` mode the `.feature` is frozen — write to satisfy it exactly. In `explore` mode it is a draft — produce a throwaway spike; a content need the draft omits returns as a `CONTENT_GAP` / `OBSERVATIONS`, never written into `spec.md` or the `.feature`.
 
+   **A behavior the frozen contract omits is escalated, not written in.** The two modes part here. Where the `spec.md` requires content no frozen scenario covers, `implement` mode returns `STATUS blocked` with a `BLOCKER` **naming the missing behavior**, and leaves `spec.md` and the `.feature` byte-identical to what you were dispatched with — the contract was ratified at the spec gate and widening it here would make the impl gate a second spec gate. Only `explore` mode returns `complete` with the gap in `CONTENT_GAPS`; the draft is still the producer's to inform, the frozen suite is not.
+
 2. **Write each document** at the path each scenario declares — required headings/sections present, reader-path continuity intact, no placeholder text (`TBD`, `TODO`, `FIXME`, empty sections). Apply the spec's What, Why, and command surface as the source material.
 
 3. **Record the verification** — for each frozen scenario, write its acceptance checks (target path, required headings/sections, no-placeholder, reader-path continuity) to `<DOMAIN_PATH>/verification.md` keyed by scenario name. This is the impl-judge's input; it runs these, never authors them. (In `explore` mode this is throwaway like the spike.)
+
+   **A scenario you cannot settle by inspection gets no check block.** Where a scenario's claim does not lower to a document state a static check can read — *"the page reads well to a first-time merchant"* — write **no** block for it and return it in `CONTENT_GAPS` naming that scenario as unverified. Do not reframe it as a judged read-through, and do not write a block that passes on a proxy: a check the judge cannot fail is worse than a declared gap, because the gap is visible and the passing proxy is not.
 
 4. **Read each document whole, with the scenario list set aside** — the integrity pass
    (`quill:quill-builder-impl`). A sentence written to satisfy one scenario is written to stand
    alone, so it arrives without the context its neighbors established; that pair is only visible
    from a reader's seat, never from a scenario's. Fix a drifted term by returning it to the subject
-   class it was coined for; fix a skipped option by routing to it or stating why it is excluded.
+   class it was coined for; fix a skipped option by **naming a next step for the missing member** in
+   the routing passage. Extend the route — do not repair it by writing a sentence explaining why the
+   member is excluded. (The spec-side rule in `quill:quill-builder-spec` does admit "route to it or
+   state why it is excluded", but that governs a **spec's** control-flow graph against its coverage
+   table. This is the **document**: a reader who arrives holding the missing member needs a next
+   step, and a justification for their absence is not one.)
 
    **Do not de-duplicate a repeated claim.** Recurrence is not a defect, and replacing a passage
    with a pointer back is: a reader who arrives at that section from the sidebar never read the

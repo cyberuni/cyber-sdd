@@ -1,13 +1,13 @@
 ---
 name: quill-judge
-description: "Partial Skill: invoke by name only — the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, reporting pass/fail per scenario. Invoked by the SDD conductor at the impl gate — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, plus one document-scoped integrity pass carrying an inspection rule and a judged defect catalog, reporting pass/fail per scenario. Invoked by the SDD conductor at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # quill-judge
 
-The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
+The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** static inspection against the docs the impl-producer authored, from **three anchors and no fourth**: one check per **frozen** `.feature` scenario, the document-scoped inspection rule in the frozen bar (`quill:quill-builder-impl`), and that bar's frozen **defect catalog**, judged by simulating a reader. None is free-authored — the judge writes no criteria of its own, and an impression matching no anchor is not a finding. Independence comes from all three anchors being artifacts the judge did not write, and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `quill:quill-builder-impl` for the document-scoped integrity criteria the frozen scenarios cannot carry; `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
 
 ## Input
 
@@ -48,11 +48,83 @@ For each scenario:
 
 If any reader-path condition cannot be verified by static inspection, mark it SKIP and note in `CHANGES_MADE`.
 
-### 4. Aggregate results
+### 4. Run the document-level integrity pass
+
+Once per document, **not** once per scenario, against `quill:quill-builder-impl`. Read each document
+whole, with the scenario list set aside — these defects are relations between passages, so they are
+invisible from any single scenario's seat.
+
+**Inspection — a boolean `BLOCKER`:**
+
+- **Skipped option** — the document enumerates a set, and a later passage routes a case across that
+  set without one of its members. Quote **the enumeration and the routing**.
+
+**Judgment — a graded finding against the defect catalog**, advisory until its entry is calibrated
+and blocking thereafter only when confirmed and undefended. Read the catalog's nine entries and their
+near-misses from `quill:quill-builder-impl`; the groups and what each demands of a citation:
+
+- **A — the reader cannot retrieve what the passage assumes** (unresolvable presupposition, bare
+  cross-reference, undefined term at first use). Quote the passage, **name the path**, and list what
+  the path traverses before it. These are negatives, so show the absence over a named path; *"I did
+  not find it"* is not a finding.
+- **B — the passage misrepresents what the reader already has** (re-presented as new, term drift,
+  contradiction). Quote **both** passages and confirm their locations differ.
+- **C — the document disagrees with its own spec** (declaration mismatch, claim without mechanism,
+  orphan claim). Quote the passage **and the spec line** — prerequisite, audience row, declared doc
+  type, or coverage row. No spec quote, no finding.
+
+Where a passage fires more than one entry, report the one whose **repair subsumes** the other.
+
+**Run the judged pass in two contexts, and dispatch the first.** You hold the catalog, so you can
+never be your own blind reader. Dispatch a separate context with the document, the **declared path**,
+and the audience row — and nothing else. Never pass it the catalog, an entry name, the spec's
+coverage table, or the deliberate-violation record: anything naming a defect tells the simulated
+reader what to trip on. Score the returned transcript yourself. **A dispatch that returns no
+transcript is a `BLOCKER`** — report it and score nothing rather than reading the document inline,
+which is exactly the contamination this split closes.
+
+**Then read `## Deliberate violations` in `verification.md` — in this pass only.** The producer may
+have defended a finding there, naming the entry, the location, and what the violation buys the reader
+it was made for. Weigh it; do not simply obey it. A rationale that only asserts the choice was
+deliberate does not clear a finding.
+
+**Every entry is currently advisory** (`quill:quill-builder-impl`, *Advisory until calibrated*), so a
+judged finding is reported and never a `BLOCKER`. Check the entry's row before escalating one — an
+entry blocks only once its row carries a measured false-positive rate and a named corpus.
+
+**Restatement is retracted, not relocated.** A claim landed in two passages is **not** a defect at
+either instrument. Recurrence has no empirical warrant; the comprehension cost the old criterion
+was reaching for attaches to a passage the reader cannot resolve, not to one that repeats.
+
+**The frozen suite outranks this bar.** Where a scenario requires what the bar would fail — a term a
+scenario fixes, a route a scenario pins — the scenario wins and the bar yields. The
+contract was ratified at the spec gate and the judge does not overrule it; report the collision as
+an `OBSERVATIONS` entry owned by the architect, never as a `BLOCKER`. A bar that could veto a frozen
+scenario would make the impl gate a second spec gate.
+
+Every finding carries **two citations, and each citation carries its location** — the quoted text
+plus the heading (and line number, where the artifact has them). Quote alone is not enough: text can
+be transcribed correctly and attributed to the wrong passage, and a finding that reads as verified
+because its words are right is the hardest kind to catch. **Confirm the two locations differ before
+reporting** — these criteria are relations between passages, so two quotes resolving to one place
+mean you read one passage twice rather than finding a pair.
+
+An **inspection** failure is a `BLOCKER` carrying those citations, for the conductor to re-run
+`quill-doc-writer`; do **not** edit the document. A **judged** finding is a `BLOCKER` only when its
+catalog entry is calibrated *and* the finding is confirmed and undefended — every entry is advisory
+today, so a judged finding is currently reported and never blocks. Without citations there is no
+finding at either instrument — an unevidenced impression is a style opinion, which is out of scope
+(`design/doc-eval-model.md`). Tone, register, length, and word choice are never reported here.
+
+### 5. Aggregate results
 
 Collect per-scenario: PASS, FAIL, or SKIP. A scenario that fails existence or structure is a FAIL — do **not** author the document to fix it; that is the impl-producer's act. Report the FAIL as a `BLOCKER` so the conductor re-runs `quill-doc-writer`.
 
-`IMPLEMENTATION_PASS` is `true` only when every scenario is PASS or SKIP.
+`IMPLEMENTATION_PASS` is `true` only when every scenario is PASS or SKIP **and** the integrity pass
+raised no evidenced **inspection** finding. An **advisory** judged finding does not set it `false` —
+it is reported for the producer to weigh. Gating the run on advisory findings would make the whole
+catalog blocking on the day it shipped, which is the failure mode *Advisory until calibrated* exists
+to prevent.
 
 ## Output
 
@@ -61,6 +133,7 @@ STATUS                — complete | needs-input | blocked
 IMPLEMENTATION_PASS   — true | false
 SCENARIOS_PASSING     — list of scenario titles with result PASS
 SCENARIOS_FAILING     — list of scenario titles with result FAIL
+INTEGRITY_FINDINGS    — [ { instrument: inspection | judgment, defect, advisory: true | false, document, citations: [ { quote, heading, line } x2 — distinct locations ], defense: <the producer's rationale, when one was recorded and weighed> } ] (empty when clean)
 CHANGES_MADE          — verification produced / run (or "none")
 BLOCKER               — first unresolved FAIL reason (or null when PASS is true)
 QUESTIONS             — [ batched, when needs-input ]

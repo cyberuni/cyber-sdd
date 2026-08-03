@@ -125,7 +125,7 @@ flowchart TD
   PNONE --> PNP
 
   %% ---- boundary + agentic ----
-  OP -. every write .-> BOUND[writes only skill-dirs.toml — never a skill,<br/>spec.md, status, approval, or freeze]
+  OP -. every write .-> BOUND["writes only skill-dirs.toml — never a skill,<br/>spec.md, status, approval, or freeze"]
   OP -->|the manage skill curating a sample path| CONFIRM[[induce → preview matched skills →<br/>confirm with the user → add: @rubric]]
 ```
 

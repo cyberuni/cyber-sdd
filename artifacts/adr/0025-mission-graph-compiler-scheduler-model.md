@@ -287,5 +287,5 @@ process — only names, criteria, and persistence for decisions the conductor wa
   formalizes that process's planning layer without adding a new engine.
 - **Spec node:** [`.agents/specs/sdd/mission-graph/README.md`](../../.agents/specs/sdd/mission-graph/README.md)
   — the behavioral contract of the v1 kernel (`ready`/`cycles` over the git-tracked list).
-- **Research survey:** [2026-07 Work decomposition & CR parallelism](../../docs/research/2026-07-work-decomposition.md)
+- **Research survey:** [Work decomposition & CR parallelism](../../.research/work-decomposition-cr-parallelism/survey.md)
   — the prior-art evidence (beads, Wayfinder, build systems, merge queues, Brun) this model rests on.

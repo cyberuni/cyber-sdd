@@ -47,8 +47,8 @@ Do not reorder or reformat other entries.
       },
       "governances": {
         "oracle-spec": null,
-        "builder-spec": null,
-        "builder-impl": null,
+        "builder-spec": "quill-builder-spec",
+        "builder-impl": "quill-builder-impl",
         "architect-spec": null,
         "architect-impl": null
       }

@@ -1,6 +1,17 @@
 ---
-status: draft
+status: approved
 project-path: plugins/quill
+approval:
+  spec:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — four new suites on nodes that carried no scenarios at all. Nothing narrowed, nothing rewritten, no pre-existing frozen scenario anywhere in this project, because before this CR the project had none.
+      blast: medium — all four behavioral nodes quill's scaffold deferred to per-unit explore, 94 scenarios across them. No design doc, glossary, or reference node changed at this gate.
+      novelty: medium-high — the project spec carried no .feature anywhere and therefore could not legally reach approved at all; these are its first frozen contracts.
+      confidence: high — two cold aced-spec-validator rounds. Round 1 froze registry and doc-writer on all three lenses and sent two nodes back with one finding each, both the same shape: a bolded rule in the agent definition with zero scenarios and a wrong subject already attested in the corpus. Round 2 verified both remediations, re-deriving the map binding by hand in both directions and cross-checking the new fixtures against the catalog entry they instantiate. Both judges ruled on the producers' flagged calls rather than accepting them, and round 2 recorded a pre-flight failure against a producer while confirming its artifact passes the backward grade.
+      cr: quill-writing-quality
 ---
 
 # Quill — Documentation SDD Plugin
@@ -14,7 +25,8 @@ project-path: plugins/quill
 Quill brings SDD discipline to **documentation** — guides, tutorials, articles, reference pages, and READMEs.
 Documentation has the same failure modes as code (missing content, structural drift, reader-path gaps) with
 no compiler or test runner; Quill is that runner. It treats a document as an implementation artifact with
-**verifiable structure**, checked by static inspection against a frozen `.feature`.
+**verifiable structure**, checked by two instruments: static inspection against a frozen `.feature`, and a
+judged pass against a catalog of named prose defects.
 
 Quill is also the **SDD plugin for documentation domains** (`sdd-roles/`): it implements the production-chain
 delegates the conductor resolves for the artifact-types `documentation`, `guide`, `tutorial`, `article`, and
@@ -31,9 +43,9 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 
 | Folder | Type | What |
 |---|---|---|
-| [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `spec-writer`, `doc-writer`, `judge` |
+| [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `spec-writer`, `doc-writer`, `judge` — plus the `doc-spec-bar` and `doc-impl-bar` governances they are graded against |
 | [`registry/`](./registry/README.md) | behavioral | register Quill as the documentation SDD plugin — `init-quill` |
-| [`design/`](./design/README.md) | descriptive | the doc-eval model (the four static checks) + the `decisions/` ADR log |
+| [`design/`](./design/README.md) | descriptive | the doc-eval model (two instruments — four scenario-scoped inspection checks, one document-scoped inspection rule, and the judged defect catalog) + the `decisions/` ADR log |
 | [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: spec → write → verify) |
 | [`glossary.md`](./glossary.md) | reference | the documentation-eval vocabulary |
 
@@ -42,6 +54,11 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 Where a new concept lives — slot here, do not invent placement (`../sdd/design/spec-layout.md`):
 
 - **a new SDD delegate role** → `sdd-roles/` (matched to the plugin-contract roles).
+- **a shipped actor bar** (a governance filling one of the squad's `governances` slots) → `sdd-roles/`
+  as a **reference** node beside the roles that load it — it is a shipped artifact, not a model, so
+  it does not go to `design/`. The current ones are
+  [`sdd-roles/doc-spec-bar/`](./sdd-roles/doc-spec-bar/README.md) (`builder-spec`) and
+  [`sdd-roles/doc-impl-bar/`](./sdd-roles/doc-impl-bar/README.md) (`builder-impl`).
 - **plugin registration / discovery** → `registry/`.
 - **a rule or model** (a verification check, the LLM-eval → doc mapping, a scoring convention) → `design/`
   (descriptive); a **decision + its rationale** → `design/decisions/` (ADR); a **unit's design fork** → that
@@ -62,6 +79,6 @@ never as a top-level folder.
 |---|---|
 | `doc-eval` | `design/doc-eval-model.md` (rule) |
 | `plugin-registry` | `registry/` (behavior) |
-| `production-chain` | `sdd-roles/doc-writer/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/spec-writer/` (behavior) |
+| `production-chain` | `sdd-roles/doc-impl-bar/` (reference) · `sdd-roles/doc-spec-bar/` (reference) · `sdd-roles/doc-writer/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/spec-writer/` (behavior) |
 
 <!-- END generated: by-concept -->

@@ -13,7 +13,7 @@ signing off on its own work. A design question surfaced during the `core-agents`
 the judge in a fresh/cold context actually deliver that independence — or does the judge merely re-run
 the producer's own (possibly overfit) tests and inherit its blind spots?
 
-Two adversarial research sweeps (`docs/research/2026-06-impl-judge-independence.md`;
+Two adversarial research sweeps (`.research/impl-judge-independence/survey.md`;
 `.research/impl-judge-independence/`) found:
 
 - **Cold context buys only partial independence.** It removes *context-bound* bias (anchoring, the

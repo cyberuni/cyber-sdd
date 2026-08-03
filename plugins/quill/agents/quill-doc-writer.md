@@ -7,7 +7,7 @@ metadata:
 
 # quill-doc-writer
 
-The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario, **and co-produces their verification** — the per-scenario acceptance checks (required paths, headings/sections, no placeholders, reader-path continuity) the impl-judge will run. Invoked by the SDD conductor. Load the `builder` and `architect` actor governances to self-align AND to write the verification; `sdd:ownership-governance` for the write-ownership matrix — the impl-producer must not modify `spec.md` or the `.feature`; `quill-judge` (the impl-judge) **runs** that verification — it does not author it.
+The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario, **and co-produces their verification** — the per-scenario acceptance checks (required paths, headings/sections, no placeholders, reader-path continuity) the impl-judge will run. Invoked by the SDD conductor. Load the `builder` and `architect` actor governances to self-align AND to write the verification — `quill:quill-builder-impl` among them, whose document-scoped criteria no scenario carries; `sdd:ownership-governance` for the write-ownership matrix — the impl-producer must not modify `spec.md` or the `.feature`; `quill-judge` (the impl-judge) **runs** that verification — it does not author it.
 
 ## Input
 
@@ -24,9 +24,26 @@ MODE: explore | implement
 
 3. **Record the verification** — for each frozen scenario, write its acceptance checks (target path, required headings/sections, no-placeholder, reader-path continuity) to `<DOMAIN_PATH>/verification.md` keyed by scenario name. This is the impl-judge's input; it runs these, never authors them. (In `explore` mode this is throwaway like the spike.)
 
-4. **Maintain the `## Artifacts` table** — add a row for each document written (layer = impl).
+4. **Read each document whole, with the scenario list set aside** — the integrity pass
+   (`quill:quill-builder-impl`). A sentence written to satisfy one scenario is written to stand
+   alone, so it arrives without the context its neighbors established; that pair is only visible
+   from a reader's seat, never from a scenario's. Fix a drifted term by returning it to the subject
+   class it was coined for; fix a skipped option by routing to it or stating why it is excluded.
 
-5. **Never modify `spec.md` or the `.feature`** — the builder does not set its own bar.
+   **Do not de-duplicate a repeated claim.** Recurrence is not a defect, and replacing a passage
+   with a pointer back is: a reader who arrives at that section from the sidebar never read the
+   passage being pointed to, so the pointer costs them the content. Check instead that every path
+   the control flow routes to a claim actually reaches it.
+
+   **Record any deliberate violation** of a catalog entry in `verification.md` under
+   `## Deliberate violations` — one row per claim, naming the **catalog entry**, the **location**,
+   and the **rationale**. Any expectation about prose can be violated to good effect, and this is
+   where you say so before the judge reads. State what the violation buys the reader it was made
+   for; a rationale that only asserts the choice was deliberate does not clear a finding.
+
+5. **Maintain the `## Artifacts` table** — add a row for each document written (layer = impl).
+
+6. **Never modify `spec.md` or the `.feature`** — the builder does not set its own bar.
 
 ## Output
 

@@ -69,7 +69,7 @@ flowchart TD
   CONFIRM[show the resolved list and confirm before writing; never guess] --> WRITE
 
   WRITE{per target model: def already exists?}
-  WRITE -->|exists| SKIP([leave untouched; no duplicate — add is idempotent])
+  WRITE -->|exists| SKIP(["leave untouched; no duplicate — add is idempotent"])
   WRITE -->|missing| CREATE[write one neutral, model-pinned def<br/>at the user-global canonical path + one symlink per runtime]
   WRITE -->|list omits an existing model| NOAUTO([leave it intact; reconcile-delete nothing])
   CREATE --> SHAPE([one def per model; body identical across the family, only the pinned model differs])

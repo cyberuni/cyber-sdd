@@ -57,7 +57,7 @@ Do not reorder or reformat other entries.
 }
 ```
 
-ACED serves its four agent-config artifact-types with one squad. `impl-producer: null` — writing the agent config is done by the `define-agent` / `improve` skills or the SDD-default impl-producer (the conductor running `impl-producer-governance` via a spawned builder), not a bound impl-producer agent. `solution-producer: null` uses the SDD default. ACED binds its own `builder-spec` (`aced-builder-spec`) and `builder-impl` (`aced-builder-impl`) bars; each remaining `null` governance uses the SDD default actor-gate bar.
+ACED serves its four agent-config artifact-types with one squad. `impl-producer: null` — writing the agent config is done by the `define-agent` / `define-command` / `improve` skills or the SDD-default impl-producer (the conductor running `impl-producer-governance` via a spawned builder), not a bound impl-producer agent. `solution-producer: null` uses the SDD default. ACED binds its own `builder-spec` (`aced-builder-spec`) and `builder-impl` (`aced-builder-impl`) bars; each remaining `null` governance uses the SDD default actor-gate bar.
 
 **Each squad's `governances` block is required.** Every squad must carry a `governances` map (each binding may be `null`, but the block itself must be present). Reject a payload with a squad missing its `governances` block — fail with an error and **do not write** the file.
 

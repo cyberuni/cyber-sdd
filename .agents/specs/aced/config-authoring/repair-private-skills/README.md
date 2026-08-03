@@ -72,7 +72,7 @@ flowchart TD
   OP -->|repair: writes fixes| DIR
 
   DIR{.agents/skills exists?}
-  DIR -->|no| CLEAN[ok result / no-op — an absent tree is clean, not an error]
+  DIR -->|no| CLEAN["ok result / no-op — an absent tree is clean, not an error"]
   DIR -->|yes| ENTRY[for each entry under .agents/skills]
 
   ENTRY --> SYM{symlink resolving into the public skills tree?}
@@ -90,12 +90,12 @@ flowchart TD
   INT -->|no| FIXOUT[[validate: missing_metadata_internal issue<br/>repair: insert internal true → updated_metadata]]
 
   FIXOUT --> BLOCK{an existing metadata: block?}
-  BLOCK -->|yes| BLKEXIST[insert inside it, preserving its other keys — no duplicate block]
+  BLOCK -->|yes| BLKEXIST["insert inside it, preserving its other keys — no duplicate block"]
   BLOCK -->|no| BLKNEW[append a new metadata block]
 
   DIR -.->|every entry passes| OKALL[validate: ok result, no issues]
   ENTRY -.->|validate| NOWRITE[validate makes zero filesystem writes]
-  ENTRY -.->|repair| BOUND[every repair delete/rewrite is under .agents/skills —<br/>never touches the public skills tree]
+  ENTRY -.->|repair| BOUND["every repair delete/rewrite is under .agents/skills —<br/>never touches the public skills tree"]
 ```
 
 ## Scenario map

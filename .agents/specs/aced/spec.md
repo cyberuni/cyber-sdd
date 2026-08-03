@@ -58,7 +58,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 | [`config-authoring/`](./config-authoring/README.md) | descriptive index | author + maintain agent config — `define-skill`, `define-agent`, `define-governance`, `skillify`, `improve-skill`, `manage-model-runners`, `list-skills`, `repair-private-skills` |
 | [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `improve` |
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
-| [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` |
+| [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` — plus `actor-bars`, the governances they are graded against |
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
 | [`setup/`](./setup/README.md) | descriptive index | prepare the local ACED environment — `init-aced` (ignore run output) |
 | [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
@@ -75,6 +75,11 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
 - **a new way to *propagate* an authored config back to its source** (contribute upstream, not author or score) → `contribute/`.
 - **a new way to *grow or fix* the golden set** → `suite-authoring/`.
 - **a new SDD delegate role** → `sdd-roles/` (matched to the plugin-contract roles).
+- **a shipped actor bar** (a governance filling one of the squad's `governances` slots) →
+  [`sdd-roles/actor-bars/`](./sdd-roles/actor-bars/README.md), the **reference** node beside the
+  roles that read it — a shipped artifact, not a model, so not `design/`. A bar carries the
+  *gradeable criteria* and cites `cyberplace governance show <name>` for full depth rather than
+  duplicating a shipped contract.
 - **plugin registration / discovery** → `registry/`.
 - **local-environment onboarding** (ready a repo to run ACED — e.g. ignore run output) → `setup/`.
 - **a manage-level (non-mission) operation** (inspect / maintain the tooling corpus, not author or
@@ -103,6 +108,7 @@ never as a top-level folder.
 | `contribution` | `contribute/contribute-skill/` (behavior) |
 | `discovery` | `config-authoring/manage-skill-dirs/` (behavior) |
 | `eval-run` | `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
+| `production-chain` | `sdd-roles/actor-bars/` (reference) |
 | `registry` | `registry/` (behavior) |
 | `routing` | `manage/` (behavior) |
 | `sdd-roles` | `sdd-roles/extract-situation/` (behavior) · `sdd-roles/impl-judge/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/scenario-writer/` (behavior) · `sdd-roles/spec-validator/` (behavior) |

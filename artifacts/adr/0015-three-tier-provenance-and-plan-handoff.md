@@ -50,7 +50,7 @@ A decision is needed on **what is durable vs ephemeral, where each lives, and wh
 
 ## How the field does it (survey)
 
-Full survey with sources: [docs/research/2026-06-agent-plan-persistence.md](../../docs/research/2026-06-agent-plan-persistence.md).
+Full survey with sources: [.research/agent-plan-persistence/](../../.research/agent-plan-persistence/conclusion.md).
 Three lessons drive this decision:
 
 1. **In-repo mid-flight state is the exception; Cursor is the outlier.** Almost every tool

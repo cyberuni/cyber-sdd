@@ -6,14 +6,19 @@ Quill is an SDD plugin specialized in **documentation** — guides, tutorials, a
 
 Documentation has the same failure modes as code: missing content, structural drift, reader-path gaps. Unlike code, there is no compiler or test runner for it. Quill fills that gap by treating documentation as an implementation artifact with verifiable structure.
 
-Verification checks:
+Verification checks — four scoped to a scenario, one scoped to the whole document:
 
-| Check | What it verifies |
-|---|---|
-| **Existence** | Target file or directory exists at the declared path |
-| **Structure** | Required headings and sections are present |
-| **Completeness** | No placeholder text (TBD, TODO, empty sections) |
-| **Reader path** | Step-by-step flows reach a stated outcome without gaps |
+| Check | Scope | What it verifies |
+|---|---|---|
+| **Existence** | scenario | Target file or directory exists at the declared path |
+| **Structure** | scenario | Required headings and sections are present |
+| **Completeness** | scenario | No placeholder text (TBD, TODO, empty sections) |
+| **Reader path** | scenario | Step-by-step flows reach a stated outcome without gaps |
+| **Integrity** | document | No claim landed twice; no term used past its subject class; no route skipping an option the doc named; no two passages contradicting |
+
+The fifth exists because the first four each read only the passage their scenario names, and some
+defects are relations *between* passages — a claim asserted twice passes its scenario twice. It
+stays an inspection rather than a style opinion by requiring both locations to be quoted.
 
 ## Domain types
 

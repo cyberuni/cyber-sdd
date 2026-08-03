@@ -485,4 +485,4 @@ The capability and its engine share the `mission-graph` name.
   [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md); the store
   choice (SDD-native/per-repo/git-tracked; beads/Dolt/global-hub rejected; v1-in-tree → F3 orphan-ref)
   is [ADR-0026](../../../../artifacts/adr/0026-mission-graph-store.md); the prior-art background is the
-  [work-decomposition survey](../../../../docs/research/2026-07-work-decomposition.md).
+  [work-decomposition survey](../../../../.research/work-decomposition-cr-parallelism/survey.md).

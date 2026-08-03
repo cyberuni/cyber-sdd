@@ -89,6 +89,27 @@ section list is not a control-flow graph: it records what was written, while the
 reader needs and in what order they need it. Where the document serves several audiences, the first
 branch is usually **which audience the reader is**, because that selects which part they need.
 
+**An outcome node holding a disjunction is an unmade decision.** A leaf reading `[do A, or do B]`
+leaves the reader exactly where they arrived — needing to choose, with no criterion to choose on.
+Promote it to a decision node and put the discriminator on the edges:
+
+```
+K -- yes --> K1[split into units, or scope by prose]     ← unmade: what picks which?
+
+K -- yes --> K1{would splitting copy more than it separates?}
+K1 -- no --> K2[split into single-target units]
+K1 -- yes --> K3[keep one file, branch by prose]
+```
+
+A disjunction in a **decision** node is fine — that is a question. A disjunction in an **outcome**
+is a decision the author deferred onto the reader, and it is the shape that lets a document ratify
+whichever branch its draft happened to take.
+
+**A route must reach every option the document itself names.** Where the CFG routes a case across a
+set the document enumerates elsewhere — its mechanisms, its arrangements, its targets — an option
+silently absent from the routing is a gap, not a simplification. Route to it or state why it is
+excluded.
+
 ### `## Scenario map` — 1:1 with the suite
 
 Standard (`sdd:spec-format-governance`). Every coverage row (element 5) is reachable from at least
@@ -105,6 +126,19 @@ And it makes that contrast in exactly one place, later passages referring back
 ```
 
 This freezes no wording — it fixes how many places carry a claim, not how any of them is phrased.
+
+**A routing scenario asserts the discriminator, not the destination.** `Then it directs that case to
+prose matching` names one member of a set and passes whether or not that member is the right one —
+so the suite ratifies the draft's route instead of testing it. Assert what decides:
+
+```gherkin
+Then it directs a target whose rules can stand as their own unit to description matching
+And it reserves prose matching for variants that splitting would duplicate
+```
+
+A destination-only `Then` is worth writing only where the set has one member. Wherever the reader is
+choosing, the criterion is the behavior and the destination is a consequence of it.
+
 Relations the suite still cannot reach, because they hold *between* passages no single scenario
 reads, are graded once per document against `quill:quill-builder-impl`.
 
@@ -145,7 +179,10 @@ the audience element exists to catch.
 4. **Key points are claims the document is incomplete without**, each statically checkable, complete
    when meeting them all rules out the failure mode.
 5. **The CFG is the reader's decision path, not the table of contents** — branch on audience first
-   when there are several.
+   when there are several; an outcome node reading `A, or B` is a decision deferred onto the reader,
+   and a route must reach every option the document names.
 6. **Never freeze order, wording, examples, or tone** — freeze the claims and the reader's path.
 7. **Quantify a claim several passages could carry** — `states X` passes twice over, so assert
    *exactly one place*; unquantified, the suite pays for restatement.
+8. **A routing scenario asserts the discriminator**, never the destination alone — otherwise it
+   ratifies the route the draft took rather than testing it.

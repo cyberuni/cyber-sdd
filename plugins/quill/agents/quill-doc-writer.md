@@ -26,9 +26,14 @@ MODE: explore | implement
 
 4. **Read each document whole, with the scenario list set aside** — the integrity pass
    (`quill:quill-builder-impl`). A sentence written to satisfy one scenario is written to stand
-   alone, so it restates its context; that pair is only visible from a reader's seat, never from a
-   scenario's. Fix a restated claim by making the later passage refer back, not by cutting either
-   passage; fix a drifted term by returning it to the subject class it was coined for.
+   alone, so it arrives without the context its neighbors established; that pair is only visible
+   from a reader's seat, never from a scenario's. Fix a drifted term by returning it to the subject
+   class it was coined for; fix a skipped option by routing to it or stating why it is excluded.
+
+   **Do not de-duplicate a repeated claim.** Recurrence is not a defect, and replacing a passage
+   with a pointer back is: a reader who arrives at that section from the sidebar never read the
+   passage being pointed to, so the pointer costs them the content. Check instead that every path
+   the control flow routes to a claim actually reaches it.
 
 5. **Maintain the `## Artifacts` table** — add a row for each document written (layer = impl).
 

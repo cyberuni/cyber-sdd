@@ -52,18 +52,35 @@ If any reader-path condition cannot be verified by static inspection, mark it SK
 
 Once per document, **not** once per scenario, against `quill:quill-builder-impl`. Read each document
 whole, with the scenario list set aside — these defects are relations between passages, so they are
-invisible from any single scenario's seat:
+invisible from any single scenario's seat.
 
-- **Restatement** — one claim landed in two passages. Report only with **both locations quoted**.
-- **Term drift** — one term predicated of two different classes of subject (a container in one use,
-  an act in another). Report only with **both uses quoted**.
+**Inspection — a boolean `BLOCKER`:**
+
 - **Skipped option** — the document enumerates a set, and a later passage routes a case across that
   set without one of its members. Quote **the enumeration and the routing**.
-- **Contradiction** — two passages whose claims cannot both hold. Quote **both**, and name which one
-  the rest of the document depends on.
 
-**The frozen suite outranks this bar.** Where a scenario requires what the bar would fail — a claim
-the suite asserts in two places, a term a scenario fixes — the scenario wins and the bar yields. The
+**Judgment — a graded finding against the defect catalog**, advisory until its entry is calibrated
+and blocking thereafter only when confirmed and undefended:
+
+- **Term drift** — one term predicated of two different classes of subject (a container in one use,
+  an act in another). Report only with **both uses quoted**. Does *not* fire where the document
+  explicitly extends the term to the second class.
+- **Contradiction** — two passages whose claims cannot both hold. Quote **both**, and name which one
+  the rest of the document depends on. Does *not* fire on two claims scoped to different conditions,
+  each stating its condition.
+
+**Restatement is retracted, not relocated.** A claim landed in two passages is **not** a defect at
+either instrument. Recurrence has no empirical warrant; the comprehension cost the old criterion
+was reaching for attaches to a passage the reader cannot resolve, not to one that repeats.
+
+**Run the judged pass blind, then score it.** Simulate a reader on one declared control-flow path
+*without* the catalog in hand, then score that transcript against the catalog. A judge that reads
+holding the catalog finds what it was told to find, and its finding is an opinion about the prose
+rather than evidence about a reader. Weigh any deliberate-violation rationale the producer attached
+before reporting.
+
+**The frozen suite outranks this bar.** Where a scenario requires what the bar would fail — a term a
+scenario fixes, a route a scenario pins — the scenario wins and the bar yields. The
 contract was ratified at the spec gate and the judge does not overrule it; report the collision as
 an `OBSERVATIONS` entry owned by the architect, never as a `BLOCKER`. A bar that could veto a frozen
 scenario would make the impl gate a second spec gate.

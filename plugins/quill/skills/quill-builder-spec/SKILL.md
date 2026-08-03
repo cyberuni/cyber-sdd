@@ -124,17 +124,26 @@ become the contract. The coverage table is the inventory; the CFG must spend it.
 Standard (`sdd:spec-format-governance`). Every coverage row (element 5) is reachable from at least
 one scenario; a row no scenario checks is unenforced.
 
-**Quantify a claim that more than one passage could carry.** `Then it states X` is satisfied by X
-appearing twice — so a coverage row whose claim is load-bearing in several sections is satisfied
-*more* the more it is restated, and a passage de-duplicated in one revision duplicates again in the
-next. Where a claim spans passages, assert the count:
+**A claim several passages could carry is asserted against the reader's paths, not against a count.**
+`Then it states X` is satisfied by X appearing anywhere, so a coverage row whose claim is load-bearing
+in several sections is under-specified: the scenario passes on a document that lands the claim only
+where one reader will pass. Assert the paths instead:
 
 ```gherkin
 Then it presents two values that cannot both be one house style
-And it makes that contrast in exactly one place, later passages referring back
+And it states that contrast on each path the control flow routes to it
 ```
 
-This freezes no wording — it fixes how many places carry a claim, not how any of them is phrased.
+The CFG is already in the spec and the passages are already in the document, so this is a comparison
+the reader-path check settles. It freezes no wording, no section order, and no count — only that a
+reader who needs the claim reaches it.
+
+**Do not assert a place count.** An earlier revision of this bar prescribed `in exactly one place,
+later passages referring back` on the reasoning that an unquantified suite pays for restatement.
+Recurrence has no empirical warrant as a defect (`.research/documentation-craft/`), and the count
+gets the driving case backwards: a reader arriving at a later section from the sidebar has not read
+the lead, so the "redundant" restatement was that reader's only statement of the claim, and replacing
+it with a pointer made the document worse for exactly them.
 
 **A routing scenario asserts the discriminator, not the destination.** `Then it directs that case to
 prose matching` names one member of a set and passes whether or not that member is the right one —
@@ -191,7 +200,8 @@ the audience element exists to catch.
    when there are several; an outcome node reading `A, or B` is a decision deferred onto the reader,
    and a route must reach every option the document names.
 6. **Never freeze order, wording, examples, or tone** — freeze the claims and the reader's path.
-7. **Quantify a claim several passages could carry** — `states X` passes twice over, so assert
-   *exactly one place*; unquantified, the suite pays for restatement.
+7. **Assert a load-bearing claim against the reader's paths, never a place count** — `states X`
+   passes wherever X lands, so require it on each path the CFG routes to it. Recurrence is not a
+   defect.
 8. **A routing scenario asserts the discriminator**, never the destination alone — otherwise it
    ratifies the route the draft took rather than testing it.

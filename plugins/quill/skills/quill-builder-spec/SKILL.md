@@ -202,6 +202,31 @@ audience-initial prefix loses nothing by going: the rows are already grouped und
 own heading, so the letter restates the heading while colliding with the graph. Twelve authored
 nodes currently use twelve schemes, which costs a reader moving between them a fresh key each time.
 
+### After an edit — reconcile what references the claim, and audit what freezes it
+
+A node is a web of restatements: one coverage row is cited by an entry point, described in the CFG,
+and frozen by a `Then`. Change the claim and the copies stay where they are. Four of four remediated
+nodes regressed in a single round, and **every finding was introduced by the remediation itself** —
+so this is a duty of the edit, not of the next review.
+
+**Reconcile every passage that references the claim.** Having changed a coverage row, a north star,
+or an audience row, walk what cites it — entry points, the CFG, non-goals, prerequisites, the
+scenario map — and correct whatever still describes the old claim.
+
+**Then audit every `Then` you wrote or touched.** The sweep above is necessary and not sufficient,
+which is measured rather than supposed: run on its own it found no staleness — a cold judge confirmed
+that — and the same node still shipped a defect in each of two consecutive rounds, both a `Then` that
+**mistranscribed the clause it freezes**. Confirming that a reference still points somewhere does not
+confirm it still says the same thing. So quote the source clause beside each touched `Then` and
+classify the pair: **same / narrower / wider / different**. Only *same* survives; the other three are
+the finding.
+
+**Where a `Then`'s only home is a CFG node label, say so.** One of those two defects existed
+precisely because a label was a claim's sole home — a claim with one copy has nothing to disagree
+with, and reads as consistent for exactly that reason.
+
+**A sweep is not self-certifying.** Both halves reduce rounds; neither replaces the cold judge.
+
 ## What a documentation spec must never freeze
 
 Freezing any of these produces a spec that breaks on every honest revision while catching no real
@@ -251,3 +276,6 @@ the audience element exists to catch.
    ratifies the route the draft took rather than testing it.
 9. **One namespace per node** — an identifier denotes one thing; entry points are keyed `UC1`, `UC2`,
    so they cannot collide with a single-letter CFG label.
+10. **After an edit, reconcile the references *and* audit the `Then`s you touched** — quote each
+    against its source clause and classify same / narrower / wider / different. The reference sweep
+    alone measurably misses mistranscription.

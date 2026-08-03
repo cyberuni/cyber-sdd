@@ -55,6 +55,22 @@ missed** — without that, the north star is unfalsifiable and grades nothing.
 
 > *A reader finishes able to X.* **A revision that leaves a reader able to Y but not X has missed.**
 
+**Its kind is fixed by the declared type.** The *Success is* column above is not description — it is
+the form this element must take. Nothing else joins the two, so a spec can declare `reference` and
+write an explanation's north star with both elements looking correct on their own:
+
+| Declared type | The north star claims | The failure mode names |
+|---|---|---|
+| **tutorial** | the reader can now do the thing, and trusts they can | a reader who followed it through and still cannot |
+| **how-to** | the reader got unblocked on the goal they arrived with | a reader still blocked, or unblocked on a different goal |
+| **reference** | the reader retrieved the one thing they came for, accurately | a reader who found the entry and still cannot settle their case |
+| **explanation** | the reader can make a decision they could not before | a reader who can restate the argument but not act on it |
+
+Reference drifting toward explanation is the common direction — *"a reader finishes understanding how
+the bar works"* grades nothing a lookup cares about, since comprehension does not fail when the entry
+the reader came for is missing. Every node in this corpus that declared `reference` made this join by
+hand; the bar is what stops it depending on the producer noticing.
+
 **4. Why it exists.** The problem the document resolves, in the domain's own terms. If it cannot be
 stated without restating the title, the document may not need to exist separately from its parent —
 say so rather than papering over it.
@@ -219,7 +235,8 @@ the audience element exists to catch.
    audience; opposite needs on one fact is a split signal.
 2. **Declare the doc type** — tutorial / how-to / reference / explanation; mixing them is the common
    structural defect.
-3. **The north star carries a failure mode**, or it grades nothing.
+3. **The north star carries a failure mode**, or it grades nothing — and its kind is the declared doc
+   type's *Success is* cell: retrieval for a reference, a decision for an explanation.
 4. **Key points are claims the document is incomplete without**, each statically checkable, complete
    when meeting them all rules out the failure mode — argued **row by row, citing each `#`**, since a
    paraphrased argument goes stale silently. A row the argument cannot spend is cut.

@@ -11,13 +11,15 @@ Legend for source type: **experiment** (controlled study with reported statistic
 
 | # | Claim | Source | Type | Strength |
 |---|---|---|---|---|
-| E01 | Comprehension is measurably faster when a sentence's Given information has a **direct antecedent** in the preceding text than when the reader must build a bridging inference: **835 ms vs 1016 ms**, a 181 ms penalty (Exp. I). Replicated: **1031 vs 1168 ms**, Δ137, minF′(1,23)=15 (Exp. II); **1023 vs 1097 ms** with a Negative-antecedent control at 1088 ms (Exp. III). | Haviland & Clark 1974, *JVLVB* 13:512–521 (read directly) | experiment | **High** — three experiments, consistent direction, control condition included |
+| E01 | Comprehension is measurably faster when a sentence's Given information has a **direct antecedent** in the preceding text than when the reader must build a bridging inference. **The clean estimate is Δ137 ms (Exp. II, repetition controlled — see E03); Exp. I's Δ181 ms confounds antecedent-finding with word repetition** and should not be the quoted figure: **835 vs 1016 ms** (Exp. I). Replicated: **1031 vs 1168 ms**, Δ137, minF′(1,23)=15 (Exp. II); **1023 vs 1097 ms** with a Negative-antecedent control at 1088 ms (Exp. III). | Haviland & Clark 1974, *JVLVB* 13:512–521 (read directly) | experiment | **High** — three experiments, consistent direction, control condition included |
 | E02 | The authors' own statement of the mechanism: the listener "first searches memory for antecedent information that matches the sentence's Given information; he then revises memory by attaching the New information to that antecedent." | ibid., abstract | experiment | High |
-| E03 | **Verbatim repetition is not the active ingredient.** Exp. II was run to "rule out a repetition explanation"; the repetition manipulation gave **1033 ms with repetition vs 1014 ms without — 19 ms "in the wrong direction"**, n.s. | ibid. | experiment | **High** — a reported null, and the single most load-bearing result for our design |
+| E03 | **Verbatim repetition is not the active ingredient — established by design, not by a null.** Exp. II rewrote every Indirect context so the critical noun *is* repeated while no existence is posited ("Andrew was especially fond of beer. / The beer was warm."). Repetition equalized across conditions, **the effect survives: 1031 vs 1168 ms, Δ137, minF′(1,23)=15.7, p<.001.** Authors: "mere repetition of the critical noun is not enough to account for the results of Experiment I." | ibid., Exp. II | experiment | **High** — a controlled replication; the load-bearing result for our design |
+| E03b | Corroborating check, weaker: within Exp. III's 48 Direct-Antecedent pairs, 25 carried a surface repetition and 23 did not — **1033 ms with vs 1014 ms without, 19 ms "in the wrong direction", t(47)=1.72, n.s.** Repetition bought nothing even where the antecedent was already direct. | ibid., Exp. III | experiment | **Medium** — a non-significant within-condition contrast; corroborates E03, cannot carry the claim alone |
 
 > **Consuming note.** E03 is why "a claim must appear in exactly one place" has no empirical warrant,
 > and why "a passage must not presuppose what the reader cannot retrieve" does. The measured cost
-> attaches to *unresolvable presupposition*, not to *recurrence*.
+> attaches to *unresolvable presupposition*, not to *recurrence* — and it is a controlled replication
+> that establishes this, with E03b's null merely agreeing. Cite E03; do not lead with the null.
 
 ## B. Craft principles and their stated epistemic status
 

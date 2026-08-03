@@ -51,3 +51,23 @@ nondeterministic judgments like a human given good instructions and process.
 **Caveat carried forward:** E17 is our inference, not a finding. D2 records what would falsify it —
 calibration against known-good and known-weak documents. The judged tier should not gate until that
 has been run.
+
+## 2026-08-02 — citation corrected: the warrant is a replication, not a null
+
+**What changed:** E03 rewritten and E03b split out. The "19 ms in the wrong direction" figure was
+attributed to Experiment II and described as the load-bearing result; both were wrong. Experiment II
+is a *controlled replication* — the Indirect contexts were rewritten so the critical noun is repeated
+without positing existence ("Andrew was especially fond of beer. / The beer was warm."), repetition
+thereby equalized, and the effect held at 1031 vs 1168 ms, minF′(1,23)=15.7, p<.001. The 19 ms figure
+is from Experiment III: a within-condition contrast among Direct-Antecedent pairs, t(47)=1.72, n.s.
+
+Also: the headline effect size is now **137 ms** (Exp. II, repetition controlled), not 181 ms
+(Exp. I, confounded with word repetition).
+
+**Why it changed:** the numbers were questioned; re-reading the paper's Experiment II section showed
+the mis-attribution.
+
+**Conclusion changed materially:** no — the verdict is unchanged and is in fact better supported,
+since repetition was excluded twice: once by design and once by a corroborating null. What changed is
+which result carries it. A non-significant within-condition contrast cannot bear a design decision;
+a controlled replication at p<.001 can.

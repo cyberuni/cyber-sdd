@@ -20,9 +20,10 @@ of that is measured and which part is our inference.
 ### 1. Reframe the duplication criterion: the defect is unresolvable presupposition, not recurrence
 
 The measured cost in comprehension attaches to a passage whose given information has **no retrievable
-antecedent** — 181 ms of bridging inference in the original experiment (E01). Verbatim repetition,
-tested directly as a rival explanation, produced **no benefit and a 19 ms difference in the wrong
-direction** (E03).
+antecedent** — **137 ms** of bridging inference once word repetition is controlled (E01, E03).
+Repetition was eliminated as the explanation by **design**: Experiment II equalized it across both
+conditions and the effect held at p<.001. A separate within-condition check found repetition bought
+nothing even where the antecedent was direct (19 ms the wrong way, n.s. — E03b).
 
 So "a claim must appear in exactly one place" has **no empirical warrant**, and should be dropped as
 the headline criterion. What replaces it is narrower and better grounded:
@@ -118,9 +119,12 @@ home (that is our design inference, not a finding).
 
 ## Strongest supporting evidence
 
-- **E03**, the repetition null — the load-bearing result. It converts "don't duplicate" from a rule
-  into a misdiagnosis, and points at the mechanism that actually costs the reader.
-- **E01**, the 181 ms direct-vs-indirect antecedent effect, with a Negative-antecedent control.
+- **E03**, Experiment II's controlled replication — the load-bearing result. With repetition present
+  in *both* conditions, the antecedent effect survives at p<.001, which converts "don't duplicate"
+  from a rule into a misdiagnosis and points at the mechanism that actually costs the reader.
+- **E01**, the 137 ms direct-vs-indirect effect (repetition controlled), plus a Negative-antecedent
+  control in Exp. III.
+- **E03b** corroborates E03 but is non-significant and must not be cited as the primary warrant.
 - **E05**, Gopen & Swan disclaiming rule status in their own text.
 
 ## Strongest weakening / contradictory evidence

@@ -7,7 +7,15 @@ metadata:
 
 # quill-doc-writer
 
-The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario, **and co-produces their verification** — the per-scenario acceptance checks (required paths, headings/sections, no placeholders, reader-path continuity) the impl-judge will run. Invoked by the SDD conductor. Load the `builder` and `architect` actor governances to self-align AND to write the verification — `quill:quill-builder-impl` among them, whose document-scoped criteria no scenario carries; `sdd:ownership-governance` for the write-ownership matrix — the impl-producer must not modify `spec.md` or the `.feature`; `quill-judge` (the impl-judge) **runs** that verification — it does not author it.
+The **impl-producer** for documentation domain types. Writes the actual documents against the **frozen** `.feature` so they satisfy every scenario, **and co-produces their verification** — the per-scenario acceptance checks (required paths, headings/sections, no placeholders, reader-path continuity) the impl-judge will run. Invoked by the SDD conductor. `quill-judge` (the impl-judge) **runs** that verification — it does not author it.
+
+**Load the impl-producer bars — the whole impl-gate lens set `{builder, architect}`, forward, exactly the set the judge grades backward** (`sdd:plugin-contract-governance`). The Quill bar is a **union onto** the SDD defaults, not a replacement for them:
+
+- the resolved **builder-impl** bar — `quill:quill-builder-impl`, whose document-scoped criteria no scenario carries, unioned onto `sdd:builder-impl-governance`.
+- the resolved **architect-impl** bar (`sdd:architect-impl-governance`) — structural fit of the documents written.
+- `sdd:ownership-governance` — the write-ownership matrix: the impl-producer must not modify `spec.md` or the `.feature`.
+
+Self-align to that set **and** write the verification against it. **Track every governance you load and declare the full list as `GOVERNANCES_APPLIED`** — a required output field, listed even when empty; the role's bar set is otherwise unrecorded, and an act that records nothing cannot be told from one that never ran. Never write the list into `spec.md` or the `.feature`.
 
 ## Input
 
@@ -49,6 +57,7 @@ MODE: explore | implement
 
 ```
 STATUS:           complete | needs-input | blocked
+GOVERNANCES_APPLIED: [ every governance name loaded before writing — required, [] when none, never written into spec.md or the .feature ]
 ARTIFACTS_WRITTEN: [ document paths ]
 VERIFICATION_WRITTEN: <path to verification.md, or "none">
 CHANGES_MADE:     <documents created or updated, or "none">

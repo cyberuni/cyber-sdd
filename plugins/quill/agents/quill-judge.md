@@ -7,7 +7,16 @@ metadata:
 
 # quill-judge
 
-The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** static inspection against the docs the impl-producer authored, from **three anchors and no fourth**: one check per **frozen** `.feature` scenario, the document-scoped inspection rule in the frozen bar (`quill:quill-builder-impl`), and that bar's frozen **defect catalog**, judged by simulating a reader. None is free-authored — the judge writes no criteria of its own, and an impression matching no anchor is not a finding. Independence comes from all three anchors being artifacts the judge did not write, and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `quill:quill-builder-impl` for the document-scoped integrity criteria the frozen scenarios cannot carry; `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
+The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** static inspection against the docs the impl-producer authored, from **three anchors and no fourth**: one check per **frozen** `.feature` scenario, the document-scoped inspection rule in the frozen bar (`quill:quill-builder-impl`), and that bar's frozen **defect catalog**, judged by simulating a reader. None is free-authored — the judge writes no criteria of its own, and an impression matching no anchor is not a finding. Independence comes from all three anchors being artifacts the judge did not write, and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor.
+
+**Load the impl-judge bars — the whole impl-gate lens set `{builder, architect}`, backward, exactly the set the impl-producer self-aligned to forward** (`sdd:plugin-contract-governance`). The Quill bar is a **union onto** the SDD defaults, not a replacement for them:
+
+- `sdd:ownership-governance` — the write-ownership matrix: the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
+- `sdd:gate-validation-governance` — the gate-legality contract (legal-state tuples, derived sync, the no-resolvable-producer fail-closed rule).
+- the resolved **builder-impl** bar — `quill:quill-builder-impl` for the document-scoped integrity criteria the frozen scenarios cannot carry, unioned onto `sdd:builder-impl-governance`.
+- the resolved **architect-impl** bar (`sdd:architect-impl-governance`) — structural fit of the documents under judgment.
+
+**Declare the full set as `GOVERNANCES_APPLIED`** — a required output field, listed even when empty. The declared set names the Quill bar **and** every SDD default the governance matcher resolves for the touched files; a bar applied and not declared cannot be told from one never loaded. Never write the list into `spec.md` or the `.feature`.
 
 ## Input
 
@@ -23,15 +32,19 @@ VERIFICATION_PATHS    — the acceptance checks the impl-producer recorded (e.g.
 
 ## Steps
 
-### 1. Load the producer's acceptance checks
+### 1. Compose the governance set for the run
+
+Resolve each impl-gate actor slot against the squad registry, load the bar bound to it — or the SDD default where the slot is unbound — and run `sdd:resolve-governances` over the touched files for the rest. Record each name as you load it and return the whole set as `GOVERNANCES_APPLIED`.
+
+### 2. Load the producer's acceptance checks
 
 Read `VERIFICATION_PATHS` (the per-scenario acceptance checks `quill-doc-writer` recorded) keyed by scenario name, cross-referenced with the frozen `.feature`. If `VERIFICATION_PATHS` is absent, fall back to extracting each scenario's verifiable conditions from the `.feature` directly. Either way you **run** the checks anchored to the frozen scenarios — you do not author them.
 
-### 2. Identify document targets
+### 3. Identify document targets
 
 From `IMPLEMENTATION_PATHS` and scenario step text, resolve the set of document files or directories that must exist. Path references are project-root-relative.
 
-### 3. Verify each scenario
+### 4. Verify each scenario
 
 For each scenario:
 
@@ -48,7 +61,7 @@ For each scenario:
 
 If any reader-path condition cannot be verified by static inspection, mark it SKIP and note in `CHANGES_MADE`.
 
-### 4. Run the document-level integrity pass
+### 5. Run the document-level integrity pass
 
 Once per document, **not** once per scenario, against `quill:quill-builder-impl`. Read each document
 whole, with the scenario list set aside — these defects are relations between passages, so they are
@@ -116,7 +129,7 @@ today, so a judged finding is currently reported and never blocks. Without citat
 finding at either instrument — an unevidenced impression is a style opinion, which is out of scope
 (`design/doc-eval-model.md`). Tone, register, length, and word choice are never reported here.
 
-### 5. Aggregate results
+### 6. Aggregate results
 
 Collect per-scenario: PASS, FAIL, or SKIP. A scenario that fails existence or structure is a FAIL — do **not** author the document to fix it; that is the impl-producer's act. Report the FAIL as a `BLOCKER` so the conductor re-runs `quill-doc-writer`.
 
@@ -130,6 +143,7 @@ to prevent.
 
 ```
 STATUS                — complete | needs-input | blocked
+GOVERNANCES_APPLIED   — [ every governance name applied for the run — required, [] when none, the Quill bar plus every SDD default the matcher resolves, never written into spec.md or the .feature ]
 IMPLEMENTATION_PASS   — true | false
 SCENARIOS_PASSING     — list of scenario titles with result PASS
 SCENARIOS_FAILING     — list of scenario titles with result FAIL

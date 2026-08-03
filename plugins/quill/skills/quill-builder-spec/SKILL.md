@@ -69,6 +69,12 @@ say so rather than papering over it.
   existence, structure, completeness, reader-path).
 - **The coverage list is complete when** a document meeting every row cannot still trip the north
   star's failure mode. If it can, a key point is missing.
+- **Spend every row by its number.** That completeness claim is an argument against the table, so
+  make it row by row: cite each `#` and say what it rules out. A paraphrase — *"the rows on splitting
+  and on precedence cover it"* — is what goes stale, because the argument keeps reading as sound
+  while the row it names has moved underneath it. Three regressions in this bar's own corpus were
+  exactly that, each surfacing only after a different, unrelated fix shifted what the summary
+  referred to. **A row the argument cannot spend is a row nothing depends on — cut it.**
 
 **6. Non-goals.** What the document deliberately does not cover — **and where that lives instead**. A
 non-goal with no forwarding address reads as an omission rather than a decision.
@@ -195,7 +201,8 @@ the audience element exists to catch.
    structural defect.
 3. **The north star carries a failure mode**, or it grades nothing.
 4. **Key points are claims the document is incomplete without**, each statically checkable, complete
-   when meeting them all rules out the failure mode.
+   when meeting them all rules out the failure mode — argued **row by row, citing each `#`**, since a
+   paraphrased argument goes stale silently. A row the argument cannot spend is cut.
 5. **The CFG is the reader's decision path, not the table of contents** — branch on audience first
    when there are several; an outcome node reading `A, or B` is a decision deferred onto the reader,
    and a route must reach every option the document names.

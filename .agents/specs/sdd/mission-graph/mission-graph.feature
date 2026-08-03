@@ -464,3 +464,147 @@ Feature: The mission-graph kernel — the git-tracked store and the ready/cycles
     Given the store override names the in-tree backend
     When the store backend is resolved inside a git work-tree
     Then the in-tree backend is selected
+
+  # ── Retiring the in-tree seed, so a migration actually reaches other clones ──
+  # migrate COPIES the in-tree list into the orphan ref. If the copy is left tracked on the branch it
+  # travels to every clone, where — the orphan ref not being fetched by default — it resolves the
+  # backend back to in-tree and is read as the current list. That is a fixpoint: the clone reads a
+  # stale list that looks valid, and no sync can dislodge it. So migrate retires the seed once the ref
+  # provably holds its events, and never before.
+
+  Scenario: migrate retires the in-tree seed once the orphan ref holds its events
+    Given an in-tree store holding events and no orphan ref
+    When the store is migrated
+    Then the in-tree store file is deleted and its deletion is staged
+    And migrate reports that the staged deletion must be committed to reach other clones
+
+  Scenario: migrate keeps the in-tree seed when the orphan ref does not hold its events
+    Given an in-tree store holding events
+    And an orphan ref whose events do not include every line of that in-tree store
+    When the store is migrated
+    Then the in-tree store file is left in place
+    And migrate reports that it will not retire a seed the orphan ref does not carry
+
+  Scenario: migrate retires a seed an earlier migration left behind
+    Given an orphan ref already holding every line of the in-tree store
+    When the store is migrated
+    Then the in-tree store file is deleted and its deletion is staged
+    And the orphan ref is left unchanged
+
+  Scenario: a fresh clone of a migrated project resolves to the orphan-ref backend
+    Given a project whose in-tree seed was retired by migrate and the deletion committed
+    And a remote holding that project's store ref
+    And a fresh clone of that remote
+    When the store backend is resolved in the clone
+    Then the orphan-ref backend is selected, so sync can collect the shared list
+
+  # ── Store reach — carrying the orphan ref between clones ──
+  # Branch-independent is not the same as everywhere. refs/sdd/* sits outside refs/heads/*, which
+  # git's default refspec is the only thing it copies, so the ref is shared across the WORKTREES of
+  # one clone and travels no further on its own. `sync` is the one deliberate step that widens that
+  # reach: it names the ref explicitly on its own command line, so it needs no git configuration and
+  # writes none. It is never implicit — no read reaches the network. Exercised over a CONSTRUCTED
+  # throwaway bare remote plus throwaway clones, never the project's live store.
+
+  Scenario: sync reports both sides empty when neither holds a store ref
+    Given a clone whose store ref is unset
+    And that clone holds no in-tree store, so it resolves to the orphan-ref backend
+    And a remote of that clone whose store ref is unset
+    When the store is synced
+    Then sync reports that neither side holds a store ref
+    And the clone store ref is still unset
+    And the remote store ref is still unset
+
+  Scenario: sync publishes a local-only store ref to the remote
+    Given a clone whose store ref holds one mission node
+    And a remote of that clone whose store ref is unset
+    When the store is synced
+    Then the remote store ref holds the mission node the clone ref holds
+
+  Scenario: sync publishes a store ref that is ahead of a present remote ref
+    Given a remote whose store ref holds one mission node
+    And a clone whose store ref is a descendant of the remote's, holding a second mission node
+    When the store is synced
+    Then the remote store ref equals the clone store ref
+    And the remote holds both mission nodes
+
+  Scenario: sync fast-forwards a store ref that is behind the remote
+    Given a clone whose store ref holds one mission node
+    And that clone's only fetch refspec is the default branch refspec
+    And a remote whose store ref is a descendant of the clone's, holding a second mission node
+    When the store is synced
+    Then the clone store ref equals the remote store ref
+    And the clone reads back both mission nodes
+    And the clone's fetch refspecs are unchanged
+
+  Scenario: sync collects the remote store ref when the clone holds none
+    Given a remote whose store ref holds one mission node
+    And a clone of that remote whose store ref is unset
+    And that clone holds no in-tree store, so it resolves to the orphan-ref backend
+    And that clone's only fetch refspec is the default branch refspec
+    When the store is synced
+    Then the clone store ref equals the remote store ref
+    And the clone reads back the mission node the remote ref holds
+    And the clone's fetch refspecs are unchanged
+
+  Scenario: sync reports agreement when both store refs are the same commit
+    Given a clone whose store ref holds one mission node
+    And a remote whose store ref is the same commit
+    When the store is synced
+    Then sync reports the store refs as already in agreement
+    And the clone store ref is unchanged
+    And the remote store ref is unchanged
+
+  Scenario: sync refuses a store ref both sides appended to
+    Given a clone whose store ref holds a mission node the remote ref does not
+    And a remote whose store ref holds a mission node the clone ref does not
+    When the store is synced
+    Then sync refuses and reports both store ref values
+    And the clone store ref is unchanged
+    And the remote store ref is unchanged
+
+  Scenario: reading the store never contacts the remote
+    Given a clone whose store ref holds one mission node
+    And that clone's remote URL points at a filesystem path holding no repository
+    When the store is read
+    Then the mission node is read back from the local ref, because sync is only ever explicit
+
+  # Reach guards
+
+  Scenario: sync fails loudly when the remote cannot be reached
+    Given a clone whose store ref is unset
+    And that clone holds no in-tree store, so it resolves to the orphan-ref backend
+    And that clone's remote URL points at a filesystem path holding no repository
+    When the store is synced
+    Then sync reports that it could not reach the remote and exits non-zero
+    And it does not report that neither side holds a store ref
+
+  Scenario: sync writes no push refspec to the clone's remote configuration
+    Given a clone whose store ref holds one mission node
+    And a remote of that clone whose store ref is unset
+    When the store is synced
+    Then the remote push refspec is unset, so an ordinary push still sends the current branch
+
+  Scenario: sync makes no change under the in-tree backend
+    Given a clone holding an in-tree store
+    And that clone's store ref is unset, so it resolves to the in-tree backend
+    And a remote of that clone whose store ref is unset
+    When the store is synced
+    Then sync reports the in-tree backend
+    And the remote store ref is still unset
+    And the clone store ref is still unset
+
+  Scenario: sync no-ops under the in-tree backend even when the remote is unreachable
+    Given a clone holding an in-tree store
+    And that clone's store ref is unset, so it resolves to the in-tree backend
+    And that clone's remote URL points at a filesystem path holding no repository
+    When the store is synced
+    Then sync reports the in-tree backend and exits zero
+    And it does not report that the remote could not be reached
+
+  Scenario: sync fails loudly when the clone has no remote configured
+    Given a clone whose store ref holds one mission node
+    And that clone has no remote configured
+    When the store is synced
+    Then sync reports that it has no remote to reach and exits non-zero
+    And the clone store ref is unchanged

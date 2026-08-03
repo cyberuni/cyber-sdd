@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Accepted — **amended**, see [Amendment](#amendment--the-orphan-refs-reach-stops-at-the-clone-mission-graph-ref-propagation).
 
 Scope: this ADR records the **store** decision — where and how the mission graph persists. The
 compiler/scheduler *model* that reads and grows the graph (lowering, hazards, `ready`/`cycles`
@@ -82,7 +82,8 @@ Facts that shape the choice:
 
 ### Option 5: SDD-native, per-repo, git-tracked store *(chosen)*
 
-- **Pros**: correct locality — the graph travels with the repo and its history; unifies provenance
+- **Pros**: correct locality — the graph travels with the repo and its history (qualified for the F3
+  orphan ref, see [Amendment](#amendment--the-orphan-refs-reach-stops-at-the-clone-mission-graph-ref-propagation)); unifies provenance
   beside the plan briefs; no new toolchain, DB, or process; append-only + git = a free audit trail;
   ~ms folds at the design ceiling.
 - **Cons**: we own the store and reimplement beads' `ready`/`cycles` primitives (small at our scale);
@@ -126,7 +127,7 @@ design *reference*, not runtime dependencies.
   - **F3 = the orphan ref `sdd/mission-graph`.** When the fleet runs, missions execute on their own
     branches, so the graph moves onto a dedicated **in-repo orphan ref** — git-tracked and per-repo
     (correct locality) yet **branch-independent** (every ship reads the same graph regardless of its
-    checkout). This is **our Dolt — a git-backed queryable datastore — in-repo, not global and not a
+    checkout — within one clone; cross-clone reach is an explicit sync, see Consequences). This is **our Dolt — a git-backed queryable datastore — in-repo, not global and not a
     separate DB.** The v1→F3 swap happens behind the seam and never touches `ready`/`cycles`.
 - **Mission-graph management is SDD work, not cyberfleet.** Read/query/write is an **SDD engine** —
   the same layer that owns `ready`/`cycles`. cyberfleet only *consumes* `ready` and *calls* the SDD
@@ -158,7 +159,8 @@ touch-set collisions before anything else consumed it.
 
 ### Positive
 
-- The graph travels with the repo: clones, worktrees, and PRs carry the plan and its full history.
+- The graph travels with the repo: worktrees and PRs carry the plan and its full history. (Qualified —
+  see [Amendment](#amendment--the-orphan-refs-reach-stops-at-the-clone-mission-graph-ref-propagation).)
 - No new toolchain, DB, or daemon; the fold is a zero-dep `.mts` over tracked files.
 - One provenance home: graph = structure + scheduling status; briefs = detail; git = who/when.
 - Additive schema evolution — deferred fields land without migration; tombstones make re-cuts
@@ -192,6 +194,59 @@ touch-set collisions before anything else consumed it.
   fixture graphs, never the live store (it mutates on every retirement).
 - F3 open mechanics deferred to that CR: orphan-ref access (git plumbing vs a dedicated worktree for
   the ref) and ledger-shard keying under Mission-shaped machinery (cr-ref vs mission-ref).
+
+## Amendment — the orphan ref's reach stops at the clone (`mission-graph-ref-propagation`)
+
+The **Positive** consequence above ("clones, worktrees, and PRs carry the plan") holds unqualified only
+for the **v1 in-tree** store. Under the **F3 orphan ref** it is narrower, and the original wording
+over-claimed:
+
+`refs/sdd/mission-graph` sits outside `refs/heads/*`, and git's default refspec
+(`+refs/heads/*:refs/remotes/origin/*`) copies that space alone. So the ref is **never fetched and never
+pushed by default**: it is genuinely shared by every **worktree of one clone** (they share one object
+store and ref space) and travels **no further on its own**. A fresh clone receives nothing; a local
+append is never published; nothing warns — the list simply reads empty. This was latent rather than
+observed, because the fleet's actual topology to date is worktrees of a single clone.
+
+The decision itself stands — the orphan ref remains the right home, and no option reopens. What changes
+is that **reach is now an explicit capability** rather than an assumed property, specified on the
+`sdd/mission-graph` node as a single verb:
+
+- **`sync`** carries the ref both ways, **naming it explicitly on the command line** — so it needs no
+  git configuration and **writes none**. It is **fast-forward only**, and **refuses** a diverged ref
+  rather than picking a winner. (The case-by-case behavior is a total partition of
+  `(local ref, remote ref)` — normative on the `sdd/mission-graph` node, deliberately **not restated
+  here**: an ADR records the decision and its why, and an operational table duplicated into a document
+  nobody consults per-run is the copy that rots. This ADR owns *why* refusal is right; the node owns
+  *what happens in each case*.) That refusal is the transport-layer echo of the write
+  path's CAS, and it follows from the same premise: with one write-decider, divergence is a condition
+  to surface, not to merge. (Merging is also unsound here — the fold resolves status by latest-event-
+  wins, so interleaving two logs can silently flip a mission's status.)
+
+**The v1→F3 migration must retire its seed, and originally did not.** `migrate` copies the in-tree store
+into the ref but left the store file **tracked**. A tracked seed travels to every clone, and there
+`resolveBackend` prefers it over the ref (which is never fetched by default) — so a fresh clone reads a
+**stale list that looks valid**, and no `sync` can dislodge it, because the seed is exactly what stops
+the clone consulting the ref. Verified as a fixpoint in a throwaway repo. This project only escaped it
+because the seed was deleted by hand (`71cd97ec`), a step specified nowhere. `migrate` therefore now
+retires the seed as its final act — guarded: never retiring a seed whose lines the ref does not already
+carry, and repairing a pre-fix project on a re-run. The deletion is staged, not committed; a migration
+does not reach other clones until that commit lands.
+
+**The engine writes no git config at all.** Making an *ordinary* `git fetch` collect the ref requires a
+persistent fetch refspec in a clone's config — an opt-in, per-clone setup act carrying a real cost
+(once installed, a diverged store ref makes unrelated `git fetch` calls exit 1). That belongs to the
+onboarding surface that already asks consent before writing operational config, not to the store engine.
+Keeping it out is what leaves the reach rule with **one statement and no exceptions**.
+
+Two git mechanisms are **barred** outright, both verified empirically to cause silent data loss:
+
+- **Any forced (`+`-prefixed) refspec on `refs/sdd/*`.** The leading `+` means *force*: a transfer
+  against a diverged store ref reports `(forced update)`, exits **0**, and destroys the local appends.
+  Non-forced, the same transfer reports `! [rejected] (non-fast-forward)` and exits **1**.
+- **`remote.<remote>.push` configuration.** Setting it *replaces* the default branch push refspec, so a
+  plain `git push` silently stops sending the current branch while reporting "Everything up-to-date".
+  The push refspec is passed as a command argument and this entry is left unset.
 
 ## Related Decisions
 

@@ -19,7 +19,7 @@
 // node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
-import { appendFileSync, existsSync, mkdirSync, readFileSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 // ── Schema (v:1) ──
@@ -808,22 +808,293 @@ export interface MigrateResult {
 	migrated: boolean
 	reason: string
 	count: number
+	/** Whether the in-tree seed was retired (deleted + staged) THIS run. */
+	retired: boolean
+	retiredReason: string
+}
+
+function relativeStorePath(): string {
+	return STORE_RELATIVE_PATH.join('/')
+}
+
+/** Every raw seed line must already be present among the orphan ref's lines — the guard that
+ *  keeps retirement from ever being the data loss the migration exists to prevent. An empty seed
+ *  vacuously counts as fully carried (nothing to lose). */
+function seedFullyCarried(root: string): boolean {
+	const seedLines = readInTreeLines(root)
+	if (seedLines.length === 0) return true
+	const orphanLines = new Set(readOrphanLines(root))
+	return seedLines.every((line) => orphanLines.has(line))
+}
+
+/**
+ * retireSeed — migrate's final, guarded act: once (and only once) the orphan ref already carries
+ * every line of the in-tree seed, deletes the seed file and stages the deletion (never commits
+ * it — landing that commit is the caller's next step, and is what actually makes the retirement
+ * reach other clones). Refuses when the ref does not yet carry every seed line. Idempotent and
+ * safe to re-run: a pre-fix project whose seed was left behind by an earlier migrate is repaired
+ * simply by calling migrate again.
+ */
+function retireSeed(root: string): { retired: boolean; retiredReason: string } {
+	const path = storePath(root)
+	if (!existsSync(path)) {
+		return { retired: false, retiredReason: 'no in-tree seed remains to retire' }
+	}
+	if (!seedFullyCarried(root)) {
+		return { retired: false, retiredReason: 'will not retire a seed the orphan ref does not carry' }
+	}
+	rmSync(path)
+	try {
+		git(root, ['add', '--', relativeStorePath()])
+	} catch {
+		// The seed was never tracked by git (e.g. a hand-built test fixture) — nothing to stage;
+		// the file is still deleted from the working tree, which is all that case can promise.
+	}
+	return { retired: true, retiredReason: 'seed deleted; the staged deletion must be committed to reach other clones' }
 }
 
 /**
  * migrate — one-time, idempotent: seeds the orphan ref from the existing in-tree store, copying
- * its raw lines verbatim (never parsed and re-serialized, so exact bytes/order are preserved).
- * A no-op (never throws) when there is nothing to seed from, or the ref is already seeded.
+ * its raw lines verbatim (never parsed and re-serialized, so exact bytes/order are preserved),
+ * then retires the seed (see `retireSeed`) as its final, guarded act — a seed left tracked would
+ * travel to every clone and shadow the (never-fetched) ref there. A no-op on the seeding half
+ * (never throws) when there is nothing to seed from, or the ref is already seeded; the retirement
+ * half still runs either way, so a pre-fix project (ref seeded, seed left behind) is repaired by
+ * simply re-running migrate.
  */
 export function migrate(root: string): MigrateResult {
-	if (!isGitWorkTree(root)) return { migrated: false, reason: 'not a git work-tree', count: 0 }
-	if (orphanRefExists(root)) {
-		return { migrated: false, reason: 'orphan ref already seeded', count: readOrphanLines(root).length }
+	if (!isGitWorkTree(root)) {
+		return {
+			migrated: false,
+			reason: 'not a git work-tree',
+			count: 0,
+			retired: false,
+			retiredReason: 'not a git work-tree',
+		}
 	}
-	const rawLines = readInTreeLines(root)
-	if (rawLines.length === 0) return { migrated: false, reason: 'no in-tree store to seed from', count: 0 }
-	commitOrphan(root, rawLines, null)
-	return { migrated: true, reason: 'seeded orphan ref from in-tree store', count: rawLines.length }
+	let migrated = false
+	let reason: string
+	let count: number
+	if (orphanRefExists(root)) {
+		reason = 'orphan ref already seeded'
+		count = readOrphanLines(root).length
+	} else {
+		const rawLines = readInTreeLines(root)
+		if (rawLines.length === 0) {
+			return {
+				migrated: false,
+				reason: 'no in-tree store to seed from',
+				count: 0,
+				retired: false,
+				retiredReason: 'no in-tree seed remains to retire',
+			}
+		}
+		commitOrphan(root, rawLines, null)
+		migrated = true
+		reason = 'seeded orphan ref from in-tree store'
+		count = rawLines.length
+	}
+	const { retired, retiredReason } = retireSeed(root)
+	return { migrated, reason, count, retired, retiredReason }
+}
+
+// ── sync — the one deliberate step that carries the orphan ref to/from a shared remote ──
+// refs/sdd/* sits outside refs/heads/*, which git's default refspec is the only thing it copies,
+// so the ref is shared by every WORKTREE of one clone and travels no further on its own. `sync`
+// names the ref explicitly on every command it runs — so it needs no git configuration and writes
+// none — and is fast-forward only in both directions: a diverged pair is refused, never merged.
+// See the node README's sync table for the exhaustive 7-case partition this function realizes.
+
+export interface SyncResult {
+	backend: StoreBackend
+	ok: boolean
+	action: 'no-op' | 'no-remote' | 'unreachable' | 'both-empty' | 'push' | 'collect' | 'agree' | 'refuse'
+	message: string
+	localHead: string | null
+	remoteHead: string | null
+}
+
+function refTransferSpec(refName: string): string {
+	return `${refName}:${refName}`
+}
+
+/** A remote NAME is configured at all (distinct from being reachable — see `remoteReachable`). */
+function remoteConfigured(root: string, remote: string): boolean {
+	try {
+		git(root, ['remote', 'get-url', remote])
+		return true
+	} catch {
+		return false
+	}
+}
+
+/** Whether the remote can actually be talked to right now. Deliberately checked SEPARATELY from
+ *  "does it have the ref" — `git ls-remote` reports an unreachable remote and an empty one the
+ *  same way, so establishing reachability first (and failing loudly when it cannot be) is the
+ *  only way to avoid conflating the two. */
+function remoteReachable(root: string, remote: string): boolean {
+	try {
+		git(root, ['ls-remote', remote])
+		return true
+	} catch {
+		return false
+	}
+}
+
+/** The remote's current orphan-ref tip, or null when the remote has no such ref (but IS
+ *  reachable — reachability is checked by the caller before this is ever consulted). */
+function remoteOrphanHead(root: string, remote: string): string | null {
+	const out = git(root, ['ls-remote', remote, ORPHAN_REF])
+	if (out === '') return null
+	const [hash] = out.split('\n')[0].split('\t')
+	return hash ?? null
+}
+
+function gitFetchOrphanRef(root: string, remote: string): void {
+	git(root, ['fetch', remote, refTransferSpec(ORPHAN_REF)])
+}
+
+function gitPushOrphanRef(root: string, remote: string): void {
+	git(root, ['push', remote, refTransferSpec(ORPHAN_REF)])
+}
+
+function isAncestor(root: string, ancestor: string, descendant: string): boolean {
+	try {
+		execFileSync('git', ['merge-base', '--is-ancestor', ancestor, descendant], { cwd: root })
+		return true
+	} catch {
+		return false
+	}
+}
+
+/**
+ * syncStore — carries the orphan ref between this clone and `remote`, fast-forward only. Two
+ * prechecks run first, in this exact order: (1) backend — under the in-tree backend, sync is a
+ * no-op that reports the active backend, even when the remote is unreachable (an in-tree project
+ * must not fail merely for being offline); (2) reachability — an unreachable remote, or no remote
+ * configured at all, is a loud non-zero failure, never reported as "no list there". Only once both
+ * are settled does the 7-case partition of (local ref, remote ref) apply — see the README's sync
+ * table. Writes no git configuration, ever; never uses the forced (`+`-prefixed) refspec form.
+ */
+export function syncStore(root: string, remote = 'origin'): SyncResult {
+	const backend = resolveBackend(root)
+	if (backend !== 'orphan-ref') {
+		return {
+			backend,
+			ok: true,
+			action: 'no-op',
+			message: `the ${backend} backend is in use; sync only carries the shared orphan ref, so this is a no-op`,
+			localHead: null,
+			remoteHead: null,
+		}
+	}
+	if (!remoteConfigured(root, remote)) {
+		return {
+			backend,
+			ok: false,
+			action: 'no-remote',
+			message: `no remote '${remote}' is configured to reach`,
+			localHead: orphanHead(root),
+			remoteHead: null,
+		}
+	}
+	if (!remoteReachable(root, remote)) {
+		return {
+			backend,
+			ok: false,
+			action: 'unreachable',
+			message: `could not reach remote '${remote}'`,
+			localHead: orphanHead(root),
+			remoteHead: null,
+		}
+	}
+
+	const localHead = orphanHead(root)
+	const remoteHead = remoteOrphanHead(root, remote)
+
+	if (localHead === null && remoteHead === null) {
+		return {
+			backend,
+			ok: true,
+			action: 'both-empty',
+			message: 'neither side holds a store ref',
+			localHead: null,
+			remoteHead: null,
+		}
+	}
+	if (localHead !== null && remoteHead === null) {
+		gitPushOrphanRef(root, remote)
+		return {
+			backend,
+			ok: true,
+			action: 'push',
+			message: 'published the local-only store ref to the remote',
+			localHead,
+			remoteHead: localHead,
+		}
+	}
+	if (localHead === null && remoteHead !== null) {
+		gitFetchOrphanRef(root, remote)
+		return {
+			backend,
+			ok: true,
+			action: 'collect',
+			message: 'collected the remote store ref',
+			localHead: remoteHead,
+			remoteHead,
+		}
+	}
+	// Both present.
+	if (localHead === remoteHead) {
+		return {
+			backend,
+			ok: true,
+			action: 'agree',
+			message: 'the store refs already agree',
+			localHead,
+			remoteHead,
+		}
+	}
+
+	// Both sides hold a ref and they differ, so which way (if either) this fast-forwards is an
+	// ancestry question — and answering it needs the remote's tip OBJECT in this clone's object
+	// database. A DESTINATION-LESS fetch brings exactly that and writes no ref: nothing to clean up
+	// afterwards, nothing left behind by a crashed run, and no fixed ref name for a concurrent sync
+	// to collide on. The tip HASH is already in hand from `ls-remote` above, so nothing reads
+	// FETCH_HEAD either. Still the plain, non-forced refspec: it names one ref and cannot overwrite.
+	git(root, ['fetch', remote, ORPHAN_REF])
+	if (isAncestor(root, localHead as string, remoteHead as string)) {
+		// The local ref is an ancestor of the remote's — the remote is ahead; fast-forward local.
+		gitFetchOrphanRef(root, remote)
+		return {
+			backend,
+			ok: true,
+			action: 'collect',
+			message: 'fast-forwarded the local store ref to the remote',
+			localHead: remoteHead,
+			remoteHead,
+		}
+	}
+	if (isAncestor(root, remoteHead as string, localHead as string)) {
+		// The remote's ref is an ancestor of the local's — this clone is ahead; publish.
+		gitPushOrphanRef(root, remote)
+		return {
+			backend,
+			ok: true,
+			action: 'push',
+			message: 'published the ahead store ref to the remote',
+			localHead,
+			remoteHead: localHead,
+		}
+	}
+	return {
+		backend,
+		ok: false,
+		action: 'refuse',
+		message: `refused: the store refs have diverged (local ${localHead}, remote ${remoteHead}) — see the node README's "Getting out of a refusal"`,
+		localHead,
+		remoteHead,
+	}
 }
 
 /** Append a proposed RAW/parent-child/discovered-from edge through the write-time cycle guard;
@@ -869,6 +1140,17 @@ export function renderCyclesToon(items: RepairItem[]): string {
 	const header = `cycles[${items.length}]{scc,members}:`
 	const rows = items.map((item, i) => `  scc-${i + 1},"${item.members.join(';')}"`)
 	return [header, ...rows].join('\n')
+}
+
+export function renderSyncToon(result: SyncResult): string {
+	return [
+		`backend: ${result.backend}`,
+		`action: ${result.action}`,
+		`ok: ${result.ok}`,
+		`message: ${result.message}`,
+		`localHead: ${result.localHead ?? ''}`,
+		`remoteHead: ${result.remoteHead ?? ''}`,
+	].join('\n')
 }
 
 export function renderOperationToon(id: string, check: OperationCheck): string {
@@ -1027,14 +1309,20 @@ export function main(argv: string[]): number {
 			`${
 				format === 'json'
 					? JSON.stringify(result, null, 2)
-					: `migrated: ${result.migrated}\nreason: ${result.reason}\ncount: ${result.count}`
+					: `migrated: ${result.migrated}\nreason: ${result.reason}\ncount: ${result.count}\nretired: ${result.retired}\nretiredReason: ${result.retiredReason}`
 			}\n`,
 		)
 		return result.reason === 'not a git work-tree' ? 1 : 0
 	}
+	if (cmd === 'sync') {
+		const remote = flag(rest, '--remote') ?? 'origin'
+		const result = syncStore(root, remote)
+		process.stdout.write(`${format === 'json' ? JSON.stringify(result, null, 2) : renderSyncToon(result)}\n`)
+		return result.ok ? 0 : 1
+	}
 
 	process.stderr.write(
-		'mission-graph: usage: ready | cycles | operation --id <id> | append <node|edge|tombstone> ... | migrate\n',
+		'mission-graph: usage: ready | cycles | operation --id <id> | append <node|edge|tombstone> ... | migrate | sync [--remote <name>]\n',
 	)
 	return 1
 }

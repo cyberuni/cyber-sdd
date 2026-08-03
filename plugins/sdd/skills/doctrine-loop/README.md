@@ -12,4 +12,10 @@ the one project `ledger/` directory. The entry **shape** and the matchable `caus
 `sdd:combat-log-governance` (deferred, never restated). The Council holds keep-or-cut; the `sdd`
 gateway surfaces the count of pending unratified strategy when the Council re-enters.
 
+Separately, during its pass, the Scanner also cross-checks each plan brief's `todos-all-done`
+against its `source-closed` to **derive the retirement clearance set** — it never autofixes a
+plan's `status`; agreement feeds `sdd:plan-retirement`'s existing `--retire` input, disagreement
+surfaces a flagged finding in the Scanner's pass summary. This is distinct from strategy-drafting
+above: a flagged finding is never a ledger write.
+
 Plan retirement (doctrine's last retro step) is the sibling `sdd:plan-retirement` skill.

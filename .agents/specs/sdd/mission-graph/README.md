@@ -65,8 +65,10 @@ Plain-language glossary; the word in parentheses is the technical term an engine
 | **project** | which project a Mission belongs to, and the thing a barrier fences — a list may hold work from several projects at once; work that names no project all sits in one default project together |
 | **exempt** | a Mission a fence deliberately lets through — some barrier is *waiting on* it, so holding it back would leave both stuck forever. Being let through only lifts the *fence*; the job still waits on its own dependencies and on the collision rule |
 | **schema version** | a version number stamped on every entry so the format can grow later without breaking old entries |
-| **orphan ref** | a git storage slot that holds *only* the work list (not a copy of the code) and is shared by every working copy of the repo, so the list reads the same no matter which branch you are on |
-| **branch-independent** | the same list is seen from every branch — because it lives in the shared orphan ref, not in the files of whatever branch you happen to have checked out |
+| **orphan ref** | a git storage slot that holds *only* the work list (not a copy of the code), belonging to no branch, so the list reads the same no matter which branch you are on |
+| **branch-independent** | the same list is seen from every branch — because it lives in the orphan ref, not in the files of whatever branch you happen to have checked out |
+| **reach** | how far the list actually travels. The orphan ref is shared automatically by every **working copy of one clone** (they share the same git storage), but it does **not** travel to another clone or machine on its own — git only copies `refs/heads/*` by default |
+| **sync** | the deliberate step that carries the list between a clone and the shared remote — a `fetch` and a `push` naming the ref explicitly, because the default rules skip it |
 
 ## Use Cases
 
@@ -88,6 +90,8 @@ of parallel agents (all later work). It **plans and reports**; it does not do th
 | **catch a knotted plan** — the links accidentally form a loop | the work list | it never crashes; every Mission caught in the loop is set aside, and the loop is reported as something to fix | `Scenario: the fold quarantines a cycle instead of failing` |
 | **hold a project for a reshaping job** — one Mission is about to change the whole project | the list + a Mission marked as a barrier and the project it fences | the rest of that project waits; the jobs the barrier is itself waiting on are still let through; barriers are handed out one at a time | `Scenario: an un-retired barrier holds the other missions of the project it fences` |
 | **check a shippable group** — is this Operation shippable, and how far along | an Operation's declared Missions + its capstone | whether nothing needed is missing (missing prerequisites flagged), what the smallest ship-set is, and a done-so-far count | `Scenario: an Operation whose capstone closure exceeds the declared set is flagged` |
+| **`migrate`** — move an old in-tree list into the shared slot | the project | the list is copied into the slot, then the old file is **retired** (marked deleted for the next commit) so it cannot shadow the slot in other clones; it refuses to retire anything the slot does not already carry | `Scenario: migrate retires the in-tree seed once the orphan ref holds its events` |
+| **`sync`** — carry the list to or from the shared remote | the clone and its remote | whichever side is further along is carried over; a list **both** sides added to is **refused loudly**, reporting both versions and changing neither; an unreachable remote **stops the command** rather than reading as empty; a project still on the in-tree file is a **no-op naming the home in use**; no git setting is written | `Scenario: sync publishes a local-only store ref to the remote` |
 
 Every scenario in [`mission-graph.feature`](./mission-graph.feature) maps to one of these entries or to
 a cross-cutting guarantee (same-answer-every-time, read-only, the list is the source of truth).
@@ -323,8 +327,10 @@ boundary (a **seam**). That lets the physical home move without touching a singl
   rides *whatever branch you are on*, so once several Missions run on **separate branches at once**, each
   branch sees a different copy and they collide at merge.
 - **The shared orphan ref (for a fleet).** The list moves into a dedicated **orphan ref**
-  (`refs/sdd/mission-graph`) — a git slot holding *only* the list, shared by every working copy of the
-  repo, belonging to **no branch**. Every Mission, on any branch, reads and appends the **same** list.
+  (`refs/sdd/mission-graph`) — a git slot holding *only* the list, belonging to **no branch** and shared
+  by every working copy of **one clone**. Every Mission, on any branch of that clone, reads and appends
+  the **same** list. (Reaching a *second* clone or machine is a separate, deliberate step — see *How far
+  the list reaches* below; it does not happen on its own.)
   Reads and writes go through plain git plumbing (hash a new version of the file, record it as a tiny
   commit on the ref), so the list **never shows up as a change in anyone's working files** — the working
   tree stays clean. Writing checks the ref hasn't moved since it was read (a compare-and-swap), so the
@@ -335,9 +341,111 @@ ref is used inside a git repository that has no in-tree list yet (and whenever t
 otherwise the in-tree file — so a project that still has an in-tree list, and hasn't migrated yet, keeps
 reading *that* list and is never silently orphaned onto an empty ref. A one-time **migrate** step copies
 an existing in-tree list into the orphan ref, so an early adopter is never stranded; running it again
-once the ref is seeded is a **no-op** (idempotent — it never double-copies), and running it when there
-is no in-tree list to copy simply creates nothing. This is the move ADR-0026 calls **v1 → F3**: same seam, same
+once the ref is seeded never double-copies, and running it when there
+is no in-tree list to copy simply creates nothing.
+
+**Moving out also means clearing out — and skipping that step is a trap.** Copying the old list into the
+shared slot is only half the move: the old file is a *tracked project file*, so if it is left behind it
+**travels to every clone**. And there it wins — the shared slot is not picked up automatically, so a
+fresh clone sees only the leftover file and treats it as the current list. The clone then reads a list
+that is **stale but looks perfectly valid**, and no amount of syncing dislodges it, because the leftover
+file is exactly what makes the clone stop looking at the shared slot. So the move **retires the old
+file** as its final step, marking it deleted for the next commit.
+
+Two guards make that safe:
+
+- **It never retires a list the shared slot does not already carry.** Every line has to be present in
+  the slot first; otherwise it leaves the file alone and says why. Deleting anything else would make
+  the move the very data-loss it exists to prevent.
+- **It will retire a file an earlier move left behind.** Projects that moved before this rule existed
+  are repaired by simply running the move again.
+
+The deletion is **marked for the next commit, not committed** — the program's one and only touch of your
+working files, and it says so, because the move does not actually reach other clones until that commit
+lands. This is the move ADR-0026 calls **v1 → F3**: same seam, same
 views, a branch-independent home once a fleet runs.
+
+## How far the list reaches — and the step that widens it
+
+Being branch-independent is **not** the same as being everywhere. Git copies only the ordinary branch
+slots (`refs/heads/*`) when it talks to a shared remote; a slot outside that space — which is exactly
+what makes the orphan ref belong to no branch — is **skipped by default, in both directions**. So out of
+the box:
+
+- **Every working copy of one clone shares the list.** Extra working copies (git *worktrees*) of the same
+  clone share one git storage area, so they genuinely see the same list. This is today's fleet shape, and
+  it works.
+- **A second clone, or a second machine, sees nothing.** A fresh clone does not receive the list, and
+  appends made there are never published. Nothing warns you; the list simply reads empty.
+
+**One deliberate step closes that gap**, and it is **narrow on purpose**:
+
+- **Sync, by name and on request.** Carrying the list to or from the remote always **names the slot
+  explicitly** on the command. Because the slot is named outright, sync needs **no settings changed
+  first** — and it changes none. It is a step someone asks for — **never** something a read does behind
+  your back — so reading the list stays instant and works with no network at all.
+
+> **Sync changes no git settings, and that is deliberate.** There is a setting that would make an
+> ordinary "get the latest" collect the list automatically, and another that would make "send my work"
+> include it. Neither is written here. The first is an **opt-in setup choice with a real cost** — once
+> it is on, a list that two clones both added to makes *unrelated* "get the latest" commands fail, citing
+> a slot most of the team has never heard of. That is a choice to offer someone with the cost stated,
+> which is the onboarding step's job, not this list's. The second **must never be used at all**: it
+> *replaces* the normal rule for sending branches, so "send my work" silently stops sending the branch —
+> while reporting **"Everything up-to-date"**.
+
+> **Nothing here is ever written in its "overwrite anyway" form.** Git spells that with a leading `+`,
+> one character away from the careful form, and the difference is total: the overwrite form **destroys a
+> clone's own additions without asking** and reports success; the careful form **refuses and says so**,
+> leaving the list untouched. The careful form is used, always — it is the same refusal the writing path
+> already makes, and the other form would quietly undo it.
+
+**When two clones both added to the list**, sync does **not** guess. The list only ever grows, so one side
+being simply *further along* is the normal case and is carried over without ceremony:
+
+The table below is a **complete split** of every situation sync can meet, not a list of the interesting
+ones. Each side either has a list or it does not — that is four combinations; and when **both** have
+one, the two are either the same list, or one continues from the other (either way round), or neither
+continues from the other. Those are the only possibilities, so every case below has exactly one row.
+
+Two questions come **before** that split, and **in this order**:
+
+1. **Which home is this project using?** A project still keeping its list as an ordinary file in the
+   working copy has nothing to carry between clones, so sync **does nothing, says which home is in use,
+   and reports success** — without touching the network at all. This check is genuinely first: a project
+   that does not use the shared slot should not fail merely because it happens to be offline.
+2. **Can the shared remote actually be seen?** This matters more than it looks. Git reports "I could not
+   reach it" and "it has no such list" in the same breath, so the easy mistake is to treat an unreachable
+   remote as an empty one — answering a question it never got to ask, with the very "everything looks
+   empty" reassurance this whole capability exists to abolish. A remote that is **unreachable, or not
+   configured at all**, therefore **stops the command**.
+
+Only once both are settled does the split below apply.
+
+| Situation | What sync does |
+|---|---|
+| **the shared remote cannot be reached** | **stops and says so** — never reported as "there is no list there" |
+| **neither side has a list yet** | says so, and changes nothing |
+| only this clone has one | publishes the local one |
+| only the remote has one | **collects it** — the fresh-clone path |
+| both have one, and it is **the same list** | says they already agree, and changes nothing |
+| both have one, and **this clone's continues from the remote's** | publishes it (this clone is ahead) |
+| both have one, and **the remote's continues from this clone's** | picks up the newer list (this clone is behind) |
+| both have one, and **neither continues from the other** | **refuses, and says so** — reports both versions, changes nothing |
+
+The last row is the same stance the write path already takes: the list assumes **one writer at a time**,
+so two of them is a situation to **surface**, never to auto-merge. There is no override flag — picking a
+winner automatically would silently drop somebody's work.
+
+**Sync only applies to the shared slot.** A project still keeping its list as an ordinary file in the
+working copy has nothing to carry between clones — the file already travels with the branch. Asked to
+sync such a project, it **does nothing and says which home is in use**, rather than inventing a slot.
+
+**Getting out of a refusal.** The refusal names both versions, so nothing is stranded. Read each side's
+list, then — as the one writer — write a single list holding **both** sides' entries and carry it forward
+from the version you keep. Because the list only ever grows, no entry is lost by doing this. Sync does not
+do it for you: choosing which order the two sets of entries end up in is a **decision**, and the whole
+point of refusing is that a decision is owed.
 
 ## How it's tested
 
@@ -347,7 +455,9 @@ dependency from A to B where A is finished, B can start") — checked against **
 answers to it would be flaky). The real-world example **#135/#136/#137** (three linked GitHub issues in
 this repo) is boiled down into one such example. The store-home rules (the orphan ref) are checked the
 same constructed way — over a throwaway **temporary git repository** created just for the test, never the
-project's real list. The ultimate proof is **dogfooding**: the system must be able to plan its *own*
+project's real list. The reach rules (sync) are checked over a throwaway **shared remote plus throwaway
+clones**, so "a second clone sees it" is demonstrated rather than asserted, and the refuse-on-both-added
+case is provoked deliberately. The ultimate proof is **dogfooding**: the system must be able to plan its *own*
 remaining work — checked once at the end (Op1.M2), not as a frozen example.
 
 ## Delivery
@@ -356,10 +466,14 @@ Built as the **`mission-graph`** engine — `plugins/sdd/skills/mission-graph/` 
 dependency-free script (the repo's node-≥23.6 / no-extra-tools convention, with a by-hand fallback when
 `node` is absent) plus its tests over the hand-built examples. It offers the two read-only views (`ready`
 and `cycles`), the separate write path (add an item / link / status change / removal, with the gentle
-loop-guard), and a one-time **`migrate`** command that copies an in-tree list into the orphan ref. How
+loop-guard), a one-time **`migrate`** command that copies an in-tree list into the orphan ref, and the
+reach command **`sync`** (carry the list to/from the shared remote, refusing a both-sides-added list,
+writing no git settings). How
 the files are reached is kept behind a small internal boundary (a **seam**) with **two backends** — the
 in-tree file and the shared **orphan ref** (`refs/sdd/mission-graph`, reached by git plumbing) — chosen
 at run time (see *Where the list physically lives*); moving between them never disturbs the two views.
+`sync` sits **beside** that seam, not inside it: it moves the orphan ref between clones and never runs on
+a read, so the two views stay offline and instant.
 The capability and its engine share the `mission-graph` name.
 
 ## Source

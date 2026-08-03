@@ -42,7 +42,11 @@ The two gating signals split by what the sweep can check itself:
 
 - **source = `done`/merged** — the **caller's judgment**: query the source natively (`github-NN` → GH
   issue, `asana-<gid>` → Asana, `local-<slug>` → the local store); needs network/`gh`. The caller
-  passes the source-cleared set via `--retire`.
+  passes the source-cleared set via `--retire`. `sdd:doctrine-loop`'s Scanner is the standard
+  caller: during its pass it cross-checks each brief's own `todos-all-done` against `source-closed`
+  and only passes through a cr-ref where **both** agree terminal — a disagreement (source closed
+  but the brief's own todos are not all done, or the reverse) is held back and surfaced as a
+  flagged finding for a human, never passed through on source alone.
 - **distilled** — **verified mechanically by the sweep**: a `strategy` entry with `distills ==
   <cr-ref>` must exist in the project ledger (`--ledger`). The sweep keys on the structured
   `distills` field, **never** a `<cr-ref>` that appears only in a strategy's `evidence`

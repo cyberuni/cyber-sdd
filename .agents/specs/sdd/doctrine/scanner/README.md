@@ -60,6 +60,7 @@ Every scenario in [`scanner.feature`](./scanner.feature) maps to one of these be
 | **concurrent runs never contend** | two Scanner runs recording at the same time each write a distinct hash-suffixed shard file; neither edits the other's, so the appends never conflict |
 | **episodic surfacing** | strategy accumulates and surfaces episodically via the gateway's pending count, never synchronously blocking a mission |
 | **out-of-loop routing** | a build/deprecate request → campaign; a structure observation → formation; a field correction → forge |
+| **stale plan frontmatter** | per plan brief, cross-checks `todos-all-done` against `source-closed`; agreement feeds `plan-retirement`'s existing `--retire` clearance-set input, disagreement surfaces a flagged finding — never a frontmatter autofix, never a `status` write |
 
 ## The six triggers — lifecycle granularity, never per-gate
 
@@ -146,6 +147,48 @@ is started from.
   here**: **self-contained**, no production-internal artifact reference, an **agent-filed marker**,
   and it names the evidence it was distilled from. The Scanner's issue is a doctrine-loop improvement
   (not a mission follow-up), so it reuses that floor rather than owning a second copy.
+
+## Stale plan frontmatter — deriving the retirement clearance set, never autofixing status
+
+A plan brief's frontmatter `status` can lag reality — its own todos finish, or its source issue
+closes, without anyone flipping the value. There is **no legal terminal value** for a plan's
+`status` to autofix into: the contract's own answer to "this mission is over" is **retirement**
+(a tracked deletion, owned by `sdd:plan-retirement`), not a status flag
+(`../../design/provenance-model.md` reserves the plan-level `status` field to the two-value
+dispatch flag `active | approved` and explicitly warns against borrowing `spec.md`'s
+`draft | approved | implemented`). So the Scanner never writes a plan's `status`; instead, during
+its pass, it **derives the retirement clearance set** `plan-retirement` already consumes.
+
+For each brief under `.agents/plans/`, the Scanner computes two independent signals:
+
+- **`todos-all-done`** — every `todos[].status` in the brief's frontmatter is `completed`.
+- **`source-closed`** — the brief's declared `source` queried natively, the same way
+  `plan-retirement`'s own clearance check queries it (`github-NN` → GH issue, `asana-<gid>` →
+  Asana, `local-<slug>` → the local store).
+
+- **Both agree terminal** (`todos-all-done ∧ source-closed`) → the brief's cr-ref is included in
+  the **retirement clearance set** the Scanner passes as `plan-retirement`'s existing `--retire`
+  clearance-set input (`../../../../../plugins/sdd/skills/plan-retirement/`). This is not a new
+  deletion mechanism — `plan-retirement` still performs its own gated, idempotent sweep
+  (presence + distilled-or-no-log) before anything leaves the tree.
+- **Both agree non-terminal** → the brief is left alone; no clearance, no finding.
+- **The two signals disagree** (source closed but the brief's own todos are not all done, or the
+  reverse) → the Scanner does **not** autofix anything. It excludes the cr-ref from the clearance
+  set and names the brief's cr-ref and the disagreement in its **pass summary to the invoking
+  session** (its final message, the only channel a subagent has — `../../gateway/`), for a human
+  to resolve.
+
+**A flagged finding is not a ledger write, and it is a different thing from the spec's other
+"finding."** It is ephemeral, re-derived every pass from the two cheap signals above — the whole
+point of deriving the clearance set (rather than writing a new durable field, per the Findings this
+capability replaces) is that nothing new needs to persist. So a flagged finding is **never** a
+`kind: strategy` entry (it names no build-or-fix improvement to doctrine) and **never** a
+`kind: report` ledger line (that kind is reserved to the conductor and the gate; the Non-goals
+above hold unchanged — the Scanner still never writes `report` / `correction` / `gate`). It is also
+**distinct** from *"a validated-open improvement"* (above, "Improvement output") — that finding
+survives as a `strategy` entry and a tracked issue; a flagged plan-frontmatter disagreement does
+neither. Reusing the same English word for two different shapes is a hazard this spec calls out
+explicitly so a future edit does not conflate them.
 
 ## Where each strategy entry lands
 

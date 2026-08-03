@@ -27,3 +27,27 @@ specifically which parts are safe to encode as automated gate criteria.
 **Weakest joint, recorded up front:** no empirical study was found on cross-page repetition in
 documentation sets (E14). Every corpus-level recommendation is an inference from within-text
 coherence results and is marked as such.
+
+## 2026-08-02 — verdict 2 revised: lint vs judge
+
+**What changed:** verdict 2 split. Previously "do not encode craft principles as gate criteria",
+which over-generalized from the source. Now: no craft **lint**; a craft **judge** is admissible under
+two conditions. Added E16–E18 and section D2 to `evidence.md`, plus verdict 2b (detect bad writing,
+do not certify good writing).
+
+**Why:** every primary source here predates LLM judges — 1974, 1990, 1996. Gopen & Swan's "no fixed
+algorithm" has two stated reasons, and they do not fare alike under a nondeterministic
+reader-simulator: the "too many expectations at once" reason is a claim about a *decision
+procedure's* capacity and does not transfer; the "any expectation can be violated to good effect"
+reason transfers intact and becomes a process requirement (a deliberate-violation defense) rather
+than a bar to judging at all.
+
+**Conclusion changed materially:** yes. The earlier verdict would have ruled out the craft tier that
+the CR now proposes to build.
+
+**Triggered by:** user challenge — the research predates the AI era, and an agent can make
+nondeterministic judgments like a human given good instructions and process.
+
+**Caveat carried forward:** E17 is our inference, not a finding. D2 records what would falsify it —
+calibration against known-good and known-weak documents. The judged tier should not gate until that
+has been run.

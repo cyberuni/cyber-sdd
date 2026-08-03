@@ -38,7 +38,26 @@ Legend for source type: **experiment** (controlled study with reported statistic
 | E11 | Google's style guide instructs authors to **prefer in-context help over a cross-reference** for short content: *"When possible, provide help in context rather than linking elsewhere… Define a term. Briefly explain a concept. Provide a couple of steps."* And: *"if a few sentences of basic information is all your readers need, then it's better to provide that context and save your readers the trip outside of our documentation."* It does not advise assuming the reader has visited another page. | developers.google.com/style/cross-references | style guide | Medium — practitioner, but from an organization operating documentation at very large scale; converges with E01/E09 |
 | E12 | **Minimalism has genuine controlled-study grounding**: minimal manuals outperformed conventional "systems approach" manuals on mastery and learning speed; the programme grew out of one-on-one observation of trainees at IBM. Its four characteristics are brevity, focus on real tasks, error recognition/recovery, and guided exploration. What it cuts is **non-task** content. | Carroll, *The Nurnberg Funnel* (1990); *Minimalism Beyond the Nurnberg Funnel* (MIT Press) | experiment | Medium — **secondary**; the studies are real but were not read directly here |
 
-## D. Gaps — recorded so they are not mistaken for findings
+## D. Scope limit — every source above predates LLM judges
+
+| # | Claim | Source | Type | Strength |
+|---|---|---|---|---|
+| E16 | The primary sources date to **1974 (Haviland & Clark), 1990 (Gopen & Swan, Carroll), 1996 (McNamara & Kintsch)**. The "no fixed algorithm" argument (E05) is aimed at two targets available in 1990: a human author applying rules while composing, and a mechanical checker. Its stated reasons are (i) *"too many reader expectations are functioning at any given moment for structural decisions to remain clear and easily activated"* and (ii) any expectation *"can be violated to good effect"*. | Gopen & Swan 1990 (read directly) | framework | High (quotation); the *inference* below is ours |
+| E17 | **Reason (i) does not transfer to an LLM judge.** It is a claim about a decision procedure's capacity to hold many simultaneous expectations — the specific limit an LLM does not have. Reason (ii) does transfer, and constrains the *process* rather than the possibility: a judged criterion must admit a deliberate-violation defense. | inference from E16 | — | **Medium** — our reasoning, not a finding; falsifiable by calibration (see D2) |
+| E18 | Related in-repo evidence, already gathered: LLM self-verifiers are **unsound** as their own critics, while a **separate** verifier reverses the loss into a gain; and self-preference persists under cold context because it tracks perplexity, not self-recognition. → a craft judge must be a separate agent, and its criteria must be externally anchored. | `.research/impl-judge-independence/evidence.md` B1–B3, A2 | experiment | High (as recorded there) |
+
+> **Consuming note.** E05 rules out a *lint*. It does not rule out a *judge*. The distinction the
+> 1990 sources could not draw is between a fixed algorithm and a nondeterministic reader-simulator
+> that can be given instructions and a process — which is what changes the design space here.
+
+## D2. What would falsify the E17 inference
+
+A judged craft criterion is only admissible if it is **calibrated against the corpus it will
+police**: run it over documents the team already considers good and already considers weak. A
+criterion that fires on an accepted document, or that cannot separate the two sets, is miscalibrated
+and must not gate. This is the empirical test E17 currently lacks, and it is cheap to run.
+
+## E. Gaps — recorded so they are not mistaken for findings
 
 | # | Claim | Status |
 |---|---|---|

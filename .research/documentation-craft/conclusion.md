@@ -11,8 +11,11 @@ as an automated gate criterion** rather than left as authoring guidance?
 
 ## Verdict
 
-**The gate may check retrievability and declaration-agreement. It may not check craft.** The line
-falls in a specific place, and the evidence puts it there rather than taste.
+**Split by instrument, not by subject.** Inspection checks retrievability, declaration-agreement, and
+route completeness — mechanically, with mandatory citation. Craft is judged, not linted: a separate
+reader-simulating judge carries a **catalog of named defects**, graded, with a deliberate-violation
+defense, and does not gate until calibrated. The evidence puts the line there; §2 records which part
+of that is measured and which part is our inference.
 
 ### 1. Reframe the duplication criterion: the defect is unresolvable presupposition, not recurrence
 
@@ -33,7 +36,7 @@ the headline criterion. What replaces it is narrower and better grounded:
 Confidence: **high** for the within-page claim; **medium** across pages, because the transfer from
 within-text coherence to cross-page structure is an inference, not a measured result (E14).
 
-### 2. Do not encode old-before-new, or any craft principle, as a boolean check
+### 2. No craft **lint** — but a craft **judge** is admissible, and that distinction is ours to draw
 
 The most concrete statement of the principle we would want to check is Gopen & Swan's (E04) — and the
 same article forecloses its use as a rule (E05): *"None of these reader-expectation principles should
@@ -42,11 +45,45 @@ structural, not modest: too many expectations operate simultaneously to decide a
 and any of them can be violated to good effect.
 
 This also answers the second design limit directly. **A control-flow graph plus a claim list cannot
-produce well-crafted prose**, and no extension of the contract will, because the remaining craft is a
-system of simultaneous defeasible expectations. The contract's proper job is coverage and
-consistency; craft belongs to the producer and to a human reader.
+produce well-crafted prose**, and no extension of the *contract* will, because the remaining craft is
+a system of simultaneous defeasible expectations rather than a set of conditions. That is a limit on
+what a specification can carry — not, as the next paragraph argues, a limit on what a reader can be
+asked to detect.
 
-Confidence: **high** — the primary source rules against us, in its own words.
+**The sources predate the judge we actually have** (E16). Gopen & Swan's two reasons were aimed at a
+1990 decision procedure, and they do not fare equally under a 2026 one:
+
+- *"too many reader expectations are functioning at any given moment for structural decisions to
+  remain clear and easily activated"* — this is a claim about a procedure's capacity to hold many
+  simultaneous expectations, which is the specific limit an LLM judge does not have (E17). **Does not
+  transfer.**
+- *"any reader expectation can be violated to good effect"* — **transfers intact**, and constrains
+  the process rather than the possibility. A judged criterion must let the producer mark a deliberate
+  violation and defend it, exactly as a human editor allows.
+
+So the finding is sharper than "don't check craft": **do not encode craft as a lint; a judge may
+carry it.** The revised split is by *instrument*, not by *subject matter* —
+
+| Instrument | Carries | Verdict |
+|---|---|---|
+| **Inspection** (boolean, mechanical) | retrievability, declaration-agreement, route completeness | pass/fail with mandatory citation |
+| **Judgment** (graded, reader-simulating) | craft defects — the catalog, not a quality standard | graded, with a deliberate-violation defense |
+
+Two conditions on the judged tier, both from evidence already in this repo (E18): it must run in a
+**separate agent** — LLM self-verifiers are unsound as their own critics while a separate verifier
+reverses the loss — and it must be **calibrated against the corpus it will police** before it gates
+(D2). A criterion that fires on a document the team accepts is miscalibrated, and calibration is the
+empirical test the E17 inference currently lacks.
+
+Confidence: **high** that a lint is ruled out (E05, direct quotation); **medium** that a judge is
+admissible (E17 is our inference, and D2 is the test that would settle it).
+
+### 2b. Detect bad writing; do not certify good writing
+
+The asymmetry is the whole design. Good prose is unbounded and cannot be enumerated; bad prose
+recurs in a small number of named, citable failure modes. A judged tier should therefore be a
+**defect catalog** — each entry a shape the judge can point at, quote, and be wrong about in a way
+the producer can rebut — and never a standard of quality that a document must reach.
 
 ### 3. Whether redundancy helps is a function of the declared audience, and it reverses
 

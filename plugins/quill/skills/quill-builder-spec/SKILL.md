@@ -94,6 +94,20 @@ branch is usually **which audience the reader is**, because that selects which p
 Standard (`sdd:spec-format-governance`). Every coverage row (element 5) is reachable from at least
 one scenario; a row no scenario checks is unenforced.
 
+**Quantify a claim that more than one passage could carry.** `Then it states X` is satisfied by X
+appearing twice — so a coverage row whose claim is load-bearing in several sections is satisfied
+*more* the more it is restated, and a passage de-duplicated in one revision duplicates again in the
+next. Where a claim spans passages, assert the count:
+
+```gherkin
+Then it presents two values that cannot both be one house style
+And it makes that contrast in exactly one place, later passages referring back
+```
+
+This freezes no wording — it fixes how many places carry a claim, not how any of them is phrased.
+Relations the suite still cannot reach, because they hold *between* passages no single scenario
+reads, are graded once per document against `quill:quill-builder-impl`.
+
 ## What a documentation spec must never freeze
 
 Freezing any of these produces a spec that breaks on every honest revision while catching no real
@@ -133,3 +147,5 @@ the audience element exists to catch.
 5. **The CFG is the reader's decision path, not the table of contents** — branch on audience first
    when there are several.
 6. **Never freeze order, wording, examples, or tone** — freeze the claims and the reader's path.
+7. **Quantify a claim several passages could carry** — `states X` passes twice over, so assert
+   *exactly one place*; unquantified, the suite pays for restatement.

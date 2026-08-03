@@ -122,17 +122,60 @@ that transcript against it. A judge holding the catalog while reading finds what
 and its finding is then an opinion about prose rather than evidence about a reader. The asymmetry is
 the design, not an optimization (`aced:aced-case-judge` establishes it for agent behavior).
 
+**One agent, two contexts.** `quill-judge` runs both instruments and scores pass 2 itself; only the
+**reader simulation** is dispatched to a separate context. It has to be — `quill-judge` holds this
+catalog, so it can never be its own blind reader. A second *scoring* agent was considered and
+rejected: `quill-judge`'s boolean verdicts are anchored to the frozen `.feature` and to a
+`verification.md` it did not author, so a graded reading cannot move them. Another agent would add a
+hop without adding an anchor.
+
+**Pass 1 receives the document, the declared path, and the audience row — nothing else.** Not this
+catalog, not the entry names, not the spec's coverage table, and not the deliberate-violation record
+below. Anything naming a defect tells the simulated reader what to trip on.
+
 ### Deliberate violation
 
 The producer may mark any judged finding as **intentional**, with a rationale the judge must weigh
 before reporting. Any expectation about prose can be violated to good effect, so a catalog with no
 defense path would be a style guide with a gate attached.
 
+`quill-doc-writer` records these in the `verification.md` it already writes for the judge, under a
+`## Deliberate violations` heading — one row per claim, naming the **catalog entry**, the
+**location**, and the **rationale**. That file is already the producer-to-judge channel the judge
+runs and never authors, so the defense needs no second artifact.
+
+The judge reads that record **in pass 2 only**. Passing it to the blind reader would name the entry
+and the location, which is the leak this design exists to prevent.
+
+A rationale is weighed, not obeyed: a defense that merely asserts the choice was deliberate does not
+clear a finding. It has to say what the violation buys the reader it was made for.
+
 ### Advisory until calibrated
 
 A catalog entry does **not** block until it has been run against documents this repo already accepts
 and already considers weak, with its false-positive rate reported rather than asserted. An entry that
 fires on an accepted document is miscalibrated and stays advisory.
+
+Calibration is **per entry**, not per catalog — the entries fail in different ways, and one
+well-calibrated entry does not vouch for its neighbor. The state lives here, in this table, so the
+judge reads an entry's standing beside the entry itself:
+
+| Entry | State | False-positive rate | Corpus run |
+|---|---|---|---|
+| A1 unresolvable presupposition | advisory | not measured | — |
+| A2 bare cross-reference | advisory | not measured | — |
+| A3 undefined term at first use | advisory | not measured | — |
+| B1 re-presented as new | advisory | not measured | — |
+| B2 term drift | advisory | not measured | — |
+| B3 contradiction | advisory | not measured | — |
+| C1 declaration mismatch | advisory | not measured | — |
+| C2 claim without mechanism | advisory | not measured | — |
+| C3 orphan claim | advisory | not measured | — |
+
+**Every entry is currently advisory, and the whole catalog is therefore non-blocking.** That is the
+designed starting state, not an outage: the entries are reasoned rather than measured, and reasoning
+is exactly what calibration exists to check. A row moves to `calibrated` only with a rate and a named
+corpus beside it — never on the strength of having been read and found sensible.
 
 Once calibrated, an entry blocks on **confirmed and undefended** only. The asymmetry is deliberate: a
 miss ships a weak paragraph, while a false positive teaches the producer to route around the judge —

@@ -14,7 +14,8 @@ project-path: plugins/quill
 Quill brings SDD discipline to **documentation** — guides, tutorials, articles, reference pages, and READMEs.
 Documentation has the same failure modes as code (missing content, structural drift, reader-path gaps) with
 no compiler or test runner; Quill is that runner. It treats a document as an implementation artifact with
-**verifiable structure**, checked by static inspection against a frozen `.feature`.
+**verifiable structure**, checked by two instruments: static inspection against a frozen `.feature`, and a
+judged pass against a catalog of named prose defects.
 
 Quill is also the **SDD plugin for documentation domains** (`sdd-roles/`): it implements the production-chain
 delegates the conductor resolves for the artifact-types `documentation`, `guide`, `tutorial`, `article`, and
@@ -33,7 +34,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 |---|---|---|
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `spec-writer`, `doc-writer`, `judge` — plus the `doc-spec-bar` and `doc-impl-bar` governances they are graded against |
 | [`registry/`](./registry/README.md) | behavioral | register Quill as the documentation SDD plugin — `init-quill` |
-| [`design/`](./design/README.md) | descriptive | the doc-eval model (four scenario-scoped checks + one document-scoped) + the `decisions/` ADR log |
+| [`design/`](./design/README.md) | descriptive | the doc-eval model (two instruments — four scenario-scoped inspection checks, one document-scoped inspection rule, and the judged defect catalog) + the `decisions/` ADR log |
 | [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: spec → write → verify) |
 | [`glossary.md`](./glossary.md) | reference | the documentation-eval vocabulary |
 

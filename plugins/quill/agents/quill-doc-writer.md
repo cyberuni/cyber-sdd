@@ -35,6 +35,12 @@ MODE: explore | implement
    passage being pointed to, so the pointer costs them the content. Check instead that every path
    the control flow routes to a claim actually reaches it.
 
+   **Record any deliberate violation** of a catalog entry in `verification.md` under
+   `## Deliberate violations` — one row per claim, naming the **catalog entry**, the **location**,
+   and the **rationale**. Any expectation about prose can be violated to good effect, and this is
+   where you say so before the judge reads. State what the violation buys the reader it was made
+   for; a rationale that only asserts the choice was deliberate does not clear a finding.
+
 5. **Maintain the `## Artifacts` table** — add a row for each document written (layer = impl).
 
 6. **Never modify `spec.md` or the `.feature`** — the builder does not set its own bar.

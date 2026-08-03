@@ -47,6 +47,21 @@ with the scenario list set aside; `judge` (`quill-judge`) reads it backward at t
 judged pass is the one exception to reading it forward-and-backward from the same text: its first
 pass simulates a reader **blind to the catalog**, and only the scoring pass holds it.
 
+**One agent, two contexts.** `quill-judge` runs both instruments and scores the judged pass itself;
+only the reader simulation is dispatched, because a judge holding the catalog cannot be its own blind
+reader. A second scoring agent was considered and rejected — the judge's boolean verdicts are already
+anchored to artifacts it did not author, so a graded reading cannot move them, and another agent
+would add a hop without adding an anchor.
+
+**The producer's defense channel is `verification.md`.** A deliberate violation is recorded under
+`## Deliberate violations` — entry, location, rationale — in the file the judge already runs and
+never authors. The judge reads it in the **scoring** pass only; handing it to the blind reader would
+name the entry and the location, which is the leak the split exists to prevent.
+
+**Calibration state is per entry, and lives in the bar** beside the entry it governs. All nine are
+advisory, so the catalog is non-blocking by design until a row carries a measured false-positive rate
+and a named corpus.
+
 **Non-goals** — the four scenario-scoped checks
 ([`../../design/doc-eval-model.md`](../../design/doc-eval-model.md)); what a doc `spec.md` must
 contain, including the scenario-map rule that requires a claim be retrievable on each control-flow

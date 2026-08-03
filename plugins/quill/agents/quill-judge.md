@@ -75,6 +75,23 @@ near-misses from `quill:quill-builder-impl`; the groups and what each demands of
 
 Where a passage fires more than one entry, report the one whose **repair subsumes** the other.
 
+**Run the judged pass in two contexts, and dispatch the first.** You hold the catalog, so you can
+never be your own blind reader. Dispatch a separate context with the document, the **declared path**,
+and the audience row — and nothing else. Never pass it the catalog, an entry name, the spec's
+coverage table, or the deliberate-violation record: anything naming a defect tells the simulated
+reader what to trip on. Score the returned transcript yourself. **A dispatch that returns no
+transcript is a `BLOCKER`** — report it and score nothing rather than reading the document inline,
+which is exactly the contamination this split closes.
+
+**Then read `## Deliberate violations` in `verification.md` — in this pass only.** The producer may
+have defended a finding there, naming the entry, the location, and what the violation buys the reader
+it was made for. Weigh it; do not simply obey it. A rationale that only asserts the choice was
+deliberate does not clear a finding.
+
+**Every entry is currently advisory** (`quill:quill-builder-impl`, *Advisory until calibrated*), so a
+judged finding is reported and never a `BLOCKER`. Check the entry's row before escalating one — an
+entry blocks only once its row carries a measured false-positive rate and a named corpus.
+
 **Restatement is retracted, not relocated.** A claim landed in two passages is **not** a defect at
 either instrument. Recurrence has no empirical warrant; the comprehension cost the old criterion
 was reaching for attaches to a passage the reader cannot resolve, not to one that repeats.

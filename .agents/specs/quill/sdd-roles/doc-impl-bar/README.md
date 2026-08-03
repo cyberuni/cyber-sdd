@@ -11,33 +11,48 @@ The shipped governance `quill-builder-impl` (`plugins/quill/skills/quill-builder
 **Builder bar at the impl gate**, filling the `builder-impl` slot in the squad's registry entry and
 unioning onto `sdd:builder-impl-governance`.
 
-It specifies what an authored document must satisfy **beyond** conforming to its frozen scenarios: a
-claim lands in **exactly one place** (later passages refer back), a term keeps **one subject class**,
-a route reaches **every option the document named**, and no two passages assert **incompatible
-claims**. All four are graded once per document rather than once per scenario.
+It specifies what an authored document must satisfy **beyond** conforming to its frozen scenarios,
+and it carries **both** of Quill's document-scoped instruments
+([`../../design/doc-eval-model.md`](../../design/doc-eval-model.md)):
 
-**Why it cannot be a scenario.** The four checks in
+| Instrument | What the bar holds | Verdict |
+|---|---|---|
+| **Inspection** | one enumeration rule — a route reaches **every option the document named** | boolean |
+| **Judgment** | the **defect catalog** — named prose defects, each with a citation rule and a near-miss that must not fire | graded |
+
+Both run once per document rather than once per scenario.
+
+**Why neither can be a scenario.** The four checks in
 [`../../design/doc-eval-model.md`](../../design/doc-eval-model.md) are scenario-scoped — each reads
 only the passage its scenario names. These defects are relations *between* passages: every
-occurrence is well-formed against its own scenario, and only the pair fails. A restated claim in
-fact satisfies its scenario twice, so an unquantified suite scores redundancy above concision; a
-route that skips an option still lands the destination its scenario asserts, so the sibling it
-dropped never surfaces.
+occurrence is well-formed against its own scenario, and only the pair fails. A route that skips an
+option still lands the destination its scenario asserts, so the sibling it dropped never surfaces.
 
-**The boundary against style is evidence.** A finding must quote both locations, which keeps the
-check an inspection and leaves tone, register, length, word choice, and section order unassertable —
-the same prohibitions `doc-spec-bar` places on the spec side.
+**The split is by how a verdict is reached, not by which file the criterion lives in.** The
+enumeration rule compares two structured, enumerable things, so a comparison settles it. Term class,
+contradiction, and unretrievable presupposition each require reading *as a reader*, so no comparison
+settles them — they are the catalog's seed. Requiring evidence with a citation disciplines a finding;
+it does not make one mechanical, and an earlier revision of this node mistook the one for the other.
+
+**The boundary against style is evidence at both instruments**, which leaves tone, register, length,
+word choice, and section order unassertable — the same prohibitions `doc-spec-bar` places on the spec
+side. The catalog additionally **detects defects and never certifies quality**: zero findings is not
+an endorsement.
 
 A **reference artifact**: a real shipped thing with no testable surface of its own, so it carries no
 `.feature`. Its criteria are exercised through the documents it grades.
 
 **Two faces read it.** `doc-writer` (`quill-doc-writer`) reads it forward, over the whole document
-with the scenario list set aside; `judge` (`quill-judge`) reads it backward as a fifth,
-document-scoped pass at the impl gate.
+with the scenario list set aside; `judge` (`quill-judge`) reads it backward at the impl gate. The
+judged pass is the one exception to reading it forward-and-backward from the same text: its first
+pass simulates a reader **blind to the catalog**, and only the scoring pass holds it.
 
 **Non-goals** — the four scenario-scoped checks
 ([`../../design/doc-eval-model.md`](../../design/doc-eval-model.md)); what a doc `spec.md` must
-contain, including the scenario-map rule that quantifies a claim's place count
-([`../doc-spec-bar/`](../doc-spec-bar/)); the generic conformance bar it unions onto
-(`sdd:builder-impl-governance`); the mechanism-neighbor question in `explanation`-type prose, which
-no citation settles and which stays writer-side.
+contain, including the scenario-map rule that requires a claim be retrievable on each control-flow
+path reaching it ([`../doc-spec-bar/`](../doc-spec-bar/)); the generic conformance bar it unions onto
+(`sdd:builder-impl-governance`).
+
+**No longer a non-goal.** The mechanism-neighbor question in `explanation`-type prose was routed
+writer-side on the grounds that *no citation settles it*. That was the right call for a lint and the
+wrong one for a judge, and it returns as a catalog entry.

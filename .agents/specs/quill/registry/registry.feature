@@ -1,3 +1,4 @@
+@frozen
 Feature: registry — register Quill as the documentation SDD plugin
   Unit suite for the init-quill skill: record the quill entry in .agents/universal-plugin.json so the
   SDD conductor resolves Quill for the documentation artifact-types by reading only that one file.

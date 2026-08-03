@@ -1,3 +1,4 @@
+@frozen
 Feature: doc-writer — the Quill impl-producer role
   The role the SDD conductor dispatches to write documentation against a behavior contract it may not
   change, and to record — per frozen scenario — the acceptance checks a judge that never saw the writing

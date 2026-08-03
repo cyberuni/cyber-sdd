@@ -1,13 +1,13 @@
 ---
 name: quill-judge
-description: "Partial Skill: invoke by name only — the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, reporting pass/fail per scenario. Invoked by the SDD conductor at the impl gate — not triggered by users directly."
+description: "Partial Skill: invoke by name only — the Quill impl-judge for documentation domains. Runs a static-inspection check per frozen .feature scenario against the docs the impl-producer authored, plus one document-scoped integrity pass, reporting pass/fail per scenario. Invoked by the SDD conductor at the impl gate — not triggered by users directly."
 metadata:
   internal: true
 ---
 
 # quill-judge
 
-The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `quill:quill-builder-impl` for the document-scoped integrity criteria the frozen scenarios cannot carry; `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
+The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** static inspection against the docs the impl-producer authored, from **two anchors and no third**: one check per **frozen** `.feature` scenario, and one document-scoped integrity pass against the frozen bar (`quill:quill-builder-impl`). Neither is free-authored — the judge writes no criteria of its own, and an impression matching no anchor is not a finding. Independence comes from both anchors being artifacts the judge did not write, and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `quill:quill-builder-impl` for the document-scoped integrity criteria the frozen scenarios cannot carry; `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
 
 ## Input
 
@@ -62,6 +62,12 @@ invisible from any single scenario's seat:
 - **Contradiction** — two passages whose claims cannot both hold. Quote **both**, and name which one
   the rest of the document depends on.
 
+**The frozen suite outranks this bar.** Where a scenario requires what the bar would fail — a claim
+the suite asserts in two places, a term a scenario fixes — the scenario wins and the bar yields. The
+contract was ratified at the spec gate and the judge does not overrule it; report the collision as
+an `OBSERVATIONS` entry owned by the architect, never as a `BLOCKER`. A bar that could veto a frozen
+scenario would make the impl gate a second spec gate.
+
 An integrity failure is a `BLOCKER` carrying its citations, for the conductor to re-run
 `quill-doc-writer`; do **not** edit the document. Without both citations there is no finding — an
 unevidenced impression is a style opinion, which is out of scope (`design/doc-eval-model.md`). Tone,
@@ -81,6 +87,7 @@ STATUS                — complete | needs-input | blocked
 IMPLEMENTATION_PASS   — true | false
 SCENARIOS_PASSING     — list of scenario titles with result PASS
 SCENARIOS_FAILING     — list of scenario titles with result FAIL
+INTEGRITY_FINDINGS    — [ { defect, document, citations: [ two quoted locations ] } ] (empty when clean)
 CHANGES_MADE          — verification produced / run (or "none")
 BLOCKER               — first unresolved FAIL reason (or null when PASS is true)
 QUESTIONS             — [ batched, when needs-input ]

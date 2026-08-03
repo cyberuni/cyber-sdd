@@ -19,8 +19,8 @@ while authoring, `quill-judge` backward while running. `producer ≠ judge` hold
 
 ## Why the frozen `.feature` cannot carry these
 
-A doc scenario names a passage and asserts a claim is present in it. Both defects below are
-relations **between** passages: every occurrence is well-formed against its own scenario, and only
+A doc scenario names a passage and asserts a claim is present in it. Every defect below is a
+relation **between** passages: every occurrence is well-formed against its own scenario, and only
 the pair fails. A scenario per pair does not scale and would freeze the structure
 `quill:quill-builder-spec` forbids freezing. So they are graded against this bar, once per document
 (`.agents/specs/quill/design/doc-eval-model.md`, *The document-scoped check*).
@@ -63,6 +63,13 @@ defect in `explanation`-type documents and is **writer-side** — it needs a jud
 counts as a mechanism, which no citation settles. Route it to the impl-producer's voice governance,
 never to a gate.
 
+## Precedence — a frozen scenario outranks this bar
+
+Where a scenario requires what a criterion here would fail, the **scenario wins and the bar yields**:
+the suite was ratified at the spec gate, and a bar that could veto a frozen scenario would make the
+impl gate a second spec gate. Report the collision as an architect `OBSERVATIONS` entry so the
+scenario is fixed where it lives, in the spec.
+
 ## Fail handling
 
 An integrity failure is a `BLOCKER` carrying its two citations, returned for the conductor to re-run
@@ -77,3 +84,5 @@ An integrity failure is a `BLOCKER` carrying its two citations, returned for the
 3. **Evidence or no finding** — quote both locations, or it is a style opinion and out of scope.
 4. **The producer reads it whole and checklist-free**, which is the position that sees the pair.
 5. **Tone, length, order, and mechanism-neighbors are out of scope** — the last is writer-side.
+6. **A frozen scenario outranks the bar** — on a collision the scenario wins and the finding is an
+   architect observation, not a `BLOCKER`.

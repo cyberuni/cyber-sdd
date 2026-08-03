@@ -93,9 +93,15 @@ branch is usually **which audience the reader is**, because that selects which p
 leaves the reader exactly where they arrived — needing to choose, with no criterion to choose on.
 Promote it to a decision node and put the discriminator on the edges:
 
-```
-K -- yes --> K1[split into units, or scope by prose]     ← unmade: what picks which?
+Before — one outcome, two options, no criterion:
 
+```
+K -- yes --> K1[split into units, or scope by prose]
+```
+
+After — the criterion is the node, and each option is its own outcome:
+
+```
 K -- yes --> K1{would splitting copy more than it separates?}
 K1 -- no --> K2[split into single-target units]
 K1 -- yes --> K3[keep one file, branch by prose]
@@ -105,10 +111,13 @@ A disjunction in a **decision** node is fine — that is a question. A disjuncti
 is a decision the author deferred onto the reader, and it is the shape that lets a document ratify
 whichever branch its draft happened to take.
 
-**A route must reach every option the document itself names.** Where the CFG routes a case across a
-set the document enumerates elsewhere — its mechanisms, its arrangements, its targets — an option
-silently absent from the routing is a gap, not a simplification. Route to it or state why it is
-excluded.
+**A route must reach every option the spec itself enumerates.** Where a coverage row names a set —
+three mechanisms, four arrangements — and a node routes a case across that set, an option silently
+absent from the routing is a gap, not a simplification. Route to it or state why it is excluded.
+
+Check this against the **spec**, never against the document: at the spec gate the document may not
+exist yet, and grading a contract by the draft it was written to catch is how the draft's omissions
+become the contract. The coverage table is the inventory; the CFG must spend it.
 
 ### `## Scenario map` — 1:1 with the suite
 

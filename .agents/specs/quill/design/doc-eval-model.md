@@ -42,7 +42,10 @@ they are"* is an inspection. Tone, register, length, and word choice remain unas
 ## The independence anchor
 
 The impl-producer (`quill-doc-writer`) authors both the documents **and** their per-scenario acceptance
-checks; the impl-judge (`quill-judge`) only **runs** the checks against the **frozen** `.feature`. Independence
+checks; the impl-judge (`quill-judge`) only **runs** the checks — against the **frozen** `.feature` per
+scenario, and against the **frozen bar** for the document-scoped pass. Two anchors, both artifacts the judge
+did not write, and no third: an impression matching neither is not a finding. Where they collide the
+scenario wins, since the suite was ratified at the spec gate and the impl gate does not re-open it. Independence
 comes from the frozen anchor plus the separate-runner split — the judge never authors a document, and a
 behavior-changing gap is a `BLOCKER`, never a judge edit (`../../sdd/common-governances/ownership/` — the
 write-ownership matrix).

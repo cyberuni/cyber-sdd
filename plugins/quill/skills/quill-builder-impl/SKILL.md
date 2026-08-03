@@ -60,18 +60,60 @@ style opinion with a rubric attached.
 bad prose recurs in a small number of nameable shapes. A document with zero findings is **not**
 thereby certified well written, and a green judged pass is not an endorsement.
 
+The nine entries are grouped by **what the defect does to a reader**, and each group has its own
+citation rule because each fails in a different way. Throughout, *the reader* means a reader on one
+**declared control-flow path**, and the spec's audience table, prerequisites, and doc type are the
+catalog's **input** — most near-misses are decided by them.
+
+### A. The reader cannot retrieve what the passage assumes
+
 | Defect | Fires on | Near-miss that must not fire |
 |---|---|---|
+| **Unresolvable presupposition** | a passage treats X as **given** — presupposing it rather than asserting it — when nothing the reader's path traverses before that passage establishes X | a presupposition licensed by a **declared prerequisite**, or by an earlier passage **on that same path**. Content elsewhere in the document licenses nothing if the path does not reach it |
+| **Bare cross-reference** | a pointer stands where the reader needs the content **now** — they cannot complete the decision the passage is asking of them without leaving | a pointer to depth genuinely outside the document's scope, carrying a forwarding address. The discriminator is whether the reader can proceed without following it |
+| **Undefined term at first use** | a load-bearing term is relied on before it is glossed, linked, or shown by example | a term the spec's **declared audience** owns. The audience table names a role plus a goal, and the role decides — not the judge's own familiarity |
+
+**Citation.** Quote the passage, **name the path**, and list what that path traverses before it.
+These findings are *negatives* — they claim something is absent — so the absence must be demonstrated
+over a named path, never asserted over the document. *"I did not find it"* is not a finding.
+
+**A1 and A2 are duals, and repairing one must not create the other.** The repair for an unresolvable
+presupposition is to supply the content; replacing it with a pointer moves the defect rather than
+fixing it. That substitution is precisely what the retracted recurrence rule used to prescribe.
+
+### B. The passage misrepresents what the reader already has
+
+| Defect | Fires on | Near-miss that must not fire |
+|---|---|---|
+| **Re-presented as new** | already-established content returning with **new-information marking** — an indefinite article, an existential (*there is a…*), a defining move — as though first stated | a legitimate **echo**: the same content restated but marked as **given** (definite article, anaphor, *as above*). This entry fires on the **marking**, never on the recurrence — a claim may and should be restated on every path that needs it |
 | **Term drift** | a term introduced for one kind of subject predicated of another — a verb of holding is sound of a container (*a file carries a field*) and unsound of an act (*a matching carries the target*) | a second class the document **explicitly extends the term to**, at the point of extension. Consistent term reuse is a virtue in agent-facing prose, and is exactly what produces this defect in reader-facing prose: the term propagates past the class it was coined for, silently |
 | **Contradiction** | two passages whose claims cannot both hold — the document establishes *X reaches what Y cannot*, then routes a case away from X on the grounds that only Y is available. The second passage is usually the older one | two claims **scoped to different conditions**, each stating its condition. Contradictory values on *different* targets genuinely coexist; only the same target makes them a conflict |
 
-The catalog is incomplete: seven further entries — unresolvable presupposition, bare cross-reference,
-re-presented as new, declaration mismatch, claim without mechanism, orphan claim, and undefined term
-at first use — are specified but not yet authored here.
+**Citation.** Quote **both** passages — the one that establishes and the one that misrepresents — and
+confirm the two locations differ before reporting.
 
-**Claim without mechanism** returns deliberately. It was ruled out of this bar earlier on the grounds
+### C. The document disagrees with its own spec
+
+| Defect | Fires on | Near-miss that must not fire |
+|---|---|---|
+| **Declaration mismatch** | prose relies on a sibling document the spec declares **not** a prerequisite, or assumes knowledge the audience table does not grant | prose that **restates that sibling's claim in full**. The sibling is referenced but not relied on, so the reader is not sent anywhere |
+| **Claim without mechanism** | in a document whose declared type is **explanation**, a chain of assertions that never supplies the causal step — the reader is told that X, and that Y follows, but never why | a definition, a table row, a summary recap — or **any passage in a tutorial, how-to, or reference document**. The declared doc type gates this entry entirely |
+| **Orphan claim** | a claim the document lands and then never uses: nothing later depends on it, connects to it, or pays it off | a claim that **is** a payoff — the north star, or a claim serving a coverage row the spec requires for its own sake |
+
+**Citation.** Quote the passage **and the spec line it disagrees with** — the prerequisite, the
+audience row, the declared doc type, or the coverage row. A group-C finding carrying no spec quote is
+a preference, not a defect.
+
+**Claim without mechanism returns deliberately.** It was ruled out of this bar earlier on the grounds
 that *no citation settles it*, and routed writer-side. That was the right call for a lint and the
-wrong one for a judge.
+wrong one for a judge — and the doc type is what keeps it from becoming a general complaint about
+terseness.
+
+### One finding per passage
+
+Where a passage fires more than one entry, report the one whose **repair subsumes** the other. A
+catalog that reports every angle on the same sentence reads as chatty, and a chatty catalog gets
+routed around — which costs more than the findings it dropped.
 
 ### How a judged pass runs — blind, then scored
 
@@ -149,8 +191,10 @@ resolve either (`sdd:ownership-governance`).
    things; judgment simulates a reader. Both live in this bar.
 2. **Inspection holds one criterion** — a route reaches every option the document named. It is the
    only one a comparison settles.
-3. **Judgment holds the defect catalog** — currently term drift and contradiction, each with a
-   near-miss. It detects defects and never certifies quality.
+3. **Judgment holds the defect catalog** — nine entries in three groups: what the reader cannot
+   retrieve, what misrepresents what they already have, and where the document disagrees with its
+   spec. Every entry carries a near-miss, and each group its own citation rule. It detects defects
+   and never certifies quality.
 4. **They are relations between passages**, so no frozen scenario can hold them — the bar does.
 5. **A judged pass runs blind, then scores** — a judge holding the catalog while reading finds what
    it was told to find.

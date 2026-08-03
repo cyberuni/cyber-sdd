@@ -60,14 +60,20 @@ invisible from any single scenario's seat.
   set without one of its members. Quote **the enumeration and the routing**.
 
 **Judgment — a graded finding against the defect catalog**, advisory until its entry is calibrated
-and blocking thereafter only when confirmed and undefended:
+and blocking thereafter only when confirmed and undefended. Read the catalog's nine entries and their
+near-misses from `quill:quill-builder-impl`; the groups and what each demands of a citation:
 
-- **Term drift** — one term predicated of two different classes of subject (a container in one use,
-  an act in another). Report only with **both uses quoted**. Does *not* fire where the document
-  explicitly extends the term to the second class.
-- **Contradiction** — two passages whose claims cannot both hold. Quote **both**, and name which one
-  the rest of the document depends on. Does *not* fire on two claims scoped to different conditions,
-  each stating its condition.
+- **A — the reader cannot retrieve what the passage assumes** (unresolvable presupposition, bare
+  cross-reference, undefined term at first use). Quote the passage, **name the path**, and list what
+  the path traverses before it. These are negatives, so show the absence over a named path; *"I did
+  not find it"* is not a finding.
+- **B — the passage misrepresents what the reader already has** (re-presented as new, term drift,
+  contradiction). Quote **both** passages and confirm their locations differ.
+- **C — the document disagrees with its own spec** (declaration mismatch, claim without mechanism,
+  orphan claim). Quote the passage **and the spec line** — prerequisite, audience row, declared doc
+  type, or coverage row. No spec quote, no finding.
+
+Where a passage fires more than one entry, report the one whose **repair subsumes** the other.
 
 **Restatement is retracted, not relocated.** A claim landed in two passages is **not** a defect at
 either instrument. Recurrence has no empirical warrant; the comprehension cost the old criterion

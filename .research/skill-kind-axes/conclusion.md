@@ -130,7 +130,7 @@ changing the definition is a seven-site sweep.
 | `packages/cyberplace/governances/skill-design.md` § Narrow and composable | **canonical** |
 | `AGENTS.md` § Adding a New Skill | restates, adds the `metadata.internal` distinction |
 | `apps/website/…/governances/skill-design.md` | published copy |
-| `apps/website/…/concepts/skills.md` | concept-doc copy |
+| `apps/website/…/agent-configuration/skills/overview.md` | concept-doc copy |
 | `apps/website/…/aced/define-governance.md` | drafting instruction |
 | `.agents/specs/aced/…/define-skill/README.md` | scenario row |
 | `.agents/specs/aced/…/define-governance/README.md` | scenario row |

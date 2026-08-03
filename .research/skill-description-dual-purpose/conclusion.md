@@ -32,7 +32,7 @@ needs to show something meaningful in a menu.
   against — confirmed by the same "Description not in context" line above, and by "Hide individual
   skills by adding `disable-model-invocation: true`... This removes the skill from Claude's context
   entirely." High confidence. Cross-harness enforcement is a separate question — this repo's own
-  `apps/website/src/content/docs/concepts/commands.md` already documents that support for this flag
+  `apps/website/src/content/docs/agent-configuration/skills/commands.md` already documents that support for this flag
   is "not universal" (Copilot CLI, Codex CLI, Gemini CLI listed as not honoring it) — Medium
   confidence on that cross-harness table since it wasn't re-verified as part of this pass.
 - `user-invocable: false` is the inverse: hides from the `/` menu, keeps the description in Claude's

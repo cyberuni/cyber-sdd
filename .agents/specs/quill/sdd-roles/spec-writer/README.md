@@ -190,16 +190,31 @@ a target that does have a document surface.
 
 ## Specified ahead of the implementation
 
-Two scenario groups specify behavior `plugins/quill/agents/quill-spec-writer.md` does not yet
-carry. Both are legitimate under `sdd:suite-format-governance` — *when an act matters but records
-nothing, add the record; do not delete the act* — and both are a delta the implementation must close
-at the impl gate. They are listed here so the conductor carries one complete delta forward.
+Twelve scenarios specified behavior `plugins/quill/agents/quill-spec-writer.md` did not carry. All
+are legitimate under `sdd:suite-format-governance` — *when an act matters but records nothing, add
+the record; do not delete the act* — and all were a delta the implementation had to close at the impl
+gate. **All twelve are closed** as of CR `quill-producer-bars`.
 
-| Site | What the suite specifies | What the agent has today |
+| Site | What the suite specifies | What the agent lacked |
 |---|---|---|
-| `P→P1`, `P→P2` | the output packet lists the actor bars it loaded, distinguishing a bound plugin bar from an SDD-default fallen back to | the agent loads the bars but its `## Output` block has no field that records which ones |
-| `B→B1` (UC3) | the output packet reports a recusal naming the SDD-default production chain | `STATUS` is `complete \| needs-input \| blocked` — no recusal value, and no recusal step anywhere in the agent's `## Steps` |
+| `P→P1`, `P→P2` | the packet lists the actor bars it loaded, distinguishing a bound plugin bar from an SDD default fallen back to | no `## Output` field recording which ones |
+| `B→B1` (UC3) | the packet reports a recusal naming the SDD-default production chain | no recusal `STATUS` value and no recusal step |
+| `C→V2` ×2 | a revision edits only the scenarios the findings name, folding in `USER_ANSWERS` | `JUDGE_FEEDBACK` and `USER_ANSWERS` were declared inputs consumed by no step |
+| `C→V1` | a finding that would narrow a frozen suite returns a `BLOCKER` | the word `frozen` appeared nowhere in the file |
+| `D→E` | a packet is `complete` when the command surface supplies the What elements | the audience gate read silence as absence and downgraded to `needs-input` |
+| `E→E1` | the scope finding names the parent page | the output said "the parent page" generically |
+| `F→G` | an entry point no sibling owns gets no architect observation | the observation fired on unowned entry points too |
+| `G→G1` | each audience row carries at least one entry point | entry points were deferred to a later pass |
+| `G→G5` | each non-goal names the document covering the excluded topic | no lookup, so a placeholder or a gap |
+| `G→G6` | each prerequisite names its supplying document | same — no lookup mechanism |
+| `K→K4` | every scenario names the observable **reader** outcome | one scenario asserted a document property instead |
 
-Everything else the suite asserts is already stated in the agent definition — including the
-static-inspection rule the `K→K5` scenario guards (`quill-spec-writer.md:34`), which was written but
-unguarded until this scenario.
+**How the count was wrong, and why it matters.** An earlier revision of this section listed the first
+two rows and asserted *"everything else the suite asserts is already stated in the agent
+definition."* The impl gate refuted that on 2026-08-03: ten further scenarios failed against the
+shipped agent. The assertion was reasoned from reading the two artifacts side by side, which is
+exactly the check a cold judge exists to replace — and a downstream CR scoped its work from this
+list and inherited the error. **A delta list is measured at the gate or it is a guess.**
+
+The `K→K5` static-inspection rule is still the one case of the opposite kind: it was written in the
+agent (step 9's "verifiable by static inspection" clause) but unguarded until this scenario.

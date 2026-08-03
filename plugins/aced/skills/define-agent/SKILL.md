@@ -66,7 +66,7 @@ Present these three modes to the user and ask which fits their use case:
 | Mode | What it does | When to pick it |
 |------|-------------|-----------------|
 | **Delegated** | Runs as a subagent in its own context; returns a result to the caller | Autonomous workers, fan-out tasks, long-running jobs where interruption isn't needed |
-| **Invokable (dual-mode)** | Can be spawned as a subagent AND reached by a thin companion command. The command takes one of **two shapes** — see below; picking the wrong one is what makes an agent bleed | Conductors, reviewers and personas the user steers interactively; and delegated workers the user wants slash-reachable |
+| **Invokable (dual-mode)** | Can be spawned as a subagent AND reached by a thin companion command, so the user can steer it interactively either way. The command takes one of **two shapes** — see below; picking the wrong one is what makes an agent bleed | Conductors, reviewers, personas — and workers that produce an artifact, which stay just as steerable through a gateway |
 | **In-context only** | Loaded via command only; not intended as a subagent | One-off role activations where no other caller needs the content |
 
 **In-context only is rarely the right answer now.** If the content is a stance the user loads into a
@@ -171,10 +171,11 @@ into output it does not govern.
 are what the user reacts to *and* it produces a file. Gateway is the fail-safe direction: a wrongly
 gatewayed agent costs a round trip, while a wrongly adopted one bleeds.
 
-That trade looks like it forfeits the steering the Invokable mode is for, and it does not: **a
-gateway is steered through the brief, not through the session.** The user shapes the run by what the
-command gathers before dispatch, which is why the gateway asks its questions up front — the subagent
-cannot be interrupted once it starts, so the steering has to happen before it does.
+**Gateway costs no steering.** The command runs in the session, so the user converses with it,
+redirects it, asks for a different angle, and asks for revisions — it brokers each run. What a
+gateway leaves out is the agent's *instructions*, not the user's control. Only a single dispatch is
+uninterruptible once it starts, which is why the command settles what it can before dispatching and
+why a revision is another dispatch rather than an in-session edit.
 
 ### Adoption — for an agent whose output is the session
 

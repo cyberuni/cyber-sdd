@@ -7,7 +7,7 @@ metadata:
 
 # quill-judge
 
-The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
+The **impl-judge** for documentation domain types (`documentation`, `guide`, `tutorial`, `article`, `reference`). **Runs** one static-inspection check per **frozen** `.feature` scenario — anchored to the scenario, not free-authored — against the docs the impl-producer authored, and reports pass/fail per scenario. Independence comes from the frozen `.feature` anchor and from being a separate runner: `quill-doc-writer` (the impl-producer) authors the documents and their acceptance checks; this agent only **runs** the inspection, never authors the docs. Invoked by the SDD conductor. Load `quill:quill-builder-impl` for the document-scoped integrity criteria the frozen scenarios cannot carry; `sdd:ownership-governance` for the write-ownership matrix — the impl-judge must not modify `spec.md` or the `.feature`; a behavior-changing gap is a `BLOCKER`, not an edit.
 
 ## Input
 
@@ -48,11 +48,27 @@ For each scenario:
 
 If any reader-path condition cannot be verified by static inspection, mark it SKIP and note in `CHANGES_MADE`.
 
-### 4. Aggregate results
+### 4. Run the document-level integrity pass
+
+Once per document, **not** once per scenario, against `quill:quill-builder-impl`. Read each document
+whole, with the scenario list set aside — the two defects here are relations between passages, so
+they are invisible from any single scenario's seat:
+
+- **Restatement** — one claim landed in two passages. Report only with **both locations quoted**.
+- **Term drift** — one term predicated of two different classes of subject (a container in one use,
+  an act in another). Report only with **both uses quoted**.
+
+An integrity failure is a `BLOCKER` carrying its citations, for the conductor to re-run
+`quill-doc-writer`; do **not** edit the document. Without both citations there is no finding — an
+unevidenced impression is a style opinion, which is out of scope (`design/doc-eval-model.md`). Tone,
+register, length, order, and mechanism-neighbors are never reported here.
+
+### 5. Aggregate results
 
 Collect per-scenario: PASS, FAIL, or SKIP. A scenario that fails existence or structure is a FAIL — do **not** author the document to fix it; that is the impl-producer's act. Report the FAIL as a `BLOCKER` so the conductor re-runs `quill-doc-writer`.
 
-`IMPLEMENTATION_PASS` is `true` only when every scenario is PASS or SKIP.
+`IMPLEMENTATION_PASS` is `true` only when every scenario is PASS or SKIP **and** the integrity pass
+raised no evidenced finding.
 
 ## Output
 

@@ -14,7 +14,8 @@ defined), not by a `.feature` of its own.
 |---|---|
 | **documentation artifact** | A unit of documentation under evaluation: a guide, tutorial, article, reference page, or README. The eval subject. |
 | **artifact-type** | The squad key naming what kind of doc a file is (`documentation`, `guide`, `tutorial`, `article`, `reference`) — how SDD resolves the Quill production chain for it. |
-| **doc-eval check** | One of the four static-inspection checks (existence, structure, completeness, reader-path) a scenario is verified by. |
+| **doc-eval check** | One of the four scenario-scoped static-inspection checks (existence, structure, completeness, reader-path) a scenario is verified by. |
+| **integrity pass** | The document-scoped fifth check — one claim per place, one subject class per term — graded against `quill-builder-impl` because it is a relation between passages no scenario reads. |
 | **existence check** | Verifies the target document exists at the declared project-root-relative path. |
 | **structure check** | Verifies the required headings / sections named by a scenario are present. |
 | **completeness check** | Verifies the document has no placeholder text (`TBD`, `TODO`, `FIXME`) and no empty section. |

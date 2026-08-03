@@ -6,10 +6,11 @@ concept: doc-eval
 # The doc-eval model
 
 Documentation is an implementation artifact with **verifiable structure**. Quill verifies a document by
-**static inspection** against its frozen `.feature` — no runtime execution, no prose-wording or style/tone
-assertions. Every scenario a doc `.feature` carries must be checkable by one of the four checks below.
+**static inspection** — no runtime execution, no prose-wording or style/tone assertions. It inspects at two
+scopes: **four scenario-scoped checks** against the frozen `.feature`, and **one document-scoped check**
+against the impl bar. Every scenario a doc `.feature` carries must be checkable by one of the four below.
 
-## The four checks
+## The four scenario-scoped checks
 
 | Check | What it verifies | Fail signal |
 |---|---|---|
@@ -17,6 +18,24 @@ assertions. Every scenario a doc `.feature` carries must be checkable by one of 
 | **Structure** | required headings / sections named by the scenario are present (case-insensitive) | missing heading |
 | **Completeness** | no placeholder text (`TBD`, `TODO`, `FIXME`) and no empty section (heading immediately followed by the next heading or EOF) | placeholder / empty section found |
 | **Reader-path** | a sequential flow reaches its stated outcome: every step has visible content, no step references an undeclared external prerequisite, the outcome is described at the end | gap in the flow; unverifiable conditions are `SKIP` |
+
+## The document-scoped check
+
+The four checks above each read only the passage its scenario names. Two defect classes are invisible to
+every one of them, because each occurrence is well-formed on its own and it is the **pair** that fails:
+
+| Defect | Why scenario scope misses it | Fail signal |
+|---|---|---|
+| **Restatement** | a claim asserted in two passages satisfies its scenario twice, so the suite scores redundancy higher than concision | the two locations quoted, both landing the same claim |
+| **Term drift** | a term applied to a subject that cannot take it still asserts the claim the scenario asked for | the term, plus two uses whose subjects belong to different classes |
+
+**Integrity** therefore runs **once per document**, and is anchored to the impl bar
+(`quill-builder-impl`) rather than to a scenario — the frozen `.feature` cannot hold it, since a relation
+between passages is not a property of either one.
+
+It stays inside the no-style boundary by **requiring evidence**: a failure must quote the two locations.
+*"This reads redundant"* is a judgment and out of scope; *"these two sentences land the same claim, here
+they are"* is an inspection. Tone, register, length, and word choice remain unassertable.
 
 ## The independence anchor
 

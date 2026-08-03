@@ -89,17 +89,35 @@ near-misses from `quill:quill-builder-impl`; the groups and what each demands of
 Where a passage fires more than one entry, report the one whose **repair subsumes** the other.
 
 **Run the judged pass in two contexts, and dispatch the first.** You hold the catalog, so you can
-never be your own blind reader. Dispatch a separate context with the document, the **declared path**,
-and the audience row — and nothing else. Never pass it the catalog, an entry name, the spec's
-coverage table, or the deliberate-violation record: anything naming a defect tells the simulated
-reader what to trip on. Score the returned transcript yourself. **A dispatch that returns no
+never be your own blind reader. Score the returned transcript yourself. **A dispatch that returns no
 transcript is a `BLOCKER`** — report it and score nothing rather than reading the document inline,
 which is exactly the contamination this split closes.
 
+The brief carries **exactly three things**, and the anti-leak rule below does not subtract from them:
+
+| Carry | Withhold |
+|---|---|
+| the text of the document | the defect catalog, and any entry's name |
+| the **declared control-flow path** — the one route through the document the spec says a reader takes, *not* the document's file path | the spec's coverage table |
+| the audience row — the role and its goal | the `## Deliberate violations` record |
+
+**Withhold only what names a defect.** The declared control-flow path is the reader's route, not a
+defect name, and a brief that drops it cannot produce a group A finding at all — those are negatives
+shown *over a named path*. Dropping it because "nothing else" sounds exclusive is the failure this
+table exists to stop.
+
 **Then read `## Deliberate violations` in `verification.md` — in this pass only.** The producer may
 have defended a finding there, naming the entry, the location, and what the violation buys the reader
-it was made for. Weigh it; do not simply obey it. A rationale that only asserts the choice was
-deliberate does not clear a finding.
+it was made for.
+
+**A defense either clears the finding or it does not, and clearing means dropping it.** Weigh it; do
+not simply obey it:
+
+- A rationale naming the **audience row** and what the violation buys *that* reader **clears** the
+  candidate — it is then **omitted from `INTEGRITY_FINDINGS` entirely**, not reported with the
+  defense attached. A cleared finding is not a finding.
+- A rationale that only asserts the choice was deliberate does **not** clear it. Report the finding
+  and carry that rationale in its `defense` field, which is what the field is for.
 
 **No entry is calibrated yet** (`quill:quill-builder-impl`, *Advisory until calibrated*), so a judged
 finding is reported and never a `BLOCKER`. Check the entry's row before escalating one — `calibrated`
@@ -111,11 +129,30 @@ the second that the corpus could not exercise it at all.
 either instrument. Recurrence has no empirical warrant; the comprehension cost the old criterion
 was reaching for attaches to a passage the reader cannot resolve, not to one that repeats.
 
-**The frozen suite outranks this bar.** Where a scenario requires what the bar would fail — a term a
-scenario fixes, a route a scenario pins — the scenario wins and the bar yields. The
-contract was ratified at the spec gate and the judge does not overrule it; report the collision as
-an `OBSERVATIONS` entry owned by the architect, never as a `BLOCKER`. A bar that could veto a frozen
-scenario would make the impl gate a second spec gate.
+**What fires is the second passage's *marking*, not the repetition.** The retraction above and the
+group B entry *re-presented as new* are not in tension — they read the same pair and ask different
+questions. The repetition is never the trigger; the trigger is a second mention that presents itself
+as **first** information. Both sentences below repeat the same destination, and only one is a
+finding:
+
+| The `## Rollback` sentence | Marking | Verdict |
+|---|---|---|
+| *"there **is** a directory at `~/.config/setup` that the install writes"* | existential — introduces the referent as new | **fires** — the reader who read `## Steps` is told they are meeting this for the first time, so they distrust what they remember |
+| *"**the** `~/.config/setup` directory the install wrote"* | definite, back-referring — treats the referent as given | **no finding**, at either instrument |
+
+Read the article and the tense before deciding: `there is a…` against `the … that`. If the second
+passage marks the claim as given, the retraction applies and there is no finding of any kind.
+
+**Two different collisions, and only one is an observation.** Both look like *the frozen contract and
+something else disagree*, and collapsing them is how a real blocker gets filed as advisory:
+
+| The frozen scenario disagrees with… | What it is | Report as |
+|---|---|---|
+| **this bar** — a catalog entry or the enumeration rule fires on a term a scenario fixes, or a route a scenario pins | the scenario wins and the bar yields; the contract was ratified at the spec gate and the judge does not overrule it | an `OBSERVATIONS` entry owned by the architect, **never** a `BLOCKER`. A bar that could veto a frozen scenario would make the impl gate a second spec gate |
+| **the spec** — a scenario requires what the spec's own audience row, prerequisite, or declared doc type rules out | a **behavior-changing gap** (`sdd:ownership-governance`): the contract contradicts itself, and no implementation can satisfy both | a `BLOCKER` naming the gap, leaving `spec.md` and the `.feature` unmodified |
+
+The discriminator is **what sits on the other side of the disagreement** — this bar, or the spec. A
+bar yields to the frozen suite; a spec cannot, because nothing downstream can reconcile them.
 
 Every finding carries **two citations, and each citation carries its location** — the quoted text
 plus the heading (and line number, where the artifact has them). Quote alone is not enough: text can

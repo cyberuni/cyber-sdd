@@ -177,6 +177,28 @@ designed starting state, not an outage: the entries are reasoned rather than mea
 is exactly what calibration exists to check. A row moves to `calibrated` only with a rate and a named
 corpus beside it — never on the strength of having been read and found sensible.
 
+#### Running a calibration
+
+Every entry added to this catalog needs this, so it is a procedure rather than a one-off.
+
+1. **Name the corpus** — at least one document the team **already accepts** and one it **already
+   considers weak**. The team names them; a judge that picks its own corpus has chosen the evidence
+   that suits it.
+2. **Run the judged pass unchanged** — blind simulation, then scoring — over every document in the
+   corpus. Do not shorten it for calibration; a procedure calibrated in a cheaper mode has measured
+   something other than what will run.
+3. **Score against expectation, per entry.** On an accepted document every firing is a **false
+   positive**. On a weak document a *miss* is informative but not disqualifying — the asymmetry in
+   *Advisory until calibrated* holds here too.
+4. **Record the rate and the corpus** in the table above. A rate with no named corpus is not a
+   measurement.
+5. **An entry that fires on an accepted document stays advisory** and its wording is the thing to
+   fix — usually its near-miss is too narrow.
+
+**Calibration is not a majority vote across entries.** Nine entries clearing together tells you
+nothing about the tenth, and an entry that never fires on either document has not been calibrated —
+it has not been tested.
+
 Once calibrated, an entry blocks on **confirmed and undefended** only. The asymmetry is deliberate: a
 miss ships a weak paragraph, while a false positive teaches the producer to route around the judge —
 and a judge that gets routed around catches nothing at all.

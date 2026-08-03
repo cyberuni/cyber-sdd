@@ -5,6 +5,8 @@ concept: plugin-registry
 
 # registry — register Quill as the documentation SDD plugin
 
+## What
+
 Write the quill role-map entry to `.agents/universal-plugin.json` so the conductor resolves Quill for the
 documentation artifact-types (`init-quill`). One file is the single place resolution is recorded — the
 **lockfile pattern**: the work of deciding which agent plays which role happens once, at setup, so the

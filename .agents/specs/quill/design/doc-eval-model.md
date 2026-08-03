@@ -35,7 +35,11 @@ every one of them, because each occurrence is well-formed on its own and it is t
 (`quill-builder-impl`) rather than to a scenario — the frozen `.feature` cannot hold it, since a relation
 between passages is not a property of either one.
 
-It stays inside the no-style boundary by **requiring evidence**: a failure must quote both locations.
+It stays inside the no-style boundary by **requiring evidence**: a failure must quote both locations,
+and each citation must name **where** it came from rather than only what it said — a quote can be
+accurate and misattributed, which reads as verified precisely because the words check out. The two
+locations must also be confirmed distinct, since a relation between passages cannot be evidenced by
+one passage read twice.
 *"This reads redundant"* is a judgment and out of scope; *"these two sentences land the same claim, here
 they are"* is an inspection. Tone, register, length, and word choice remain unassertable.
 

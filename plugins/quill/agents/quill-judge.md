@@ -68,10 +68,17 @@ contract was ratified at the spec gate and the judge does not overrule it; repor
 an `OBSERVATIONS` entry owned by the architect, never as a `BLOCKER`. A bar that could veto a frozen
 scenario would make the impl gate a second spec gate.
 
-An integrity failure is a `BLOCKER` carrying its citations, for the conductor to re-run
-`quill-doc-writer`; do **not** edit the document. Without both citations there is no finding — an
-unevidenced impression is a style opinion, which is out of scope (`design/doc-eval-model.md`). Tone,
-register, length, order, and mechanism-neighbors are never reported here.
+Every finding carries **two citations, and each citation carries its location** — the quoted text
+plus the heading (and line number, where the artifact has them). Quote alone is not enough: text can
+be transcribed correctly and attributed to the wrong passage, and a finding that reads as verified
+because its words are right is the hardest kind to catch. **Confirm the two locations differ before
+reporting** — these criteria are relations between passages, so two quotes resolving to one place
+mean you read one passage twice rather than finding a pair.
+
+An integrity failure is a `BLOCKER` carrying those citations, for the conductor to re-run
+`quill-doc-writer`; do **not** edit the document. Without them there is no finding — an unevidenced
+impression is a style opinion, which is out of scope (`design/doc-eval-model.md`). Tone, register,
+length, order, and mechanism-neighbors are never reported here.
 
 ### 5. Aggregate results
 
@@ -87,7 +94,7 @@ STATUS                — complete | needs-input | blocked
 IMPLEMENTATION_PASS   — true | false
 SCENARIOS_PASSING     — list of scenario titles with result PASS
 SCENARIOS_FAILING     — list of scenario titles with result FAIL
-INTEGRITY_FINDINGS    — [ { defect, document, citations: [ two quoted locations ] } ] (empty when clean)
+INTEGRITY_FINDINGS    — [ { defect, document, citations: [ { quote, heading, line } x2 — distinct locations ] } ] (empty when clean)
 CHANGES_MADE          — verification produced / run (or "none")
 BLOCKER               — first unresolved FAIL reason (or null when PASS is true)
 QUESTIONS             — [ batched, when needs-input ]

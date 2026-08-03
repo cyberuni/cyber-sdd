@@ -13,6 +13,6 @@ It exists because Quill's four static checks are **scenario-scoped** — each re
 
 The bar grades all four **once per document**, not once per scenario.
 
-The boundary against style is **evidence**: a failure must quote both locations, so *"these two sentences land the same claim, here they are"* is reportable while *"this reads redundant"* is not. Tone, register, length, word choice, section order, and the mechanism-neighbor question in `explanation`-type prose stay out of scope — the last is writer-side, since no citation settles it.
+The boundary against style is **evidence**: a failure must quote both locations — each naming *where* it came from, not only what it said, and confirmed to be two different places — so *"these two sentences land the same claim, here they are"* is reportable while *"this reads redundant"* is not. Tone, register, length, word choice, section order, and the mechanism-neighbor question in `explanation`-type prose stay out of scope — the last is writer-side, since no citation settles it.
 
 The complementary contracts are `design/doc-eval-model.md`, which defines both inspection scopes, and `quill-builder-spec`, whose scenario-map rule quantifies a claim's place count in the spec so the suite itself stops paying for restatement.

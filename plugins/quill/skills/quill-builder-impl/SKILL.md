@@ -50,6 +50,15 @@ the pair fails. A scenario per pair does not scale and would freeze the structur
   landing one claim, the two uses whose subjects differ in class, the enumeration and the routing
   that skips a member, or the two incompatible claims. An unevidenced integrity finding is not
   reportable, which is what keeps this check an inspection rather than a style opinion.
+- **A citation names where it came from, not only what it said.** Each quote carries its **location**
+  — heading, and line number where the artifact has them. A quote alone can be transcribed perfectly
+  and attributed to the wrong passage, and the reader of the finding has no way to tell: the words
+  are right, so the finding looks verified. Requiring the location is what makes a finding
+  *checkable*, and therefore refutable.
+- **The two locations must be distinct, and the judge must confirm they are.** Every criterion here
+  is a relation between passages, so a finding whose two quotes resolve to the same place has not
+  found a pair — it has read one passage twice. Compare the locations before reporting; that check
+  is the cheapest way to catch a fabricated relation.
 - **The producer runs it before the judge does.** `quill-doc-writer` reads this bar forward, over
   the whole document and with no scenario list in hand — the reading position the per-scenario pass
   cannot occupy. Sentences written to satisfy individual scenarios are written to stand alone, so
@@ -82,6 +91,7 @@ An integrity failure is a `BLOCKER` carrying its two citations, returned for the
    route reaching every option the document named; no two passages asserting incompatible claims.
 2. **They are relations between passages**, so no frozen scenario can hold them — the bar does.
 3. **Evidence or no finding** — quote both locations, or it is a style opinion and out of scope.
+   A citation carries *where*, not just *what*; two quotes resolving to one place are not a pair.
 4. **The producer reads it whole and checklist-free**, which is the position that sees the pair.
 5. **Tone, length, order, and mechanism-neighbors are out of scope** — the last is writer-side.
 6. **A frozen scenario outranks the bar** — on a collision the scenario wins and the finding is an

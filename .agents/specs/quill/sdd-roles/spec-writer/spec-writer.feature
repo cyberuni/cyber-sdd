@@ -135,7 +135,7 @@ Feature: spec-writer — the Quill spec-producer role
     When it writes the key-points table
     Then each row states a claim the page must land
     And no row names a heading or a section of the page
-    And each row is settleable by inspecting the page
+    And each row names a document state a static check can read
 
   @behavior
   Scenario: each non-goal names where the excluded topic lives
@@ -212,6 +212,16 @@ Feature: spec-writer — the Quill spec-producer role
     Then each scenario names docs/scanners/flashing.md
     And each scenario names the audience it serves
     And each scenario names what the reader can do after reading
+
+  @behavior
+  Scenario: it lowers an uncheckable reader state into a document state a check can read
+    Given the command surface states the page should leave a first-time operator confident
+    And the command surface names the operator's task as recovering a bricked scanner unattended
+    When it writes the suite scenarios
+    Then a scenario asserts that the page carries a recovery procedure the operator can run unattended
+    And every authored scenario asserts a document state a static check can read
+    And no authored scenario asserts that the page leaves the operator confident
+    And no authored scenario asserts a condition only a reader's judgment settles
 
   @behavior
   Scenario: it leaves the control frontmatter to the conductor and the gate

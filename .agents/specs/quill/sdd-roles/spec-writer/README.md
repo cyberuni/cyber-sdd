@@ -118,10 +118,12 @@ graph TD
   K -- "a route across a set with several members" --> K2[assert the discriminator and reserve the other member for its own condition]
   K -- "a claim the draft carries under a heading" --> K3[assert the claim, never the heading wording, the section order, or the tone]
   K -- "a single-path claim" --> K4[assert the document path, the audience, and the observable reader outcome]
+  K -- "a reader state only the reader's judgment settles" --> K5[lower it to a document state a static check reads, or drop it]
   K1 --> M
   K2 --> M
   K3 --> M
   K4 --> M
+  K5 --> M
 
   M[return the authored spec.md body and .feature]
 ```
@@ -134,7 +136,7 @@ has no reason to reach `E1`, and one that never read the architect bar has no re
 Edges that decide nothing of their own — the reconvergences (`P1→B`, `P2→B`, `F1→G`, `G*→H`,
 `H1→I`, `I1→J`) and the two pass-throughs (`H→I`, `I→J`) — carry no row of their own; the downstream
 row covers them with the path class `any`, per the reconvergence-collapse rule in
-`sdd:suite-format-governance`. The four `K*→M` edges reconverge the same way and are covered by the
+`sdd:suite-format-governance`. The five `K*→M` edges reconverge the same way and are covered by the
 single `→M` row, whose path class is `any`.
 
 ## Scenario map
@@ -166,6 +168,7 @@ single `→M` row, whose path class is `any`.
 | `K→K2` | the reader path routes a case across two members | `a routing scenario asserts the discriminator` |
 | `K→K3` | the draft carries the claim under its own heading, third in the file | `no scenario asserts the heading wording, the section order, or the tone` |
 | `K→K4` | a claim reached on one path | `each scenario names the path, the audience, and the observable reader outcome` |
+| `K→K5` | the command surface states the page should leave the operator confident | `it lowers an uncheckable reader state into a document state a check can read` |
 | `→M` | any | `it leaves the control frontmatter to the conductor and the gate` |
 
 ### UC2 — revise
@@ -184,3 +187,19 @@ single `→M` row, whose path class is `any`.
 
 The recusal guard's positive companion is UC1's `B→C` row: the same decision, taken the other way on
 a target that does have a document surface.
+
+## Specified ahead of the implementation
+
+Two scenario groups specify behavior `plugins/quill/agents/quill-spec-writer.md` does not yet
+carry. Both are legitimate under `sdd:suite-format-governance` — *when an act matters but records
+nothing, add the record; do not delete the act* — and both are a delta the implementation must close
+at the impl gate. They are listed here so the conductor carries one complete delta forward.
+
+| Site | What the suite specifies | What the agent has today |
+|---|---|---|
+| `P→P1`, `P→P2` | the output packet lists the actor bars it loaded, distinguishing a bound plugin bar from an SDD-default fallen back to | the agent loads the bars but its `## Output` block has no field that records which ones |
+| `B→B1` (UC3) | the output packet reports a recusal naming the SDD-default production chain | `STATUS` is `complete \| needs-input \| blocked` — no recusal value, and no recusal step anywhere in the agent's `## Steps` |
+
+Everything else the suite asserts is already stated in the agent definition — including the
+static-inspection rule the `K→K5` scenario guards (`quill-spec-writer.md:34`), which was written but
+unguarded until this scenario.

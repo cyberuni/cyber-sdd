@@ -166,6 +166,26 @@ choosing, the criterion is the behavior and the destination is a consequence of 
 Relations the suite still cannot reach, because they hold *between* passages no single scenario
 reads, are graded once per document against `quill:quill-builder-impl`.
 
+### Identifiers — one namespace per node
+
+A doc spec keys three populations: **coverage rows** (element 5), **reader entry points**
+(`## Use Cases`), and **CFG node labels** (`## Control Flow`). Coverage-row IDs are cited *from* the
+other two — an entry point ends `(G1, G3, G7)`, a scenario map row names the row it checks — so the
+keys are load-bearing here in a way they are not in a capability spec, whose use cases are named
+rather than numbered.
+
+**An identifier denotes one thing per node.** Two populations reaching for the same
+audience-initial letter is how it breaks: an entry point keyed `A1` for the *adopter* and a CFG node
+keyed `A1` for the *actor-name* branch are two objects that a grader tracing a citation reads as one.
+This is measured, not anticipated — the website corpus shipped five such collisions across two nodes,
+four of them in a single file where `A1 A2 T1 T2` were simultaneously entry points and graph nodes.
+
+**Prefix reader entry points `UC`.** `UC1`, `UC2`, `UC3` — two alpha characters, so it cannot
+collide with the single-letter labels a mermaid graph uses, and it is the same key in every node. An
+audience-initial prefix loses nothing by going: the rows are already grouped under their audience's
+own heading, so the letter restates the heading while colliding with the graph. Twelve authored
+nodes currently use twelve schemes, which costs a reader moving between them a fresh key each time.
+
 ## What a documentation spec must never freeze
 
 Freezing any of these produces a spec that breaks on every honest revision while catching no real
@@ -212,3 +232,5 @@ the audience element exists to catch.
    defect.
 8. **A routing scenario asserts the discriminator**, never the destination alone — otherwise it
    ratifies the route the draft took rather than testing it.
+9. **One namespace per node** — an identifier denotes one thing; entry points are keyed `UC1`, `UC2`,
+   so they cannot collide with a single-letter CFG label.

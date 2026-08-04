@@ -25,7 +25,7 @@ approval:               # per-gate verdict
   spec:                 # verdict: approve | pause | reject
     verdict: approve
     by: agent           # by: agent (self-asserted, provisional) | <human name> (ratified); omitted on pause
-    cause: dimension    # dimension | ceiling — what drove the verdict (a gradient dimension, or the human ceiling cap)
+    cause: dimension    # dimension | clearance | ceiling — what drove the verdict (a gradient dimension, the clearance floor, or the human ceiling cap; off-enum → flag cause-candidate: true)
     why:                # verdict derivation (agent self-assertion or pause)
       floor:        <none | clearance | conflict | compatibility | consent>
       blast:        <low|high — reason>
@@ -119,7 +119,7 @@ The `(status, markers, .feature, approval)` tuple is **illegal** when:
 - an `approval.<gate>` is `verdict: pause` carrying a `by` — a pause is always the agent's act and omits `by`.
 - an `approval.<gate>` is `verdict: approve` with no `by` — an approve must record its approver.
 - an `approval.<gate>` is `by: agent` with no `why` block — a self-assertion must record its derivation.
-- an `approval.<gate>` has a `cause` other than `dimension` or `ceiling` — the stop cause is a closed enum (`mission/README.md` stop-provenance).
+- an `approval.<gate>` has an off-enum `cause` (not `dimension` / `clearance` / `ceiling`) without a `cause-candidate: true` flag — the stop cause is a closed enum grown by ratification; an unflagged off-enum value fails closed, a flagged one is legal (`mission/README.md` stop-provenance; the off-enum candidate discipline, `common-governances/combat-log`).
 - an `approval.<gate>` is `verdict: pause` on a gate the spec has already passed (spec once `approved`/`implemented`, impl once `implemented`).
 - `status: approved` or `implemented` with no `approval.spec` `verdict: approve` + `by` — the spec gate has no recorded ratification.
 - `status: implemented` with no `approval.impl` `verdict: approve` + `by` — the impl gate has no recorded ratification.
@@ -140,7 +140,7 @@ These run wherever the helper runs; `plugins/sdd/skills/spec-gate/scripts/check-
 **No-resolvable-producer fails closed.**
 A required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role.
 When a gate runs and a required role has **no resolvable producer** (not a plugin agent and not even an SDD default), the gate **fails closed** with a blocker; it advances nothing.
-This is a **structural** error, the same fail-closed class as a malformed `produced-by` entry or an off-enum `cause` (defined in `provenance-model.md`).
+This is a **structural** error, the same fail-closed class as a malformed `produced-by` entry or an **unflagged** off-enum `cause` (a `cause-candidate: true`-flagged one is legal; `provenance-model.md`).
 Distinct from availability: a recorded producer whose plugin is merely uninstalled is flagged, not blocked.
 
 **A resolved producer may recuse; recusal falls back to the SDD default.**

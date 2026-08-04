@@ -596,6 +596,38 @@ Feature: The conductor — running one mission segment
     When the conductor finalizes the mission
     Then it appends no minimum-footprint correction line
 
+  # ---- Cause-enum conformance — an off-enum cause stays visible, never silently dropped ----
+
+  Scenario: a correction cause that fits the enum is written plainly with no candidate flag
+    Given the conductor writes a correction whose reason matches a cause enum value
+    When it records the correction line
+    Then it writes that enum value as the cause
+    And it sets no cause-candidate flag
+
+  Scenario: a correction cause with no enum fit is written off-enum and flagged as a growth candidate
+    Given the conductor writes a correction whose reason matches no cause enum value
+    When it records the correction line
+    Then it writes the off-enum reason as the cause rather than omitting it
+    And it flags the line cause-candidate true
+
+  Scenario: a Clearance-floor gate stop records the on-enum clearance cause with no candidate flag
+    Given the conductor pauses a gate on the Clearance floor
+    When it records the gate line
+    Then it writes cause clearance as an enum value
+    And it sets no cause-candidate flag
+
+  Scenario: a gate stop-cause with no enum fit is written off-enum and flagged as a growth candidate
+    Given the conductor stops at a gate for a reason matching no gate stop-cause enum value
+    When it records the gate line
+    Then it writes the off-enum reason as the cause rather than omitting it
+    And it flags the line cause-candidate true
+
+  Scenario: the nudge means write the off-enum value, not omit the cause
+    Given the conductor records a correction or gate line whose reason fits no enum value
+    When it applies the off-enum candidate discipline
+    Then it writes the off-enum reason into the cause field rather than leaving the cause absent
+    And it does not treat a missing cause as a growth candidate
+
   # ---- Mission statusline — write the value during the loop (opt-in surface) ----
 
   Scenario: the conductor writes the phase to the statusline file on each phase transition

@@ -121,14 +121,28 @@ the ledger's `strategy` count.
 
   **Growth:** closed at any moment, discovered from usage — a new value is added only when a real
   recurring correction has no category. Adding one is an **edit to this governance, ratified by the
-  Council** (a producer/judge/conductor never edits the enum). An **absent or off-enum `cause` fails
-  closed** (it breaks cross-mission matchability).
+  Council** (a producer/judge/conductor never edits the enum).
+
+  **Off-enum candidate discipline (the write-time nudge).** When the conductor writes a `cause` and
+  **no enum value fits**, it writes the off-enum string into `cause` anyway **and flags the line
+  `cause-candidate: true`** — so the value stays **countable** as a proposal for enum growth instead of
+  silently failing closed. This is a **visibility nudge, not a write-blocking linter**: the write always
+  succeeds, and forcing an ill-fitting enum value would only relabel the silent drop as a mislabel. An
+  **absent `cause` still fails closed** (it breaks cross-mission matchability) — the nudge governs only
+  the *no-value-fits* case and licenses no omission. A `cause-candidate` value that recurs is exactly
+  the signal the Council reads when deciding the ratified growth above; the flag makes the accumulating
+  candidate legible instead of invisible.
 
   **Efficiency** is a categorical correction class the committed log is designed to carry — the
   conductor flagging notable token-waste (a class, **never raw counts**), so the post-merge doctrine
   loop keeps the dimension. Its concrete `correction-kind` / `cause` are **not seeded**; they enter by
   the same Council-ratified growth, and the numeric depth stays transcript-only (the floor admits no
   raw token number).
+
+- **`cause-candidate`** — optional boolean. `true` marks an off-enum `cause` written under the
+  off-enum candidate discipline above as a proposed enum-growth value (kept present and countable, not
+  silently dropped). Omitted or `false` on an on-enum `cause`. The same flag applies to a `gate` line's
+  off-enum stop cause (below).
 
 - **Durability discipline (the conductor's write duty).** A `correction` is a discrete line, never
   left folded only into a verdict `why` (the doctrine loop matches `cause`, not prose):
@@ -164,8 +178,11 @@ doctrine loop reads only the committed log post-merge.
 
 - **`gate`** — `spec | impl`. **`verdict`** — `approve | pause | reject`. **`by`** — a human name
   (ratified) or `agent` (self-asserted, provisional; carries the `why` derivation).
-- **`cause`** — `dimension | ceiling` (the **stop cause**, distinct from a `correction`'s matchable
-  `cause`).
+- **`cause`** — `dimension | clearance | ceiling` (the **stop cause**, distinct from a `correction`'s
+  matchable `cause`): a gradient risk `dimension`, the `clearance` hard floor (a narrowing), or the
+  `ceiling` (Compatibility) cap. The **off-enum candidate discipline** applies here too — a stop cause
+  with no enum fit (e.g. a novel floor) is written off-enum **and** flagged `cause-candidate: true`,
+  never silently dropped.
 - **`frozen`** — the suite files this verdict froze (spec-gate `approve` only), so the ledger answers
   *"what was frozen as of CR #34"* standalone — no git walk.
 

@@ -24,7 +24,7 @@ approval:               # per-gate verdict
   spec:                 # verdict: approve | pause | reject
     verdict: approve
     by: agent           # agent (self-asserted, provisional) | <human name> (ratified); omitted on pause
-    cause: dimension    # dimension | ceiling — what drove the verdict
+    cause: dimension    # dimension | clearance | ceiling — what drove the verdict (off-enum → flag cause-candidate: true)
     why:                # verdict derivation (agent self-assertion or pause)
       floor:       <none | clearance | conflict | compatibility | consent>
       blast:       <low|high — reason>

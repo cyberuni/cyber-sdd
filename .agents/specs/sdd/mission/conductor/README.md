@@ -44,6 +44,7 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **stop-provenance** | the three-layer model — `leash` block, the leash reach, the per-gate verdict, the durable pause, and the mid-flight `halt` entry |
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
 | **correction-line durability** | a judge-reject→fix→pass self-assert appends a discrete `correction` line (`correction-kind: judge-iteration` + a matchable `cause`) before the gate `why`, never leaving the iteration only as prose; a clean gate appends none; at finalize, a mission carrying a correction whose line was never flushed writes it — creating the combat log if absent (a combat-log `correction`, never a ledger line; a mission with no correction forces none) |
+| **cause-enum conformance** | when writing any `cause` (a `correction`'s matchable cause or a `gate` line's stop cause), prefer an enum value; if none fits, write the off-enum string into `cause` **and** flag `cause-candidate: true` so it stays countable as a growth proposal rather than silently failing closed; an **absent** cause still fails closed (the nudge is no license to omit); a visibility nudge, never a write-blocking linter |
 | **mission statusline** | during the loop only, overwrite the statusline file (`.agents/sdd/statusline`) with the current phase on each transition and clear it on every exit (handoff / pause / halt); written only while a mission is in flight, no heartbeat (static staleness), distinct from the lifecycle `status` field — the opt-in reader is wired by `../../gateway/init/` |
 
 ## Classification — a file's artifact-type
@@ -89,7 +90,7 @@ SDD default / no-squad-match SDD default — is the matcher unit's own contract 
 
 A required role **always lands on a real delegate** or the conductor **hard-fails closed** and
 records nothing (no inline sentinel) — the same fail-closed structural-error class as a malformed
-`produced-by` entry or an off-enum combat-log `cause`. A resolved delegate that **recuses** from a
+`produced-by` entry or an **unflagged** off-enum combat-log `cause` (a `cause-candidate: true`-flagged one is legal). A resolved delegate that **recuses** from a
 subject (declares it outside its domain and produces nothing) is **distinct** from a missing
 delegate: recusal is **not** a structural error — the conductor **re-resolves that unit's chain to
 the SDD defaults** (default producer + SDD-default bars + judge) and proceeds, recording the recusal
@@ -345,7 +346,8 @@ Autonomy and gate provenance use a **three-layer model** (rules in
    Effective reach = `min(ceiling, derived)`.
 3. **The per-gate verdict** — `approval`, a map keyed by gate (`spec`, `impl`). Each entry:
    `verdict: approve | pause | reject`, `by` (on approve/reject; **omitted on pause** — a pause is
-   always the agent's act), `cause: dimension | ceiling`, and a `why` block that is **durable for
+   always the agent's act), `cause: dimension | clearance | ceiling` (off-enum → flagged
+   `cause-candidate: true`, never silently dropped), and a `why` block that is **durable for
    every verdict**. `pause` is the accountability-preserving halt — "why I halted" is now as
    durable as "why I went," in the same map. The review queue (`approve` / `by: agent`) and
    awaiting-input queue (`pause`) are both **derived** from this map, not stored. A paused gate
@@ -373,6 +375,22 @@ The line stays a combat-log `correction` (the seven-kind tier split is invariant
 lands in the ledger); durability comes from the Scanner distilling the committed log into `strategy`
 ledger lines before retro deletes it, so the `cause` survives even the no-log mission class. A
 mission that concluded with **no** correction forces nothing.
+
+**Cause-enum conformance.** The durability above only pays off if the `cause` a line carries is
+*matchable* — and both the `correction`'s discovered `cause` enum and the `gate` line's stop-cause
+enum are **closed sets that grow only by Council ratification** (`combat-log-governance`). So the
+conductor applies a write-time discipline every time it writes a `cause`: **prefer an enum value; if
+none fits, write the off-enum string into `cause` anyway AND flag the line `cause-candidate: true`**,
+so the value reads as *proposed for enum growth* and stays countable by the Recurring-pattern
+detector instead of silently failing closed. This is a **visibility nudge, not a blocking linter** —
+the write always succeeds; forcing an enum value the reason does not fit would just relabel the
+silent-drop as a mislabel. An **absent** `cause` still fails closed (the nudge licenses no omission —
+it governs only the *no-value-fits* case). "Stays countable" is a property of the **written record**
+(the off-enum string is present in `cause`, plus the marker), not a change to how the Scanner counts —
+the flag is the human/Council-legible signal that a growth candidate is accumulating. This closes the
+gap the doctrine loop found in its own corpus: off-enum `cause`s (`node-boundary`,
+`format-json-missing-built-array`, and the gate-line generic `floor`) that were real, on-disk defects
+yet invisible to the very detector meant to catch their recurrence.
 
 ## Mission statusline — surface the phase during the loop
 

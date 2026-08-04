@@ -22,7 +22,11 @@ doctrine-loop Scanner; invariant per role.
   the Scanner alone writes `strategy`), the per-shard `seq`, the combat-log-only write-time UTC `ts`
   (ledger lines carry none),
   the per-writer shard naming (`<cr-ref>.<hash>.jsonl`, ADR-0020), the pseudonymous `handle`, the
-  matchable `cause` enum, the **correction-line durability** discipline (a judge-reject→fix→pass
+  matchable `cause` enum (both the `correction` matchable cause and the `gate` stop cause — closed sets
+  grown only by Council ratification) and its **off-enum candidate discipline** (a writer that finds no
+  enum value fits writes the off-enum string into `cause` **and** flags `cause-candidate: true`, so the
+  value stays countable as a growth proposal rather than silently failing closed; an **absent** cause
+  still fails closed), the **correction-line durability** discipline (a judge-reject→fix→pass
   self-assert appends a discrete `correction` line — `correction-kind: judge-iteration` + a matchable
   `cause` — before the gate `why`, never only prose; and at finalize a mission
   carrying an unflushed correction writes that `correction` line, creating the combat log if absent —

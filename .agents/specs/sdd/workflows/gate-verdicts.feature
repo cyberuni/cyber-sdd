@@ -57,6 +57,27 @@ Feature: SDD acceptance — gate verdicts (producer/judge separation across both
     Then the returned remediation reports it as pre-existing
     And remediation continues
 
+  # ── Clearance repair: a repaired frozen scenario proves itself by failing its pre-repair draft ──
+
+  Scenario: a Clearance repair that fails the pre-repair artifact is accepted as a genuine correction
+    Given a frozen scenario repaired under a ratified Clearance re-open
+    And the repaired scenario fails when checked against the pre-repair artifact
+    When the repair is checked before re-approval
+    Then it is accepted as a genuine contract correction
+
+  Scenario: a Clearance repair that already passes the pre-repair artifact is rejected as a suspected back-fit
+    Given a frozen scenario repaired under a ratified Clearance re-open
+    And the repaired scenario passes when checked against the pre-repair artifact
+    When the repair is checked before re-approval
+    Then it is rejected as a suspected back-fit
+
+  Scenario: a post-repair pass with no pre-repair failure proof is not re-approved
+    Given a frozen scenario repaired under a ratified Clearance re-open
+    And the repaired scenario passes when checked against the post-repair artifact
+    And no pre-repair failure has been demonstrated for the repair
+    When the repair is checked before re-approval
+    Then the repair is not re-approved
+
   Scenario: the impl gate passes only when every frozen scenario has a passing verification
     Given an implementation judged at the impl gate
     When every frozen scenario has a passing verification

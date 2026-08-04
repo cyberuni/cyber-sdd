@@ -16,6 +16,33 @@ Feature: The formation loop — keep the spec corpus structurally organized
     When the formation pass runs
     Then it raises no split finding for that node
 
+  # ── The split-axis check — a split validates its organizing axis, not just granularity ──
+
+  Scenario: a split axis mapping each side to a capability boundary passes the axis check
+    Given an oversized node whose proposed split axis maps each side to a distinct capability or command boundary
+    When the Warden checks the split axis
+    Then the axis passes the capability-boundary check
+
+  Scenario: a split axis that only regroups internal implementation fails the axis check
+    Given an oversized node whose proposed split axis separates internal implementation groupings that share one capability boundary
+    When the Warden checks the split axis
+    Then the axis fails the capability-boundary check
+
+  Scenario: a split whose axis passes the check is proposed on that axis
+    Given a proposed split whose axis passed the capability-boundary check
+    When the Warden renders its split verdict
+    Then it proposes the split along that axis
+
+  Scenario: a split whose axis fails the check is not carved on that axis
+    Given a proposed split whose axis failed the capability-boundary check
+    When the Warden renders its split verdict
+    Then it does not carve sub-nodes on that axis
+
+  Scenario: an oversize whose axis fails the check is raised as a wrong-axis reorganization
+    Given an oversized node whose proposed split axis failed the capability-boundary check
+    When the Warden renders its verdict
+    Then it raises the oversize as a wrong-axis reorganization rather than a granularity split
+
   Scenario: an untagged node is flagged by the node-shape audit
     Given a spec-typed node that carries no concept tag
     When the formation pass runs

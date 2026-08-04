@@ -91,6 +91,7 @@ Sources: `sdd-gate-autonomy`, `automaton-deliver`, `sdd-mission-loop`.
 - E6. A finding names an **instance**; the returned remediation names the **rule** it instantiates, the other instances the sweep found, and the candidates it inspected and **excluded**.
 - E7. A correction is re-derived against the rule **governing the artifact**: one that contradicts a governance the artifact is bound by is rejected; one that agrees with all of them is accepted.
 - E8. Each finding's **provenance** is derived from the diff — an artifact changed by the previous remediation round's commits makes its finding a **regression**, which stops the loop for a re-plan; an artifact predating those commits is **pre-existing**, and remediation continues.
+- E9. A **Clearance-gated repair of an already-frozen scenario** is re-approved only when the repaired scenario **fails against the pre-repair artifact** — a repair that already passes the pre-repair draft is a suspected **back-fit** and is rejected; a **post-repair pass alone** does not re-approve it (the pre-repair failure is what proves the contract's substance changed rather than being reverse-engineered from what already existed).
 
 ### F. Handoff (mission verified result → delivery shape)
 Sources: `mission/handoff/` (new), commit discipline.

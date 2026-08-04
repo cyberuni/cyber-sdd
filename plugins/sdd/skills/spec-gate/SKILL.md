@@ -171,6 +171,10 @@ node "<skill>/scripts/classify-edit-class.mts" --files <the CR's touched .featur
 
 A `narrowing`/`mixed` result on a still-`@frozen` file routes to **Clearance** (escalated unless the CR
 pre-authorized it); `additive`/`no-content-change` self-clears; `unfrozen-skip` needs no edit-class gate.
+When a Clearance re-open **repairs** an already-frozen scenario, re-approving the repair carries the
+**pre-repair-failure proof** bar (`sdd:remediation-governance`): the repaired scenario must **fail**
+against the pre-repair artifact — a repair that already passes it is a suspected back-fit, and a
+post-repair pass alone never re-approves.
 `spec.md`
 / the node READMEs are **kept aligned, never frozen** — editable, but may not contradict a frozen
 scenario (enforced by the alignment check and the judge, not a flat freeze). Vocabulary is

@@ -52,6 +52,65 @@ structurally cannot exhaust a truth table, and a suite that tries **churns witho
 - **No deterministic inner layer, no offload** — a graded non-deterministic subject (an agent config)
   has nothing to push combinatorics into; `@rubric` absorbs the space in place.
 
+## A fold node states its rule in closed form before its scenarios
+
+A **fold** (aggregation) node is one whose verdict combines several sub-conditions into a single
+outcome — a ready-frontier that folds reachability against a mutex, a gate-legality aggregate over
+several field states, a per-cell matrix claim. For a fold, the order of authoring is load-bearing.
+
+**When a fold combines two or more *interacting* sub-conditions, state its rule in closed form —
+and re-derive that rule's soundness against the real data model — before deriving the scenarios.**
+A fold that turns on a **single** condition may be specified by example, and demanding a closed form
+of it is the failure mode of this rule, not its point (below).
+
+**Why the order.** Scenarios drawn off a fold rule that was never written down are drawn off a rule
+that was never *agreed*, and each producer-judge round then rewrites a different corner of an
+unstated rule instead of converging on a stated one. The corpus ran the A/B as two landed missions:
+the `github-192` barrier fence was specified **by example** and **diverged** — contradictions
+`1 → 1 → 3`, each new one manufactured by the prior round's fix, until it hit the cap and was
+reverted; `github-224` (folded into `github-263`) stated the **rule first** and **converged** —
+zero contradictions, its findings the ordinary coverage gaps of a first draft. Closed form buys
+**iteration convergence**. It is cheap insurance a single-condition fold does not need and a
+multi-condition one rarely survives without.
+
+Three qualifications ride with the rule; each is a way it is misapplied.
+
+- **Fire only on ≥2 *interacting* sub-conditions — over-firing is the failure mode.** A
+  single-condition fold specified by example converges fine: the WAW-mutex scenarios
+  (`../../mission-graph/mission-graph.feature`, touch-set intersection) settled in roughly four
+  by-example scenarios and never needed a stated rule. The trigger is genuine interaction between two
+  or more conditions, never mere aggregation; a blanket "state every fold in closed form" manufactures
+  ceremony on the folds that least need it.
+- **Closed form is not soundness — re-derive against the real data model.** A rule written in closed
+  form, even one carrying a proof, can still be unsound against the data it actually folds over: the
+  `R''` closure shipped with a termination proof and still deadlocked, because its project-scoped
+  exemption assumption was violated by graph-global RAW closure — a silent acyclic deadlock, fixed to
+  `R'''` only after the assumption was re-derived against the real graph. State the rule, then re-run
+  its assumptions against the real data model before you author a single scenario; a proof over an
+  assumed model proves nothing about the real one.
+- **Convergence is not coverage — pair the rule with a mutation sweep and a safety dual.** Stating the
+  rule kills the divergence; it does nothing for the gaps. A first draft off a correct rule still
+  reads short — reading judges catch about one gap a round, and a stated rule does not change that.
+  Two instruments close it. A **mutation sweep** mutates each interacting condition in turn and
+  confirms each break falls on a *distinct* scenario — two conditions whose mutations break the same
+  scenario have collapsed into one, and the fold's CFG has fewer real branches than it claims. A
+  **safety dual** guards the blind spot a convergence check cannot see: a liveness rule (*some grant
+  path exists*, *the frontier eventually advances*) passes an **over-permissive** fold green, because
+  over-permission adds paths rather than removing them — pair every liveness scenario with the safety
+  scenario asserting the case it structurally cannot observe.
+
+### The matrix corollary — a per-cell claim is this rule applied
+
+A **matrix / per-cell** claim (an outcome stated per `(form, operation)`, per `(role, resource)`,
+per cell of any grid of interacting conditions) is not a separate bar — it is this rule with the
+closed form written as the **cell function**. Draw **every independent cell as its own CFG branch**,
+and exclude the **degenerate** ones: a cell whose outcome reconverges with a sibling's carries no
+distinguishing state and collapses under the CFG collapse rule above, exactly as a **universal**
+"every cell behaves the same" claim is one convergence scenario, not a grid (the `github-278` round-4
+draft asserted such a universal one row too wide and dropped it). Verify the cells are genuinely
+independent — not a grid that collapses to a row — by the **mutation sweep**: mutate each cell's
+inputs and confirm the break lands on that cell alone.
+
 ## The suite screams the intents
 
 Organize scenario **sections by use-case / intent**, front and center — the same screaming-architecture

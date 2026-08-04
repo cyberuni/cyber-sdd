@@ -64,6 +64,18 @@ Phase 1 — the prose:
 
 Phase 2 — the suite:
 
+- **For a fold node, state its rule in closed form before you derive any scenarios**
+  (`../suite-format/README.md`). This bullet comes first because the **order is load-bearing** — the
+  rule is what the scenarios are drawn *from*, so deriving them first is the retrofit-after-the-fact
+  shape that diverges (`github-192`). When the node's fold combines **two or more interacting**
+  sub-conditions, write the rule in closed form and re-derive its soundness against the real data
+  model **before** the scenarios below — a single-condition fold may be specified by example, and
+  demanding a closed form of it is over-firing. Closed form buys iteration convergence, not coverage:
+  pair the rule with a **mutation sweep** (each interacting condition's mutation breaks a distinct
+  scenario) and a **safety dual** (a liveness scenario passes an over-permissive fold green — assert
+  the case it cannot observe). A **matrix / per-cell** claim is the same rule applied — draw every
+  independent cell as its own scenario, exclude the degenerate cells, and confirm the cells distinct
+  by the mutation sweep.
 - Every use case maps to one-or-more scenarios; add scenarios for new behavior, retire
   scenarios for removed behavior.
 - Each scenario stays a pure boolean `Given`/`When`/`Then` (or the rubric form per

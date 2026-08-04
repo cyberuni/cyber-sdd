@@ -344,3 +344,42 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     And the general Given does not itself exclude that exception
     When it reviews the suite
     Then it raises no contradiction and narrows neither Given
+
+  # ---- Fold nodes — state the rule closed-form before deriving the scenarios ----
+
+  Scenario: a fold combining two interacting conditions is stated in closed form before its scenarios
+    Given the spec-producer is authoring the suite for a node whose fold combines two interacting conditions
+    When it reviews the suite before returning
+    Then the spec states the fold's rule in closed form
+    And it does not report complete while the fold is specified only by example
+
+  Scenario: a fold turning on a single condition is specified by example
+    Given the spec-producer is authoring the suite for a node whose fold turns on a single condition
+    When it reviews the suite before returning
+    Then it specifies the fold by example
+    And it reports complete without stating the rule in closed form
+
+  Scenario: a closed-form fold rule is re-derived against the real data model
+    Given the spec-producer has stated a two-condition fold's rule in closed form with a proof, and the real data model admits a case the proof's assumptions exclude
+    When it reviews the rule against the real data model before returning
+    Then it re-derives the rule to hold on that case
+    And it does not report the rule sound on the strength of the proof alone
+
+  Scenario: a fold suite verified only by liveness scenarios gains a safety dual
+    Given the spec-producer has authored a fold suite whose scenarios a liveness guard alone passes
+    When it reviews the suite's coverage before returning
+    Then it adds a safety-dual scenario asserting the case the liveness scenarios cannot observe
+    And it does not report complete while an over-permissive subject passes every scenario
+
+  Scenario: a fold suite's branches are confirmed distinct by a mutation sweep
+    Given the spec-producer has authored a fold suite from its closed-form rule over two interacting conditions
+    When it reviews the suite's discrimination before returning
+    Then it mutates each interacting condition and confirms each break falls on a distinct scenario
+    And it does not report the suite discriminating while two conditions break the same scenario
+
+  Scenario: a matrix claim draws each independent cell and excludes the degenerate cells
+    Given the spec-producer is authoring the suite for a node making a per-cell claim over a matrix of interacting conditions
+    When it reviews the suite before returning
+    Then it draws each independent cell as its own scenario
+    And it excludes a degenerate cell whose outcome reconverges with a sibling
+    And it confirms the cells distinct by a mutation sweep

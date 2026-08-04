@@ -74,6 +74,14 @@ Any finding introduced by the previous round's remediation ⇒ the loop is **div
 iteration for a re-plan rather than another remediation round. Frozen in
 [`../../workflows/gate-verdicts.feature`](../../workflows/gate-verdicts.feature) (theme E).
 
+**A Clearance-gated repair of an already-frozen scenario carries a stricter re-approval bar.** When a
+narrowing/rewrite re-opens a frozen scenario under a ratified Clearance re-open and the producer
+repairs it, the repair is re-approved only if it **fails against the pre-repair artifact** — not
+merely that it passes the post-repair one. A repair that **already passes** the pre-repair draft is a
+suspected **back-fit** (reverse-engineered to fit what exists rather than a genuine contract
+correction) and is rejected; the pre-repair failure is the evidence that the contract's substance
+changed. Frozen in `../../workflows/gate-verdicts.feature` (theme E, the Clearance-repair scenarios).
+
 **Freeze on approval is per file.** Each touched `.feature` is **hard-frozen** via its own
 `@frozen` tag; untouched files keep their state. What may be done to a frozen file depends on the
 **edit class**, not on the freeze itself (`../../design/lifecycle-model.md` — the unfreeze trigger is

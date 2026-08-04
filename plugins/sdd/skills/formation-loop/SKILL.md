@@ -67,7 +67,7 @@ structure and discovery (`corpus/` + `project-spec/`), not on any given station 
 | Act | Trigger | Station (`corpus/` + `project-spec/`) | Output |
 |---|---|---|---|
 | **Audit node-shape** | a formation pass fires post-mission | `check-spec-structure` | a finding set: untagged-node (blocking) + oversized-node (advisory), each naming the node |
-| **Split an oversized node** | the Warden's `@rubric` breadth-vs-depth judgment routes an oversized-node's shape profile to breadth-overflow | `check-spec-structure` | a sub-node split; depth-overflow instead down-levels via the scenario→test bridge (`verify-scenarios`) or is redesigned — the engine emits only the profile, never the route |
+| **Split an oversized node** | the Warden's `@rubric` breadth-vs-depth judgment routes an oversized-node's shape profile to breadth-overflow | `check-spec-structure` | a sub-node split whose **organizing axis is first checked against a real capability/command boundary** (below); depth-overflow instead down-levels via the scenario→test bridge (`verify-scenarios`) or is redesigned — the engine emits only the profile, never the route |
 | **Reconcile drift / contradiction** | prose↔suite drift, or two nodes contradict | `align-spec` | a reconcile finding (drift fixed by direction; contradiction → align the losing side) |
 | **Dedupe cross-node scenario overlap** | the same behavior is specified in two nodes' suites — a hard collision the scenario rung cannot see (spec-level SSA) | `check-scenario-overlap` | a dedup finding naming both nodes; the Warden's `@rubric` arm confirms real overlap and **assigns a single owning node** (one behavior = one scenario in one node) |
 
@@ -75,6 +75,26 @@ A node **within** the granularity heuristic raises **no** oversized finding; a c
 raises **no** untagged finding; nodes (or governances) that **agree** raise **no** reconcile finding;
 two nodes that specify **no** shared behavior raise **no** dedup finding. The acts are evidence-gated,
 not run unconditionally.
+
+**The split-axis check — validate the organizing axis, not just the granularity.** An oversized node
+is a **granularity** signal, but a split carves it along a proposed **organizing axis**, and the
+wrong axis produces a split CR that gets **superseded rather than landed** — a full formation cycle
+wasted. So before proposing a split (self-clearing it or escalating its CR), the Warden **checks the
+proposed axis against a real capability/command boundary**: each side must map to a **distinct
+capability, command, or lifecycle phase**, not merely to an **internal implementation grouping** that
+shares one boundary.
+
+- an axis where each side is a distinct capability/command boundary **passes** — the split is
+  proposed on that axis;
+- an axis that only regroups internal implementation under one shared boundary **fails** — the Warden
+  does **not** carve sub-nodes on it, and raises the oversize as a **wrong-axis reorganization** (the
+  axis is wrong), not a granularity split to carve as-proposed.
+
+An oversize can be a symptom of the **wrong axis**, not just wrong granularity: turn "this node is too
+big" into "too big **along which axis** — and is that axis real?" (Precedent: a killed
+`identity/`→`presence/` split proposed a plausible-but-unreal axis and was superseded by a realignment
+that split along the package's actual command boundary; the producer/consumer boundary had even been
+validated as sound, yet the *split axis* was never checked against a real command boundary.)
 
 Alongside its findings a pass surfaces an **advisory layout-quality signal** — the scheduler's
 **false-conflict rate** doubles as a **partition-quality metric**: a layout that keeps node↔folder

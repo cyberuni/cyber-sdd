@@ -57,7 +57,11 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
    - **Read your scenarios against each other before returning.** No two sharing a `When` may demand opposite verdicts on one constructible snapshot; narrow one `Given` to exclude the overlap. Overlap whose `Then`s agree, and scenarios whose `When`s name different operations, are not contradictions.
    - **On a backfill, re-derive the scenario set from the CFG's edges** — one per `(path class, edge)` pair, every guard paired with a positive companion — rather than reading the standing `.feature` and patching the gaps a diff notices. Any pre-existing suite or retired golden set is **reference only**: a claim to verify against the current configuration, never the baseline to patch (`sdd:suite-format-governance`, ADR-0029).
 
-4. **On `JUDGE_FEEDBACK`, revise surgically.** When re-dispatched with `JUDGE_FEEDBACK` (and any `USER_ANSWERS`), edit **only** the scenarios it names as failing and fold in the answers; leave every already-passing scenario **unchanged**. Never rewrite the whole suite on a revision pass.
+4. **Pre-flight before you freeze.** Before returning the `spec.md` + `.feature`, run the produce-time pre-flight — the cheap check that stops a wrong assumption from being frozen into an already-shipped suite:
+   - **Ground every asserted harness/tool behavior in the harness's own primary docs.** When a `Then` (or the `spec.md`) asserts *how a harness or tool behaves* — a flag's effect, what a field controls, when a mechanism fires — confirm it against the harness's own primary documentation before freezing. Never assert harness behavior from memory; a wrong assumption frozen into a scenario forces a re-open of a shipped suite.
+   - **Grep the corpus before you coin a category name.** Before introducing a *new category or term name* for a concept, grep the glossary (`glossary.md`) and the existing specs for the term. Choose a name that does not collide with an established meaning — reusing an existing word for a different concept forces a corpus-wide rename.
+
+5. **On `JUDGE_FEEDBACK`, revise surgically.** When re-dispatched with `JUDGE_FEEDBACK` (and any `USER_ANSWERS`), edit **only** the scenarios it names as failing and fold in the answers; leave every already-passing scenario **unchanged**. Never rewrite the whole suite on a revision pass.
 
 ## Output
 

@@ -31,6 +31,33 @@ producer is responding.
    artifact predates them. Any regression means the loop is **no longer converging**: stop, report
    it, and re-plan. Do not open another remediation round on a regressing loop.
 
+## The Clearance-repair proof — a repaired frozen scenario must fail its pre-repair draft
+
+A `change` verdict that re-opens an **already-frozen** scenario under a **ratified Clearance re-open**
+(a narrowing/rewrite of specified behavior, or an impl-gate Oracle-lens revert) carries one extra bar
+on top of the four rules. The repair changes a contract that was already frozen, so the danger is a
+**back-fit**: a "correction" reverse-engineered to fit whatever the current draft/implementation
+already says, changing nothing of substance. The proof against that is directional —
+
+> a genuine repair makes the **pre-repair** artifact **FAIL**; a contract narrowed to fit an existing
+> draft moves *toward* passing it.
+
+So the repair is re-approved only when the repaired scenario **fails when checked against the
+pre-repair artifact/draft** — not merely that it passes against the post-repair one:
+
+- a repaired scenario that **fails** the pre-repair artifact is **accepted** as a genuine contract
+  correction — the pre-repair failure is the evidence its substance changed;
+- a repaired scenario that **already passes** the pre-repair artifact is **rejected** as a suspected
+  **back-fit** — it may be reverse-engineered from what already existed, not a real correction;
+- a **post-repair pass with no demonstrated pre-repair failure is not enough** — a repair carrying no
+  pre-repair-failure proof is **not re-approved** (absence of the proof is not proof of substance).
+
+The bar has **two faces**, both owed: the **producer** *demonstrates* the pre-repair failure as part
+of the repair (run the repaired scenario against the pre-repair artifact and show it fails); the
+**gate/judge** *requires* that proof before re-approving (a post-repair pass alone never re-approves).
+An independent cold judge confirming the repaired scenario against the still-unrevised artifact is the
+strongest form of the demonstration.
+
 ## A sweep is scope-aware, never a blanket match
 
 Rule 2's sweep answers "every instance of the rule", which is **not** "every occurrence of a string".
@@ -58,9 +85,13 @@ REMEDIATION:
              swept=<the other instances found, or none>
              ruled-out=<candidates inspected and excluded, with the reason>
              provenance=<pre-existing | regression>
+             pre-repair-proof=<the repaired scenario FAILS the pre-repair artifact | n/a — not a Clearance-gated frozen-scenario repair>
 ```
 
-A `contested` finding carries the evidence against it and **no edit** to the artifact it named.
+A `contested` finding carries the evidence against it and **no edit** to the artifact it named. A
+Clearance-gated repair of a frozen scenario carries its **`pre-repair-proof`** — the demonstration
+that the repaired scenario fails the pre-repair artifact; a repair without it (or one that passes the
+pre-repair draft) is not re-approved.
 
 ## Key points (read-check)
 
@@ -76,3 +107,7 @@ A `contested` finding carries the evidence against it and **no edit** to the art
    alone.
 6. **Provenance is derived from the diff** — an artifact changed by the previous round's commits
    makes its finding a **regression**, which stops the loop for a re-plan rather than another round.
+7. **A Clearance-gated repair of a frozen scenario must fail its pre-repair draft** — re-approval
+   requires the repaired scenario to **fail** against the pre-repair artifact (a repair that already
+   passes it is a suspected back-fit; a post-repair pass alone is not enough). The producer
+   demonstrates the failure; the gate/judge requires it.

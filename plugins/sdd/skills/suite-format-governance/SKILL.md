@@ -70,6 +70,45 @@ the current code**, never the baseline to patch. Reading the standing suite and 
 a diff notices is not this procedure — it leaves stale scenarios in place and misses edges the CFG
 mandates (ADR-0029).
 
+## A fold node states its rule in closed form before its scenarios
+
+A **fold** (aggregation) node folds several sub-conditions into one verdict — a ready-frontier folding
+reachability against a mutex, a gate-legality aggregate, a per-cell matrix claim. **When the fold
+combines two or more *interacting* sub-conditions, state its rule in closed form — and re-derive that
+rule's soundness against the real data model — before you draw the CFG.** A **single-condition** fold
+may be specified by example; demanding a closed form of it is the failure mode of this rule, not its
+point. Scenarios drawn off a rule never written down are drawn off a rule never *agreed*, and each
+producer-judge round then rewrites a different corner of it: the corpus ran the A/B — the `github-192`
+fence, specified by example, **diverged** (`1 → 1 → 3` contradictions, each manufactured by the prior
+fix, reverted at the cap); `github-224` stated the rule first and **converged** (zero). Closed form
+buys **iteration convergence** — insurance a single-condition fold does not need and a
+multi-condition one rarely survives without. Three qualifications, each a way it is misapplied:
+
+- **Fire only on ≥2 *interacting* sub-conditions — over-firing is the failure mode.** A
+  single-condition fold by example converges fine (the WAW-mutex touch-set-intersection scenarios
+  settled in a handful, no stated rule). Mere aggregation is not the trigger; genuine interaction is.
+- **Closed form is not soundness — re-derive against the real data model.** A rule in closed form,
+  even one carrying a proof, can be unsound against the data it folds: `R''` shipped a termination
+  proof and still deadlocked, its project-scoped exemption violated by graph-global RAW closure, fixed
+  to `R'''` only once the assumption was re-derived against the real graph. A proof over an assumed
+  model proves nothing about the real one.
+- **Convergence is not coverage — pair the rule with a mutation sweep and a safety dual.** Stating
+  the rule kills the divergence, not the gaps. A **mutation sweep** mutates each interacting condition
+  and confirms each break lands on a *distinct* scenario — two mutations breaking one scenario mean
+  the conditions collapsed into one and the CFG has fewer real branches than it claims. A **safety
+  dual** guards the blind spot a convergence check cannot see: a liveness rule (*some grant path
+  exists*, *the frontier advances*) passes an **over-permissive** fold green, because over-permission
+  adds paths rather than removing them — pair every liveness scenario with the safety scenario
+  asserting the case it structurally cannot observe.
+
+**The matrix corollary — a per-cell claim is this rule applied.** An outcome stated per cell of a grid
+of interacting conditions is this rule with the closed form written as the **cell function**. Draw
+**every independent cell as its own CFG branch** and exclude the **degenerate** ones (a cell whose
+outcome reconverges with a sibling collapses under the reconvergence rule above, exactly as a
+**universal** "every cell behaves the same" claim is one convergence scenario, not a grid — the
+`github-278` round-4 draft asserted such a universal one row too wide and dropped it). Confirm the
+cells genuinely independent by the mutation sweep. This is not a separate bar; it is the fold rule.
+
 ## Sections mirror the spec's use-case groups; every scenario binds to a map edge
 
 `spec.md` sections the node by **use-case group**, each carrying a drawn **CFG** and an

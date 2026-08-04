@@ -54,6 +54,38 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     When the Scanner fires
     Then it drafts no efficiency strategy
 
+  # ---- Idempotent Ship/Kill: detecting an already-distilled mission by parsing the ledger ----
+
+  Scenario: a mission already distilled is detected and not re-drafted
+    Given a shipped mission and a strategy entry whose distills field equals the mission's cr-ref
+    When the Scanner fires on the mission's terminal transition
+    Then it detects the mission as already distilled
+    And it drafts no duplicate strategy for it
+
+  Scenario: a pretty-printed distilling entry is still detected as distilled
+    Given a distilling strategy entry written with a space after the distills key's colon
+    When the Scanner checks whether that mission is already distilled
+    Then it detects the mission as already distilled despite the whitespace
+    And it drafts no duplicate strategy for it
+
+  Scenario: a cr-ref appearing only in another entry's evidence is not treated as distilled
+    Given a mission whose cr-ref appears only inside another strategy entry's evidence cross-references
+    When the Scanner checks whether that mission is already distilled
+    Then it treats the mission as not yet distilled
+    And it does not suppress drafting strategy for it
+
+  Scenario: an unratified distilling entry still counts as distilled
+    Given a mission whose only distilling strategy entry is unratified
+    When the Scanner checks whether that mission is already distilled
+    Then it detects the mission as already distilled
+    And it drafts no duplicate strategy for it
+
+  Scenario: a malformed ledger line does not abort detection of a valid distilling entry
+    Given a ledger shard holding a malformed line and a valid distilling strategy entry for the mission
+    When the Scanner checks whether that mission is already distilled
+    Then it skips the malformed line
+    And it detects the mission as already distilled from the valid entry
+
   # ---- Not a per-gate loop ----
 
   Scenario: a single gate passing is not a trigger

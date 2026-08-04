@@ -67,6 +67,18 @@ count** maintained in the ledger.
   distinct from the cross-referenced cr-refs in `evidence`. It is the hook `sdd:plan-retirement` keys
   on to confirm a plan was distilled before deleting its combat log. Milestone / drift / token-waste
   strategy has no single subject mission and **omits** `distills`.
+- **Idempotent Ship/Kill — detect an already-distilled mission by parsing the ledger, never grepping.**
+  Because you can meet the same terminal transition more than once, the Ship/Kill triggers are
+  idempotent: **before drafting**, detect whether the mission was **already distilled** (a prior
+  `strategy` entry whose `distills` equals its `<cr-ref>`) and if so **draft nothing**. Decide this by a
+  **structured JSONL parse, never a substring/regex text match** — **reuse** the exported
+  `distilledCrRefs` engine from `../skills/plan-retirement/scripts/retire-plans.mts` over the project
+  `ledger/` directory and membership-test the `<cr-ref>`. It parses each line with `JSON.parse`, so it
+  is correct against a **pretty-printed** entry (a space after the colon), a wrapped or reordered
+  object — a naive no-space grep (`"distills":"<cr-ref>"`) silently under-counts and re-drafts an
+  already-distilled mission (the *grep is blind to wrapped terms* defect class). Reuse inherits its
+  semantics: keys on the structured `distills` field only (an `evidence`-only cross-ref never counts),
+  tolerates malformed/blank lines, and counts an unratified distilling entry the same as a ratified one.
 - **Detection is yours; keep-or-cut is the Council's.** You detect and draft; the human Council
   holds keep-or-cut. Ratified strategy re-enters as a CR that re-tunes the **doctrine** and grows
   the **corpus** (skills, governances, conventions); unratified strategy does neither.

@@ -55,6 +55,22 @@ missed** — without that, the north star is unfalsifiable and grades nothing.
 
 > *A reader finishes able to X.* **A revision that leaves a reader able to Y but not X has missed.**
 
+**Its kind is fixed by the declared type.** The *Success is* column above is not description — it is
+the form this element must take. Nothing else joins the two, so a spec can declare `reference` and
+write an explanation's north star with both elements looking correct on their own:
+
+| Declared type | The north star claims | The failure mode names |
+|---|---|---|
+| **tutorial** | the reader can now do the thing, and trusts they can | a reader who followed it through and still cannot |
+| **how-to** | the reader got unblocked on the goal they arrived with | a reader still blocked, or unblocked on a different goal |
+| **reference** | the reader retrieved the one thing they came for, accurately | a reader who found the entry and still cannot settle their case |
+| **explanation** | the reader can make a decision they could not before | a reader who can restate the argument but not act on it |
+
+Reference drifting toward explanation is the common direction — *"a reader finishes understanding how
+the bar works"* grades nothing a lookup cares about, since comprehension does not fail when the entry
+the reader came for is missing. Every node in this corpus that declared `reference` made this join by
+hand; the bar is what stops it depending on the producer noticing.
+
 **4. Why it exists.** The problem the document resolves, in the domain's own terms. If it cannot be
 stated without restating the title, the document may not need to exist separately from its parent —
 say so rather than papering over it.
@@ -69,6 +85,12 @@ say so rather than papering over it.
   existence, structure, completeness, reader-path).
 - **The coverage list is complete when** a document meeting every row cannot still trip the north
   star's failure mode. If it can, a key point is missing.
+- **Spend every row by its number.** That completeness claim is an argument against the table, so
+  make it row by row: cite each `#` and say what it rules out. A paraphrase — *"the rows on splitting
+  and on precedence cover it"* — is what goes stale, because the argument keeps reading as sound
+  while the row it names has moved underneath it. Three regressions in this bar's own corpus were
+  exactly that, each surfacing only after a different, unrelated fix shifted what the summary
+  referred to. **A row the argument cannot spend is a row nothing depends on — cut it.**
 
 **6. Non-goals.** What the document deliberately does not cover — **and where that lives instead**. A
 non-goal with no forwarding address reads as an omission rather than a decision.
@@ -160,6 +182,51 @@ choosing, the criterion is the behavior and the destination is a consequence of 
 Relations the suite still cannot reach, because they hold *between* passages no single scenario
 reads, are graded once per document against `quill:quill-builder-impl`.
 
+### Identifiers — one namespace per node
+
+A doc spec keys three populations: **coverage rows** (element 5), **reader entry points**
+(`## Use Cases`), and **CFG node labels** (`## Control Flow`). Coverage-row IDs are cited *from* the
+other two — an entry point ends `(G1, G3, G7)`, a scenario map row names the row it checks — so the
+keys are load-bearing here in a way they are not in a capability spec, whose use cases are named
+rather than numbered.
+
+**An identifier denotes one thing per node.** Two populations reaching for the same
+audience-initial letter is how it breaks: an entry point keyed `A1` for the *adopter* and a CFG node
+keyed `A1` for the *actor-name* branch are two objects that a grader tracing a citation reads as one.
+This is measured, not anticipated — the website corpus shipped five such collisions across two nodes,
+four of them in a single file where `A1 A2 T1 T2` were simultaneously entry points and graph nodes.
+
+**Prefix reader entry points `UC`.** `UC1`, `UC2`, `UC3` — two alpha characters, so it cannot
+collide with the single-letter labels a mermaid graph uses, and it is the same key in every node. An
+audience-initial prefix loses nothing by going: the rows are already grouped under their audience's
+own heading, so the letter restates the heading while colliding with the graph. Twelve authored
+nodes currently use twelve schemes, which costs a reader moving between them a fresh key each time.
+
+### After an edit — reconcile what references the claim, and audit what freezes it
+
+A node is a web of restatements: one coverage row is cited by an entry point, described in the CFG,
+and frozen by a `Then`. Change the claim and the copies stay where they are. Four of four remediated
+nodes regressed in a single round, and **every finding was introduced by the remediation itself** —
+so this is a duty of the edit, not of the next review.
+
+**Reconcile every passage that references the claim.** Having changed a coverage row, a north star,
+or an audience row, walk what cites it — entry points, the CFG, non-goals, prerequisites, the
+scenario map — and correct whatever still describes the old claim.
+
+**Then audit every `Then` you wrote or touched.** The sweep above is necessary and not sufficient,
+which is measured rather than supposed: run on its own it found no staleness — a cold judge confirmed
+that — and the same node still shipped a defect in each of two consecutive rounds, both a `Then` that
+**mistranscribed the clause it freezes**. Confirming that a reference still points somewhere does not
+confirm it still says the same thing. So quote the source clause beside each touched `Then` and
+classify the pair: **same / narrower / wider / different**. Only *same* survives; the other three are
+the finding.
+
+**Where a `Then`'s only home is a CFG node label, say so.** One of those two defects existed
+precisely because a label was a claim's sole home — a claim with one copy has nothing to disagree
+with, and reads as consistent for exactly that reason.
+
+**A sweep is not self-certifying.** Both halves reduce rounds; neither replaces the cold judge.
+
 ## What a documentation spec must never freeze
 
 Freezing any of these produces a spec that breaks on every honest revision while catching no real
@@ -193,9 +260,11 @@ the audience element exists to catch.
    audience; opposite needs on one fact is a split signal.
 2. **Declare the doc type** — tutorial / how-to / reference / explanation; mixing them is the common
    structural defect.
-3. **The north star carries a failure mode**, or it grades nothing.
+3. **The north star carries a failure mode**, or it grades nothing — and its kind is the declared doc
+   type's *Success is* cell: retrieval for a reference, a decision for an explanation.
 4. **Key points are claims the document is incomplete without**, each statically checkable, complete
-   when meeting them all rules out the failure mode.
+   when meeting them all rules out the failure mode — argued **row by row, citing each `#`**, since a
+   paraphrased argument goes stale silently. A row the argument cannot spend is cut.
 5. **The CFG is the reader's decision path, not the table of contents** — branch on audience first
    when there are several; an outcome node reading `A, or B` is a decision deferred onto the reader,
    and a route must reach every option the document names.
@@ -205,3 +274,8 @@ the audience element exists to catch.
    defect.
 8. **A routing scenario asserts the discriminator**, never the destination alone — otherwise it
    ratifies the route the draft took rather than testing it.
+9. **One namespace per node** — an identifier denotes one thing; entry points are keyed `UC1`, `UC2`,
+   so they cannot collide with a single-letter CFG label.
+10. **After an edit, reconcile the references *and* audit the `Then`s you touched** — quote each
+    against its source clause and classify same / narrower / wider / different. The reference sweep
+    alone measurably misses mistranscription.

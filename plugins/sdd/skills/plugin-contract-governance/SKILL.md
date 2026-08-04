@@ -48,9 +48,15 @@ actor bars are the shipped `sdd:{oracle,builder,architect}-{spec,impl}-governanc
 self-aligns to exactly the bars its judge grades. The lens sets are spec gate `{oracle, builder,
 architect}`, impl gate `{builder, architect}`, solution `{architect}` (ungated).
 
+**Read each row against that sentence.** A producer row that does not carry its whole lens set is a
+transcription slip, not a narrowing — this table is a shipped copy of one owned by SDD's own spec
+(`design/specialists-and-squads.md`), restated here because a governance loads standalone and cannot
+reach the spec tree. It has drifted once: the spec-producer row lost `architect-spec`, and plugin
+authors building to it shipped agents that loaded three bars and were graded against four.
+
 | Role | Loads |
 |---|---|
-| spec-producer | `spec-format`, `suite-format`, `ownership`, the resolved `oracle-spec` + `builder-spec` bars |
+| spec-producer | `spec-format`, `suite-format`, `ownership`, the resolved `oracle-spec` + `builder-spec` + `architect-spec` bars |
 | solution-producer | `ownership`, the resolved `architect-spec` bar |
 | spec-judge | `spec-format`, `suite-format`, `lifecycle`, `gate-validation`, the resolved `oracle-spec` + `builder-spec` + `architect-spec` bars |
 | impl-producer | `ownership`, the resolved `builder-impl` + `architect-impl` bars |

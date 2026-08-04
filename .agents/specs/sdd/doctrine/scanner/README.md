@@ -41,6 +41,7 @@ Every scenario in [`scanner.feature`](./scanner.feature) maps to one of these be
 |---|---|
 | **Ship** | `→ implemented` (the impl gate writes it) drafts strategy from the successful mission's combat log |
 | **Kill** | `→ deprecated` (the deprecation path writes it) drafts strategy from why the mission failed |
+| **idempotent Ship/Kill** | before drafting Ship/Kill strategy, detects an already-distilled mission (a prior `strategy` entry whose `distills` equals the mission's `<cr-ref>`) by **parsing the ledger as JSONL**, never a substring/regex match, and re-drafts nothing; an `evidence`-only cross-ref never counts as distilled |
 | **Milestone retro** | a human-held retro drafts strategy across the milestone's concluded combat logs |
 | **Recurring pattern** | the distilled `cause` recurrence count (maintained mission-over-mission) drives a strategy to codify the pattern |
 | **Drift / staleness** | a now-false convention or a governance contradiction drafts a **PRUNE** strategy |
@@ -75,6 +76,38 @@ and draws no draft.
 | **Recurring pattern** | the same `cause` recurs across missions | the distilled count of **distinct CRs** exhibiting the `cause` in the ledger (not raw entry count), never a re-scan of many raw logs | strategy to codify the pattern |
 | **Drift / staleness** | a now-false convention or governance contradiction | the corpus (conventions, governances) | a **PRUNE** strategy |
 | **Token-waste** | a flagged-waste `correction`, or session cost over a configurable bound (pre-merge) | the categorical efficiency `correction` from the committed log (post-merge); raw transcripts add numeric depth (pre-merge / same-machine only) | efficiency strategy |
+
+## Idempotent Ship/Kill — detecting an already-distilled mission by parsing the ledger, never grepping
+
+The Ship (`→ implemented`) and Kill (`→ deprecated`) triggers fire on a terminal transition, and the
+Scanner can meet the **same** transition more than once — a later pass, a resumed segment, a fresh
+re-invocation. So the trigger is **idempotent**: before drafting Ship/Kill strategy for a mission,
+the Scanner **detects whether that mission was already distilled** — a prior `strategy` entry whose
+`distills` field equals the mission's `<cr-ref>` — and if so it **drafts nothing** (no duplicate
+strategy for a mission already recorded as distilled).
+
+**The detection is a structured JSONL parse, never a substring or regex text match.** The ledger
+shards are JSONL (one JSON object per line). The Scanner **parses each line as JSON** and compares
+the parsed `distills` field of `kind: strategy` entries against the mission's `<cr-ref>`. A
+substring/regex grep against the raw ledger **text** is **forbidden**: it is fragile against
+formatting — a **space after the colon** in a pretty-printed entry (`"distills": "<cr-ref>"` vs
+`"distills":"<cr-ref>"`), line-wrapping, or a reordered key — and **silently under-counts**,
+reporting an already-distilled mission as undistilled and **re-drafting** it. This is the same defect
+class as the standing lesson *grep is blind to wrapped terms*: a format-sensitive text match over a
+structured record silently misses true matches, and a distilled-detection that under-counts causes
+false "undistilled" conclusions and wasted or duplicate drafting.
+
+The detection **reuses the same parse contract** `plan-retirement`'s mechanical distilled gate
+already uses (the `distilledCrRefs` engine in
+`../../../../../plugins/sdd/skills/plan-retirement/scripts/retire-plans.mts`) rather than hand-rolling
+its own: key on the **structured `distills` field only** — an `<cr-ref>` that appears merely inside
+another entry's `evidence` cross-references does **not** count as distilled — tolerate malformed and
+blank lines, and count an **unratified** distilling entry (the Scanner's default) the same as a
+ratified one, since the question is what was distilled, not sign-off. This is a **read** over the
+ledger; it changes nothing the Scanner writes. The `distills` field's shape is owned by
+`../../design/provenance-model.md` + `combat-log-governance`, and the recording of `distills` on a
+Ship/Kill is specified below (*Where each strategy entry lands*) — this section governs **reading it
+back** for the idempotency check, a disjoint behavior from writing it.
 
 ## Inputs — the concluded combat log vs transcripts (enrichment)
 

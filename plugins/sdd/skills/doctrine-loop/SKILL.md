@@ -46,6 +46,40 @@ Each is an entry-point: a lifecycle-grained trigger, its post-hoc input, and the
 
 The Scanner **observes** the terminal transitions; it never writes a mission's `status`.
 
+## Idempotent Ship/Kill: detect an already-distilled mission by parsing the ledger, never grepping
+
+The **Ship** (`→ implemented`) and **Kill** (`→ deprecated`) triggers can meet the **same** terminal
+transition more than once — a later pass, a resumed segment, a fresh re-invocation. So they are
+**idempotent**: **before drafting** Ship/Kill strategy for a mission, first detect whether that
+mission was **already distilled** — a prior `strategy` entry whose **`distills` field equals the
+mission's `<cr-ref>`** — and if so, **draft nothing** (no duplicate strategy for a mission already
+recorded as distilled).
+
+**Determine distilled-ness by a structured JSONL parse, never a substring or regex text match.**
+The ledger shards are JSONL (one JSON object per line). **Reuse the existing parse contract** rather
+than hand-rolling one: run the exported **`distilledCrRefs`** engine from
+`../plan-retirement/scripts/retire-plans.mts` over the project `ledger/` directory and membership-test
+the mission's `<cr-ref>` against the set it returns, e.g.
+
+```
+node -e 'import("../plan-retirement/scripts/retire-plans.mts").then(m => console.log([...m.distilledCrRefs(process.argv[1])].join("\n")))' <ledger-dir>
+```
+
+`distilledCrRefs` parses **each line** with `JSON.parse` (keying only on `kind === "strategy"` with a
+non-empty `distills`), so it is correct against **any** valid-JSON formatting the Scanner or another
+writer emits — a **space after the colon** in a pretty-printed entry (`"distills": "<cr-ref>"` vs
+`"distills":"<cr-ref>"`), a line-wrapped or reordered object — where a naive no-space substring grep
+(`"distills":"<cr-ref>"`) **silently under-counts**, reports an already-distilled mission as
+undistilled, and **re-drafts** it. This is the same defect class as *grep is blind to wrapped terms*;
+a distilled-detection that under-counts causes false "undistilled" conclusions and wasted or duplicate
+drafting.
+
+Reusing the engine also inherits its exact semantics: it keys on the **structured `distills` field
+only** (an `<cr-ref>` appearing merely inside another entry's `evidence` cross-references does **not**
+count as distilled), **tolerates malformed and blank lines** (they are skipped, not fatal), and counts
+an **unratified** distilling entry — the Scanner's default — the same as a ratified one (the question
+is what was distilled, not sign-off). This is a **read** over the ledger; it changes nothing you write.
+
 ## Inputs: combat log (contract) vs transcripts (enrichment)
 
 The Scanner reads **persisted artifacts post-hoc** — never live subagent context.

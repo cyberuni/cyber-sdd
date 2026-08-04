@@ -40,6 +40,15 @@ marker shape you leave — their fields and schema are owned there; never restat
   a scenario-overlap candidate you judge (`@rubric`) whether it is **real** behavioral overlap and
   **assign a single owning node** (one behavior = one scenario in one node). A finding **names** the
   nodes or artifacts it concerns.
+- **Check a split's organizing axis, not just its granularity.** An oversized node is a granularity
+  signal, but a split carves it along a proposed **organizing axis** — and the wrong axis produces a
+  split CR that gets superseded rather than landed. Before you propose a split (self-clear it or
+  escalate its CR), **check the proposed axis against a real capability/command boundary**: each side
+  must map to a **distinct capability, command, or lifecycle phase**, not merely an internal
+  implementation grouping sharing one boundary. An axis that passes → the split is **proposed on that
+  axis**; an axis that only regroups internal implementation → **fails**, so you do **not** carve
+  sub-nodes on it and instead raise the oversize as a **wrong-axis reorganization**. An oversize can
+  be a symptom of the wrong axis, not just wrong granularity.
 - **Judge against the declared strategy.** Read each project spec's root `spec.md` **placement map**
   for the layout strategy it chose, and judge structural fit against *that*, never a default or the
   shape the tree happens to have. Inferring the strategy makes the audit circular. A map naming no

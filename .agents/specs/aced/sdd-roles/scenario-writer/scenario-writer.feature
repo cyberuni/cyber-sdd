@@ -131,6 +131,18 @@ Feature: scenario-writer — the spec-producer role
     When it selects each dimension
     Then every dimension it authors can register a miss, and it authors no dimension grading mere presence, restatement, or procedure of the config
 
+  # ---- Produce-time pre-flight (before freezing) ----
+
+  Scenario: an asserted harness behavior is grounded in the harness's own docs before freezing
+    Given scenario-writer is authoring a scenario whose Then asserts how a harness or tool behaves
+    When it drafts that assertion
+    Then it confirms the behavior against the harness's own primary documentation before freezing the scenario, and does not assert the harness behavior from memory
+
+  Scenario: a coined category name is checked against the corpus before freezing
+    Given scenario-writer is about to coin a new category name for a concept it introduces in the spec.md
+    When it introduces that term
+    Then it greps the corpus — the glossary and the existing specs — for the term before freezing it, and chooses a name that does not collide with an established meaning
+
   # ---- Gaps and guards ----
 
   Scenario: uninferable intent returns a content gap

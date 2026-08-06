@@ -38,6 +38,13 @@ function fixedList(files: string[]): (root: string) => string[] {
 	return () => files
 }
 
+// A registry on disk, for the tests that drive main() end to end rather than sweep() directly.
+const REGISTRY_ONE_ENTRY = `[[retired]]
+term = "artifacts/specs/"
+since = "304-m2-eval-suite-sweep"
+replacement = "a colocated node"
+`
+
 function entry(over: Partial<RetiredEntry> = {}): RetiredEntry {
 	return { term: 'artifacts/specs/', since: '304-m2-eval-suite-sweep', replacement: 'a colocated node', ...over }
 }
@@ -88,6 +95,38 @@ test('a survivor is reported with its location and replacement', () => {
 		assert.equal(violations[0].line, 1)
 		assert.equal(violations[0].term, 'artifacts/specs/')
 		assert.equal(violations[0].replacement, 'a colocated node')
+	})
+})
+
+// The same scenario's third clause — "And the sweep exits non-zero". Asserted through main() over a
+// real git fixture rather than through sweep(), because the exit code is main()'s to return: without
+// this, hard-coding `return 0` on the violations path passes the whole suite while the check silently
+// stops failing anyone's build, which is the one failure this guard cannot afford.
+test('a survivor is reported with its location and replacement — the sweep exits non-zero', () => {
+	withTmpDir((dir) => {
+		execFileSync('git', ['init', '-q'], { cwd: dir })
+		execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir })
+		execFileSync('git', ['config', 'user.name', 'test'], { cwd: dir })
+		seed(dir, '.agents/sdd/retired-terms.toml', REGISTRY_ONE_ENTRY)
+		seed(dir, 'plugins/x/readme.md', 'see artifacts/specs/foo for details\n')
+		execFileSync('git', ['add', '-A'], { cwd: dir })
+
+		assert.equal(main(['--root', dir]), 1)
+	})
+})
+
+// The control for the test above: the same path through main(), one edit away — no survivor, exit 0.
+// Without it, a main() that always returned 1 would pass the assertion above for the wrong reason.
+test('a corpus with no survivor passes — the sweep exits zero', () => {
+	withTmpDir((dir) => {
+		execFileSync('git', ['init', '-q'], { cwd: dir })
+		execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir })
+		execFileSync('git', ['config', 'user.name', 'test'], { cwd: dir })
+		seed(dir, '.agents/sdd/retired-terms.toml', REGISTRY_ONE_ENTRY)
+		seed(dir, 'plugins/x/readme.md', 'nothing retired here\n')
+		execFileSync('git', ['add', '-A'], { cwd: dir })
+
+		assert.equal(main(['--root', dir]), 0)
 	})
 })
 

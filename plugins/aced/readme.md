@@ -68,7 +68,7 @@ sdd:start-mission → sdd:spec-gate (spec gate) → implement → run/compare �
 ```
 
 1. **`sdd:start-mission`** — the conductor resolves `aced-scenario-writer` to write the `.feature`; `aced-spec-validator` judges it at the spec gate.
-2. **implement** — the impl-producer (`define-agent` / `improve`) builds the agent config to pass the frozen `.feature`; `aced-impl-judge` (impl-judge) **runs** the suite, scoring each scenario via `aced-case-judge` against its inline rubric and writing results to `artifacts/specs/<suite>/results/`.
+2. **implement** — the impl-producer (`define-agent` / `improve`) builds the agent config to pass the frozen `.feature`; `aced-impl-judge` (impl-judge) **runs** the suite, scoring each scenario via `aced-case-judge` against its inline rubric and writing results to the shared `.agents/aced/results/` directory (git-ignored, keyed by target).
 3. **`compare`** — before committing an edit, diff the before/after scores. Warns on regressions.
 4. **`improve`** — reads failing scenarios, groups by failure pattern, proposes before/after diffs to the agent configuration. Automatically runs `compare` after edits.
 5. **`add-scenario`** — adds scenarios from production failures, edge cases, or gaps. Appends to the frozen `.feature` (additive — self-clears).
@@ -77,14 +77,16 @@ sdd:start-mission → sdd:spec-gate (spec gate) → implement → run/compare �
 ## Eval suite structure
 
 ```
-artifacts/specs/<suite-name>/
+.agents/specs/aced/<category>/<suite-name>/
   eval.md                 # measurement policy: subject + eval.{layers, judge, trigger}
   <suite-name>.feature    # the frozen suite — the single eval source
                           #   boolean scenarios, @rubric (inline rubric) for graded behavior,
                           #   @trigger Scenario Outline (Examples of query/should_trigger)
-  results/
-    <ISO8601>.json        # run output: scores, pass rates, per-scenario results
 ```
+
+Run output is **not** colocated with the spec: it is written under the shared, git-ignored
+`.agents/aced/results/` directory (`<ISO8601>.json`, keyed by target), so a run never commits
+non-deterministic judge output into the tracked tree.
 
 `eval.md` is the **measurement policy** — a two-level shape so future measurement kinds (benchmark, telemetry) slot in as siblings of `eval:`:
 
@@ -109,4 +111,4 @@ npx skills add cyberuni/cyberplace --plugin aced
 
 ## Relationship to SDD
 
-ACED is itself built with SDD: specs live in `artifacts/specs/aced-<skill>/`. It uses the same `spec.md` + `.feature` format as the `sdd` plugin and the same `artifacts/specs/` layout for eval suites.
+ACED is itself built with SDD: specs live in `.agents/specs/aced/<category>/<skill>/`. It uses the same `spec.md` + `.feature` format as the `sdd` plugin, with the eval suite (`eval.md` + `<skill>.feature`) colocated in the same node directory.

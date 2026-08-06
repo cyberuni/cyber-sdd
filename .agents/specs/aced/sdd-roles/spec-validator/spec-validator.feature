@@ -145,6 +145,18 @@ Feature: spec-validator — the spec-judge role
     Then it does not report either dimension failing on selection for sharing a criterion
     And it classifies by whether a boolean scenario in the suite decides the property rather than by comparing the two dimensions to each other
 
+  Scenario: a dimension scoring the whole of what the subject produces fails selection with no boolean twin present
+    Given a @rubric for a persona skill carrying a dimension scoring the voice of the whole output it produces, while no boolean scenario in the suite decides that voice
+    When spec-validator checks selection
+    Then it reports that scenario failing on selection
+    And it records that the criterion needs its own boolean @quality scenario rather than a dimension
+
+  Scenario: a dimension scored alongside siblings scoring other attributes passes selection
+    Given a @rubric for an onboarding guide whose dimension scores example coverage while its sibling dimensions score the guide's ordering and its prerequisite completeness
+    When spec-validator checks selection
+    Then it does not report that dimension failing on selection for spanning the output
+    And it classifies by whether the criterion spans the whole of what the subject produces rather than by comparing that dimension against another dimension
+
   Scenario: a failing dimension is not remedied by a per-dimension minimum
     Given a @rubric dimension spec-validator reports failing on selection
     When it records what the dimension needs

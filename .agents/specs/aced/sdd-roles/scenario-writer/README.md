@@ -35,6 +35,7 @@ scoring one simulated case (`judge`); writing the control frontmatter (`status`,
 | Cover the rules and guards | each major rule/step and each prohibited behavior | each rule gets at least one behavior scenario and each prohibition a boolean must-not-do `Then` |
 | Author graded behavior inline, discriminating | a non-deterministic subject whose quality is graded | graded scenarios are `@rubric` with dimensions + threshold in the `Then` docstring; each dimension can register a miss; presence / restatement / procedure are never dimensions |
 | Structure → select → discriminate a rubric | a candidate rubric dimension | a double-barreled dimension is split first; a non-substitutable rule stays a boolean; a property a boolean already decides is kept out of the compensatory sum |
+| Route a whole-output criterion to a boolean | a graded criterion spanning the whole of what the subject produces | it authors one boolean `@quality` scenario and no dimension scoring it; a criterion that does **not** itself span the whole output stays a dimension |
 | Author activation as an outline | a strong-fit subject's representative queries | a `@trigger` Scenario Outline whose `Examples` table carries one row per query with its `should_trigger` value |
 | Re-derive a backfill from the CFG | an existing subject with a standing `.feature` | it re-derives the scenario set from the configuration's control-flow edges, treating the standing suite as reference only, never the baseline to patch |
 | Ground an asserted harness behavior | a scenario whose `Then` asserts how a harness or tool behaves | it confirms the behavior against the harness's own primary docs before freezing, never asserting harness behavior from memory |
@@ -52,7 +53,14 @@ from the CFG's edges, the standing suite reference-only. Each scenario carries c
 strong-fit subjects get a `@trigger` outline with should + near-miss rows, partial-fit none. Every rule
 gets a behavior scenario, every prohibition a boolean must-not-do. Graded behavior becomes a `@rubric`
 only after structure → selection → discrimination (split double-barreled, keep non-substitutable rules
-boolean, ensure every dimension registers a miss). Before freezing, run the produce-time pre-flight:
+boolean, ensure every dimension registers a miss). A graded criterion spanning **the whole of what the
+subject produces** is untradeable by construction — no rest of the output is left to trade against — so it
+becomes one boolean `@quality` scenario and never a dimension, even when no boolean in the suite decides it
+yet; a criterion that does **not** itself span the whole output stays a dimension. Read the **single**
+criterion in front of you against the output — never one candidate dimension against another (the twin-scan
+SDD #280 rejected). Sibling dimensions are evidence of how the **output decomposes**, never the object of
+the comparison; the operative question is whether you can name an attribute of the output this criterion
+does **not** touch. Before freezing, run the produce-time pre-flight:
 ground every asserted harness/tool behavior in the harness's own primary docs (never from memory), and
 grep the glossary + existing specs for any newly coined category name so it does not collide with an
 established meaning. Read the scenarios against each other before returning; surface uninferable intent
@@ -79,9 +87,12 @@ flowchart TD
   K --> L{criterion form?}
   L -- deterministic --> M1[boolean Then]
   L -- graded --> M2[Split double-barreled dimension]
-  M2 --> M3{substitutable trade?}
+  M2 --> WO{criterion spans the WHOLE output?}
+  WO -- yes --> WQ["One boolean @quality scenario, never a dimension:<br/>untradeable by construction, no boolean twin needed"]
+  WO -- no --> M3{substitutable trade?}
   M3 -- no --> M1
   M3 -- yes --> M4[Author as @rubric dimension;\nevery dimension must register a miss;\nno presence/restatement/procedure;\nkeep boolean-decided properties out]
+  WQ --> PF
   M1 --> PF[Produce-time pre-flight before freezing:\nground harness claims in the harness's own docs, not memory;\ngrep glossary + specs before coining a category name]
   M4 --> PF
   PF --> N[Read scenarios against each other:\nno When-sharing pair with opposite verdicts on one snapshot]
@@ -122,6 +133,8 @@ Every scenario binds 1:1 to a CFG edge.
 | boolean-decided property out of rubric | a subject whose suite already decides a property | `a property a boolean scenario in the suite decides is kept out of the rubric` |
 | structure: split double-barreled | a dimension name bundling two properties | `a double-barreled dimension is split before it is selected` |
 | selection: non-substitutable stays boolean | a rule nobody would trade for | `a non-substitutable rule stays a boolean not a dimension` |
+| selection: whole-output → boolean @quality | a persona skill whose voice is the whole output, no boolean twin | `a whole-output graded criterion becomes a boolean @quality scenario, not a dimension` |
+| selection: per-attribute stays a dimension | a guide criterion scored beside siblings scoring other attributes | `a criterion scored alongside siblings scoring other attributes stays a graded dimension` |
 | discrimination: every dimension misses | authoring a @rubric for a graded subject | `every dimension can register a miss` |
 | pre-flight: ground harness claim in docs | a Then asserting how a harness or tool behaves | `an asserted harness behavior is grounded in the harness's own docs before freezing` |
 | pre-flight: grep corpus before coining | about to coin a new category name in the spec.md | `a coined category name is checked against the corpus before freezing` |

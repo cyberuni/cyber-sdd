@@ -1,3 +1,4 @@
+@frozen
 Feature: retired-terms — flag survivors of a retired path or convention, corpus-wide
   Unit suite for the retired-term registry and its verify-time sweep. The registry format, the
   corpus-wide scan over the git-tracked files, the three narrowing devices (built-in exclusions,

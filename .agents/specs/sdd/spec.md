@@ -4,12 +4,13 @@ project-path: plugins/sdd
 approval:
   spec:
     verdict: approve
-    by: agent
+    by: unional
+    cause: dimension
     why:
-      floor: none — the suite self-clears: 17 added / 0 modified / 0 removed (addOnly), `@frozen` never lifted, no Clearance owed; confirmed by the cold judge's own structural diff rather than asserted
-      blast: medium — one behavioral node's contract (`mission-graph`) plus its runtime `SKILL.md`, an ADR-0026 amendment, and the operator RUNBOOK; specifies two new behaviors (a `sync` verb and guarded seed retirement in `migrate`) and narrows nothing, with no implementation landed at this gate
-      novelty: low — no new autonomy floor and no new route; all three design forks (cutting `install-refspec` and re-homing it to `sdd:init`, having `migrate` retire its seed in this CR, and the out-of-scope set) were taken from the owner before the spec froze
-      confidence: high — round 9 ALIGNED on oracle/builder/architect with zero new findings after eight FAIL rounds; the judge re-derived the 7-case `(local, remote)` sync partition independently and matched it 1:1 against scenarios, grep-confirmed the `install-refspec` cut and both transport bans, and re-ran `check-spec-state` (0 findings under `.agents/specs/sdd`; all 43 are pre-existing under `artifacts/specs`). The two silent-data-loss traps (a forced fetch refspec destroying a diverged local ref at exit 0; `remote.<remote>.push` hijacking a plain `git push`) and the `migrate` seed fixpoint (a tracked seed makes a fresh clone read a stale list that looks valid) were each reproduced in throwaway repos, not argued. Residual: `check-suite.mts` cannot run here (`gherkin-cli` is npx-only), so coverage is judged, never linted
+      floor: none — the CR is purely additive: one new node under `corpus/`, no existing scenario narrowed, no `@frozen` file touched, so no Clearance is owed
+      blast: medium — a new behavioral node plus a verify-time check that, once implemented, gates every future push in this repo; the contract also introduces a new declared repo config file (`.agents/sdd/retired-terms.toml`)
+      novelty: high — a new mechanical guard class (a declared retired-term registry sweeping the whole tracked tree) and a standing vocabulary boundary the corpus did not previously carry; the design's fail-loud-on-malformed-registry choice deliberately inverts `corpus/discovery`'s fall-back behavior
+      confidence: high — three cold spec-judge rounds converging to ALIGNED on oracle/builder/architect. Round 2's builder FAIL was a real hole (the node's own defining document would have self-fired once tracked, a trap the cited `metaphor-free` precedent had already closed) and was fixed as a rule rather than a patch. The judge independently re-ran the over-fire spike against the live tree, recounted every bucket by hand, and confirmed both the `motive-model` carve-out and the genuine `plugins/aced/readme.md` survivor. `pnpm verify` 35/35; `check:spec` 6/6
   impl:
     verdict: approve
     by: unional

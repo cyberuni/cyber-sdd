@@ -128,6 +128,83 @@ Feature: The handoff phase — land the verified result in the declared delivery
     When the follow-up is filed
     Then it re-enters SDD as a new change request
 
+  # ---- Follow-ups: derive the shared-primitive sibling follow-up ----
+
+  Scenario: a frozen assertion outside the touched set yields a derived follow-up
+    Given a mission that changed an artifact's behavior
+    And a spec node outside the mission's touched set asserts that behavior
+    And that node's suite is frozen
+    When handoff processes the follow-ups
+    Then a followup line naming that artifact is appended to the CR's own ledger shard
+
+  Scenario: where the asserting node sits does not vary the outcome
+    Given a mission that changed an artifact's behavior
+    And a frozen spec node in the artifact's own folder asserts that behavior from outside the touched set
+    And a frozen spec node in an unrelated capability folder asserts that behavior from outside the touched set
+    When handoff processes the follow-ups
+    Then the derived line names both nodes
+
+  Scenario: a mission that only relocated the artifact derives no follow-up
+    Given a mission that renamed an artifact with no change to its behavior
+    And a frozen spec node outside the mission's touched set asserts that behavior
+    When handoff processes the follow-ups
+    Then no derived followup line names that artifact
+
+  Scenario: an artifact whose every frozen asserter this mission touched derives no follow-up
+    Given a mission that changed an artifact's behavior
+    And every spec node whose frozen suite asserts that behavior is in the mission's touched set
+    When handoff processes the follow-ups
+    Then no derived followup line names that artifact
+
+  Scenario: an artifact whose outside asserters are all unfrozen derives no follow-up
+    Given a mission that changed an artifact's behavior
+    And a spec node outside the mission's touched set asserts that behavior
+    And every spec node asserting it from outside that set has an unfrozen suite
+    When handoff processes the follow-ups
+    Then no derived followup line names that artifact
+
+  Scenario: the derived line names the artifact, the sibling, and the assumption at risk
+    Given a mission that changed an artifact's behavior
+    And a frozen spec node outside the mission's touched set asserts that behavior
+    When handoff records the derived follow-up
+    Then the line names that artifact
+    And it names that node by its stable name
+    And it names the assumption the change may have obsoleted
+
+  Scenario: one line covers an artifact with several at-risk siblings
+    Given a mission that changed an artifact's behavior
+    And three frozen spec nodes outside the mission's touched set assert that behavior
+    When handoff processes the follow-ups
+    Then one followup line is appended for that artifact
+    And it names all three of those nodes
+
+  Scenario: a derived sibling follow-up on separate territory is classified backlog
+    Given a mission whose completion claims cover only the artifact it changed
+    And a derived sibling follow-up on a frozen sibling's own separate assumption
+    When handoff classifies it
+    Then the followup line carries the backlog classification
+
+  Scenario: a derived sibling follow-up contradicting a completion claim is classified blocking
+    Given a mission that claimed its change left no consumer of the superseded behavior
+    And a derived sibling follow-up on a frozen sibling that still asserts that behavior
+    When handoff classifies it
+    Then the followup line carries the blocking classification
+    And the line names the completion claim it contradicts
+
+  Scenario: a derived sibling follow-up travels the same channel as an identified one
+    Given a derived sibling follow-up
+    And a follow-up the mission identified itself
+    When handoff processes the follow-ups
+    Then both are appended as followup lines to the CR's own ledger shard
+    And a derived follow-up matching an existing issue files no duplicate
+
+  Scenario: deriving a sibling follow-up adjudicates nothing
+    Given a derived sibling follow-up naming a frozen sibling node
+    When handoff completes
+    Then the sibling's frozen suite is unchanged
+    And handoff spawns no Warden pass for it
+    And the landing is not blocked on a verdict about the sibling
+
   # ---- Follow-ups: record, unconditionally ----
 
   Scenario: every identified follow-up is recorded durably before anything else

@@ -39,6 +39,7 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 | **decompose by unit of work** | a multi-unit cycle lands as multiple commits / a unit-split PR, never one blob, never two unrelated concerns together |
 | **conditional status write-back** | when the source closes by reference, handoff writes the auto-close reference (`Closes #N`) into the PR body so the source closes on merge; a non-close-capable source gets none; direct-to-`main` work transitions the source to `done` on push |
 | **distilled public summary** | append an outward-facing conclusion + follow-ups (which re-enter as new CRs **through a later mission**, never opened by handoff) to the source — not the combat log |
+| **derive the shared-primitive sibling follow-up** | when this mission changed an artifact's behavior and a **frozen** scenario **outside** its touched set asserts that behavior, one follow-up is identified naming the artifact, those sibling nodes, and the assumption at risk — the one class of follow-up handoff derives rather than receives |
 | **record every follow-up** | each identified follow-up is appended as a durable `followup` line to the CR's own ledger shard — unconditional: no permission, no forge, no human |
 | **classify a follow-up** | `blocking` (it contradicts a completion claim the mission already made) or `backlog` (genuinely new territory); a finding that the mission's own frozen contract was wrong is an Oracle-lens revert, not a follow-up at all |
 | **propose, never admit** | handoff emits the classified proposal + its evidence and writes no node or edge itself; admission is the graph's single writer's act |
@@ -209,6 +210,62 @@ follow-up wrongly closed is recoverable from the durable record rather than by r
 refused (an unattended mission has no channel to grant it). When it is: the **records stand**, handoff
 **reports the refusal**, and it **never reports the follow-ups as filed** — a fallback indistinguishable
 from success is the failure being avoided. The drain retries later from the durable record.
+
+### The shared-primitive sibling follow-up — the one handoff derives
+
+Every follow-up above arrives **identified** — the mission noticed it. One class does not arrive at
+all, and handoff **derives** it, because the phase that could have noticed it structurally cannot:
+**a spec gate grades only its own diff**. So a CR that changes a **shared cross-cutting primitive**
+can leave an **already-frozen sibling** node's assumption silently outrun, and no gate in the mission
+is looking at that sibling. Discovery is otherwise incidental — at a later, unrelated CR.
+
+**The rule, closed form.** For each artifact whose **behavior this mission changed**, let `D` be the
+set of spec nodes that are **outside this mission's touched set** and whose **frozen** scenarios
+assert behavior that artifact realizes. Handoff identifies **one** follow-up for that artifact when
+`D` is non-empty. When it is empty, it identifies **none**.
+
+**`D` is anchored to the risk, not to a reference.** A node is in `D` because its **frozen contract
+makes a claim the artifact must satisfy** — that claim is the thing a change can silently outrun. This
+is deliberately *not* the reference relation ADR-0021 classifies: a comprehension reference, a
+production-order edge, a boundary, or a runtime invocation between units is a fact about the *graph*,
+and runtime invocation is not a spec dependency at all. Only a **frozen assertion about this
+artifact's behavior** carries the obsolescence risk, so only that puts a node in `D`.
+
+The rule is a conjunction, and each conjunct is an over-fire guard — without all of them, every
+mission files one and the record stops meaning anything:
+
+| Cell | Follow-up? | Why |
+|---|---|---|
+| the mission **changed the artifact's behavior**, and a node outside its touched set has a **frozen** assertion about that behavior | **yes** | the blind spot: an agreed claim, and no gate in this mission looking at it |
+| the mission only **relocated or renamed** the artifact, with no behavioral delta | **no** | a pure rename is freeze-preserving reconciliation (ADR-0021 rule 4) — a contract with zero behavioral delta cannot have been outrun |
+| every node asserting that behavior is **in** the touched set | **no** | the spec gate graded them **in-diff**; that is exactly the case it *can* see |
+| the nodes asserting it from outside the set are **not frozen** (`draft` or `deprecated`) | **no** | a `draft` sibling has no agreed claim to outrun and its **own** spec gate will grade it against the change; a `deprecated` one is historical and will never be implemented against |
+
+**Sharedness is an assertion relation, not a location.** A node in the artifact's own folder and a
+node in an unrelated capability folder count exactly the same; sitting in a `common/` or `shared/`
+folder makes an artifact neither shared nor exempt.
+
+**One follow-up per artifact, naming every at-risk sibling** — never one per sibling. A widely
+asserted primitive would otherwise file an issue per consumer, which is the branching-factor runaway
+the containment bar above exists to prevent.
+
+**Content is what makes the line usable.** The line names the **artifact**, names the **sibling
+nodes** by their stable name, and names the **assumption at risk**. A line that names no sibling —
+"the siblings may need a look" — is not this follow-up; it hands the next reader the same search the
+mission had already done.
+
+**It routes through the existing channel, whole.** This is a rule about *what gets identified*, not a
+new pipeline: the derived follow-up is recorded, classified, proposed, and drained exactly like any
+other, with no new stage, no new class, and no second channel. **Classification is not overridden
+either** — it is `backlog` by default, because a sibling that *may* be obsolete contradicts no
+completion claim **this** mission made, and it is `blocking` only when the sibling contradicts a
+completion claim the mission itself made (the same containment bar, unchanged).
+
+**Handoff records the risk; it does not adjudicate it.** It does **not** verify whether the sibling
+is actually obsolete, does **not** edit the sibling's frozen suite, does **not** spawn the Warden, and
+**gates nothing** on the result — the non-spawn stance above is unchanged. Whether the assumption
+really broke is the **corpus-wide** (`../../formation/`) lens's call, on its own pass. This behavior
+only guarantees the thread is never dropped.
 
 ### The outward-publish floor — stricter than the committed record
 

@@ -25,6 +25,13 @@ unbound.
   paths that matter, **boundary** (the external mocked) as the honest substitute where e2e is
   infeasible or unsafe. **Record the level and why.** The suite's overall pyramid shape is the
   architect's call (`sdd:architect-impl-governance`).
+- **Instrument subject → mutation-sweep-first.** When the **subject is itself a measurement or
+  verification instrument** — a fixture, mutation set, ablation generator, falsifier, judge, or check —
+  a **mutation sweep is the default verification method** and reading is **supplementary**. This
+  **overrides the verify-as-high default above for an instrument subject only**; a non-instrument
+  subject keeps that default. Reading an instrument's own blind spot back to itself is a weak oracle —
+  a "cannot-fail" defect survives every read and dies to the first mutation the instrument fails to
+  catch (the cold-instrument doctrine, stated in full on the impl-producer node).
 - **A graded subject still yields a boolean.** Reach the per-scenario boolean through a rubric +
   threshold over N runs; the rubric stays out of the `.feature`.
 - **No green-by-tampering.** Passing means the behavior holds, not that a check was edited to pass;
@@ -40,7 +47,8 @@ unbound.
 1. **The bar is not self-set** — checks derive from the frozen suite, one per scenario; the judge
    re-derives the oracle independently.
 2. **Verify as high as it doesn't hurt** — cheap base, thin e2e cap, boundary as substitute where e2e
-   is infeasible/unsafe; record level and why.
+   is infeasible/unsafe; record level and why. **An instrument subject inverts this: mutation-sweep-first,
+   reading supplementary.**
 3. **No green-by-tampering** — passing is the behavior holding, never an edited check or a modified
    suite.
 4. **Deterministic combinatorics go to units** (the pyramid base); missing that coverage withholds the

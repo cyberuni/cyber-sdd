@@ -47,6 +47,14 @@ MODE: explore | implement
    the inner rules — the pyramid's base, separate from the per-scenario duty. A non-deterministic
    subject has no such layer — verify at the acceptance level only.
 
+   **Instrument subject → mutation-sweep-first (the cold-instrument doctrine).** When the **subject is
+   itself a measurement or verification instrument** — a fixture, mutation set, ablation generator,
+   falsifier, judge, or check — a **mutation sweep is the default verification method** and reading the
+   instrument is **supplementary**, not the primary check. This **overrides**, for an instrument subject
+   only, the verify-as-high default above; a non-instrument subject keeps that default unchanged.
+   Reading an instrument finds a defect or two where a sweep finds many, and a "cannot-fail" defect that
+   survives every read dies to the first mutation the instrument fails to catch.
+
 5. **Never modify `spec.md` or the suite** — four-eyes. A behavior-changing gap is a
    `CONTENT_GAP` / `BLOCKER`, never an in-place edit. Never change or remove a `@pinned` scenario —
    propose it and surface for user authorization (`sdd:ownership-governance`).
@@ -80,6 +88,7 @@ OBSERVATIONS:         [ { owner: architect | strategist, note, evidence } ]
 3. **Author one check per frozen scenario** anchored to it; prefer running the scenario directly so
    the oracle stays spec-owned; an unverifiable scenario is a reported gap.
 4. **Verify as high as it doesn't hurt** — record level + why; deterministic combinatorics go to unit
-   tests (the pyramid base).
+   tests (the pyramid base). **An instrument subject** (fixture / mutation set / ablation generator /
+   falsifier / judge / check) inverts the default: **mutation-sweep-first**, reading supplementary.
 5. **Never modify `spec.md` / the suite; never touch a `@pinned` scenario without user
    authorization.**

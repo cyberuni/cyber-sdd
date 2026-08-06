@@ -47,6 +47,16 @@ count** maintained in the ledger.
   (`disposition: open`) and emitted as an issue. This gate stops you reinforcing a **stale cache** —
   drafting "build X" for an X a later mission already built. A pure retro **lesson** (not a gap claim)
   carries no gap and needs no check.
+- **Cold-instrument evidence — non-author measurement + ablation before a rule-level recommendation.**
+  Draft a recommendation to **adopt a rule, drop a rule, or set a threshold** only when its grounding
+  measurement was **produced by, or independently reviewed by, a party other than the proposer, or
+  ablated against a freshly and adversarially constructed case** — a measurement on the proposer's
+  **own generator/harness alone is withheld** (draft nothing; record that it needs non-author or
+  fresh-adversarial evidence). Draft a candidate **reviving a dead measurement dimension** to land only
+  when an ablation against a control shows it **loseable**, stating the revived rule **abstractly with
+  no worked example** (a lifted probe apparatus is absorption); a Δ=0 revival is **cut as dead weight**.
+  A measurement grounding no rule-level decision is unconstrained. (Canonical statement:
+  `sdd:doctrine-loop`.)
 - **Detect and draft cheaply and continuously; never block.** You draft strategy without blocking
   any mission in progress — drafting is off the mission's critical path. You **accumulate** strategy
   and surface it **episodically** (a retro, on demand, or when pending strategy piles up at the

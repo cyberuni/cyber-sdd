@@ -129,6 +129,28 @@ flip it (append-only); the Council's later keep-or-cut on a `disposition: open` 
 This gate is what stops the loop reinforcing a **stale cache** — drafting "build X" for an X a later
 mission already built.
 
+## Cold-instrument evidence — non-author measurement + ablation before a rule-level recommendation
+
+A self-authored measurement is untrustworthy exactly when it grounds a **rule-level decision**: the
+author's own blind spot is baked into the instrument meant to catch it (op6/#224 — a masked generator
+"proved" its own conclusion twice, each ratified then walked back; op6-m5/#254 — a proposed revival
+measured Δ=0 dead weight, caught before landing). Two rules extend the validate-before-drafting gate to
+your rule-level recommendations. This is **the canonical statement** of the non-author-evidence
+standard — other faces (`sdd:spec-producer-governance`'s dimension/cut grounding) reference it.
+
+- **Non-author evidence.** Draft a recommendation to **adopt a rule, drop a rule, or set a threshold**
+  only when its grounding measurement was **produced by a party other than the proposer, *or*
+  independently reviewed by such a party, *or* ablated against a freshly and adversarially constructed
+  case**. A measurement on the proposer's **own generator or harness alone** is **withheld**: draft no
+  recommendation on it, and record that it needs non-author or fresh-adversarial evidence. A measurement
+  grounding **no** rule-level decision is unconstrained by this rule.
+- **Ablation before landing a revival.** Draft a candidate **reviving a dead measurement dimension** to
+  land only when an ablation against a control shows the dimension is **loseable**; **state the revived
+  rule abstractly with no worked example** (lifting a probe scenario's apparatus into the rule is
+  **absorption** — the probe then grades nothing). A revival whose ablation shows **no difference** from
+  the control is **dead weight**: **cut** it (a `disposition: resolved` tombstone, as above) and draft
+  no land recommendation.
+
 ## Improvement output — validated-open findings become tracked issues
 
 The loop's **actionable output** for a validated-open improvement is a **new tracked issue**

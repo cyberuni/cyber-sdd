@@ -52,6 +52,7 @@ Every scenario in [`scanner.feature`](./scanner.feature) maps to one of these be
 | **observe, not write status** | the Scanner reacts to a terminal transition written elsewhere; it never writes `status` |
 | **post-hoc persisted inputs** | the Scanner reads persisted files after a mission ends, never live subagent context |
 | **validate before drafting** | a plan/log-surfaced candidate improvement is a *hypothesis* validated against current code before drafting; a gap the code already resolves is **cut**, a still-open gap is drafted; symmetric across plan and combat-log sources; validation reads current code, not the plan's assertion; a distilled retro lesson (not a gap claim) needs no check |
+| **cold-instrument evidence** | a candidate **rule-level decision** (adopt / drop / threshold-set) is drafted only when its grounding measurement is **non-author or fresh-adversarial**, never on the proposer's own generator/harness alone; a **revived dead dimension** is drafted to land only when an ablation against a control shows it **loseable** (a Δ=0 revival is **cut as dead weight**), and the drafted revived rule is stated **abstractly** with no probe apparatus lifted into it; a measurement grounding no rule-level decision is unconstrained |
 | **the cut disposition** | a cut is recorded durably as a `strategy` entry marked **`disposition: resolved`** carrying the resolving current-code evidence — a tombstone that emits no issue and is **not counted toward pending strategy**; a drafted still-open entry is **`disposition: open`** and counts; disposition is set once at write, never flipped (shape owned by `sdd:combat-log-governance`) |
 | **issue emission** | each validated-**open** improvement is emitted as a **new tracked issue** (deduped against existing open/closed issues), cross-linking its evidence; a cut candidate emits none; the issue is the actionable output, the ledger line the provenance |
 | **issue is not dispatch** | emitting an issue leaves the strategy **unratified** and spawns **no** mission — it neither ratifies nor dispatches; the issue body meets the outward-publish floor (self-contained, no production-internal reference) |
@@ -159,6 +160,32 @@ mission already built. It applies to any candidate that asserts an **unmet gap o
 surfaced by a **plan or a combat log** (symmetric: each source has both a resolved→cut and a
 still-open→draft path); a pure distilled retro lesson (a success pattern, not a gap claim) carries no
 gap to validate and is drafted without a current-code check.
+
+## Cold-instrument evidence — non-author measurement + ablation before a rule-level recommendation
+
+A self-authored measurement is untrustworthy exactly when it grounds a **rule-level decision**,
+because the author's own blind spot is baked into the instrument meant to catch it (op6/#224: a masked
+generator "proved" its own conclusion on two consecutive rounds, each ratified then walked back;
+op6-m5/#254: a proposed revival measured Δ=0 dead weight, caught before landing). Two closed-form rules
+extend the *validate-before-drafting* discipline above to the Scanner's rule-level recommendations —
+this is the doctrine Strategist's slice of the wider **cold-instrument doctrine** (its verification-method
+sibling lives on [`../../mission/impl-producer/`](../../mission/impl-producer/README.md); its
+authoring-time sibling on [`../../authoring/spec-producer/`](../../authoring/spec-producer/README.md)):
+
+- **Non-author evidence.** *A candidate rule-level decision — adopt a rule, drop a rule, or set a
+  threshold — is drafted as a recommendation only if its grounding measurement was produced by a party
+  other than the proposer, **or** independently reviewed by such a party, **or** ablated against a
+  freshly and adversarially constructed case.* A measurement on the proposer's own generator/harness
+  alone is **withheld**: the Scanner drafts no recommendation on it and records that it needs non-author
+  or fresh-adversarial evidence. A measurement grounding **no** rule-level decision is unconstrained by
+  this rule.
+- **Ablation before landing a revival.** *A candidate reviving a dead measurement dimension is drafted
+  to land only if an ablation against a control shows the dimension is **loseable**, and the drafted
+  rule is stated **abstractly** with no worked example.* An ablation showing **no difference** from the
+  control marks the revival **dead weight** — it is **cut** (the same resolved-disposition cut as any
+  refuted hypothesis, below), and no land recommendation is drafted. Lifting the apparatus of a probe
+  scenario that grades the dimension into the rule's statement is **absorption** — the probe then grades
+  nothing — so the drafted rule carries no such worked example.
 
 ## Improvement output — validated-open findings become tracked issues
 

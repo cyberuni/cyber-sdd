@@ -193,6 +193,24 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it reports the correction as an edit needing clearance
     And it does not remove that dimension without the clearance
 
+  # ---- Cold-instrument evidence — a measurement grounding a @rubric dimension or its cut is non-author ----
+
+  Scenario: a dimension cut justified by the producer's own measurement alone is not grounded on it
+    Given the producer authors a @rubric dimension or sets its cut justified by a measurement it produced on its own instrument alone
+    When it applies the evidence rule before returning
+    Then it does not ground the dimension or its cut on that measurement alone
+    And it records that the measurement needs non-author or fresh-adversarial evidence
+
+  Scenario: a dimension cut justified by a measurement that is not solely the producer's own is grounded on it
+    Given the producer authors a @rubric dimension or sets its cut justified by a measurement that is not solely its own — one meeting the non-author evidence standard the doctrine Strategist applies
+    When it applies the evidence rule before returning
+    Then it grounds the dimension or its cut on that measurement
+
+  Scenario: a measurement grounding no dimension or cut decision is unconstrained by the evidence rule
+    Given the producer holds a measurement that grounds no @rubric dimension and no cut decision
+    When it applies the evidence rule
+    Then it does not require non-author or fresh-adversarial evidence for that measurement
+
   # ---- Correction — removing a dimension re-derives the cut ----
 
   Scenario: removing a dimension re-derives the cut in the same edit

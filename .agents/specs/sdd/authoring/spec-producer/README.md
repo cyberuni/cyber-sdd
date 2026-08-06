@@ -99,6 +99,17 @@ Phase 2 — the suite:
   down** in the same record that carries the cut's reason, naming it and **what pays for it** — an unrecorded trade is an unowned selection nobody can disagree with. Record it for
   each dimension you author or revise. The duty is **yours alone**: no judge reports a missing record,
   so nothing catches you skipping it.
+- **Ground a dimension or its cut on non-author evidence** (`../../doctrine/scanner/README.md`).
+  When you justify a `@rubric` dimension or its cut with a **measurement** — an ablation Δ, a
+  discrimination count over N runs — that measurement is admissible only if it is **not solely your
+  own**: it meets the **non-author evidence standard** the doctrine Strategist states canonically
+  (`../../doctrine/scanner/README.md`) — that standard is stated **once** there and referenced here,
+  never re-listed. Your own instrument silently assumes the property under test, so a cut grounded on
+  your own measurement alone is not grounded — record that it needs non-author or fresh-adversarial
+  evidence. This is the spec-producer's slice of the wider **cold-instrument doctrine** (its
+  verification-method sibling lives on `../../mission/impl-producer/README.md`). A measurement
+  grounding **no** dimension or cut is unconstrained; choosing the cut *value* is still the miss-test
+  arithmetic below — this rule governs the *evidence*, not the value.
 - **Apply the miss test to every scenario and every `@rubric` dimension you author**
   (`../suite-format/README.md`). Name a **plausible wrong subject** — a memorizer, a copier, a
   procedure-follower, a single-brancher — and check that it *loses*. A scenario every plausible

@@ -27,15 +27,21 @@ for the full design rationale.
 
 ```toml
 [[retired]]
-term = "artifacts/specs/"                       # the literal text that is retired
-since = "304-m2-eval-suite-sweep"               # the CR that retired it
-replacement = "a colocated project-spec node under .agents/specs/<project>/"
-scope = ["plugins/", ".agents/specs/"]          # optional: only scan under these prefixes
+term = "old/retired/path/"                      # the literal text that is retired
+since = "the-cr-that-retired-it"                # provenance
+replacement = "what to write instead"
+scope = ["plugins/", "docs/"]                   # optional: only scan under these prefixes
 allow = [                                       # optional: sanctioned occurrences
-  ".agents/specs/sdd/DESIGN-NOTES.md",                       # whole file: superseded, kept for history
-  ".agents/specs/sdd/glossary.md :: motive-model",           # one line: the live project that still lives there
+  "docs/HISTORY.md",                            # whole file: superseded, kept for history
+  "docs/glossary.md :: the still-live sibling", # one line: a usage that stays correct
 ]
 ```
+
+> The example above uses placeholder values on purpose. This file is **not** on the guard's
+> self-exclusion list — only the registry, the engine, its test, and the spec node's own
+> `README.md` / `.feature` are — so writing a real registered term here would make the guard
+> report its own documentation. See the live registry at `.agents/sdd/retired-terms.toml` for
+> the real entries.
 
 - **`term` is matched as literal text, case-sensitive** — no globs, no regular expressions.
 - **`scope`** lists repo-relative include prefixes. No `scope` scans the whole tracked tree.

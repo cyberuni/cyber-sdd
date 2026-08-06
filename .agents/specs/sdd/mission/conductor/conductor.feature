@@ -668,6 +668,11 @@ Feature: The conductor — running one mission segment
     When it reconciles the plan brief
     Then it writes no spec.md status or approval field
 
+  Scenario: the reconcile writes no terminal value into the plan-level status field
+    Given a mission landing whose plan brief carries the plan-level status dispatch flag
+    When the conductor finalizes the mission
+    Then the plan-level status field holds the same value it held before finalize
+
   Scenario: a mission that halts instead of landing is checkpointed, not reconciled
     Given a mission that stops at a hard floor instead of landing
     When the conductor ends the segment

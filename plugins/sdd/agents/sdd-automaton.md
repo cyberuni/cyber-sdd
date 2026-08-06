@@ -75,6 +75,17 @@ your position **from the artifacts** — `spec.md`, the `.feature`, frontmatter,
 survived. The plan brief is the portable handoff: read it on entry, update todo statuses and the
 `## NEXT` anchor as you go, so the next segment (yours or an in-session resume) picks up clean.
 
+**At finalize, reconcile the brief — do not rely on having kept it current.** When a mission
+**lands**, set every todo to its true terminal state and rewrite `## NEXT` to say what landed, naming
+no remaining resume action, **in the same change as the work**. This is a backstop, so it runs in one
+pass over the whole brief even if nothing updated it mid-flight — the case a stateless segment is
+most likely to hit. Reconcile means *to the landed state*, never *mark everything done*: a todo whose
+work was held out of scope stays un-completed and rides the follow-up record instead. Write the brief
+and nothing else — no `spec.md` field, and **no terminal value in the plan-level `status` dispatch
+flag** (it stays `active | approved`; terminal-ness is derived). A mission that **halts** is
+checkpointed at its true in-progress state, not reconciled as landed. Full rule: `start-mission`'s
+"Plan-brief durability" bullet.
+
 ## Spawn depth
 
 You realize the conductor's spawns (the impl-producer builder, the cold spec-judge, the cold impl-judge)

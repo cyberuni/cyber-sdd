@@ -175,7 +175,7 @@ Conflating the two was the original `sdd-plugin` impl-gate blocker; they are not
 The "never blocks" invariant is scoped to **availability**:
 
 - **Availability** — a recorded producer whose plugin is **gone** is still valid history: it is **flagged** (`[unavailable]`), not blocked; live resolution re-resolves a new producer for the new production.
-- **Structural validity** — fails **closed**: a **malformed** `produced-by` entry (not a well-formed plugin-qualified name) is not valid provenance and **blocks**; a role with **no resolvable producer** (not even an SDD default) **blocks**; an off-enum or absent `cause` (below) **blocks**.
+- **Structural validity** — fails **closed**: a **malformed** `produced-by` entry (not a well-formed plugin-qualified name) is not valid provenance and **blocks**; a role with **no resolvable producer** (not even an SDD default) **blocks**; an **absent** or **unflagged** off-enum `cause` (below) **blocks** (an off-enum `cause` flagged `cause-candidate: true` is legal).
   The consistent rule: **availability degrades gracefully (flag-not-block); structural validity fails closed (block)**.
 
 ## Entry shapes — across the plan and the ledger
@@ -261,9 +261,9 @@ Its concrete `correction-kind` / `cause` are **not seeded**: they enter on first
 
 **Who edits the enum.**
 A grower *proposes* a value; **adding it is an edit to `combat-log-governance`, ratified by the Council** (a producer/judge/conductor never edits the enum on its own).
-Until ratified, an off-enum `cause` still fails closed.
+Until ratified, an **unflagged** off-enum `cause` still fails closed — but the conductor's **off-enum candidate discipline** writes the off-enum value **and flags it `cause-candidate: true`** (`combat-log-governance`), which is **legal** and keeps the value countable as a growth proposal; the fail-closed applies only to an **absent** or **unflagged** off-enum `cause`.
 
-A `cause` value that is **absent or off-enum** is a **structural error** (it breaks cross-mission matchability), not valid provenance, and **fails closed**.
+A `cause` value that is **absent, or off-enum without a `cause-candidate: true` flag**, is a **structural error** (it breaks cross-mission matchability), not valid provenance, and **fails closed**. An off-enum `cause` carrying `cause-candidate: true` is the sanctioned growth-candidate path, not a structural error.
 
 **Correction-line durability — a judge iteration leaves a discrete line, and a concluded mission never loses it.**
 A correction is recorded as a **discrete `correction` line**, never folded into a gate's prose alone.
@@ -302,8 +302,8 @@ Where `approval` is overwritten by the next CR, the `gate` line preserves every 
 - **`verdict`** — `approve | pause | reject`, mirroring the `approval` enum.
 - **`by`** — the ratifier: a human name (ratified) or `agent` (self-asserted, provisional).
   A self-assertion additionally carries the `why` derivation, same as the frontmatter block; a human ratification needs none.
-- **`cause`** — `dimension | ceiling`: what drove the verdict (a gradient dimension, or the human ceiling cap), mirroring the `approval` entry's `cause` (`lifecycle-model.md`).
-  This is the **stop cause** — distinct from a `correction` line's matchable `cause` enum.
+- **`cause`** — `dimension | clearance | ceiling`: what drove the verdict (a gradient dimension, the `clearance` floor, or the human `ceiling` cap), mirroring the `approval` entry's `cause` (`lifecycle-model.md`).
+  This is the **stop cause** — distinct from a `correction` line's matchable `cause` enum. The off-enum candidate discipline applies to both: a stop cause with no enum fit is written off-enum **and** flagged `cause-candidate: true`, staying countable rather than silently failing closed (`common-governances/combat-log`).
 - **`frozen`** — the suite files this verdict **froze** (spec-gate `approve` only): the per-file freeze record.
   Freeze is a per-file `@frozen` tag on each `.feature` (see `lifecycle-model.md`); this list records *which* files the CR froze, so the ledger answers *"what was frozen as of CR #34"* standalone — no git walk.
   This is a **local** durable record (the gate's, per G); it is **not** what the Forge loop reads — Forge consumes the distilled `correction`-with-`cause`, not `frozen[]` (`../forge/README.md`).

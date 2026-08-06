@@ -25,7 +25,7 @@ rules by reading frontmatter. The `(status, markers, .feature, approval)` tuple 
 - an `approval.<gate>` is `verdict: pause` carrying a `by` — a pause is always the agent's act and omits `by`.
 - an `approval.<gate>` is `verdict: approve` with no `by` — an approve must record its approver.
 - an `approval.<gate>` is `by: agent` with no `why` block — a self-assertion must record its derivation.
-- an `approval.<gate>` has a `cause` other than `dimension` or `ceiling` — the stop cause is a closed enum.
+- an `approval.<gate>` has an off-enum `cause` (not `dimension` / `clearance` / `ceiling`) **without** a `cause-candidate: true` flag — the stop cause is a closed enum grown only by ratification, so an unflagged off-enum value fails closed; a `cause-candidate: true`-flagged off-enum value is **legal** (the off-enum candidate discipline, `sdd:combat-log-governance`).
 - an `approval.<gate>` is `verdict: pause` on a gate the spec has already passed (spec once `approved`/`implemented`, impl once `implemented`).
 - `status: approved` or `implemented` with no `approval.spec` `verdict: approve` + `by` — the spec gate has no recorded ratification.
 - `status: implemented` with no `approval.impl` `verdict: approve` + `by` — the impl gate has no recorded ratification.
@@ -83,5 +83,5 @@ A required production role **always** resolves to a real producer — a plugin a
 for that role. When a gate runs and a required role has **no resolvable producer** (not a plugin
 agent and not even an SDD default), the gate **fails closed** with a blocker; it advances nothing.
 This is a **structural** error, the same fail-closed class as a malformed `produced-by` entry or an
-off-enum `cause` (defined in `sdd:combat-log-governance`). Distinct from availability: a recorded
+**unflagged** off-enum `cause` (a `cause-candidate: true`-flagged one is legal; `sdd:combat-log-governance`). Distinct from availability: a recorded
 producer whose plugin is merely uninstalled is **flagged**, not blocked.

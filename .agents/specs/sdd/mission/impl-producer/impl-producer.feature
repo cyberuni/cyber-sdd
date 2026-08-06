@@ -161,6 +161,20 @@ Feature: The impl-producer procedure — build the implementation + its verifica
     Then it does not declare an implementation-pass verdict
     And a separate cold impl-judge runs the verification
 
+  # ---- Instrument subjects — the cold-instrument doctrine ----
+
+  Scenario: an instrument subject is verified by a mutation sweep as the default method
+    Given a subject that is itself a measurement or verification instrument, such as a fixture, mutation set, ablation generator, falsifier, judge, or check
+    When the impl-producer authors its verification
+    Then a mutation sweep is the default verification method
+    And reading the instrument is treated as supplementary rather than the primary check
+
+  Scenario: a non-instrument subject keeps the verify-as-high default and is not forced onto a mutation sweep
+    Given a subject that is an ordinary implementation and not a measurement or verification instrument
+    When the impl-producer authors its verification
+    Then the mutation-sweep-first default does not apply to it
+    And the verification level is chosen as high as it doesn't hurt
+
   # ---- Producer surface ----
 
   Scenario: the impl-producer runs in a spawned builder

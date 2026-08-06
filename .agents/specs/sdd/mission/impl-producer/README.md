@@ -80,6 +80,27 @@ The procedure runs in two **modes** — the freeze is the boundary; every scenar
 - **Never edit the contract.** The builder does not set its own bar (four-eyes). A behavior-changing
   gap is a `CONTENT_GAP` / `BLOCKER`, never an in-place edit of `spec.md` or the `.feature`.
 
+## Instrument subjects — mutation-sweep-first (the cold-instrument doctrine)
+
+When the **subject is itself a measurement or verification instrument** — a fixture, mutation set,
+ablation generator, falsifier, judge, or check — reading it is a weak oracle: the author's own blind
+spot is baked into the instrument meant to catch it, so reading finds a defect or two where a mutation
+sweep finds many, and a "cannot-fail" defect that survives every read dies to the first mutation the
+instrument fails to catch.
+
+- **Mutation-sweep-first.** *For a subject that is an instrument, a mutation sweep is the default
+  verification method and reading is supplementary.* This **overrides**, for an instrument subject
+  only, the verify-as-high-as-it-doesn't-hurt default that `sdd:builder-impl-governance` owns; a
+  non-instrument subject is untouched — that default governs it unchanged.
+
+This is the impl-producer's slice of the wider **cold-instrument doctrine**. Its two companion rules
+are homed where the decisions they govern are actually made, not here: **non-author (or
+fresh-adversarial) evidence for a rule-level decision** — adopt/drop/threshold — lives with the
+rule-authors and the doctrine Strategist ([`../../authoring/spec-producer/`](../../authoring/spec-producer/README.md)
+for a threshold/dimension, [`../../doctrine/scanner/`](../../doctrine/scanner/README.md) for an
+adopt/drop recommendation); and **a revived rule stated abstractly and ablation-tested before it
+lands** lives with the doctrine Strategist ([`../../doctrine/scanner/`](../../doctrine/scanner/README.md)).
+
 ## Producer surface
 
 The impl-producer is **spawned**, not inline: the conductor spawns a generic builder that loads

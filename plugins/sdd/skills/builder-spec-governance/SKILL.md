@@ -29,6 +29,12 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
 - **A graded subject is still a boolean.** For a non-deterministic capability the contract reaches a
   per-scenario boolean through a rubric + threshold over N runs; the rubric form stays out of the
   boolean `.feature`, carried as a judge-only `@rubric` scenario.
+- **A dimension or cut is grounded on non-author evidence.** When a `@rubric` dimension or its cut is
+  justified by a **measurement** (an ablation Δ, a discrimination count), that measurement is admissible
+  only if it is **not solely the author's own** — independently produced/reviewed by a non-author, or a
+  fresh-adversarial ablation. An author's own instrument silently assumes the property under test. The
+  standard is stated canonically at `sdd:doctrine-loop`; this bar requires it be met, not re-listed
+  (the cold-instrument doctrine).
 
 ## Key points (read-check)
 
@@ -38,3 +44,5 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
    expose cannot be specced.
 3. **A graded subject still reaches a per-scenario boolean** via rubric + threshold; the rubric stays
    out of the `.feature`.
+4. **A dimension or cut is grounded on non-author evidence** — a measurement justifying it must be not
+   solely the author's own (canonical standard: `sdd:doctrine-loop`); the cold-instrument doctrine.

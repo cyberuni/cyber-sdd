@@ -38,3 +38,9 @@ agent level.
   single collapsed number stands for all of them.
 - **The runner is separate from the author.** Independence comes from the frozen `.feature` anchor and
   from a runner (`aced-case-judge`) that is not the producer — the producer cannot declare its own pass.
+- **An eval-instrument subject → mutation-sweep-first (inherited).** The **cold-instrument doctrine** on
+  `sdd:builder-impl-governance` applies here unchanged: when the agent-config subject is **itself a
+  measurement or verification instrument** — a rubric, an eval suite, a judge persona, a falsifier — a
+  **mutation sweep is the default verification method** and reading it is supplementary. An author's own
+  eval silently assumes the property under test, so a self-authored ablation over the instrument is not
+  the whole check; sweep it.

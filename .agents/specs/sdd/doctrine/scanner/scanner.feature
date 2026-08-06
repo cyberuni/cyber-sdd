@@ -138,6 +138,51 @@ Feature: The Scanner detect-and-draft loop — draft unratified strategy at life
     When the Scanner drafts strategy from it
     Then it drafts the lesson without validating a gap against current code
 
+  # ---- Cold-instrument doctrine — non-author evidence + ablation before a rule-level recommendation ----
+
+  Scenario: a rule-level recommendation grounded only on the proposer's own instrument is withheld
+    Given a candidate to adopt a rule, drop a rule, or set a threshold grounded only on a measurement the proposing party produced on its own generator or harness
+    When the Scanner validates the candidate before drafting
+    Then it does not draft the rule-level recommendation on that measurement alone
+    And it records that the measurement needs non-author or fresh-adversarial evidence
+
+  Scenario: a rule-level recommendation grounded on a measurement produced by a non-proposer is drafted
+    Given a candidate to adopt a rule, drop a rule, or set a threshold grounded on a measurement produced by a party other than the proposer
+    When the Scanner validates the candidate before drafting
+    Then it drafts the rule-level recommendation
+
+  Scenario: a rule-level recommendation grounded on a measurement independently reviewed by a non-proposer is drafted
+    Given a candidate to adopt a rule, drop a rule, or set a threshold grounded on a measurement independently reviewed by a party other than the proposer
+    When the Scanner validates the candidate before drafting
+    Then it drafts the rule-level recommendation
+
+  Scenario: a rule-level recommendation grounded on a fresh adversarial ablation is drafted
+    Given a candidate to adopt a rule, drop a rule, or set a threshold grounded on a measurement ablated against a freshly and adversarially constructed case
+    When the Scanner validates the candidate before drafting
+    Then it drafts the rule-level recommendation
+
+  Scenario: a measurement grounding no rule-level decision is not held to the non-author standard
+    Given a combat log carrying a measurement that grounds no adopt, drop, or threshold-set decision
+    When the Scanner drafts strategy from that log
+    Then it does not require non-author or fresh-adversarial evidence for that measurement
+
+  Scenario: a revived dimension shown loseable by ablation is drafted to land
+    Given a candidate reviving a dead measurement dimension whose ablation against a control shows the dimension is loseable
+    When the Scanner validates the candidate before drafting
+    Then it drafts strategy to land the revived rule
+
+  Scenario: a revived dimension whose ablation shows no effect is cut as dead weight
+    Given a candidate reviving a dead measurement dimension whose ablation against a control shows no difference from the control
+    When the Scanner validates the candidate before drafting
+    Then it cuts the candidate as dead weight
+    And it drafts no strategy to land the revived rule
+
+  Scenario: a drafted revived-rule strategy states the rule abstractly and lifts no probe apparatus
+    Given the Scanner drafts strategy reviving a dead measurement dimension
+    When it states the revived rule in the strategy entry
+    Then it states the rule abstractly without a worked example
+    And it does not lift the apparatus of a probe scenario that grades the dimension into the rule
+
   # ---- The cut disposition: a resolved candidate is recorded durably, not silently dropped ----
 
   Scenario: a cut candidate is recorded as a resolved-disposition strategy line

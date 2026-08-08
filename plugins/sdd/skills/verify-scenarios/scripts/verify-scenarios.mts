@@ -35,6 +35,14 @@
 // feature scenario KEY: UNBOUND if no result; PASS if ≥1 result and none fail; FAIL if any fails.
 // EXTRA = bound result keys matching no feature scenario key (diagnostic, not a failure).
 //
+// Near-miss binding: a key that matches no result EXACTLY gets a second pass on a punctuation- and
+// whitespace-folded COMPARISON key (a pasted curly apostrophe, an em dash, a non-breaking space),
+// so a real binding is not split across the UNBOUND list and the EXTRA list with nothing saying the
+// two are the same scenario. Only unclaimed results are eligible, and only an unambiguous 1:1 fold
+// binds — an ambiguous fold stays UNBOUND rather than manufacturing a false bind. Nothing rewrites
+// a title: the fold is the only place the folded form exists, and every reported field carries the
+// verbatim key, with the matched test title reported alongside it as a probable title mismatch.
+//
 // Pure functions are exported for node:test; running the file directly drives the CLI.
 
 import { execSync } from 'node:child_process'
@@ -248,6 +256,15 @@ export interface ScenarioReport {
 	key: string
 	state: ScenarioState
 	resultCount: number
+	/** The result key this scenario bound to when it bound on the folded comparison key, not exactly. */
+	matchedKey?: string
+}
+
+export interface TitleMismatch {
+	/** The frozen scenario's verbatim key. */
+	key: string
+	/** The test's verbatim leaf title it bound to — differing only by punctuation or whitespace. */
+	matchedKey: string
 }
 
 export interface FoldReport {
@@ -259,6 +276,43 @@ export interface FoldReport {
 	unbound: number
 	scenarios: ScenarioReport[]
 	extras: string[]
+	/** Bindings made on the folded comparison key — a probable one-character typo, reported so it gets fixed. */
+	mismatches: TitleMismatch[]
+}
+
+// Punctuation and whitespace variants that carry no meaning of their own: the smart-quote and dash
+// substitutions an editor, a copy-paste, or a Markdown renderer makes to a title on its way into a
+// test file. Case is deliberately NOT folded — a differing case is not a punctuation variant, and
+// folding it would bind two titles the author wrote differently on purpose.
+const PUNCTUATION_FOLDS: [RegExp, string][] = [
+	[/[‘’‚‛′´]/g, "'"], // curly/prime apostrophes -> straight
+	[/[“”„‟″]/g, '"'], // curly double quotes -> straight
+	[/[‐‑‒–—―−]/g, '-'], // hyphens/dashes/minus -> hyphen
+	[/…/g, '...'], // ellipsis -> three dots
+]
+// A no-break/thin/figure space needs no entry of its own — the trailing `\s+` collapse below
+// already covers every Unicode space separator.
+
+// The MATCH-ONLY form of a key: Unicode-composed, punctuation-folded, whitespace-collapsed. Never
+// written back anywhere — reports carry the verbatim key.
+export function comparisonKey(key: string): string {
+	let out = key.normalize('NFC')
+	for (const [re, rep] of PUNCTUATION_FOLDS) out = out.replace(re, rep)
+	return out.replace(/\s+/g, ' ').trim()
+}
+
+// Indexes values by their comparison key, dropping every comparison key claimed by more than one
+// value — an ambiguous fold must not bind, so only the 1:1 entries survive.
+function unambiguousByComparisonKey(keys: string[]): Map<string, string> {
+	const index = new Map<string, string>()
+	const ambiguous = new Set<string>()
+	for (const k of keys) {
+		const c = comparisonKey(k)
+		if (index.has(c)) ambiguous.add(c)
+		else index.set(c, k)
+	}
+	for (const c of ambiguous) index.delete(c)
+	return index
 }
 
 export function foldResults(scenarioKeys: ScenarioKey[], results: BoundResult[], node: string): FoldReport {
@@ -270,21 +324,39 @@ export function foldResults(scenarioKeys: ScenarioKey[], results: BoundResult[],
 		else byKey.set(r.key, [r])
 	}
 
+	const featureKeys = new Set(scenarioKeys.map((s) => s.key))
+	// Only a result no scenario claims exactly is eligible for a near-miss bind, and only a scenario
+	// that found no exact result looks for one — an exact binding always wins.
+	const unclaimed = [...byKey.keys()].filter((k) => !featureKeys.has(k))
+	const unmatchedScenarioKeys = scenarioKeys.map((s) => s.key).filter((k) => !byKey.has(k))
+	const unclaimedByComparison = unambiguousByComparisonKey(unclaimed)
+	const unmatchedByComparison = unambiguousByComparisonKey(unmatchedScenarioKeys)
+
+	const nearMisses = new Map<string, string>() // scenario key -> result key
+	for (const [comparison, scenarioKey] of unmatchedByComparison) {
+		const resultKey = unclaimedByComparison.get(comparison)
+		if (resultKey !== undefined) nearMisses.set(scenarioKey, resultKey)
+	}
+
 	const scenarios: ScenarioReport[] = scenarioKeys.map(({ name, key }) => {
-		const group = byKey.get(key) ?? []
+		const matchedKey = byKey.has(key) ? undefined : nearMisses.get(key)
+		const group = byKey.get(matchedKey ?? key) ?? []
 		const state: ScenarioState =
 			group.length === 0 ? 'unbound' : group.some((r) => r.outcome === 'fail') ? 'fail' : 'pass'
-		return { name, key, state, resultCount: group.length }
+		return { name, key, state, resultCount: group.length, ...(matchedKey === undefined ? {} : { matchedKey }) }
 	})
 
-	const featureKeys = new Set(scenarioKeys.map((s) => s.key))
-	const extras = [...byKey.keys()].filter((k) => !featureKeys.has(k)).sort()
+	const nearMissKeys = new Set(nearMisses.values())
+	const extras = unclaimed.filter((k) => !nearMissKeys.has(k)).sort()
+	const mismatches: TitleMismatch[] = scenarios
+		.filter((s): s is ScenarioReport & { matchedKey: string } => s.matchedKey !== undefined)
+		.map((s) => ({ key: s.key, matchedKey: s.matchedKey }))
 
 	const pass = scenarios.filter((s) => s.state === 'pass').length
 	const fail = scenarios.filter((s) => s.state === 'fail').length
 	const unbound = scenarios.filter((s) => s.state === 'unbound').length
 
-	return { node, total: scenarios.length, bound: pass + fail, pass, fail, unbound, scenarios, extras }
+	return { node, total: scenarios.length, bound: pass + fail, pass, fail, unbound, scenarios, extras, mismatches }
 }
 
 // ── Output ──
@@ -300,6 +372,10 @@ export function formatToon(report: FoldReport): string {
 		(s) => `  ${[toonField(s.name), toonField(s.key), s.state, String(s.resultCount)].join(',')}`,
 	)
 	const extras = [`extras[${report.extras.length}]{key}:`, ...report.extras.map((e) => `  ${toonField(e)}`)]
+	const mismatches = [
+		`mismatches[${report.mismatches.length}]{key,matchedKey}:`,
+		...report.mismatches.map((m) => `  ${[toonField(m.key), toonField(m.matchedKey)].join(',')}`),
+	]
 	const summary = `summary{node,total,bound,pass,fail,unbound}:\n  ${[
 		toonField(report.node),
 		report.total,
@@ -308,7 +384,7 @@ export function formatToon(report: FoldReport): string {
 		report.fail,
 		report.unbound,
 	].join(',')}`
-	return [header, ...rows, ...extras, summary].join('\n')
+	return [header, ...rows, ...extras, ...mismatches, summary].join('\n')
 }
 
 export function formatText(report: FoldReport): string {
@@ -321,6 +397,11 @@ export function formatText(report: FoldReport): string {
 	if (report.extras.length > 0) {
 		lines.push('')
 		lines.push(`EXTRA (bound results matching no scenario): ${report.extras.join(', ')}`)
+	}
+	if (report.mismatches.length > 0) {
+		lines.push('')
+		lines.push('PROBABLE TITLE MISMATCH (bound on punctuation/whitespace only — fix the test title):')
+		for (const m of report.mismatches) lines.push(`  scenario "${m.key}" <- test "${m.matchedKey}"`)
 	}
 	return lines.join('\n')
 }

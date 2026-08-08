@@ -27,7 +27,7 @@ or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
 
-The conductor's behavior groups into ten concerns, each a section below; every scenario in
+The conductor's behavior groups into fifteen concerns, each a section below; every scenario in
 [`conductor.feature`](./conductor.feature) maps to one of them:
 
 | Concern | What it covers |
@@ -45,6 +45,7 @@ The conductor's behavior groups into ten concerns, each a section below; every s
 | **combat-log telemetry** | every appended line carries a write-time UTC `ts` and the pseudonymous `handle` (`SDD_HANDLE`, else omitted), flushed to the committed log during the mission; the safe-to-publish floor keeps email / raw identifiers / raw numbers out |
 | **correction-line durability** | a judge-reject→fix→pass self-assert appends a discrete `correction` line (`correction-kind: judge-iteration` + a matchable `cause`) before the gate `why`, never leaving the iteration only as prose; a clean gate appends none; at finalize, a mission carrying a correction whose line was never flushed writes it — creating the combat log if absent (a combat-log `correction`, never a ledger line; a mission with no correction forces none) |
 | **cause-enum conformance** | when writing any `cause` (a `correction`'s matchable cause or a `gate` line's stop cause), prefer an enum value; if none fits, write the off-enum string into `cause` **and** flag `cause-candidate: true` so it stays countable as a growth proposal rather than silently failing closed; an **absent** cause still fails closed (the nudge is no license to omit); a visibility nudge, never a write-blocking linter |
+| **plan-brief finalize backstop** | at finalize a landing mission reconciles its plan brief's `todos` and `## NEXT` anchor to the landed state — in the same change as the work, in one pass even when nothing updated the brief mid-flight; a todo whose work was held out of scope is **not** marked completed (it becomes a follow-up), an already-current brief is left unmodified, and the reconcile writes no `spec.md` field and no terminal value into the plan-level `status` dispatch flag (Council-ruled: the enum stays `active | approved`, terminal-ness stays derived); a mission that halts instead of landing is checkpointed, never reconciled |
 | **mission statusline** | during the loop only, overwrite the statusline file (`.agents/sdd/statusline`) with the current phase on each transition and clear it on every exit (handoff / pause / halt); written only while a mission is in flight, no heartbeat (static staleness), distinct from the lifecycle `status` field — the opt-in reader is wired by `../../gateway/init/` |
 
 ## Classification — a file's artifact-type
@@ -391,6 +392,79 @@ the flag is the human/Council-legible signal that a growth candidate is accumula
 gap the doctrine loop found in its own corpus: off-enum `cause`s (`node-boundary`,
 `format-json-missing-built-array`, and the gate-line generic `floor`) that were real, on-disk defects
 yet invisible to the very detector meant to catch their recurrence.
+## Plan-brief finalize backstop — reconcile the brief to the landed state
+
+The correction-line backstop above makes a mission's *provenance* durable at finalize. The same
+discipline binds the mission's own **execution state**: a landing mission **reconciles its plan
+brief** (`.agents/plans/<cr-ref>.plan.md`) to the state it actually landed in, rather than leaving
+the drift to be caught incidentally at a later retro.
+
+Two things are reconciled, and they are exactly the two a consumer reads:
+
+- **`todos`** — each todo is set to its true terminal state. `../../intake/plan-discovery/` tallies
+  todos by status, `../checkpoint/` resumes from them, and the doctrine Scanner's stale-plan
+  cross-check derives its retirement clearance set from `todos-all-done ∧ source-closed`
+  (`../../doctrine/scanner/`).
+- **`## NEXT`** — rewritten to state what landed, naming no remaining resume action. This anchor is
+  the brief's resume lead; left naming a resume action, it advertises a finished mission as open
+  work to the next session that reads it.
+
+**It is a backstop, so it is unconditional and single-pass.** The reconcile does not depend on the
+loop having kept the brief current mid-flight — a brief untouched since intake scaffolded it is
+reconciled in full at finalize, the same way the combat log is created if absent. And the reconciled
+brief lands **in the same change as the work** (the shape placement finalization already uses,
+`../handoff/`), so the delivery never ships a landed mission described as in-progress.
+
+**The honesty guard is the load-bearing half.** Reconcile means *to the landed state*, not *mark
+everything done*. A todo whose work was genuinely **held out of scope** stays un-completed and is
+carried through the follow-up machinery (`../handoff/`). Marking it completed would not merely be
+untidy — it would make the Scanner's `todos-all-done ∧ source-closed` cross-check **agree wrongly**
+and clear the brief for retirement, deleting the record of work that was never done. Symmetrically, a
+brief already matching the landed state is left unchanged: the backstop writes what diverges and
+forces no minimum footprint, exactly as a mission with no correction forces no correction line.
+
+**Bounded scope.** The reconcile writes the brief and nothing else: no `spec.md` `status` or
+`approval` (those are the gate's, and the conductor writes no `status` — see Non-goals), and no
+retirement of the plan (the doctrine loop deletes it later, `../handoff/`). A mission that **halts**
+instead of landing is not reconciled at all — a halt is a checkpoint of the true in-progress state
+(`../checkpoint/`), and reconciling it to "landed" would assert a landing that never happened.
+
+### The plan-level `status` stays dispatch-flag-only — Council-ruled
+
+The plan brief also carries a **plan-level `status`**, declared in `../../design/provenance-model.md`
+as the **mission dispatch flag** with the two-value enum `active | approved` — `approved` meaning *a
+human cleared this brief for headless dispatch*, written by `../checkpoint/`. That model carries an
+explicit *"three distinct `status` fields, three scopes — do not conflate"* rule naming `spec.md`'s
+`draft | approved | implemented` as the one **not** to borrow. There is therefore **no legal terminal
+value** for the field, and **the finalize backstop writes none** — the enum is unchanged and
+"is this mission over?" stays **derived** (`todos-all-done ∧ source-closed`), which is exactly what
+the Scanner's stale-plan cross-check already consumes (`../../doctrine/scanner/`).
+
+This was an open question the **Council ruled (Option B below)**; the guard scenario freezes it, so a
+conductor that writes a terminal value into the field fails the suite.
+
+**The observed drift is real at both halves.** A sweep of all briefs under `.agents/plans/` finds
+landed missions whose todos were never marked (`388-389-verification-doctrine` 0/8 with its PR
+merged; `aced-producer-preflight` 0/6 shipped; `192-barriers-and-blast` 0/5), *and* a `status` field
+written off-enum in twelve different ways (`implemented`, `draft`, `in-progress`, `done`,
+`completed`, `awaiting-clearance`, `deprecated`) with **`approved` appearing zero times** — the one
+non-default value the dispatch loop selects on.
+
+| Option | What it means | Cost |
+|---|---|---|
+| **A — widen the enum** | add a terminal value; the conductor writes it at finalize. Revises `provenance-model.md`, `../../intake/plan-discovery/`, `../../gateway/dispatch/`, `../checkpoint/`; needs a backfill of the drifted briefs | overturns the declared "do not conflate" rule; corpus-wide blast; hands the conductor a write on a field whose write is currently the human clearing act's |
+| **B — dispatch-flag-only, unchanged** *(recommended)* | the backstop reconciles `todos` + `## NEXT` only; terminal-ness stays **derived** (`todos-all-done ∧ source-closed`), which is what the Scanner already consumes | the field keeps no terminal value, so a reader wanting "is this over?" must derive it — the drifted off-enum values remain a **separate** conformance defect, not fixed here |
+
+**Ruled: B.** The field has no lifecycle reader — neither distill nor `plan-retirement` gates on it —
+so a terminal value would be visible to nothing, while the two fields this backstop does reconcile
+are read by three consumers each. The identical question was put to the owner in the
+`scanner-stale-plan-status` CR and answered the same way (derive terminal-ness, drop the `status`
+write) for the **Scanner** realization; this ruling settles it for the **conductor** realization too,
+so the two now agree: *neither actor writes a terminal `status` into a plan brief.*
+
+The off-enum drift the sweep found is **not** closed by this ruling — it is a separate conformance
+defect, best closed by a `check-plan-safety`-style frontmatter enum guard, recorded as a follow-up
+rather than folded in here.
 
 ## Mission statusline — surface the phase during the loop
 

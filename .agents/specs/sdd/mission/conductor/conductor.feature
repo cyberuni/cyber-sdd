@@ -627,6 +627,57 @@ Feature: The conductor — running one mission segment
     When it applies the off-enum candidate discipline
     Then it writes the off-enum reason into the cause field rather than leaving the cause absent
     And it does not treat a missing cause as a growth candidate
+  # ---- Plan-brief finalize backstop — reconcile todos and NEXT to the landed state ----
+
+  Scenario: a landed todo left pending is marked completed at finalize
+    Given a mission landing whose plan brief still marks a todo pending though its work landed
+    When the conductor finalizes the mission
+    Then it sets that todo to completed in the plan brief
+
+  Scenario: a landing mission rewrites the NEXT anchor to the landed state
+    Given a mission landing whose plan brief NEXT anchor still names a resume action
+    When the conductor finalizes the mission
+    Then it rewrites the NEXT anchor to state what landed
+    And the rewritten anchor names no remaining resume action
+
+  Scenario: a todo whose work did not land is not marked completed
+    Given a mission landing whose plan brief carries a todo whose work was held out of scope
+    And that held-out work was already recorded as a follow-up at handoff
+    When the conductor finalizes the mission
+    Then that todo is not set to completed
+
+  Scenario: the reconcile runs even when nothing updated the brief mid-flight
+    Given a mission landing whose plan brief was never updated after intake scaffolded it
+    When the conductor finalizes the mission
+    Then every landed todo is marked completed in the brief
+    And the NEXT anchor states what landed
+
+  Scenario: a brief already matching the landed state is left unmodified
+    Given a mission landing whose plan brief already marks every todo terminal
+    And whose NEXT anchor already states what landed
+    When the conductor finalizes the mission
+    Then the landing change contains no modification to the plan brief
+
+  Scenario: the reconciled brief lands in the same change as the work
+    Given the conductor reconciled the plan brief at finalize
+    When the mission lands in the declared delivery shape
+    Then the reconciled brief is part of that same change
+
+  Scenario: the finalize reconcile writes no contract field
+    Given the conductor finalizes a landing mission
+    When it reconciles the plan brief
+    Then it writes no spec.md status or approval field
+
+  Scenario: the reconcile writes no terminal value into the plan-level status field
+    Given a mission landing whose plan brief carries the plan-level status dispatch flag
+    When the conductor finalizes the mission
+    Then the plan-level status field holds the same value it held before finalize
+
+  Scenario: a mission that halts instead of landing is checkpointed, not reconciled
+    Given a mission that stops at a hard floor instead of landing
+    When the conductor ends the segment
+    Then it does not reconcile the brief to a landed state
+    And the brief is checkpointed to its true in-progress state instead
 
   # ---- Mission statusline — write the value during the loop (opt-in surface) ----
 

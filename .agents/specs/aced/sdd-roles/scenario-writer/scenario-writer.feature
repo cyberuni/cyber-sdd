@@ -126,6 +126,18 @@ Feature: scenario-writer — the spec-producer role
     When scenario-writer selects the form of that criterion
     Then it authors the rule as a boolean Then step and not as a rubric dimension
 
+  Scenario: a whole-output graded criterion becomes a boolean @quality scenario, not a dimension
+    Given a persona skill whose voice is the whole of what it produces, and no boolean scenario in the drafted suite decides that voice
+    When scenario-writer selects the form of that criterion
+    Then it authors the voice as one boolean @quality scenario asserting the produced output holds it
+    And it authors no @rubric dimension scoring that voice
+
+  Scenario: a criterion scored alongside siblings scoring other attributes stays a graded dimension
+    Given a subject producing an onboarding guide, whose candidate criterion scores the guide's example coverage while sibling dimensions score its ordering and its prerequisite completeness, and no boolean scenario in the drafted suite decides example coverage
+    When scenario-writer selects the form of that criterion
+    Then it authors that criterion as a graded dimension in the compensatory sum
+    And it does not convert it to a boolean @quality scenario on the ground that the guide is one output
+
   Scenario: every dimension can register a miss
     Given scenario-writer authoring a @rubric for a graded subject
     When it selects each dimension

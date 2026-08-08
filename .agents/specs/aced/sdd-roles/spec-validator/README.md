@@ -34,6 +34,7 @@ scoring the eval suite (`implementer` / `judge`); the generic SDD `spec-gate` ga
 | Check boolean form | an **untagged** `Then` embedding a rubric/threshold/score | that scenario is reported failing on boolean-form |
 | Check rubric structure | a `@rubric` scenario | a well-formed one (dimensions + per-dimension max + one threshold + collapsing `Then`, no double-barrel) is accepted **on structure**; a malformed one fails before scoring — passing structure is never acceptance |
 | Check selection (before discrimination) | every `@rubric` dimension | a non-substitutable criterion (incl. a boolean **same-object** smuggle) fails selection; a rulable-reject trade fails (not escalated); only an unrulable trade escalates; the producer's recorded trade is neither the object nor a rescue; a failing dimension is **not** remedied by a per-dimension minimum |
+| Check selection: whole-output | a dimension whose criterion spans the whole of what the subject produces | it fails selection **even with no boolean twin in the suite**, and the recorded need is its own boolean `@quality` scenario; a dimension that does **not** itself span the whole output passes |
 | Check discrimination | every scenario and every `@rubric` dimension | one no plausible wrong config / config-quoting memorizer fails (presence / restatement / procedure, memorizer-banks-to-bar, single-brancher, empty-file-clears-nothing) is reported failing; a clearance by one point is not failed on the margin alone; an unclassifiable scenario is escalated, not passed |
 | Check pairwise consistency | two scenarios sharing a `When` | contradiction on one constructible snapshot fails the suite; overlap with agreeing `Then`s, different operations, or a generic/specific exception do not |
 | Pass a clean suite | a `.feature` meeting every criterion | every scenario reported passing, no blocker |
@@ -47,7 +48,12 @@ needs-input. Otherwise grade every scenario against the tier-conditioned criteri
 (firing only), rule-coverage, trigger-balance (strong only), edge-coverage, boolean-form (untagged),
 and for `@rubric` scenarios the ordered rubric pipeline — **structure → selection → discrimination**.
 Selection runs before discrimination and has no second reader; rule when you can and escalate only the
-unrulable; never remedy a bad dimension with a per-dimension minimum. Discrimination fails what no
+unrulable; never remedy a bad dimension with a per-dimension minimum. Selection has **two disjoint**
+grounds for calling a criterion untradeable: the **same-object** boolean smuggle (a boolean scenario in
+the same suite already decides that exact property), and a criterion that spans **the whole of what the
+subject produces** — untradeable by construction, so it fails **even with no boolean twin present**, and
+what it needs is its own boolean `@quality` scenario. Both read the **single** dimension in front of you
+against the output, never one dimension against another (the twin-scan SDD #280 rejected). Discrimination fails what no
 plausible wrong config misses (the config-quoting memorizer) but never fails a rubric for a one-point
 clearance (cSEM), and escalates the unclassifiable rather than passing it. Read the suite for pairwise
 contradictions. Report each failing scenario by name with its check; never edit the spec or feature.
@@ -65,7 +71,9 @@ flowchart TD
   F --> G{@rubric scenario?}
   G -- yes --> H[rubric-structure: dimensions + per-dim max + one threshold + collapsing Then, no double-barrel]
   H --> I[selection BEFORE discrimination]
-  I --> I1{substitutable trade?}
+  I --> IW{criterion spans the WHOLE output?}
+  IW -- yes --> J0["FAIL selection with no boolean twin needed;<br/>records: needs its own boolean @quality scenario"]
+  IW -- no --> I1{substitutable trade?}
   I1 -- no --> J1[FAIL selection: same-object boolean smuggle / non-tradeable;\nrule reject when you can; do NOT prescribe a per-dimension minimum]
   I1 -- unrulable --> J2[Escalate: cannot classify; not a pass]
   I1 -- yes --> K[discrimination]
@@ -74,6 +82,7 @@ flowchart TD
   K1 -- no --> L1[FAIL discrimination: presence / restatement / procedure / memorizer-banks-to-bar / single-brancher; empty file clears nothing]
   K1 -- unclassifiable --> L2[Escalate rather than pass]
   K1 -- yes --> M[Pass; a one-point clearance is NOT failed on the margin alone cSEM]
+  J0 --> N
   J1 --> N[pairwise-consistency across the suite]
   J2 --> N
   L1 --> N
@@ -117,6 +126,8 @@ Every scenario binds 1:1 to a CFG edge.
 | recorded trade not the object | a recorded trade, dims re-derived good | `the producer's recorded trade is not the judge's object of selection` |
 | same-object smuggle fails selection | a dim re-grading a boolean's property | `a dimension re-grading a property a boolean scenario in the same suite decides fails selection` |
 | shared criterion, no twin passes | two dims share a criterion, no boolean | `two dimensions sharing a criterion with no boolean twin pass selection` |
+| whole-output fails, no twin needed | a dim scoring the voice of the whole output, no boolean twin | `a dimension scoring the whole of what the subject produces fails selection with no boolean twin present` |
+| per-attribute dim passes selection | a dim scored beside siblings scoring other attributes | `a dimension scored alongside siblings scoring other attributes passes selection` |
 | no per-dimension-minimum remedy | a dim reported failing on selection | `a failing dimension is not remedied by a per-dimension minimum` |
 | memorizer scores all max fails | every dimension a memorizer maxes | `a well-formed @rubric whose every dimension a memorizer scores at max fails discrimination` |
 | terms from vocab fail (restatement) | dimension terms lifted from the config | `a rubric dimension drawn from the subject's own vocabulary fails discrimination` |

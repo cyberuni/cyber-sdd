@@ -13,7 +13,12 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { collectSpecs, discoverSpecFiles, type SpecRecord } from '../../discover-specs/scripts/discover-specs.mts'
+import {
+	collectSpecs,
+	discoverSpecFiles,
+	parseFrontmatter,
+	type SpecRecord,
+} from '../../discover-specs/scripts/discover-specs.mts'
 
 const SKILLS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
 
@@ -129,12 +134,51 @@ export function findCoverageGaps(
 	return gaps
 }
 
+/**
+ * A spec.md sitting at a recognized location that discovery DROPPED (its status is not
+ * in the lifecycle enum) and that belongs to `projectRel` — by the `project-path` it
+ * declares, or by sitting inside the project (`<project>/.agents/spec/spec.md`, which
+ * survives frontmatter corruption because it is location-derived).
+ *
+ * Without this, a per-project run resolves such a spec to `none` and prints "no spec
+ * governs <project> — skipped" with exit 0: a status typo silently exempts the whole
+ * project from every engine. A spec that exists but cannot be classified is escalated,
+ * not exempted — the same call the corpus-level `--check-coverage` guard makes.
+ */
+export function findDroppedSpecFor(
+	specFiles: string[],
+	specs: SpecRecord[],
+	projectRel: string,
+	readText: (rel: string) => string | null,
+): { file: string; status: string }[] {
+	const recognized = new Set(specs.map((s) => (s.path === '' ? 'spec.md' : `${s.path}/spec.md`)))
+	const out: { file: string; status: string }[] = []
+	for (const f of specFiles) {
+		if (recognized.has(f)) continue
+		const text = readText(f)
+		const fm = text === null ? null : parseFrontmatter(text)
+		const dir = f.replace(/(^|\/)spec\.md$/, '')
+		const nested = /^(.+)\/\.agents\/spec$/.exec(dir)?.[1] ?? ''
+		if (fm?.projectPath === projectRel || nested === projectRel) out.push({ file: f, status: fm?.status ?? '' })
+	}
+	return out
+}
+
 const REASON_TEXT: Record<CoverageGap['reason'], string> = {
 	unrecognized:
 		'sits at a spec location but its status is not in the lifecycle enum, so discovery drops it and nothing checks it',
 	'no-project-path': 'declares no project-path, so no project can be resolved to check it',
 	'no-manifest': 'names a project with no package.json, so it is not a workspace member',
 	'no-check-script': 'names a project that defines no `check:spec` script',
+}
+
+/** Read a file, or null when it cannot be read. */
+function readTextOrNull(path: string): string | null {
+	try {
+		return readFileSync(path, 'utf8')
+	} catch {
+		return null
+	}
 }
 
 function checkCoverage(root: string): number {
@@ -179,9 +223,25 @@ function checkProject(argv: string[]): number {
 	}
 
 	const projectRel = relative(repoRoot, projectDir) || '.'
-	const res = resolveSpecFor(collectSpecs(repoRoot), projectRel)
+	const specs = collectSpecs(repoRoot)
+	const res = resolveSpecFor(specs, projectRel)
 
 	if (res.kind === 'none') {
+		// "No spec" is only legal when there is genuinely no spec file. A spec.md that
+		// exists but was dropped by the status filter is unclassifiable, not absent.
+		const dropped = findDroppedSpecFor(discoverSpecFiles(repoRoot), specs, projectRel, (rel) =>
+			readTextOrNull(join(repoRoot, rel)),
+		)
+		for (const d of dropped) {
+			process.stderr.write(
+				`check-project-specs: \`${d.file}\` sits at a spec location and governs \`${projectRel}\` but ` +
+					(d.status === ''
+						? 'declares no lifecycle status'
+						: `its status \`${d.status}\` is not in the lifecycle enum`) +
+					' (draft | approved | implemented | deprecated) — discovery drops it, so it is checked by nothing\n',
+			)
+		}
+		if (dropped.length) return 1
 		process.stdout.write(`check-project-specs: no spec governs \`${projectRel}\` — skipped\n`)
 		return 0
 	}

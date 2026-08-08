@@ -19,8 +19,9 @@
 // drives the CLI. No deps beyond node:fs, node:path, node:child_process.
 
 import { execFileSync } from 'node:child_process'
-import { accessSync, constants, existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { accessSync, constants, existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 // The rule ensured in .gitignore — the ACED run-output directory.
 export const RESULTS_DIR_RULE = '.agents/aced/results/'
@@ -111,4 +112,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

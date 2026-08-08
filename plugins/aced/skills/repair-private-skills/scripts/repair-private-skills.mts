@@ -20,6 +20,7 @@
 
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, unlinkSync, writeFileSync } from 'node:fs'
 import { join, sep } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 // ── shared shapes ──
 
@@ -273,4 +274,6 @@ export function main(argv: string[]): number {
 	return 1
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

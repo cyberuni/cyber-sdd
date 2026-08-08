@@ -14,11 +14,9 @@ diffs. It **decides** the cut; it does not build, store, classify, or automatica
 decision-evidence (SQ-F5 #194, deferred).
 
 Built for the Op2 ★ capstone of the cyberfleet-batch change request (GitHub issue #189, the reasoning
-front-end above the shipped deterministic back-end); see
-[`.agents/specs/sdd/ssa-lowering/README.md`](../../../../.agents/specs/sdd/ssa-lowering/README.md) for
-the authoritative behavior description and
-[`ssa-lowering.feature`](../../../../.agents/specs/sdd/ssa-lowering/ssa-lowering.feature) for the frozen
-behavior suite.
+front-end above the shipped deterministic back-end); the `ssa-lowering` node of the SDD project spec
+(in the cyberplace repository, not shipped in this package) carries the authoritative behavior
+description and the frozen behavior suite.
 
 This is a **doctrine, not an engine** — it emits no `.mts`, computes nothing deterministically, and holds
 no state. Working node name only (SQ-name #195).

@@ -24,11 +24,9 @@ node scripts/blast-estimate.mts --root <corpus> --touch-set sdd/mission-graph,sd
 ```
 
 Read-only, deterministic, reports-never-writes — the mission-graph's single writer records the
-computed level. See [`SKILL.md`](./SKILL.md) for the full contract and
-[`.agents/specs/sdd/blast-estimate/README.md`](../../../../.agents/specs/sdd/blast-estimate/README.md)
-for the authoritative behavior description and
-[`blast-estimate.feature`](../../../../.agents/specs/sdd/blast-estimate/blast-estimate.feature) for
-the frozen 21-scenario contract.
+computed level. See [`SKILL.md`](./SKILL.md) for the full contract; the `blast-estimate` node of
+the SDD project spec (in the cyberplace repository, not shipped in this package) carries the
+authoritative behavior description and the frozen 21-scenario contract.
 
 Fan-in counts the reference forms the corpus really uses — the bare id, a `sdd:spec-gate` skill ref,
 a path under any **declared root** at any depth, and a same-project relative link — not the bare id

@@ -8,8 +8,8 @@ metadata:
 
 # Resolve Tracking
 
-The concrete engine for **tracking resolution** — the second escape-hatch trigger
-(`.agents/specs/sdd/intake/README.md`). For one touched artifact it decides **tracked** (SDD
+The concrete engine for **tracking resolution** — the second escape-hatch trigger of the SDD
+project spec's `intake` node (repo-only). For one touched artifact it decides **tracked** (SDD
 governs it — spec + gates) or **ignored** (SDD does not govern it; it still gets built) and
 reports which step decided it, so the conductor can skip a task outright (no CR, no draft, no
 gate, no record) when it resolves ignored. The split mirrors git's **tracked vs ignored** files.

@@ -1,6 +1,6 @@
 // resolve-tracking — resolve one artifact's tracking signal (tracked | ignored).
-// Self-contained, no deps (repo's node-≥23.6 convention). Spec:
-// .agents/specs/sdd/intake/resolve-tracking/README.md
+// Self-contained, no deps (repo's node-≥23.6 convention). Spec: the intake/resolve-tracking
+// node of the SDD project spec (repo-only).
 
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'

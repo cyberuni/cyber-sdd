@@ -63,6 +63,12 @@ export interface LedgerGate {
 	verdict: string
 }
 
+// The lifecycle enum (lifecycle-governance), mirrored from discover-specs' recognition filter.
+// Discovery *drops* a spec whose status is outside it, so every engine iterating discovered
+// specs skips it silently; this check walks the tree itself, so it is the one place that still
+// sees the file — and must escalate rather than exempt it (a status typo would otherwise remove
+// a spec from all checking with no signal).
+const LIFECYCLE_STATUSES = ['draft', 'approved', 'implemented', 'deprecated']
 const GATES = ['spec', 'impl']
 const VERDICTS = ['approve', 'pause', 'reject']
 const SPEC_TYPES = ['reference', 'behavioral']
@@ -131,6 +137,17 @@ export function checkSpec(slug: string, state: SpecState): string[] {
 	const { status, markerCount, approval } = state
 	const v: string[] = []
 	const tag = (msg: string) => v.push(`${slug}: ${msg}`)
+
+	// The status must be classifiable before anything below it means anything: an
+	// out-of-enum (or absent) status makes every tuple rule below vacuous — the spec
+	// reads as neither approved nor implemented and passes silently, while discovery
+	// has already dropped it from every other engine. Unclassifiable is a failure.
+	if (!LIFECYCLE_STATUSES.includes(status))
+		tag(
+			status === ''
+				? `no lifecycle status in frontmatter — a spec.md must declare status (${LIFECYCLE_STATUSES.join(' | ')}), and one that does not is checked by nothing`
+				: `status "${status}" is not in the lifecycle enum (${LIFECYCLE_STATUSES.join(' | ')}) — discovery drops it, so it is checked by nothing`,
+		)
 
 	// `implemented` is backed by the impl gate's runtime suite run (ADR-0017), not a
 	// stored flag — the static guard here is the recorded approval.impl ratification
@@ -436,8 +453,10 @@ export function filterProseMdInSpecTree(paths: string[]): string[] {
 export interface UseCaseScenarioRefs {
 	hasSection: boolean
 	refs: string[]
-	// Trimmed text of each DATA row whose Scenario cell is non-empty but carries no backtick
-	// reference — a present-but-unparseable row, surfaced as a violation rather than silently dropped.
+	// Trimmed text of each DATA row whose Scenario cell carries no backtick reference —
+	// missing, empty, or present-but-unparseable. Every one is surfaced as a violation
+	// rather than silently dropped: a row that names no scenario is a coverage gap, and
+	// exempting it is the fail-open shape this check exists to close.
 	unparseable: string[]
 }
 
@@ -480,13 +499,15 @@ export function extractUseCaseScenarioRefs(text: string): UseCaseScenarioRefs {
 	const unparseable: string[] = []
 	// data rows start after the header separator (`|---|---|`); stop at the first
 	// non-`|` line, which ends the contiguous table block. A data row whose Scenario
-	// cell is present but carries no backtick reference is collected as unparseable —
-	// never silently skipped, which would fail this coverage check open.
+	// cell carries no backtick reference is collected as unparseable — never silently
+	// skipped, which would fail this coverage check open.
 	for (let i = headerIdx + 2; i < lines.length; i++) {
 		if (!lines[i].trim().startsWith('|')) break
 		const cells = splitTableRow(lines[i])
-		const cell = cells[scenarioIdx]
-		if (!cell) continue
+		// A missing cell (a row shorter than the header) and an empty one are the same
+		// defect as an un-backticked one: the row names no covering scenario. All three
+		// are collected — skipping any of them fails this coverage check open.
+		const cell = cells[scenarioIdx] ?? ''
 		const ref = /`([^`\n]+)`/.exec(cell)
 		if (ref) refs.push(ref[1].trim())
 		else unparseable.push(lines[i].trim())

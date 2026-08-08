@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // classify-edit-class — the structural edit-class classifier for a touched frozen `.feature`
-// (`.agents/specs/sdd/authoring/spec-gate/README.md` — "Structural edit-class classification
-// (freeze integrity)"). Classifies each touched file's change against its committed baseline so
-// the gate can route: additive / no-content-change self-clear; narrowing / mixed take the
-// existing narrowing -> Clearance path. This engine only CLASSIFIES — it fires no verdict and
-// adds no new floor.
+// (the "Structural edit-class classification (freeze integrity)" section of the SDD project spec's
+// `authoring/spec-gate` node, repo-only). Classifies each touched file's change against its
+// committed baseline so the gate can route: additive / no-content-change self-clear; narrowing /
+// mixed take the existing narrowing -> Clearance path. This engine only CLASSIFIES — it fires no
+// verdict and adds no new floor.
 //
 // The classification is STRUCTURAL, never a raw git line-diff. A raw line-diff is fooled by a
 // trailing step orphaned off a frozen scenario onto a newly added adjacent scenario: the orphan

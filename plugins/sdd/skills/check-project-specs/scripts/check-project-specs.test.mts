@@ -4,7 +4,14 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import type { SpecRecord } from '../../discover-specs/scripts/discover-specs.mts'
-import { ENGINES, findCoverageGaps, findRepoRoot, resolveSpecFor } from './check-project-specs.mts'
+import {
+	ENGINES,
+	findCoverageGaps,
+	findDroppedSpecFor,
+	findRepoRoot,
+	main,
+	resolveSpecFor,
+} from './check-project-specs.mts'
 
 function spec(path: string, projectPath: string): SpecRecord {
 	return { path, name: path, nameSource: 'derived', status: 'implemented', projectPath, approvals: '' }
@@ -122,6 +129,91 @@ test('findCoverageGaps does not flag a discovered file that survived the status 
 	const s = [spec('.agents/specs/sdd', 'plugins/sdd')]
 	const gaps = findCoverageGaps('.', ['.agents/specs/sdd/spec.md'], s, withCheck)
 	assert.deepEqual(gaps, [])
+})
+
+// ─── findDroppedSpecFor (#316 — a per-project run must not read a corrupt status as "no spec") ──
+
+const fm = (body: string) => (rel: string) => (rel === '.agents/specs/quill/spec.md' ? body : null)
+
+test('findDroppedSpecFor catches a dropped spec that declares the project by project-path', () => {
+	const dropped = findDroppedSpecFor(
+		['.agents/specs/quill/spec.md'],
+		[],
+		'plugins/quill',
+		fm('---\nstatus: aproved\nproject-path: plugins/quill\n---\n'),
+	)
+	assert.equal(dropped.length, 1)
+	assert.equal(dropped[0]?.file, '.agents/specs/quill/spec.md')
+	assert.equal(dropped[0]?.status, 'aproved')
+})
+
+test('findDroppedSpecFor catches a dropped nested spec by its location, not its frontmatter', () => {
+	// A nested `<project>/.agents/spec/spec.md` names its project by where it sits, so
+	// it is still attributable when the frontmatter is corrupt enough to lose project-path.
+	const dropped = findDroppedSpecFor(
+		['packages/cyberlegion/.agents/spec/spec.md'],
+		[],
+		'packages/cyberlegion',
+		() => '---\nstatus: wip\n---\n',
+	)
+	assert.equal(dropped.length, 1)
+	assert.equal(dropped[0]?.status, 'wip')
+})
+
+test('findDroppedSpecFor reports an empty status for a spec.md with no frontmatter at all', () => {
+	const dropped = findDroppedSpecFor(['packages/x/.agents/spec/spec.md'], [], 'packages/x', () => '# spec\n')
+	assert.equal(dropped.length, 1)
+	assert.equal(dropped[0]?.status, '')
+})
+
+test('findDroppedSpecFor ignores a dropped spec belonging to another project', () => {
+	const dropped = findDroppedSpecFor(
+		['.agents/specs/quill/spec.md'],
+		[],
+		'plugins/sdd',
+		fm('---\nstatus: aproved\nproject-path: plugins/quill\n---\n'),
+	)
+	assert.deepEqual(dropped, [])
+})
+
+test('findDroppedSpecFor ignores a spec that survived the status filter', () => {
+	const s = [spec('.agents/specs/quill', 'plugins/quill')]
+	const dropped = findDroppedSpecFor(
+		files(...s),
+		s,
+		'plugins/quill',
+		fm('---\nstatus: implemented\nproject-path: plugins/quill\n---\n'),
+	)
+	assert.deepEqual(dropped, [])
+})
+
+test('main --project exits non-zero for a project whose only spec has an out-of-enum status', () => {
+	// End to end: before this, resolution reported `none` and the run printed
+	// "no spec governs … — skipped" with exit 0 — the whole project exempted by a typo.
+	const tmp = mkdtempSync(join(tmpdir(), 'cps-'))
+	try {
+		writeFileSync(join(tmp, 'pnpm-workspace.yaml'), 'packages:\n')
+		mkdirSync(join(tmp, '.agents', 'specs', 'thing'), { recursive: true })
+		writeFileSync(
+			join(tmp, '.agents', 'specs', 'thing', 'spec.md'),
+			'---\nstatus: aproved\nproject-path: plugins/thing\n---\n\n# thing\n',
+		)
+		mkdirSync(join(tmp, 'plugins', 'thing'), { recursive: true })
+		assert.equal(main(['--project', join(tmp, 'plugins', 'thing')]), 1)
+	} finally {
+		rmSync(tmp, { recursive: true, force: true })
+	}
+})
+
+test('main --project still skips, exit 0, when the project genuinely has no spec', () => {
+	const tmp = mkdtempSync(join(tmpdir(), 'cps-'))
+	try {
+		writeFileSync(join(tmp, 'pnpm-workspace.yaml'), 'packages:\n')
+		mkdirSync(join(tmp, 'plugins', 'thing'), { recursive: true })
+		assert.equal(main(['--project', join(tmp, 'plugins', 'thing')]), 0)
+	} finally {
+		rmSync(tmp, { recursive: true, force: true })
+	}
 })
 
 // ─── the engine set ───────────────────────────────────────────────────────────

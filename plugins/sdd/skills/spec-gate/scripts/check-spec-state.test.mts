@@ -148,8 +148,37 @@ test('a fully approved-and-implemented spec passes', () => {
 	assert.deepEqual(v, [])
 })
 
-test('a descriptive root with no frontmatter is a no-op (no .feature requirement)', () => {
-	assert.deepEqual(checkSpec('sdd', parseSpecState('# Spec\n\nbody only, no frontmatter\n')), [])
+test('a root with no frontmatter raises the missing-status violation and nothing else', () => {
+	// There is still no .feature requirement on the root (it owns no suite) — but a
+	// spec.md whose status cannot be read is unclassifiable, and unclassifiable escalates.
+	const v = checkSpec('sdd', parseSpecState('# Spec\n\nbody only, no frontmatter\n'))
+	assert.equal(v.length, 1)
+	assert.match(v[0], /no lifecycle status in frontmatter/)
+})
+
+// Scenario: a spec.md whose status is outside the lifecycle enum fails the state check closed
+test('a status outside the lifecycle enum is illegal (#316 — it must not read as a clean draft)', () => {
+	// The fail-open: discovery drops such a spec, so every engine iterating discovered
+	// specs skips it. This check walks the tree itself and is the last thing that sees
+	// the file — reading it as "neither approved nor implemented" exempted it silently.
+	const v = checkSpec('x', state({ status: 'aproved' }))
+	assert.equal(v.length, 1)
+	assert.match(v[0], /status "aproved" is not in the lifecycle enum/)
+})
+
+test('every lifecycle status is accepted', () => {
+	assert.deepEqual(checkSpec('x', state({ status: 'draft' })), [])
+	assert.deepEqual(checkSpec('x', state({ status: 'deprecated' })), [])
+})
+
+test('main --root exits non-zero for a spec whose status is outside the lifecycle enum', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		writeFileSync(join(root, 'spec.md'), '---\nstatus: aproved\nproject-path: plugins/thing\n---\n\n# thing\n')
+		assert.equal(main(['--root', root]), 1)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
 })
 
 // ── project-path (the router index) ──
@@ -659,6 +688,34 @@ test('extractUseCaseScenarioRefs collects a data row whose Scenario cell has no 
 	})
 })
 
+// Scenario: a Use Cases row whose Scenario cell is empty is a coverage gap, not an exemption
+test('extractUseCaseScenarioRefs collects a data row whose Scenario cell is EMPTY (#364)', () => {
+	const text = [
+		'## Use Cases',
+		'',
+		'| Trigger | Scenario |',
+		'|---|---|',
+		'| a happens | `Scenario: a happens and resolves` |',
+		'| b happens |  |', // empty cell — an unlinked use case, must not vanish
+		'',
+	].join('\n')
+	assert.deepEqual(extractUseCaseScenarioRefs(text), {
+		hasSection: true,
+		refs: ['Scenario: a happens and resolves'],
+		unparseable: ['| b happens |  |'],
+	})
+})
+
+test('extractUseCaseScenarioRefs collects a data row with no Scenario cell at all', () => {
+	// A row shorter than the header names no scenario either — same gap, same escalation.
+	const text = ['## Use Cases', '', '| Trigger | Scenario |', '|---|---|', '| b happens |', ''].join('\n')
+	assert.deepEqual(extractUseCaseScenarioRefs(text), {
+		hasSection: true,
+		refs: [],
+		unparseable: ['| b happens |'],
+	})
+})
+
 test('resolveScenarioRef matches an exact Scenario title', () => {
 	const feature = 'Feature: x\n\n  Scenario: a happens and resolves\n    Given a\n    Then b\n'
 	assert.equal(resolveScenarioRef('Scenario: a happens and resolves', feature), true)
@@ -744,6 +801,29 @@ test('checkUseCaseCoverage flags a data row whose Scenario cell has no backtick 
 			'|---|---|',
 			'| a | `Scenario: the real one` |',
 			'| b | the real one but written without backticks |', // present but unparseable — must not vanish
+			'',
+		].join('\n')
+		const v = checkUseCaseCoverage('node', join(root, 'node'), text)
+		assert.equal(v.length, 1)
+		assert.match(v[0], /Use Cases data row has no backtick-wrapped Scenario cell/)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+// Scenario: a Use Cases row whose Scenario cell is empty fails the gate closed
+test('checkUseCaseCoverage flags a data row whose Scenario cell is empty (#364)', () => {
+	const root = mkdtempSync(join(tmpdir(), 'sdd-spec-state-'))
+	try {
+		mkdirSync(join(root, 'node'), { recursive: true })
+		writeFileSync(join(root, 'node', 'node.feature'), 'Feature: x\n\n  Scenario: the real one\n    Then y\n')
+		const text = [
+			'## Use Cases',
+			'',
+			'| Trigger | Scenario |',
+			'|---|---|',
+			'| a | `Scenario: the real one` |',
+			'| b |  |', // an unlinked use case — reported, never skipped
 			'',
 		].join('\n')
 		const v = checkUseCaseCoverage('node', join(root, 'node'), text)

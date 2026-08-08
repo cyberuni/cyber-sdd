@@ -158,10 +158,10 @@ only *where the node genuinely owns the routing decision*, and two different dec
   node's own content, so **the node owns it outright**.
 
 The two look alike in shape and differ only in who decides, so **step form does not classify them**
-and no mechanical check should try (see `.agents/specs/sdd/ssa-lowering/ssa-lowering.feature`, where
-a deletion that read the second case as the first was blocked at the gate and reverted). A
-deterministic, fully-owned decision table that selects *what an already-invoked subject does* is
-conduct, not engagement — it wants `@behavior`.
+and no mechanical check should try (see the frozen suite of the SDD project spec's `ssa-lowering`
+node, repo-only, where a deletion that read the second case as the first was blocked at the gate and
+reverted). A deterministic, fully-owned decision table that selects *what an already-invoked subject
+does* is conduct, not engagement — it wants `@behavior`.
 
 **`@frozen` is the only file-level tag** — it sits on the `Feature`, not a scenario.
 

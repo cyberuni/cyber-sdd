@@ -1,6 +1,6 @@
 {
 	"name": "cyber-sdd",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"type": "module",
 	"bin": {
 		"sdd-check-specs": "./skills/check-project-specs/scripts/check-project-specs.mts"

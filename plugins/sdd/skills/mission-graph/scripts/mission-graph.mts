@@ -19,8 +19,9 @@
 // node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
-import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
+import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 // ── Schema (v:1) ──
 
@@ -1327,4 +1328,6 @@ export function main(argv: string[]): number {
 	return 1
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

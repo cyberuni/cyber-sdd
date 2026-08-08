@@ -25,9 +25,10 @@
 // fresh wire ever adopts it.
 // Pure functions are exported for node:test; running the file directly drives the CLI. No deps.
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export const STATUS_FILE = '.agents/sdd/statusline'
 export const SETTINGS_FILE = '.claude/settings.json'
@@ -273,4 +274,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

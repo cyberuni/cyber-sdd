@@ -18,8 +18,9 @@
 // Default output is TOON (the token-efficient tabular form); --format json for a flat array.
 // --check is the CI guard: exit non-zero iff any leak is found.
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export interface Leak {
 	/** Repo-relative path of the file the leak sits in. */
@@ -142,4 +143,6 @@ export function main(argv: string[]): number {
 	return check && leaks.length > 0 ? 1 : 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

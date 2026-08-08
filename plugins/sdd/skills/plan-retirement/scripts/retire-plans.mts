@@ -39,8 +39,9 @@
 // Pure functions are exported for node:test; running the file directly drives the CLI.
 // No dependencies. Use --dry-run to print the planned deletions without touching the tree.
 
-import { existsSync, readdirSync, readFileSync, unlinkSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 const PLAN_SUFFIX = '.plan.md'
 const LOG_SUFFIX = '.log.jsonl'
@@ -193,4 +194,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

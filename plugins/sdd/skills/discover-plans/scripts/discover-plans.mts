@@ -18,8 +18,9 @@
 // No dependencies (the repo's node-≥23.6 / no-deps convention). --format json for a flat
 // array; default output is TOON (the token-efficient tabular form the gateway scans).
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export const TODO_STATUSES = new Set(['pending', 'in_progress', 'completed'])
 
@@ -209,4 +210,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

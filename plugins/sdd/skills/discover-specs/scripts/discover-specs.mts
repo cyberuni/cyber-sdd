@@ -26,8 +26,9 @@
 // default output is TOON (the token-efficient tabular form the gateway scans). --resolve <name>
 // filters to the exact name matches (0 rows = none, 1 = resolved, >1 = ambiguous).
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export const LIFECYCLE_STATUSES = new Set(['draft', 'approved', 'implemented', 'deprecated'])
 
@@ -393,4 +394,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

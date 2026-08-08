@@ -35,8 +35,9 @@
 // node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
+import { realpathSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
 	collectChangedFiles,
 	fileToNode,
@@ -654,4 +655,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

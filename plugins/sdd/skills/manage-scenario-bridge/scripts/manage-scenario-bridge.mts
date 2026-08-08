@@ -22,8 +22,9 @@
 // Pure functions are exported for node:test; running the file directly drives the CLI. No deps (the
 // repo's node-≥23.6 convention).
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { parseSourcesToml, type SourceConfig } from '../../verify-scenarios/scripts/verify-scenarios.mts'
 
 export type { SourceConfig }
@@ -153,4 +154,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

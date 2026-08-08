@@ -2,8 +2,9 @@
 // Self-contained, no deps (repo's node-≥23.6 convention). Spec: the intake/resolve-tracking
 // node of the SDD project spec (repo-only).
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export type Tracking = 'tracked' | 'ignored'
 
@@ -208,6 +209,6 @@ export function main(argv: string[]): void {
 	process.stdout.write(`reason: ${result.reason}\n`)
 }
 
-if (process.argv[1] && import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
 	main(process.argv.slice(2))
 }

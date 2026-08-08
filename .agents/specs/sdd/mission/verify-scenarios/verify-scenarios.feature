@@ -113,6 +113,33 @@ Feature: The verify-scenarios procedure — bridge frozen scenarios to test repo
     When verify-scenarios folds the run
     Then it is reported as an EXTRA and does not fail the run
 
+  # ── Near-miss binding on a punctuation-only title difference ──
+
+  Scenario: a result whose title differs only by punctuation or whitespace binds to its scenario
+    Given a frozen scenario and an unclaimed result whose titles differ only by punctuation or whitespace
+    When verify-scenarios folds the run
+    Then the scenario binds to that result instead of appearing in both the UNBOUND list and the EXTRA list
+
+  Scenario: a near-miss bind reports both verbatim titles as a probable title mismatch
+    Given a scenario bound to a result on the folded comparison key
+    When verify-scenarios reports the fold
+    Then it names the scenario's verbatim title and the result's verbatim title as a probable title mismatch, rewriting neither
+
+  Scenario: an exact match wins over a punctuation near-miss
+    Given a frozen scenario with both an exactly-matching result and a punctuation-only near-miss result
+    When verify-scenarios folds the run
+    Then it binds the exact match and leaves the near-miss an EXTRA
+
+  Scenario: an ambiguous fold stays UNBOUND rather than binding the wrong result
+    Given a frozen scenario whose folded comparison key matches more than one unclaimed result
+    When verify-scenarios folds the run
+    Then that scenario stays UNBOUND and no near-miss bind is reported
+
+  Scenario: a difference beyond punctuation and whitespace does not bind
+    Given a frozen scenario and a result whose titles differ by a word or by case alone
+    When verify-scenarios folds the run
+    Then that scenario stays UNBOUND and the result stays an EXTRA
+
   # ── Exit status ──
 
   Scenario: the tool exits non-zero when any scenario is UNBOUND or FAIL

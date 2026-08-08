@@ -25,6 +25,7 @@
 
 import * as fs from 'node:fs'
 import * as path from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 // ── types ──
 
@@ -952,4 +953,6 @@ export function main(argv: string[]): number {
 	return outcome.exitCode
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(fs.realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

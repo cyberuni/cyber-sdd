@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // blast-estimate — the concrete engine for blast-estimate's derivation: compute a Mission's BLAST
 // (low/medium/high) from its touch-set + the project corpus instead of trusting the hand-typed guess,
-// then line the computed level up against the declared one (agrees / under-called / over-called). See
-// .agents/specs/sdd/blast-estimate/README.md for the full contract this mirrors.
+// then line the computed level up against the declared one (agrees / under-called / over-called). The
+// blast-estimate node of the SDD project spec (repo-only) carries the full contract this mirrors.
 //
 // Three inputs, each measured — never inferred — from the corpus:
 //   - count       — how many of the touch-set's areas resolve to a known work area

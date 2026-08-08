@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import {
+	comparisonKey,
 	exitCode,
 	foldResults,
 	formatText,
@@ -286,6 +287,122 @@ test('foldResults: a bound result matching no scenario key is reported as an EXT
 	assert.deepEqual(report.extras, ['orphan'])
 	assert.equal(report.fail, 0)
 	assert.equal(report.unbound, 0)
+})
+
+// ── near-miss binding (issue #312) ──
+
+const CURLY = 'the pane’s owner is bound'
+const STRAIGHT = "the pane's owner is bound"
+
+test('foldResults: a title differing only by a curly vs straight apostrophe binds instead of double-listing', () => {
+	const report = foldResults(
+		[{ name: CURLY, key: CURLY }],
+		[{ node: 'node/x', key: STRAIGHT, outcome: 'pass' as const }],
+		'node/x',
+	)
+	assert.equal(report.scenarios[0].state, 'pass')
+	assert.equal(report.unbound, 0)
+	assert.deepEqual(report.extras, [], 'the matched result is no longer an unexplained EXTRA')
+	assert.deepEqual(report.mismatches, [{ key: CURLY, matchedKey: STRAIGHT }])
+})
+
+test('foldResults: a near-miss bind keeps the verbatim scenario key and names the matched test title', () => {
+	const report = foldResults(
+		[{ name: CURLY, key: CURLY }],
+		[{ node: 'node/x', key: STRAIGHT, outcome: 'fail' as const }],
+		'node/x',
+	)
+	assert.equal(report.scenarios[0].name, CURLY, 'the report never rewrites the scenario title')
+	assert.equal(report.scenarios[0].key, CURLY)
+	assert.equal(report.scenarios[0].matchedKey, STRAIGHT)
+	assert.equal(report.scenarios[0].state, 'fail', 'the matched result carries its own outcome')
+	assert.equal(report.scenarios[0].resultCount, 1)
+})
+
+test('foldResults: dash, ellipsis, non-breaking-space, and collapsible-whitespace variants bind', () => {
+	const pairs: [string, string][] = [
+		['a — b', 'a - b'],
+		['it waits…', 'it waits...'],
+		['a\u00A0b', 'a b'],
+		['a  b ', 'a b'],
+	]
+	for (const [scenario, testTitle] of pairs) {
+		const report = foldResults(
+			[{ name: scenario, key: scenario }],
+			[{ node: 'x', key: testTitle, outcome: 'pass' as const }],
+			'x',
+		)
+		assert.equal(report.scenarios[0].state, 'pass', `${scenario} should bind to ${testTitle}`)
+	}
+})
+
+test('foldResults: an exact match wins over a punctuation near-miss', () => {
+	const report = foldResults(
+		[{ name: CURLY, key: CURLY }],
+		[
+			{ node: 'x', key: CURLY, outcome: 'pass' as const },
+			{ node: 'x', key: STRAIGHT, outcome: 'fail' as const },
+		],
+		'x',
+	)
+	assert.equal(report.scenarios[0].state, 'pass')
+	assert.equal(report.scenarios[0].matchedKey, undefined)
+	assert.deepEqual(report.extras, [STRAIGHT], 'the unclaimed near-miss stays an EXTRA')
+	assert.deepEqual(report.mismatches, [])
+})
+
+test('foldResults: an ambiguous fold stays UNBOUND rather than binding arbitrarily', () => {
+	const report = foldResults(
+		[{ name: CURLY, key: CURLY }],
+		[
+			{ node: 'x', key: STRAIGHT, outcome: 'pass' as const },
+			{ node: 'x', key: 'the pane’s owner is bound ', outcome: 'fail' as const },
+		],
+		'x',
+	)
+	assert.equal(report.scenarios[0].state, 'unbound')
+	assert.deepEqual(report.mismatches, [])
+	assert.equal(report.extras.length, 2)
+})
+
+test('foldResults: a genuinely different title is still UNBOUND — normalization does not over-bind', () => {
+	const report = foldResults(
+		[{ name: CURLY, key: CURLY }],
+		[{ node: 'x', key: 'the pane owner is bound', outcome: 'pass' as const }],
+		'x',
+	)
+	assert.equal(report.scenarios[0].state, 'unbound')
+	assert.deepEqual(report.extras, ['the pane owner is bound'])
+	assert.deepEqual(report.mismatches, [])
+})
+
+test('foldResults: a case-only difference does not bind — case is not a punctuation variant', () => {
+	const report = foldResults(
+		[{ name: 'The Pane Is Bound', key: 'The Pane Is Bound' }],
+		[{ node: 'x', key: 'the pane is bound', outcome: 'pass' as const }],
+		'x',
+	)
+	assert.equal(report.scenarios[0].state, 'unbound')
+	assert.deepEqual(report.mismatches, [])
+})
+
+test('comparisonKey folds punctuation and whitespace only, leaving letters and case alone', () => {
+	assert.equal(comparisonKey(CURLY), comparisonKey(STRAIGHT))
+	assert.equal(comparisonKey('a  b '), 'a b')
+	assert.notEqual(comparisonKey('Abc'), comparisonKey('abc'))
+	assert.notEqual(comparisonKey('a b'), comparisonKey('ab'))
+})
+
+test('a near-miss bind is reported in both text and toon output', () => {
+	const report = foldResults(
+		[{ name: CURLY, key: CURLY }],
+		[{ node: 'x', key: STRAIGHT, outcome: 'pass' as const }],
+		'x',
+	)
+	const text = formatText(report)
+	assert.match(text, /PROBABLE TITLE MISMATCH/)
+	assert.ok(text.includes(STRAIGHT))
+	assert.match(formatToon(report), /^mismatches\[1\]\{key,matchedKey\}:/m)
 })
 
 test('foldResults totals: bound = pass + fail, total = feature scenario count', () => {

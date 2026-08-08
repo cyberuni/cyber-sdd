@@ -41,6 +41,7 @@ behaviors:
 | **derive the scenario keys** | the scenario set comes from `gherkin-cli`; a scenario's **key** is its `@id:<slug>` tag if present, else its **verbatim name**; a **Scenario Outline is one key** (its outline name), not one per Examples row |
 | **junit adapter → results** | a testcase binds to the **node** named by its `spec:<node>` name-segment (at any depth); a testcase with no such segment binds to **no node**; the **key** is the leaf's `@id:<slug>` else the leaf verbatim; the **outcome** is fail / skip / pass from the child element; `classname` / `name` are read **by attribute name** and XML-unescaped, and a name carrying a literal `>` is not truncated |
 | **union + fold** | results from **every** configured source are unioned, then folded by `(node, key)` against the scenario set: **UNBOUND** (no result), **PASS** (≥1, none fail), **FAIL** (any fail); a result bound to another node is excluded; a bound key matching no scenario is an **EXTRA**, not a failure |
+| **near-miss binding** | a key with no exact result retries on a **comparison key** folding punctuation (curly quotes/apostrophes, dashes, ellipsis) and whitespace, so a one-character title typo does not land the same scenario in **both** the UNBOUND and EXTRA lists; the bind is reported as a **probable title mismatch** naming both verbatim titles; an exact match wins, case is not folded, and an **ambiguous** fold stays UNBOUND |
 | **the CLI surface** | `--report` bypasses the config for a single ad-hoc junit source; `--run` executes each source's `command` before reading its report (else the existing report is read as-is); output renders as text by default, or `json` / `toon` on request; a missing `--feature` / `--node` prints usage and exits non-zero |
 | **path resolution** | a path argument (`--feature` / `--report` / `--config`, and each source's `reportPath`) resolves **beneath its root** when **relative**, and is used **verbatim** when **absolute** — never double-prefixed |
 | **feature-root vs. bridge-root** | `--feature` resolves beneath `--feature-root` (defaults to `--root` when omitted); `--config`'s default path, `--report`, and every source's `reportPath` always resolve beneath `--root` — a monorepo where the frozen `.feature` and the project's config+report live under different roots (e.g. a repo-root spec corpus alongside a package-rooted project) needs no single root to serve both |
@@ -57,6 +58,10 @@ behaviors:
   outline name so every row folds into that key; a failing row fails the key.
 - **Many-to-one is fine** — two tests binding one key fold PASS only if none fail; a test mapping to
   an already-covered key that is not the canonical rename surfaces as an **EXTRA** (diagnostic).
+- **A punctuation-only near-miss binds** — the comparison is retried on a punctuation- and
+  whitespace-folded key when nothing matches exactly, and the bind is reported as a **probable title
+  mismatch** carrying both verbatim titles. Titles are never rewritten, an exact match wins, and an
+  ambiguous fold stays UNBOUND.
 
 ## Determinism and the write boundary
 

@@ -29,6 +29,13 @@ artifact-type already falls through to SDD defaults).
 - **Many-to-one is fine.** Two tests can bind the same key; the fold is PASS only if none of them
   fail. A test that maps to an already-covered key and isn't the canonical rename shows up as an
   EXTRA (diagnostic, not a failure) — leave it.
+- **A punctuation-only near-miss still binds.** When no result matches a key exactly, the fold
+  retries on a comparison key that folds curly quotes/apostrophes, dashes, and the ellipsis to their
+  ASCII forms and collapses whitespace — so a pasted `’` for a `'` does not land the same scenario in
+  BOTH the UNBOUND list and the EXTRA list with nothing linking them. The bind is reported as a
+  **PROBABLE TITLE MISMATCH** naming both verbatim titles, so the typo still gets fixed. Nothing
+  rewrites a title, an **exact** match always wins, case is **not** folded, and an **ambiguous** fold
+  (two candidates folding alike) stays UNBOUND rather than binding the wrong one.
 
 ## Config schema
 
@@ -76,9 +83,9 @@ node "<skill>/scripts/verify-scenarios.mts" \
 - `--report <xml>` bypasses `--config` entirely — a single ad-hoc junit source, no command.
 - `--run` executes each source's `command` first; without it, existing reports are read as-is.
 - Default output is a readable per-scenario table + a `N/M BOUND, P pass, F fail, U unbound`
-  summary line + any EXTRA keys. `--format json` emits
-  `{node,total,bound,pass,fail,unbound,scenarios[],extras[]}`. `--format toon` emits the repo's
-  TOON tabular form.
+  summary line + any EXTRA keys + any PROBABLE TITLE MISMATCH pairs. `--format json` emits
+  `{node,total,bound,pass,fail,unbound,scenarios[],extras[],mismatches[]}`. `--format toon` emits the
+  repo's TOON tabular form.
 - Exit code is non-zero when any scenario is UNBOUND or FAIL; zero only at full BOUND+PASS.
 
 ## Monorepo rooting — `--feature-root` vs. `--root`

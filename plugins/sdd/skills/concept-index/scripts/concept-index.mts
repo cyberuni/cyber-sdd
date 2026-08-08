@@ -9,8 +9,9 @@
 // reaches the output. No dependencies (the repo's node-≥23.6 / no-deps convention). Pure functions
 // are exported for node:test; running the file directly drives the CLI.
 
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export const BEGIN_MARKER = '<!-- BEGIN generated: by-concept (project-spec/concept-index) -->'
 export const END_MARKER = '<!-- END generated: by-concept -->'
@@ -240,6 +241,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
 	process.exit(main(process.argv.slice(2)))
 }

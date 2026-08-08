@@ -33,8 +33,9 @@
 // Pure functions are exported for node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { type DiffReader, diffFeatures, GitError } from 'gherkin-cli'
 
 // ─── types ────────────────────────────────────────────────────────────────────
@@ -408,4 +409,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

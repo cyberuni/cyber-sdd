@@ -20,6 +20,8 @@
 // node:test; running the file directly drives the CLI.
 
 import { execFileSync } from 'node:child_process'
+import { realpathSync } from 'node:fs'
+import { pathToFileURL } from 'node:url'
 
 /** Below this many usable multi-file commits, a rate would be noise — report, never score. */
 export const DEFAULT_FLOOR = 20
@@ -331,6 +333,6 @@ export function main(argv: string[], context: Context = { readHistory }): number
 	return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
 	process.exit(main(process.argv.slice(2)))
 }

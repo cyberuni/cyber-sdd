@@ -24,8 +24,9 @@
 // No dependencies (the repo's node-≥23.6 / no-deps convention). Pure functions are exported for
 // node:test; running the file directly drives the CLI.
 
-import { existsSync, readdirSync } from 'node:fs'
+import { existsSync, readdirSync, realpathSync } from 'node:fs'
 import { isAbsolute, join, relative } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { type NodeRecord, scanProjectSpec } from '../../check-spec-structure/scripts/check-spec-structure.mts'
 import { classifyFile } from '../../spec-gate/scripts/classify-edit-class.mts'
 
@@ -182,6 +183,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
 	process.exit(main(process.argv.slice(2)))
 }

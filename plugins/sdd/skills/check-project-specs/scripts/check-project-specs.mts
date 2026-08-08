@@ -10,9 +10,9 @@
 // `plugins/cyberfleet` is governed by `.agents/specs/cyberfleet-plugin`.
 
 import { execFileSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
 	collectSpecs,
 	discoverSpecFiles,
@@ -274,4 +274,6 @@ function checkProject(argv: string[]): number {
 	return failed === 0 ? 0 : 1
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

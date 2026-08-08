@@ -26,8 +26,9 @@
 // dependencies (the repo's node-≥23.6 / no-deps convention). Pure functions are exported for
 // node:test; running the file directly drives the CLI.
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.turbo', '.next', 'coverage'])
 export const DEFAULT_MAX_SCENARIOS = 40
@@ -341,6 +342,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
 	process.exit(main(process.argv.slice(2)))
 }

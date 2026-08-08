@@ -46,8 +46,9 @@
 // Pure functions are exported for node:test; running the file directly drives the CLI.
 
 import { execSync } from 'node:child_process'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { parseFeatures } from 'gherkin-cli'
 
 // Resolves a path argument against `--root`: relative paths join beneath root (which defaults to the
@@ -464,4 +465,6 @@ export function main(argv: string[]): number {
 	return exitCode(report)
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

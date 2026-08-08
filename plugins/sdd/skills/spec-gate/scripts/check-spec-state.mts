@@ -35,8 +35,9 @@
 // exported for node:test; running the file directly drives the CLI. No dependencies.
 
 import { execFileSync } from 'node:child_process'
-import { type Dirent, existsSync, readdirSync, readFileSync } from 'node:fs'
+import { type Dirent, existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 export interface GateVerdict {
 	verdict?: string
@@ -631,4 +632,6 @@ export function main(argv: string[]): number {
 	return 0
 }
 
-if (import.meta.main) process.exit(main(process.argv.slice(2)))
+if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {
+	process.exit(main(process.argv.slice(2)))
+}

@@ -5,8 +5,8 @@
 // — and stop at the first rung that classifies the clash HARD (must serialize) vs SOFT (can run in
 // parallel, reconciled by rebase). Plus the shared-thin-file hard→soft downgrade: a file touched by
 // many missions (router/barrel/registry) that would over-serialize gets the region/semantic descent
-// to downgrade, and is flagged as an architectural smell. See
-// .agents/specs/sdd/collision-ladder/README.md for the full contract.
+// to downgrade, and is flagged as an architectural smell. The collision-ladder node of the SDD
+// project spec (repo-only) carries the full contract.
 //
 // Architecture — pure derivation kept apart from IO, on purpose (touch-set-correction.mts's
 // convention it mirrors):

@@ -104,5 +104,5 @@ depth-2 behavior described here.
 when a capability is available, prefer its **warm** unit over a cold one-shot, else fall back to a
 portable cold subagent. context-clear a warm judge (`npx cyberlegion@<version> unit clear <ref>`) to a fresh context before **each** judgment; a warm
 impl-producer builder **keeps** its context across the mission. Reset or tear down every warm unit at
-handoff. Full model: `start-mission`'s "Dispatch transport" note and
-`.agents/specs/sdd/design/harness-spawning.md`.
+handoff. Full model: `start-mission`'s "Dispatch transport" note and the `design/harness-spawning`
+node of the SDD project spec (repo-only).

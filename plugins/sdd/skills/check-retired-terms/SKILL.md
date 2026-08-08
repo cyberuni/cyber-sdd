@@ -20,8 +20,8 @@ already uses for `spec-anchors.toml`.
 It is the corpus-wide, declared-data sibling of `check:metaphor-free`
 (`packages/cyberlegion/src/metaphor-free.ts`): same banned-term / allow-list / exclusion / scope
 shape, but the banned list here is registry data any CR can append to, not a hardcoded package
-charter — see [`../../.agents/specs/sdd/corpus/retired-terms/README.md`](../../../../.agents/specs/sdd/corpus/retired-terms/README.md)
-for the full design rationale.
+charter — the `corpus/retired-terms` node of the SDD project spec (repo-only) carries the full
+design rationale.
 
 ## Registry format
 

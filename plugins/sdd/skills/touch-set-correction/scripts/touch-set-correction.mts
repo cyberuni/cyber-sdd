@@ -4,8 +4,8 @@
 // touch-set (recovered from `git diff base..head`). It composes three tools — `git diff` (changed
 // files), `resolve-governances` (each file's artifact-type, best-effort), and `gherkin-cli diff`
 // (a touched .feature's changed scenarios) — into one three-way split (confirmed / missed /
-// over-declared) plus the corrected touch-set (= the actual touched set). See
-// .agents/specs/sdd/touch-set-correction/README.md for the full contract.
+// over-declared) plus the corrected touch-set (= the actual touched set). The touch-set-correction
+// node of the SDD project spec (repo-only) carries the full contract.
 //
 // Architecture — pure derivation kept apart from IO, on purpose (mission-graph.mts's convention):
 //   - isFeature / fileToNode / reconcile / assembleCorrection are PURE: they take and return plain

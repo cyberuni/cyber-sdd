@@ -6,11 +6,9 @@ region → semantic) to classify the clash **hard** (must serialize) or **soft**
 plus the shared-thin-file **hard→soft downgrade** + smell flag. It reuses the sibling
 [`touch-set-correction`](../touch-set-correction/SKILL.md) composition (`resolve-governances` +
 `gherkin-cli diff`) and adds a `git diff -U0` region source. Built for the Op2 second-bullet of the
-cyberfleet-batch change request; see
-[`.agents/specs/sdd/collision-ladder/README.md`](../../../../.agents/specs/sdd/collision-ladder/README.md)
-for the authoritative behavior description and
-[`collision-ladder.feature`](../../../../.agents/specs/sdd/collision-ladder/collision-ladder.feature)
-for the frozen 18-scenario contract.
+cyberfleet-batch change request; the `collision-ladder` node of the SDD project spec (in the
+cyberplace repository, not shipped in this package) carries the authoritative behavior description
+and the frozen 18-scenario contract.
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
 - **Script:** [`scripts/collision-ladder.mts`](./scripts/collision-ladder.mts)

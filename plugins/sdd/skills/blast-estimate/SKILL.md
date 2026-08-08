@@ -12,8 +12,8 @@ The concrete engine for **blast-estimate** — a read-only derivation that works
 project a Mission could disturb, instead of trusting the hand-typed guess. Given a Mission's
 **touch-set** (the work areas it names) and the project corpus, it computes a **blast** level
 (`low` / `medium` / `high`) from three measured inputs and lines that level up against the Mission's
-hand-typed **declared** blast (`agrees` / `under-called` / `over-called`). See
-`.agents/specs/sdd/blast-estimate/README.md` for the full contract and vocabulary.
+hand-typed **declared** blast (`agrees` / `under-called` / `over-called`). The `blast-estimate` node
+of the SDD project spec (repo-only) carries the full contract and vocabulary.
 
 ## The three inputs
 

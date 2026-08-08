@@ -14,6 +14,5 @@ non-zero. A malformed registry exits non-zero and names the parse error rather t
 clean. Built-in exclusions (the registry, the engine's own source/test, this node's own
 README/`.feature`, every `ledger/` directory, `.agents/plans/`) are always applied and never
 configurable; per-entry `scope` and `allow` narrow further. Read-only; writes nothing. See
-[`SKILL.md`](./SKILL.md) for the full contract and
-[`.agents/specs/sdd/corpus/retired-terms/README.md`](../../../../.agents/specs/sdd/corpus/retired-terms/README.md)
-for the frozen spec. Not user-invocable.
+[`SKILL.md`](./SKILL.md) for the full contract; the `corpus/retired-terms` node of the SDD project
+spec (repo-only) carries the frozen spec. Not user-invocable.

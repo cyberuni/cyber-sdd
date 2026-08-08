@@ -135,7 +135,7 @@ For the `disable-model-invocation` mechanism, run the structural audit and fix a
 finding before presenting the skill:
 
 ```bash
-npx cyberplace@<version> audit validate --path <placement-dir>/<name>   # resolve <version> via: npm view cyberplace version — never @latest
+npx cyberplace@0.2.0 audit validate --path <placement-dir>/<name>   # resolve <version> via: npm view cyberplace version — never @latest
 ```
 
 The `commands/` folder mechanism is not a `SKILL.md` — the audit tool does not apply; check by hand

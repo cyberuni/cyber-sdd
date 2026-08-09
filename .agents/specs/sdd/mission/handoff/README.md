@@ -5,6 +5,8 @@ concept: delivery
 
 # mission/handoff/ — the handoff phase (step 4)
 
+## What
+
 The **handoff phase** of the Mission Loop — step 4. Take step-3's verified result (from
 `../delivery.md`) and land it in the **project-declared delivery shape**. `handoff` is a verb,
 like the other mission phases; the **outcome** is the noun this action produces (a set of
@@ -14,6 +16,26 @@ commits, a PR, a published chapter). The orchestrator that sequences this phase 
 > **This is a single behavioral unit, not an overview** — handoff has no sub-skills; the behavior
 > is enacted by the conductor (the [`conductor`](../conductor/README.md) realization, built in
 > `core-agents`). This spec owns the **behavior + suite** ([`handoff.feature`](./handoff.feature)).
+
+**Non-goals.** It does not **re-verify** (the deliver phase already did, and handoff consumes that
+result); it does not edit the **contract** — it may **relocate** a node, a pure rename, but never
+touches a scenario or a frontmatter field; it raises **no** new hard floor; it does not **retire**
+the mission plan (the doctrine loop deletes it later); it does not **admit** a follow-up to the
+mission graph (it proposes — the graph's single writer admits); and it does not **dispatch** the
+follow-up work it proposes.
+
+**Key terms.**
+
+| Term | Plain meaning |
+|---|---|
+| **delivery shape** | how this kind of project turns a verified result into a durable outcome — commits on `main`, a branch + PR, a deploy, a published chapter. The project declares it **once**; it is never a per-CR choice |
+| **outcome** | the noun handoff produces (the commits, the PR, the release) — `handoff` itself is the verb |
+| **unit of work** | one co-committable change; a cycle spanning several lands as several outcomes, never one blob |
+| **follow-up** | work the mission noticed but held out of scope, carried through record → classify → propose → drain |
+| **blocking / backlog** | the two follow-up classes. `blocking` **contradicts a completion claim the mission already made**; `backlog` is genuinely new territory. The class decides **graph admission**, never whether it is filed |
+| **the drain** | filing outstanding follow-ups to the issue forge — the one stage that can be **refused** |
+| **frozen** | a `.feature` marked `@frozen` — the agreed contract; its content may not be narrowed without Clearance |
+| **touched set** | the nodes this mission changed. Handoff's placement pass and its derived follow-up are both scoped by it |
 
 ## Use Cases
 
@@ -49,6 +71,198 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 | **no new floor** | handoff raises no new mandatory escalation; earlier hard floors already fired |
 | **the plan is kept, not landed, not retired** | the `.plan.md` stays in the PR as scratch, is not landed as a delivery artifact, and is not retired early |
 | **nudge the formation loop** | surface a reminder after landing that a corpus-wide formation pass is due (via `sdd:manage`) — spawn nothing, gate nothing |
+
+### Entry point
+
+Handoff is invoked **one way**: the conductor enters it after the impl gate passes. There is no CLI
+verb and no second caller — the behaviors in the table above are the stages of that single
+invocation, not alternative entry points, so they all enter the one control-flow graph below.
+
+| Trigger | Inputs | Outcome |
+|---|---|---|
+| **the conductor enters handoff** (mission-loop step 4, once the impl gate has passed) | the verified result of deliver: the implementation passed the impl gate, the frozen suite runs green, and the colocated unit suites plus `../../workflows/` are green — plus the mission's touched set, its identified follow-ups, and the project's declared delivery shape | the declared shape's outcome (commits / a branch + PR / a deploy / a chapter), decomposed by unit of work; the source's conditional `status` write-back and a distilled public summary; every follow-up durably recorded and, where a forge exists and filing is permitted, drained to it; the mission's warm units reset; and a one-line formation nudge |
+
+## Control Flow
+
+One graph, entered once. The stages run in order, and the ordering is load-bearing in exactly one
+place — **recording a follow-up precedes any attempt to file it**, so a refused drain cannot lose the
+thread.
+
+```mermaid
+graph TD
+  A[conductor enters handoff with the verified result] --> B{node in its blessed home?}
+  B -- no --> C[relocate by pure rename, freeze preserved, logged]
+  B -- yes --> D[no relocation]
+  C --> E{declared delivery shape}
+  D --> E
+  E -- "commit-to-main" --> F[commit by unit of work onto main]
+  E -- "PR flow" --> G[push a branch, open a pull request]
+  E -- "deploy / chapter" --> H[produce that shape's outcome]
+  F --> I{source closes by reference?}
+  G --> I
+  H --> I
+  I -- yes --> J[write the closing reference into the PR body]
+  I -- no --> K{landed directly on main?}
+  K -- yes --> L[transition the source to done on push]
+  K -- no --> M[no status write-back]
+  J --> N[append the distilled public summary to the source]
+  L --> N
+  M --> N
+  N --> O{artifact whose behavior this mission changed?}
+  O -- no --> Q[the identified follow-ups only]
+  O -- yes --> P{a frozen scenario outside the touched set asserts that behavior?}
+  P -- no --> Q
+  P -- yes --> R[derive one sibling follow-up naming the artifact and those siblings]
+  R --> Q
+  Q --> S[record every follow-up to the ledger shard, before any filing]
+  S --> T{contradicts a completion claim the mission made?}
+  T -- yes --> U[class: blocking, naming the claim]
+  T -- no --> V[class: backlog]
+  U --> W[emit the proposal with its evidence; write no node or edge]
+  V --> W
+  W --> X{an issue forge?}
+  X -- no --> Y[file nothing; the records stand]
+  X -- yes --> Z{filing permitted?}
+  Z -- no --> AA[report the refusal loudly; never report them filed]
+  Z -- yes --> AB{an existing issue matches, open or closed?}
+  AB -- yes --> AC[skip it; file no duplicate]
+  AB -- no --> AD[file one issue per outstanding follow-up]
+  Y --> AE[reset the mission's warm units]
+  AA --> AE
+  AC --> AE
+  AD --> AE
+  AE --> AF[surface the formation nudge; spawn nothing, gate nothing]
+```
+
+A finding that the mission's **own frozen contract** was wrong never enters this graph at all — it is
+an Oracle-lens revert inside the mission, not a follow-up.
+
+## Scenario map
+
+### Land in the project-declared delivery shape
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| declared shape → produce that outcome | a single declared shape | `handoff lands the result in the project's declared shape` |
+| declared shape → produce that outcome | the PR flow | `a PR-flow project lands a branch and a pull request` |
+| declared shape → produce that outcome | commit-to-main | `a commit-to-main project lands commits on main` |
+| consume the verified result → no re-verification, no contract edit | a verified result from deliver | `handoff does not re-verify or touch the contract` |
+
+### Finalize placement (the scoped Warden pass)
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| provisional home ≠ blessed home → relocate | the routing table names a different home | `handoff relocates a provisionally-placed node to its blessed home` |
+| relocate → pure rename, freeze preserved | a frozen .feature among the touched nodes | `relocating a node is a pure rename that preserves freeze` |
+| scope the pass → the touched nodes only | unrelated nodes elsewhere in the project spec | `placement finalization is scoped to the mission's touched nodes` |
+| provisional home = blessed home → no relocation | already in its blessed home | `a correctly-placed node is not relocated` |
+| relocate → log it as a detail-adjustment | a relocation happened | `a relocation is logged and keyed by node name` |
+
+### Nudge the post-mission formation loop
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| landed → nudge, never spawn | the mission landed in the declared shape | `handoff nudges a formation pass after landing, without spawning` |
+
+### Reset the mission's warm units
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| handoff completes → reset or tear down every warm unit | the mission dispatched warm units | `handoff resets the mission's warm units` |
+
+### Decompose by unit of work
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| several units → one outcome per unit | work spanning several units of work | `a multi-unit cycle lands as multiple units` |
+| several units → one outcome per unit | two unrelated concerns in one cycle | `two unrelated concerns are not landed together` |
+
+### Conditional status write-back
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| source closes by reference → write the reference into the PR body | the source supports closing by reference | `a PR-flow handoff writes the source's auto-close reference into the PR` |
+| source does not close by reference → write none | the source does not support it | `a CR with no close-by-reference source gets no closing reference` |
+| the PR merges → the source closes by the merge | a PR whose source closes by reference | `a merged PR closes the source without a separate close` |
+| the PR has not merged → no transition | an unmerged pull request | `an unmerged pull request leaves the source open` |
+| landed on main → transition the source on push | work delivered directly to main | `direct-to-main work transitions the source to done on push` |
+| write the conclusion back → an outward public summary | a completed cycle | `a distilled public summary is written back to the source` |
+| a reported follow-up → a later mission's CR, never one opened here | a follow-up named in the conclusion | `a reported follow-up becomes a new CR` |
+
+### Follow-ups: derive the shared-primitive sibling follow-up
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| a frozen asserter outside the touched set → derive one follow-up | behavior changed; one such asserter | `a frozen assertion outside the touched set yields a derived follow-up` |
+| membership does not vary with where the asserter sits | asserters in the artifact's own folder and in an unrelated one | `where the asserting node sits does not vary the outcome` |
+| behavior unchanged → derive none | a pure rename, with a frozen asserter outside | `a mission that only relocated the artifact derives no follow-up` |
+| every frozen asserter inside the touched set → derive none | behavior changed; all asserters touched | `an artifact whose every frozen asserter this mission touched derives no follow-up` |
+| no frozen asserter outside → derive none | behavior changed; the outside asserters are all unfrozen | `an artifact whose outside asserters are all unfrozen derives no follow-up` |
+| record the derived line → name artifact, sibling, assumption | behavior changed; one frozen asserter outside | `the derived line names the artifact, the sibling, and the assumption at risk` |
+| several at-risk siblings → one line, never one each | behavior changed; three frozen asserters outside | `one line covers an artifact with several at-risk siblings` |
+| classify the derived follow-up → backlog | the mission's claims cover only the artifact it changed | `a derived sibling follow-up on separate territory is classified backlog` |
+| classify the derived follow-up → blocking | the mission claimed no consumer of the superseded behavior remained | `a derived sibling follow-up contradicting a completion claim is classified blocking` |
+| derived and identified follow-ups share one channel | one of each in the same mission | `a derived sibling follow-up travels the same channel as an identified one` |
+| derive → record only, adjudicate nothing | a derived follow-up naming a frozen sibling | `deriving a sibling follow-up adjudicates nothing` |
+
+### Follow-ups: record, unconditionally
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| identified follow-ups → record before any filing is attempted | follow-up work identified at handoff | `every identified follow-up is recorded durably before anything else` |
+| record → needs no permission, no forge, no human | no human present and no issue forge | `recording a follow-up needs no permission, no forge, and no human` |
+| record to the ledger → outlives the mission | a recorded follow-up, the plan retired later | `the follow-up record outlives the mission` |
+
+### Follow-ups: classify as a proposal
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| contradicts a completion claim → blocking, naming the claim | an identified follow-up that contradicts one | `a follow-up contradicting a completion claim is classified blocking` |
+| contradicts no completion claim → backlog | an identified follow-up that contradicts none | `a follow-up on genuinely new territory is classified backlog` |
+| the mission's own frozen contract was wrong → not a follow-up at all | such a finding | `a finding that the frozen contract was wrong is not a follow-up` |
+
+### Follow-ups: propose, never admit
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| emit the proposal → carries its class and its evidence | a follow-up classified blocking | `a classified follow-up is emitted as a proposal carrying its evidence` |
+| propose → write no node and no edge | follow-ups classified for this mission | `handoff never writes the mission graph` |
+| propose → dispatch nothing | a recorded blocking follow-up | `handoff dispatches no follow-up work` |
+| filing an issue → not opening a change request | a filed follow-up issue | `a filed follow-up re-enters SDD only through a later mission` |
+
+### Follow-ups: drain the record to the forge
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| no existing issue matches → file one per follow-up | several follow-ups no open issue covers | `the drain files one issue per unmatched follow-up` |
+| a mixed match set → file only the unmatched | some match existing issues, some do not | `a mixed follow-up set files only the unmatched follow-ups` |
+| the drain is class-agnostic | a blocking follow-up no existing issue covers | `a blocking follow-up is filed like any other` |
+| no issue forge → file nothing, the records stand | a source with no issue forge | `a project with no issue forge files nothing and keeps the record` |
+| the line carries no filed-state → re-derive what is outstanding | a recorded follow-up being drained | `the record carries no filed-state, so a later drain re-derives it` |
+| a closed issue matches → skip it, never re-file | a follow-up whose filed issue has since closed | `a follow-up whose filed issue was later closed is not filed again` |
+
+### Follow-ups: the drain can be refused
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| filing refused → records stand, report loudly | recorded follow-ups and a refused filing | `a refused drain leaves the record standing and fails loudly` |
+| permission granted later → file from the durable record | a drain that was refused | `a refused drain is retryable from the durable record` |
+
+### Follow-ups: the outward-publish floor and the agent-filed marker
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| compose the issue body → self-contained, no internal reference | a follow-up to be filed | `a filed follow-up body meets the outward-publish floor` |
+| the outward floor is stricter than the committed-record floor | a repo-relative reference the committed floor permits | `the outward floor excludes a reference the committed-record floor permits` |
+| file the issue → carry the agent-filed marker and the mission | an issue created for a follow-up | `a filed follow-up is marked as agent-filed` |
+
+### No new floor, and the plan
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| handoff lands → raises no new mandatory escalation | a change-class already cleared earlier in the loop | `handoff introduces no new mandatory escalation` |
+| the plan → kept as scratch, not landed as a delivery artifact | the plan committed with the work | `the plan is kept in the delivery but not landed as a delivery artifact` |
+| the plan → not retired here | a completed handoff | `handoff does not retire the plan early` |
 
 ## Inputs
 

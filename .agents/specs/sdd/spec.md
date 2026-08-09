@@ -4,13 +4,13 @@ project-path: plugins/sdd
 approval:
   spec:
     verdict: approve
-    by: unional
+    by: agent
     cause: dimension
     why:
-      floor: none — the CR is purely additive: one new node under `corpus/`, no existing scenario narrowed, no `@frozen` file touched, so no Clearance is owed
-      blast: medium — a new behavioral node plus a verify-time check that, once implemented, gates every future push in this repo; the contract also introduces a new declared repo config file (`.agents/sdd/retired-terms.toml`)
-      novelty: high — a new mechanical guard class (a declared retired-term registry sweeping the whole tracked tree) and a standing vocabulary boundary the corpus did not previously carry; the design's fail-loud-on-malformed-registry choice deliberately inverts `corpus/discovery`'s fall-back behavior
-      confidence: high — three cold spec-judge rounds converging to ALIGNED on oracle/builder/architect. Round 2's builder FAIL was a real hole (the node's own defining document would have self-fired once tracked, a trap the cited `metaphor-free` precedent had already closed) and was fixed as a rule rather than a patch. The judge independently re-ran the over-fire spike against the live tree, recounted every bucket by hand, and confirmed both the `motive-model` carve-out and the genuine `plugins/aced/readme.md` survivor. `pnpm verify` 35/35; `check:spec` 6/6
+      floor: none — the CR's net diff against `main` is ADDITIVE (8 added / 0 modified / 0 removed, confirmed mechanically by `classify-edit-class`), so the already-`@frozen` `handoff.feature` self-clears and stays frozen; nothing narrowed, no Clearance owed. The in-CR retraction of the superseded round-2 draft is invisible in the net diff and touched no agreed contract — `main` carries none of those 11 scenarios, they were pure additions on this branch, never gated, never a ledger line
+      blast: low — one behavioral node's follow-up subsection (`mission/handoff/`) plus additive scenarios on its own suite. It reuses the existing follow-up channel end to end (record / classify / propose / drain unchanged), adds no stage, no class, no second channel, and no mechanical check. Two adjacent questions are held OUT of scope precisely to keep the blast here: where the declared vocabulary is stored, and the sweep engine itself — pulling either in would make this an engine CR past `auto-spec`
+      novelty: low — a ratified doctrine KEEP (retro row CR-6, cyberlegion `strategy.dae416` seq:1), codification only. Option C reuses CR-5's shipped pattern (a declared registry plus a corpus-wide sweep over tracked files) rather than inventing a mechanism; same plumbing, different trigger
+      confidence: high — cold `sdd-spec-judge` returned ALIGNED true with oracle/builder/architect all PASS, no blocker, no failing scenario, no content gap. The judge ran the miss test per scenario and named a plausible losing wrong subject for all 8; checked pairwise consistency against all 44 standing scenarios, including the classify triad that shares the classify `When`; and re-verified the rule's soundness against REAL corpus data rather than the plan's account (commit `55863653` and a live grep of the cyberlegion spec tree still showing the term in three frozen suites). Two earlier rounds were blocked and their rules struck by Council, so this is round 1 on the ruled rule, not round 3 on one rule. The fold bar is met: closed form stated before the CFG, each conjunct its own decision node, four guard scenarios each broken by a distinct mutation, and the no-term negative as the safety dual. `check:spec` 6/6, `pnpm verify` 35/35
   impl:
     verdict: approve
     by: unional

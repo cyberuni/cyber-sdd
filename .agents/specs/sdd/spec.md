@@ -4,7 +4,7 @@ project-path: plugins/sdd
 approval:
   spec:
     verdict: approve
-    by: agent
+    by: unional
     cause: dimension
     why:
       floor: none — the CR's net diff against `main` is ADDITIVE (8 added / 0 modified / 0 removed, confirmed mechanically by `classify-edit-class`), so the already-`@frozen` `handoff.feature` self-clears and stays frozen; nothing narrowed, no Clearance owed. The in-CR retraction of the superseded round-2 draft is invisible in the net diff and touched no agreed contract — `main` carries none of those 11 scenarios, they were pure additions on this branch, never gated, never a ledger line

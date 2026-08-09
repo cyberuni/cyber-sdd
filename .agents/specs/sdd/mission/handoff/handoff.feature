@@ -128,6 +128,71 @@ Feature: The handoff phase — land the verified result in the declared delivery
     When the follow-up is filed
     Then it re-enters SDD as a new change request
 
+  # ---- Follow-ups: the shared-primitive sibling follow-up ----
+
+  Scenario: a frozen suite outside the touched set carrying a declared term yields a sibling follow-up
+    Given a mission that changed the behavior of the shared rate-limit primitive
+    And the project declares that primitive owns the term "token-bucket"
+    And a spec node outside the mission's touched set whose frozen suite uses "token-bucket"
+    When handoff processes the follow-ups
+    Then a followup line naming the rate-limit primitive is appended to the CR's own ledger shard
+    And that line names the spec node by its stable name
+    And that line names "token-bucket" as the term that put the node at risk
+
+  Scenario: a declared term no suite outside the touched set carries yields no sibling follow-up
+    Given a mission that changed the behavior of the shared rate-limit primitive
+    And the project declares that primitive owns the term "token-bucket"
+    And one frozen spec node outside the mission's touched set, whose suite calls the capability "the request budget"
+    And the mission's only identified follow-up is about the release notes
+    When handoff processes the follow-ups
+    Then no followup line naming the rate-limit primitive is appended
+
+  Scenario: a declared term carried only inside the touched set yields no sibling follow-up
+    Given a mission that changed the behavior of the shared rate-limit primitive
+    And the project declares that primitive owns the term "token-bucket"
+    And one frozen spec node using "token-bucket", inside the mission's touched set
+    And the mission's only identified follow-up is about the release notes
+    When handoff processes the follow-ups
+    Then no followup line naming the rate-limit primitive is appended
+
+  Scenario: a declared term carried outside the touched set by an unfrozen suite yields no sibling follow-up
+    Given a mission that changed the behavior of the shared rate-limit primitive
+    And the project declares that primitive owns the term "token-bucket"
+    And one spec node outside the mission's touched set using "token-bucket" in a suite whose Feature carries no @frozen tag
+    And the mission's only identified follow-up is about the release notes
+    When handoff processes the follow-ups
+    Then no followup line naming the rate-limit primitive is appended
+
+  Scenario: a mission that only relocated the primitive yields no sibling follow-up
+    Given a mission that renamed the shared rate-limit primitive with no change to its behavior
+    And the project declares that primitive owns the term "token-bucket"
+    And a spec node outside the mission's touched set whose frozen suite uses "token-bucket"
+    And the mission's only identified follow-up is about the release notes
+    When handoff processes the follow-ups
+    Then no followup line naming the rate-limit primitive is appended
+
+  Scenario: several at-risk siblings yield one follow-up naming them all
+    Given a mission that changed the behavior of the shared rate-limit primitive
+    And the project declares that primitive owns the term "token-bucket"
+    And three spec nodes outside the mission's touched set whose frozen suites use "token-bucket"
+    When handoff processes the follow-ups
+    Then one followup line is appended for the rate-limit primitive
+    And that line names all three of those spec nodes
+
+  Scenario: a sibling follow-up is classified by the same test as one the mission identified
+    Given a sibling follow-up handoff identified for the shared rate-limit primitive
+    And a follow-up the mission identified about the release notes
+    And the mission's completion claims cover only the rate-limit primitive's own node
+    When handoff classifies the follow-ups
+    Then both followup lines carry the backlog classification
+
+  Scenario: identifying a sibling follow-up adjudicates nothing
+    Given a sibling follow-up handoff identified, naming a frozen spec node
+    When handoff completes
+    Then that node's suite is unchanged
+    And handoff spawns no Warden pass for it
+    And the landing is not withheld pending a verdict about that node
+
   # ---- Follow-ups: record, unconditionally ----
 
   Scenario: every identified follow-up is recorded durably before anything else

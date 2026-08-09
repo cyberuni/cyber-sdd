@@ -1,6 +1,13 @@
 {
 	"name": "cyber-sdd",
 	"version": "0.1.0",
+	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cyberuni/cyberplace.git",
+		"directory": "plugins/sdd"
+	},
+	"license": "MIT",
 	"type": "module",
 	"bin": {
 		"sdd-check-specs": "./skills/check-project-specs/scripts/check-project-specs.mts"

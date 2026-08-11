@@ -23,9 +23,16 @@ suite delta, it does not receive it.
 `../spec-gate/`); it does not write the control frontmatter (`status` / `project-path` /
 `approval` / `produced-by`).
 
-The procedure runs in one of **three modes** — the distinct ways it is invoked. The **actor** is the
-same in all three: the **conductor**, running the spec-producer role inline (or a plugin producer
-resolved for the domain). What differs is the goal it arrives with.
+**Actors.** The **conductor** invokes this procedure in all three modes, running the spec-producer
+role inline (or a plugin producer resolved for the domain). Three parties are affected by its output
+without invoking it: the **cold spec-judge**, which grades what this procedure wrote; the
+**impl-producer**, which builds against the suite it authored; and the **human reviewer** at the
+gate, who reads the prose it enriched. None of the three has a use case here — they hold no goal
+this capability serves — and they are listed because the enumeration closes both ways
+(`../spec-format/README.md`), not because a party must own a row.
+
+The procedure runs in one of **three modes** — the distinct ways the conductor invokes it. What
+differs is the goal it arrives with.
 
 | Use case | Goal (what the conductor wants) | Trigger | Inputs | Outcome |
 |---|---|---|---|---|
@@ -86,12 +93,19 @@ Phase 1 — the prose:
 - **Use cases** — is each trigger, input, and outcome still accurate? Did the change add, remove,
   or alter an entry point? Beyond the surface, a use case carries an **actor and goal** and its
   **extensions** (`../spec-format/README.md`):
-  - **Find the use case, do not derive it from the interface.** Deriving it from the surface
-    reproduces the surface and calls it a requirement. Ask who invokes it, what they were doing
-    beforehand, and what outcome they wanted. Where the answer restates the mechanism ("the caller
+  - **Enumerate by actor, never by entry point** (`../spec-format/README.md` owns the ordering).
+    Walking the interface returns only the use cases it already implies and is blind to the one
+    nobody built. **List the actors first** — everyone who reaches the capability, plus whoever is
+    affected by its outcome without invoking it (the reviewer, the on-call, the next agent).
+    **Then per actor name the goals** they arrive with — their result, not the call they make.
+    **Then map goals to entry points**, reporting both mismatches: a goal no entry point serves is
+    a way in the capability lacks or a goal another node owns; an entry point no listed goal
+    reaches is surface nobody asked for. Where a goal only restates the mechanism ("the caller
     wants to call it"), the function has been renamed, not a use case found — raise a
     `CONTENT_GAP`. **Never invent a plausible actor to fill the field**: a fabricated actor reads
-    as grounding and is unfalsifiable, which is strictly worse than an honest gap.
+    as grounding and is unfalsifiable, which is strictly worse than an honest gap. On **backfill**
+    the source yields only the *served* use cases by construction — seek the unserved ones in the
+    request history and recurring workarounds, and never report an inferred set as complete.
   - **Enumerate the extensions.** Walk each use case for **any path from its trigger that does not
     reach its success outcome** — that criterion decides membership. The recurring kinds (the
     refusal, the error, the boundary, the partial result, the contended or absent input) are a
@@ -114,9 +128,11 @@ Phase 1 — the prose:
     reaches every stated extension, amend neither side: the check found nothing, and rewriting what
     it cleared manufactures churn. On a node with no CFG the
     check is vacuous.
-  - Each stated extension and each forbidden combination is a stated outcome, so each takes its own
-    scenario in Phase 2 — a divergence named only in prose is the coverage hole the extensions field
-    exists to expose.
+  - A stated extension earns its scenario **by being a path in the CFG**, never by being drawn from
+    the prose — the graph is the single source scenarios derive from, and a suite drawn from a
+    stated list is 1:1 with that list by construction and can no longer surface a hole. Route a
+    divergence covered nowhere back through the graph; the standing 1:1 edge coverage then supplies
+    the scenario. A forbidden combination is the same rule in guard form.
 - **Design decisions** — does any decision now contradict the change, a sibling capability, or
   a governance? Reconcile stale terms and claims **toward the correct answer, not the popular
   one**: when two statements conflict, zoom out and reason about which is actually right given

@@ -18,6 +18,20 @@ It is coarse-grained by design — one use case per distinct way the capability 
 
 Each use case is named to the surface that implements it — a CLI verb, a public function, an endpoint — so the spec, the suite, and the code share one structure and a change to one of them stays local.
 
+## Finding them: start from actors, not from the interface
+
+The order matters more than the format. If you walk the interface and ask who calls each entry point, you can only get back the use cases the interface already implies — you reproduce the surface and call it a requirement, and you stay blind to the use case nobody has built yet.
+
+So go the other way round:
+
+1. **List the actors.** Everyone who reaches the capability — people in a role, sibling capabilities, schedulers — **and** everyone affected by its outcome without invoking it: the reviewer, the person on call, the next step in a chain. That second group are stakeholders rather than actors, and they are where a missed use case usually hides.
+2. **Per actor, name the goals** they arrive with.
+3. **Then map goals to entry points.** Two mismatches are worth more than the matches: a goal no entry point serves is either a way in the capability is missing or a goal that belongs somewhere else, and an entry point no goal reaches is surface nobody asked for.
+
+The result is checkable in both directions: an actor carrying no use case is a hole, and so is a use case whose actor is not on the list.
+
+If the capability already exists and you are writing the spec after the fact, remember that the code can only tell you the use cases it **already serves**. The ones it does not serve have to come from somewhere else — what people asked for, what they worked around.
+
 ## Actor and goal
 
 Write both as **one line each**. This is not a persona: no name, no backstory, no motivation paragraph.
@@ -52,7 +66,13 @@ An **extension** is any path from the trigger that does not reach the success ou
 
 If you believe a use case genuinely has none of these, say so in the spec: write `extensions: none — <why>`. That is a real claim about the capability, and writing it down lets a reviewer disagree with it at the gate. Leaving the field off makes the same claim silently, where nobody can argue with it.
 
-The cost of this is a longer `## Use Cases` section and a longer `.feature`, because [each stated extension takes its own scenario](/sdd/scenario/) alongside the happy path. That is the trade: you pay in spec length for the error and boundary behavior being designed before it is discovered in production.
+Extensions are a **discovery instrument, not a second specification**. Their job is to make the control-flow graph complete. A graph drawn from an implementation can only reproduce what the code already does — it can never tell you a branch is *missing*. Asking what can go wrong for this actor is what finds it.
+
+So an extension you find belongs in the graph as a path, and the [scenarios still come from the graph](/sdd/scenario/), never from the list you just wrote. That direction matters: a suite derived from a written list is complete against that list by construction, so it can no longer surface a gap — which is the whole reason the graph exists.
+
+This also means a use case is **not** one-to-one with a scenario. One extension may need several scenarios when several paths reach it, and several extensions may converge on one.
+
+The cost is a longer `## Use Cases` section and a longer `.feature`. That is the trade: you pay in spec length for the error and boundary behavior being designed before it is discovered in production.
 
 ## A worked example
 

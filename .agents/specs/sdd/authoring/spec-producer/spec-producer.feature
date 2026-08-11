@@ -80,6 +80,41 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     When the spec-producer authors the suite
     Then the suite carries a scenario asserting the combination is refused
 
+  Scenario: backfill treats a standing suite that disagrees with source as a claim to verify
+    Given a backfill whose standing scenarios disagree with what the source does
+    When the spec-producer derives the suite
+    Then it re-derives the scenarios from the control-flow graph drawn from the source
+    And it does not carry the disagreeing standing scenarios forward unverified
+
+  Scenario: an act leaving no observable trace gains the record rather than losing the scenario
+    Given a backfill whose source performs an act that writes no artifact a verifier could read
+    When the spec-producer specifies that act
+    Then it specifies the record the act must leave
+    And it retains the act in the suite
+
+  Scenario: a judge verdict scopes the pass to what failed
+    Given a prior spec-judge verdict naming some scenarios failing and leaving others passing
+    When the spec-producer runs the revision pass
+    Then it revises the scenarios and sections the verdict named
+    And it leaves the passing scenarios unrevised
+
+  Scenario: a stated divergence the drawn graph cannot reach is caught before returning
+    Given a node whose control-flow graph contains no path to a divergence its use case states
+    When the spec-producer checks its extensions against that graph
+    Then it reports the stated divergence as unreachable in the graph
+    And it does not report complete while that divergence has no path
+
+  Scenario: a divergence the drawn graph reaches is carried without amendment
+    Given a node whose control-flow graph contains a path to every divergence its use cases state
+    When the spec-producer checks its extensions against that graph
+    Then it reports no unreachable divergence
+    And it amends neither the graph nor the stated extensions
+
+  Scenario: a node carrying no control-flow graph raises no unreachable-divergence finding
+    Given a node that carries no control-flow graph
+    When the spec-producer checks its extensions against that graph
+    Then it raises no unreachable-divergence finding
+
   Scenario: a capability with one entry point and no optional elements records the trace in a line
     Given a capability exposing one entry point and no optional elements
     When the spec-producer writes the surface trace

@@ -63,9 +63,10 @@ orphan-detection one level up. A capability with **one** entry point and **no** 
 records the trace in a line: the obligation is that nothing on the surface is unaccounted for,
 never that a table exists.
 
-The relationship is **one-to-many**: each use case is covered by one-or-more scenarios — the happy
-path, the negative mirror, the boundary, **and one per stated extension** (that list is the usual
-set, not a ceiling). A scenario with no use case is an orphan test; a use case with no
+The relationship is **one-to-many**: each use case is covered by one-or-more scenarios. Those
+scenarios are derived from the **CFG**, never from this section — a stated extension earns its
+scenario by being a path in the graph (`../../common-governances/builder/README.md`), so the happy
+path, the negative mirror and the boundary all arrive as edges. A scenario with no use case is an orphan test; a use case with no
 scenarios is unverified intent. The spec-producer writes the section and covers each use case; the
 spec-judge checks the section exists and the mapping holds.
 

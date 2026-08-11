@@ -27,9 +27,11 @@ suite delta, it does not receive it.
 role inline (or a plugin producer resolved for the domain). Three parties are affected by its output
 without invoking it: the **cold spec-judge**, which grades what this procedure wrote; the
 **impl-producer**, which builds against the suite it authored; and the **human reviewer** at the
-gate, who reads the prose it enriched. None of the three has a use case here — they hold no goal
-this capability serves — and they are listed because the enumeration closes both ways
-(`../spec-format/README.md`), not because a party must own a row.
+gate, who reads the prose it enriched. None of the three **invokes** this procedure, so none owns a
+use case row. Their interests are real but are served *through* the existing use cases' outcomes
+rather than by a way in of their own — the reviewer's legibility, for instance, is the enrichment
+outcome the three modes already produce. They are listed because the enumeration closes both ways
+(`../spec-format/README.md`), not because every listed party must own a row.
 
 The procedure runs in one of **three modes** — the distinct ways the conductor invokes it. What
 differs is the goal it arrives with.

@@ -37,11 +37,16 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then each use case names the actor that invokes it and the outcome that actor wants
     And no use case states its goal as the operation the signature performs
 
-  Scenario: the use cases are enumerated from the actors, not from the entry points
-    Given a capability whose interface is already written and whose actors are not yet listed
+  Scenario: an actor the written interface does not reveal is still enumerated
+    Given a capability whose interface is already written
+    And a party that reaches the capability which no entry point signature reveals
     When the spec-producer authors the use cases section
-    Then it lists the actors before mapping any goal to an entry point
-    And every use case it writes names an actor from that list
+    Then that party appears in the actor list
+
+  Scenario: every use case names an actor the enumeration listed
+    Given an authored use cases section listing the actors that reach the capability
+    When the spec-producer writes the use cases
+    Then every use case names an actor from that list
 
   Scenario: whoever is affected by an outcome without invoking it is listed too
     Given a capability whose result is acted on by a party that never invokes it

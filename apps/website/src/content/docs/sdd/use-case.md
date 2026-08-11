@@ -118,7 +118,7 @@ Degenerate cases stay cheap. A capability with **one** entry point and **no** op
 
 Use cases live in **`spec.md`**, in a dedicated `## Use Cases` section. It is part of the design a human reviews at the gate — the high-altitude account of who invokes the capability, how, and what happens when the ordinary path does not hold.
 
-A use case with no [scenarios](/sdd/scenario/) is unverified intent: a doorway with no proof anything happens once you walk through it. The relationship is **one-to-many** — one use case is verified by one or more scenarios, covering the happy path, the negative mirror, the boundary, and each extension you stated.
+A use case with no [scenarios](/sdd/scenario/) is unverified intent: a doorway with no proof anything happens once you walk through it. The relationship is **one-to-many** — one use case is verified by one or more scenarios. Those scenarios are drawn from the control-flow graph rather than from this section, which is why the extensions you find have to reach the graph first.
 
 ## Use case vs scenario
 

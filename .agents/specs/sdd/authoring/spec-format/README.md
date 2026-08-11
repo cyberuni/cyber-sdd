@@ -37,6 +37,17 @@ a table cannot hold, then list the use cases:
 - **Non-goals** — one line on what the spec deliberately excludes, wherever the boundary isn't
   self-evident.
 
+**Enumerate by actor, never by entry point.** Walking the interface and asking who calls each entry
+point returns only the use cases that interface already implies — it reproduces the surface and is
+blind to the use case nobody built. So the section is derived the other way round: **list the
+actors** (everyone who reaches the capability, plus whoever is affected by its outcome without
+invoking it), **name each actor's goals**, then **map goals to entry points** and report both
+mismatches — a goal no entry point serves, and an entry point no listed goal reaches. The
+enumeration **closes both ways**: an actor carrying no use case, and a use case whose actor is
+absent from the list, are each a hole. On a backfill, source yields only the *served* use cases by
+construction; the unserved ones come from the request history and recurring workarounds, and an
+inferred set is never reported as complete.
+
 A **use case** is coarse-grained — one per distinct way the subject is invoked — and carries four
 parts: **actor / goal**, its **entry point** (trigger / inputs / outcome, as a table, prose, or EARS
 templates; whichever reads best), and its **extensions**. A use case is **not** a scenario: a use

@@ -5,7 +5,7 @@ description: A scenario is a boolean acceptance assertion — Given/When/Then, p
 
 A **scenario** is a *boolean assertion*. `Given` / `When` / `Then` — pass or fail. It answers one question: **given this exact situation, does it do that — yes or no?**
 
-It is fine-grained and testable. Where a [use case](/sdd/use-case/) describes an entry-point, a scenario proves one observable behavior reachable through it.
+It is fine-grained and testable. Where a [use case](/sdd/use-case/) describes an actor, their goal, the way in, and everything else that can happen, a scenario proves one observable behavior — and it is drawn from the capability's control-flow graph, not from the use-case prose.
 
 ## What a scenario looks like
 
@@ -30,4 +30,6 @@ Scenarios live in the **`.feature`**, never in `spec.md`. They trace the workflo
 
 ## Scenario vs use case
 
-A scenario is *fine* and lives in the `.feature`; a [use case](/sdd/use-case/) is *coarse* and lives in `spec.md`. The relationship is **one-to-many**: one use case is verified by one or more scenarios. A scenario with no use case is an orphan test — it asserts a behavior nobody entered through.
+A scenario is *fine* and lives in the `.feature`; a [use case](/sdd/use-case/) is *coarse* and lives in `spec.md`. The relationship is **one-to-many**: one use case is verified by one or more scenarios, and it is never one-to-one — one of a use case's extensions may need several scenarios where several paths reach it, and several extensions may converge on one.
+
+Scenarios come from the **control-flow graph**, never from the use-case prose. That direction is load-bearing: a suite derived from a written list is complete against that list by construction, so it can no longer surface a gap. A scenario with no use case is an orphan test — it asserts a behavior nobody entered through.

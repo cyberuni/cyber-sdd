@@ -107,13 +107,13 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     And the control-flow graph contains no path to that divergence
     When the spec-producer authors the suite
     Then it adds the path to the control-flow graph
-    And it draws that divergence's scenario from the graph rather than from the stated list
+    And the scenario map binds that divergence's scenario to the added path
 
   Scenario: a stated forbidden combination is carried as a guard the graph decides
     Given a surface trace naming two options as a forbidden combination
     When the spec-producer authors the suite
     Then the control-flow graph carries the decision that refuses the pair
-    And the scenario asserting the refusal is drawn from that guard's edge
+    And the scenario map binds the refusal scenario to that guard's edge
 
   Scenario: backfill treats a standing suite that disagrees with source as a claim to verify
     Given a backfill whose standing scenarios disagree with what the source does

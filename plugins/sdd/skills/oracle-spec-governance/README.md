@@ -4,7 +4,10 @@ This is an internal SDD governance about scope and the kill-or-ship call at the 
 
 Before a capability's spec is approved, someone has to ask the uncomfortable questions: is this one
 thing or two things glued together? Is it worth building at all? Does every scenario in its suite
-actually belong to it? This governance is that question list — the **Oracle** bar. It judges the
+actually belong to it? Are the **actors enumerated**, and does that enumeration close both ways — no
+actor without a use case, no use case without a listed actor? Is every element the capability
+**exposes** bought by a use case, or unbought scope to cut? This governance is that question list —
+the **Oracle** bar. It judges the
 **capability itself**, read from its spec and suite together — not how the document is written,
 which is a different bar (`spec-format-governance`).
 

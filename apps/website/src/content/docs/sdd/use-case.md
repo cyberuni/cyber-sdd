@@ -14,7 +14,7 @@ It is coarse-grained by design — one use case per distinct way the capability 
 | **Actor** | Who or what invokes this? |
 | **Goal** | What outcome do *they* want? |
 | **Entry point** | What triggers it, with what inputs, producing what? |
-| **Extensions** | What else can happen — the refusal, the error, the boundary, the partial result? |
+| **Extensions** | What else can happen — every path that does not reach the success outcome? |
 
 Each use case is named to the surface that implements it — a CLI verb, a public function, an endpoint — so the spec, the suite, and the code share one structure and a change to one of them stays local.
 

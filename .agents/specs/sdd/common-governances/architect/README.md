@@ -17,7 +17,10 @@ spec/solution at the spec gate, the implementation at the impl gate — so it sh
   actor governances; a plugin may bind its own per artifact-type —
   `../../design/governance-resolution.md`).
 - **Contract surface** — structural fit: no duplication, no conflict with conventions / module
-  boundaries / an existing spec's contract; at the impl gate also contained complexity.
+  boundaries / an existing spec's contract; at the impl gate also contained complexity. The CFG
+  **reaches every stated extension** — an extension with no edge is a dangling branch read from the
+  prose side, and a forbidden combination with no guard is unenforceable
+  (`../../authoring/spec-format/README.md`).
 - **Conformance** — `architect-spec` is self-aligned by the **solution-producer** (forward, on the
   ungated `<unit>.solution.md`) and graded by the **cold spec-judge** (backward); `architect-impl`
   is self-aligned by the **impl-producer** and graded by the **impl-judge**. Faces merged per gate,

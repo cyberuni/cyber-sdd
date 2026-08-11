@@ -24,6 +24,13 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
   stated in **closed form** (single-condition folds may be by example — demanding closed form of one
   is over-firing), and its coverage is backed by a **mutation sweep** and a **safety dual**
   (`sdd:suite-format-governance`).
+- **Every stated extension has a scenario.** A use case's **extensions** — the divergences it names,
+  each with its cause and outcome (`sdd:spec-format-governance`) — are stated outcomes, so each
+  carries at least one scenario; an extension named in prose and covered nowhere is unverified
+  intent. A use case declaring `extensions: none` asserts nothing can diverge: judge that claim,
+  and where a divergence is reachable, the missing extension is a coverage hole in the spec before
+  it is one in the suite. A **forbidden combination** of surface elements is likewise a stated
+  outcome — it needs the scenario that proves it is refused, not only the prose that names it.
 - **Every scenario is testable.** Each asserts an observable outcome a check can confirm — a boolean,
   no "sometimes". A behavior the capability cannot expose cannot be specced.
 - **A graded subject is still a boolean.** For a non-deterministic capability the contract reaches a
@@ -40,9 +47,12 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
 
 1. **Every branch of the capability is covered** — every edge has its scenario, guards paired with
    positives, the scenario map 1:1.
-2. **Every scenario is testable** — an observable boolean outcome; behavior the capability cannot
+2. **Every stated extension has a scenario** — a divergence named in prose and covered nowhere is
+   unverified intent; `extensions: none` is a claim to judge, not a field to accept; a forbidden
+   combination needs the scenario proving the refusal.
+3. **Every scenario is testable** — an observable boolean outcome; behavior the capability cannot
    expose cannot be specced.
-3. **A graded subject still reaches a per-scenario boolean** via rubric + threshold; the rubric stays
+4. **A graded subject still reaches a per-scenario boolean** via rubric + threshold; the rubric stays
    out of the `.feature`.
-4. **A dimension or cut is grounded on non-author evidence** — a measurement justifying it must be not
+5. **A dimension or cut is grounded on non-author evidence** — a measurement justifying it must be not
    solely the author's own (canonical standard: `sdd:doctrine-loop`); the cold-instrument doctrine.

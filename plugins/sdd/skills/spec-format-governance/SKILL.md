@@ -20,12 +20,40 @@ deliberately excludes). One or two short paragraphs; add a **Key terms** glossar
 jargon. Legible to a non-engineer.
 
 ### `## Use Cases`
-The **entry points** — one row per distinct way the capability is invoked, each **named to its
-implementation surface** (a CLI verb, a public function, an endpoint), given as
-**trigger / inputs / outcome**. A use case answers *"when, and with what, is this invoked?"* — never
-*"given this state, does it do that?"* (that is a scenario). Naming the impl surface keeps the spec,
-the suite, and the code on **one screaming structure**: the builder gives each use case its own
-module, so each change stays local.
+One entry per distinct way the capability is invoked, each **named to its implementation surface**
+(a CLI verb, a public function, an endpoint) and carrying four parts: **actor / goal**, the
+**entry point** (trigger / inputs / outcome), and its **extensions**. Naming the impl surface keeps
+the spec, the suite, and the code on **one screaming structure**: the builder gives each use case
+its own module, so each change stays local.
+
+A use case answers *"who is trying to do what, how do they invoke it, and what else can happen?"* —
+never *"given this state, does it do that?"* (that is a scenario).
+
+- **Actor and goal — one line each, not a persona.** Name who invokes it (a person in a role,
+  another capability, a scheduler) and the outcome **they** want, stated as their result rather
+  than the mechanism ("recover the work after a crash", not "calls `resume()`"). An actor may be
+  an agent or a sibling capability; that is normal, not a degenerate case. Where the goal restates
+  the function name, the use case has not been found yet — it has been renamed.
+- **Entry point** — the trigger, its inputs, and the success outcome. A table is the usual form.
+- **Extensions — what else can happen.** An extension is **any path from this use case's trigger
+  that does not reach its success outcome**; state each with its cause and its outcome. That
+  criterion decides membership — the recurring kinds (an error, a refusal, a boundary, a partial
+  result, a contended or absent input) are a **prompt to search, not a closed set**, so a divergence
+  matching none of them still belongs and a kind that cannot arise here is not owed a row. **A use
+  case with no extensions is a claim that nothing can go wrong** — state that claim explicitly
+  (`extensions: none — <why>`) rather than leaving the field off, so a reviewer can disagree with it.
+
+**Every element of the public surface traces to a use case that needs it.** List each element the
+capability exposes — a flag, an option, a parameter, a prop, an event — against the use case
+requiring it, and name the elements it **may not** be combined with. An element **no use case needs
+is unjustified**: cut it, or name the use case. A pair whose
+combination is contradictory and unstated is a gap, not a detail. This is the same orphan-detection
+discipline as `## Scenario map`, applied one level up: there, a scenario with no edge is an orphan;
+here, an element with no use case is an orphan.
+
+Degenerate cases stay cheap. A capability exposing **one** entry point and **no** optional elements
+carries the surface trace in a line, not a table — the obligation is that nothing on the surface is
+unaccounted for, never that a table exists.
 
 ### `## Control Flow`
 The **control-flow graph (CFG)** the capability runs once invoked, **drawn** as a fenced Mermaid
@@ -108,8 +136,10 @@ Enrichment (diagrams, formatting) is `spec.md` only; the suite stays plain Gherk
 1. **Four sections in order** — `## What` (overview + non-goals), `## Use Cases`, `## Control Flow`,
    `## Scenario map` — plus an optional `## References` last, citing research that backs a decision
    (the claim it supports, not the topic).
-2. **A use case is an entry point named to its impl surface** (CLI verb / function / endpoint) — spec,
-   suite, and code share one screaming structure.
+2. **A use case is actor + goal + entry point + extensions**, named to its impl surface (CLI verb /
+   function / endpoint) — spec, suite, and code share one screaming structure. No extensions is a
+   claim, stated explicitly. **Every surface element traces to a use case that needs it**, with its
+   forbidden combinations named; an element no use case needs is an orphan — cut it or justify it.
 3. **The CFG is shared** — use cases enter it (many-to-one); section by sub-graph only when the
    decision logic genuinely differs.
 4. **The scenario map is 1:1 and grouped by use case** — coverage visible per use case; `check-suite`

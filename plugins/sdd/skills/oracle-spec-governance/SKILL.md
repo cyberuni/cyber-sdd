@@ -23,6 +23,12 @@ writing, the cold spec-judge judges kill-or-ship. Oracle has no impl face. The S
   capabilities** — split them, each into its own node. Test: can you name the outcome without "and"?
 - **Scope is bounded and stated.** What is out of scope is named. A capability that keeps absorbing
   adjacent problems is scope creep — cut it back.
+- **Every surface element is paid for by a use case.** An element the capability exposes — a flag,
+  an option, a parameter, a prop, an event — that **no use case needs** is unbought scope: the
+  verdict is cut it or name the use case, never ship it and see (`sdd:spec-format-governance`).
+  This is the same kill-or-ship judgment one level down: the capability answers for its cost, and so
+  does each thing it exposes. An actor or goal that restates the mechanism has not identified who
+  wants this — treat it as an unanswered Why, not as a filled-in field.
 - **The suite's decisions are the node's to hold.** Every scenario tests a **decision the node owns**.
   A property **co-owned** across a seam — activation/routing, a sibling's behavior, harness wiring —
   is out of scope: relocate it to the node that owns it, or kill it.
@@ -37,7 +43,9 @@ writing, the cold spec-judge judges kill-or-ship. Oracle has no impl face. The S
 
 ## Key points (read-check)
 
-1. **One coherent intent** — two concerns are two capabilities; bounded and stated scope.
+1. **One coherent intent** — two concerns are two capabilities; bounded and stated scope. **Every
+   surface element is paid for by a use case** — an orphan element is unbought scope (cut or
+   justify); an actor/goal restating the mechanism is an unanswered Why.
 2. **Every scenario tests a decision the node owns** — a co-owned seam property is out of scope
    (relocate or kill).
 3. **Strict** — an invariant / non-decision does not enter the suite; only a user `@pinned` scenario

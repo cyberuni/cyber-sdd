@@ -29,6 +29,63 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it infers the what, why, and decisions from source, tests, and history
     And it does not ask the up-front grill questions
 
+  # ---- Use-case discovery — actor, goal, extensions, surface trace ----
+
+  Scenario: the actor and goal are drawn from the situation, not from the interface
+    Given a CR to add a seat-reservation capability whose requester supplied only a function signature
+    When the spec-producer authors the use cases section
+    Then each use case names the actor that invokes it and the outcome that actor wants
+    And no use case states its goal as the operation the signature performs
+
+  Scenario: a goal that only restates the mechanism becomes a gap, not an invented actor
+    Given a use case whose only available goal statement repeats the operation performed
+    When the spec-producer cannot establish who wants that outcome
+    Then it records a content gap against that use case
+    And it names no actor it could not establish from the request
+
+  Scenario: each use case enumerates the divergences from its success path
+    Given a seat-reservation use case whose success path returns a confirmed seat
+    When the spec-producer enumerates that use case's extensions
+    Then each divergence is stated with its cause and its outcome
+
+  Scenario: a use case that claims nothing can diverge states the claim and its reason
+    Given a use case the producer judges to have no divergence from its success path
+    When it writes that use case's extensions field
+    Then the field states none together with the reason
+    And the field is present rather than omitted
+
+  Scenario: every exposed element names the use case that requires it
+    Given a photo-export capability exposing a resolution option and a watermark option
+    When the spec-producer writes the surface trace
+    Then each exposed option names the use case that requires it
+
+  Scenario: an exposed element no use case requires is raised rather than attributed
+    Given an exposed option that no enumerated use case requires
+    When the spec-producer completes the surface trace
+    Then it raises that option as an unattributed element
+    And it records no use case for it that it could not name
+
+  Scenario: elements that may not be supplied together are named as a forbidden combination
+    Given two exposed options a reservation may never carry at the same time
+    When the spec-producer writes the surface trace
+    Then the pair is named as a forbidden combination
+
+  Scenario: a stated divergence carries its own scenario in the suite
+    Given a use case stating a divergence for a seat taken between selection and confirmation
+    When the spec-producer authors the suite
+    Then the suite carries a scenario asserting that divergence's outcome
+
+  Scenario: a stated forbidden combination carries the scenario proving the refusal
+    Given a surface trace naming two options as a forbidden combination
+    When the spec-producer authors the suite
+    Then the suite carries a scenario asserting the combination is refused
+
+  Scenario: a capability with one entry point and no optional elements records the trace in a line
+    Given a capability exposing one entry point and no optional elements
+    When the spec-producer writes the surface trace
+    Then it records the trace as a line rather than a table
+    And it reports complete with no element left unaccounted for
+
   # ---- Governance pre-flight declaration ----
 
   Scenario: the producer declares the governances it loaded in its structured output

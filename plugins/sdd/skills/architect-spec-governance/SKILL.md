@@ -37,6 +37,15 @@ unbound.
   level stays discouraged however it is declared.
 - **A well-formed CFG.** Its control-flow graph connects — every decision reachable, no
   dangling branch — and the suite's sections mirror it.
+- **The CFG reaches every stated extension.** A use case's **extensions** are its divergence paths
+  (`sdd:spec-format-governance`), so each is an edge the graph must actually contain. An extension
+  named in `## Use Cases` with no path to it in `## Control Flow` is a **dangling branch read from
+  the other side** — the prose claims a divergence the drawn graph cannot take. A **forbidden
+  combination** of surface elements is the same defect in guard form: if two elements may not be
+  combined, the graph carries the decision that refuses them, or the constraint is unenforceable and
+  the prose is decoration. Judge the graph against the stated extensions in **both** directions —
+  an edge with no extension is the ordinary uncovered-edge case; an extension with no edge is this
+  one.
 - **An orthogonal axis.** Structural fit judges a property the builder was not optimizing — a real
   independent check even from the same hand.
 - **Structural concerns are deferred.** A structural problem in another capability is an observation
@@ -55,5 +64,7 @@ from `spec.md` + the suite only — the solution is out of view (grader independ
    boundaries.
 2. **Placement matches the *declared* layout** (`sdd:spec-structure-governance`), not a preferred
    one; one capability per node either way, never smeared across nodes.
-3. **A well-formed CFG** the suite's sections mirror.
+3. **A well-formed CFG** the suite's sections mirror — and it reaches every stated extension;
+   an extension with no edge is a dangling branch read from the prose side, a forbidden combination
+   with no guard is unenforceable.
 4. **Structural concerns in another capability are deferred** — an observation that spawns a new spec.

@@ -50,8 +50,26 @@ Phase 1 — the prose:
 - **Scope** — is the touched behavior still *one* coherent thing? Grilling that reveals a
   bundle of several is the moment to recommend a split (a `../../project-spec/` operation), not to
   grow a monolith.
-- **Use cases / entry points** — is each trigger, input, and outcome still accurate? Did the
-  change add, remove, or alter an entry point?
+- **Use cases** — is each trigger, input, and outcome still accurate? Did the change add, remove,
+  or alter an entry point? Beyond the surface, a use case carries an **actor and goal** and its
+  **extensions** (`../spec-format/README.md`):
+  - **Find the use case, do not derive it from the interface.** Deriving it from the surface
+    reproduces the surface and calls it a requirement. Ask who invokes it, what they were doing
+    beforehand, and what outcome they wanted. Where the answer restates the mechanism ("the caller
+    wants to call it"), the function has been renamed, not a use case found — raise a
+    `CONTENT_GAP`. **Never invent a plausible actor to fill the field**: a fabricated actor reads
+    as grounding and is unfalsifiable, which is strictly worse than an honest gap.
+  - **Enumerate the extensions.** Walk each use case for what can diverge — the refusal, the error,
+    the boundary, the partial result, the contended or absent input. Where nothing can, write
+    `extensions: none` with the reason so the claim is contestable rather than absent.
+  - **Trace the surface.** Each exposed element (flag, option, parameter, prop, event) names the use
+    case that needs it and the elements it may not be combined with. An element you cannot attribute
+    is **the finding, not an oversight to fill in** — raise it; the Oracle bar's verdict is
+    cut-or-justify. A capability with one entry point and no optional elements records this in a
+    line, not a table.
+  - Each stated extension and each forbidden combination is a stated outcome, so each takes its own
+    scenario in Phase 2 — a divergence named only in prose is the coverage hole the extensions field
+    exists to expose.
 - **Design decisions** — does any decision now contradict the change, a sibling capability, or
   a governance? Reconcile stale terms and claims **toward the correct answer, not the popular
   one**: when two statements conflict, zoom out and reason about which is actually right given

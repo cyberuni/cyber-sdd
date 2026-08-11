@@ -15,7 +15,9 @@ Oracle impl face), so it ships as a single bar, `oracle-spec`.
   (an SDD-default actor governance; a plugin may bind its own per artifact-type —
   `../../design/governance-resolution.md`).
 - **Contract surface** — a `spec.md`'s scope and intent at the spec gate: one coherent outcome,
-  bounded scope, a real problem worth shipping, kill-or-revert.
+  bounded scope, a real problem worth shipping, kill-or-revert — including **each element the
+  capability exposes**, which is bought by a use case or cut (`../../authoring/spec-format/README.md`).
+  An actor or goal that restates the mechanism is an unanswered Why, not a filled-in field.
 - **Conformance** — verified by the **cold spec-judge** at the spec gate (Oracle-backward), and
   self-aligned by the **spec-producer** (Oracle-forward) before the gate. Faces are merged — one
   bar, loaded by both agents; `producer ≠ judge` holds at the agent level

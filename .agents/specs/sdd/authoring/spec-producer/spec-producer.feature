@@ -37,6 +37,33 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then each use case names the actor that invokes it and the outcome that actor wants
     And no use case states its goal as the operation the signature performs
 
+  Scenario: the use cases are enumerated from the actors, not from the entry points
+    Given a capability whose interface is already written and whose actors are not yet listed
+    When the spec-producer authors the use cases section
+    Then it lists the actors before mapping any goal to an entry point
+    And every use case it writes names an actor from that list
+
+  Scenario: whoever is affected by an outcome without invoking it is listed too
+    Given a capability whose result is acted on by a party that never invokes it
+    When the spec-producer lists the actors
+    Then that party appears in the actor list
+
+  Scenario: a goal no entry point serves is reported rather than dropped
+    Given a listed actor whose goal no entry point of the capability serves
+    When the spec-producer maps goals to entry points
+    Then it reports that goal as served by no entry point
+
+  Scenario: an entry point no listed goal reaches is reported as unasked-for surface
+    Given an entry point that serves no goal any listed actor holds
+    When the spec-producer maps goals to entry points
+    Then it reports that entry point as serving no listed goal
+
+  Scenario: backfill records that a source-derived enumeration covers only what is served
+    Given a backfill whose actors were inferred from source, tests, and history alone
+    When the spec-producer reports the enumeration
+    Then it records that the enumeration covers the served use cases
+    And it does not report the enumeration as complete
+
   Scenario: a goal that only restates the mechanism becomes a gap, not an invented actor
     Given a use case whose only available goal statement repeats the operation performed
     When the spec-producer cannot establish who wants that outcome
@@ -70,15 +97,18 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     When the spec-producer writes the surface trace
     Then the pair is named as a forbidden combination
 
-  Scenario: a stated divergence carries its own scenario in the suite
+  Scenario: a stated divergence is routed into the graph rather than straight into the suite
     Given a use case stating a divergence for a seat taken between selection and confirmation
+    And the control-flow graph contains no path to that divergence
     When the spec-producer authors the suite
-    Then the suite carries a scenario asserting that divergence's outcome
+    Then it adds the path to the control-flow graph
+    And it draws that divergence's scenario from the graph rather than from the stated list
 
-  Scenario: a stated forbidden combination carries the scenario proving the refusal
+  Scenario: a stated forbidden combination is carried as a guard the graph decides
     Given a surface trace naming two options as a forbidden combination
     When the spec-producer authors the suite
-    Then the suite carries a scenario asserting the combination is refused
+    Then the control-flow graph carries the decision that refuses the pair
+    And the scenario asserting the refusal is drawn from that guard's edge
 
   Scenario: backfill treats a standing suite that disagrees with source as a claim to verify
     Given a backfill whose standing scenarios disagree with what the source does

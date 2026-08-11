@@ -92,9 +92,13 @@ Phase 1 — the prose:
     wants to call it"), the function has been renamed, not a use case found — raise a
     `CONTENT_GAP`. **Never invent a plausible actor to fill the field**: a fabricated actor reads
     as grounding and is unfalsifiable, which is strictly worse than an honest gap.
-  - **Enumerate the extensions.** Walk each use case for what can diverge — the refusal, the error,
-    the boundary, the partial result, the contended or absent input. Where nothing can, write
-    `extensions: none` with the reason so the claim is contestable rather than absent.
+  - **Enumerate the extensions.** Walk each use case for **any path from its trigger that does not
+    reach its success outcome** — that criterion decides membership. The recurring kinds (the
+    refusal, the error, the boundary, the partial result, the contended or absent input) are a
+    **prompt to search, not a closed set** (`../spec-format/README.md` owns the criterion): a
+    divergence matching none of them still belongs, and a kind that cannot arise here is not owed a
+    row. Where nothing can diverge, write `extensions: none — <why>` so the claim is contestable
+    rather than absent.
   - **Trace the surface.** Each exposed element (flag, option, parameter, prop, event) names the use
     case that needs it and the elements it may not be combined with. An element you cannot attribute
     is **the finding, not an oversight to fill in** — raise it; the Oracle bar's verdict is
@@ -106,7 +110,9 @@ Phase 1 — the prose:
     combination a decision it must refuse. Walk it **both ways**: an edge with no extension is the
     ordinary uncovered-edge case; an **extension with no edge** is a divergence the prose claims and
     the graph cannot take. Fix whichever side is wrong before returning — settling it here spends no
-    cold round on a contradiction the Architect lens finds every time. On a node with no CFG the
+    cold round on a contradiction the Architect lens finds every time. Where the graph already
+    reaches every stated extension, amend neither side: the check found nothing, and rewriting what
+    it cleared manufactures churn. On a node with no CFG the
     check is vacuous.
   - Each stated extension and each forbidden combination is a stated outcome, so each takes its own
     scenario in Phase 2 — a divergence named only in prose is the coverage hole the extensions field

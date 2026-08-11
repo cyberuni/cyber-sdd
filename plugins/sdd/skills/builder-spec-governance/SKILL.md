@@ -51,9 +51,11 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
 
 1. **Every branch of the capability is covered** — every edge has its scenario, guards paired with
    positives, the scenario map 1:1.
-2. **Every stated extension has a scenario** — a divergence named in prose and covered nowhere is
-   unverified intent; `extensions: none` is a claim to judge, not a field to accept; a forbidden
-   combination needs the scenario proving the refusal.
+2. **Every stated extension is a path in the CFG** — the graph is the single source scenarios derive
+   from, so an extension earns its scenario by being a path, never as a second rule alongside edge
+   coverage; a divergence with no path is a hole in the *graph*. Never derive a scenario from the
+   prose directly. `extensions: none` is a claim to judge; a forbidden combination is a guard the
+   graph carries.
 3. **Every scenario is testable** — an observable boolean outcome; behavior the capability cannot
    expose cannot be specced.
 4. **A graded subject still reaches a per-scenario boolean** via rubric + threshold; the rubric stays

@@ -505,27 +505,6 @@ Read docs/research/threat-model.md before continuing.
 	}
 })
 
-test('Q1: description missing trigger language warns HIGH', () => {
-	const root = tmpRoot()
-	try {
-		const file = writeSkill(
-			root,
-			'skills/sample-skill',
-			`---
-name: sample-skill
-description: "Does something with skills and other repository content over time."
----
-
-# Sample
-`,
-		)
-		const result = runChecks(file)
-		assert.ok(result.warnings.some((f) => f.checkId === 'Q1'))
-	} finally {
-		fs.rmSync(root, { recursive: true, force: true })
-	}
-})
-
 test('S5: broken internal anchor link warns MEDIUM', () => {
 	const root = tmpRoot()
 	try {
@@ -980,26 +959,7 @@ test('a partial skill is classified by its top-level user-invocable marker', () 
 	}
 })
 
-test('metadata.internal alone does not classify a skill as partial (treated public)', () => {
-	const root = tmpRoot()
-	try {
-		// metadata.internal:true but NOT user-invocable:false, no trigger language → Q1 MUST fire (public path)
-		const file = writeSkill(
-			root,
-			'skills/sample-skill',
-			skillFixture({
-				metadataInternal: true,
-				description: 'Does something with skills and other repository content over time.',
-			}),
-		)
-		const result = runChecks(file)
-		assert.ok(result.warnings.some((f) => f.checkId === 'Q1'))
-	} finally {
-		fs.rmSync(root, { recursive: true, force: true })
-	}
-})
-
-test('the trigger-language and trigger-specificity checks are public-only', () => {
+test('the trigger-specificity word-count check is public-only (Q1 is agent-only)', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
@@ -1008,23 +968,7 @@ test('the trigger-language and trigger-specificity checks are public-only', () =
 			skillFixture({ internal: true, description: `${PARTIAL_PREFIX} — short callee.` }),
 		)
 		const result = runChecks(file)
-		assert.equal(result.warnings.filter((f) => f.checkId === 'Q1').length, 0)
 		assert.equal(result.warnings.filter((f) => f.checkId === 'Q2' && /Description too short/.test(f.name)).length, 0)
-	} finally {
-		fs.rmSync(root, { recursive: true, force: true })
-	}
-})
-
-test('the trigger-language check still applies to a public skill', () => {
-	const root = tmpRoot()
-	try {
-		const file = writeSkill(
-			root,
-			'skills/sample-skill',
-			skillFixture({ description: 'Does something with skills and other repository content over time.' }),
-		)
-		const result = runChecks(file)
-		assert.ok(result.warnings.some((f) => f.checkId === 'Q1'))
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}

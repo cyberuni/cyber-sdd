@@ -3,8 +3,8 @@
 // from the cyberplace CLI's `audit validate` (packages/cyberplace/src/audit/{validate,cli}.ts +
 // skill/manifest.ts, inlined here for self-containment).
 //
-// Runs ONLY the mechanical check subset: S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9. Everything
-// else (Q6-Q9, Q12-Q16, E3-E5, E7-E8, P1-P3) is agent-only quality review and is NOT run here —
+// Runs ONLY the mechanical check subset: S1-S6, Q2-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9. Everything
+// else (Q1, Q6-Q9, Q12-Q16, E3-E5, E7-E8, P1-P3) is agent-only quality review and is NOT run here —
 // that is judged separately by the improve-skill agent skill / the ACED impl-judge.
 //
 // CLI:
@@ -589,16 +589,6 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 		}
 	}
 
-	if (!isPartialSkill && fmDesc && !/use this skill when|when to use/i.test(fmDesc)) {
-		warn(
-			'HIGH',
-			'Q1',
-			'Trigger language in description',
-			`description: ${fmDesc}`,
-			"Add 'Use this skill when ...' to the description field",
-		)
-	}
-
 	if (fmDesc) {
 		if (!isPartialSkill) {
 			const wordCount = fmDesc.split(/\s+/).filter(Boolean).length
@@ -910,14 +900,14 @@ function printReport(w: (s: string) => void, outcome: ScanOutcome): void {
 	if (totalCriticals > 0) {
 		w('❌ Fix all CRITICAL findings before merging.')
 	} else {
-		w('✅ All checks passed (S1–S6, Q1–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9).')
-		w('   Run the improve-skill agent skill for full quality review (Q6–Q16, E3–E5, E7–E8, P1–P3).')
+		w('✅ All checks passed (S1–S6, Q2–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9).')
+		w('   Run the improve-skill agent skill for full quality review (Q1, Q6–Q16, E3–E5, E7–E8, P1–P3).')
 	}
 }
 
 const HELP = `usage: validate.mts [--path <path>] [--dir <glob>]... [--root <path>] [--format text|json]
 
-Validate skills against the mechanical check subset (S1-S6, Q1-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
+Validate skills against the mechanical check subset (S1-S6, Q2-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
 
   --path <path>    validate a single skill directory or SKILL.md file (default: whole-project scan)
   --dir <glob>     add a one-off scan location for this run (repeatable; ignored when --path is set)

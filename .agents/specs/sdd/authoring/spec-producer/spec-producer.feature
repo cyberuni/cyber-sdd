@@ -29,6 +29,133 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     Then it infers the what, why, and decisions from source, tests, and history
     And it does not ask the up-front grill questions
 
+  # ---- Use-case discovery — actor, goal, extensions, surface trace ----
+
+  Scenario: the actor and goal are drawn from the situation, not from the interface
+    Given a CR to add a seat-reservation capability whose requester supplied only a function signature
+    When the spec-producer authors the use cases section
+    Then each use case names the actor that invokes it and the outcome that actor wants
+    And no use case states its goal as the operation the signature performs
+
+  Scenario: an actor the written interface does not reveal is still enumerated
+    Given a capability whose interface is already written
+    And a party that reaches the capability which no entry point signature reveals
+    When the spec-producer authors the use cases section
+    Then that party appears in the actor list
+
+  Scenario: every use case names an actor the enumeration listed
+    Given an authored use cases section listing the actors that reach the capability
+    When the spec-producer writes the use cases
+    Then every use case names an actor from that list
+
+  Scenario: whoever is affected by an outcome without invoking it is listed too
+    Given a capability whose result is acted on by a party that never invokes it
+    When the spec-producer lists the actors
+    Then that party appears in the actor list
+
+  Scenario: a goal no entry point serves is reported rather than dropped
+    Given a listed actor whose goal no entry point of the capability serves
+    When the spec-producer maps goals to entry points
+    Then it reports that goal as served by no entry point
+
+  Scenario: an entry point no listed goal reaches is reported as unasked-for surface
+    Given an entry point that serves no goal any listed actor holds
+    When the spec-producer maps goals to entry points
+    Then it reports that entry point as serving no listed goal
+
+  Scenario: backfill records that a source-derived enumeration covers only what is served
+    Given a backfill whose actors were inferred from source, tests, and history alone
+    When the spec-producer reports the enumeration
+    Then it records that the enumeration covers the served use cases
+    And it does not report the enumeration as complete
+
+  Scenario: a goal that only restates the mechanism becomes a gap, not an invented actor
+    Given a use case whose only available goal statement repeats the operation performed
+    When the spec-producer cannot establish who wants that outcome
+    Then it records a content gap against that use case
+    And it names no actor it could not establish from the request
+
+  Scenario: each use case enumerates the divergences from its success path
+    Given a seat-reservation use case whose success path returns a confirmed seat
+    When the spec-producer enumerates that use case's extensions
+    Then each divergence is stated with its cause and its outcome
+
+  Scenario: a use case that claims nothing can diverge states the claim and its reason
+    Given a use case the producer judges to have no divergence from its success path
+    When it writes that use case's extensions field
+    Then the field states none together with the reason
+    And the field is present rather than omitted
+
+  Scenario: every exposed element names the use case that requires it
+    Given a photo-export capability exposing a resolution option and a watermark option
+    When the spec-producer writes the surface trace
+    Then each exposed option names the use case that requires it
+
+  Scenario: an exposed element no use case requires is raised rather than attributed
+    Given an exposed option that no enumerated use case requires
+    When the spec-producer completes the surface trace
+    Then it raises that option as an unattributed element
+    And it records no use case for it that it could not name
+
+  Scenario: elements that may not be supplied together are named as a forbidden combination
+    Given two exposed options a reservation may never carry at the same time
+    When the spec-producer writes the surface trace
+    Then the pair is named as a forbidden combination
+
+  Scenario: a stated divergence is routed into the graph rather than straight into the suite
+    Given a use case stating a divergence for a seat taken between selection and confirmation
+    And the control-flow graph contains no path to that divergence
+    When the spec-producer authors the suite
+    Then it adds the path to the control-flow graph
+    And the scenario map binds that divergence's scenario to the added path
+
+  Scenario: a stated forbidden combination is carried as a guard the graph decides
+    Given a surface trace naming two options as a forbidden combination
+    When the spec-producer authors the suite
+    Then the control-flow graph carries the decision that refuses the pair
+    And the scenario map binds the refusal scenario to that guard's edge
+
+  Scenario: backfill treats a standing suite that disagrees with source as a claim to verify
+    Given a backfill whose standing scenarios disagree with what the source does
+    When the spec-producer derives the suite
+    Then it re-derives the scenarios from the control-flow graph drawn from the source
+    And it does not carry the disagreeing standing scenarios forward unverified
+
+  Scenario: an act leaving no observable trace gains the record rather than losing the scenario
+    Given a backfill whose source performs an act that writes no artifact a verifier could read
+    When the spec-producer specifies that act
+    Then it specifies the record the act must leave
+    And it retains the act in the suite
+
+  Scenario: a judge verdict scopes the pass to what failed
+    Given a prior spec-judge verdict naming some scenarios failing and leaving others passing
+    When the spec-producer runs the revision pass
+    Then it revises the scenarios and sections the verdict named
+    And it leaves the passing scenarios unrevised
+
+  Scenario: a stated divergence the drawn graph cannot reach is caught before returning
+    Given a node whose control-flow graph contains no path to a divergence its use case states
+    When the spec-producer checks its extensions against that graph
+    Then it reports the stated divergence as unreachable in the graph
+    And it does not report complete while that divergence has no path
+
+  Scenario: a divergence the drawn graph reaches is carried without amendment
+    Given a node whose control-flow graph contains a path to every divergence its use cases state
+    When the spec-producer checks its extensions against that graph
+    Then it reports no unreachable divergence
+    And it amends neither the graph nor the stated extensions
+
+  Scenario: a node carrying no control-flow graph raises no unreachable-divergence finding
+    Given a node that carries no control-flow graph
+    When the spec-producer checks its extensions against that graph
+    Then it raises no unreachable-divergence finding
+
+  Scenario: a capability with one entry point and no optional elements records the trace in a line
+    Given a capability exposing one entry point and no optional elements
+    When the spec-producer writes the surface trace
+    Then it records the trace as a line rather than a table
+    And it reports complete with no element left unaccounted for
+
   # ---- Governance pre-flight declaration ----
 
   Scenario: the producer declares the governances it loaded in its structured output

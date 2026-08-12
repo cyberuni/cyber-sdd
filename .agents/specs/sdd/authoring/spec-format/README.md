@@ -37,14 +37,47 @@ a table cannot hold, then list the use cases:
 - **Non-goals** — one line on what the spec deliberately excludes, wherever the boundary isn't
   self-evident.
 
-A **use case** is an *entry-point* — coarse-grained, one per distinct way the subject is invoked —
-given as **trigger / inputs / outcome** (a table, prose, or EARS templates; whichever reads best).
-A use case is **not** a scenario: a use case answers *"when, and with what, is this invoked?"* and
+**Enumerate by actor, never by entry point.** Walking the interface and asking who calls each entry
+point returns only the use cases that interface already implies — it reproduces the surface and is
+blind to the use case nobody built. So the section is derived the other way round: **list the
+actors** (everyone who reaches the capability, plus whoever is affected by its outcome without
+invoking it), **name each actor's goals**, then **map goals to entry points** and report both
+mismatches — a goal no entry point serves, and an entry point no listed goal reaches. The
+enumeration **closes both ways**: an actor carrying no use case, and a use case whose actor is
+absent from the list, are each a hole. On a backfill, source yields only the *served* use cases by
+construction; the unserved ones come from the request history and recurring workarounds, and an
+inferred set is never reported as complete.
+
+A **use case** is coarse-grained — one per distinct way the subject is invoked — and carries four
+parts: **actor / goal**, its **entry point** (trigger / inputs / outcome, as a table, prose, or EARS
+templates; whichever reads best), and its **extensions**. A use case is **not** a scenario: a use
+case answers *"who is trying to do what, how do they invoke it, and what else can happen?"* and
 lives in `spec.md`; a scenario answers *"given this exact situation, does it do that — yes/no?"*
 and lives in the `.feature`.
 
-The relationship is **one-to-many**: each use case is covered by one-or-more scenarios (happy path,
-negative mirror, boundary). A scenario with no use case is an orphan test; a use case with no
+- **Actor and goal** — one line each. Who invokes it (a person in a role, another capability, a
+  scheduler) and the outcome **they** want, stated as their result rather than the mechanism. A goal
+  that restates the operation has renamed the function, not found the use case.
+- **Extensions** — **any path from the use case's trigger that does not reach its success
+  outcome**, each with its cause and its outcome. That criterion decides membership; the recurring
+  kinds (the refusal, the error, the boundary, the partial result, the contended or absent input)
+  are a prompt to search, **not a closed set**. A use case with **no** extensions asserts nothing
+  can go wrong — write `extensions: none — <why>`, so a reviewer can disagree with the claim
+  instead of overlooking its absence.
+
+**Every element of the public surface traces to a use case that needs it.** Each flag, option,
+parameter, prop, or event names the use case requiring it and the elements it **may not** be
+combined with. An element no use case needs is an **orphan** — cut it or name the use case; the
+Oracle bar's verdict on unbought surface is cut-or-justify, and the Architect bar requires the CFG
+to carry the guard that refuses a stated forbidden combination. This is `## Scenario map`'s
+orphan-detection one level up. A capability with **one** entry point and **no** optional elements
+records the trace in a line: the obligation is that nothing on the surface is unaccounted for,
+never that a table exists.
+
+The relationship is **one-to-many**: each use case is covered by one-or-more scenarios. Those
+scenarios are derived from the **CFG**, never from this section — a stated extension earns its
+scenario by being a path in the graph (`../../common-governances/builder/README.md`), so the happy
+path, the negative mirror and the boundary all arrive as edges. A scenario with no use case is an orphan test; a use case with no
 scenarios is unverified intent. The spec-producer writes the section and covers each use case; the
 spec-judge checks the section exists and the mapping holds.
 

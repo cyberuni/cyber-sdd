@@ -44,7 +44,7 @@ A `spec.md` has **four sections, in this order**:
 | Section | What goes in it |
 | --- | --- |
 | `## What` | What the capability is, the problem it solves, who has that problem, and what it deliberately does not do (non-goals). |
-| `## Use Cases` | Every distinct way the capability is invoked — one row each, as trigger / inputs / outcome. Each is named after the thing you actually call: a CLI verb, a function, an endpoint. |
+| `## Use Cases` | Every distinct way the capability is invoked, each named after the thing you actually call (a CLI verb, a function, an endpoint) and carrying four parts: the **actor and their goal**, the **entry point** (trigger / inputs / outcome), and its **extensions** — what else can happen, each divergence with its cause and outcome. Plus a trace of every element the capability exposes (flag, option, parameter, prop, event) to the use case that needs it and the elements it may not combine with. An element no use case needs is an orphan: cut it or justify it. |
 | `## Control Flow` | The decisions the capability makes once invoked, taken as one **control-flow graph (CFG)** and **drawn** as a diagram rather than described in prose. Use cases feed into one CFG; several usually share it. |
 | `## Scenario map` | A table pairing each branch in that diagram with the one test scenario covering it, grouped by use case. One-to-one, both directions — so a gap in coverage is visible instead of buried in prose. |
 

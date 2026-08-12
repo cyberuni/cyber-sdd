@@ -23,13 +23,25 @@ writing, the cold spec-judge judges kill-or-ship. Oracle has no impl face. The S
   capabilities** — split them, each into its own node. Test: can you name the outcome without "and"?
 - **Scope is bounded and stated.** What is out of scope is named. A capability that keeps absorbing
   adjacent problems is scope creep — cut it back.
+- **Every surface element is paid for by a use case.** An element the capability exposes — a flag,
+  an option, a parameter, a prop, an event — that **no use case needs** is unbought scope: the
+  verdict is cut it or name the use case, never ship it and see (`sdd:spec-format-governance`).
+  This is the same kill-or-ship judgment one level down: the capability answers for its cost, and so
+  does each thing it exposes. An actor or goal that restates the mechanism has not identified who
+  wants this — treat it as an unanswered Why, not as a filled-in field.
 - **The suite's decisions are the node's to hold.** Every scenario tests a **decision the node owns**.
   A property **co-owned** across a seam — activation/routing, a sibling's behavior, harness wiring —
   is out of scope: relocate it to the node that owns it, or kill it.
 - **Strict — a non-decision is killed.** An **invariant** that always holds is not acceptance and does
   not enter the suite. The one exception is a user **`@pinned`** scenario, kept whatever strict prunes.
-- **Worth shipping, or kill.** The Why names a real problem and who feels it. If value does not clear
-  the cost of building, the verdict is **kill**.
+- **The actors are enumerated, and the enumeration closes.** The Why names a real problem and **who
+  feels it** — so the use cases are derived from a stated set of actors, not from the interface
+  (`sdd:spec-format-governance`). Grade it **both ways**: an actor carrying no use case, and a use
+  case whose actor is absent from the list, are each a hole. A goal that restates the mechanism has
+  renamed the function rather than found the use case — an unanswered Why, not a filled-in field.
+  On a backfill, an enumeration drawn only from source is **served** use cases by construction:
+  judge whether the unserved ones were sought, not merely whether the list is tidy.
+- **Worth shipping, or kill.** If value does not clear the cost of building, the verdict is **kill**.
 - **Kill-or-revert is allowed.** A capability that passes every check but proves fatal goes back to
   Draft — surface the deal-breaker.
 - **No premature commitment.** Defer a decision that need not be made yet to the last responsible
@@ -37,9 +49,14 @@ writing, the cold spec-judge judges kill-or-ship. Oracle has no impl face. The S
 
 ## Key points (read-check)
 
-1. **One coherent intent** — two concerns are two capabilities; bounded and stated scope.
+1. **One coherent intent** — two concerns are two capabilities; bounded and stated scope. **Every
+   surface element is paid for by a use case** — an orphan element is unbought scope (cut or
+   justify); an actor/goal restating the mechanism is an unanswered Why.
 2. **Every scenario tests a decision the node owns** — a co-owned seam property is out of scope
    (relocate or kill).
 3. **Strict** — an invariant / non-decision does not enter the suite; only a user `@pinned` scenario
    escapes.
-4. **Worth shipping or kill** — value must clear the build cost; a fatal proof reverts to Draft.
+4. **The actors are enumerated and the enumeration closes** — graded both ways (an actor with no use
+   case, a use case with no listed actor); a goal restating the mechanism is an unanswered Why; a
+   backfill list drawn only from source covers the served cases by construction.
+5. **Worth shipping or kill** — value must clear the build cost; a fatal proof reverts to Draft.

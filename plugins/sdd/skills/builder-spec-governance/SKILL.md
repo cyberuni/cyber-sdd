@@ -24,6 +24,17 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
   stated in **closed form** (single-condition folds may be by example — demanding closed form of one
   is over-firing), and its coverage is backed by a **mutation sweep** and a **safety dual**
   (`sdd:suite-format-governance`).
+- **Every stated extension is a path in the CFG.** A use case's **extensions** are its divergences
+  (`sdd:spec-format-governance`), and the CFG is the **single source** the scenarios derive from —
+  so an extension earns its scenario **by being a path in the graph**, never as a second rule
+  alongside the edge coverage above. The check is therefore: does the CFG contain a path to each
+  stated extension? An extension with no path is a hole in the **graph** — fix it there, and the
+  standing 1:1 edge coverage supplies the scenario. **Never derive a scenario from the prose
+  directly**: a suite drawn from a stated list is 1:1 with that list by construction and can no
+  longer surface a hole, which is the retrofit shape that has diverged in this corpus before. A use
+  case declaring `extensions: none` asserts nothing can diverge — judge that claim against the
+  graph. A **forbidden combination** is the same rule in guard form: it is a decision the CFG must
+  carry, and its refusal scenario comes from that guard's edge.
 - **Every scenario is testable.** Each asserts an observable outcome a check can confirm — a boolean,
   no "sometimes". A behavior the capability cannot expose cannot be specced.
 - **A graded subject is still a boolean.** For a non-deterministic capability the contract reaches a
@@ -40,9 +51,14 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
 
 1. **Every branch of the capability is covered** — every edge has its scenario, guards paired with
    positives, the scenario map 1:1.
-2. **Every scenario is testable** — an observable boolean outcome; behavior the capability cannot
+2. **Every stated extension is a path in the CFG** — the graph is the single source scenarios derive
+   from, so an extension earns its scenario by being a path, never as a second rule alongside edge
+   coverage; a divergence with no path is a hole in the *graph*. Never derive a scenario from the
+   prose directly. `extensions: none` is a claim to judge; a forbidden combination is a guard the
+   graph carries.
+3. **Every scenario is testable** — an observable boolean outcome; behavior the capability cannot
    expose cannot be specced.
-3. **A graded subject still reaches a per-scenario boolean** via rubric + threshold; the rubric stays
+4. **A graded subject still reaches a per-scenario boolean** via rubric + threshold; the rubric stays
    out of the `.feature`.
-4. **A dimension or cut is grounded on non-author evidence** — a measurement justifying it must be not
+5. **A dimension or cut is grounded on non-author evidence** — a measurement justifying it must be not
    solely the author's own (canonical standard: `sdd:doctrine-loop`); the cold-instrument doctrine.

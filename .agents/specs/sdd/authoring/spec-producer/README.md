@@ -23,13 +23,55 @@ suite delta, it does not receive it.
 `../spec-gate/`); it does not write the control frontmatter (`status` / `project-path` /
 `approval` / `produced-by`).
 
-The procedure runs in one of **three modes** — the distinct ways it is invoked:
+**Actors.** The **conductor** invokes this procedure in all three modes, running the spec-producer
+role inline (or a plugin producer resolved for the domain). Three parties are affected by its output
+without invoking it: the **cold spec-judge**, which grades what this procedure wrote; the
+**impl-producer**, which builds against the suite it authored; and the **human reviewer** at the
+gate, who reads the prose it enriched. None of the three **invokes** this procedure, so none owns a
+use case row. Their interests are real but are served *through* the existing use cases' outcomes
+rather than by a way in of their own — the reviewer's legibility, for instance, is the enrichment
+outcome the three modes already produce. They are listed because the enumeration closes both ways
+(`../spec-format/README.md`), not because every listed party must own a row.
 
-| Trigger | Inputs | Outcome |
+The procedure runs in one of **three modes** — the distinct ways the conductor invokes it. What
+differs is the goal it arrives with.
+
+| Use case | Goal (what the conductor wants) | Trigger | Inputs | Outcome |
+|---|---|---|---|---|
+| **create** | a contract for a capability that does not exist yet, written from nothing | a CR for capability content that does not exist yet | the CR + answers to the up-front grill: the core problem and who experiences it, observable behavior from the user's view, the public interface (commands, signatures, events), known edge cases or explicit non-goals, and which reviewers must be heard | scaffolded spec prose + an initial set of boolean scenarios |
+| **revise** | an existing contract brought back in line with a change | a CR touching a capability whose prose + scenarios already exist | the CR + the existing spec | tightened prose and scenarios; **no** new skeleton scaffolded |
+| **backfill** | a contract for behavior that already shipped without one | a CR whose behavior already exists in code | source, tests, and history | inferred *what* / *why* / decisions; the up-front grill is **skipped** |
+
+**Extensions** — the paths that do not reach those outcomes:
+
+| Use case | Cause | Outcome |
 |---|---|---|
-| **create** — a CR for capability content that does not exist yet | the CR + answers to the up-front grill: the core problem and who experiences it, observable behavior from the user's view, the public interface (commands, signatures, events), known edge cases or explicit non-goals, and which reviewers must be heard | scaffolded spec prose + an initial set of boolean scenarios |
-| **revise** — a CR touching a capability whose prose + scenarios already exist | the CR + the existing spec | tightened prose and scenarios; **no** new skeleton scaffolded |
-| **backfill** — a CR whose behavior already exists in code | source, tests, and history | inferred *what* / *why* / decisions; the up-front grill is **skipped** |
+| create | a required input is missing and cannot be inferred | a `CONTENT_GAP` (an `<!-- open: -->` marker), never an invention |
+| create | grilling shows the CR bundles several capabilities | recommends a split (a `../../project-spec/` operation) rather than growing a monolith |
+| create, revise | the goal for a use case only restates the mechanism | a `CONTENT_GAP` against that use case; no actor is invented to fill the field |
+| revise | prose and suite contradict each other | reconciles toward the correct answer, editing the side that is wrong |
+| revise | the correct answer cannot be established | a `CONTENT_GAP`, not a guessed direction |
+| backfill | source and the standing suite disagree | re-derives from the CFG; the standing suite is reference only, a claim to verify |
+| backfill | an act in code leaves no observable trace | adds the record rather than dropping the act from the suite |
+| any | a judge verdict arrives (`JUDGE_FEEDBACK`) | a revision pass — fixes only the failing scenarios and sections |
+
+**Surface trace** — every input this procedure exposes, against the use case needing it:
+
+| Element | Needed by | May not combine with |
+|---|---|---|
+| `USER_INPUT` | create | — |
+| `BACKFILL` | backfill | — |
+| `COMMAND_SURFACE`, `DESIGN_DECISIONS` | create, revise | — |
+| `JUDGE_FEEDBACK` | any, on a revision pass | — |
+| `USER_ANSWERS` | any, paired with a prior `needs-input` | — |
+| `DOMAIN`, `DOMAIN_PATH`, `SPEC_PATH` | all three | — |
+
+No pair on this surface is forbidden. `BACKFILL` and `USER_INPUT` look like a contradictory pair —
+both describe where intent comes from — but the procedure **prefers** `BACKFILL` rather than
+refusing the combination, so naming it forbidden would assert a guard nothing enforces. Narrowing a
+frozen scenario is likewise **not** an extension here: that stop is the **Clearance** floor, the
+conductor's decision on its autonomy bar, and a property co-owned across that seam belongs to the
+node that owns it.
 
 Each use case is exercised under the grilling discipline below, and the producer always writes
 within the output boundary that closes this spec. Every scenario in
@@ -50,8 +92,49 @@ Phase 1 — the prose:
 - **Scope** — is the touched behavior still *one* coherent thing? Grilling that reveals a
   bundle of several is the moment to recommend a split (a `../../project-spec/` operation), not to
   grow a monolith.
-- **Use cases / entry points** — is each trigger, input, and outcome still accurate? Did the
-  change add, remove, or alter an entry point?
+- **Use cases** — is each trigger, input, and outcome still accurate? Did the change add, remove,
+  or alter an entry point? Beyond the surface, a use case carries an **actor and goal** and its
+  **extensions** (`../spec-format/README.md`):
+  - **Enumerate by actor, never by entry point** (`../spec-format/README.md` owns the ordering).
+    Walking the interface returns only the use cases it already implies and is blind to the one
+    nobody built. **List the actors first** — everyone who reaches the capability, plus whoever is
+    affected by its outcome without invoking it (the reviewer, the on-call, the next agent).
+    **Then per actor name the goals** they arrive with — their result, not the call they make.
+    **Then map goals to entry points**, reporting both mismatches: a goal no entry point serves is
+    a way in the capability lacks or a goal another node owns; an entry point no listed goal
+    reaches is surface nobody asked for. Where a goal only restates the mechanism ("the caller
+    wants to call it"), the function has been renamed, not a use case found — raise a
+    `CONTENT_GAP`. **Never invent a plausible actor to fill the field**: a fabricated actor reads
+    as grounding and is unfalsifiable, which is strictly worse than an honest gap. On **backfill**
+    the source yields only the *served* use cases by construction — seek the unserved ones in the
+    request history and recurring workarounds, and never report an inferred set as complete.
+  - **Enumerate the extensions.** Walk each use case for **any path from its trigger that does not
+    reach its success outcome** — that criterion decides membership. The recurring kinds (the
+    refusal, the error, the boundary, the partial result, the contended or absent input) are a
+    **prompt to search, not a closed set** (`../spec-format/README.md` owns the criterion): a
+    divergence matching none of them still belongs, and a kind that cannot arise here is not owed a
+    row. Where nothing can diverge, write `extensions: none — <why>` so the claim is contestable
+    rather than absent.
+  - **Trace the surface.** Each exposed element (flag, option, parameter, prop, event) names the use
+    case that needs it and the elements it may not be combined with. An element you cannot attribute
+    is **the finding, not an oversight to fill in** — raise it; the Oracle bar's verdict is
+    cut-or-justify. A capability with one entry point and no optional elements records this in a
+    line, not a table.
+  - **Check the extensions against the CFG** — the producer-side mirror of the Architect bar
+    (`../../common-governances/architect/README.md`). Where the node carries a `## Control Flow`
+    graph, each enumerated extension is a path that graph must contain and each forbidden
+    combination a decision it must refuse. Walk it **both ways**: an edge with no extension is the
+    ordinary uncovered-edge case; an **extension with no edge** is a divergence the prose claims and
+    the graph cannot take. Fix whichever side is wrong before returning — settling it here spends no
+    cold round on a contradiction the Architect lens finds every time. Where the graph already
+    reaches every stated extension, amend neither side: the check found nothing, and rewriting what
+    it cleared manufactures churn. On a node with no CFG the
+    check is vacuous.
+  - A stated extension earns its scenario **by being a path in the CFG**, never by being drawn from
+    the prose — the graph is the single source scenarios derive from, and a suite drawn from a
+    stated list is 1:1 with that list by construction and can no longer surface a hole. Route a
+    divergence covered nowhere back through the graph; the standing 1:1 edge coverage then supplies
+    the scenario. A forbidden combination is the same rule in guard form.
 - **Design decisions** — does any decision now contradict the change, a sibling capability, or
   a governance? Reconcile stale terms and claims **toward the correct answer, not the popular
   one**: when two statements conflict, zoom out and reason about which is actually right given

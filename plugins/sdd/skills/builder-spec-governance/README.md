@@ -19,6 +19,7 @@ contract?" at the impl gate.
 | Requirement | What it means |
 | --- | --- |
 | **Every branch is covered** | Each edge of the capability's CFG has its scenario, and every guard/negative edge is paired with a positive companion. The scenario map is 1:1 in both directions — no orphan scenario, no uncovered edge. |
+| **Every stated extension is a path in the CFG** | A use case's **extensions** are its divergences (`spec-format-governance`), and the CFG is the **single source** scenarios derive from — so an extension earns its scenario by being a path in the graph, never as a second rule beside the edge coverage above. An extension with no path is a hole in the *graph*: fix it there, and the 1:1 edge coverage supplies the scenario. Never derive a scenario from the prose directly — a suite drawn from a stated list is 1:1 with that list by construction and can no longer surface a hole. `extensions: none` is a claim to judge; a forbidden combination is the same rule in guard form. |
 | **Every scenario is testable** | Each scenario asserts an observable outcome a check can confirm — a boolean, no "sometimes". A behavior the capability cannot expose cannot be specced. |
 | **A graded subject is still a boolean** | A non-deterministic capability (one whose output varies run to run) still reaches a per-scenario boolean, through a rubric plus a threshold over N runs. The rubric form stays out of the boolean `.feature`, carried as a judge-only `@rubric` scenario. |
 

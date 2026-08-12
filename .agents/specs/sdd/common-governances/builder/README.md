@@ -19,7 +19,10 @@ the implementation *satisfy* it) at the impl gate — so it ships as two bars, `
   `../../design/governance-resolution.md`).
 - **Contract surface** —
   - `builder-spec`: the `.feature` at the spec gate — every behavior testable (boolean), full
-    happy-path + error coverage, graded subjects reduced to a boolean.
+    happy-path + error coverage, graded subjects reduced to a boolean. Each **stated extension** is a path the
+    **CFG** must contain, and the graph — never the prose — is the single source scenarios derive
+    from (`../../authoring/spec-format/README.md`); a **forbidden combination** is the same rule in
+    guard form; `extensions: none` is a claim to judge.
   - `builder-impl`: the implementation at the impl gate — checks derived from the frozen `.feature`
     (one per scenario), no green-by-tampering. Its **verify-as-high-as-it-doesn't-hurt** default is
     **overridden for an instrument subject** — the class defined on the

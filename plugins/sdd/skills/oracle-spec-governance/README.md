@@ -4,7 +4,10 @@ This is an internal SDD governance about scope and the kill-or-ship call at the 
 
 Before a capability's spec is approved, someone has to ask the uncomfortable questions: is this one
 thing or two things glued together? Is it worth building at all? Does every scenario in its suite
-actually belong to it? This governance is that question list — the **Oracle** bar. It judges the
+actually belong to it? Are the **actors enumerated**, and does that enumeration close both ways — no
+actor without a use case, no use case without a listed actor? Is every element the capability
+**exposes** bought by a use case, or unbought scope to cut? This governance is that question list —
+the **Oracle** bar. It judges the
 **capability itself**, read from its spec and suite together — not how the document is written,
 which is a different bar (`spec-format-governance`).
 
@@ -16,7 +19,9 @@ which is a different bar (`spec-format-governance`).
 | **Bounded, stated scope** | What is out of scope is named. A capability that keeps absorbing adjacent problems is scope creep — cut it back. |
 | **The node owns its decisions** | Every scenario tests a decision the node owns. A property co-owned across a seam — activation/routing, a sibling's behavior, harness wiring — is out of scope: relocate it to the node that owns it, or kill it. |
 | **Strict — non-decisions are killed** | An invariant that always holds is not acceptance and does not enter the suite. The one exception is a user `@pinned` scenario, kept whatever strict prunes. |
-| **Worth shipping, or kill** | The Why names a real problem and who feels it. If the value does not clear the cost of building, the verdict is kill. |
+| **Every surface element is paid for by a use case** | An element the capability exposes — a flag, an option, a parameter, a prop, an event — that **no use case needs** is unbought scope: cut it, or name the use case. This is the same kill-or-ship judgment one level down — the capability answers for its cost, and so does each thing it exposes. |
+| **The actors are enumerated, and the enumeration closes** | The Why names a real problem and **who feels it**, so the use cases are derived from a stated set of actors rather than from the interface. Graded **both ways**: an actor carrying no use case, and a use case whose actor is absent from the list, are each a hole. A goal that restates the mechanism is an unanswered Why, not a filled-in field. On a backfill, an enumeration drawn only from source covers the *served* use cases by construction. |
+| **Worth shipping, or kill** | If the value does not clear the cost of building, the verdict is kill. |
 | **Kill-or-revert** | A capability that passes every check but proves fatal goes back to Draft — surface the deal-breaker. |
 | **No premature commitment** | A decision that need not be made yet is deferred to the last responsible moment. |
 

@@ -40,8 +40,8 @@ Skip this check entirely when no `skill.json` is present, or when it is present 
 
 ## Quality
 
-**Q1 — Trigger language (HIGH)**
-Fail if the `description` field does not contain "When to use" or "Use this skill when" (case-insensitive). Without this phrasing, agents cannot reliably determine applicability.
+**Q1 — Triggering context (HIGH)**
+Fail if the `description` field lacks triggering context — the situations, user requests, or conditions under which the skill should activate. Good triggers describe what the user is asking for or trying to accomplish (e.g., "when the user asks to commit", "for creating git commits", "handles PR reviews"). Avoid meta-phrases like "When to use" or "Use this skill when" — they add boilerplate without matching value.
 
 **Q2 — Description specificity (HIGH)**
 Warn if the description:

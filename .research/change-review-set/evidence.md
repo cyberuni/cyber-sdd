@@ -429,13 +429,70 @@ about behavior rather than an observation of it.
 
 ### E26
 
-- **Claim:** Artifact-type is keyed to a **single file**, while the unit #453 is about is
-  **multi-file**: "One artifact-type per produced **file** → exactly one squad." Nothing in the
-  artifact-type model currently says which *other* files constitute one artifact of that type.
+- **Claim:** Artifact-type is keyed to a **single file** — "one artifact-type per produced **file** →
+  exactly one squad" — while the unit #453 is about is **multi-file**. Measured composition of the 50
+  folders in `plugins/sdd/skills/`: **50** `SKILL.md`, **49** `README.md`, **54** `scripts/*.mts`,
+  **1** `references/rubric.md`, and **zero** nested `SKILL.md` at any depth. So every skill unit holds
+  at least two, usually three, distinct file kinds, and nothing in the artifact-type model says which
+  other files constitute one artifact of that type.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (executed)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/design/artifact-type.md` ("What it is"); file census over
+  `plugins/sdd/skills/*/`
+- **Source type:** primary (read + measured)
+
+### E27
+
+- **Claim:** The three member kinds of one skill unit **do not resolve to one artifact-type**, and two
+  of them do not resolve at all today. `artifact-type.md`'s convention rule names only *"a `SKILL.md`
+  under `skills/` is a `skill`; an agent under `agents/` is a `subagent`"* — it states no convention
+  for a skill's `README.md` or its `scripts/`. Run against all three members of one unit,
+  `resolve-governances --path` returns `artifactType: null` with
+  `note: "no tiebreaker match — classify by convention"` for **each**, because
+  `.agents/sdd/artifact-types.toml` does not exist in this repo (E24).
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (executed)
+- **Confidence:** high
+- **Source label:** `node …/resolve-governances.mts --root . --path <p>` for
+  `plugins/sdd/skills/check-retired-terms/{SKILL.md, README.md, scripts/check-retired-terms.mts}`
+- **Source type:** primary (executed)
+- **Notes:** Per `artifact-type.md`'s own rule, genuine ambiguity means "**ask once — confirm, never
+  guess**," then write the binding back. A skill `README.md` is exactly that case and the ask has
+  never been made — the tiebreaker map the model provides for it is empty. So the multi-file tension
+  is not a prospective cost of the reframe; it is an unresolved ambiguity sitting in the corpus now.
+
+### E28
+
+- **Claim:** Resolving the tension by declaring every file under `skills/<name>/` to be type `skill`
+  would **re-route production and judging** for two of the three member kinds, against the live
+  registry. `aced` claims `["skill","subagent","command","agents-section"]`; `quill` claims
+  `["documentation","guide","tutorial","article","reference"]`. A skill `README.md` typed
+  `documentation` resolves to quill (`quill-doc-writer` / `quill-judge`, bars `quill-builder-spec` /
+  `quill-builder-impl`); typed `skill` it resolves to aced (`aced-scenario-writer` /
+  `aced-impl-judge`). The `.mts` engine sources are claimed by neither and fall to the SDD default
+  squad.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (registry read)
+- **Confidence:** high
+- **Source label:** `.agents/universal-plugin.json` `sdd-plugins[]`
+- **Source type:** primary
+- **Notes:** So "everything in the folder is one type" is not a harmless simplification — it collapses
+  the squad key, which is the one job the axis exists to do.
+
+### E29
+
+- **Claim:** The defect the unit exists to catch is **invisible to every member's own squad**. PR
+  #444's round-4 blocker was duty-table drift between a `SKILL.md` and its `README.md` — a
+  *consistency* relation between two files. aced's bars judge frozen-`.feature` conformance for agent
+  behavior; quill's judge runs a per-scenario static inspection plus one **document-scoped** integrity
+  pass. Both are scoped to a single document; neither has a cross-document face.
 - **Date accessed:** 2026-08-12
 - **Status:** confirmed (read)
-- **Confidence:** high
-- **Source label:** `.agents/specs/sdd/design/artifact-type.md` ("What it is")
+- **Confidence:** medium-high — the bar bodies were read via their skill descriptions and the quill
+  agent definition, not line-by-line
+- **Source label:** PR #444 body; `quill-judge` / `quill-builder-impl` and `aced-builder-impl`
+  descriptions
 - **Source type:** primary
-- **Notes:** This is the seam a per-artifact-type unit description occupies, and also its main open
-  question — see conclusion §6.
+- **Notes:** Load-bearing for the granularity choice in §6: if no member's squad can see the relation,
+  the unit shape cannot be a property of any one member's squad.

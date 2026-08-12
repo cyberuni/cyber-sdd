@@ -219,12 +219,41 @@ by construction against the type description, so §3's requirements are satisfia
 aspirational. Report before wiring into `check:specs`: E03's 30.2% bounds the *population*, not the
 finding rate, and that rate is unmeasured.
 
-**The open question to settle first (E26):** artifact-type is keyed per **file** — "one
-artifact-type per produced file → exactly one squad" — while a unit is multi-file. Either the
-type key applies to a **primary** file whose classification carries the whole unit and the shape
-enumerates the rest, or every member file resolves to the same type. The first is recommended (it
-leaves the squad-key semantics untouched and adds a second thing the key returns), but this is a
-real amendment to `design/artifact-type.md` and should be decided before anything is built.
+**The granularity amendment this needs (E26–E29).** Artifact-type is keyed per **file** — "one
+artifact-type per produced file → exactly one squad" — while a unit is multi-file. Worked through on
+`skill`: every folder holds a `SKILL.md`, almost always a `README.md`, and one or more
+`scripts/*.mts` (E26). Those do not share a type, and two of the three do not resolve to one at all
+today — the convention rule names only `SKILL.md` → `skill`, and `resolve-governances --path`
+returns `artifactType: null`, "classify by convention", for all three members (E27). Three ways out:
+
+1. **One type for the whole folder** — everything under `skills/<name>/` is `skill`. **Rejected.**
+   It re-routes the `README.md` from quill's doc squad to aced's agent-config squad and drops the
+   `.mts` sources on the SDD default (E28), collapsing the squad key, which is the one job the axis
+   exists to do.
+2. **A second axis** — a per-directory *unit type* beside the per-file artifact-type. Conceptually
+   clean, but `artifact-type.md`'s own "Naming" section retired `domain` / `domain-type` /
+   `domain-plugin` down to one term, so a near-synonym re-creates what was deliberately removed.
+3. **One vocabulary, a declared binding granularity** — **recommended.** `artifact-type` stays the
+   single term; what changes is what it may be keyed to. Today only a file; the amendment lets a
+   type that declares a unit shape **also bind at directory granularity**. `skill` binds to the
+   directory and names its members; `documentation` binds to a file, as now. Each member file still
+   resolves to its own artifact-type for squad selection, so no file is re-routed and "one
+   artifact-type per produced file → exactly one squad" stays literally true. It also fixes the
+   inversion for free: from any member, walk up to the nearest directory carrying a directory-bound
+   type — which works here precisely because a skill unit *is* a directory, the case `fileToNode`
+   got right (E05).
+
+Option 3 is also what E29 forces. The relation the unit exists to catch — #444's duty-table drift
+between a `SKILL.md` and its `README.md` — is invisible to **every** member's own squad: aced's bars
+judge frozen-`.feature` conformance, quill's judge runs a document-**scoped** integrity pass, and
+neither has a cross-document face. If no member's squad can see the relation, the unit shape cannot
+be a property of any one member's squad. It has to attach to the composite, and option 3 is the
+cheapest way to name the composite without inventing a second vocabulary.
+
+**Still open under option 3:** what a skill `README.md`'s *file*-level type actually is. It is
+ambiguous today, the tiebreaker map exists exactly for this, and it is empty — so by
+`artifact-type.md`'s own rule this is an "ask once — confirm, never guess" that has never been asked
+(E27). Settle it while amending, and write the binding back.
 
 ### B — the residual identity declaration
 
@@ -288,9 +317,10 @@ worth fixing E25 on its own regardless of what is decided here.
 
 ## Strongest weakening / contradictory evidence
 
-- **E26** — artifact-type is per *file*; the unit is multi-file. The reframe requires an amendment to
-  `design/artifact-type.md`, not just a new field. That is the largest cost the reframe carries and
-  the first thing that could sink it.
+- **E26–E29** — artifact-type is per *file*; the unit is multi-file, and on `skill` the three member
+  kinds neither share a type nor resolve to one today. The reframe requires a granularity amendment to
+  `design/artifact-type.md`, not just a new field. Largest cost it carries, and the first thing that
+  could sink it.
 - **E23** — the type vocabulary is *plugin-supplied*, but "a skill folder holds `SKILL.md` and
   `README.md`" is a core convention, not aced's. §6 resolves this by core-default plus plugin
   override, which is the documented precedent — but it does mean core is now stating something about

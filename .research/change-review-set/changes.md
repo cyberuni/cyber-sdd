@@ -75,3 +75,34 @@
   produced file → exactly one squad") while a unit is multi-file. A unit shape requires amending
   `design/artifact-type.md`, not just adding a field. Flagged as the first thing to settle, and as the
   first thing that could sink the approach.
+
+## 2026-08-12 — Granularity worked through on `skill` (third pass, same day)
+
+- **What changed:** §6's open question became a recommendation. E26 was rewritten and E27–E29 added.
+- **Why:** Owner asked for the per-file/multi-file tension expanded on `skill`. Working it through
+  turned a flagged risk into a decidable choice, and moved the recommendation off "a primary file
+  carries the unit."
+- **Conclusion changed materially:** **Yes**, within §6.
+  - Measured the unit: 50 `SKILL.md`, 49 `README.md`, 54 `scripts/*.mts`, 1 `references/`, zero
+    nested `SKILL.md` (E26). Two or three distinct file kinds per unit, never one.
+  - Measured the resolution: all three members of one unit return `artifactType: null` /
+    "classify by convention" — the convention rule names only `SKILL.md` → `skill`, and the
+    tiebreaker map is absent (E27). **The tension is not a prospective cost of the reframe; it is an
+    unresolved ambiguity sitting in the corpus now**, and by `artifact-type.md`'s own rule it is an
+    "ask once — confirm, never guess" that has never been asked.
+  - Rejected "one type for the whole folder" on measured grounds: it re-routes a skill `README.md`
+    from quill's doc squad to aced's agent-config squad and drops `.mts` sources on the SDD default
+    (E28), collapsing the squad key.
+  - Rejected a second per-directory *unit type* axis: `artifact-type.md`'s "Naming" section retired
+    `domain` / `domain-type` / `domain-plugin` to one term, so a near-synonym re-creates what was
+    deliberately removed.
+  - **Recommended instead: one vocabulary, a declared binding granularity.** A type that declares a
+    unit shape also binds at *directory* granularity; member files keep their own file-level types
+    for squad selection. Nothing is re-routed and "one artifact-type per produced file → exactly one
+    squad" stays literally true.
+  - E29 is what forces it: #444's duty-table drift is invisible to **every** member's own squad —
+    aced judges frozen-`.feature` conformance, quill's judge is document-**scoped**, neither has a
+    cross-document face. If no member's squad can see the relation, the unit shape cannot belong to
+    any one member's squad.
+- **Still open:** what a skill `README.md`'s *file*-level artifact-type is. Ambiguous today; settle it
+  while amending and write the binding back (E27).

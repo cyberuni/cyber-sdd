@@ -3,7 +3,7 @@
 // from the cyberplace CLI's `audit validate` (packages/cyberplace/src/audit/{validate,cli}.ts +
 // skill/manifest.ts, inlined here for self-containment).
 //
-// Runs ONLY the mechanical check subset: S1-S6, Q2-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9. Everything
+// Runs ONLY the mechanical check subset: S1-S9, Q2-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9. Everything
 // else (Q1, Q6-Q9, Q12-Q16, E3-E5, E7-E8, P1-P3) is agent-only quality review and is NOT run here —
 // that is judged separately by the improve-skill agent skill / the ACED impl-judge.
 //
@@ -412,6 +412,25 @@ function findInvisibleUnicode(
 
 const ROOT_LOCAL_PATH_PREFIXES = ['docs/', 'governances/', 'skills/', 'src/', 'apps/', 'packages/']
 
+// S7–S9: agentskills.io directory structure checks
+const ALLOWED_SKILL_SUBDIRS = new Set(['scripts', 'references', 'assets'])
+const STATIC_RESOURCE_EXTENSIONS = new Set([
+	'.png',
+	'.jpg',
+	'.jpeg',
+	'.gif',
+	'.svg',
+	'.ico',
+	'.webp', // images
+	'.json',
+	'.yaml',
+	'.yml',
+	'.toml',
+	'.csv',
+	'.xml', // data files (json excluded for skill.json below)
+])
+const TEMPLATE_PATTERNS = [/\.template\./i, /\.tmpl$/i, /^template\./i]
+
 function normalizeLinkTarget(target: string): string {
 	const trimmed = target.trim().replace(/^<|>$/g, '')
 	const withoutTitle = trimmed.split(/\s+"/)[0] ?? trimmed
@@ -802,6 +821,72 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 		}
 	}
 
+	// S7: Non-standard directories
+	try {
+		const entries = fs.readdirSync(skillDir, { withFileTypes: true })
+		const nonStandardDirs = entries
+			.filter((e) => e.isDirectory() && !e.name.startsWith('.') && !ALLOWED_SKILL_SUBDIRS.has(e.name))
+			.map((e) => e.name)
+		if (nonStandardDirs.length > 0) {
+			warn(
+				'MEDIUM',
+				'S7',
+				'Non-standard directory in skill folder',
+				`found: ${nonStandardDirs.join(', ')}`,
+				'Move contents to scripts/, references/, or assets/ per agentskills.io spec',
+			)
+		}
+
+		// S8: Static resources in root
+		const staticInRoot = entries
+			.filter((e) => {
+				if (!e.isFile()) return false
+				const name = e.name
+				const ext = path.extname(name).toLowerCase()
+				// Exclude skill.json from data file check
+				if (name === 'skill.json') return false
+				// Check for template patterns
+				if (TEMPLATE_PATTERNS.some((pat) => pat.test(name))) return true
+				// Check for static resource extensions
+				return STATIC_RESOURCE_EXTENSIONS.has(ext)
+			})
+			.map((e) => e.name)
+		if (staticInRoot.length > 0) {
+			warn(
+				'LOW',
+				'S8',
+				'Static resources in skill root instead of assets/',
+				`found: ${staticInRoot.join(', ')}`,
+				'Move to assets/ per agentskills.io spec',
+			)
+		}
+
+		// S9: Extra documentation in root
+		const extraDocs = entries
+			.filter((e) => {
+				if (!e.isFile()) return false
+				const name = e.name.toLowerCase()
+				if (!name.endsWith('.md')) return false
+				// SKILL.md and README.md are allowed in root
+				if (name === 'skill.md' || name === 'readme.md') return false
+				// Template files belong in assets/ (S8), not references/
+				if (TEMPLATE_PATTERNS.some((pat) => pat.test(name))) return false
+				return true
+			})
+			.map((e) => e.name)
+		if (extraDocs.length > 0) {
+			warn(
+				'LOW',
+				'S9',
+				'Extra documentation files in skill root instead of references/',
+				`found: ${extraDocs.join(', ')}`,
+				'Move to references/ with explicit load conditions per agentskills.io spec',
+			)
+		}
+	} catch {
+		// If we can't read the skill directory, skip S7-S9 checks
+	}
+
 	return { criticals, warnings }
 }
 
@@ -900,14 +985,14 @@ function printReport(w: (s: string) => void, outcome: ScanOutcome): void {
 	if (totalCriticals > 0) {
 		w('❌ Fix all CRITICAL findings before merging.')
 	} else {
-		w('✅ All checks passed (S1–S6, Q2–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9).')
+		w('✅ All checks passed (S1–S9, Q2–Q5, Q10–Q11, Q17, Q18, E1–E2, E6, E9).')
 		w('   Run the improve-skill agent skill for full quality review (Q1, Q6–Q16, E3–E5, E7–E8, P1–P3).')
 	}
 }
 
 const HELP = `usage: validate.mts [--path <path>] [--dir <glob>]... [--root <path>] [--format text|json]
 
-Validate skills against the mechanical check subset (S1-S6, Q2-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
+Validate skills against the mechanical check subset (S1-S9, Q2-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
 
   --path <path>    validate a single skill directory or SKILL.md file (default: whole-project scan)
   --dir <glob>     add a one-off scan location for this run (repeatable; ignored when --path is set)

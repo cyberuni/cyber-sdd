@@ -496,3 +496,72 @@ about behavior rather than an observation of it.
 - **Source type:** primary
 - **Notes:** Load-bearing for the granularity choice in §6: if no member's squad can see the relation,
   the unit shape cannot be a property of any one member's squad.
+
+## Cluster 7 — the companion relation, measured (added 2026-08-12, third pass)
+
+### E30
+
+- **Claim:** The `SKILL.md` ↔ `README.md` relation is **strongly directional**, and the direction
+  that drifts is the one #453 is about. Over 2449 non-merge commits since 2026-01-01, counting only
+  cases where the companion **existed at that commit**:
+
+  | direction | fires | co-changed | rate |
+  |---|---|---|---|
+  | `README.md` → `SKILL.md` | 472 | 395 | **83.7%** |
+  | `SKILL.md` → `README.md` | 1039 | 395 | **38.0%** |
+
+  A README almost never moves without its SKILL; a SKILL moves without its README roughly two times
+  in three. **The 45.7-point asymmetry is the defect expressed as a number.**
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (executed)
+- **Confidence:** high for the rates
+- **Source label:** `git log --no-merges --since=2026-01-01`, per-commit `--name-only` against a
+  `git cat-file -e` existence check for the companion at that commit
+- **Source type:** primary (measured)
+- **Notes:** Supersedes E03 as the measurement of record — E03 used a different window and did not
+  separate direction, which is the informative axis.
+
+### E31
+
+- **Claim:** The directional gap **separates drift-prone pairs from already-honored discipline**, and
+  it can be **mined from history without any declaration**. Ranking every same-directory file-kind
+  pair firing ≥40 times by the gap between its low and high direction:
+
+  | rule (low direction) | fires | rate | reverse | gap |
+  |---|---|---|---|---|
+  | `*.md` → `README.md` | 362 | 20% | 75% | **55pt** |
+  | `*.md` → `*.feature` | 413 | 33% | 86% | **53pt** |
+  | `SKILL.md` → `README.md` | 1039 | 38% | 84% | **46pt** |
+  | `*.mts` → `*.test.mts` | 216 | 73% | 81% | 8pt |
+  | `README.md` → `*.feature` | 733 | 67% | 74% | 7pt |
+
+  Three pairs sit at 46–55pt; two sit at 7–8pt. `SKILL.md` → `README.md` is both high-gap and by far
+  the highest-volume rule.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (executed)
+- **Confidence:** high for the ranking; **medium** for reading the gap as a *drift* measure (see
+  E32)
+- **Source label:** mining pass over the same commit set, grouping changed files by directory and
+  comparing changed kinds against the kinds present in that directory at that commit
+- **Source type:** primary (measured)
+- **Notes:** This is evolutionary-coupling mining applied to a documentation corpus. It means the
+  **candidate** companion rules need no declaration at all — only the decision about which to
+  **enforce** does. `*.mts` → `*.test.mts` at 8pt is the control: a genuine companion pair that is
+  already honored, and where a declared rule would fire on healthy commits about a quarter of the
+  time and be ignored.
+
+### E32
+
+- **Claim:** A 38% forward rate **rules out a hard gate** and forces the mechanism to be a
+  *review-set* expansion rather than an edit requirement. The measurement cannot distinguish a
+  README that should have moved from a `SKILL.md` edit with nothing for a README to mirror
+  (frontmatter, a description tweak, a typo), so a check failing whenever the companion did not
+  change would fire on roughly two of every three skill commits.
+- **Date accessed:** 2026-08-12
+- **Status:** inference from E30/E31, not an independent measurement
+- **Confidence:** high for the arithmetic; the underlying split between drift and benign is
+  **unmeasured**
+- **Source type:** derived
+- **Notes:** This is the same distinction blast radius already makes: blast widens what is
+  **examined**, never what is **edited**. A companion that needs no change is a correct outcome; the
+  requirement is that it was **seen**.

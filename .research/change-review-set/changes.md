@@ -106,3 +106,44 @@
     any one member's squad.
 - **Still open:** what a skill `README.md`'s *file*-level artifact-type is. Ambiguous today; settle it
   while amending and write the binding back (E27).
+
+## 2026-08-12 — Narrowed to a directed companion relation (third pass, same day)
+
+- **What changed:** The verdict, §1 and §6. Pass 2's unit-shape-per-artifact-type and its
+  binding-granularity amendment to `design/artifact-type.md` are **withdrawn**. Added E30–E32.
+- **Why:** Owner reframed again, and correctly: *"The question is the blast radius. When SKILL.md
+  changes, we need to know the README.md next to it also need to be reviewed. Similar to Storybook
+  stories, if the `*.stories.tsx` changes, it's related mdx file also needs to be reviewed or
+  updated."* That is a **pairwise, directed relation between file kinds**, not a set to derive and
+  not a unit to describe. Pass 2 had over-built.
+- **Conclusion changed materially:** **Yes.**
+  - Measured the relation and found it strongly **asymmetric**: `README.md` → `SKILL.md` co-changes
+    83.7%, `SKILL.md` → `README.md` 38.0%, over 2449 non-merge commits (E30). The 45.7-point gap is
+    the defect as a number, and it is why the rule must be **directed** — a symmetric rule would look
+    healthy from the README side and hide it.
+  - Found the candidate rules **mine out of git history**: ranking same-directory file-kind pairs by
+    directional gap gives `*.md`→`README.md` 55pt, `*.md`→`*.feature` 53pt, `SKILL.md`→`README.md`
+    46pt, against `*.mts`→`*.test.mts` 8pt and `README.md`→`*.feature` 7pt (E31). The metric
+    separates drift-prone pairs from already-honored discipline, and `*.mts`→`*.test.mts` is a
+    credible control rather than a restatement of the hypothesis. Only *which candidates to enforce*
+    needs a human.
+  - Settled the mechanism's shape from the 38% forward rate: a hard gate would fire on two of every
+    three skill commits (E32). The output is a **review set** — what must be examined, never what
+    must be edited — which is what blast radius already is. Concrete composition: **companion
+    expansion → expanded touch-set → blast**.
+  - **Dissolved** E26–E29 rather than solving them. The multi-file/per-file tension existed only
+    because pass 2 was making the members of a set share one type; a directed pairwise rule never
+    asks that. No amendment to `design/artifact-type.md` is needed, and A now has no blocking
+    precondition.
+  - §3 gained a fifth requirement specific to a directed relation: **name the rule that fired**, since
+    a 46pt rule and a 7pt rule warrant different trust.
+- **What survived, again:** §2 (blast is a distinct calculation consuming the expansion), §3 (the
+  fail-loud doctrine), §4 (wrap-safety — now with *less* riding on it, since companion rules match
+  paths not prose), §5 (screaming architecture).
+- **What still needs declaring:** only the cross-layer edge — `SKILL.md` → its spec node → its docs
+  page — which no filename pattern reaches because the names diverge (E07) and the website layer has
+  no edges (E11). Twelve lines of frontmatter (E08).
+- **Weakest joint, restated honestly:** the gap measures **asymmetry**, not drift. The split between
+  a README that should have moved and a `SKILL.md` edit with nothing to mirror was never measured. A
+  hand-audit of a sample of the 644 `SKILL.md`-without-`README.md` commits would settle it and is the
+  cheapest thing left to do.

@@ -1,5 +1,10 @@
 # Conclusion — Change Review Set
 
+> **Second pass (2026-08-12).** The first pass framed the answer as four sets derived per change,
+> and recommended a per-spec-node declaration. That framing is superseded: the unit is a property of
+> the **artifact type**, and the declaration belongs where the type is declared. See `changes.md`
+> for what moved and why. Sections 2–5 survive the reframe; §1 and §6 are rewritten.
+
 ## Question
 
 What set of documents does a change belong to; which of the four candidate sets named in #453 are
@@ -9,121 +14,145 @@ cost in this corpus; and what does the screaming-architecture rule say one level
 
 ## Verdict
 
-**Three of the four sets are cheap and one is a trap.** The skill folder is derivable from the path
-with no declaration and nothing derives it today (E04). The cross-link set is *already shipped* for
-the spec layer as `concept-index` (E10). The **layer set** is the one that caused every failure in
-#437, and it is **not** derivable — name inference is wrong on 2 of the 19 rows it can even attempt
-and silent on the other 31 (E07), path co-mapping works only for the 39% of spec nodes that sit at
-depth 1 (E05, E06), and the third layer has no edge to derive from in either direction (E11). The
-**citation set** is derivable and should not be used as a review set: a phrase sweep for `"entry
-point"` reaches 94 files where the real review set in #437 was about six (E15).
+**The review set is a property of the artifact type, not a graph computed per change.** #453's four
+sets read as four different questions only because they were being derived per change, from the
+touched file outward. Keyed on artifact type they collapse into one question, asked **once per type
+rather than once per change**: *what constitutes one artifact of this type, and what else states
+what it states?* A `skill` is a directory of `SKILL.md` + `README.md` + scripts, specified by a spec
+node and explained by a docs page — that is a fact about the type `skill`, true before any change is
+made, and it does not need deriving at all.
 
-The load-bearing finding is that **the layer declaration already exists in this repository, in
-prose, in twelve spec-node READMEs** — `- **Artifact** — the <name> bar, shipped as <path>` (E08) —
-and that in **eleven of those twelve the path sits on the line after the marker** (E09). The
-declaration this design needs is already being written by hand and is already unreadable to a
-line-oriented parser. That single measurement answers two sub-questions at once: the layer set needs
-a declaration (it exists, so someone has already concluded it must), and wrap-safety is not a
-hypothetical hazard here (the declaration is the majority case of the defect).
+This repository already carries the axis. **artifact-type** is defined as "the **squad key** … one
+artifact-type per produced **file** → exactly one squad," universal rather than SDD-only, an open
+string needing no schema bump (E22). Its vocabulary is plugin-supplied and flows **marketplace →
+install → registry → resolution**, with "SDD core ships only the generic defaults" and an unmatched
+type resolving to the default squad rather than erroring (E23). A file's type is **resolved, not
+stored**, by convention first — "a `SKILL.md` under `skills/` is a `skill`" — then an optional
+tiebreaker map, then the registry (E24), and `resolve-governances` already implements the consuming
+half (E24). So the path from *a touched file* to *its artifact-type* is specified and shipped. What
+is missing is not the key. It is what the key returns.
 
-## 1. Derivable versus declared
+The measurements from the first pass survive and now read as symptoms rather than as the problem.
+Name inference from skill to spec node is *confidently wrong* on 2 of the 19 rows it can attempt and
+silent on the other 31 (E07); `fileToNode` co-maps only the 39% of spec nodes at depth 1 (E05, E06);
+the layer declaration already exists in prose in twelve READMEs and the path wraps onto the next line
+in eleven of them (E08, E09). Each of those is an attempt to *recover per artifact* something that is
+*constant per type* — which is why each one is lossy in a different way.
 
-| Set | Derivable today? | From what | Gap |
-|---|---|---|---|
-| **Skill folder** | **Yes**, fully | `dirname(SKILL.md)` — the unit is a directory | Nothing performs it. Bounded population: 30.2% of skill-folder commits move `SKILL.md` with a README present and unmoved (E03) |
-| **Layer set** | **No** | — | `fileToNode` co-maps the spec root and impl root to one node (E05) but is depth-1 by construction, and 77 of 127 spec nodes are deeper (E06). Names diverge and collide (E07). Website pages resolve to `null` (E05, E11) |
-| **Citation set** | Yes, but useless raw | phrase matching over tracked files | Over-generates by more than an order of magnitude (E15). Precision requires the claim to be *named*, not its words matched |
-| **Cross-link set** | **Yes**, already shipped | `concept:` frontmatter → `concept-index`, CI-guarded by `--check` (E10) | Covers spec nodes only; shipped skills and website pages carry no `concept:` tag |
+**One caution the reframe does not fix, and one it earns.** It earns the `architect` anomaly: one
+spec node shipping as two skills (E07) stopped being a case a derivation gets wrong and became the
+definition of a type's shape. It does not fix the case in E25 — see §6.
 
-Two of these need no new mechanism at all, which is worth stating plainly before designing
-anything: the folder set needs a *consumer*, and the cross-link set needs nothing.
+## 1. What the type knows, and what it cannot
 
-The layer set needs a **declaration**, and the evidence is unusually direct about why inference
-cannot substitute for one. It is not that inference is merely lossy. On the `architect` row one spec
-node ships as **two** skills (`architect-spec-governance` and `architect-impl-governance`), so the
-relation is many-to-one and no bijection-shaped derivation is right in either direction (E07). On
-the `init` and `manage` rows, name matching does not fail — it returns a **confidently wrong**
-answer pointing into another project's spec tree (E07). A derivation that is wrong while looking
-right is the exact failure mode #453 asks the design to avoid.
+Keyed on artifact type, #453's four sets split cleanly by **who knows the answer**:
+
+| Set | Known by | Status |
+|---|---|---|
+| **Skill folder** | the **type** — "an artifact of type `skill` is a directory containing …" | Constant per type. Needs stating once, not deriving |
+| **Layer set — shape** | the **type** — "a `skill` is specified by a spec node and explained by a docs page" | Constant per type. Needs stating once |
+| **Layer set — identity** | the **artifact** — *which* spec node, *which* docs page | **Not derivable.** The residual declaration (E05–E09) |
+| **Citation set** | neither | Over-generates by an order of magnitude — 94 files for `"entry point"` where the real set was ~6 (E15) |
+| **Cross-link set** | already shipped | `concept-index` renders `concept → {nodes}` from frontmatter, CI-guarded by `--check` (E10) |
+
+That split is the whole reframe. The first pass treated the folder set and the layer set as two
+mechanisms over two graphs; they are one description of one type, differing only in whether the
+member sits inside the directory or in another layer. And the part that genuinely resists — *which*
+node, *which* page — shrinks from "derive a graph" to "state an identity where it cannot be
+inferred," which is twelve existing prose declarations (E08), not a calculation.
+
+Why identity cannot be folded into the type: the type says a link **exists**, never where it
+**points**. Renaming across layers is the norm here, not the exception (`check-retired-terms` ↔
+`corpus/retired-terms`, `spec-format-governance` ↔ `authoring/spec-format`, E07), and path
+co-mapping breaks for 61% of nodes (E06). No amount of type-level description recovers a target that
+was renamed.
 
 ## 2. Extend the blast machinery, or a distinct calculation?
 
-**Distinct calculation, shared substrate.** Four reasons, in descending strength:
+**Distinct calculation, shared substrate.** Unaffected by the reframe. Four reasons, in descending
+strength:
 
 - **The output types are incompatible.** `blast-estimate` returns a level on a three-point lattice.
   A review set is an enumerated set of paths. Folding a set into a scalar destroys precisely the
-  information #453 wants, and there is no seam in the bucketed arithmetic where a set could
-  survive.
+  information #453 wants, and there is no seam in the bucketed arithmetic where a set could survive.
 - **The graphs are different.** `blast-estimate`'s centrality is mention-based fan-in between *work
-  areas*, over the forms the corpus uses to name an area (`sdd/spec-gate`, `sdd:spec-gate`, a path
-  under a declared root, a relative sibling link). The review set is an edge between *documents*
-  that carry the same claim. A work area with high fan-in is not thereby a document set.
+  areas*. The review set is an edge between *documents that carry the same claim*. A work area with
+  high fan-in is not thereby a document set.
 - **`blast-estimate`'s own boundaries forbid it.** It "consumes" a touch-set and explicitly does not
   "*produce*" one. A review set is a **touch-set expansion**, which sits **upstream** of blast, not
-  inside it. This also gives the right composition order: derive the review set first, then let the
-  expanded set feed blast — which is exactly the intake benefit #453 names, a declared blast that
-  reflects the documents that must move together rather than only the code areas.
-- **The failure directions differ.** An under-called blast level *modulates a conductor's judgment*
-  and is corrected by the conductor. A short review set **is** the answer, and reads as complete.
+  inside it. That also gives the composition order the intake benefit in #453 wants: expand the
+  touch-set by artifact type, then let the expanded set feed blast.
+- **The failure directions differ.** An under-called blast level *modulates a conductor's judgment*.
+  A short review set **is** the answer, and reads as complete.
 
-What should be **reused** is the substrate, following the cross-skill reuse `blast-estimate` and
-`collision-ladder` already practise on `fileToNode`: the same `discoverLayouts` /
-`fileToNode(path, layouts)` pair recovers the node a touched file belongs to, and the declared
-layout roots are already the right place to say a project spans a spec root and an impl root. The
-new engine consumes that and adds one thing `fileToNode` does not have: **which other documents
-state what this one states**.
+Under the reframe the reuse boundary gets cleaner, not blurrier. `fileToNode` / `discoverLayouts`
+remain the substrate for *work-area recovery*; artifact-type resolution is a **separate, already
+specified** path from file to key (E24) that does not go through `fileToNode` at all. The review-set
+engine consumes the second, not the first — which is why §6 no longer needs `fileToNode`'s depth-1
+limitation fixed.
 
 One inherited hazard to design around: `discoverLayouts` swallows every failure and returns `[]`
-(E19). Downstream of blast that fails safe, because zero resolved areas computes `unknown` rather
-than `low`. An empty *set* has no such fallback unless one is built — see §3.
+(E19). Downstream of blast that fails safe — zero resolved areas computes `unknown`, not `low`. An
+empty *set* has no such fallback unless one is built; see §3.
 
 ## 3. How the answer must degrade
 
-This is the constraint that decides whether the mechanism helps or hurts, and **the repository has
-already written the doctrine down** — it has simply never been applied to a set-shaped output.
+Unchanged by the reframe, and the constraint that decides whether the mechanism helps or hurts.
+**The repository has already written the doctrine down** — it has simply never been applied to a
+set-shaped output.
 
 `blast-estimate` states it as a rule: unresolved areas are "surfaced, never dropped"; a touch-set
-resolving to zero areas computes `unknown`, "**never `low`**"; and every read failure except
-`ENOENT` fails loud, because swallowing them "fails in the **dangerous direction**, silently
-under-calling blast on exactly the areas a project marked as needing care" (E18).
-`check-retired-terms` states the same thing from the other side: "a **malformed registry never
-reports clean** — the registry *is* the check" (E18). And `check-scenario-overlap` and
-`resolve-governances` both show the structural form: a mechanical engine emits **bucketed
-candidates** and **ships no verdict**, leaving the judgment to a named consumer — the Warden in one
-case, "the consuming agent composes" in the other (E16, E17).
+resolving to zero areas computes `unknown`, "**never `low`**"; every read failure except `ENOENT`
+fails loud, because swallowing them "fails in the **dangerous direction**" (E18).
+`check-retired-terms` states it from the other side: "a **malformed registry never reports clean** —
+the registry *is* the check" (E18). `check-scenario-overlap` and `resolve-governances` show the
+structural form: bucketed candidates, **no verdict from the engine** (E16, E17).
 
-Applied here, that yields four requirements a review-set engine must meet:
+Four requirements for a review-set engine:
 
-1. **Never emit one flat set.** Emit `derived` — members complete by construction, from a path or a
-   declaration — separately from `candidates` — members found heuristically. The two carry different
-   warrants and must not be printed as one list.
-2. **Emit coverage, not just members.** State which layers were consulted and which members could
-   not be resolved. Silence must be distinguishable from emptiness; "no other members" and "no
-   declaration to read" are opposite answers that look identical in a bare list.
+1. **Never emit one flat set.** `derived` — complete by construction from a type description or a
+   path — separate from `candidates` — heuristic. Different warrants must not print as one list.
+2. **Emit coverage, not just members.** "No other members" and "no description to read" are opposite
+   answers that look identical in a bare list.
 3. **A dangling or malformed declaration fails loud.** A declared artifact path that does not exist
    is an error, never an omission.
-4. **No declaration yields `unknown`, never `[]`.** An empty array reads as "nothing else to
-   review." This is the `unknown`-not-`low` rule transposed to a set, and it is the single
-   requirement that keeps a nearly-right answer from being worse than none.
+4. **No description yields `unknown`, never `[]`.** An empty array reads as "nothing else to
+   review." This is `unknown`-not-`low` transposed to a set, and it is the one requirement that
+   keeps a nearly-right answer from being worse than none.
+
+The reframe strengthens requirement 4 by giving it an existing precedent to match. artifact-type
+resolution already has a defined answer for an unclaimed type: "**an unmatched type is not an error,
+it is the default squad**" (E23). The review-set analogue is a **default unit shape** — for an
+unrecognized type, the directory containing the file, reported explicitly as the default rather than
+as a derived answer. That is a better degradation than `unknown`, because it is still useful, and it
+is the behavior the corpus already expects from this axis.
 
 ## 4. Wrap-safety
 
-Measured, in this corpus: **1213 bold spans and 105 inline-code spans straddle a newline**, across
-881 tracked markdown files — 5.3% of all bold spans, in a corpus that states its rules in bold
-(E14). For real phrases from #437, whitespace-normalized matching reaches strictly more files than
-line-oriented matching: `"entry point"` 90 → 94, `"use case"` 93 → 95 (E15). The miss rate rises
-with phrase length, which is the wrong direction — the more specifically a phrase identifies a rule
-rather than a common word, the likelier a line sweep is to miss a site.
+Unchanged by the reframe; it is a property of matching, not of framing.
+
+Measured: **1213 bold spans and 105 inline-code spans straddle a newline**, across 881 tracked
+markdown files — 5.3% of all bold spans, in a corpus that states its rules in bold (E14). For real
+phrases from #437, whitespace-normalized matching reaches strictly more files than line-oriented
+matching: `"entry point"` 90 → 94, `"use case"` 93 → 95 (E15). The miss rate rises with phrase
+length, which is the wrong direction — the more specifically a phrase identifies a rule rather than
+a common word, the likelier a line sweep misses a site.
 
 `check-scenario-overlap` already normalizes whitespace and case before fingerprinting and is
-wrap-safe by construction (E16). `check-retired-terms` does **not** — it splits on `\n` and tests
+wrap-safe by construction (E16). `check-retired-terms` does not — it splits on `\n` and tests
 `includes` per line (E12) — but the defect is **latent, not live**: the live registry holds one
-entry, `artifacts/specs/`, a path with no whitespace that reflow can never break (E13). The moment
-that registry admits its first multi-word phrase, the defect activates silently.
+entry, `artifacts/specs/`, a path with no whitespace that reflow can never break (E13). It activates
+silently the first time that registry admits a multi-word phrase.
 
-**Requirement:** normalize whitespace before matching, and retain an offset→line map so reporting
-stays `file:line`. **Recommendation:** migrate `check-retired-terms` to normalized matching *before*
-its registry admits a phrase, not after.
+**Requirement:** normalize whitespace before matching, retaining an offset→line map so reporting
+stays `file:line`. **Recommendation:** migrate `check-retired-terms` before its registry admits a
+phrase, not after.
+
+The reframe reduces how much rides on this. A type-described unit is matched by **path**, not by
+phrase, so the folder and layer members never go through a text sweep at all. Wrap-safety stays
+mandatory for anything citation-shaped (§6, increment C) and for reading the residual identity
+declaration, which is exactly where it already bites — the path wraps in 11 of the 12 existing
+declarations (E09).
 
 ## 5. Screaming architecture, one level down
 
@@ -132,155 +161,180 @@ The tempting extension — "one capability per node" becomes "one concept stated
 `.research/documentation-craft/conclusion.md` finds "a claim must appear in exactly one place" has
 "no empirical warrant, and should be dropped": a passage "may **restate** a claim freely — recurrence
 is not itself a defect," and the symmetrical failure is "a **bare cross-reference** that withholds
-the claim" (E21). #453 half-anticipates this itself, when it says a concept appearing in a shipped
-artifact, its spec, and its public explanation "is a legitimate layering, not duplication."
+the claim" (E21). #453 half-anticipates this, calling a concept in a shipped artifact, its spec, and
+its public explanation "a legitimate layering, not duplication."
 
-The correct one-level-down statement is therefore not about uniqueness but about **declaration**:
+The correct one-level-down statement is about declaration, not uniqueness:
 
 > One concept has one **home**. Restating it elsewhere is legal — and often required by layering —
-> but a restating document **declares its home**, so the set of restatements is derived rather than
+> but the **shape of the layering is declared**, so the set of restatements is derived rather than
 > remembered.
 
-That is the same move screaming architecture makes at the node level. A capability-first layout does
-not forbid a file from relating to several capabilities; it makes the structure **declare itself**
-rather than be inferred from content. One level down, the analogue is that a restatement declares
-its source rather than being recovered by searching for its words.
+The artifact-type reframe sharpens this rather than changing it. In the first pass the declaration
+sat on each restating document ("a restating document declares its home"), which is the
+information-hiding move made once per document. Per type it is made **once per kind of thing**: the
+type says a `skill` is layered as artifact / spec / docs page, and every skill inherits that shape
+without restating it. That is the same economy screaming architecture buys at the node level — the
+structure declares itself, and instances do not each re-declare it.
 
-This reframing has a concrete payoff, and it is what turns the citation set from a trap into an
-asset. A citation set derived by **phrase matching** reaches 94 files and is unusable (E15). A
-citation set derived by **link traversal** over declared homes is precise and complete by
-construction — and it is the same edge the layer-set declaration already provides. The two
-"interesting" sets of #453 collapse into one mechanism, and the mechanism is a declaration rather
-than a search.
-
-The same reframing also settles where this does *not* belong. `formation-loop` is the only
-corpus-wide continuous loop, but its charter is that it "evolves how the corpus is **arranged**,
-never what it says" (E20), and a set-membership check is a claim about what the corpus says. Under
-the charter as written this is not a formation act. The `documentation-craft` conclusion independently
+Where it belongs is still open. `formation-loop` is the only corpus-wide continuous loop, but its
+charter is that it "evolves how the corpus is **arranged**, never what it says" (E20), and a
+set-membership check is a claim about what the corpus says. `documentation-craft` independently
 places cross-page claim overlap in "a continuous corpus-wide review loop, not a per-page boolean
-gate" (E21). Those two are in tension and the tension is unresolved: either formation's charter
-widens, or a second continuous loop is needed, or the check runs verify-time and corpus-wide the way
-`check-retired-terms` already does without belonging to any loop. **The third is the cheapest and is
-what §6 recommends**; the first two are design decisions this dossier does not settle.
+gate" (E21). Those are in tension and this dossier does not resolve it: either formation's charter
+widens, or a second loop is needed, or the check runs verify-time and corpus-wide the way
+`check-retired-terms` does without belonging to any loop. **The third is cheapest and is what §6
+assumes**; the first two are decisions for someone else.
 
 ## 6. Recommendation on scope
 
-Three increments. Only the first two are mechanical, and they are deliberately ordered so the
-cheapest one ships first and the expensive one is not blocked behind a judgment call.
+Two increments, plus one explicitly deferred. The ordering matters: the first is a *description*
+task with a small mechanical consumer, and the second is the residual that description cannot cover.
 
-### A — the folder set (small, no declaration, ship first)
+### A — describe the unit per artifact type (the primary work)
 
-A verify-time guard over each skill folder comparing `SKILL.md` against its sibling `README.md` on
-the structure they both carry — the duty table is the concrete case #444 found, where "the
-mechanical bar-to-table comparison that finally closed it is about fifteen lines." Derived purely
-from the path (E04), so there is nothing to declare, nothing to migrate, and no false authority to
-guard against: the set is complete by construction. Population bounded by E03; a folder with no
-`README.md` is coverage, not a violation.
+State, per artifact type, **what constitutes one artifact of that type** — its member files, and
+which other layers state what it states. Concretely, for the types live in this repo (E23):
 
-Expected finding rate is **unmeasured** — E03's 30.2% is a rate of unsynchronized *edits*, most of
-which have nothing to mirror. Build it to report before wiring it into `check:specs`.
+| type | unit shape |
+|---|---|
+| `skill` | a directory: `SKILL.md` + `README.md` + `scripts/` + fixtures; specified by a spec node; explained by a docs page |
+| `governance` | **two** skill folders — the spec face and the impl face — plus the one spec node specifying both |
+| `documentation` / `guide` / … | quill's types; shape stated by quill |
 
-### B — the layer set as declared data (the real fix)
+**Home:** SDD core ships a default unit shape per generic type; a plugin refines it in its `squads[]`
+entry, which already lands in `.agents/universal-plugin.json` via `init-<plugin>`. This is the
+existing default-plus-override flow verbatim (E23) — no new resolution path, no new config file, and
+`resolve-governances` already resolves the key (E24). It also puts the shape where the type
+vocabulary is owned, so a plugin introducing a type introduces its unit shape with it rather than
+leaving the repo to infer one.
 
-Promote the prose declaration of E08 into machine-readable frontmatter on the spec node, sibling to
-the `concept:` tag that already works this way (E10) — an explicit list of the artifacts the node
-specifies, covering the shipped skill folder and, where one exists, the public docs page. The
-derivation is then: touched file → node (`fileToNode`) → declared members. Three checks come with
-it, each following the E18 doctrine: a declared path that does not exist **fails loud**; a shipped
-skill folder claimed by two nodes **fails loud**; an unclaimed folder is reported as **coverage**,
-never as a violation.
+**Scale:** roughly nine type descriptions against 127 per-node declarations under the first pass's
+proposal — and the type descriptions do not drift per node, which was that proposal's main long-term
+cost.
 
-Migration is twelve files (E08), and they wrap in eleven of twelve (E09). **Convert them once from a
-hand-verified list — do not build a parser for the prose form.** A prose parser for a construct that
-wraps 92% of the time is exactly the nearly-right-and-authoritative artifact §3 exists to prevent.
+**Mechanical consumer:** the verify-time check #444 prototyped — for each artifact, compare the
+members the type says it has, and report a member the change did not move. Path-derived and complete
+by construction against the type description, so §3's requirements are satisfiable rather than
+aspirational. Report before wiring into `check:specs`: E03's 30.2% bounds the *population*, not the
+finding rate, and that rate is unmeasured.
 
-Do **not** infer the mapping by name in the absence of a declaration, and do not fall back to it.
-E07 measures the fallback returning a wrong answer 2 times in the 19 cases where it returns anything
-at all. An unclaimed node must read as `unknown`, per §3 requirement 4.
+**The open question to settle first (E26):** artifact-type is keyed per **file** — "one
+artifact-type per produced file → exactly one squad" — while a unit is multi-file. Either the
+type key applies to a **primary** file whose classification carries the whole unit and the shape
+enumerates the rest, or every member file resolves to the same type. The first is recommended (it
+leaves the squad-key semantics untouched and adds a second thing the key returns), but this is a
+real amendment to `design/artifact-type.md` and should be decided before anything is built.
 
-Do **not** extend `concept-index` to cover skills instead. `concept:` groups nodes by a
-cross-cutting *concern* — many-to-many and semantic. The layer set is an *identity* relation: this
-document and that one are the same capability at different layers. Conflating them makes the concept
-view noisy and the layer set imprecise.
+### B — the residual identity declaration
 
-The website layer is the weak member: it has no edges today in either direction (E11), so its
-declaration is pure new authorship with no migration path measured. Recommend declaring it in B's
-schema but treating its population as a separate, later pass.
+The type says a `skill` has a spec node; it cannot say *which*. Promote the twelve existing prose
+declarations (E08) into machine-readable frontmatter on the node. Three checks, each following the
+E18 doctrine: a declared path that does not exist **fails loud**; a folder claimed by two nodes
+**fails loud**; an unclaimed folder is reported as **coverage**, never as a violation.
 
-### C — the citation set (defer; candidates only, never a verdict)
+**Convert the twelve once from a hand-verified list — do not build a parser for the prose form**
+(E09: it wraps in 11 of 12; a parser for that is exactly the nearly-right-and-authoritative artifact
+§3 exists to prevent). Do **not** fall back to name inference (E07: wrong 2 times in the 19 cases
+where it answers at all). Do **not** overload `concept:` — that is a many-to-many *concern*; this is
+an *identity* relation, and conflating them makes the concept view noisy and the identity imprecise.
 
-Only after B ships, and only in the `check-scenario-overlap` shape: normalized matching (§4),
-`derived` and `candidates` in separate buckets, an explicit judgment arm, no verdict from the engine
-(E16, E17). Once B exists, most of what C would find is already reachable by traversing declared
-homes, and what remains is genuinely heuristic and must be presented as such.
+The website layer is the weak member: no edges exist in either direction (E11), so its declaration is
+pure new authorship with no measured migration path. Declare it in the schema; populate it later.
 
-**Recommend not building C on a phrase sweep at all** if B does not ship. Alone, a 94-file candidate
-list for a two-word phrase is the "silently wrong because loudly over-broad" mirror of the defect
-#453 is about — it will be ignored within two change requests, and an ignored check is worse than an
-absent one because it occupies the slot.
+### C — the citation set (defer)
+
+Only after A and B, and only in the `check-scenario-overlap` shape: normalized matching (§4),
+`derived` and `candidates` bucketed separately, an explicit judgment arm, no verdict from the engine
+(E16, E17). **Do not build it on a phrase sweep if A and B do not ship** — a 94-file candidate list
+for a two-word phrase is the loud mirror of the same defect, will be ignored within two change
+requests, and an ignored check is worse than an absent one because it occupies the slot.
+
+### The case none of this catches
+
+E25 is a live instance of #453's defect that survives every increment above:
+`design/artifact-type.md` says a node README carries "`spec-type` only — **never** an artifact-type
+field," while `design/spec-structure.md` says the classification frontmatter is "`spec-type`,
+`artifact-types`, and `concept`." Measured, 0 of 127 nodes carry `artifact-types:` and the enforcing
+engine parses only `concept` and `spec-type` — so the corpus follows the first and the second states
+a retracted rule. **In the spec that defines the corpus's own structure rules.**
+
+That pair is not a unit (they are two rule documents, not two members of one artifact), and it is not
+a cross-link set either — they carry *different* `concept:` tags (`artifact-type` and
+`spec-structure`), so `concept-index` would not group them. It is a citation-shaped defect, which is
+increment C, which is the one being deferred. Worth knowing that the deferral has a live cost, and
+worth fixing E25 on its own regardless of what is decided here.
 
 ### Not recommended
 
 - **Extending `blast-estimate`** to emit the review set (§2).
-- **Fixing `fileToNode`'s depth-1 recovery** as part of this work. It is load-bearing for the
-  touch-set and blast paths as it stands; B's declaration removes the need to widen it, and widening
-  it would change work-area attribution across two shipped engines for reasons unrelated to #453.
+- **Fixing `fileToNode`'s depth-1 recovery** as part of this work. Under the reframe the review set
+  does not route through `fileToNode` at all, so the limitation stops being on this path. It remains
+  a real measured mismatch under two shipped engines (E05, E06) — a separate issue.
+- **Declaring the unit per spec node** (the first pass's proposal): 127 declarations for something
+  constant across ~9 types.
 - **Adopting "one concept stated in one place"** as a rule (§5, E21).
 
 ## Strongest supporting evidence
 
-- **E09** — the layer declaration already exists in twelve files and wraps in eleven of them. It
-  establishes simultaneously that the declaration is needed, that people already write it, and that
-  wrap-safety is the majority case rather than an edge case.
-- **E07** — name inference returns a *confidently wrong* answer on `init` and `manage`, and the
-  `architect` row is many-to-one. This is what forecloses derivation-by-convention.
-- **E18** — the fail-loud-in-the-dangerous-direction doctrine, already written in two shipped
-  engines. §3 is a transposition, not an invention.
-- **E15** — measured, phrase-length-dependent miss rate for line-oriented matching, reproducing the
-  #437 failure as a corpus property rather than an anecdote.
+- **E22–E24** — the artifact-type axis is defined, plugin-supplied, per-file-resolved, and already
+  consumed by `resolve-governances`. The reframe rides existing machinery rather than proposing any.
+- **E07** — name inference is *confidently wrong* on `init` and `manage`, and the `architect` row is
+  many-to-one. Under the reframe this stops being a derivation failure and becomes a type's shape.
+- **E09** — the layer declaration already exists in twelve files and wraps in eleven. It establishes
+  at once that the identity residual is real, that people already write it, and that wrap-safety is
+  the majority case for this construct.
+- **E18** — the fail-loud doctrine, already written in two shipped engines; §3 is a transposition.
 
 ## Strongest weakening / contradictory evidence
 
-- **E03** measures unsynchronized *edits*, not drift. It bounds the population increment A would
-  examine and says nothing about how many real findings it would raise. If most of that 30.2% is
-  noise, A ships a check with a poor signal ratio — the failure mode that gets checks ignored.
-- **E21** is cited here as settled, but the `documentation-craft` dossier itself rates its
-  cross-page transfer **medium** and names it "the weakest joint" — every corpus-level claim in it is
-  an inference from within-text results. §5 rests on it.
+- **E26** — artifact-type is per *file*; the unit is multi-file. The reframe requires an amendment to
+  `design/artifact-type.md`, not just a new field. That is the largest cost the reframe carries and
+  the first thing that could sink it.
+- **E23** — the type vocabulary is *plugin-supplied*, but "a skill folder holds `SKILL.md` and
+  `README.md`" is a core convention, not aced's. §6 resolves this by core-default plus plugin
+  override, which is the documented precedent — but it does mean core is now stating something about
+  types plugins own.
+- **E03** measures unsynchronized *edits*, not drift. If most of that 30.2% is noise, A's mechanical
+  consumer ships with a poor signal ratio — the failure mode that gets checks ignored.
+- **E21** is cited as settled, but `documentation-craft` rates its own cross-page transfer *medium*
+  and calls it its weakest joint. §5 rests on it.
 - **E20 versus E21** disagree on the home for a corpus-wide content check. §5 routes around the
-  disagreement rather than resolving it, which is a deferral, not an answer.
-- **E11** means B's third layer has no measured migration path. The two-layer version of B is
-  well-evidenced; the three-layer version is a design proposal.
+  disagreement rather than resolving it.
+- **E11** — the three-layer version of the unit shape has no measured migration path.
 
 ## What is not supported
 
-- That the layer set can be recovered by name, by path convention, or by any inference over the
-  current tree (E05, E06, E07).
+- That the layer set's **identity** edge can be recovered by name, by path convention, or by any
+  inference over the current tree (E05, E06, E07).
 - That a phrase-matched citation set is usable as a review set (E15).
 - That "one concept stated in one place" is a sound rule for this corpus (E21).
 - That `check-retired-terms` has a *live* wrap defect. It has a latent one (E12, E13).
-- Any estimate of how many real defects increment A would catch (E02 is n=1 change; E03 is the wrong
-  measure for it).
+- Any estimate of how many real defects increment A's mechanical consumer would catch (E02 is n=1;
+  E03 is the wrong measure for it).
 
 ## Where evidence is thin
 
-- The finding rate of increment A — unmeasured, and the main open risk to it.
+- The finding rate of A's mechanical consumer — unmeasured, and the main open risk.
 - Whether the twelve existing `**Artifact**` declarations are *correct*, not merely present. They
   were counted, not verified against the folders they name.
+- Whether the ~9 live artifact-types are the right granularity for a unit shape, or whether the
+  shapes vary within a type more than across types. Not tested — only `skill` and `governance` were
+  worked through concretely.
 - The website layer end to end (E11): zero existing edges means zero observations of what a
   declaration there would cost or catch.
 
 ## What to check again later
 
+- Whether `design/artifact-type.md` gains a unit-shape section, which is the precondition for A.
+- Whether E25's contradiction is fixed, and whether anything mechanical detected it (nothing does
+  today).
 - Whether `check-retired-terms`' registry has admitted a multi-word phrase — the moment E13's latent
   defect goes live.
 - Whether `formation-loop`'s charter widens to cover content-level corpus checks, which would give
   increment C a home it does not currently have (E20, E21).
-- Whether `fileToNode`'s depth-1 recovery starts producing wrong work-area attribution for the 77
-  nested spec nodes in a context that matters (E05, E06). Out of scope here, but it is a real
-  measured mismatch sitting under two shipped engines.
 
 ## Landed in
 
 Not yet consumed by any ADR or governance. Filed against issue #453; increments A and B await the
-owner's decision on scope before any build.
+owner's decision on scope, and A additionally awaits the E26 amendment to `design/artifact-type.md`.

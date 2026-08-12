@@ -347,3 +347,95 @@ about behavior rather than an observation of it.
 - **Notes:** Directly constrains sub-question 5. "One concept stated in one place" is not available
   as the design principle here; the principle has to be about the **set being named**, not about
   the statement being unique.
+
+## Cluster 6 — the artifact-type axis (added 2026-08-12, second pass)
+
+### E22
+
+- **Claim:** This repository already carries an **artifact-type** axis, defined as "the **squad
+  key**: how SDD decides which producer/judge/governances/model/effort handle a given file." It is
+  "**one artifact-type per produced file → exactly one squad**," "**universal, not SDD-only**"
+  (`skill`, `subagent`, `command`, `agents-section`, `docs`, `astro-page`, `npm-package`,
+  `react-component`, …), and "an open string; new types need no schema bump."
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (read)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/design/artifact-type.md`
+- **Source type:** primary
+
+### E23
+
+- **Claim:** The artifact-type vocabulary is **supplied by plugins**, not invented locally, and
+  flows **marketplace → install → registry → resolution**. A plugin declares `squads[]`, each over a
+  set of `artifact-types`; `init-<plugin>` lands that in the per-project registry
+  `.agents/universal-plugin.json`; resolution reads that registry. **"SDD core ships only the
+  generic defaults"** — a type no installed plugin claims still resolves, to the SDD-default
+  producer/judge per role. Observed live in the registry: `aced` claims
+  `["skill","subagent","command","agents-section"]`; `quill` claims
+  `["documentation","guide","tutorial","article","reference"]`.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (read + registry inspection)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/design/artifact-type.md` ("Supply");
+  `.agents/universal-plugin.json`
+- **Source type:** primary
+- **Notes:** The default-plus-override shape is load-bearing for §6: it is the existing precedent for
+  where a *core* property of a type is stated and how a plugin refines it.
+
+### E24
+
+- **Claim:** A file's artifact-type is **resolved, not stored**, in a defined order: (1) convention
+  and context — "a `SKILL.md` under `skills/` is a `skill`" — "**not** the file extension"; (2) the
+  optional tiebreaker map `.agents/sdd/artifact-types.toml`, longest-prefix glob, consulted only on
+  genuine ambiguity, with "**ask once — confirm, never guess**" and the binding written back;
+  (3) match against the registry, zero plugins → SDD default, two+ → contested-type disambiguation.
+  `resolve-governances` implements the consuming half: `--path <file>` consults the tiebreaker and,
+  on no match, prints `note: 'no tiebreaker match — classify by convention'`. The tiebreaker file
+  does not exist in this repo, so every file here classifies by convention.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (read + observed absence)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/design/artifact-type.md` ("Demand", "The tiebreaker map");
+  `plugins/sdd/skills/resolve-governances/scripts/resolve-governances.mts:478–498`
+- **Source type:** primary
+- **Notes:** So the path from *a touched file* to *its artifact-type* is already specified and
+  already implemented. Nothing new is needed to get the key; what is missing is what the key returns.
+
+### E25
+
+- **Claim:** The two documents defining this axis **contradict each other on whether a spec node
+  carries an `artifact-types` field**, and the corpus follows one of them.
+  `design/artifact-type.md` states: "A node README carries `spec-type` only — **never** an
+  artifact-type field. A file's artifact-type is **resolved, not stored** on the file or the node."
+  `design/spec-structure.md:51` states: "A node README carries only **classification** frontmatter —
+  `spec-type`, `artifact-types`, and `concept` … The three classification axes are mutually
+  orthogonal: `spec-type` says *what kind of spec node this is*, `artifact-types` (the squad key,
+  e.g. `governance`) says *who produces and judges it*." Measured: **0 of 127** node READMEs carry
+  `artifact-types:`; **95** carry `spec-type:`. The enforcing engine
+  (`check-spec-structure`) parses **only** `concept` and `spec-type` — its frontmatter parser has no
+  `artifact-types` branch.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (executed)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/design/artifact-type.md`;
+  `.agents/specs/sdd/design/spec-structure.md:51`; grep over `.agents/specs/**/README.md`;
+  `plugins/sdd/skills/check-spec-structure/scripts/check-spec-structure.mts:68–85`
+- **Source type:** primary (measured)
+- **Notes:** This is **the #453 defect, live, in the spec that defines the corpus's own structure
+  rules** — a rule changed in one document while a sibling in the same `design/` folder still states
+  the retracted version, with the implementation following the live one and nothing detecting the
+  disagreement. It is also, precisely, a two-member set that a per-artifact-type unit description
+  would have named. Reported here as evidence; not fixed in this dossier.
+
+### E26
+
+- **Claim:** Artifact-type is keyed to a **single file**, while the unit #453 is about is
+  **multi-file**: "One artifact-type per produced **file** → exactly one squad." Nothing in the
+  artifact-type model currently says which *other* files constitute one artifact of that type.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (read)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/design/artifact-type.md` ("What it is")
+- **Source type:** primary
+- **Notes:** This is the seam a per-artifact-type unit description occupies, and also its main open
+  question — see conclusion §6.

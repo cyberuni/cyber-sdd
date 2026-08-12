@@ -32,3 +32,46 @@
 - **Explicitly not reopened:** whether restating a claim is a defect.
   `.research/documentation-craft/` already settled that it is not, and this dossier cites that
   finding (E21) as a constraint on §5 rather than re-deriving it.
+
+## 2026-08-12 — Reframed on artifact type (second pass, same day)
+
+- **What changed:** The verdict, §1, and §6. The first pass framed the answer as **four sets derived
+  per change** and recommended declaring the layer set **per spec node** (127 nodes). Both are
+  superseded. The unit is a property of the **artifact type**, and the description belongs where the
+  type is declared — SDD core defaults per generic type, refined by a plugin in its `squads[]` entry.
+- **Why:** Owner review rejected the per-change set framing: "it probably should be described per
+  artifact type." Checking that against the corpus showed it is not merely a better presentation but
+  a better fit to shipped machinery — the axis already exists (E22), its vocabulary is plugin-supplied
+  through marketplace → install → registry → resolution (E23), a file's type is already resolved by
+  convention → tiebreaker → registry (E24), and `resolve-governances` already consumes the key. The
+  first pass was proposing to derive per artifact what is constant per type, which is why each
+  derivation it measured was lossy in a different way.
+- **Conclusion changed materially:** **Yes.**
+  - The skill-folder set and the layer set stop being two mechanisms over two graphs and become one
+    description of one type, differing only in whether the member is inside the directory.
+  - The `architect` many-to-one (E07) inverts from a derivation failure into the *definition* of the
+    `governance` type's shape.
+  - Declaration count drops from ~127 per-node to ~9 per-type, plus a residual per-artifact identity
+    edge (which spec node, which docs page) that no type-level description can carry.
+  - `fileToNode`'s depth-1 limitation (E05, E06) leaves this path entirely — artifact-type resolution
+    does not route through it.
+  - §3's requirement 4 gained a better precedent: an unmatched type already resolves to the default
+    squad rather than erroring (E23), so an unrecognized type should yield a **default unit shape**
+    rather than `unknown`.
+- **What survived unchanged:** §2 (blast is a distinct calculation), §3 (the fail-loud degradation
+  doctrine), §4 (wrap-safety), §5 (screaming architecture — sharpened, not changed: the layering
+  shape is declared once per type instead of once per restating document).
+- **Evidence/source that triggered:** Owner feedback, then `.agents/specs/sdd/design/artifact-type.md`,
+  `.agents/universal-plugin.json`, and `resolve-governances.mts` — added as cluster 6 (E22–E26).
+- **Discovered while reframing (E25):** `design/artifact-type.md` and `design/spec-structure.md`
+  contradict each other on whether a node README carries an `artifact-types` field. Measured: 0 of 127
+  nodes carry it, 95 carry `spec-type`, and `check-spec-structure` parses only `concept` and
+  `spec-type` — so the corpus follows `artifact-type.md` and `spec-structure.md` states a retracted
+  rule. This is #453's own defect, live, in the spec defining the corpus's structure rules. It is
+  **not** caught by any increment recommended here: the pair is not a unit, and the two documents
+  carry different `concept:` tags so `concept-index` would not group them either. Recorded as a live
+  cost of deferring increment C. Not fixed in this dossier.
+- **New cost the reframe carries (E26):** artifact-type is keyed per **file** ("one artifact-type per
+  produced file → exactly one squad") while a unit is multi-file. A unit shape requires amending
+  `design/artifact-type.md`, not just adding a field. Flagged as the first thing to settle, and as the
+  first thing that could sink the approach.

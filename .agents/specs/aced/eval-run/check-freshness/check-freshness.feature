@@ -1,3 +1,4 @@
+@frozen
 Feature: check-freshness — is this recorded eval result still current?
   Unit suite for the deterministic engine that compares the file hashes a result recorded against the
   files in the working tree, and returns current / stale / incomplete / absent. Every Given below names

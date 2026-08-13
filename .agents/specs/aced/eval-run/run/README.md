@@ -5,14 +5,22 @@ concept: [eval-run]
 
 # run — score the current config against its frozen .feature suite
 
+## What
+
 Resolve a target's frozen `.feature` suite and its `eval.md` run policy, judge every scenario via
 `aced-case-judge` over the configured run count, then report the pass rate, per-layer breakdown, and
 failing scenarios worst-first, and persist the run.
 
-## Use Cases
-
 **Subject** — scoring a target agent configuration against its frozen `.feature` suite (and its
 `eval.md` run policy) over N runs and reporting the outcome.
+
+**Key terms**
+
+| Term | Meaning |
+|---|---|
+| **the evaluated set** | Every input this run reports consuming to judge the target — the configuration, the files it loads, the target's `eval.md`, the frozen `.feature`, and any directory it listed to find them — each recorded as a repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry hashes the names the listing returned, which is what makes a file later *added* to it detectable. |
+| **the results record** | The timestamped file one completed run persists: the scores, the target it scored, and the evaluated set it was computed from. `check-freshness` reads it; `run` never interprets one. |
+
 **Non-goals** — authoring or fixing scenarios (`add-scenario` / `improve`); diffing two versions (`compare`);
 the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`);
 deciding whether an already-written result is still current (that is `check-freshness` — `run` records
@@ -45,6 +53,8 @@ downstream may read it as the second.
 sibling eval intents — `compare` / `report` / `add-scenario` — that share the same eval vocabulary),
 and its suite resolution, per-shape judge dispatch, blind-judge invocation, layer/run policy, and
 scale-aware reporting are judged, not asserted.
+
+## Use Cases
 
 ### Actors and their goals
 

@@ -147,3 +147,40 @@
   a README that should have moved and a `SKILL.md` edit with nothing to mirror was never measured. A
   hand-audit of a sample of the 644 `SKILL.md`-without-`README.md` commits would settle it and is the
   cheapest thing left to do.
+
+## 2026-08-12 — Recast as a workflow stage (fourth pass, same day)
+
+- **What changed:** The verdict, §1 and §6. Passes 1–3 are withdrawn as the primary answer; pass 3's
+  mining is demoted to a prioritization hint. Added E33–E36.
+- **Why:** Owner: *"still not feeling right about it. Too ambiguous to my taste. What if we manage
+  that through workflow? Meaning when some changes are done, there will be a quill run to review and
+  update documentation?"* Checking that turned up the refutation of the previous three passes **in
+  this dossier's own first evidence item**.
+- **Conclusion changed materially:** **Yes, and it invalidates three prior recommendations.**
+  - **E36:** the #437 round-3 fix touched *both* files of the round-4 pair and corrected neither.
+    Every mechanism passes 1–3 proposed emits the same output — *look at this file too* — and the
+    author already had the file open. Pointing was never the missing step; reading the file against
+    the change was, and that is a judgment, not a set operation. E01 said this in pass 1 ("rules out
+    'look harder at the files you touched' as a fix") and the next three passes built exactly that.
+  - **E33:** squad dispatch is already **per file** and already summons several squads per mission.
+    quill fires when a documentation file is in the touch-set. **The gap is circular** — the file
+    needing quill is the one the change forgot to touch. So the fix belongs at the *summoning rule*,
+    not in a new derivation.
+  - **E35:** handoff already runs every mission and already identifies a follow-up class that sweeps
+    **outside the touched set** and files it (the shared-primitive sibling follow-up). The repo
+    already prefers "record a follow-up" over "compute an authoritative set" for this exact problem,
+    and doc drift of the #437 kind classifies as `blocking` under handoff's own definition.
+  - **E34, the honest cost:** quill has **no change-driven mode**. `quill-doc-writer` is spec-driven,
+    writing against a frozen `.feature`; nothing in quill takes a diff. Both recommended shapes need
+    a new role on quill, which is a larger commitment than anything passes 1–3 required.
+- **Recommendation now:** **W2** — a documentation follow-up class at handoff, riding shipped
+  record → classify → propose → drain plumbing — as the cheap default; **W1** — a documentation review
+  dispatched in the mission loop — where `blocking` findings cannot wait a mission. Build the
+  cross-layer declaration and fix E25 under either.
+- **What survived, again:** §2 (now a constraint on the reviewer's output rather than a mechanism
+  boundary), §3 (with its fifth requirement restated for a dispatched stage — say what was examined,
+  not only what was found), §4, §5 (pass 4 sidesteps the formation-charter tension entirely, since a
+  dispatched review belongs to the *mission* loop, not an outer one).
+- **Method note worth keeping:** the dossier carried its own refutation from pass 1 and three
+  successive reframes did not surface it. Each pass reasoned forward from the previous pass's
+  mechanism instead of back to the evidence. Re-reading E01 was what broke it.

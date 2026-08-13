@@ -1,12 +1,11 @@
 # Conclusion — Change Review Set
 
-> **Third pass (2026-08-12).** Pass 1 derived four sets per change and declared them per spec node.
-> Pass 2 moved the description onto the **artifact type**. Pass 3 narrows it again, and this is the
-> live version: the missing piece is a **directed companion relation** between file kinds — when
-> `SKILL.md` changes, the `README.md` beside it enters the **review** set — consumed as a
-> **blast-radius input**. That needs neither a unit concept nor an amendment to the artifact-type
-> model; both are retracted. See `changes.md`. §§2–5 have survived all three passes; the verdict,
-> §1 and §6 are pass-3 text.
+> **Fourth pass (2026-08-12) — the live version.** Pass 1 derived four sets per change. Pass 2 moved
+> the description onto the artifact type. Pass 3 narrowed it to a directed companion relation between
+> file kinds. **All three are withdrawn as the primary answer**, on evidence this dossier carried from
+> pass 1 and failed to follow (E36). The answer is a **workflow** one: a documentation review is a
+> stage with an owner, not a set to compute. §§2–5 survive as constraints on whatever gets built; the
+> verdict, §1 and §6 are pass-4 text. `changes.md` records every move.
 
 ## Question
 
@@ -17,62 +16,75 @@ cost in this corpus; and what does the screaming-architecture rule say one level
 
 ## Verdict
 
-**The missing piece is a directed companion relation between file kinds, and it is an input to blast
-radius.** When `SKILL.md` changes, the `README.md` beside it must be **reviewed** — the same shape as
-a Storybook `*.stories.tsx` whose companion `*.mdx` needs re-reading whenever the story moves. That
-is not a set to derive per change, and it is not a unit to describe per artifact type. It is a
-**pairwise, directed rule keyed on filename pattern and locality**, and it expands the touch-set that
-blast is computed over.
+**This is a workflow gap, not a set-derivation gap. A documentation review is a stage with an owner
+— it should be dispatched, not computed.**
 
-The corpus states the problem in one number. Over 2449 non-merge commits, `README.md` → `SKILL.md`
-co-changes **83.7%** of the time, while `SKILL.md` → `README.md` co-changes **38.0%** (E30). A README
-almost never moves without its SKILL; a SKILL moves without its README two times in three. **That
-45.7-point asymmetry is the defect, measured** — and it is why the relation has to be *directed*.
-A symmetric "these belong together" would have looked healthy from the README side and hidden it.
+The evidence that settles it was in this dossier from the first pass and went unfollowed for three.
+The #437 round-3 fix **touched both files of the round-4 pair and corrected neither** (E01, E36).
+Every mechanism passes 1–3 proposed — a derived set, a unit shape, a companion rule — produces the
+same output: *look at this file too*. **The author already had the file open.** Pointing was never
+the missing step. Reading the file *against the change* was, and that is a judgment an agent
+performs, not a set an engine returns.
 
-The candidate rules do not even need declaring: they **mine out of git history**. Ranking every
-same-directory file-kind pair by its directional gap puts `*.md` → `README.md` at 55pt, `*.md` →
-`*.feature` at 53pt, and `SKILL.md` → `README.md` at 46pt — against `*.mts` → `*.test.mts` at 8pt and
-`README.md` → `*.feature` at 7pt (E31). The gap cleanly separates drift-prone pairs from discipline
-that is already honored. Only the decision about which candidates to **enforce** needs a human.
+**The workflow slot already exists, and it is already per file.** Squad dispatch is not one squad per
+mission: "One squad per artifact-type; one producer per file… A project touching several types
+summons several squads at once, one per file" (E33). A mission that touches a documentation file
+already summons quill today. **The gap is circular:** quill is summoned from the touch-set, and the
+defect is precisely that the documentation file was *not* in the touch-set. The workflow already
+dispatches a documentation specialist — it never gets the chance, because the file that needs one is
+the file the change forgot to touch.
 
-And the 38% forward rate settles the mechanism's shape: a check that *fails* when the companion did
-not change would fire on two of every three skill commits and be ignored within a week (E32). What
-the relation produces is a **review set**, never an edit requirement — exactly what blast radius
-already does, which is widen what gets **examined**, never what gets **edited**. A companion that
-needs no change is a correct outcome; the requirement is that it was **seen**.
+So the fix belongs at the **summoning rule**, not in a new derivation: a mission's squad set should
+follow the change's **scope**, not only the files it happened to edit.
 
-**What this retracts.** Pass 2's unit-shape-per-artifact-type, and the binding-granularity amendment
-to `design/artifact-type.md` it needed, are **not required** and are withdrawn. A companion rule is
-keyed on filename pattern and locality; the companion's own artifact-type is irrelevant to whether it
-needs review. The E26–E29 tension — a unit is multi-file while the type key is per-file — is
-**dissolved rather than solved**: it existed only because pass 2 was trying to make the members of a
-multi-file set share one type, and a directed pairwise relation never asks that.
+**And the repo already prefers this shape for exactly this problem.** Handoff runs on every mission
+and carries follow-ups through record → classify → propose → drain, with recording "unconditional: no
+permission, no forge, no human." One class it **identifies itself** is the shared-primitive sibling
+follow-up — sweep the declared terms, find frozen nodes **outside the touched set**, file one
+follow-up naming them (E35). That is structurally the same move as #453, already shipped, and it is
+filed as *work for a later mission* rather than computed as an authoritative set. Doc drift of the
+#437 kind classifies as **`blocking`** under handoff's stated definition, since a mission claiming
+"the ordering discipline is documented" is contradicted by a README still stating the retracted rule.
 
-**What survives.** The cross-layer case (`SKILL.md` → its spec-corpus node, → its docs page) cannot
-be written as a filename pattern — the names diverge (E07) and the website layer has no edges at all
-(E11). That is the one place a declaration is still owed, and it is now the *only* one.
+**The honest cost.** quill has **no change-driven mode**. `quill-doc-writer` is spec-driven — its
+input is `SPEC_PATH` / `FEATURE_PATH`, and in `implement` mode it writes to satisfy a **frozen**
+`.feature` exactly (E34). Nothing in quill takes a diff. A workflow answer needs a **new face on
+quill** — documentation *review* keyed on a change — which is a new role, not a config field. That is
+the real price, and it is the thing to decide.
 
-## 1. What a pattern knows, and what it cannot
+**Why this answers the ambiguity objection.** A pattern rule tells you *where to look* and can never
+tell you *whether there is a problem*. It needs a threshold nobody can set from principle (46pt
+versus 8pt, E31), it fires on two of every three skill commits at a 38% co-change rate (E30, E32),
+and it still leaves "was it actually reviewed?" unanswered. A dispatched reviewer reads the change
+and the document and says *these three sentences now contradict the `SKILL.md`* — or says nothing,
+which is a real answer rather than an unfalsifiable one. **There is no set to be nearly-right about.**
 
-#453's four sets split by **what kind of thing can answer**:
+## 1. What passes 1–3 leave behind
 
-| Set | Answered by | Status |
+| Pass | Proposed | Status |
 |---|---|---|
-| **Skill folder** | a **companion rule** — `skills/*/SKILL.md` → `./README.md` | Pattern + locality. Candidates mine from history (E31); only enforcement is a decision |
-| **Layer set — cross-layer** | a **declaration** — which spec node, which docs page | **Not derivable.** Names diverge (E07); the website layer has no edges (E11). The one residual |
-| **Citation set** | neither | Over-generates by an order of magnitude — 94 files for `"entry point"` where the real set was ~6 (E15) |
-| **Cross-link set** | already shipped | `concept-index` renders `concept → {nodes}`, CI-guarded by `--check` (E10) |
+| 1 | four sets derived per change, declared per spec node | withdrawn |
+| 2 | a unit shape per artifact type, with a binding-granularity amendment | withdrawn |
+| 3 | a directed companion rule table, mined by co-change gap | **demoted to an optional hint** |
+| 4 | a documentation review dispatched as a stage, or filed as a follow-up | **recommended** |
 
-The reduction across passes is the point. Pass 1 needed four mechanisms over four graphs; pass 2
-reduced that to one description per artifact type plus a residual; pass 3 reduces it to **a pattern
-table plus the same residual** — and the pattern table's *contents* are mined, not authored.
+Pass 3's mining is not worthless — it is just not the answer. The measured directional gaps (E30,
+E31) are a good **prioritization input**: they say `SKILL.md` → `README.md` is where drift
+concentrates, which is worth handing a reviewer as context. What they cannot do is decide whether
+*this* change created drift. **Hint, never verdict** — the same demotion §3 requires of any heuristic
+bucket.
 
-Why the cross-layer edge still resists: a companion rule can only say "the file at this pattern,
-relative to the changed one." Across layers the target is renamed (`check-retired-terms` ↔
-`corpus/retired-terms`, `spec-format-governance` ↔ `authoring/spec-format`, E07), sits at a depth path
-recovery gets wrong for 61% of nodes (E06), or does not exist as an edge at all (E11). No pattern
-recovers a target that was renamed.
+Two things from the earlier passes survive on their own merits, independent of what is built:
+
+- **The cross-layer declaration (E08, E09).** A reviewer still has to be told *which* spec node and
+  *which* docs page correspond to a shipped skill; the names diverge (E07), path recovery is wrong
+  for 61% of nodes (E06), and the website layer has no edges at all (E11). Twelve prose declarations
+  promoted to frontmatter. This is now scoped as **input to the reviewer**, not as a mechanism.
+- **E25**, unchanged and still unfixed: `design/artifact-type.md` and `design/spec-structure.md`
+  contradict each other on whether a node README carries an `artifact-types` field; 0 of 127 nodes
+  carry it and the enforcing engine parses only `concept` and `spec-type`. #453's defect, live, in
+  the spec that defines the corpus's own structure rules — and a dispatched reviewer *would* have
+  caught it, where none of passes 1–3's mechanisms do.
 
 ## 2. Extend the blast machinery, or a distinct calculation?
 
@@ -92,11 +104,10 @@ strength:
 - **The failure directions differ.** An under-called blast level *modulates a conductor's judgment*.
   A short review set **is** the answer, and reads as complete.
 
-Under the reframe the reuse boundary gets cleaner, not blurrier. `fileToNode` / `discoverLayouts`
-remain the substrate for *work-area recovery*; artifact-type resolution is a **separate, already
-specified** path from file to key (E24) that does not go through `fileToNode` at all. The review-set
-engine consumes the second, not the first — which is why §6 no longer needs `fileToNode`'s depth-1
-limitation fixed.
+Under pass 4 this section stops describing a mechanism and becomes a **constraint on the reviewer's
+output**. Whatever W1 or W2 produces is a set of documents needing attention; it must not be folded
+into blast's scalar, and it sits upstream of blast in exactly the composition order above. Nothing
+here needs `fileToNode`'s depth-1 limitation fixed.
 
 One inherited hazard to design around: `discoverLayouts` swallows every failure and returns `[]`
 (E19). Downstream of blast that fails safe — zero resolved areas computes `unknown`, not `low`. An
@@ -128,9 +139,11 @@ Four requirements for a review-set engine:
    review." This is `unknown`-not-`low` transposed to a set, and it is the one requirement that keeps
    a nearly-right answer from being worse than none.
 
-Pass 3 adds a fifth, specific to a *directed* relation: **the report must name the rule that fired**,
-not only the companion. A reviewer told "also look at `README.md`" cannot tell whether that came from
-a 46pt-gap rule or a 7pt one, and the rules differ in how much they should be trusted (E31).
+Pass 4 restates the fifth requirement for a *dispatched* reviewer: **the report must say what was
+examined, not only what was found**. A documentation review that returns nothing is only meaningful
+if it names the documents it read — otherwise "no drift" and "never ran" are indistinguishable, which
+is requirement 2 at the level of the whole stage. `GOVERNANCES_APPLIED` already encodes this instinct
+for quill's existing roles: "an act that records nothing cannot be told from one that never ran" (E34).
 
 ## 4. Wrap-safety
 
@@ -189,120 +202,109 @@ set-membership check is a claim about what the corpus says. `documentation-craft
 places cross-page claim overlap in "a continuous corpus-wide review loop, not a per-page boolean
 gate" (E21). Those are in tension and this dossier does not resolve it: either formation's charter
 widens, or a second loop is needed, or the check runs verify-time and corpus-wide the way
-`check-retired-terms` does without belonging to any loop. **The third is cheapest and is what §6
-assumes**; the first two are decisions for someone else.
+`check-retired-terms` does without belonging to any loop. **Pass 4 sidesteps the question**: a
+dispatched review belongs to the *mission* loop, which is neither of the outer loops and needs no
+charter change (E33, E35).
 
 ## 6. Recommendation on scope
 
-Two increments, plus one deferred. Smaller than either previous pass, and the first one's *content*
-is mined rather than authored.
+Two shapes for the workflow answer, plus what to stop building. The second is far cheaper and rides
+machinery that already ships; the first is what to add if the second proves too slow a loop.
 
-### A — a directed companion-rule table, consumed as a touch-set expansion (the missing piece)
+### W1 — a documentation review dispatched in the mission loop
 
-A declared table of rules, each `(trigger pattern, companion pattern, locality)`:
+Summon the documentation squad on a mission whose change *affects* documentation, not only on one
+whose touch-set already *contains* a documentation file (E33). The reviewer receives the change (the
+diff and the touched set) plus the cross-layer declarations for the touched artifacts, reads the
+documents against it, and reports drift — or reports none, which is a real answer.
 
-| trigger | companion | locality |
-|---|---|---|
-| `**/skills/*/SKILL.md` | `./README.md` | same directory |
-| `.agents/specs/**/README.md` | `./*.feature` | same directory |
-| *(the Storybook shape)* `**/*.stories.tsx` | `./$1.mdx` | same directory, same basename |
+**Cost, and it is the decision:** quill has no such face. `quill-doc-writer` is spec-driven, writing
+against a **frozen** `.feature`; nothing in quill takes a diff (E34). This is a new role in quill's
+squad, not a config field. It also puts a review on the critical path of every affected mission,
+which needs scoping — plausibly "the mission touched an artifact that carries a cross-layer
+declaration," so the trigger stays declared rather than guessed.
 
-**Directed, not symmetric.** Only the low-rate direction is worth a rule: `SKILL.md` → `README.md`
-fires 1039 times at 38%, while the reverse is already honored at 84% (E30). Encoding the reverse
-would add nothing. Encoding a *symmetric* rule would have hidden the defect entirely, because from
-the README side the pair looks healthy.
+### W2 — a documentation follow-up class at handoff (recommended first)
 
-**Which rules to enter is an empirical question with an answer.** Mine the directional gap over
-history and take the high-gap pairs: 55pt, 53pt, 46pt are candidates; 8pt and 7pt are already-honored
-discipline where a rule would fire on healthy commits about a quarter of the time and be tuned out
-(E31). Re-run the mining periodically — a pair that closes its gap is a rule that has done its job
-and can be retired.
+Handoff already runs on every mission and already carries follow-ups through **record → classify →
+propose → drain**, with recording "unconditional: no permission, no forge, no human." It already
+identifies one class *itself* rather than receiving it — the shared-primitive sibling follow-up,
+which sweeps declared terms for frozen nodes **outside the touched set** and files one follow-up
+naming them (E35). A documentation-review class is the same move on a different trigger.
 
-**It expands the review set; it never requires an edit.** At a 38% forward rate a hard gate fires on
-two of every three skill commits (E32). The companion enters what must be **examined**, and "no
-change needed" is a correct outcome. This is exactly what blast radius already does — §2's
-composition order, now with a concrete producer: **companion expansion → expanded touch-set → blast**.
-It also delivers the intake benefit #453 names, since the declared blast then reflects documents that
-must move together rather than only code areas.
+Why this first:
 
-**Wrap-safety does not bite here.** Companion rules match **paths**, not prose, so §4's normalization
-requirement applies only to the residual declaration in B and to anything citation-shaped in C.
+- **It is a class, not a mechanism.** The record → classify → propose → drain plumbing is shipped and
+  proven; this adds a second self-identified class beside the first.
+- **The classification already fits.** Doc drift of the #437 kind is `blocking` under handoff's own
+  definition — it "contradicts a completion claim the mission already made" (E35).
+- **It degrades correctly by construction.** Recording is unconditional and precedes any attempt to
+  file, so a refused drain cannot lose the finding. That is §3's requirements satisfied by the
+  existing design rather than by new code.
+- **It does not dispatch, and that is honest.** Handoff explicitly does not dispatch the work it
+  proposes (E35). The documentation update lands as a later CR — which is what #436 already is for
+  the corpus backfill.
 
-**No amendment to `design/artifact-type.md` is required.** A companion rule does not ask what type
-the companion is. Pass 2's unit shape and binding-granularity amendment are withdrawn (E26–E29).
-Artifact-type may still be a reasonable *home* for a plugin to ship rules covering the types it owns,
-but that is a packaging choice, not a precondition.
+The trade: the doc fix is one mission later. For `blocking` findings that may be too late, which is
+exactly when W1 earns its cost.
 
-### B — the cross-layer residual
+### What to stop building
 
-A pattern cannot reach `SKILL.md` → its spec-corpus node → its docs page: the names diverge (E07),
-path recovery is wrong for 61% of nodes (E06), and the website layer has no edge in either direction
-(E11). Promote the twelve existing prose declarations (E08) into machine-readable frontmatter. Three
-checks, each following the E18 doctrine: a declared path that does not exist **fails loud**; a folder
-claimed by two nodes **fails loud**; an unclaimed folder is reported as **coverage**, never a
-violation.
+- **The companion-rule table as a mechanism** (pass 3). Keep the *mining* as a prioritization hint
+  handed to a reviewer — the gaps say where drift concentrates (E30, E31) — but a rule that points at
+  a file does not solve a defect the author hit with the file already open (E36).
+- **The unit shape per artifact type** and its binding-granularity amendment (pass 2). Withdrawn.
+- **The per-spec-node set declaration** (pass 1). Withdrawn.
+- **Any threshold tuning** — 46pt versus 8pt was a proxy for a judgment, and W1/W2 make the judgment
+  directly.
 
-Convert the twelve once from a hand-verified list — **do not build a parser for the prose form**
-(E09: the path wraps onto the next line in 11 of 12). Do not fall back to name inference (E07). Do
-not overload `concept:` — a many-to-many concern, where this is an identity edge.
+### What to build regardless
 
-This is now the **only** declaration the design owes, and it is twelve lines of frontmatter.
+- **The cross-layer declaration** (E08, E09). Whatever reviews documentation has to be told which
+  spec node and which docs page belong to a shipped skill; no pattern recovers a renamed target
+  (E06, E07, E11). Twelve prose declarations promoted to frontmatter, converted once from a
+  hand-verified list — **not** parsed out of the prose, whose path wraps onto the next line in 11 of
+  12 (E09). This is now the *only* declaration owed, and it is input to a reviewer rather than a
+  mechanism of its own.
+- **Fix E25** on its own. It is live, it is in the spec that defines the corpus's structure rules,
+  and nothing currently detects it.
 
-### C — the citation set (defer)
+### Still deferred
 
-Unchanged. Only after A and B, and only in the `check-scenario-overlap` shape: normalized matching
-(§4), `derived` and `candidates` bucketed separately, an explicit judgment arm, no verdict from the
-engine (E16, E17). **Do not build it on a phrase sweep alone** — a 94-file candidate list for a
-two-word phrase will be ignored within two change requests, and an ignored check is worse than an
-absent one because it occupies the slot.
-
-### The case none of this catches
-
-E25 survives every increment: `design/artifact-type.md` says a node README carries "`spec-type` only
-— **never** an artifact-type field," while `design/spec-structure.md` says the classification
-frontmatter is "`spec-type`, `artifact-types`, and `concept`." Measured, 0 of 127 nodes carry
-`artifact-types:` and the enforcing engine parses only `concept` and `spec-type` — so the corpus
-follows the first and the second states a retracted rule, **in the spec that defines the corpus's own
-structure rules**.
-
-Not a companion pair (two rule documents, neither the other's derived view), and not a cross-link set
-either — they carry *different* `concept:` tags, so `concept-index` would not group them. It is
-citation-shaped, which is the increment being deferred. The deferral has a live cost, and E25 is
-worth fixing on its own regardless.
-
-### Not recommended
-
-- **A hard gate on companion co-change** (E32).
-- **Symmetric companion rules** — the asymmetry is the signal (E30).
-- **Rules for already-honored pairs** like `*.mts` → `*.test.mts` (E31).
-- **Extending `blast-estimate`** to emit the review set (§2) — it *consumes* the expansion.
-- **A unit shape per artifact type**, or any amendment to `design/artifact-type.md` (withdrawn).
-- **Declaring the unit per spec node** (pass 1's proposal, withdrawn).
-- **Adopting "one concept stated in one place"** as a rule (§5, E21).
+The citation set (pass 1's increment C). If W1 or W2 ships, most of what a phrase sweep would surface
+is reachable by a reviewer who reads the change, and the remainder is heuristic and must be presented
+as such — the `check-scenario-overlap` shape: normalized matching (§4), bucketed candidates, an
+explicit judgment arm, no verdict from the engine (E16, E17).
 
 ## Strongest supporting evidence
 
-- **E30** — the 45.7-point directional asymmetry on `SKILL.md` ↔ `README.md`. The defect stated as a
-  number, and the reason the relation must be directed rather than symmetric.
-- **E31** — the gap ranking separates drift-prone pairs (46–55pt) from already-honored discipline
-  (7–8pt), and mines the candidates out of history with no declaration. `*.mts` → `*.test.mts` is the
-  control that makes the metric credible rather than a restatement of the hypothesis.
+- **E36** — the round-3 fix touched both files of the round-4 pair and corrected neither. One
+  sentence that refutes every mechanism passes 1–3 proposed, and it was in this dossier from pass 1.
+- **E33** — squad dispatch is already per file and already summons several squads per mission. The
+  workflow slot exists; the gap is circular, because the file needing a documentation specialist is
+  the one the change forgot to touch.
+- **E35** — handoff already identifies a follow-up class that sweeps outside the touched set and
+  files it. The repo already prefers "record a follow-up" over "compute an authoritative set" for
+  exactly this problem.
+- **E30–E31** — the directional gaps. Demoted from mechanism to prioritization hint, but they still
+  say where drift concentrates, and `*.mts` → `*.test.mts` at 8pt is a credible control.
 - **E09** — the cross-layer declaration already exists in twelve files and wraps in eleven. The
   residual is real, people already write it, and wrap-safety is the majority case for that construct.
 - **E18** — the fail-loud doctrine, already written in two shipped engines; §3 is a transposition.
 
 ## Strongest weakening / contradictory evidence
 
-- **E32** — the co-change measurement cannot separate a README that *should* have moved from a
-  `SKILL.md` edit with nothing to mirror. The 46pt gap proves the pair is asymmetric; it does **not**
-  prove 62% of those commits carry drift. Every claim about how much A would catch rests on a split
-  that was never measured, and this is the weakest joint in the recommendation.
-- **E31** is evolutionary-coupling mining over 8 months of one repository's history by one main
-  author. The ranking is internally consistent and has a credible control, but it is one corpus and
-  one period — the 40pt threshold separating the two clusters here is read off this data, not
-  established independently.
-- **E27** — a skill `README.md` still has no determined artifact-type. Pass 3 no longer *needs* one,
-  but the ambiguity remains live for squad selection.
+- **E34** — quill cannot do this today. Both W1 and W2 assume a documentation reviewer that takes a
+  *change* as input, and quill's only producer is spec-driven against a frozen `.feature`. The
+  recommendation therefore rests on a role that does not exist, which is a larger commitment than any
+  of passes 1–3 required.
+- **W2's latency is unquantified.** "One mission later" is fine for `backlog` and possibly wrong for
+  `blocking`, and nothing here measures how often doc drift is blocking. #437 is n=1.
+- **No measurement supports the claim that a dispatched reviewer would have caught #437's rounds.**
+  It is an argument from what the role would read, not an observation. The reviewer could equally
+  read both files and miss it — which is precisely what the human author did (E36).
+- **E27** — a skill `README.md` still has no determined artifact-type, which matters again under W1:
+  summoning a documentation squad for it presumes a classification nobody has made.
 - **E21** is cited as settled, but `documentation-craft` rates its own cross-page transfer *medium*
   and calls it its weakest joint. §5 rests on it.
 - **E20 versus E21** disagree on the home for a corpus-wide content check. §5 routes around the
@@ -315,6 +317,7 @@ worth fixing on its own regardless.
   over the current tree (E05, E06, E07).
 - That the 46pt gap on `SKILL.md` → `README.md` measures *drift*. It measures asymmetry; the split
   between real drift and benign edits with nothing to mirror was never measured (E32).
+- That a dispatched documentation review would have caught #437's failures. Argued, not measured.
 - That a phrase-matched citation set is usable as a review set (E15).
 - That "one concept stated in one place" is a sound rule for this corpus (E21).
 - That `check-retired-terms` has a *live* wrap defect. It has a latent one (E12, E13).
@@ -323,9 +326,11 @@ worth fixing on its own regardless.
 
 ## Where evidence is thin
 
-- The drift-versus-benign split behind the 46pt gap — unmeasured, and the main open risk to A. A
-  hand-audit of a sample of the 644 `SKILL.md`-without-`README.md` commits would settle it and is the
-  single cheapest thing left to do.
+- How often documentation drift is `blocking` rather than `backlog` — the number that decides W1
+  versus W2, and n=1 today.
+- The drift-versus-benign split behind the 46pt gap. Still the cheapest measurement available: a
+  hand-audit of a sample of the 644 `SKILL.md`-without-`README.md` commits. It now sizes the
+  *problem* rather than validating a mechanism.
 - Whether the twelve existing `**Artifact**` declarations are *correct*, not merely present. They
   were counted, not verified against the folders they name.
 - Whether the ~40pt boundary separating drift-prone pairs from honored ones generalizes, or is an
@@ -336,8 +341,9 @@ worth fixing on its own regardless.
 
 ## What to check again later
 
-- Whether re-mining the gap after A ships shows `SKILL.md` → `README.md` closing — the direct test
-  that the rule did its job, and the trigger to retire it.
+- Whether quill grows a change-driven review face — the precondition for both W1 and W2.
+- Whether re-mining the directional gap after either ships shows `SKILL.md` → `README.md` closing.
+  Under pass 4 that is an *outcome measure* for the workflow rather than a rule to retire.
 - Whether E25's contradiction is fixed, and whether anything mechanical detected it (nothing does
   today).
 - Whether `check-retired-terms`' registry has admitted a multi-word phrase — the moment E13's latent
@@ -347,6 +353,6 @@ worth fixing on its own regardless.
 
 ## Landed in
 
-Not yet consumed by any ADR or governance. Filed against issue #453; increments A and B await the
-owner's decision on scope. A has no blocking precondition — the pass-2 amendment to
-`design/artifact-type.md` was withdrawn.
+Not yet consumed by any ADR or governance. Filed against issue #453. W1 and W2 both await the
+owner's decision, and both depend on a documentation-review face quill does not yet have (E34). The
+cross-layer declaration and the E25 fix are worth doing under either.

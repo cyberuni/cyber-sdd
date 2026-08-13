@@ -565,3 +565,83 @@ about behavior rather than an observation of it.
 - **Notes:** This is the same distinction blast radius already makes: blast widens what is
   **examined**, never what is **edited**. A companion that needs no change is a correct outcome; the
   requirement is that it was **seen**.
+
+## Cluster 8 — the workflow slot (added 2026-08-12, fourth pass)
+
+### E33
+
+- **Claim:** Squad dispatch is **already per file, and already summons several squads per mission**.
+  `specialists-and-squads.md`: "**One squad per artifact-type; one producer per file** … The
+  exclusion is **per file**, not per spec: a project-spec CR touches many artifact-types and so
+  summons **multiple** specialists at once" and "A project touching several types summons several
+  squads at once, one per file." The conductor's own contract states the same: "resolution is per
+  file, not one spec-`type`… a project touching several artifact-types summons several squads at
+  once."
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (read)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/design/specialists-and-squads.md:19,21,134,135`;
+  `.agents/specs/sdd/mission/conductor/README.md:65–67`
+- **Source type:** primary
+- **Notes:** **The gap is circular, and this is the cleanest statement of it in the dossier.** quill
+  is summoned when a documentation file is in the mission's touch-set. The defect in #437 is that the
+  documentation file was *not* in the touch-set. The workflow already dispatches a documentation
+  specialist per file — it just never gets the chance, because the file that needs quill is the one
+  the change forgot to touch.
+
+### E34
+
+- **Claim:** quill has **no change-driven review mode**. `quill-doc-writer` is the impl-producer and
+  is **spec-driven**: its input is `DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, SOLUTION_PATH` plus
+  `MODE: explore | implement`, and its first step is "Read the contract. Read the `.feature` and the
+  `spec.md` What / Why / command surface as the content source. In `implement` mode the `.feature` is
+  frozen — write to satisfy it exactly." `quill-judge` runs per-scenario static inspection against
+  that same frozen suite. Neither takes a *change* (a diff, a touched set) as input.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (read)
+- **Confidence:** high
+- **Source label:** `plugins/quill/agents/quill-doc-writer.md`; `quill-judge` description
+- **Source type:** primary
+- **Notes:** So a workflow-based answer needs a **new face on quill** — a documentation *review*
+  keyed on a change rather than production keyed on a spec. That is the honest cost of the approach,
+  and it is a new role, not a new config field.
+
+### E35
+
+- **Claim:** The handoff stage **already carries a follow-up channel with a self-identified class of
+  exactly this shape**. Handoff runs on every mission (mission-loop step 4, once the impl gate has
+  passed) and carries follow-ups through **record → classify → propose → drain**. Recording is
+  "unconditional: no permission, no forge, no human." One class is identified by handoff itself
+  rather than received — the **shared-primitive sibling follow-up**: "when this mission changed a
+  shared primitive's **behavior**, sweep for the terms the project declares that primitive owns;
+  every node carrying one whose suite is **frozen** and sits **outside** the touched set is at risk,
+  and one follow-up names the primitive, those nodes, and the terms." Classification is `blocking`
+  ("contradicts a completion claim the mission already made") or `backlog`. Handoff explicitly does
+  **not** dispatch the follow-up work it proposes.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed (read)
+- **Confidence:** high
+- **Source label:** `.agents/specs/sdd/mission/handoff/README.md:35–39,47–48,54–55,68–75,88,93`
+- **Source type:** primary
+- **Notes:** Two things follow. First, the repo **already prefers "record a follow-up" over "compute
+  an authoritative set"** for work that reaches outside the touched set — which is independent
+  support for the workflow framing over passes 1–3. Second, doc drift of the #437 kind would classify
+  as **`blocking`** under the stated definition, since a mission claiming "the ordering discipline is
+  documented" is contradicted by a README still stating the retracted rule.
+
+### E36
+
+- **Claim:** The defect in #437 was **not** a failure to know which files were related. Per E01, the
+  round-3 fix **touched both files of the round-4 pair and corrected neither**.
+- **Date accessed:** 2026-08-12
+- **Status:** confirmed
+- **Confidence:** high
+- **Source label:** issue #453 ("The round-3 fix had touched **both** files and corrected neither");
+  E01
+- **Source type:** primary
+- **Notes:** **This refutes passes 1–3 on their own evidence.** A companion rule, a unit shape, and a
+  derived review set all produce the same output: *look at this file too*. The author already had the
+  file open. Pointing was never the missing step; **reading the file against the change** was — and
+  that is a judgment, not a set operation. E01's own note said as much in pass 1 ("rules out 'look
+  harder at the files you touched' as a fix") and the following three passes built mechanisms that do
+  exactly that.

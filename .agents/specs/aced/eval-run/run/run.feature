@@ -100,7 +100,7 @@ Feature: run — score the current config against its frozen .feature suite
     When run executes the suite
     Then it judges all remaining scenarios before reporting
 
-  # ---- Reporting and persistence ----
+  # ---- Reporting the outcome ----
 
   Scenario: the report states pass rate and per-layer breakdown
     Given a completed run
@@ -117,22 +117,7 @@ Feature: run — score the current config against its frozen .feature suite
     When run reports the outcome
     Then it lists the failing cases ordered worst-first
 
-  Scenario: the run is persisted as a timestamped record
-    Given a completed run
-    When run finishes
-    Then it writes a timestamped results record under the shared aced results directory
-
-  Scenario: run records for a target are kept under the shared aced results directory
-    Given completed runs for more than one target
-    When run persists each record
-    Then each timestamped record is written under the shared aced results directory, keyed by its target
-
-  Scenario: an all-passing run points to widening coverage
-    Given a run in which every case passes
-    When run reports the outcome
-    Then it suggests running add to expand edge-case coverage
-
-  # ---- Recording what was evaluated ----
+  # ---- Recording what was evaluated and persisting the run ----
 
   Scenario: the results record names every file that was read to judge the subject
     Given a target configuration that loads one reference file
@@ -168,3 +153,20 @@ Feature: run — score the current config against its frozen .feature suite
     When run writes the results record
     Then the record carries an evaluated entry for that directory whose hash covers the names of the entries the listing returned
     And an evaluated entry for each file that listing yielded, each carrying the content hash of what was read
+
+  Scenario: the run is persisted as a timestamped record
+    Given a completed run
+    When run finishes
+    Then it writes a timestamped results record under the shared aced results directory
+
+  Scenario: run records for a target are kept under the shared aced results directory
+    Given completed runs for more than one target
+    When run persists each record
+    Then each timestamped record is written under the shared aced results directory, keyed by its target
+
+  # ---- Guiding the next step ----
+
+  Scenario: an all-passing run points to widening coverage
+    Given a run in which every case passes
+    When run reports the outcome
+    Then it suggests running add to expand edge-case coverage

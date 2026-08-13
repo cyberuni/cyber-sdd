@@ -94,8 +94,9 @@ needs is that UC1's outcome carry an extra field.
 
 - **Actor** — `check-freshness` and every later reader of a persisted record. None of them invokes
   `run`; they are affected by what it writes.
-- **Goal** — determine, later and from the record alone, whether a recorded result still describes the
-  configuration on disk — without guessing at the configuration's dependencies from outside.
+- **Goal** — be able to tell, later and from the record alone, **what the run recorded consuming**, and
+  so whether that account still holds — without guessing at the configuration's dependencies from
+  outside.
 - **Entry point** — **none of its own.** It is served as part of UC1's run: a timestamped record is
   written under the shared results directory, keyed by the target it scored, and carries every input
   the run reports consuming to judge that target — the configuration, the files it loads, the target's
@@ -103,11 +104,13 @@ needs is that UC1's outcome carry an extra field.
   repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry
   hashes the names the listing returned, so a file later added to it is detectable. An input the run
   did not consume is not recorded.
-- **Extensions** — **none that this node can detect, and the reason is the point.** The success
-  outcome is *"the set records what the run reports consuming"*, and the only way to diverge from it is
-  to record the wrong set. Over-reporting diverges detectably; under-reporting diverges undetectably.
-  The extension exists in the world and cannot be made a branch in this graph — see the boundary
-  immediately below.
+- **Extensions** — **one, and one that cannot be a branch.** The success outcome is *"the set records
+  what the run reports consuming"*, so the only way to diverge is to record the wrong set, in one of
+  two directions. **Over-reporting** — the run records an input it did not consume: a real extension,
+  bound by `a file the run did not read is absent from the evaluated set`, whose oracle is an external
+  fixture rather than the record. **Under-reporting** — a shorter set whose entries all match: it
+  exists in the world and **cannot be made a branch in this graph**, because the only witness to what
+  was read is the same self-report under test. See the boundary immediately below.
 
 #### The trust boundary — `evaluated` is `run`'s account of what it consumed
 

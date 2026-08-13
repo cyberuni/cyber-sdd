@@ -110,7 +110,7 @@ needs is that UC1's outcome carry an extra field.
   bound by `a file the run did not read is absent from the evaluated set`, whose oracle is an external
   fixture rather than the record. **Under-reporting** — a shorter set whose entries all match: it
   exists in the world and **cannot be made a branch in this graph**, because the only witness to what
-  was read is the same self-report under test. See the boundary immediately below.
+  was read is the same self-report under test. See the boundary immediately below (#475).
 
 #### The trust boundary — `evaluated` is `run`'s account of what it consumed
 

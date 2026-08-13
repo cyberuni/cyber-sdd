@@ -120,7 +120,7 @@ Feature: run — score the current config against its frozen .feature suite
   Scenario: the run is persisted as a timestamped record
     Given a completed run
     When run finishes
-    Then it writes a timestamped results record under the suite's results directory
+    Then it writes a timestamped results record under the shared aced results directory
 
   Scenario: run records for a target are kept under the shared aced results directory
     Given completed runs for more than one target

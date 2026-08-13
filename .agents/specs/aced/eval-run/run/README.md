@@ -187,8 +187,12 @@ flowchart TD
 
   collect --> compute[pass rate, per-layer breakdown, failing by margin worst-first, totals vs own max never raw-mean]
   compute --> readset[take the set of inputs this run reports consuming: the config, the files it loads, eval.md, the frozen .feature, and any directory listed to find them]
-  readset --> hash[hash each input: a file's content as read, a listed directory's returned entry names]
-  hash --> write[write timestamped results record under results/, carrying the evaluated set]
+  readset --> kind{entry kind?}
+  kind -- file --> hashfile[hash the content as read]
+  kind -- listed directory --> hashdir[hash the names the listing returned, plus an entry per file it yielded]
+  hashfile --> stamp[record path + hash only, never a modification time]
+  hashdir --> stamp
+  stamp --> write[write timestamped results record under the shared aced results directory, carrying the evaluated set]
   write --> rep[report pass rate + per-layer + failing worst-first]
   rep --> allpass{every case passed?}
   allpass -- yes --> widen[suggest add-scenario to widen coverage]
@@ -197,9 +201,16 @@ flowchart TD
 ## Scenario map
 
 One scenario per row, grouped by use case and following the suite's section order within each group.
-Each CFG edge is bound. Scenarios derive from the CFG alone — the extension lists above are the
-instrument that made the graph complete, not a source a row is drawn from, so the counts do not
-correspond.
+Scenarios derive from the CFG alone — the extension lists above are the instrument that made the
+graph complete, not a source a row is drawn from, so the counts do not correspond.
+
+**Three edges carry no row, all of them pre-dating this change:** `layer -- tagged --> tagged`,
+`skip -- yes --> thr`, and `thr -- no --> usedefault`. Each is the *taken* side of a branch whose
+other side is bound (`an untagged scenario is treated as a behavior scenario`, `layers absent from
+the suite config are skipped`, `a scenario's own inline pass bar overrides the default`), so the
+default path is exercised only incidentally by whichever scenario happens to traverse it. Naming
+them here rather than claiming full coverage: closing them is additive and belongs to a CR that owns
+the scoring edges, not to this one.
 
 ### UC1 — score the current configuration against its frozen suite
 
@@ -237,9 +248,9 @@ not. What UC2 needs beyond this is owed by `improve`, not here.
 | `readset` membership | a config that loads a reference file | `the results record names every file that was read to judge the subject` |
 | `readset` membership | a file beside the config that it does not load | `a file the run did not read is absent from the evaluated set` |
 | `readset` membership | a config that loads no reference or asset files | `a subject that loads no additional files still records the files that were read` |
-| `hash` content of what was read | any recorded file | `each evaluated file is recorded with the content hash of what was read` |
-| `readset` membership | a config that loads every file under a directory | `a directory the run expanded is recorded alongside the files it yielded` |
-| `hash` content, not timestamp | any completed run | `the evaluated set records content hashes rather than file timestamps` |
+| `kind` → file → `hashfile` | any recorded file | `each evaluated file is recorded with the content hash of what was read` |
+| `kind` → listed directory → `hashdir` | a config that loads every file under a directory | `a directory the run expanded is recorded alongside the files it yielded` |
+| `stamp` no modification time | any completed run | `the evaluated set records content hashes rather than file timestamps` |
 | `write` timestamped record | a completed run | `the run is persisted as a timestamped record` |
 | `write` → shared results dir, keyed by target | completed runs for more than one target | `run records for a target are kept under the shared aced results directory` |
 

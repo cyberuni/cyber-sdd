@@ -143,7 +143,7 @@ Feature: run — score the current config against its frozen .feature suite
   Scenario: each evaluated file is recorded with the content hash of what was read
     Given a completed run whose files were read from the working tree
     When run writes the results record
-    Then each evaluated entry carries the file's repository path and the SHA-256 hash of the content that was read
+    Then each evaluated file entry carries the file's repository path and the SHA-256 hash of the content that was read
 
   Scenario: a file the run did not read is absent from the evaluated set
     Given a file sitting beside the target configuration that the configuration does not load
@@ -163,7 +163,7 @@ Feature: run — score the current config against its frozen .feature suite
     Then the record still carries an evaluated entry for that configuration, for the target's eval.md, and for the frozen .feature
 
   Scenario: a directory the run expanded is recorded alongside the files it yielded
-    Given a target configuration that loads every file under a references directory
+    Given a target configuration that loads every file under a references directory holding two files
     And a completed run that listed that directory to find those files
     When run writes the results record
     Then the record carries an evaluated entry for that directory whose hash covers the names of the entries the listing returned

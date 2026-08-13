@@ -19,7 +19,7 @@ failing scenarios worst-first, and persist the run.
 | Term | Meaning |
 |---|---|
 | **the evaluated set** | Every input this run reports consuming to judge the target — the configuration, the files it loads, the target's `eval.md`, the frozen `.feature`, and any directory it listed to find them — each recorded as a repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry hashes the names the listing returned, which is what makes a file later *added* to it detectable. |
-| **the results record** | The timestamped file one completed run persists: the scores, the target it scored, and the evaluated set it was computed from. `check-freshness` reads it; `run` never interprets one. |
+| **the results record** | The timestamped file one completed run persists: the scores, the target it scored, and the evaluated set it recorded. `check-freshness` reads it; `run` never interprets one. |
 
 **Non-goals** — authoring or fixing scenarios (`add-scenario` / `improve`); diffing two versions (`compare`);
 the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`);
@@ -27,34 +27,14 @@ deciding whether an already-written result is still current (that is `check-fres
 the provenance it needs, and does not interpret it); **proving** that the recorded inputs are the ones
 actually read (see the trust boundary below).
 
-**The trust boundary — `evaluated` is `run`'s account of what it consumed.** `run` is prose an agent
-executes, not a script, so the evaluated set is a **self-report**: the agent writes down the inputs it
-says it consumed, and nothing observes its actual reads. This is deliberate and it is bounded. The
-party that did the reading is the best-placed reporter — strictly better than a downstream reader
-inferring a prose configuration's dependencies from outside, which is the approach this capability
-replaced. But the two error directions are **not** symmetric:
+The limit on what `evaluated` can mean is the trust boundary under UC3, the use case it qualifies.
 
-- **Over-reporting is catchable.** A recorded entry for a file the configuration does not load is visible
-  against a known fixture — `a file the run did not read is absent from the evaluated set` binds it.
-  Its oracle is that **fixture**: a sibling file the configuration demonstrably does not load, readable
-  from outside the record. The record itself is the agent's claim and can settle nothing about itself.
-- **Under-reporting is not caught here.** A run that skims, or never opens a reference file it should
-  have loaded, records a shorter set whose entries all match, and every downstream reader then sees a
-  result that looks *more* current than it is. No scenario in this suite can falsify that, because the
-  only witness to what was read is the same self-report under test. `check-freshness` catches the
-  sub-case where the omission contradicts the record (a scored `.feature` or the named configuration
-  missing from the set); the general case needs harness-level tool-call telemetry, which no ACED node
-  has.
-
-So `evaluated` is a **record of what the run reports it consumed, not a verified trace** — and nothing
-downstream may read it as the second.
+## Use Cases
 
 **Fit:** strong — the capability carries a genuine activation decision (a scoring request versus
 sibling eval intents — `compare` / `report` / `add-scenario` — that share the same eval vocabulary),
 and its suite resolution, per-shape judge dispatch, blind-judge invocation, layer/run policy, and
 scale-aware reporting are judged, not asserted.
-
-## Use Cases
 
 ### Actors and their goals
 
@@ -65,7 +45,7 @@ trigger of its own stays visible instead of being absorbed into the surface that
 |---|---|---|
 | The configuration author — whoever just edited a skill, subagent, command, or AGENTS.md section | know whether the configuration as it stands now passes its frozen suite, and which cases fail worst | UC1 |
 | `improve` (sibling capability, the diagnose-and-refine loop) | have a current score to diagnose failing scenarios against before proposing edits | UC2 |
-| *Affected without invoking:* `check-freshness`, and any later reader of a persisted record — `compare`, `report`, a reviewer handed a cited pass rate | be able to tell **what the result was computed from**, and so whether it still holds | UC3 — **no trigger of its own**; served by UC1's persisted outcome |
+| *Affected without invoking:* `check-freshness`, and any later reader of a persisted record — `compare`, `report`, a reviewer handed a cited pass rate | be able to tell **what the run recorded consuming**, and so whether that account still holds | UC3 — **no trigger of its own**; served by UC1's persisted outcome |
 
 The third row is the one this revision exists for. No actor invokes `run` in order to get provenance;
 the party that needs it is downstream of a run it never made, and asking *"who calls each entry
@@ -110,7 +90,7 @@ needs is that UC1's outcome carry an extra field.
   missing"* — a condition it has no way to evaluate. UC3 makes that condition answerable and
   `check-freshness` answers it; wiring `improve` to consult it is a follow-up against `improve`.
 
-### UC3 — persist the run alongside what it was computed from
+### UC3 — persist the run alongside what it recorded consuming
 
 - **Actor** — `check-freshness` and every later reader of a persisted record. None of them invokes
   `run`; they are affected by what it writes.
@@ -124,14 +104,33 @@ needs is that UC1's outcome carry an extra field.
   hashes the names the listing returned, so a file later added to it is detectable. An input the run
   did not consume is not recorded.
 - **Extensions** — **none that this node can detect, and the reason is the point.** The success
-  outcome is *"the set records what the run consumed"*, and the only way to diverge from it is to
-  record the wrong set. Over-reporting diverges detectably — a recorded entry for a file the
-  configuration does not load is visible against a fixture, and `a file the run did not read is absent
-  from the evaluated set` binds it. Under-reporting diverges **undetectably**: the sole witness to what
-  was read is the same self-report under test, so no path here can be marked. That is the trust
-  boundary above, restated as what it costs — the extension exists in the world and cannot be made a
-  branch in this graph. Closing it needs harness-level tool-call telemetry, and is a recorded
-  follow-up.
+  outcome is *"the set records what the run reports consuming"*, and the only way to diverge from it is
+  to record the wrong set. Over-reporting diverges detectably; under-reporting diverges undetectably.
+  The extension exists in the world and cannot be made a branch in this graph — see the boundary
+  immediately below.
+
+#### The trust boundary — `evaluated` is `run`'s account of what it consumed
+
+`run` is prose an agent executes, not a script, so the evaluated set is a **self-report**: the agent
+writes down the inputs it says it consumed, and nothing observes its actual reads. This is deliberate
+and it is bounded. The party that did the reading is the best-placed reporter — strictly better than a
+downstream reader inferring a prose configuration's dependencies from outside, which is the approach
+this capability replaced. But the two error directions are **not** symmetric:
+
+- **Over-reporting is catchable.** A recorded entry for a file the configuration does not load is visible
+  against a known fixture — `a file the run did not read is absent from the evaluated set` binds it.
+  Its oracle is that **fixture**: a sibling file the configuration demonstrably does not load, readable
+  from outside the record. The record itself is the agent's claim and can settle nothing about itself.
+- **Under-reporting is not caught here.** A run that skims, or never opens a reference file it should
+  have loaded, records a shorter set whose entries all match, and every downstream reader then sees a
+  result that looks *more* current than it is. No scenario in this suite can falsify that, because the
+  only witness to what was read is the same self-report under test. `check-freshness` catches the
+  sub-case where the omission contradicts the record (a scored `.feature` or the named configuration
+  missing from the set); the general case needs harness-level tool-call telemetry, which no ACED node
+  has.
+
+So `evaluated` is a **record of what the run reports it consumed, not a verified trace** — and nothing
+downstream may read it as the second. Closing the gap is a recorded follow-up.
 
 ### Guiding the next step
 
@@ -231,7 +230,7 @@ not. What UC2 needs beyond this is owed by `improve`, not here.
 | `compute` totals vs own max | scenarios whose maxima differ | `totals are reported against their own maximum, not as comparable raw numbers` |
 | `rep` failing worst-first | a completed run with at least one failing case | `failing cases are listed worst-first` |
 
-### UC3 — persist the run alongside what it was computed from
+### UC3 — persist the run alongside what it recorded consuming
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|

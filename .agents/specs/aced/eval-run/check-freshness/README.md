@@ -7,7 +7,8 @@ concept: [eval-run]
 
 Read the newest eval result recorded for a target, compare the file hashes that result recorded
 against the files in the working tree now, and return one of four verdicts — **current**, **stale**,
-**incomplete**, or **absent** — naming the recorded files that no longer match.
+**incomplete**, or **absent**. `stale` and `incomplete` name the recorded inputs that no longer
+match; `absent` has nothing to compare and names why instead.
 
 ## What
 
@@ -17,7 +18,7 @@ again — needs to know whether it still describes the configuration on disk. Wi
 guess, and a guess that says "still good" turns a passing result into a false claim about code that
 has since changed.
 
-This node answers the question **from the record itself**. `run` records the files it read and their
+This node answers the question **from the record itself**. `run` records the files it reports reading, and their
 content hashes (`eval-run/run/`); this check re-hashes those same paths in the working tree and
 compares. Nothing is inferred: no modification times, no guessed file sets, no guessed directory
 names.
@@ -42,10 +43,10 @@ names.
 
 **The closed world — stated, because a guard's blind spot must never be implicit**
 
-This check compares **the inputs the result was computed from**, and nothing else. It never
+This check compares **the inputs the result recorded**, and nothing else. It never
 re-resolves what the subject depends on *now*. That is deliberate: inferring a prose configuration's
 dependent file set is a guess, and resting a freshness answer on that guess is what got the first
-attempt at this capability rejected. So `current` means **every input this result was computed from
+attempt at this capability rejected. So `current` means **every input this result recorded
 still hashes as recorded** — it is never a claim that the subject has not grown.
 
 That reading leaves one gap: a file **added** after the run, which no recorded entry would notice.
@@ -99,8 +100,8 @@ the `sdd-roles/extract-situation/` precedent. Its suite is boolean throughout an
 engine's own tests.
 
 **Subject** — given one spec node directory (its `eval.md` and its frozen `.feature`), report whether
-the inputs the newest result recorded for that node's target was computed from still hash as recorded
-in the working tree.
+the inputs the newest result for that node's target recorded still hash as recorded in the working
+tree.
 
 ### Actors and their goals
 
@@ -258,3 +259,8 @@ Rows follow the CFG top to bottom: resolve the target, select the recorded resul
 
 - `eval-run/run/` — the producer of the `evaluated` set this node reads. Without that contract every
   answer here would be a guess, which is what the rejected first attempt at this capability was.
+  **`run` owns the hashing rule; this node re-applies the identical one.** The Key terms table above
+  restates it for a reader, but the restatement is not a second definition — a comparison between two
+  differing hash schemes is meaningless, and the divergence would surface as a permanent `stale`
+  rather than as an error. The implementation must share one hashing routine with `run`, not two that
+  currently agree.

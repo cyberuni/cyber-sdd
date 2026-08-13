@@ -147,7 +147,7 @@ Feature: run — score the current config against its frozen .feature suite
 
   Scenario: a file the run did not read is absent from the evaluated set
     Given a file sitting beside the target configuration that the configuration does not load
-    And a completed run that never opened that file
+    And a completed run over that target's frozen suite
     When run writes the results record
     Then the record carries no evaluated entry for that file
 
@@ -167,3 +167,4 @@ Feature: run — score the current config against its frozen .feature suite
     And a completed run that listed that directory to find those files
     When run writes the results record
     Then the record carries an evaluated entry for that directory whose hash covers the names of the entries the listing returned
+    And an evaluated entry for each file that listing yielded, each carrying the content hash of what was read

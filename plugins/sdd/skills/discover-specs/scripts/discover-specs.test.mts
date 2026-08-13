@@ -144,6 +144,67 @@ test('collectSpecs finds specs at all three locations and excludes non-specs', (
 	}
 })
 
+// ── checkout boundary ──
+//
+// A nested checkout is another repository's tree. Agent-harness worktree isolation checks this repo
+// out inside itself, and before this guard the scan found the whole corpus once per worktree — 38
+// spec files where 10 existed. The loud symptom was check-project-specs failing "claimed by N
+// specs"; the quiet one was every corpus-wide guard reporting green over a 4x-duplicated tree.
+//
+// The third test is the positive companion: a blanket "skip anything that looks nested" would pass
+// the first two and fail this one.
+
+test('collectSpecs does not descend into a nested checkout (.git directory — a clone)', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'discover-specs-'))
+	try {
+		// Pattern 3 (<project-path>/.agents/spec) is the one that genuinely recurses, so it is the
+		// only fixture that can exercise the guard. Seeding the ghost at pattern 2 would be excluded
+		// for an unrelated pre-existing reason and the test would pass with the guard deleted.
+		seed(dir, 'packages/web/.agents/spec/spec.md', 'status: draft')
+		mkdirSync(join(dir, 'nested/.git'), { recursive: true })
+		seed(dir, 'nested/packages/web/.agents/spec/spec.md', 'status: draft')
+		// The outer copy survives, exactly once — the duplicate inside the checkout does not.
+		assert.deepEqual(
+			collectSpecs(dir).map((s) => s.path),
+			['packages/web/.agents/spec'],
+		)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('collectSpecs does not descend into a nested worktree (.git FILE, not a directory)', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'discover-specs-'))
+	try {
+		seed(dir, 'packages/web/.agents/spec/spec.md', 'status: draft')
+		// A worktree and a submodule mark themselves with a .git FILE holding a gitdir: pointer.
+		// Guarding only on a .git directory would miss exactly the case that caused this bug.
+		mkdirSync(join(dir, 'wt'), { recursive: true })
+		writeFileSync(join(dir, 'wt/.git'), 'gitdir: /somewhere/.git/worktrees/wt\n')
+		seed(dir, 'wt/packages/web/.agents/spec/spec.md', 'status: draft')
+		assert.deepEqual(
+			collectSpecs(dir).map((s) => s.path),
+			['packages/web/.agents/spec'],
+		)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
+test('collectSpecs still scans an ordinary directory whose name merely resembles a checkout', () => {
+	const dir = mkdtempSync(join(tmpdir(), 'discover-specs-'))
+	try {
+		// No .git of its own — it is part of THIS tree, so its specs are ours.
+		seed(dir, '.git-fixtures/packages/web/.agents/spec/spec.md', 'status: draft')
+		assert.deepEqual(
+			collectSpecs(dir).map((s) => s.path),
+			['.git-fixtures/packages/web/.agents/spec'],
+		)
+	} finally {
+		rmSync(dir, { recursive: true, force: true })
+	}
+})
+
 test('collectSpecs only matches root-level .agents/specs (pattern 2 has no ** prefix)', () => {
 	const dir = mkdtempSync(join(tmpdir(), 'discover-specs-'))
 	try {

@@ -36,6 +36,23 @@ Feature: The discovery procedure — find specs at the SDD spec locations, named
     When discovery lists the specs
     Then that file is excluded from the set
 
+  # ── Checkout boundary — a nested checkout is another repository, not this corpus ──
+
+  Scenario: a spec inside a nested checkout is not discovered
+    Given a directory holding its own .git that carries a status-bearing spec.md at a fixed convention beneath it
+    When discovery lists the specs
+    Then that file is excluded from the set
+
+  Scenario: the outer copy of a spec duplicated by a nested checkout is still discovered
+    Given a status-bearing spec.md at a fixed convention and a nested checkout carrying its own copy of that same spec
+    When discovery lists the specs
+    Then the outer spec is in the set exactly once
+
+  Scenario: an ordinary directory whose name resembles a checkout is still scanned
+    Given a directory named .git-fixtures holding no .git of its own that carries a status-bearing spec.md at a fixed convention beneath it
+    When discovery lists the specs
+    Then that spec is in the set
+
   # ── Project name and its source ──
 
   Scenario: a declared frontmatter name is authoritative

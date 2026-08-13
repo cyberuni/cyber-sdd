@@ -14,21 +14,128 @@ failing scenarios worst-first, and persist the run.
 **Subject** — scoring a target agent configuration against its frozen `.feature` suite (and its
 `eval.md` run policy) over N runs and reporting the outcome.
 **Non-goals** — authoring or fixing scenarios (`add-scenario` / `improve`); diffing two versions (`compare`);
-the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`).
+the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`);
+deciding whether an already-written result is still current (that is `check-freshness` — `run` records
+the provenance it needs, and does not interpret it); **proving** that the recorded inputs are the ones
+actually read (see the trust boundary below).
+
+**The trust boundary — `evaluated` is `run`'s account of what it consumed.** `run` is prose an agent
+executes, not a script, so the evaluated set is a **self-report**: the agent writes down the inputs it
+says it consumed, and nothing observes its actual reads. This is deliberate and it is bounded. The
+party that did the reading is the best-placed reporter — strictly better than a downstream reader
+inferring a prose configuration's dependencies from outside, which is the approach this capability
+replaced. But the two error directions are **not** symmetric:
+
+- **Over-reporting is catchable.** A recorded entry for a file the configuration does not load is visible
+  against a known fixture — `a file the run did not read is absent from the evaluated set` binds it.
+  Its oracle is that **fixture**: a sibling file the configuration demonstrably does not load, readable
+  from outside the record. The record itself is the agent's claim and can settle nothing about itself.
+- **Under-reporting is not caught here.** A run that skims, or never opens a reference file it should
+  have loaded, records a shorter set whose entries all match, and every downstream reader then sees a
+  result that looks *more* current than it is. No scenario in this suite can falsify that, because the
+  only witness to what was read is the same self-report under test. `check-freshness` catches the
+  sub-case where the omission contradicts the record (a scored `.feature` or the named configuration
+  missing from the set); the general case needs harness-level tool-call telemetry, which no ACED node
+  has.
+
+So `evaluated` is a **record of what the run reports it consumed, not a verified trace** — and nothing
+downstream may read it as the second.
 
 **Fit:** strong — the capability carries a genuine activation decision (a scoring request versus
 sibling eval intents — `compare` / `report` / `add-scenario` — that share the same eval vocabulary),
 and its suite resolution, per-shape judge dispatch, blind-judge invocation, layer/run policy, and
 scale-aware reporting are judged, not asserted.
 
-| Use case | Trigger / inputs | Outcome |
+### Actors and their goals
+
+Enumerated actor-first; entry points are mapped afterward, so a goal reaching this capability by no
+trigger of its own stays visible instead of being absorbed into the surface that already exists.
+
+| Actor | Goal | Reaches it through |
 |---|---|---|
-| Trigger on a scoring request | a request to score / run evals for a config, vs. a sibling intent (diff two versions, project-wide roll-up, author a case) carrying the same eval vocabulary | `run` fires for a scoring request and defers when the intent belongs to `compare` / `report` / `add-scenario` |
-| Resolve the suite to run | the user runs evals, optionally naming a target; zero, one, or several `.feature` suites exist | the one matching suite is selected, or the user is asked when several match, or a no-suite message when none exist |
-| Score the suite | a resolved frozen `.feature` + its `eval.md`, and the target config | every scenario is judged by `aced-case-judge` (in `.feature` order, layer determined by tag with untagged defaulting to behavior, judged blind by path+name, a trigger outline once per Examples row over the configured run count) and collapsed to pass/fail; a failure does not stop the run |
-| Report the outcome | the collected per-scenario results | a pass rate, per-layer breakdown, and the failing scenarios worst-first are reported, each total against its own maximum rather than a raw-total average |
-| Persist the run | the computed results | a timestamped results record is written under the suite's `results/` |
-| Guide the next step | an all-passing run | the user is pointed at `add-scenario` to widen coverage |
+| The configuration author — whoever just edited a skill, subagent, command, or AGENTS.md section | know whether the configuration as it stands now passes its frozen suite, and which cases fail worst | UC1 |
+| `improve` (sibling capability, the diagnose-and-refine loop) | have a current score to diagnose failing scenarios against before proposing edits | UC2 |
+| *Affected without invoking:* `check-freshness`, and any later reader of a persisted record — `compare`, `report`, a reviewer handed a cited pass rate | be able to tell **what the result was computed from**, and so whether it still holds | UC3 — **no trigger of its own**; served by UC1's persisted outcome |
+
+The third row is the one this revision exists for. No actor invokes `run` in order to get provenance;
+the party that needs it is downstream of a run it never made, and asking *"who calls each entry
+point?"* would never have returned it. It has no entry point of its own and needs none — what it
+needs is that UC1's outcome carry an extra field.
+
+### UC1 — score the current configuration against its frozen suite
+
+- **Actor** — the configuration author.
+- **Goal** — find out whether the config as edited still passes, and where it is weakest.
+- **Entry point** — **trigger:** a request to score / run the evals for a configuration, optionally
+  naming a target. **Inputs:** the target configuration and the files it loads, the resolved frozen
+  `.feature`, and its `eval.md` run policy. **Outcome:** every in-policy scenario judged by
+  `aced-case-judge` and collapsed to pass/fail, reported as a pass rate, a per-layer breakdown, and
+  the failing scenarios worst-first — each total against its own maximum rather than a raw-total
+  average. (The run is also persisted; that half of the outcome serves UC3, not this actor, who reads
+  the report.)
+- **Extensions** — every path from that trigger that does not reach a scored, reported run:
+
+  | Cause | Outcome |
+  |---|---|
+  | the request is a diff-two-versions intent carrying the same eval vocabulary | defer to `compare`; nothing is scored |
+  | the request is a project-wide health roll-up | defer to `report` |
+  | the request is to author a case for a failure | defer to `add-scenario` |
+  | no target named and several suites exist | the user is asked which to run; no suite is picked on their behalf |
+  | no eval suite exists for the request (including for a target named explicitly) | report that none is initialized, and do not run |
+  | the `eval.md` layers omit a scenario's layer | those scenarios are skipped — a **partial result**: the reported rate covers the in-policy scenarios, not the whole suite |
+
+  A scenario **failing** is not an extension: it is the outcome working. The run completes and
+  reports, and the CFG carries no abort edge — `a failing scenario does not stop the run` pins that
+  the divergence does not exist.
+
+### UC2 — supply `improve` with a score to diagnose against
+
+- **Actor** — `improve`, running the diagnose-and-refine loop over an ACED-tracked target.
+- **Goal** — have a result that reflects the configuration it is about to propose edits to, so the
+  failing scenarios it classifies are real.
+- **Entry point** — the same trigger and the same outcome as UC1; the caller is a capability rather
+  than a person.
+- **Extensions** — UC1's, unchanged. One more is **owed by the caller, not by this node**: `improve`
+  reuses the latest recorded result rather than scoring, *"if the latest `results/` file is stale or
+  missing"* — a condition it has no way to evaluate. UC3 makes that condition answerable and
+  `check-freshness` answers it; wiring `improve` to consult it is a follow-up against `improve`.
+
+### UC3 — persist the run alongside what it was computed from
+
+- **Actor** — `check-freshness` and every later reader of a persisted record. None of them invokes
+  `run`; they are affected by what it writes.
+- **Goal** — determine, later and from the record alone, whether a recorded result still describes the
+  configuration on disk — without guessing at the configuration's dependencies from outside.
+- **Entry point** — **none of its own.** It is served as part of UC1's run: a timestamped record is
+  written under the shared results directory, keyed by the target it scored, and carries every input
+  the run reports consuming to judge that target — the configuration, the files it loads, the target's
+  `eval.md`, the frozen `.feature`, and any directory it listed to find those files — each as a
+  repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry
+  hashes the names the listing returned, so a file later added to it is detectable. An input the run
+  did not consume is not recorded.
+- **Extensions** — **none that this node can detect, and the reason is the point.** The success
+  outcome is *"the set records what the run consumed"*, and the only way to diverge from it is to
+  record the wrong set. Over-reporting diverges detectably — a recorded entry for a file the
+  configuration does not load is visible against a fixture, and `a file the run did not read is absent
+  from the evaluated set` binds it. Under-reporting diverges **undetectably**: the sole witness to what
+  was read is the same self-report under test, so no path here can be marked. That is the trust
+  boundary above, restated as what it costs — the extension exists in the world and cannot be made a
+  branch in this graph. Closing it needs harness-level tool-call telemetry, and is a recorded
+  follow-up.
+
+### Guiding the next step
+
+An all-passing run points the author at `add-scenario` to widen coverage. This is not a use case —
+nobody invokes `run` to be given advice — but it is a branch in the graph and carries a scenario.
+
+### Surface trace
+
+`run`'s surface is a prose trigger with **one** optional element: the target name. It is needed by
+UC1 and UC2 when more than one suite exists, and its absence is what the several-suites extension
+resolves; there is nothing it may not be combined with. UC3 exposes no surface element at all — it
+adds a field to the persisted outcome, which is why it is invisible to a surface-first enumeration.
+Nothing else is exposed: the report and the persisted record are the only outputs, traced to UC1/UC2
+and UC3 respectively.
 
 ## Control Flow
 
@@ -70,7 +177,9 @@ flowchart TD
   skipit --> collect
 
   collect --> compute[pass rate, per-layer breakdown, failing by margin worst-first, totals vs own max never raw-mean]
-  compute --> write[write timestamped results record under results/]
+  compute --> readset[take the set of inputs this run reports consuming: the config, the files it loads, eval.md, the frozen .feature, and any directory listed to find them]
+  readset --> hash[hash each input: a file's content as read, a listed directory's returned entry names]
+  hash --> write[write timestamped results record under results/, carrying the evaluated set]
   write --> rep[report pass rate + per-layer + failing worst-first]
   rep --> allpass{every case passed?}
   allpass -- yes --> widen[suggest add-scenario to widen coverage]
@@ -78,7 +187,15 @@ flowchart TD
 
 ## Scenario map
 
-One scenario per row, following the suite's section order. Each CFG edge is bound.
+One scenario per row, grouped by use case and following the suite's section order within each group.
+Each CFG edge is bound. Scenarios derive from the CFG alone — the extension lists above are the
+instrument that made the graph complete, not a source a row is drawn from, so the counts do not
+correspond.
+
+### UC1 — score the current configuration against its frozen suite
+
+UC2 shares this entry point and adds no scenario of its own: the caller differs, the behavior does
+not. What UC2 needs beyond this is owed by `improve`, not here.
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
@@ -103,8 +220,24 @@ One scenario per row, following the suite's section order. Each CFG edge is boun
 | `rep` pass rate + per-layer | a completed run | `the report states pass rate and per-layer breakdown` |
 | `compute` totals vs own max | scenarios whose maxima differ | `totals are reported against their own maximum, not as comparable raw numbers` |
 | `rep` failing worst-first | a completed run with at least one failing case | `failing cases are listed worst-first` |
+
+### UC3 — persist the run alongside what it was computed from
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| `readset` membership | a config that loads a reference file | `the results record names every file that was read to judge the subject` |
+| `readset` membership | a file beside the config that it does not load | `a file the run did not read is absent from the evaluated set` |
+| `readset` membership | a config that loads no reference or asset files | `a subject that loads no additional files still records the files that were read` |
+| `hash` content of what was read | any recorded file | `each evaluated file is recorded with the content hash of what was read` |
+| `readset` membership | a config that loads every file under a directory | `a directory the run expanded is recorded alongside the files it yielded` |
+| `hash` content, not timestamp | any completed run | `the evaluated set records content hashes rather than file timestamps` |
 | `write` timestamped record | a completed run | `the run is persisted as a timestamped record` |
 | `write` → shared results dir, keyed by target | completed runs for more than one target | `run records for a target are kept under the shared aced results directory` |
+
+### Guiding the next step
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
 | `allpass` → widen | a run in which every case passes | `an all-passing run points to widening coverage` |
 
 Cross-capability e2e scenarios live in `../../workflows/`.

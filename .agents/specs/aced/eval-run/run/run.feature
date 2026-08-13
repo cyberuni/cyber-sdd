@@ -131,3 +131,39 @@ Feature: run — score the current config against its frozen .feature suite
     Given a run in which every case passes
     When run reports the outcome
     Then it suggests running add to expand edge-case coverage
+
+  # ---- Recording what was evaluated ----
+
+  Scenario: the results record names every file that was read to judge the subject
+    Given a target configuration that loads one reference file
+    And a completed run over that target's frozen suite
+    When run writes the results record
+    Then the record carries an evaluated entry for that configuration, for the reference file it loads, for the target's eval.md, and for the frozen .feature
+
+  Scenario: each evaluated file is recorded with the content hash of what was read
+    Given a completed run whose files were read from the working tree
+    When run writes the results record
+    Then each evaluated entry carries the file's repository path and the SHA-256 hash of the content that was read
+
+  Scenario: a file the run did not read is absent from the evaluated set
+    Given a file sitting beside the target configuration that the configuration does not load
+    And a completed run that never opened that file
+    When run writes the results record
+    Then the record carries no evaluated entry for that file
+
+  Scenario: the evaluated set records content hashes rather than file timestamps
+    Given a completed run over a target's frozen suite
+    When run writes the results record
+    Then each evaluated entry carries a content hash and carries no modification time
+
+  Scenario: a subject that loads no additional files still records the files that were read
+    Given a target configuration that loads no reference or asset files
+    And a completed run over that target's frozen suite
+    When run writes the results record
+    Then the record still carries an evaluated entry for that configuration, for the target's eval.md, and for the frozen .feature
+
+  Scenario: a directory the run expanded is recorded alongside the files it yielded
+    Given a target configuration that loads every file under a references directory
+    And a completed run that listed that directory to find those files
+    When run writes the results record
+    Then the record carries an evaluated entry for that directory whose hash covers the names of the entries the listing returned

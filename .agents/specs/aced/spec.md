@@ -54,7 +54,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 
 | Folder | Type | What |
 |---|---|---|
-| [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report` |
+| [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report`, `check-freshness` |
 | [`config-authoring/`](./config-authoring/README.md) | descriptive index | author + maintain agent config — `define-skill`, `define-agent`, `define-governance`, `skillify`, `improve-skill`, `manage-model-runners`, `list-skills`, `repair-private-skills` |
 | [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `improve` |
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
@@ -107,7 +107,7 @@ never as a top-level folder.
 | `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/improve-skill/` (behavior) · `config-authoring/list-skills/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/manage-skill-dirs/` (behavior) · `config-authoring/repair-private-skills/` (behavior) · `config-authoring/skillify/` (behavior) |
 | `contribution` | `contribute/contribute-skill/` (behavior) |
 | `discovery` | `config-authoring/manage-skill-dirs/` (behavior) |
-| `eval-run` | `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
+| `eval-run` | `eval-run/check-freshness/` (behavior) · `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
 | `production-chain` | `sdd-roles/actor-bars/` (reference) |
 | `registry` | `registry/` (behavior) |
 | `routing` | `manage/` (behavior) |

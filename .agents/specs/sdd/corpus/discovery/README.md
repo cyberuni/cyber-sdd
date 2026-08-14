@@ -48,6 +48,18 @@ Recognition is **location-bounded and shape-confirmed** — both must hold:
   location (fixed or extra) with no lifecycle `status` is **not** a spec (so the scan never grabs a
   stray file by accident); and a status-bearing `spec.md` at a path that is **neither** a fixed
   convention **nor** a declared extra anchor is not discovered either.
+- **Repository** — the location is in **this** checkout. The scan never descends into a directory
+  that is itself a checkout: one carrying its own `.git`, whether a **directory** (a clone) or a
+  **file** holding a `gitdir:` pointer (a worktree or submodule). Such a directory is another
+  repository's tree, and its specs are that repository's corpus, not this one's.
+
+  This is a **boundary**, not a name. A blocklist can only say "this is called X" — it cannot say
+  "this is where the tree stops", so it is defeated by the next directory nobody listed. The
+  distinction is load-bearing: an agent harness that isolates work in a git worktree checks the repo
+  out **inside itself**, and the scan then found the whole corpus once per worktree. The loud symptom
+  is a project reporting it is "claimed by N specs"; the quiet one is every corpus-wide guard —
+  overlap, structure, concept-index — reporting green over a tree several times larger than the one
+  that exists. **A guard passing over a corpus nobody has is worse than one that fails.**
 
 **Fail-safe on the config.** The extra-anchor config is read defensively: an **unreadable or
 malformed** `.agents/sdd/spec-anchors.toml` yields **no** extra anchors — discovery falls back to the

@@ -71,6 +71,14 @@ scores in two separate contexts and composes the simulating context's brief with
 `extract-situation` engine; handing it the scenario body would put the answer key back in the
 context that has to reach the answer. One invocation covers both passes — never sequence them here.
 
+**Wait for each judge, and bank only its last word.** The dispatch is asynchronous, and the judge is
+itself waiting on its own blind simulator — so it can report before its measurement exists and
+correct itself afterwards. Where an agent reports more than once, the **final** report for that agent
+id supersedes the earlier one entirely: never bank the first, never merge them. Do not compute
+results while any judge is still live; a run that ends with cases outstanding reports those cases as
+**unmeasured**, not as passes or failures. A judge that emits `BLOCKER: <reason>` in place of a score
+is likewise unmeasured — surface it rather than folding it into the pass rate.
+
 ## Compute results
 
 After all scenarios:

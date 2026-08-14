@@ -112,10 +112,15 @@ both sides call it.
 | Entry `kind` | What the hash covers | Why |
 |---|---|---|
 | `file` | the bytes of the content you read | a content change must be detectable; a timestamp must never stand in for one |
+| `directory` | the **names** the listing returned (sorted, `\n`-joined) | this is what makes a file later **added** to that directory detectable without re-resolving the subject |
 
 **An entry carries no modification time** — not as a hash, and not alongside one. A recorded mtime
 invites a reader to compare it, and a file rewritten with identical bytes would then read as changed.
-| `directory` | the **names** the listing returned (sorted, `\n`-joined) | this is what makes a file later **added** to that directory detectable without re-resolving the subject |
+
+**Record each `path` repo-relative, and run the engine from the repository root.** The reader
+resolves every entry against the repo root, so an absolute path is silently unverifiable. The engine
+resolves its argument against the current directory — invoked from elsewhere it can hash a
+same-named file somewhere else and record a right-looking path over a wrong digest.
 
 **A directory you expanded needs BOTH**: the directory entry *and* a `file` entry for each file that
 listing yielded. The directory hash covers names only, so it is invariant under a content edit

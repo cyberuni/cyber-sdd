@@ -31,7 +31,7 @@ The tell is the *target artifact*, not the "reuse this" framing: an agent/person
 Load the **skill-design** governance before drafting:
 
 ```bash
-npx cyberplace@0.2.1 governance show skill-design
+npx cyberplace@0.2.2 governance show skill-design
 ```
 
 Read stdout as the authoritative rules for principles, progressive disclosure, and description structure.

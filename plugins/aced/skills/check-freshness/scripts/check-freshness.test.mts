@@ -20,7 +20,15 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { after, describe, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
-import { decideVerdict, hashDirListing, hashFile, incoherence, readSubject, selectNewest } from './check-freshness.mts'
+import {
+	canonicalListing,
+	decideVerdict,
+	hashDirListing,
+	hashFile,
+	incoherence,
+	readSubject,
+	selectNewest,
+} from './check-freshness.mts'
 
 const ENGINE = join(dirname(fileURLToPath(import.meta.url)), 'check-freshness.mts')
 const roots: string[] = []
@@ -314,6 +322,14 @@ describe('decide the verdict', () => {
 		const r = run(root)
 		assert.equal(r.code, 0)
 		assert.match(r.out, /verdict: current/)
+	})
+
+	test('the listing canonical form is order-independent', () => {
+		// Not reachable through the filesystem: ext4 hands back readdirSync already sorted, so a mutant
+		// deleting the sort stays green on Linux and breaks only on APFS/NTFS — as a wrong verdict,
+		// never an error. Asserting the pure function is the only way to bind it here.
+		assert.equal(canonicalListing(['b.md', 'a.md']), canonicalListing(['a.md', 'b.md']))
+		assert.equal(canonicalListing(['b.md', 'a.md']), 'a.md\nb.md')
 	})
 
 	test('a file added to a recorded directory makes the result stale', () => {

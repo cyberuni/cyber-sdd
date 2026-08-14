@@ -97,7 +97,8 @@ this is not "everything next to the config". Over-reporting is visible against a
 fail the suite; it also makes every later freshness answer wrong in the direction of `stale`.
 
 Compute each hash with the **shared engine**, never by hand and never with a second implementation.
-`<aced-skills>` is the directory this skill sits in; the engine is the sibling `check-freshness`:
+`<aced-skills>` is the directory **containing** this skill (`run`'s parent), so the engine resolves as
+the sibling `check-freshness`:
 
 ```bash
 node "<aced-skills>/check-freshness/scripts/check-freshness.mts" --hash-file <repo-relative path>
@@ -111,6 +112,9 @@ both sides call it.
 | Entry `kind` | What the hash covers | Why |
 |---|---|---|
 | `file` | the bytes of the content you read | a content change must be detectable; a timestamp must never stand in for one |
+
+**An entry carries no modification time** — not as a hash, and not alongside one. A recorded mtime
+invites a reader to compare it, and a file rewritten with identical bytes would then read as changed.
 | `directory` | the **names** the listing returned (sorted, `\n`-joined) | this is what makes a file later **added** to that directory detectable without re-resolving the subject |
 
 **A directory you expanded needs BOTH**: the directory entry *and* a `file` entry for each file that

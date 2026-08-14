@@ -86,8 +86,21 @@ export function hashFile(abs: string): string {
  * on two machines holding identical trees and report `stale` for nothing.
  */
 export function hashDirListing(abs: string): string {
-	const names = readdirSync(abs).sort()
-	return createHash('sha256').update(names.join('\n')).digest('hex')
+	return createHash('sha256')
+		.update(canonicalListing(readdirSync(abs)))
+		.digest('hex')
+}
+
+/**
+ * The canonical form of a listing: sorted, `\n`-joined, no trailing newline.
+ *
+ * Split out as a pure function so the ordering guarantee is testable WITHOUT a filesystem. It is not
+ * otherwise falsifiable here: ext4 returns `readdirSync` already sorted, so deleting the sort keeps
+ * the whole suite green on Linux while handing every APFS and NTFS user a permanent spurious `stale`
+ * — the divergence would surface as a wrong verdict, never as an error.
+ */
+export function canonicalListing(names: string[]): string {
+	return [...names].sort().join('\n')
 }
 
 // ─── eval.md — resolve the target ─────────────────────────────────────────────

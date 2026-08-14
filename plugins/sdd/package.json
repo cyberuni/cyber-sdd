@@ -1,6 +1,6 @@
 {
 	"name": "cyber-sdd",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 	"repository": {
 		"type": "git",

@@ -100,7 +100,7 @@ Feature: run — score the current config against its frozen .feature suite
     When run executes the suite
     Then it judges all remaining scenarios before reporting
 
-  # ---- Reporting and persistence ----
+  # ---- Reporting the outcome ----
 
   Scenario: the report states pass rate and per-layer breakdown
     Given a completed run
@@ -117,15 +117,54 @@ Feature: run — score the current config against its frozen .feature suite
     When run reports the outcome
     Then it lists the failing cases ordered worst-first
 
+  # ---- Recording what was evaluated and persisting the run ----
+
+  Scenario: the results record names every file that was read to judge the subject
+    Given a target configuration that loads one reference file
+    And a completed run over that target's frozen suite
+    When run writes the results record
+    Then the record carries an evaluated entry for that configuration, for the reference file it loads, for the target's eval.md, and for the frozen .feature
+
+  Scenario: each evaluated file is recorded with the content hash of what was read
+    Given a completed run whose files were read from the working tree
+    When run writes the results record
+    Then each evaluated file entry carries the file's repository path and the SHA-256 hash of the content that was read
+
+  Scenario: a file the run did not read is absent from the evaluated set
+    Given a file sitting beside the target configuration that the configuration does not load
+    And a completed run over that target's frozen suite
+    When run writes the results record
+    Then the record carries no evaluated entry for that file
+
+  Scenario: the evaluated set records content hashes rather than file timestamps
+    Given a completed run over a target's frozen suite
+    When run writes the results record
+    Then each evaluated entry carries a content hash and carries no modification time
+
+  Scenario: a subject that loads no additional files still records the files that were read
+    Given a target configuration that loads no reference or asset files
+    And a completed run over that target's frozen suite
+    When run writes the results record
+    Then the record still carries an evaluated entry for that configuration, for the target's eval.md, and for the frozen .feature
+
+  Scenario: a directory the run expanded is recorded alongside the files it yielded
+    Given a target configuration that loads every file under a references directory holding two files
+    And a completed run that listed that directory to find those files
+    When run writes the results record
+    Then the record carries an evaluated entry for that directory whose hash covers the names of the entries the listing returned
+    And an evaluated entry for each file that listing yielded, each carrying the content hash of what was read
+
   Scenario: the run is persisted as a timestamped record
     Given a completed run
     When run finishes
-    Then it writes a timestamped results record under the suite's results directory
+    Then it writes a timestamped results record under the shared aced results directory
 
   Scenario: run records for a target are kept under the shared aced results directory
     Given completed runs for more than one target
     When run persists each record
     Then each timestamped record is written under the shared aced results directory, keyed by its target
+
+  # ---- Guiding the next step ----
 
   Scenario: an all-passing run points to widening coverage
     Given a run in which every case passes

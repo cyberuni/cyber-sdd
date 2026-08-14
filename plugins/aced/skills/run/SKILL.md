@@ -84,6 +84,49 @@ differ per scenario, so a mean taken across raw totals compares scales that do n
 report a headline number, report the mean **margin** or the mean **fraction of maximum**, and say
 which.
 
+## Record what was evaluated
+
+Before writing the record, list **every input you consumed to judge this target** — the target
+configuration, each file it loads, the target's `eval.md`, the frozen `.feature`, and any directory
+you **listed** to find those files. This is what makes a recorded result checkable later:
+`check-freshness` re-hashes exactly these paths and nothing else, so a result whose provenance is
+missing or wrong is worse than one carrying none.
+
+**Record only what you actually consumed.** A file you did not open does not belong in the set —
+this is not "everything next to the config". Over-reporting is visible against a fixture and will
+fail the suite; it also makes every later freshness answer wrong in the direction of `stale`.
+
+Compute each hash with the **shared engine**, never by hand and never with a second implementation.
+`<aced-skills>` is the directory **containing** this skill (`run`'s parent), so the engine resolves as
+the sibling `check-freshness`:
+
+```bash
+node "<aced-skills>/check-freshness/scripts/check-freshness.mts" --hash-file <repo-relative path>
+node "<aced-skills>/check-freshness/scripts/check-freshness.mts" --hash-dir  <repo-relative path>
+```
+
+`check-freshness` compares using that same routine. Two schemes that merely agree today would
+surface their divergence as a permanent `stale` rather than as an error, so there is one routine and
+both sides call it.
+
+| Entry `kind` | What the hash covers | Why |
+|---|---|---|
+| `file` | the bytes of the content you read | a content change must be detectable; a timestamp must never stand in for one |
+| `directory` | the **names** the listing returned (sorted, `\n`-joined) | this is what makes a file later **added** to that directory detectable without re-resolving the subject |
+
+**An entry carries no modification time** — not as a hash, and not alongside one. A recorded mtime
+invites a reader to compare it, and a file rewritten with identical bytes would then read as changed.
+
+**Record each `path` repo-relative, and run the engine from the repository root.** The reader
+resolves every entry against the repo root, so an absolute path is silently unverifiable. The engine
+resolves its argument against the current directory — invoked from elsewhere it can hash a
+same-named file somewhere else and record a right-looking path over a wrong digest.
+
+**A directory you expanded needs BOTH**: the directory entry *and* a `file` entry for each file that
+listing yielded. The directory hash covers names only, so it is invariant under a content edit
+inside it — without the per-file entries, editing a file the subject loads from a references
+directory would read as `current` forever.
+
 ## Write results
 
 Write to `.agents/aced/results/<target-slug>/<ISO8601-timestamp>.json` — the shared, git-ignored ACED results directory at the repo root, keyed by the target (a filesystem-safe slug of the target agent-configuration path), not scattered under each project-spec directory:
@@ -93,6 +136,13 @@ Write to `.agents/aced/results/<target-slug>/<ISO8601-timestamp>.json` — the s
   "timestamp": "<ISO8601>",
   "target": "<agent configuration path>",
   "pass_rate": 0.82,
+  "evaluated": [
+    { "path": "<agent configuration path>", "sha256": "<hex>", "kind": "file" },
+    { "path": "<a directory the config loads from>", "sha256": "<hex>", "kind": "directory" },
+    { "path": "<each file that listing yielded>", "sha256": "<hex>", "kind": "file" },
+    { "path": "<the target eval.md>", "sha256": "<hex>", "kind": "file" },
+    { "path": "<the frozen .feature>", "sha256": "<hex>", "kind": "file" }
+  ],
   "scenarios": [
     {
       "name": "<scenario name>",

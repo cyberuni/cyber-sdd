@@ -38,6 +38,22 @@ const ROOT_PROJECT_NAME = 'repo'
 // Dirs the scan never descends into (keep `.agents` — specs live under it).
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.turbo', '.next', 'coverage'])
 
+/**
+ * A directory that is itself a checkout is a DIFFERENT repository's tree, not part of this corpus.
+ *
+ * A name blocklist cannot express this: it can only say "this is called X", never "this is a
+ * boundary". `SKIP_DIRS` already holds `.git`, so the walk skipped the METADATA directory while
+ * descending straight into the checkout that directory marks — one level off from where the guard
+ * was needed. Agent-harness worktree isolation checks this repo out inside itself, and the scan then
+ * found the whole corpus once per worktree: 38 spec files where 10 exist, and every corpus-wide
+ * guard silently auditing a tree nobody has.
+ *
+ * `.git` is a DIRECTORY in a clone and a FILE in a worktree or submodule, so both forms count.
+ */
+function isNestedCheckout(abs: string): boolean {
+	return existsSync(join(abs, '.git'))
+}
+
 // The opt-in extra-anchor registry (ADR-0019). Scanned IN ADDITION TO the three fixed conventions;
 // absent ⇒ only the fixed conventions are scanned (today's behavior, unchanged).
 const ANCHORS_CONFIG = '.agents/sdd/spec-anchors.toml'
@@ -168,6 +184,7 @@ export function discoverSpecFiles(root: string): string[] {
 		for (const e of entries) {
 			if (!e.isDirectory() || SKIP_DIRS.has(e.name)) continue
 			const childRel = relDir ? `${relDir}/${e.name}` : e.name
+			if (isNestedCheckout(join(root, childRel))) continue
 			if (e.name === '.agents') {
 				probeAgents(root, childRel, found)
 				continue // spec locations live directly under .agents, no deeper walk needed
@@ -237,7 +254,9 @@ function collectDescendants(root: string, startDir: string): string[] {
 	}
 	for (const e of entries) {
 		if (!e.isDirectory() || SKIP_DIRS.has(e.name)) continue
-		out.push(...collectDescendants(root, startDir ? `${startDir}/${e.name}` : e.name))
+		const childRel = startDir ? `${startDir}/${e.name}` : e.name
+		if (isNestedCheckout(join(root, childRel))) continue
+		out.push(...collectDescendants(root, childRel))
 	}
 	return out
 }
@@ -273,8 +292,10 @@ export function expandAnchor(root: string, pattern: string): { rel: string; capt
 				}
 				for (const e of entries) {
 					if (!e.isDirectory() || SKIP_DIRS.has(e.name)) continue
+					const childRel = node.dir ? `${node.dir}/${e.name}` : e.name
+					if (isNestedCheckout(join(root, childRel))) continue
 					next.push({
-						dir: node.dir ? `${node.dir}/${e.name}` : e.name,
+						dir: childRel,
 						capturedName: seg === '<project>' ? e.name : node.capturedName,
 					})
 				}

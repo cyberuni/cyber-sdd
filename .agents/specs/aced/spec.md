@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/aced
 approval:
   spec:
@@ -11,6 +11,15 @@ approval:
       blast: medium — changes the result-record shape, a producer contract every downstream consumer reads, and adds one behavioral node beside run/compare/report. Bounded by additivity: a legacy record carrying no evaluated set reads `absent`, never `current`, so nothing pre-existing is silently reinterpreted.
       novelty: medium — recording provenance is ordinary. The non-obvious move is the closed-world treatment: a consumed directory listing is recorded as a hashed entry, so growth is caught without re-resolving the subject, and the residual is pinned by a positive scenario that fails an implementation which re-resolves instead.
       confidence: high — three cold judges across two nodes over three gate rounds; final round is all three lenses PASS on both nodes, ALIGNED true, CONFORMANCE ok, BLOCKER null, zero open markers, and every scenario in both suites carries a named implementation class that fails it. Round 3 caught a directory-only recorder that passed the suite while silently defeating check-freshness's stale verdict for content edits inside a recorded directory — the CR's own central safety property. Two known limits are stated rather than hidden: under-reporting cannot be bound by any scenario (the only witness is the self-report under test; closing it needs harness tool-call telemetry no ACED node has), and check-freshness ships consulted by nobody until the run/improve wiring lands as a follow-up.
+  impl:
+    verdict: approve
+    by: unional
+    cause: dimension
+    why:
+      floor: none — the implementation was built against the frozen suites and narrowed nothing. The one Clearance in this CR was granted and applied at the SPEC gate (a frozen scenario naming the wrong results destination); it was not re-entered here. Post-verdict edits touched only SKILL.md prose and .gitignore, no .feature.
+      blast: medium — changes the result-record shape every downstream reader consumes, and adds one deterministic engine beside run/compare/report. Bounded by additivity: a legacy record carrying no evaluated set reads `absent`, never `current`.
+      novelty: medium — recording provenance is ordinary; the non-obvious move is the closed-world treatment, where a consumed directory listing is recorded as a hashed entry so growth is caught without re-resolving the subject.
+      confidence: high — two cold impl-judges, both IMPLEMENTATION_PASS, 8/8 and 22/22, every check-freshness scenario separately confirmed BOUND by mutation rather than by a green run. 277 tests, typecheck, 6/6 spec engines, 0 critical audit findings. Three defects were caught AT this gate and fixed, one of them a testing hole invisible on this filesystem.
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer

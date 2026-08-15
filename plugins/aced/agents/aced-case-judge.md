@@ -52,10 +52,24 @@ name, the `Then`, or the rubric to it. Ask it only what an agent in this situati
 - **behavior layer** — walk what it would do, step by step
 - **quality layer** — carry the task to completion and produce the output
 
-It returns a transcript. That transcript is the only thing you score. **A dispatch that returns no
-transcript is a `BLOCKER`** — report and score nothing. Never simulate inline instead: your context
-holds the scenario name and the `Then`, so a simulation made here is exactly the defect this protocol
-closes.
+**Dispatch is asynchronous — it yields an agent id, not a transcript.** The tool call returns
+immediately; the transcript arrives later, as a separate completion notification that re-wakes you.
+So after dispatching you **stop and wait to be re-woken**. Do not continue to pass 2, and do not
+enter the Output-format section, on the same turn you dispatched. If you find yourself at the end of
+a turn with no transcript in hand, the correct action is to say you are still waiting and stop — not
+to emit a verdict.
+
+The transcript that comes back is the only thing you score. Distinguish the two ways you can lack
+one:
+
+- **Not returned yet** — you dispatched and have not been re-woken. This is **not** a `BLOCKER`. Keep
+  waiting. A verdict emitted here is fabricated, and nothing downstream can tell it from a measured
+  one.
+- **Returned empty or the dispatch died** — you were re-woken and there is no transcript. **That is a
+  `BLOCKER`** — report and score nothing.
+
+Never simulate inline in either case: your context holds the scenario name and the `Then`, so a
+simulation made here is exactly the defect this protocol closes.
 
 ## Pass 2 — score the returned transcript
 
@@ -91,6 +105,19 @@ holds.
 
 ## Output format
 
+**The `BLOCKER` path outranks every shape below.** The "exactly this and nothing else" contract binds
+only once you hold a transcript and have scored it. Reaching this section without a scored transcript
+*is* the blocker path — emit the blocker shape, never a scored one. A well-formed score block is the
+one thing you must not produce when you have nothing to score, because it is indistinguishable from a
+real measurement and no reader downstream can catch it.
+
+```
+BLOCKER: <what was missing — empty brief, non-zero extractor exit, dead dispatch, colliding rubric name>
+```
+
+If instead the simulation simply has not come back yet, that is not a blocker and not an output —
+say you are still waiting and stop.
+
 For a `@rubric` case, respond with exactly this and nothing else:
 
 ```
@@ -125,7 +152,7 @@ WHAT WORKED: <one sentence>
 WHAT FAILED: <the first Then that did not hold, or "nothing">
 ```
 
-No preamble. No explanation beyond the fields.
+No preamble. No explanation beyond the fields — subject always to the blocker precedence above.
 
 ## Scoring principles
 

@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/sdd
 approval:
   spec:
@@ -11,6 +11,15 @@ approval:
       blast: low — one read-only engine that writes nothing and owns no lifecycle state, wired into the per-project check every project already runs. It adds no gate, no config file, no repo-level chain entry, and no public package surface. Its only reach beyond itself is the 14 broken anchors its first run found, each corrected to a path verified against the tree rather than guessed
       novelty: low — the fifth engine in an established family, taking the same `--spec-dir` shape and the same read-only, propose-never-write boundary as its siblings. The one design question with genuine freedom, what counts as a reference, was settled from a throwaway spike over two live corpora before drafting rather than argued
       confidence: high — cold `sdd-spec-judge` returned ALIGNED true with oracle/builder/architect all PASS on round 5, after four rounds that each found a real defect and were each fixed at the rule rather than the instance. The judge attacked the live extraction path with its own constructed inputs rather than reading the prose, independently re-verified both source-issue traps and every prior round's fix, and traced all 32 scenario-map rows against the graph. Every discriminating rule is mutation-proven: thirteen mutations, each failing exactly the tests it should. `check:spec` 7/7, 34 engine tests, `pnpm verify` 29/29, and the check runs clean over both this corpus and the one the issue was filed from
+  impl:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — the frozen `check-spec-references.feature` was never narrowed. Every delivery commit either added a scenario (additive, self-clearing) or changed only the engine, its test, the skill docs, and the corpus anchors the guard's first run caught. No other suite was touched
+      blast: low — one read-only engine and one entry in the per-project engine set. It writes nothing, owns no lifecycle state, adds no repo-level chain entry and no package surface
+      novelty: low — the fifth engine in an established family, same `--spec-dir` shape and same propose-never-write boundary as its siblings
+      confidence: high — cold `sdd-impl-judge` approved on round 4 after three rounds that each found a real silent miss. It re-derived all 38 scenarios on its own fixtures rather than reading the producer's tests as the definition, ran its own mutation sweep including deleting each block-boundary arm one at a time (every arm independently killed), and confirmed the check clean over both this corpus and the one the issue was filed from. Twenty-two mutations in total across the mission, each failing exactly the tests it should
 ---
 
 # Spec-Driven Development (SDD)

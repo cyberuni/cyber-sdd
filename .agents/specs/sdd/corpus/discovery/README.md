@@ -15,7 +15,7 @@ need no registry; **extra anchors are an opt-in override** for projects whose sp
 off-convention, read from a persistent config (`.agents/sdd/spec-anchors.toml`). That config is a
 declared second source that can drift, so it is opt-in and **curated** through the `spec-anchors`
 manage skill rather than derived. The concrete engine is the
-[`discover-specs`](../../../plugins/sdd/skills/discover-specs/) skill, which parses each spec's
+[`discover-specs`](../../../../../plugins/sdd/skills/discover-specs/) skill, which parses each spec's
 frontmatter only and emits the list as TOON.
 
 ## Use Cases

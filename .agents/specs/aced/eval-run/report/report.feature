@@ -109,22 +109,27 @@ Feature: report — project-wide eval health
 
   # ---- Comparing across scoring models ----
 
-  Scenario: a trend across records scored under different models is flagged rather than rendered
+  Scenario: a trend measured across two scoring models is marked as such
     Given a suite whose latest and previous records were scored under different models
-    When report computes the suite's trend
-    Then it flags the pair as scored under different models and does not render the difference as a trend
+    When report renders that suite's trend
+    Then it marks the trend as measured across different scoring models and names both models
 
-  Scenario: a trend across records scored under the same model is rendered as before
+  Scenario: a trend measured under one scoring model carries no such mark
     Given a suite whose latest and previous records were scored under the same model
-    When report computes the suite's trend
-    Then it renders the trend and raises no scoring-model flag
+    When report renders that suite's trend
+    Then it renders the trend with no cross-model mark
 
-  Scenario: a record carrying no scoring model is flagged rather than assumed to match
+  Scenario: a record carrying no scoring model is marked unknown rather than assumed to match
     Given a suite whose previous record carries no scoring model
-    When report computes the suite's trend
-    Then it treats the missing model as unknown and flags the pair rather than assuming the two runs share a model
+    When report renders that suite's trend
+    Then it marks the pair as scored under an unknown model rather than as scored under one model
 
-  Scenario: a drop measured across scoring models does not mark a suite trending-down
-    Given a suite whose pass rate fell against a previous record scored under a different model
+  Scenario: the cross-model mark does not change how a suite is classified
+    Given a suite whose two records were scored under different models
     When report classifies that suite
-    Then it classifies the suite from its latest run's pass rate and does not mark it trending-down on that drop
+    Then it classifies the suite by the same health bars it applies to any other suite and coins no health class for the mark
+
+  Scenario: a needs-attention entry drawn from a cross-model pair carries the mark
+    Given a suite needing attention whose trend was measured across different scoring models
+    When report renders the needs-attention list
+    Then that suite's entry carries the cross-model mark

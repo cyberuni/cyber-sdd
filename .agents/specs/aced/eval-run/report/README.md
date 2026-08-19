@@ -25,6 +25,7 @@ routing are judged, not asserted.
 | Trigger on a health-summary request | a request for the project-wide eval health / which configs need attention, vs. a sibling intent (score one suite, diff two versions, author a case) carrying the same eval vocabulary | `report` fires for a project-wide roll-up and defers when the intent belongs to `run` / `compare` / `add-scenario` |
 | Discover the suites | the project spec (`.agents/specs/`), or none | every behavioral-leaf node with an `eval.md` is discovered, reading its latest and previous results; a no-suite message when none exist |
 | Classify each suite's health | the latest and previous results per suite | each suite is classified healthy / degraded / critical / no-data / trending-down |
+| Guard the trend against a model change | the latest and previous records and the scoring model each carries | a pair scored under different models — or one carrying no model at all — is flagged, its difference is not rendered as a trend, and a drop measured across that pair does not classify the suite trending-down |
 | Render the dashboard | the per-suite metrics | a dashboard of pass rate, mean `%max`, and trend per suite (mean normalized per scenario, never a raw-total average; `—` when a suite has no rubric scenario), plus a needs-attention list and an optional per-suite detail mode |
 | Suggest the next action | each suite's health | the matching next skill is suggested per health (critical/trending-down → improve, degraded → run then improve, no-data → run, all-healthy → add) |
 
@@ -41,7 +42,10 @@ flowchart TD
   discover -- none --> noinit[report no eval suite initialized]
   discover -- some --> read[per suite: read latest + previous results]
 
-  read --> metrics[compute pass rate, trend, worst case, mean]
+  read --> sameModel{latest and previous scored under the same model?}
+  sameModel -- no, or a record carries none --> flagModel[flag the pair as cross-model: no trend rendered, no trending-down from that drop]
+  sameModel -- yes --> metrics[compute pass rate, trend, worst case, mean]
+  flagModel --> metrics
   metrics --> hasrubric{suite has rubric scenarios?}
   hasrubric -- no --> nomean[mean = not-applicable]
   hasrubric -- yes --> mean[mean = mean of total ÷ own max per scenario, never raw-total average]
@@ -92,6 +96,10 @@ edges in one row, with `degraded` bound in its own row.
 | `classify` → 70–89% | a suite passing between the bars | `a mid-band suite is classified degraded` |
 | `classify` → no results | a suite with no results record | `a suite with no results is classified no-data` |
 | `classify` → dropped ≥10% | a suite whose pass rate fell sharply | `a dropping suite is classified trending-down` |
+| `sameModel` → no | a suite whose latest and previous records were scored under different models | `a trend across records scored under different models is flagged rather than rendered` |
+| `sameModel` → yes | a suite whose two records were scored under the same model | `a trend across records scored under the same model is rendered as before` |
+| `sameModel` → record carries none | a suite whose previous record carries no scoring model | `a record carrying no scoring model is flagged rather than assumed to match` |
+| `flagModel` → not trending-down | a suite whose pass rate fell across a cross-model pair | `a drop measured across scoring models does not mark a suite trending-down` |
 | `dash` render | the per-suite metrics | `the dashboard shows each suite with its trend and attention list` |
 | `mean` → normalized | a suite whose scenarios declare different maxima | `the mean column normalizes each scenario rather than averaging raw totals` |
 | `hasrubric` → no (`—`) | a suite whose scenarios are all boolean or trigger | `a suite with no rubric scenarios shows no mean` |

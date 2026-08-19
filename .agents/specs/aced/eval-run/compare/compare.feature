@@ -101,3 +101,15 @@ Feature: compare — diff two config versions for regressions
     Given a diff with no regressed case and a net improvement
     When compare applies the regression gate
     Then it confirms the change is safe to commit
+
+  # ---- Scoring model ----
+
+  Scenario: both sides of a diff are scored under one model
+    Given two resolved versions and a golden set
+    When compare runs the diff
+    Then it scores both versions under the same judge model
+
+  Scenario: a persisted comparison records the model it was scored under
+    Given the user asks to record the comparison
+    When compare writes the results record
+    Then the record carries the model both sides were scored under

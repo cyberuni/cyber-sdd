@@ -19,13 +19,14 @@ failing scenarios worst-first, and persist the run.
 | Term | Meaning |
 |---|---|
 | **the evaluated set** | Every input this run reports consuming to judge the target — the configuration, the files it loads, the target's `eval.md`, the frozen `.feature`, and any directory it listed to find them — each recorded as a repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry hashes the names the listing returned, which is what makes a file later *added* to it detectable. |
-| **the results record** | The timestamped file one completed run persists: the scores, the target it scored, and the evaluated set it recorded. `check-freshness` reads it; `run` never interprets one. |
+| **the results record** | The timestamped file one completed run persists: the scores, the target it scored, the evaluated set it recorded, and the scoring model it ran under. `check-freshness` reads it; `run` never interprets one. |
+| **the scoring model** | The model this run dispatched `aced-case-judge` under — the `eval.md` `judge.model` when the run honored it, otherwise the model it actually dispatched under, and `unknown` when it cannot be determined. Recorded per record, beside the scores rather than inside the evaluated set: it names who produced the transcripts, not an input whose bytes could be re-hashed. |
 
 **Non-goals** — authoring or fixing scenarios (`add-scenario` / `improve`); diffing two versions (`compare`);
 the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`);
 deciding whether an already-written result is still current (that is `check-freshness` — `run` records
 the provenance it needs, and does not interpret it); **proving** that the recorded inputs are the ones
-actually read (see the trust boundary below).
+actually read (see the trust boundary below); judging what a change of scoring model *means* for a recorded result — `run` records which model scored it and stops there, and no node re-scores or invalidates on that basis.
 
 The limit on what `evaluated` can mean is the trust boundary under UC3, the use case it qualifies.
 
@@ -45,7 +46,7 @@ trigger of its own stays visible instead of being absorbed into the surface that
 |---|---|---|
 | The configuration author — whoever just edited a skill, subagent, command, or AGENTS.md section | know whether the configuration as it stands now passes its frozen suite, and which cases fail worst | UC1 |
 | `improve` (sibling capability, the diagnose-and-refine loop) | have a current score to diagnose failing scenarios against before proposing edits | UC2 |
-| *Affected without invoking:* `check-freshness`, and any later reader of a persisted record — `compare`, `report`, a reviewer handed a cited pass rate | be able to tell **what the run recorded consuming**, and so whether that account still holds | UC3 — **no trigger of its own**; served by UC1's persisted outcome |
+| *Affected without invoking:* `check-freshness`, and any later reader of a persisted record — `compare`, `report`, a reviewer handed a cited pass rate | be able to tell **what the run recorded consuming** and **which model scored it**, and so whether that account still holds | UC3 — **no trigger of its own**; served by UC1's persisted outcome |
 
 The third row is the one this revision exists for. No actor invokes `run` in order to get provenance;
 the party that needs it is downstream of a run it never made, and asking *"who calls each entry
@@ -103,7 +104,10 @@ needs is that UC1's outcome carry an extra field.
   `eval.md`, the frozen `.feature`, and any directory it listed to find those files — each as a
   repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry
   hashes the names the listing returned, so a file later added to it is detectable. An input the run
-  did not consume is not recorded.
+  did not consume is not recorded. The record also carries **the scoring model** — the model the run
+  dispatched the judge under — because ACED scores a blind simulation of behavior rather than the
+  subject's text, so a result measures the subject *under a model*, and two results for one target are
+  comparable only when that half is visible.
 - **Extensions** — **one, and one that cannot be a branch.** The success outcome is *"the set records
   what the run reports consuming"*, so the only way to diverge is to record the wrong set, in one of
   two directions. **Over-reporting** — the run records an input it did not consume: a real extension,
@@ -134,6 +138,34 @@ this capability replaced. But the two error directions are **not** symmetric:
 
 So `evaluated` is a **record of what the run reports it consumed, not a verified trace** — and nothing
 downstream may read it as the second. Closing the gap is a recorded follow-up.
+
+#### The scoring model — recorded, not adjudicated
+
+ACED never inspects the subject's prose. `aced-case-judge` dispatches a **blind** context that sees
+the subject and a mechanically extracted situation brief, and scores the transcript that comes back —
+so a pass is a property of *this subject under this model*. A model capable enough to do the right
+thing unprompted passes a scenario the subject does not actually prescribe, and the pass is credited
+to prose that is doing no work. The record cannot resolve that (only an ablation can), but it can
+stop it from being invisible: the model that produced the transcripts is written down.
+
+Three consequences fix the shape:
+
+- **It rides the record, not the evaluated set.** The evaluated set holds *inputs whose bytes can be
+  re-hashed*; a model is not a file, and `check-freshness` must not be handed a member it could only
+  ever report as unverifiable. The `eval.md` that **declares** `judge.model` is already hashed, so a
+  change to the declaration reads as stale by that route — what the record adds is which model
+  actually ran.
+- **Unknown is a value, not an omission.** A run that cannot determine its judge model records it as
+  unknown, so a later grouping never merges unattributed results into a named model.
+- **One model per record, never per target.** The model is a property of the run that produced the
+  scores — which is what makes a target's results groupable by model later. Ranking models per
+  subject is a further capability and out of scope here; this node only makes the grouping possible.
+
+**Its trust boundary is `evaluated`'s.** The value is the same self-report from the same prose agent:
+`run` writes down the model it says it dispatched under, and nothing observes the dispatch. It is
+also blind by construction to a **silent change under a stable identifier** — a model whose name did
+not change but whose behavior did is indistinguishable in the record from one that never changed.
+Neither limit is closable at this node.
 
 ### Guiding the next step
 
@@ -195,7 +227,8 @@ flowchart TD
   kind -- listed directory --> hashdir[hash the names the listing returned, plus an entry per file it yielded]
   hashfile --> stamp[record path + hash only, never a modification time]
   hashdir --> stamp
-  stamp --> write[write timestamped results record under the shared aced results directory, carrying the evaluated set]
+  stamp --> model[take the model the judge was dispatched under, or unknown when it cannot be determined]
+  model --> write[write timestamped results record under the shared aced results directory, carrying the evaluated set and the scoring model]
   write --> rep[report pass rate + per-layer + failing worst-first]
   rep --> allpass{every case passed?}
   allpass -- yes --> widen[suggest add-scenario to widen coverage]
@@ -256,6 +289,11 @@ not. What UC2 needs beyond this is owed by `improve`, not here.
 | `stamp` no modification time | any completed run | `the evaluated set records content hashes rather than file timestamps` |
 | `write` timestamped record | a completed run | `the run is persisted as a timestamped record` |
 | `write` → shared results dir, keyed by target | completed runs for more than one target | `run records for a target are kept under the shared aced results directory` |
+| `model` recorded | a completed run over a target's frozen suite | `the results record names the model the run judged under` |
+| `model` → declared and honored | an eval.md declaring a judge model the run dispatched under | `a declared judge model the run honored is the model it records` |
+| `model` → cannot be determined | a run whose judge model cannot be determined | `a run that cannot determine its judge model records it as unknown` |
+| `model` placement | a completed run over a target's frozen suite | `the scoring model is recorded as a property of the run, not as an evaluated input` |
+| `write` per-record model | two runs for one target under different judge models | `each record carries the model that scored that run` |
 
 ### Guiding the next step
 

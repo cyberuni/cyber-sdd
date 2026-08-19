@@ -164,6 +164,33 @@ Feature: run — score the current config against its frozen .feature suite
     When run persists each record
     Then each timestamped record is written under the shared aced results directory, keyed by its target
 
+  # ---- Recording the model that scored the run ----
+
+  Scenario: the results record names the model the run judged under
+    Given a completed run over a target's frozen suite
+    When run writes the results record
+    Then the record carries the model the case judge was dispatched under
+
+  Scenario: a declared judge model the run honored is the model it records
+    Given an eval.md declaring a judge model and a run that dispatched the judge under it
+    When run writes the results record
+    Then the recorded scoring model is the declared one
+
+  Scenario: a run that cannot determine its judge model records it as unknown
+    Given a completed run whose judge model cannot be determined
+    When run writes the results record
+    Then the record carries the scoring model as unknown rather than omitting it
+
+  Scenario: the scoring model is recorded as a property of the run, not as an evaluated input
+    Given a completed run over a target's frozen suite
+    When run writes the results record
+    Then the scoring model is carried beside the scores and appears in no evaluated entry
+
+  Scenario: each record carries the model that scored that run
+    Given two completed runs for one target dispatched under different judge models
+    When run writes each results record
+    Then each record carries the model that scored it rather than one model shared across the target's records
+
   # ---- Guiding the next step ----
 
   Scenario: an all-passing run points to widening coverage

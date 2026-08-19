@@ -106,3 +106,25 @@ Feature: report — project-wide eval health
     Given a suite classified degraded
     When report suggests next actions
     Then it points the degraded suite at run for details before improve
+
+  # ---- Comparing across scoring models ----
+
+  Scenario: a trend across records scored under different models is flagged rather than rendered
+    Given a suite whose latest and previous records were scored under different models
+    When report computes the suite's trend
+    Then it flags the pair as scored under different models and does not render the difference as a trend
+
+  Scenario: a trend across records scored under the same model is rendered as before
+    Given a suite whose latest and previous records were scored under the same model
+    When report computes the suite's trend
+    Then it renders the trend and raises no scoring-model flag
+
+  Scenario: a record carrying no scoring model is flagged rather than assumed to match
+    Given a suite whose previous record carries no scoring model
+    When report computes the suite's trend
+    Then it treats the missing model as unknown and flags the pair rather than assuming the two runs share a model
+
+  Scenario: a drop measured across scoring models does not mark a suite trending-down
+    Given a suite whose pass rate fell against a previous record scored under a different model
+    When report classifies that suite
+    Then it classifies the suite from its latest run's pass rate and does not mark it trending-down on that drop

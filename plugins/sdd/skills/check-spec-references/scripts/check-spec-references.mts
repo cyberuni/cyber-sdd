@@ -52,19 +52,55 @@ const IGNORE_MARKER_RE = /<!--\s*spec-ref-ignore\s*(?::[^>]*)?-->/
  * angle-bracket-wrapped target, and an optional title in any of markdown's three quotings. Run only
  * over the parts of a line that are NOT inside a code span: inside one, markup is literal text on
  * display, not a link. */
-const LINK_RE = /\]\(\s*<?(\.{1,2}\/[^)\s>]*)>?(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/g
+const LINK_RE = /\]\(\s*(?:<([^>\n]*)>|(\.{1,2}\/[^)\s]*))(?:\s+(?:"[^"]*"|'[^']*'|\([^)]*\)))?\s*\)/g
 
 /** A reference-style link definition (`[label]: ../path`) whose target is explicitly relative. It
  * is a link target like any other — the label form changes where the path is written, not what it
  * points at. */
-const LINK_DEF_RE = /^\s{0,3}\[[^\]]+\]:\s*<?(\.{1,2}\/[^\s>]*)>?/
+const LINK_DEF_RE = /^\s{0,3}\[.+\]:\s*(?:<([^>\n]*)>|(\S+))/
 
-const RELATIVE_RE = /^\.{1,2}\//
+/** An explicitly-relative path, and nothing else. The trailing class excludes whitespace and
+ * backticks so that "the span's WHOLE content is the path" means what it says: a span holding
+ * `../a` plus commentary is prose that starts with a path, not a citation. */
+const RELATIVE_RE = /^\.{1,2}\/[^\s`]*$/
 
-/** A line that opens or closes a fenced code block (``` or ~~~), per CommonMark's three-or-more
- * rule. A fence holds a sample command or a diagram, never a citation. */
-function isFenceDelimiter(line: string): boolean {
-	return /^\s{0,3}(`{3,}|~{3,})/.test(line)
+/** The same, minus the no-whitespace rule — for an ANGLE-BRACKET link target, whose whole reason
+ * for existing is to carry a path with a space in it. */
+const RELATIVE_IN_ANGLES_RE = /^\.{1,2}\/[^`]*$/
+
+/** An open fence, remembered so the close can be matched against it. */
+interface Fence {
+	char: '`' | '~'
+	length: number
+}
+
+/**
+ * The fence a line opens, or `undefined`. CommonMark: three or more backticks or tildes, indented
+ * fewer than four spaces.
+ */
+function fenceOpenedBy(line: string): Fence | undefined {
+	const m = /^ {0,3}(`{3,}|~{3,})/.exec(line)
+	if (m === null) return undefined
+	const run = m[1] as string
+	return { char: run[0] as '`' | '~', length: run.length }
+}
+
+/**
+ * Whether `line` CLOSES `fence`: the same character, at least as long, and nothing but whitespace
+ * after it.
+ *
+ * Matching the delimiter rather than toggling a boolean on any fence-shaped line is what keeps the
+ * exclusion honest. A bare toggle flips on a `~~~` line inside a backtick fence — so a reference
+ * genuinely inside a fence gets extracted, and, worse, a fence-shaped line inside another fence
+ * leaves the parity inverted and every genuinely broken reference AFTER the block is silently
+ * swallowed. That is this engine's own failure class, reached through the one rule meant to
+ * suppress noise.
+ */
+function fenceClosedBy(line: string, fence: Fence): boolean {
+	const m = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(line)
+	if (m === null) return false
+	const run = m[1] as string
+	return run[0] === fence.char && run.length >= fence.length
 }
 
 interface CodeSpan {
@@ -139,13 +175,17 @@ export function scanCodeSpans(line: string): CodeSpan[] {
  */
 export function extractReferences(text: string): Reference[] {
 	const out: Reference[] = []
-	let inFence = false
+	let fence: Fence | undefined
 	text.split('\n').forEach((line, i) => {
-		if (isFenceDelimiter(line)) {
-			inFence = !inFence
+		if (fence !== undefined) {
+			if (fenceClosedBy(line, fence)) fence = undefined
 			return
 		}
-		if (inFence) return
+		const opened = fenceOpenedBy(line)
+		if (opened !== undefined) {
+			fence = opened
+			return
+		}
 		// Code spans first, then everything else over what is left: markup written inside a code
 		// span is on display, not live. Blanked rather than removed so nothing shifts.
 		const seen = new Set<string>()
@@ -164,9 +204,16 @@ export function extractReferences(text: string): Reference[] {
 		// this engine exists to find.
 		if (IGNORE_MARKER_RE.test(outsideSpans)) return
 
-		for (const m of outsideSpans.matchAll(LINK_RE)) seen.add(m[1] as string)
+		const addTarget = (angled: string | undefined, bare: string | undefined) => {
+			if (angled !== undefined) {
+				if (RELATIVE_IN_ANGLES_RE.test(angled)) seen.add(angled)
+				return
+			}
+			if (bare !== undefined && RELATIVE_RE.test(bare)) seen.add(bare)
+		}
+		for (const m of outsideSpans.matchAll(LINK_RE)) addTarget(m[1], m[2])
 		const def = LINK_DEF_RE.exec(outsideSpans)
-		if (def) seen.add(def[1] as string)
+		if (def) addTarget(def[1], def[2])
 
 		for (const ref of seen) out.push({ line: i + 1, ref })
 	})

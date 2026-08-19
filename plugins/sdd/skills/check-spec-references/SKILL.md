@@ -27,11 +27,13 @@ Two forms, and only when the path is **explicitly relative** (`./` or `../`):
 | Form | Where |
 |---|---|
 | a markdown link target — plain, angle-bracket-wrapped, titled, or a `[label]: path` definition | outside any code span |
-| an inline-code span **whose whole content is the path** | anywhere but a fenced block |
+| an inline-code span **whose whole content is the path** — a path followed by further text is prose | anywhere but a fenced block |
 
 **Everything else is prose, not a reference** — which is what makes a repo-root-relative reference
 (`.research/<topic>/`) pass by construction rather than by exception. Never extracted: a bare path,
-a URL, an absolute path, a `~/`-relative path, and anything inside a **fenced code block**.
+a URL, an absolute path, a `~/`-relative path, and anything inside a **fenced code block** (tracked
+by the character and run length that opened it, so a fence-shaped line of the other delimiter inside
+a block neither ends it nor inverts the parity for everything after).
 
 Code spans are read the way CommonMark delimits them — a run of N backticks opens, the next run of
 exactly N closes, and a run that never closes is literal text the scan resumes after (a stray

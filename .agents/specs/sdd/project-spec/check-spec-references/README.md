@@ -49,8 +49,10 @@ double-dot path segment:
 
 - a **markdown link target**, outside any code span — in whichever inline form carries it: plain,
   angle-bracket-wrapped, with a title, or written as a reference-style definition (`[label]: path`).
-  The form changes where the path is written, never what it points at.
-- an **inline-code span whose whole content is the path**
+  The form changes where the path is written, never what it points at. An angle-bracket target may
+  carry a space — that is the form's reason to exist — where a bare target and a code span may not.
+- an **inline-code span whose whole content is the path** — *whole* meaning exactly that: a span
+  holding a path followed by further text is prose that begins with a path, not a citation
 
 **Everything else is prose, not a reference.** This is the rule that makes the repo-root-relative
 case pass *by construction* rather than by exception. A spec corpus is full of bare paths that are
@@ -59,7 +61,12 @@ tool file, a glob — and a check that resolved them would reject nearly all of 
 relative prefix is what separates *this file points there* from *this text mentions a path*. A URL,
 an absolute path, and a `~/`-relative path fail that test too.
 
-**A fenced code block is excluded** — it holds a sample command or a diagram, never a citation.
+**A fenced code block is excluded** — it holds a sample command or a diagram, never a citation. The
+fence is tracked by **which character opened it and how long the run was**, and closes only on a run
+of that same character at least as long. A bare in-fence toggle would flip on any fence-shaped line:
+a reference genuinely inside a fence would then be extracted, and — the dangerous direction — a
+fence-shaped line nested inside another fence would leave the parity inverted, silently swallowing
+every genuinely broken reference after the block.
 
 **Code spans are read as CommonMark delimits them**: a run of N backticks opens, the next run of
 exactly N closes, and a run that never closes is **literal text the scan resumes after**. That
@@ -119,7 +126,8 @@ flowchart TD
   B -->|no| A
   B -->|yes| C[take the next line]
   C --> D{inside a fenced block?}
-  D -->|yes| C
+  D -->|yes, and this line does not close it| C
+  D -->|yes, and this line closes it| C
   D -->|no| F[scan the line's code spans]
   F -->|a run never closes| F2[treat it as literal text, resume after it]
   F2 --> F
@@ -161,6 +169,8 @@ an edge name they do not exercise.
 | G→C (URL) | a node whose README links an absolute URL | `a URL is not extracted` |
 | G→C (absolute / home) | a node carrying an absolute path and a home-relative path in inline code | `an absolute or home-relative path is not extracted` |
 | D→C (in a fence) | a node whose fenced code block contains a relative path that does not exist | `a relative path inside a fenced code block is not extracted` |
+| D→C (fence identity) | a fenced block whose interior carries a line shaped like a fence of the other delimiter character | `a fence closes only on its own delimiter character, at its own length or longer` |
+| G→C (span is not only a path) | a code span whose content is a relative path followed by further text | `a code span carrying a path plus other text is prose` |
 | F (nested span) | a code span whose content is itself an inline-code span around a relative path | `a code span holding another code span is not a path` |
 | F (doubled span, bare path) | a code span opened with doubled backticks whose whole content is a relative path that does not exist | `a code span in doubled backticks whose content is a bare path is a reference` |
 | F (run-length matching) | a doubled-backtick span whose content carries a nested span followed by a relative path | `a code span closes on a backtick run of its own length` |

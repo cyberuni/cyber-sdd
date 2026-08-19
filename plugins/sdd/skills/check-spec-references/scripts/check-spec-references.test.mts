@@ -190,6 +190,40 @@ test('a line carrying the ignore marker has none of its references extracted', (
 	assert.deepEqual(extractReferences(text), [])
 })
 
+test('a fence closes only on its own delimiter character, at its own length or longer', () => {
+	// A bare in-fence toggle flips on any fence-shaped line. Then a reference genuinely inside a
+	// fence gets extracted — and, worse, a fence-shaped line nested in another fence leaves the
+	// parity inverted, so every genuinely broken reference AFTER the block is silently swallowed.
+	const insideBacktickFence = ['```bash', 'echo hi', '~~~', '`../nope-inside.md`', '```'].join('\n')
+	assert.deepEqual(extractReferences(insideBacktickFence), [])
+
+	const afterTildeFence = ['~~~', 'example', '```', '~~~', '`../nope-outside.md`'].join('\n')
+	assert.deepEqual(
+		extractReferences(afterTildeFence).map((r) => r.ref),
+		['../nope-outside.md'],
+	)
+
+	// a run of the same character CLOSES when it is at least as long as the opener...
+	assert.deepEqual(
+		extractReferences(['```', 'x', '`````', '`../after.md`'].join('\n')).map((r) => r.ref),
+		['../after.md'],
+	)
+	// ...and does not when it is shorter
+	assert.deepEqual(
+		extractReferences(['`````', 'x', '```', '`../still-inside.md`', '`````', '`../out.md`'].join('\n')).map(
+			(r) => r.ref,
+		),
+		['../out.md'],
+	)
+})
+
+test('a code span carrying a path plus other text is prose, not a citation', () => {
+	// "the span's WHOLE content is the path" means what it says. This also discriminates the
+	// code-span closing rule: a scanner that closed on a LONGER run would split this span and
+	// read the head as a reference the document never made.
+	assert.deepEqual(extractReferences('a `../nope`` b` c\n'), [])
+})
+
 test('a code span holding another code span is not a path', () => {
 	// Its content still carries backticks, so it is not a path — the same rule, not an exception.
 	// This is how a spec exhibits the reference form it specifies without firing on itself.
@@ -238,6 +272,8 @@ test('a link target is extracted whichever inline form carries it', () => {
 		"[t](../nope/file.md 'a title')",
 		'[t](<../nope/file.md>)',
 		'[1]: ../nope/file.md',
+		'[1]: <../nope/file.md>',
+		'[a [b]]: ../nope/file.md',
 	]) {
 		assert.deepEqual(
 			extractReferences(`${line}\n`).map((r) => r.ref),
@@ -245,6 +281,12 @@ test('a link target is extracted whichever inline form carries it', () => {
 			line,
 		)
 	}
+	// the angle-bracket form exists to carry a path with a space; it is not held to the
+	// no-whitespace rule a bare target and a code span are
+	assert.deepEqual(
+		extractReferences('[t](<../no pe/file.md>)\n').map((r) => r.ref),
+		['../no pe/file.md'],
+	)
 })
 
 test('the ignore marker is matched as a complete comment, not as a prefix', () => {

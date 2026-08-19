@@ -70,6 +70,16 @@ Feature: The check-spec-references procedure — every relative reference in a s
     When check-spec-references audits the project-spec
     Then it extracts no reference from inside the fence
 
+  Scenario: a fence closes only on its own delimiter character, at its own length or longer
+    Given a fenced block whose interior carries a line shaped like a fence of the other delimiter character
+    When check-spec-references audits the project-spec
+    Then the block stays fenced and every reference after it is still extracted
+
+  Scenario: a code span carrying a path plus other text is prose
+    Given a code span whose content is a relative path followed by further text
+    When check-spec-references audits the project-spec
+    Then it extracts no reference from that span
+
   Scenario: a code span holding another code span is not a path
     Given a code span whose content is itself an inline-code span around a relative path
     When check-spec-references audits the project-spec

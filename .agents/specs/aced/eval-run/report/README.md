@@ -25,9 +25,9 @@ routing are judged, not asserted.
 | Trigger on a health-summary request | a request for the project-wide eval health / which configs need attention, vs. a sibling intent (score one suite, diff two versions, author a case) carrying the same eval vocabulary | `report` fires for a project-wide roll-up and defers when the intent belongs to `run` / `compare` / `add-scenario` |
 | Discover the suites | the project spec (`.agents/specs/`), or none | every behavioral-leaf node with an `eval.md` is discovered, reading its latest and previous results; a no-suite message when none exist |
 | Classify each suite's health | the latest and previous results per suite | each suite is classified healthy / degraded / critical / no-data / trending-down |
-| Mark a trend measured across scoring models | the latest and previous records and the scoring model each carries | a trend drawn from two records scored under different models — or from one carrying no model at all — is rendered **marked as cross-model**, naming both models — or naming the known one and `unknown` where a record carries none; the mark rides the trend and the needs-attention entry, and changes no health classification |
 | Render the dashboard | the per-suite metrics | a dashboard of pass rate, mean `%max`, and trend per suite (mean normalized per scenario, never a raw-total average; `—` when a suite has no rubric scenario), plus a needs-attention list and an optional per-suite detail mode |
 | Suggest the next action | each suite's health | the matching next skill is suggested per health (critical/trending-down → improve, degraded → run then improve, no-data → run, all-healthy → add) |
+| Mark a trend not measured under one model | the latest and previous records and the scoring model each names | a trend is comparable only when **both records name a model and name the same one**; every other pair — different models, one naming none, neither naming one — renders **marked as cross-model**, naming each side's model or `unknown`. The mark rides the trend and the needs-attention entry, and changes no health classification |
 
 ## Control Flow
 
@@ -42,12 +42,10 @@ flowchart TD
   discover -- none --> noinit[report no eval suite initialized]
   discover -- some --> read[per suite: read latest + previous results]
 
-  read --> sameModel{latest and previous scored under the same model?}
+  read --> sameModel{do both records name a model, and the same one?}
   sameModel -- yes --> metrics[compute pass rate, trend, worst case, mean]
-  sameModel -- no, both models known --> markModel[mark the trend cross-model, naming both models]
-  sameModel -- a record carries no model --> markUnknown[mark the trend cross-model, naming the known model and unknown]
+  sameModel -- no --> markModel[mark the trend cross-model, naming each side's model or unknown where a record names none]
   markModel --> metrics
-  markUnknown --> metrics
   metrics --> hasrubric{suite has rubric scenarios?}
   hasrubric -- no --> nomean[mean = not-applicable]
   hasrubric -- yes --> mean[mean = mean of total ÷ own max per scenario, never raw-total average]
@@ -66,11 +64,7 @@ flowchart TD
   nodata --> dash
   trend --> dash
 
-  dash --> carry{trend marked cross-model?}
-  carry -- yes --> ride[the mark rides the needs-attention entry; health class unchanged]
-  carry -- no --> worst
-  ride --> worst
-  worst[needs-attention entry names the suite's worst failing case + total ÷ own max]
+  dash --> worst[needs-attention entry names the suite's worst failing case + total ÷ own max, carrying the cross-model mark where the trend has one]
   worst --> detail{user asked for one suite's detail?}
   detail -- yes --> full[list that suite's failing cases with per-dimension scores + what failed]
   detail -- no --> next[suggest next action per health]
@@ -102,11 +96,6 @@ edges in one row, with `degraded` bound in its own row.
 | `classify` → 70–89% | a suite passing between the bars | `a mid-band suite is classified degraded` |
 | `classify` → no results | a suite with no results record | `a suite with no results is classified no-data` |
 | `classify` → dropped ≥10% | a suite whose pass rate fell sharply | `a dropping suite is classified trending-down` |
-| `sameModel` → no | a suite whose latest and previous records were scored under different models | `a trend measured across two scoring models is marked as such` |
-| `sameModel` → yes | a suite whose two records were scored under the same model | `a trend measured under one scoring model carries no such mark` |
-| `sameModel` → a record carries no model | a suite whose previous record carries no scoring model | `a record carrying no scoring model is marked unknown rather than assumed to match` |
-| `classify` unchanged by the mark | a suite whose two records were scored under different models | `the cross-model mark does not change how a suite is classified` |
-| `carry` → yes (`ride`) | a suite needing attention whose trend is cross-model | `a needs-attention entry drawn from a cross-model pair carries the mark` |
 | `dash` render | the per-suite metrics | `the dashboard shows each suite with its trend and attention list` |
 | `mean` → normalized | a suite whose scenarios declare different maxima | `the mean column normalizes each scenario rather than averaging raw totals` |
 | `hasrubric` → no (`—`) | a suite whose scenarios are all boolean or trigger | `a suite with no rubric scenarios shows no mean` |
@@ -114,5 +103,11 @@ edges in one row, with `degraded` bound in its own row.
 | `detail` → yes | a request for one suite's detail | `a request for one suite's detail lists its failing cases` |
 | `next` map (all classes) | suites across several health classes | `each suite is given a matching next action` |
 | `next` → degraded → run | a suite classified degraded | `a degraded suite is pointed at run for detail` |
+| `sameModel` → no (different named models) | a suite whose two records name different models | `a trend measured across two scoring models is marked as such` |
+| `sameModel` → yes | a suite whose two records name the same model | `a trend measured under one scoring model carries no such mark` |
+| `sameModel` → no (one record names none) | a suite whose latest names a model and whose previous names none | `a record carrying no scoring model is marked unknown rather than assumed to match` |
+| `sameModel` → no (neither names one) | a suite whose two records both name no model | `a pair in which neither record names a model is marked unknown, not treated as one model` |
+| `classify` unchanged (convergence over the mark) | a suite whose two records name different models | `the cross-model mark does not change how a suite is classified` |
+| `worst` carries the mark | a suite needing attention whose trend is marked cross-model | `a needs-attention entry drawn from a cross-model pair carries the mark` |
 
 Cross-capability e2e scenarios live in `../../workflows/`.

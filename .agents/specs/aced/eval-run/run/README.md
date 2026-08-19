@@ -20,7 +20,7 @@ failing scenarios worst-first, and persist the run.
 |---|---|
 | **the evaluated set** | Every input this run reports consuming to judge the target — the configuration, the files it loads, the target's `eval.md`, the frozen `.feature`, and any directory it listed to find them — each recorded as a repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry hashes the names the listing returned, which is what makes a file later *added* to it detectable. |
 | **the results record** | The timestamped file one completed run persists: the scores, the target it scored, the evaluated set it recorded, and the scoring model it ran under. `check-freshness` reads it; `run` never interprets one. |
-| **the scoring model** | The model this run dispatched `aced-case-judge` under — the `eval.md` `judge.model` when the run honored it, otherwise the model it actually dispatched under, and `unknown` when neither is available — the reachable case being an `eval.md` that declares no `judge.model`, leaving the dispatch to the harness, whose choice the dispatching agent cannot observe. Recorded per record, beside the scores rather than inside the evaluated set: it names who produced the transcripts, not an input whose bytes could be re-hashed. |
+| **the scoring model** | **The model this run dispatched `aced-case-judge` under, as the run can name it; `unknown` exactly when it cannot.** One condition, not a combination: the `eval.md` `judge.model` is the usual *source* of that name and a caller's explicit pick is another, but neither is a second input to the rule — a declaration the run did not honor loses to the model it actually dispatched under, and a declaration's absence is not by itself an answer. Recorded per record, beside the scores rather than inside the evaluated set: it names who produced the transcripts, not an input whose bytes could be re-hashed. |
 
 **Non-goals** — authoring or fixing scenarios (`add-scenario` / `improve`); diffing two versions (`compare`);
 the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`);
@@ -155,10 +155,18 @@ Three consequences fix the shape:
   ever report as unverifiable. The `eval.md` that **declares** `judge.model` is already hashed, so a
   change to the declaration reads as stale by that route — what the record adds is which model
   actually ran.
-- **Unknown is a value, not an omission.** The branch is reachable: an `eval.md` that declares no
-  `judge.model` leaves the choice to the harness, and the agent doing the dispatching cannot observe
-  which model served it. Such a run records `unknown`, so a later grouping never merges unattributed
-  results into a named model rather than quietly attributing them.
+- **The rule is one condition — can the run name the model it dispatched under?** Stated in closed
+  form before the graph was drawn, because the tempting shape here is a fold over *is a model
+  declared* × *was the declaration honored* × *is the dispatch observable*, which enumerates cells
+  that are not decisions. They are **sources for one name**, and they collapse: whichever source
+  supplies it, the run records the model it dispatched under. The declaration matters to the
+  **record** only as one way the run comes to know the name — never as the value itself.
+- **Unknown is a value, not an omission, and its antecedent is the single negative branch.** A run
+  that cannot name the model it dispatched under — a harness that chose one it does not surface, with
+  no declaration and no caller pick to fall back on — records `unknown`. A run that *can* name it
+  never records `unknown`, whatever the `eval.md` says or omits. So a later grouping neither merges
+  unattributed results into a named model nor files a deliberately model-pinned run under
+  `unknown`.
 - **One model per record, never per target.** The model is a property of the run that produced the
   scores — which is what makes a target's results groupable by model later. Ranking models per
   subject is a further capability and out of scope here; this node only makes the grouping possible.
@@ -229,12 +237,10 @@ flowchart TD
   kind -- listed directory --> hashdir[hash the names the listing returned, plus an entry per file it yielded]
   hashfile --> stamp[record path + hash only, never a modification time]
   hashdir --> stamp
-  stamp --> model{model the judge was dispatched under?}
-  model -- matches the eval.md declaration --> declared[record the declared model]
-  model -- differs from the declaration --> actual[record the model dispatched under, not the declared one]
-  model -- no declaration and the dispatch model is unobservable --> unknown[record unknown]
-  declared --> write
-  actual --> write
+  stamp --> model{can the run name the model it dispatched the judge under?}
+  model -- yes, from the eval.md declaration it honored, from a caller's pick, or otherwise --> named[record that model, never the declaration it did not honor]
+  model -- no --> unknown[record unknown]
+  named --> write
   unknown --> write[write timestamped results record under the shared aced results directory, carrying the evaluated set and the scoring model]
   write --> rep[report pass rate + per-layer + failing worst-first]
   rep --> allpass{every case passed?}
@@ -297,9 +303,10 @@ not. What UC2 needs beyond this is owed by `improve`, not here.
 | `write` timestamped record | a completed run | `the run is persisted as a timestamped record` |
 | `write` → shared results dir, keyed by target | completed runs for more than one target | `run records for a target are kept under the shared aced results directory` |
 | `model` recorded | a completed run over a target's frozen suite | `the results record names the model the run judged under` |
-| `model` → declared and honored | an eval.md declaring a judge model the run dispatched under | `a declared judge model the run honored is the model it records` |
-| `model` → declared but not honored | an eval.md declaring one model and a run dispatched under another | `a run that dispatched under a model other than the declared one records the one it dispatched under` |
-| `model` → cannot be determined | a run whose judge model cannot be determined | `a run that cannot determine its judge model records it as unknown` |
+| `model` → yes (the declaration, honored) | an eval.md declaring a judge model the run dispatched under | `a declared judge model the run honored is the model it records` |
+| `model` → yes (a declaration it did not honor) | an eval.md declaring one model and a run dispatched under another | `a run that dispatched under a model other than the declared one records the one it dispatched under` |
+| `model` → yes (no declaration, a caller's pick) | no declared judge model and a caller-named dispatch model | `a run that can name its dispatch model records it even where the eval.md declares none` |
+| `model` → no | no declared judge model and a harness-chosen dispatch the run cannot name | `a run that cannot name the model it dispatched under records unknown` |
 | `model` placement | a completed run over a target's frozen suite | `the scoring model is recorded as a property of the run, not as an evaluated input` |
 | `write` per-record model | two runs for one target under different judge models | `each record carries the model that scored that run` |
 

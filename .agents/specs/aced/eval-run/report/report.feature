@@ -120,9 +120,14 @@ Feature: report — project-wide eval health
     Then it renders the trend with no cross-model mark
 
   Scenario: a record carrying no scoring model is marked unknown rather than assumed to match
-    Given a suite whose previous record carries no scoring model
+    Given a suite whose latest record names a scoring model and whose previous record carries none
     When report renders that suite's trend
-    Then it marks the pair as scored under an unknown model rather than as scored under one model
+    Then it marks the pair as spanning that model and an unknown one rather than as scored under one model
+
+  Scenario: a pair in which neither record names a model is marked unknown, not treated as one model
+    Given a suite whose latest and previous records both carry no scoring model
+    When report renders that suite's trend
+    Then it marks the pair as scored under unknown models rather than as scored under one model
 
   Scenario: the cross-model mark does not change how a suite is classified
     Given a suite whose two records were scored under different models

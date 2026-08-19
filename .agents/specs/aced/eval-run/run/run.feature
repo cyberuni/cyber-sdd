@@ -176,6 +176,11 @@ Feature: run — score the current config against its frozen .feature suite
     When run writes the results record
     Then the recorded scoring model is the declared one
 
+  Scenario: a run that dispatched under a model other than the declared one records the one it dispatched under
+    Given an eval.md declaring one judge model and a run that dispatched the judge under a different one
+    When run writes the results record
+    Then the recorded scoring model is the one it dispatched under rather than the one declared
+
   Scenario: a run that cannot determine its judge model records it as unknown
     Given a completed run whose judge model cannot be determined
     When run writes the results record

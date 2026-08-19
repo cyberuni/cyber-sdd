@@ -108,3 +108,8 @@ Feature: compare — diff two config versions for regressions
     Given the user asks to record the comparison
     When compare writes the results record
     Then the record carries the model both sides were scored under
+
+  Scenario: a persisted comparison that cannot name its judge model records unknown
+    Given the user asks to record a comparison whose judge model compare cannot name
+    When compare writes the results record
+    Then the record carries the scoring model as unknown rather than omitting it

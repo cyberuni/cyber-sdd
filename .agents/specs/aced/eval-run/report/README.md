@@ -27,7 +27,7 @@ routing are judged, not asserted.
 | Classify each suite's health | the latest and previous results per suite | each suite is classified healthy / degraded / critical / no-data / trending-down |
 | Render the dashboard | the per-suite metrics | a dashboard of pass rate, mean `%max`, and trend per suite (mean normalized per scenario, never a raw-total average; `—` when a suite has no rubric scenario), plus a needs-attention list and an optional per-suite detail mode |
 | Suggest the next action | each suite's health | the matching next skill is suggested per health (critical/trending-down → improve, degraded → run then improve, no-data → run, all-healthy → add) |
-| Mark a trend not measured under one model | the latest and previous records and the scoring model each names | a trend is comparable only when **both records name a model and name the same one**; every other pair — different models, one naming none, neither naming one — renders **marked as cross-model**, naming each side's model or `unknown`. The mark rides the trend and the needs-attention entry, and changes no health classification |
+| Mark a trend not measured under one model | a suite's latest and previous records, and the scoring model each carries | a trend is comparable only when **both records name a known model and name the same one**. An **unknown** scoring model — carried as `unknown` by a run that could not name its dispatch model, or **absent entirely from a record written before this contract**, which reads as `unknown` — is never equal to any model, **including another `unknown`**. Every non-comparable pair renders **marked as cross-model**, naming each side's model or `unknown`; a suite with fewer than two records has no pair and is never marked. The mark rides the trend and the needs-attention entry, and changes no health classification |
 
 ## Control Flow
 
@@ -42,9 +42,11 @@ flowchart TD
   discover -- none --> noinit[report no eval suite initialized]
   discover -- some --> read[per suite: read latest + previous results]
 
-  read --> sameModel{do both records name a model, and the same one?}
-  sameModel -- yes --> metrics[compute pass rate, trend, worst case, mean]
-  sameModel -- no --> markModel[mark the trend cross-model, naming each side's model or unknown where a record names none]
+  read --> pair{two records to compare?}
+  pair -- no, none or only one --> metrics[compute pass rate, trend, worst case, mean]
+  pair -- yes --> sameModel{do both records name a known model, and the same one?}
+  sameModel -- yes --> metrics
+  sameModel -- no --> markModel[mark the trend cross-model, naming each side's model or unknown]
   markModel --> metrics
   metrics --> hasrubric{suite has rubric scenarios?}
   hasrubric -- no --> nomean[mean = not-applicable]
@@ -103,10 +105,11 @@ edges in one row, with `degraded` bound in its own row.
 | `detail` → yes | a request for one suite's detail | `a request for one suite's detail lists its failing cases` |
 | `next` map (all classes) | suites across several health classes | `each suite is given a matching next action` |
 | `next` → degraded → run | a suite classified degraded | `a degraded suite is pointed at run for detail` |
+| `pair` → no | a suite with no results record, or exactly one | `a suite with no results is classified no-data` |
 | `sameModel` → no (different named models) | a suite whose two records name different models | `a trend measured across two scoring models is marked as such` |
 | `sameModel` → yes | a suite whose two records name the same model | `a trend measured under one scoring model carries no such mark` |
-| `sameModel` → no (one record names none) | a suite whose latest names a model and whose previous names none | `a record carrying no scoring model is marked unknown rather than assumed to match` |
-| `sameModel` → no (neither names one) | a suite whose two records both name no model | `a pair in which neither record names a model is marked unknown, not treated as one model` |
+| `sameModel` → no (one side unknown) | a suite whose latest names a known model and whose previous is unknown | `a record whose scoring model is unknown is marked as such rather than assumed to match` |
+| `sameModel` → no (both sides unknown) | a suite whose two records are both unknown | `two unknown scoring models are not read as one model` |
 | `classify` unchanged (convergence over the mark) | a suite whose two records name different models | `the cross-model mark does not change how a suite is classified` |
 | `worst` carries the mark | a suite needing attention whose trend is marked cross-model | `a needs-attention entry drawn from a cross-model pair carries the mark` |
 

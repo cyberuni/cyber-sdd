@@ -238,9 +238,9 @@ flowchart TD
   hashfile --> stamp[record path + hash only, never a modification time]
   hashdir --> stamp
   stamp --> model{can the run name the model it dispatched the judge under?}
-  model -- yes, from the eval.md declaration it honored, from a caller's pick, or otherwise --> named[record that model, never the declaration it did not honor]
+  model -- yes, from the eval.md declaration it honored, from a caller's pick, or otherwise --> namedmodel[record that model, never the declaration it did not honor]
   model -- no --> unknown[record unknown]
-  named --> write
+  namedmodel --> write
   unknown --> write[write timestamped results record under the shared aced results directory, carrying the evaluated set and the scoring model]
   write --> rep[report pass rate + per-layer + failing worst-first]
   rep --> allpass{every case passed?}

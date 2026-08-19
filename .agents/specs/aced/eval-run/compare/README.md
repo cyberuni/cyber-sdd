@@ -58,7 +58,9 @@ flowchart TD
   full --> score[score every case vs both versions under one judge model, label before / after]
   score --> persist{user asked to record?}
   persist -- no --> diff[compute diff]
-  persist -- yes --> write[write results record, carrying the judge model both sides were scored under] --> diff
+  persist -- yes --> write{can compare name the judge model both sides were scored under?}
+  write -- yes --> writeNamed[write results record carrying that model] --> diff
+  write -- no --> writeUnknown[write results record carrying unknown] --> diff
 
   diff --> classify[classify each case: improved / regressed / unchanged / now-passing / now-failing]
   classify --> agg[aggregate: net passing delta + per-dimension deltas; no averaged total across cases]
@@ -88,7 +90,8 @@ One row per edge in the graph above, one scenario per row. Rows follow the suite
 | `aggregate` → no averaged total | per-case totals whose maxima differ | `raw totals are not averaged across scenarios into one score` |
 | `persist` → no (default) | a completed diff, no request to record | `a diff is not persisted by default` |
 | `persist` → yes (on request) | the user asks to record the comparison | `a diff is persisted only on request` |
-| `write` records the model | the user asks to record the comparison | `a persisted comparison records the model it was scored under` |
+| `write` → yes | the user asks to record a comparison whose judge model compare can name | `a persisted comparison records the model it was scored under` |
+| `write` → no | the user asks to record a comparison whose judge model compare cannot name | `a persisted comparison that cannot name its judge model records unknown` |
 | `gate` → pass→fail flip → warn | a case dropped from passing to failing | `a regressed case blocks the commit with a warning` |
 | `gate` → dimension drop while passing → warn | a case stays passing but a dimension dropped | `a dimension that drops while the case still passes is flagged as a regression` |
 | `gate` → no regression → safe | no regressed case and a net improvement | `a clean net improvement is confirmed safe to commit` |

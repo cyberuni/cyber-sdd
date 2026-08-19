@@ -110,7 +110,7 @@ Feature: report — project-wide eval health
   # ---- Comparing across scoring models ----
 
   Scenario: a trend measured across two scoring models is marked as such
-    Given a suite whose latest and previous records were scored under different models
+    Given a suite whose latest and previous records name different scoring models
     When report renders that suite's trend
     Then it marks the trend as measured across different scoring models and names both models
 
@@ -119,13 +119,14 @@ Feature: report — project-wide eval health
     When report renders that suite's trend
     Then it renders the trend with no cross-model mark
 
-  Scenario: a record carrying no scoring model is marked unknown rather than assumed to match
-    Given a suite whose latest record names a scoring model and whose previous record carries none
+  Scenario: a record whose scoring model is unknown is marked as such rather than assumed to match
+    Given a suite whose latest record names a known scoring model
+    And whose previous record was written before the scoring model was recorded
     When report renders that suite's trend
-    Then it marks the pair as spanning that model and an unknown one rather than as scored under one model
+    Then it reads the older record's scoring model as unknown and marks the pair as spanning that model and an unknown one
 
-  Scenario: a pair in which neither record names a model is marked unknown, not treated as one model
-    Given a suite whose latest and previous records both carry no scoring model
+  Scenario: two unknown scoring models are not read as one model
+    Given a suite whose latest and previous records both carry an unknown scoring model
     When report renders that suite's trend
     Then it marks the pair as scored under unknown models rather than as scored under one model
 

@@ -103,11 +103,21 @@ function fenceClosedBy(line: string, fence: Fence): boolean {
 	return run[0] === fence.char && run.length >= fence.length
 }
 
+/** A blank line at the very start of the remaining text — the boundary a code span cannot cross. */
+const BLANK_LINE_RE = /^\r?\n[ \t]*\r?\n/
+
 interface CodeSpan {
-	/** The span's content, with CommonMark's one-space padding stripped. */
+	/** The span's content, line endings folded to spaces and CommonMark's one-space padding stripped. */
 	content: string
+	/** Offset into the scanned text where the opening run begins. */
 	start: number
 	end: number
+}
+
+/** Same length, same line breaks, no content — so blanking a region shifts no offset and moves no
+ * finding to another line. */
+function blankOut(region: string): string {
+	return region.replace(/[^\n]/g, ' ')
 }
 
 /**
@@ -122,27 +132,29 @@ interface CodeSpan {
  * its content, so it IS one. Neither is a special case, and neither leaves a broken reference
  * anywhere to hide.
  */
-export function scanCodeSpans(line: string): CodeSpan[] {
+export function scanCodeSpans(text: string): CodeSpan[] {
 	const out: CodeSpan[] = []
 	let i = 0
-	while (i < line.length) {
-		if (line[i] !== '`') {
+	while (i < text.length) {
+		if (text[i] !== '`') {
 			i++
 			continue
 		}
 		const open = i
-		while (line[i] === '`') i++
+		while (text[i] === '`') i++
 		const runLength = i - open
-		// find the next run of exactly runLength backticks
+		// find the next run of exactly runLength backticks, stopping at a blank line (a code span
+		// cannot cross one — that ends the paragraph)
 		let j = i
 		let closeStart = -1
-		while (j < line.length) {
-			if (line[j] !== '`') {
+		while (j < text.length) {
+			if (BLANK_LINE_RE.test(text.slice(j))) break
+			if (text[j] !== '`') {
 				j++
 				continue
 			}
 			const runStart = j
-			while (line[j] === '`') j++
+			while (text[j] === '`') j++
 			if (j - runStart === runLength) {
 				closeStart = runStart
 				break
@@ -150,13 +162,17 @@ export function scanCodeSpans(line: string): CodeSpan[] {
 		}
 		if (closeStart === -1) {
 			// An unmatched run is literal text, and the scan RESUMES after it — CommonMark's own
-			// recovery. Abandoning the rest of the line instead would let one stray backtick
+			// recovery. Abandoning the rest of the text instead would let one stray backtick
 			// silently swallow every reference after it, which is this engine's own failure class
 			// wearing a different hat.
 			i = open + runLength
 			continue
 		}
-		let content = line.slice(open + runLength, closeStart)
+		// Line endings inside a span are spaces, per CommonMark — which is what lets a span that
+		// WRAPS still be one span. Prose here hard-wraps, so a long path in backticks landing
+		// across a line break is ordinary, not exotic; scanning line by line would have left every
+		// wrapped reference unread.
+		let content = text.slice(open + runLength, closeStart).replace(/\r?\n/g, ' ')
 		if (content.length > 1 && content.startsWith(' ') && content.endsWith(' ') && content.trim() !== '') {
 			content = content.slice(1, -1)
 		}
@@ -174,49 +190,92 @@ export function scanCodeSpans(line: string): CodeSpan[] {
  * scope be exactly the line it appears on rather than the whole file.
  */
 export function extractReferences(text: string): Reference[] {
-	const out: Reference[] = []
+	const lines = text.split('\n')
+
+	// 1. Blank the fenced blocks, keeping every line's length and every line break, so offsets and
+	//    line numbers below still mean what they say.
 	let fence: Fence | undefined
-	text.split('\n').forEach((line, i) => {
+	const unfenced = lines.map((line) => {
 		if (fence !== undefined) {
 			if (fenceClosedBy(line, fence)) fence = undefined
-			return
+			return blankOut(line)
 		}
 		const opened = fenceOpenedBy(line)
 		if (opened !== undefined) {
 			fence = opened
-			return
+			return blankOut(line)
 		}
-		// Code spans first, then everything else over what is left: markup written inside a code
-		// span is on display, not live. Blanked rather than removed so nothing shifts.
-		const seen = new Set<string>()
-		const chars = [...line]
-		for (const span of scanCodeSpans(line)) {
-			const content = span.content.trim()
-			if (RELATIVE_RE.test(content)) seen.add(content)
-			for (let k = span.start; k < span.end; k++) chars[k] = ' '
+		return line
+	})
+
+	// 2. Scan code spans across the WHOLE text, not line by line: a span that wraps is still one
+	//    span, and reading it as two would leave a wrapped reference unread.
+	const scannable = unfenced.join('\n')
+	const lineStarts: number[] = []
+	let acc = 0
+	for (const line of lines) {
+		lineStarts.push(acc)
+		acc += line.length + 1
+	}
+	const lineOf = (offset: number): number => {
+		let lo = 0
+		let hi = lineStarts.length - 1
+		while (lo < hi) {
+			const mid = (lo + hi + 1) >> 1
+			if ((lineStarts[mid] as number) <= offset) lo = mid
+			else hi = mid - 1
 		}
-		const outsideSpans = chars.join('')
+		return lo
+	}
 
-		// The marker is read from OUTSIDE the code spans too — the same rule, not an exception for
-		// the escape hatch. Read from the raw line it would fire on a line that merely QUOTES it,
-		// which is how this very node documents it, and that line's real references would vanish:
-		// an escape hatch that a description of the escape hatch can trigger hides exactly what
-		// this engine exists to find.
-		if (IGNORE_MARKER_RE.test(outsideSpans)) return
+	const spans = scanCodeSpans(scannable)
+	let outsideSpans = scannable
+	for (const span of spans) {
+		outsideSpans =
+			outsideSpans.slice(0, span.start) +
+			blankOut(outsideSpans.slice(span.start, span.end)) +
+			outsideSpans.slice(span.end)
+	}
+	const outsideLines = outsideSpans.split('\n')
 
+	// 3. The marker is read from OUTSIDE the code spans — the same rule, not an exception for the
+	//    escape hatch. Read from the raw line it would fire on a line that merely QUOTES it, which
+	//    is how this very node documents it, and that line's real references would vanish: an
+	//    escape hatch a description of the escape hatch can trigger hides exactly what this engine
+	//    exists to find. A wrapped span is judged by the line it OPENS on — the line a reader
+	//    would put the marker beside.
+	const marked = outsideLines.map((line) => IGNORE_MARKER_RE.test(line))
+
+	const perLine = new Map<number, Set<string>>()
+	const add = (line: number, ref: string) => {
+		if (marked[line] === true) return
+		const set = perLine.get(line) ?? new Set<string>()
+		set.add(ref)
+		perLine.set(line, set)
+	}
+
+	for (const span of spans) {
+		const content = span.content.trim()
+		if (RELATIVE_RE.test(content)) add(lineOf(span.start), content)
+	}
+
+	outsideLines.forEach((line, i) => {
 		const addTarget = (angled: string | undefined, bare: string | undefined) => {
 			if (angled !== undefined) {
-				if (RELATIVE_IN_ANGLES_RE.test(angled)) seen.add(angled)
+				if (RELATIVE_IN_ANGLES_RE.test(angled)) add(i, angled)
 				return
 			}
-			if (bare !== undefined && RELATIVE_RE.test(bare)) seen.add(bare)
+			if (bare !== undefined && RELATIVE_RE.test(bare)) add(i, bare)
 		}
-		for (const m of outsideSpans.matchAll(LINK_RE)) addTarget(m[1], m[2])
-		const def = LINK_DEF_RE.exec(outsideSpans)
+		for (const m of line.matchAll(LINK_RE)) addTarget(m[1], m[2])
+		const def = LINK_DEF_RE.exec(line)
 		if (def) addTarget(def[1], def[2])
-
-		for (const ref of seen) out.push({ line: i + 1, ref })
 	})
+
+	const out: Reference[] = []
+	for (const line of [...perLine.keys()].sort((a, b) => a - b)) {
+		for (const ref of perLine.get(line) as Set<string>) out.push({ line: line + 1, ref })
+	}
 	return out
 }
 

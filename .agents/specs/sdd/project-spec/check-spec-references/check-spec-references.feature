@@ -80,6 +80,16 @@ Feature: The check-spec-references procedure — every relative reference in a s
     When check-spec-references audits the project-spec
     Then it extracts no reference from that span
 
+  Scenario: a code span that wraps across a line break is still one span
+    Given a code span whose relative path lands across a line break, the path resolving to nothing
+    When check-spec-references audits the project-spec
+    Then it reports that reference against the line the span opens on
+
+  Scenario: a code span does not cross a blank line
+    Given an unclosed backtick run, a blank line, and then a code span holding a relative path that does not exist
+    When check-spec-references audits the project-spec
+    Then it reports the later reference
+
   Scenario: a code span holding another code span is not a path
     Given a code span whose content is itself an inline-code span around a relative path
     When check-spec-references audits the project-spec

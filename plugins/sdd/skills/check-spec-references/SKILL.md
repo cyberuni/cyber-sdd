@@ -36,8 +36,10 @@ by the character and run length that opened it, so a fence-shaped line of the ot
 a block neither ends it nor inverts the parity for everything after).
 
 Code spans are read the way CommonMark delimits them — a run of N backticks opens, the next run of
-exactly N closes, and a run that never closes is literal text the scan resumes after (a stray
-backtick never swallows the rest of its line). One rule settles the exhibit case with no exception: a span written around another
+exactly N closes, a run that never closes is literal text the scan resumes after (a stray backtick
+never swallows what comes after it), and a span may **wrap across a line break** — the line ending
+folds to a space, so a long path in wrapped prose is still one span, reported against the line it
+opens on. A span cannot cross a blank line. One rule settles the exhibit case with no exception: a span written around another
 span has content that still carries backticks, so it is not a path (this is how a spec shows the
 reference form it specifies without firing on itself), while a span written around a bare path has
 that path as its content and **is** a reference however many backticks opened it. A markdown link

@@ -224,6 +224,26 @@ test('a code span carrying a path plus other text is prose, not a citation', () 
 	assert.deepEqual(extractReferences('a `../nope`` b` c\n'), [])
 })
 
+test('a code span that wraps across a line break is still one span', () => {
+	// Prose here hard-wraps, so a long path in backticks landing across a line break is ordinary.
+	// CommonMark folds the line ending to a space, so the span's content is still just the path;
+	// a line-by-line scan would read two halves and report neither.
+	assert.deepEqual(extractReferences('the source is ` ../ghost-wrapped\n` and more\n'), [
+		{ line: 1, ref: '../ghost-wrapped' },
+	])
+	// the marker goes beside the line the span OPENS on — where a reader would put it
+	assert.deepEqual(extractReferences('the source is ` ../ghost <!-- spec-ref-ignore: q -->\n` and more\n'), [])
+})
+
+test('a code span does not cross a blank line', () => {
+	// A blank line ends the paragraph, so the run never closes — the text after it is prose, and a
+	// stray backtick two paragraphs up cannot reach forward to swallow it.
+	assert.deepEqual(
+		extractReferences('open ` here\n\nplain `../nope/x.md` text\n').map((r) => r.ref),
+		['../nope/x.md'],
+	)
+})
+
 test('a code span holding another code span is not a path', () => {
 	// Its content still carries backticks, so it is not a path — the same rule, not an exception.
 	// This is how a spec exhibits the reference form it specifies without firing on itself.

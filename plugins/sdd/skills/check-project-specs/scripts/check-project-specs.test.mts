@@ -231,3 +231,13 @@ test('check-scenario-overlap is in the per-project set', () => {
 		true,
 	)
 })
+
+test('check-spec-references is in the per-project set', () => {
+	// Reference resolution is per-project by construction: a reference resolves against the
+	// directory of the file carrying it, so the check is meaningful over one spec dir and
+	// gains nothing from a corpus-wide run.
+	assert.equal(
+		ENGINES.some((e) => e.name === 'check-spec-references'),
+		true,
+	)
+})

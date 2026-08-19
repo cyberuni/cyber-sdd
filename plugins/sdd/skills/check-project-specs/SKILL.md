@@ -48,13 +48,14 @@ Wired as each project's `check:spec` script, via the `sdd-check-specs` bin.
 ## The engines it runs
 
 `check-spec-state` and `check-suite` (each `--root <specDir>`), then `concept-index`,
-`check-spec-structure`, and `align-spec` (each `--spec-dir <specDir> --check`).
+`check-spec-structure`, `align-spec`, and `check-scenario-overlap` (each `--spec-dir <specDir>
+--check`), and `check-spec-references` (`--spec-dir <specDir>`).
 
-**`check-scenario-overlap` is not in this set yet.** Per-project it reports pre-existing
-exact-duplicate scenarios that are `@trigger` sibling-deference rows; resolving one deletes a frozen
-scenario from its non-owning node, which is a **narrowing** and Clearance-bound — not a call this
-engine may force. It still runs corpus-wide at the root, so no coverage is lost, and it joins this
-set in the CR that resolves those duplicates under a granted clearance.
+**`check-spec-references` takes no `--check`.** Every other engine here has a second mode a `--check`
+selects between — write-vs-verify, or audit-vs-gate. This one does not: it is read-only and
+single-severity, so a report mode would differ from the guard by exit code alone. A path that is
+correct but not resolvable from the file carrying it (prose quoting a symlink target, say) is
+excused inline by the engine's own marker, not by a severity.
 
 Every engine is spawned with **cwd = the repo root**, never the project dir — they resolve
 repo-root-relative references against the cwd.

@@ -49,6 +49,12 @@ export const ENGINES: Engine[] = [
 	},
 	{ name: 'align-spec', script: 'align-spec/scripts/align-spec.mts', args: (d) => ['--spec-dir', d, '--check'] },
 	{
+		name: 'check-spec-references',
+		script: 'check-spec-references/scripts/check-spec-references.mts',
+		// No --check: the engine has one mode, because every finding it makes is a defect.
+		args: (d) => ['--spec-dir', d],
+	},
+	{
 		name: 'check-scenario-overlap',
 		script: 'check-scenario-overlap/scripts/check-scenario-overlap.mts',
 		args: (d) => ['--spec-dir', d, '--check'],

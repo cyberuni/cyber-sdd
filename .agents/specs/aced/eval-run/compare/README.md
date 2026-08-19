@@ -15,6 +15,12 @@ diffing the results to catch regressions before a change is committed.
 **Non-goals** — scoring a single version (`run`); the project-wide roll-up (`report`); authoring or
 fixing cases (`add-scenario` / `improve`); deciding a single case's pass/fail (that is `aced-case-judge`).
 
+**The scoring model on a persisted comparison.** A diff scores both sides in **one** invocation, so
+one model scores both — the field is a property of the comparison, not of a side, and no cross-model
+diff is constructible here. It carries the same two states `run`'s does (the model `compare` can name
+it dispatched under, `unknown` exactly when it cannot), which is what keeps a persisted comparison
+readable on the same terms as a run's record by anything that later scans the results directory.
+
 **Fit:** strong — the capability carries a genuine activation decision (a two-version diff request
 versus sibling eval intents — `run` / `report` / `add-scenario` — that share the same eval
 vocabulary), and its version resolution, per-dimension diff classification, and regression-gate

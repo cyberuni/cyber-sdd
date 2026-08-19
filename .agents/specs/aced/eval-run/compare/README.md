@@ -26,7 +26,7 @@ behavior are judged, not asserted.
 | Resolve the two versions | no explicit versions (default: working tree vs. previous revision), two explicit paths, or a git ref for the "before" | a before-version and an after-version are identified and both read in full |
 | Score both versions | the resolved versions and the shared golden set | every case is scored against both versions and labeled before / after |
 | Diff and classify | the before / after per-case results | each case is classified improved / regressed / unchanged / now-passing / now-failing, with a net pass-rate delta and per-dimension deltas; raw totals are never averaged across cases; nothing is persisted unless the user asks |
-| Score both sides under one model | the two resolved versions | both sides are scored under the same judge model in the one invocation, and a persisted comparison records which model that was |
+| Record the model a persisted diff was scored under | a request to record the comparison | the results record carries the judge model both sides were scored under |
 | Gate on regression | the classified diff | a regression — a pass→fail flip **or** a dimension drop while the case still passes — blocks with an explicit warning; a clean net-improvement is confirmed safe to commit |
 
 ## Control Flow
@@ -82,7 +82,6 @@ One row per edge in the graph above, one scenario per row. Rows follow the suite
 | `aggregate` → no averaged total | per-case totals whose maxima differ | `raw totals are not averaged across scenarios into one score` |
 | `persist` → no (default) | a completed diff, no request to record | `a diff is not persisted by default` |
 | `persist` → yes (on request) | the user asks to record the comparison | `a diff is persisted only on request` |
-| `score` one model both sides | two resolved versions and a golden set | `both sides of a diff are scored under one model` |
 | `write` records the model | the user asks to record the comparison | `a persisted comparison records the model it was scored under` |
 | `gate` → pass→fail flip → warn | a case dropped from passing to failing | `a regressed case blocks the commit with a warning` |
 | `gate` → dimension drop while passing → warn | a case stays passing but a dimension dropped | `a dimension that drops while the case still passes is flagged as a regression` |

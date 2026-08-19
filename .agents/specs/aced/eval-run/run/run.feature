@@ -184,7 +184,7 @@ Feature: run — score the current config against its frozen .feature suite
   Scenario: the scoring model is recorded as a property of the run, not as an evaluated input
     Given a completed run over a target's frozen suite
     When run writes the results record
-    Then the scoring model is carried beside the scores and appears in no evaluated entry
+    Then the scoring model appears in no evaluated entry
 
   Scenario: each record carries the model that scored that run
     Given two completed runs for one target dispatched under different judge models

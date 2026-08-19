@@ -39,7 +39,9 @@ Code spans are read the way CommonMark delimits them — a run of N backticks op
 exactly N closes, a run that never closes is literal text the scan resumes after (a stray backtick
 never swallows what comes after it), and a span may **wrap across a line break** — the line ending
 folds to a space, so a long path in wrapped prose is still one span, reported against the line it
-opens on. A span cannot cross a blank line. One rule settles the exhibit case with no exception: a span written around another
+opens on. A span is bounded by its **block** — it reaches no further than the next blank line,
+heading, list item, blockquote, thematic break, or fence — which is what keeps one unclosed backtick
+from pairing into the next block and swallowing the references there. One rule settles the exhibit case with no exception: a span written around another
 span has content that still carries backticks, so it is not a path (this is how a spec shows the
 reference form it specifies without firing on itself), while a span written around a bare path has
 that path as its content and **is** a reference however many backticks opened it. A markdown link

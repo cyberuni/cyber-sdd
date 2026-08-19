@@ -73,9 +73,12 @@ exactly N closes, a run that never closes is **literal text the scan resumes aft
 **may wrap across a line break** — the line ending folds to a space, so the span is still one span
 and its content is still just the path. Prose here hard-wraps, so a long path in backticks landing
 across a break is ordinary rather than exotic, and a line-by-line scan would read two halves and
-report neither. A span still cannot cross a **blank line**, which ends the paragraph. A wrapped
-span's finding is reported against the line it **opens** on — the line a reader would put a marker
-beside. That
+report neither. A span is bounded by its **block**: inline parsing happens inside one block, so a
+span reaches no further than the next blank line, heading, list item, blockquote, thematic break, or
+fence. That bound is what makes the wider scanning window safe — without it one unclosed backtick
+left by a typo pairs with the first backtick of the next block, swallowing the span about to open
+and every reference after it in the flow. A wrapped span's finding is reported against the line it
+**opens** on — the line a reader would put a marker beside. That
 single rule settles the exhibit case without an exception. A span written around another span has
 content that still carries backticks, so it is not a path and not a reference — which is how a spec
 shows the reference form it specifies without firing on its own illustration. A span written around
@@ -135,7 +138,7 @@ flowchart TD
   D -->|yes, and this line does not close it| C
   D -->|yes, and this line closes it| C
   D -->|no| F[scan the line's code spans]
-  F -->|a run never closes| F2[treat it as literal text, resume after it]
+  F -->|a run never closes, or the block ends| F2[treat it as literal text, resume after it]
   F2 --> F
   F --> E{marker outside the spans?}
   E -->|yes| C
@@ -178,7 +181,9 @@ an edge name they do not exercise.
 | D→C (fence identity) | a fenced block whose interior carries a line shaped like a fence of the other delimiter character | `a fence closes only on its own delimiter character, at its own length or longer` |
 | G→C (span is not only a path) | a code span whose content is a relative path followed by further text | `a code span carrying a path plus other text is prose` |
 | F (wrapped span) | a code span whose relative path lands across a line break, the path resolving to nothing | `a code span that wraps across a line break is still one span` |
-| F (blank-line boundary) | an unclosed backtick run, a blank line, and then a code span holding a relative path that does not exist | `a code span does not cross a blank line` |
+| F→F2 (block bound) | an unclosed backtick run, then a line starting a new block, then a code span holding a relative path that does not exist | `a code span does not reach past a block boundary` |
+| K (line attribution after a fence) | a fenced block followed by a code span holding a relative path that does not exist | `a finding after a fenced block reports its own line number` |
+| F→F2 (blank-line bound) | an unclosed backtick run, a blank line, and then a code span holding a relative path that does not exist | `a code span does not cross a blank line` |
 | F (nested span) | a code span whose content is itself an inline-code span around a relative path | `a code span holding another code span is not a path` |
 | F (doubled span, bare path) | a code span opened with doubled backticks whose whole content is a relative path that does not exist | `a code span in doubled backticks whose content is a bare path is a reference` |
 | F (run-length matching) | a doubled-backtick span whose content carries a nested span followed by a relative path | `a code span closes on a backtick run of its own length` |

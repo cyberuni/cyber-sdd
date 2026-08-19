@@ -103,8 +103,21 @@ function fenceClosedBy(line: string, fence: Fence): boolean {
 	return run[0] === fence.char && run.length >= fence.length
 }
 
-/** A blank line at the very start of the remaining text — the boundary a code span cannot cross. */
-const BLANK_LINE_RE = /^\r?\n[ \t]*\r?\n/
+/**
+ * A line that starts a new block: blank, an ATX heading, a blockquote, a list item, or a thematic
+ * break. Inline parsing happens WITHIN a block, so a code span cannot reach across one of these —
+ * and the boundary matters in the under-reporting direction. An unclosed backtick left by a typo
+ * would otherwise pair with the first backtick of the next block, swallowing the span that was
+ * about to open and every reference after it in the flow.
+ */
+export function startsNewBlock(line: string): boolean {
+	if (/^[ \t]*$/.test(line)) return true
+	if (/^ {0,3}#{1,6}(\s|$)/.test(line)) return true // ATX heading
+	if (/^ {0,3}>/.test(line)) return true // blockquote
+	if (/^ {0,3}([-+*]|\d{1,9}[.)])(\s|$)/.test(line)) return true // list item
+	if (/^ {0,3}((\*[ \t]*){3,}|(-[ \t]*){3,}|(_[ \t]*){3,})$/.test(line)) return true // thematic break
+	return false
+}
 
 interface CodeSpan {
 	/** The span's content, line endings folded to spaces and CommonMark's one-space padding stripped. */
@@ -132,7 +145,7 @@ function blankOut(region: string): string {
  * its content, so it IS one. Neither is a special case, and neither leaves a broken reference
  * anywhere to hide.
  */
-export function scanCodeSpans(text: string): CodeSpan[] {
+export function scanCodeSpans(text: string, blockStarts: readonly number[] = []): CodeSpan[] {
 	const out: CodeSpan[] = []
 	let i = 0
 	while (i < text.length) {
@@ -143,12 +156,12 @@ export function scanCodeSpans(text: string): CodeSpan[] {
 		const open = i
 		while (text[i] === '`') i++
 		const runLength = i - open
-		// find the next run of exactly runLength backticks, stopping at a blank line (a code span
-		// cannot cross one — that ends the paragraph)
+		// find the next run of exactly runLength backticks, stopping at the next block boundary — a
+		// code span lives inside one block and cannot reach past it
+		const limit = blockStarts.find((b) => b > open) ?? text.length
 		let j = i
 		let closeStart = -1
-		while (j < text.length) {
-			if (BLANK_LINE_RE.test(text.slice(j))) break
+		while (j < limit) {
 			if (text[j] !== '`') {
 				j++
 				continue
@@ -209,7 +222,9 @@ export function extractReferences(text: string): Reference[] {
 	})
 
 	// 2. Scan code spans across the WHOLE text, not line by line: a span that wraps is still one
-	//    span, and reading it as two would leave a wrapped reference unread.
+	//    span, and reading it as two would leave a wrapped reference unread. Bounded at block
+	//    starts, so widening the window past a line break does not let a stray backtick reach into
+	//    the next block.
 	const scannable = unfenced.join('\n')
 	const lineStarts: number[] = []
 	let acc = 0
@@ -217,6 +232,9 @@ export function extractReferences(text: string): Reference[] {
 		lineStarts.push(acc)
 		acc += line.length + 1
 	}
+	// A blanked fence line is all spaces, so it reads as a block start here too — the fence bounds
+	// a span by the same rule as everything else rather than by a happy accident.
+	const blockStarts = lineStarts.filter((_start, i) => i > 0 && startsNewBlock(unfenced[i] as string))
 	const lineOf = (offset: number): number => {
 		let lo = 0
 		let hi = lineStarts.length - 1
@@ -228,7 +246,7 @@ export function extractReferences(text: string): Reference[] {
 		return lo
 	}
 
-	const spans = scanCodeSpans(scannable)
+	const spans = scanCodeSpans(scannable, blockStarts)
 	let outsideSpans = scannable
 	for (const span of spans) {
 		outsideSpans =

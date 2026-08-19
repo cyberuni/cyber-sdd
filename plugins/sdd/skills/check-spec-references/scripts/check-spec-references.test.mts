@@ -235,6 +235,34 @@ test('a code span that wraps across a line break is still one span', () => {
 	assert.deepEqual(extractReferences('the source is ` ../ghost <!-- spec-ref-ignore: q -->\n` and more\n'), [])
 })
 
+test('a code span does not reach past a block boundary', () => {
+	// Inline parsing happens within a block. Without this bound, one unclosed backtick left by a
+	// typo pairs with the first backtick of the next block — swallowing the span about to open and
+	// every reference after it in the flow. Whole-text scanning is what makes the bound necessary.
+	for (const boundary of ['## Architecture', '- a list item', '> a quote', '---', '1. an item']) {
+		const text = ['intro mentioning `pnpm test', boundary, 'See `../../src/engine.ts` for details.'].join('\n')
+		assert.deepEqual(
+			extractReferences(text).map((r) => r.ref),
+			['../../src/engine.ts'],
+			boundary,
+		)
+	}
+})
+
+test('a fenced block bounds a code span by the same rule', () => {
+	assert.deepEqual(
+		extractReferences(['a `open', '```', 'x', '```', 'see `../nope.md` here'].join('\n')).map((r) => r.ref),
+		['../nope.md'],
+	)
+})
+
+// a fenced block's blanked lines keep their length, so a finding after one still names its own line
+test('a finding after a fenced block reports its own line number', () => {
+	assert.deepEqual(extractReferences(['```', 'a long sample line', '```', '', 'see `../nope.md`'].join('\n')), [
+		{ line: 5, ref: '../nope.md' },
+	])
+})
+
 test('a code span does not cross a blank line', () => {
 	// A blank line ends the paragraph, so the run never closes — the text after it is prose, and a
 	// stray backtick two paragraphs up cannot reach forward to swallow it.

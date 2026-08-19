@@ -85,6 +85,16 @@ Feature: The check-spec-references procedure — every relative reference in a s
     When check-spec-references audits the project-spec
     Then it reports that reference against the line the span opens on
 
+  Scenario: a code span does not reach past a block boundary
+    Given an unclosed backtick run, then a line starting a new block, then a code span holding a relative path that does not exist
+    When check-spec-references audits the project-spec
+    Then it reports the later reference
+
+  Scenario: a finding after a fenced block reports its own line number
+    Given a fenced block followed by a code span holding a relative path that does not exist
+    When check-spec-references audits the project-spec
+    Then the finding names the line the reference sits on
+
   Scenario: a code span does not cross a blank line
     Given an unclosed backtick run, a blank line, and then a code span holding a relative path that does not exist
     When check-spec-references audits the project-spec

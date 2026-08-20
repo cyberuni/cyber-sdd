@@ -143,7 +143,7 @@ exactly when you cannot. That is one condition, not a combination of several:
 - You dispatched under the `eval.md` `judge.model` → record that value.
 - You dispatched under a different model (a caller named one, or the policy was overridden) → record
   **the model you dispatched under**, never the declaration you did not honor.
-- `eval.md` declares none and you cannot name what the harness chose → record `unknown`.
+- You cannot name the model you dispatched under → record `unknown`, whatever `eval.md` declares.
 
 **`unknown` is a value, never an omitted field.** A missing field and a recorded `unknown` make
 different claims, and a reader grouping results by model has to tell a run nobody attributed from one

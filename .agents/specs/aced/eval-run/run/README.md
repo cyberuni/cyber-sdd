@@ -26,7 +26,7 @@ failing scenarios worst-first, and persist the run.
 the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`);
 deciding whether an already-written result is still current (that is `check-freshness` — `run` records
 the provenance it needs, and does not interpret it); **proving** that the recorded inputs are the ones
-actually read (see the trust boundary below); judging what a change of scoring model *means* for a recorded result — `run` records which model scored it and stops there, and no node re-scores or invalidates on that basis.
+actually read (see the trust boundary below); judging what a change of scoring model *means* for a recorded result — `run` records which model scored it and stops there. **Comparing two results across models is not in this phase at all**: no node re-scores, invalidates, flags, or rolls up on that basis, and `report`'s trend is left exactly as it was. The record is what makes such a comparison possible later; performing one is a separate change.
 
 The limit on what `evaluated` can mean is the trust boundary under UC3, the use case it qualifies.
 
@@ -106,8 +106,8 @@ needs is that UC1's outcome carry an extra field.
   hashes the names the listing returned, so a file later added to it is detectable. An input the run
   did not consume is not recorded. The record also carries **the scoring model** — the model the run
   dispatched the judge under — because ACED scores a blind simulation of behavior rather than the
-  subject's text, so a result measures the subject *under a model*, and two results for one target are
-  comparable only when that half is visible.
+  subject's text, so a result measures the subject *under a model*. Recording that half is the whole
+  of this phase — no reader compares across it yet.
 - **Extensions** — **one, and one that cannot be a branch.** The success outcome is *"the set records
   what the run reports consuming"*, so the only way to diverge is to record the wrong set, in one of
   two directions. **Over-reporting** — the run records an input it did not consume: a real extension,
@@ -168,8 +168,10 @@ Three consequences fix the shape:
   unattributed results into a named model nor files a deliberately model-pinned run under
   `unknown`.
 - **One model per record, never per target.** The model is a property of the run that produced the
-  scores — which is what makes a target's results groupable by model later. Ranking models per
-  subject is a further capability and out of scope here; this node only makes the grouping possible.
+  scores — which is what makes a target's results groupable by model later. Both the grouping and any
+  ranking of models per subject are **later capabilities and out of scope in this phase**; this node
+  only writes the field they would need. Nothing today reads it, which is deliberate and is the same
+  call this node already made for the evaluated set.
 
 **Its trust boundary is `evaluated`'s.** The value is the same self-report from the same prose agent:
 `run` writes down the model it says it dispatched under, and nothing observes the dispatch. It is

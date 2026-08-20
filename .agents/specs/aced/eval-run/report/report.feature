@@ -106,36 +106,3 @@ Feature: report — project-wide eval health
     Given a suite classified degraded
     When report suggests next actions
     Then it points the degraded suite at run for details before improve
-
-  # ---- Comparing across scoring models ----
-
-  Scenario: a trend measured across two scoring models is marked as such
-    Given a suite whose latest and previous records name different scoring models
-    When report renders that suite's trend
-    Then it marks the trend as measured across different scoring models and names both models
-
-  Scenario: a trend measured under one scoring model carries no such mark
-    Given a suite whose latest and previous records were scored under the same model
-    When report renders that suite's trend
-    Then it renders the trend with no cross-model mark
-
-  Scenario: a record whose scoring model is unknown is marked as such rather than assumed to match
-    Given a suite whose latest record names a known scoring model
-    And whose previous record was written before the scoring model was recorded
-    When report renders that suite's trend
-    Then it reads the older record's scoring model as unknown and marks the pair as spanning that model and an unknown one
-
-  Scenario: two unknown scoring models are not read as one model
-    Given a suite whose latest and previous records both carry an unknown scoring model
-    When report renders that suite's trend
-    Then it marks the pair as scored under unknown models rather than as scored under one model
-
-  Scenario: the cross-model mark does not change how a suite is classified
-    Given a suite whose two records were scored under different models
-    When report classifies that suite
-    Then it classifies the suite by the same health bars it applies to any other suite and coins no health class for the mark
-
-  Scenario: a needs-attention entry drawn from a cross-model pair carries the mark
-    Given a suite needing attention whose trend was measured across different scoring models
-    When report renders the needs-attention list
-    Then that suite's entry carries the cross-model mark

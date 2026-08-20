@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, relative, sep } from 'node:path'
 import { test } from 'node:test'
 import { scanProjectSpec } from '../../check-spec-structure/scripts/check-spec-structure.mts'
 import {
@@ -51,10 +51,15 @@ function seedNode(
 	if (opts.feature) writeFileSync(join(nodeDir, `${name}.feature`), opts.feature)
 }
 
+// Working-tree files only: git's own auto-maintenance can add and drop files under
+// .git (e.g. objects/maintenance.lock) mid-test, which is not a write by the subject.
 function listFiles(dir: string): string[] {
 	const out: string[] = []
 	for (const e of readdirSync(dir, { withFileTypes: true, recursive: true })) {
-		if (e.isFile()) out.push(join(e.parentPath, e.name))
+		if (!e.isFile()) continue
+		const path = join(e.parentPath, e.name)
+		if (relative(dir, path).split(sep)[0] === '.git') continue
+		out.push(path)
 	}
 	return out.sort()
 }

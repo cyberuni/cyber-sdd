@@ -101,3 +101,15 @@ Feature: compare — diff two config versions for regressions
     Given a diff with no regressed case and a net improvement
     When compare applies the regression gate
     Then it confirms the change is safe to commit
+
+  # ---- Scoring model ----
+
+  Scenario: a persisted comparison records the model it was scored under
+    Given the user asks to record the comparison
+    When compare writes the results record
+    Then the record carries the model both sides were scored under
+
+  Scenario: a persisted comparison that cannot name its judge model records unknown
+    Given the user asks to record a comparison whose judge model compare cannot name
+    When compare writes the results record
+    Then the record carries the scoring model as unknown rather than omitting it

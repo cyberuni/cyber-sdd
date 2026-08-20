@@ -135,6 +135,29 @@ listing yielded. The directory hash covers names only, so it is invariant under 
 inside it — without the per-file entries, editing a file the subject loads from a references
 directory would read as `current` forever.
 
+## Record the model that scored the run
+
+Record **the model you dispatched `aced-case-judge` under** — as you can name it, and `unknown`
+exactly when you cannot. That is one condition, not a combination of several:
+
+- You dispatched under the `eval.md` `judge.model` → record that value.
+- You dispatched under a different model (a caller named one, or the policy was overridden) → record
+  **the model you dispatched under**, never the declaration you did not honor.
+- You cannot name the model you dispatched under → record `unknown`, whatever `eval.md` declares.
+
+**`unknown` is a value, never an omitted field.** A missing field and a recorded `unknown` make
+different claims, and a reader grouping results by model has to tell a run nobody attributed from one
+attributed to a named model.
+
+**It goes beside the scores, never inside `evaluated`.** The evaluated set is inputs whose bytes get
+re-hashed; a model has none, so recording it there hands `check-freshness` a member it could only
+ever report as unverifiable. The `eval.md` that *declares* the model is already in the set — what
+this field adds is which model actually ran.
+
+**One model per record.** It is a property of the run that produced these scores, not of the target:
+two runs for one target under different models each carry their own, which is what keeps a target's
+results groupable by model.
+
 ## Write results
 
 Write to `.agents/aced/results/<target-slug>/<ISO8601-timestamp>.json` — the shared, git-ignored ACED results directory at the repo root, keyed by the target (a filesystem-safe slug of the target agent-configuration path), not scattered under each project-spec directory:
@@ -144,6 +167,7 @@ Write to `.agents/aced/results/<target-slug>/<ISO8601-timestamp>.json` — the s
   "timestamp": "<ISO8601>",
   "target": "<agent configuration path>",
   "pass_rate": 0.82,
+  "scoring_model": "<the model you dispatched the judge under, or \"unknown\">",
   "evaluated": [
     { "path": "<agent configuration path>", "sha256": "<hex>", "kind": "file" },
     { "path": "<a directory the config loads from>", "sha256": "<hex>", "kind": "directory" },

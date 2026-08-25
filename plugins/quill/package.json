@@ -1,9 +1,23 @@
 {
-	"name": "@cyberplace/quill-plugin",
-	"private": true,
-	"version": "0.0.0",
+	"name": "cyber-quill",
+	"version": "0.1.0",
+	"description": "Documentation SDD plugin. Spec, write, and verify documentation — guides, tutorials, articles, reference pages, and READMEs — as implementation artifacts with verifiable structure.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cyberuni/cyber-sdd.git",
+		"directory": "plugins/quill"
+	},
+	"homepage": "https://github.com/cyberuni/cyber-sdd",
+	"license": "MIT",
 	"type": "module",
+	"files": [
+		"skills",
+		"agents",
+		".plugin",
+		".codex-plugin",
+		".claude-plugin"
+	],
 	"scripts": {
-		"check:spec": "sdd-check-specs"
+		"check:spec": "node ../sdd/skills/check-project-specs/scripts/check-project-specs.mts"
 	}
 }

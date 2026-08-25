@@ -2,10 +2,12 @@
 	"$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
 	"name": "quill",
 	"version": "0.1.0",
-	"description": "Documentation SDD plugin. Spec, write, and verify documentation — guides, tutorials, articles, reference pages, and READMEs — as implementation artifacts with verifiable structure.",
-	"author": { "name": "unional" },
-	"homepage": "https://github.com/cyberuni/cyberplace",
-	"repository": "https://github.com/cyberuni/cyberplace",
+	"description": "Documentation SDD plugin. Spec, write, and verify documentation \u2014 guides, tutorials, articles, reference pages, and READMEs \u2014 as implementation artifacts with verifiable structure.",
+	"author": {
+		"name": "unional"
+	},
+	"homepage": "https://github.com/cyberuni/cyber-sdd",
+	"repository": "https://github.com/cyberuni/cyber-sdd",
 	"skills": "./skills",
 	"agents": ["./agents/quill-doc-writer.md", "./agents/quill-judge.md", "./agents/quill-spec-writer.md"]
 }

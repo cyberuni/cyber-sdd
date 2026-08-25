@@ -1,10 +1,25 @@
 {
-	"name": "@cyberplace/aced-plugin",
-	"private": true,
-	"version": "0.0.0",
+	"name": "cyber-aced",
+	"version": "0.1.0",
+	"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cyberuni/cyber-sdd.git",
+		"directory": "plugins/aced"
+	},
+	"homepage": "https://github.com/cyberuni/cyber-sdd",
+	"license": "MIT",
 	"type": "module",
+	"files": [
+		"skills",
+		"agents",
+		".plugin",
+		".codex-plugin",
+		".claude-plugin",
+		"!skills/**/*.test.mts"
+	],
 	"scripts": {
-		"check:spec": "sdd-check-specs",
+		"check:spec": "node ../sdd/skills/check-project-specs/scripts/check-project-specs.mts",
 		"test": "node --test \"skills/*/scripts/*.test.mts\"",
 		"typecheck": "tsc -p tsconfig.json"
 	}

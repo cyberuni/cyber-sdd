@@ -4,7 +4,7 @@
 	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/cyberuni/cyberplace.git",
+		"url": "git+https://github.com/cyberuni/cyber-sdd.git",
 		"directory": "plugins/sdd"
 	},
 	"license": "MIT",
@@ -24,8 +24,9 @@
 		"gherkin-cli": "0.0.2"
 	},
 	"scripts": {
-		"check:spec": "sdd-check-specs",
+		"check:spec": "node ./skills/check-project-specs/scripts/check-project-specs.mts",
 		"test": "node --test \"skills/*/scripts/*.test.mts\"",
 		"typecheck": "tsc -p tsconfig.json"
-	}
+	},
+	"homepage": "https://github.com/cyberuni/cyber-sdd"
 }

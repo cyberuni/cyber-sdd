@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "plugins/*"
+allowBuilds:
+  esbuild: true
+  sharp: true
+onlyBuiltDependencies:
+  - "@biomejs/biome"
+  - esbuild
+  - sharp

@@ -1,0 +1,32 @@
+---
+title: cyber-sdd
+description: Spec-Driven Development for agents — SDD, ACED, and Quill.
+template: splash
+hero:
+  tagline: Specify behavior, freeze it as scenarios, and gate every change against it.
+  actions:
+    - text: Start with SDD
+      link: /cyber-sdd/sdd/overview/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/cyberuni/cyber-sdd
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components'
+
+<CardGrid>
+	<Card title="SDD" icon="document">
+		The process. Scaffold, validate, and maintain behavioral specs — `spec.md` plus a frozen
+		`.feature` suite — and run the mission loop that gates a change against them.
+	</Card>
+	<Card title="ACED" icon="approve-check">
+		The agent-configuration domain plugin. Spec, evaluate, and improve skills, subagents,
+		commands, and AGENTS.md sections against a graded suite.
+	</Card>
+	<Card title="Quill" icon="pencil">
+		The documentation domain plugin. Treat guides, tutorials, and references as
+		implementation artifacts with verifiable structure.
+	</Card>
+</CardGrid>

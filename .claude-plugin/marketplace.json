@@ -1,0 +1,29 @@
+{
+	"$schema": "https://json.schemastore.org/claude-code-plugin-marketplace.json",
+	"name": "cyber-sdd",
+	"owner": { "name": "unional" },
+	"metadata": {
+		"description": "Spec-Driven Development for agents — the SDD process and its domain plugins.",
+		"version": "1.0.0"
+	},
+	"plugins": [
+		{
+			"name": "sdd",
+			"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
+			"tags": ["sdd", "spec", "process"],
+			"source": "./plugins/sdd"
+		},
+		{
+			"name": "aced",
+			"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
+			"tags": ["sdd", "eval", "skills"],
+			"source": "./plugins/aced"
+		},
+		{
+			"name": "quill",
+			"description": "Documentation SDD plugin. Spec, write, and verify documentation as implementation artifacts with verifiable structure.",
+			"tags": ["sdd", "documentation"],
+			"source": "./plugins/quill"
+		}
+	]
+}

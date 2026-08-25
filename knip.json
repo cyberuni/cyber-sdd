@@ -1,0 +1,22 @@
+{
+	"$schema": "https://unpkg.com/knip@6/schema.json",
+	"ignoreDependencies": ["husky"],
+	"workspaces": {
+		"apps/web": {
+			"entry": ["src/**/*.{astro,ts,mdx}"],
+			"project": ["src/**/*.{astro,ts,mdx}"]
+		},
+		"plugins/sdd": {
+			"entry": ["skills/**/scripts/*.mts"],
+			"project": ["skills/**/scripts/*.mts"]
+		},
+		"plugins/aced": {
+			"entry": ["skills/**/scripts/*.mts"],
+			"project": ["skills/**/scripts/*.mts"]
+		},
+		"plugins/quill": {
+			"entry": [],
+			"project": []
+		}
+	}
+}

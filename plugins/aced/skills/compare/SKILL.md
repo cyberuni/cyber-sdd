@@ -29,6 +29,11 @@ Label results as **before** and **after**.
 
 Do not write to `results/` during compare — this is a diff operation, not a recorded run. Only write if the user explicitly asks to record.
 
+When you do write one, the record carries `scoring_model` on the same terms `run`'s does: the model
+you dispatched `aced-case-judge` under, or `unknown` when you cannot name it. One value covers the
+whole comparison — a diff scores both sides in a single invocation, so one model scored both — and
+`unknown` is a recorded value, never an omitted field.
+
 ## Compute the diff
 
 For each scenario, record:

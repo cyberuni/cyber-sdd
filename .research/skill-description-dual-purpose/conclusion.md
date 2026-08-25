@@ -10,7 +10,7 @@ Always-include tier checked in full: Claude Code, Cursor, Codex CLI, GitHub Copi
 Secondary tier checked for signal: Cline, OpenCode. Windsurf not checked (out of scope per the
 landscape file's exclusion note; no time budget for it here).
 
-Motivating tension (context, not a claim to verify): [ADR-0031](../../artifacts/adr/0031-selection-is-not-visibility.md)
+Motivating tension (context, not a claim to verify): [ADR-0031](../../docs/adr/0031-selection-is-not-visibility.md)
 makes a by-name skill's `description` the literal string `"By name only"` so nothing exists for the
 model to match — but that string is useless if the same skill is also `user-invocable: true` and
 needs to show something meaningful in a menu.

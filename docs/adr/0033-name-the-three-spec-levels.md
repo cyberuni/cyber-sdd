@@ -1,4 +1,4 @@
-# ADR-0019: Name the three spec levels (corpus ⊃ project-spec ⊃ node)
+# ADR-0033: Name the three spec levels (corpus ⊃ project-spec ⊃ node)
 
 ## Status
 

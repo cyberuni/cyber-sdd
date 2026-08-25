@@ -115,7 +115,7 @@ Touch-sets are **predictive** — written before the work, they carry a false-ne
 faces (a build tool sees the real dependency graph; a plan only guesses it). The mission graph is
 therefore probabilistic, and this tool is the **monadic correction**: the real diff is finer information
 that arrives *later*, and it replaces the guess with what actually happened. Design:
-[ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md) (the
+[ADR-0025](../../../../docs/adr/0025-mission-graph-compiler-scheduler-model.md) (the
 predictive-touch-set risk + the corrected-from-diff mitigation) and the cyberfleet-batch design's
 **Finer-than-node granularity** section (file-sets are *sourced* — declared, folder-convention, or
 **post-hoc git diff** — never *derived*).
@@ -135,8 +135,8 @@ unit-tested over **constructed** file-lists and layouts, never a live diff or th
   (GitHub issue #189, first bullet); sharpens the mission graph so hazards are **computed, not
   hand-declared**. Depends on Op1.M1 — the [`mission-graph`](../mission-graph/README.md) store
   (PR #197, merged). The finer-than-node ladder and SSA lowering (the rest of #189) remain deferred.
-- **Why (design records):** [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md)
+- **Why (design records):** [ADR-0025](../../../../docs/adr/0025-mission-graph-compiler-scheduler-model.md)
   (predictive touch-sets + the corrected-from-diff mitigation) and
-  [ADR-0026](../../../../artifacts/adr/0026-mission-graph-store.md) (the corrected touch-set is what the
+  [ADR-0026](../../../../docs/adr/0026-mission-graph-store.md) (the corrected touch-set is what the
   single writer appends at retirement); the cyberfleet-batch design brief's **Finer-than-node
   granularity** / **Touch-set tool placement** sections.

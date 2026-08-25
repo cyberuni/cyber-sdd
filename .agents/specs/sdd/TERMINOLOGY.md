@@ -43,4 +43,4 @@ Pinned so the three are never conflated:
 project-spec is *project-spec-level*, an op across projects is *corpus-level*; "corpus" never becomes
 a verb or an operation prefix. This is why `corpus/discovery` (ranges across projects) keeps its name
 while the intra-spec engines live under `project-spec/`. Canonical definition:
-`design/spec-structure.md`. Decision: [ADR-0019](../../../artifacts/adr/0019-name-the-three-spec-levels.md).
+`design/spec-structure.md`. Decision: [ADR-0033](../../../docs/adr/0033-name-the-three-spec-levels.md).

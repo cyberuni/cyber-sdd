@@ -482,7 +482,7 @@ The capability and its engine share the `mission-graph` name.
   hand-made seed of a larger system that turns requests into a scheduled set of Missions. The name
   "mission graph" and the wording **Campaign > Operation > Mission > Task** are settled.
 - **Why (design records):** the model — CR-parallelism as an optimizing-compiler + CPU-scheduler — is
-  [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md); the store
+  [ADR-0025](../../../../docs/adr/0025-mission-graph-compiler-scheduler-model.md); the store
   choice (SDD-native/per-repo/git-tracked; beads/Dolt/global-hub rejected; v1-in-tree → F3 orphan-ref)
-  is [ADR-0026](../../../../artifacts/adr/0026-mission-graph-store.md); the prior-art background is the
+  is [ADR-0026](../../../../docs/adr/0026-mission-graph-store.md); the prior-art background is the
   [work-decomposition survey](../../../../.research/work-decomposition-cr-parallelism/survey.md).

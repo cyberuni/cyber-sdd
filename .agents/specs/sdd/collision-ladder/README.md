@@ -162,7 +162,7 @@ collision serializes by default. Finer grains (file, region, scenario, symbol) a
 later** (monadic: Explore reveals scenarios, the diff reveals hunks and the symbols a change produces and
 consumes), so they are used **only** to relax a suspected false-hard, **never** to raise a new collision. This keeps the schedule **conservative-first**: it starts
 node-serial and relaxes to parallel as finer evidence arrives. Design:
-[ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md) (the RAW/WAW/WAR hazard
+[ADR-0025](../../../../docs/adr/0025-mission-graph-compiler-scheduler-model.md) (the RAW/WAW/WAR hazard
 model — soft = same file / different region, hard = same symbol's semantics) and the cyberfleet-batch design
 brief's **Finer-than-node granularity (collision disambiguation)** section (the ladder, file-sets sourced
 not derived, the shared-thin-file hard→soft downgrade).
@@ -191,6 +191,6 @@ never a live diff or the live store.
   The **★ SSA-lowering** doctrine (the third bullet's second half — partitioning a change into missions,
   versioning a write-write into an ordered dependency) remains deferred — the PR references #189, it does
   not close it.
-- **Why (design records):** [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md)
+- **Why (design records):** [ADR-0025](../../../../docs/adr/0025-mission-graph-compiler-scheduler-model.md)
   (the WAW/WAR hard-soft hazard model) and the cyberfleet-batch design brief's **Finer-than-node
   granularity** section (the collision-time ladder + the shared-thin-file downgrade).

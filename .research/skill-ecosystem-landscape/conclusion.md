@@ -4,9 +4,9 @@ Background research for cyberplace repo structure, external governance federatio
 
 **Related:**
 
-- [ADR-0002: External governance federation](../../artifacts/adr/0002-external-governance-federation.md)
+- [ADR-0002: External governance federation](https://github.com/cyberuni/cyberplace/blob/main/artifacts/adr/0002-external-governance-federation.md)
 - Governance: `governance show skill-repo-structure` (after build)
-- [ADR-0001: Governance vs discipline taxonomy](../../artifacts/adr/0001-governance-vs-discipline-taxonomy.md)
+- [ADR-0001: Governance vs discipline taxonomy](https://github.com/cyberuni/cyberplace/blob/main/artifacts/adr/0001-governance-vs-discipline-taxonomy.md)
 - [Activation frontmatter proposal](../activation-frontmatter/conclusion.md) — [upstream comment on agentskills#57](https://github.com/agentskills/agentskills/issues/57#issuecomment-4540026815)
 
 ---

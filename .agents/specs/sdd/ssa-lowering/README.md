@@ -733,7 +733,7 @@ uses `ssa-lowering` as its working name.
   [`touch-set-correction`](../touch-set-correction/README.md),
   [`collision-ladder`](../collision-ladder/README.md)). This mission closes #189.
 - **Why (design records):** the compiler/CPU-scheduler model — CR-parallelism as an optimizing-compiler
-  lowering pass — is [ADR-0025](../../../../artifacts/adr/0025-mission-graph-compiler-scheduler-model.md);
+  lowering pass — is [ADR-0025](../../../../docs/adr/0025-mission-graph-compiler-scheduler-model.md);
   the full procedure (the SSA-lowering steps, the Oracle+Architect intake lenses, barrier missions,
   the CR↔Operation↔mission mapping, planning provenance) is the **cyberfleet-batch** design brief. The
   decision-evidence *emit* automation (SQ-F5 #194), the name finalization (SQ-name #195), and the

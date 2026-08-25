@@ -1,6 +1,6 @@
 # Activation frontmatter proposal (May 2026)
 
-Draft for upstream discussion with [Agent Skills](https://agentskills.io). **Upstream comment:** [agentskills#57 — merged `activation.lifecycle` proposal](https://github.com/agentskills/agentskills/issues/57#issuecomment-4540026815). **Normative rules in this repo:** `governance show skill-design` (Activation section). **Related ADR:** [ADR-0005: Skill Taxonomy](../../artifacts/adr/0005-skill-taxonomy.md).
+Draft for upstream discussion with [Agent Skills](https://agentskills.io). **Upstream comment:** [agentskills#57 — merged `activation.lifecycle` proposal](https://github.com/agentskills/agentskills/issues/57#issuecomment-4540026815). **Normative rules in this repo:** `governance show skill-design` (Activation section). **Related ADR:** [ADR-0005: Skill Taxonomy](https://github.com/cyberuni/cyberplace/blob/main/artifacts/adr/0005-skill-taxonomy.md).
 
 ---
 
@@ -153,5 +153,5 @@ metadata:
 - [Agent Skills specification](https://agentskills.io/specification)
 - [Cursor third-party hooks mapping](https://cursor.com/docs/reference/third-party-hooks)
 - [Claude Code skills docs](https://code.claude.com/docs/en/skills)
-- [ADR-0005: Skill Taxonomy](../../artifacts/adr/0005-skill-taxonomy.md)
+- [ADR-0005: Skill Taxonomy](https://github.com/cyberuni/cyberplace/blob/main/artifacts/adr/0005-skill-taxonomy.md)
 - [Skill ecosystem landscape](../skill-ecosystem-landscape/conclusion.md)

@@ -364,7 +364,7 @@ live in `../../intake/README.md`):
   naming the source) **into the PR body**, so the source auto-closes on merge — SDD adds no
   separate close. A CR with **no close-by-reference source** (a bare prompt, or a cross-system
   source such as Asana/Jira) gets **no closing reference**; work landed **directly on `main`**
-  transitions the source to `done` on push, and a cross-system source is moved natively (`../intake/README.md`).
+  transitions the source to `done` on push, and a cross-system source is moved natively (`../../intake/README.md`).
 - **Distilled summary.** A short, **public-worthy** conclusion — what shipped, in what shape,
   and any **follow-up tasks** (which re-enter SDD as new CRs only when a **later mission** is started
   from them — filing is not opening a CR, and handoff opens none) — is appended to the source. This

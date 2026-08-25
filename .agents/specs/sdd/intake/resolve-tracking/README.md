@@ -15,7 +15,7 @@ behavior. It implements a four-step resolution order: **explicit request overrid
 syntax), then an **artifact-type kind default** (a fixed location convention for agent-config
 types; none for code), then **fail-closed to tracked**. The location is a **fixed convention**
 plus an **optional ignore file**, never a hardcoded per-project registry. The concrete engine is
-the [`resolve-tracking`](../../../../plugins/sdd/skills/resolve-tracking/) skill, which the
+the [`resolve-tracking`](../../../../../plugins/sdd/skills/resolve-tracking/) skill, which the
 conductor runs at intake, before a task becomes a CR.
 
 ## Use Cases

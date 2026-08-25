@@ -11,7 +11,7 @@ FAIL / UNBOUND** per scenario by reading the reports of one or more configured t
 run-level leash requires, instead of re-verifying every scenario. It is a **language/runner-agnostic**
 bridge and the SDD **default** verification path — deterministic test-running is not a plugin
 specialty; an unmatched artifact-type already falls through to SDD defaults. The concrete engine is
-the [`verify-scenarios`](../../../../plugins/sdd/skills/verify-scenarios/) skill, a self-contained
+the [`verify-scenarios`](../../../../../plugins/sdd/skills/verify-scenarios/) skill, a self-contained
 `.mts` script. It is the bridge the impl gate **consumes** — the default
 [`../impl-judge/`](../impl-judge/README.md) runs it for a deterministic artifact-type and judges by
 hand only the UNBOUND set plus every high-blast-radius BOUND+PASS scenario, accepting a

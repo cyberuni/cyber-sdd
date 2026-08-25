@@ -10,7 +10,7 @@ optional gitignore-syntax file `resolve-tracking` consults to decide whether an 
 **tracked** or **ignored**. It exists so a user curates the ignore rules through a clean
 interface instead of hand-editing the file — the same split `manage-spec-anchors` gives the spec
 anchors. It is the **write** side of the ignore file; `resolve-tracking` is the **read** side.
-The concrete engine is the [`manage-ignore`](../../../../plugins/sdd/skills/manage-ignore/) skill,
+The concrete engine is the [`manage-ignore`](../../../../../plugins/sdd/skills/manage-ignore/) skill,
 loaded in-session by the `../../gateway/`-fronted **manage** gateway.
 
 ## Use Cases

@@ -13,7 +13,7 @@ plan-discovery scans the fixed plans location, treats each `*.plan.md` carrying 
 brief, and reports its **todo tally** and the lead line of its `## NEXT` resume anchor. The location
 is a **fixed convention**, not a hardcoded registry: no array or index of paths is ever consulted —
 discovery is a **pure derivation**, so no second place can drift. The concrete engine is the
-[`discover-plans`](../../../../plugins/sdd/skills/discover-plans/) skill, which parses each
+[`discover-plans`](../../../../../plugins/sdd/skills/discover-plans/) skill, which parses each
 brief's frontmatter and NEXT section only and emits the list as TOON.
 
 This is the **plan** sibling of [`../../corpus/discovery/`](../../corpus/discovery/README.md):

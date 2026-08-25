@@ -9,7 +9,7 @@ The **manage-scenario-bridge** procedure: the curation interface for a project's
 `<project-path>/.agents/sdd/scenario-bridge.toml` — the **one-time per-project wiring** the
 [`../verify-scenarios/`](../verify-scenarios/README.md) bridge and the
 [`../impl-judge/`](../impl-judge/README.md) step-0 consumption both read. It exists because that
-wiring had **no owning skill**: [`impl-producer-governance`](../../../../plugins/sdd/skills/impl-producer-governance/)
+wiring had **no owning skill**: [`impl-producer-governance`](../../../../../plugins/sdd/skills/impl-producer-governance/)
 authors the *binding tests* a source reports on, but never the config itself, so every prior
 instance (`packages/cyberlegion/.agents/sdd/scenario-bridge.toml`) was hand-authored outside SDD.
 The same split `manage-spec-anchors` and `manage-ignore` give their own configs. The concrete

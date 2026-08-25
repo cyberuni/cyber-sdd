@@ -48,6 +48,7 @@ The freeze grain is per `.feature` file, so units freeze independently. Cross-ca
 | **concept-index** | behavioral | [`concept-index/`](./concept-index/README.md) | scan every node's `concept:` frontmatter and render the **by-concept view** in the root `spec.md` — re-unify a concern the folder tree scatters; `--write`/`--check`, pure derivation |
 | **place-node** | behavioral | [`place-node/`](./place-node/README.md) | advise a **new** node's provisional capability home (where the concept's facets already sit) and catch name duplicates; read-only, finalized at handoff |
 | **check-spec-structure** | behavioral | [`check-spec-structure/`](./check-spec-structure/README.md) | audit one project-spec's **node-shape** — untagged orphans (blocking) + oversized nodes (advisory) — and emit a finding set for the Warden; read-only |
+| **check-spec-references** | behavioral | [`check-spec-references/`](./check-spec-references/README.md) | resolve every explicitly-relative reference in one project-spec's markdown against the file's own directory, and fail on the ones pointing at nothing; read-only, single-severity |
 | **align-spec** | behavioral | [`align-spec/`](./align-spec/README.md) | the one **user-invocable** / CI tool — detect prose↔suite drift across the project-spec's nodes, and **reconcile** it (never writing `status`/`approval`/freeze) |
 
 ## Boundaries

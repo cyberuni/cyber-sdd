@@ -11,7 +11,7 @@ loads, matching governances across the caller-passed **project anchors**, the ma
 squad, and the **sdd** defaults. It is a **matcher**, not a composer: it returns each bar's
 candidates **bucketed by tier** (`project` / `project-root` / `plugin` / `sdd`) and **never** orders
 by precedence or applies `compose` — the consuming agent does that. The concrete engine is the
-[`resolve-governances`](../../../../plugins/sdd/skills/resolve-governances/) skill, a
+[`resolve-governances`](../../../../../plugins/sdd/skills/resolve-governances/) skill, a
 self-contained `.mts` script.
 
 ## Use Cases

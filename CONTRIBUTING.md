@@ -50,3 +50,13 @@ manifests under `plugins/cyberlegion/` — add any new manifest to that script's
 
 Conventional Commits, enforced by commitlint on `commit-msg`. The `pre-commit` hook runs
 `biome check` and the test suite, so a red tree cannot be committed.
+
+## Releasing
+
+`cyber-sdd` publishes from this repo and carries its release history (`cyber-sdd@*` tags).
+
+`cyber-aced` and `cyber-quill` are staged but **not yet published**. Their package
+metadata is complete — name, license, `files`, `repository` — and they are held at
+`"private": true` so a push to `main` cannot publish them by accident. To cut their first
+release, drop `"private": true` from the plugin's `package.json`, add a changeset, and
+merge the release PR.

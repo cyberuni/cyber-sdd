@@ -398,9 +398,9 @@ function captureStdout(fn: () => number): { code: number; out: string } {
 }
 
 test('the corpus scope sweeps every project-spec, not only the first', () => {
-	// Asserted on the report rather than on the exit code: discovery order is not
-	// guaranteed, so a harness that swept only specs[0] can still exit non-zero by
-	// happening to visit the damaged one. Naming every spec it swept is the claim.
+	// Asserted on the report rather than the exit code. The exit code alone cannot
+	// tell "swept every spec" from "swept the one that happened to be damaged" —
+	// naming each spec it swept is the actual claim.
 	const root = corpusFixture([
 		['first', 'plugins/first', {}],
 		['second', 'plugins/second', { broken: TRUNCATED }],
@@ -514,7 +514,8 @@ test('the corpus scope runs the engine set and the coverage guard together', () 
 
 test('a failing project-spec does not stop the ones after it', () => {
 	// The mirror of the sweep test: there the damaged spec sorts last, here first.
-	// Discovery order is not guaranteed, so the pair covers both arrangements.
+	// collectSpecs sorts by path, so the pair pins both arrangements deterministically
+	// rather than relying on which one discovery happens to yield.
 	const root = corpusFixture([
 		['aaa', 'plugins/aaa', { broken: TRUNCATED }],
 		['zzz', 'plugins/zzz', {}],

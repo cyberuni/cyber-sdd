@@ -8,7 +8,7 @@
 		"check:fix": "biome check --write",
 		"check:skills": "node plugins/aced/skills/improve-skill/scripts/validate.mts --root .",
 		"check:private-skills": "node plugins/aced/skills/repair-private-skills/scripts/repair-private-skills.mts --root . validate",
-		"check:specs": "node plugins/sdd/skills/check-project-specs/scripts/check-project-specs.mts --check-coverage && node plugins/sdd/skills/resolve-governances/scripts/resolve-governances.mts --root . && node plugins/sdd/skills/resolve-tracking/scripts/resolve-tracking.mts --root . && node plugins/sdd/skills/check-plan-safety/scripts/check-plan-safety.mts --root . --check && node plugins/sdd/skills/check-retired-terms/scripts/check-retired-terms.mts --root .",
+		"check:specs": "node plugins/sdd/skills/check-project-specs/scripts/check-project-specs.mts --corpus && node plugins/sdd/skills/resolve-governances/scripts/resolve-governances.mts --root . && node plugins/sdd/skills/resolve-tracking/scripts/resolve-tracking.mts --root . && node plugins/sdd/skills/check-plan-safety/scripts/check-plan-safety.mts --root . --check && node plugins/sdd/skills/check-retired-terms/scripts/check-retired-terms.mts --root .",
 		"knip": "knip",
 		"prepare": "node -e \"if(!(process.env.CI||process.env.GITHUB_ACTIONS))require('child_process').execSync('husky',{stdio:'inherit'})\"",
 		"release": "changeset publish",

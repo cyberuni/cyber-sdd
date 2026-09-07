@@ -100,3 +100,19 @@ Feature: SDD acceptance — gate verdicts (producer/judge separation across both
     When every impl-judge passes
     Then status advances to implemented
     And the gate station, not the conductor, writes status and the human ratification
+
+  Scenario: a resumed segment's declared bars reach the pre-flight like a first segment's
+    Given a mission segment resumed from a plan brief whose earlier segment declared a smaller bar set
+    When the resumed segment dispatches the cold spec-judge
+    Then the dispatch carries the bar set the resumed segment loaded this segment
+
+  Scenario: a bar skipped in an earlier segment surfaces at the next gate
+    Given a mission segment resumed from a plan brief that summarizes a bar in place of naming it
+    When the resumed segment reaches the spec gate
+    Then the pre-flight reads a declared set that names that bar
+
+  Scenario: a change verdict against a backfilled node re-derives that node from its CFG
+    Given a change verdict against a node produced by the backfill workflow
+    And the earliest implicated step is the control-flow step
+    When the producer answers the verdict
+    Then the returned step record carries a new entry for the control-flow step and for every step after it

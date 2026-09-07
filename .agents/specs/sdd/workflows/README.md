@@ -92,6 +92,8 @@ Sources: `sdd-gate-autonomy`, `automaton-deliver`, `sdd-mission-loop`.
 - E7. A correction is re-derived against the rule **governing the artifact**: one that contradicts a governance the artifact is bound by is rejected; one that agrees with all of them is accepted.
 - E8. Each finding's **provenance** is derived from the diff — an artifact changed by the previous remediation round's commits makes its finding a **regression**, which stops the loop for a re-plan; an artifact predating those commits is **pre-existing**, and remediation continues.
 - E9. A **Clearance-gated repair of an already-frozen scenario** is re-approved only when the repaired scenario **fails against the pre-repair artifact** — a repair that already passes the pre-repair draft is a suspected **back-fit** and is rejected; a **post-repair pass alone** does not re-approve it (the pre-repair failure is what proves the contract's substance changed rather than being reverse-engineered from what already existed).
+- E10. A **resumed** segment reaches the gate's pre-flight on the same terms as a first segment: it re-loads its bars from disk this segment and declares them, so a bar skipped in an earlier segment surfaces at the next gate instead of being inherited from the brief.
+- E11. A change verdict against a **backfilled** node is remediated by **re-deriving that node from its CFG** — the re-entry step and every step downstream of it re-run — rather than by editing the lines the findings cited.
 
 ### F. Handoff (mission verified result → delivery shape)
 Sources: `mission/handoff/` (new), commit discipline.

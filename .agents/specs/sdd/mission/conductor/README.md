@@ -184,6 +184,29 @@ agent pool. The conductor **stays a pure relay** — it forwards the declared se
 an empty one) and renders **no opinion** on which governances were actually required; that judgment
 belongs to the spec-judge's own pre-flight check (`../../authoring/spec-gate/README.md`).
 
+**The mode rides the same seam, and it is the conductor's own knowledge.** The conductor is what
+invokes the spec-producer in `create`, `revise`, or `backfill` mode
+(`../../authoring/spec-producer/README.md`), so *which mode ran* is a fact the conductor holds
+directly rather than one the producer reports. It relays it as **`producer_mode`**. This is a
+deliberate exception to the pure-relay shape stated above: everything else on this channel is the
+producer's claim forwarded verbatim, and `producer_mode` is the conductor's own. It has to be. The gate's
+step-record tell fires on this field (`../../authoring/spec-gate/README.md`), and a tell gated on
+anything the producer says is opt-in by the party it polices — a producer that skipped the backfill
+workflow would simply stay quiet and never be checked.
+
+**The step record rides the same seam.** On a **backfill** the spec-producer also returns
+`BACKFILL_STEPS` — the ordered step record the backfill workflow produces
+(`../../authoring/backfill/README.md`). The judge's pre-flight corroboration reads it, and it is not
+a repo artifact, so it reaches the judge the only way it can: the conductor forwards it through the
+same dispatch channel, keyed **`producer_backfill_steps`**. The relay is the same pure one — forwarded
+verbatim, including an **incomplete** record, with **no** opinion rendered on whether the record is
+complete. Judging completeness is the corroboration stage's act, not the relay's; a conductor that
+withheld a partial record would hide exactly the case the tell exists to catch. A `create` or
+`revise` producer returns no record, and the conductor then forwards **no** `producer_backfill_steps`
+field. Absence of the *record* never means "not a backfill" — `producer_mode` alone answers that — so
+a `backfill` mode relayed with no record is a legible state, and the one the gate reads as the tell's
+miss rather than as an exemption.
+
 ## Explore — build to learn (step 2)
 
 The conductor runs **explore** by running `../../authoring/` **in-session**: it authors the

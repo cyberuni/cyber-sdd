@@ -21,8 +21,8 @@ it is checkpointed (`pause-mission --approve`). The flag it writes is the go-sig
 
 > **This is a single behavioral unit, not an overview** — checkpoint has no sub-skills; the behavior
 > is enacted by the `pause-mission` skill (`plugins/sdd/skills/pause-mission/`). This spec owns
-> the **behavior + suite** ([`checkpoint.feature`](./checkpoint.feature)). (`resume-mission`, the
-> read-back sibling, is not yet noded — a standing formation observation, not this unit.)
+> the **behavior + suite** ([`checkpoint.feature`](./checkpoint.feature)). The read-back sibling is
+> [`../resume/`](../resume/README.md), its own node.
 
 ## Use Cases
 
@@ -30,7 +30,7 @@ it is checkpointed (`pause-mission --approve`). The flag it writes is the go-sig
 a reviewed mission for headless dispatch by setting `status: approved`.
 
 **Non-goals** — it **never** dispatches, resumes, or retires a mission (those are
-`../../gateway/dispatch/`, `resume-mission`, and `plan-retirement`); it writes **only** the plan
+`../../gateway/dispatch/`, `../resume/`, and `../../doctrine/plan-retirement/`); it writes **only** the plan
 brief — never `spec.md`'s `status` / `approval` (the gates own those). A **headless** automaton
 checkpoint **never self-approves** — `approved` is a human clearing act (the positional-authority
 rule, `../../common-governances/lifecycle/`).
@@ -86,7 +86,7 @@ complete without ever running the check that would have caught it.
 
 Enacted by the **`pause-mission`** skill — `plugins/sdd/skills/pause-mission/` — which locates
 (or scaffolds) the brief, updates the todos + `## NEXT`, and commits; the `--approve` argument adds
-the single `status: approved` write. `resume-mission` reads the brief back; the gateway's `dispatch`
+the single `status: approved` write. [`../resume/`](../resume/README.md) reads the brief back; the gateway's `dispatch`
 loop selects on the `approved` flag this node sets.
 
 ## Scenarios (colocated)

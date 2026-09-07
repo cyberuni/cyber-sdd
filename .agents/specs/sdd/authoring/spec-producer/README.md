@@ -40,7 +40,7 @@ differs is the goal it arrives with.
 |---|---|---|---|---|
 | **create** | a contract for a capability that does not exist yet, written from nothing | a CR for capability content that does not exist yet | the CR + answers to the up-front grill: the core problem and who experiences it, observable behavior from the user's view, the public interface (commands, signatures, events), known edge cases or explicit non-goals, and which reviewers must be heard | scaffolded spec prose + an initial set of boolean scenarios |
 | **revise** | an existing contract brought back in line with a change | a CR touching a capability whose prose + scenarios already exist | the CR + the existing spec | tightened prose and scenarios; **no** new skeleton scaffolded |
-| **backfill** | a contract for behavior that already shipped without one | a CR whose behavior already exists in code | source, tests, and history | inferred *what* / *why* / decisions; the up-front grill is **skipped** |
+| **backfill** | a contract for behavior that already shipped without one | a CR whose behavior already exists in code | source, tests, history, and the issue tracker | the ordered backfill workflow (`../backfill/README.md`) run end to end: the four spec sections, the `.feature`, and a complete **step record**; the up-front grill is **skipped** |
 
 **Extensions** — the paths that do not reach those outcomes:
 
@@ -52,6 +52,7 @@ differs is the goal it arrives with.
 | revise | prose and suite contradict each other | reconciles toward the correct answer, editing the side that is wrong |
 | revise | the correct answer cannot be established | a `CONTENT_GAP`, not a guessed direction |
 | backfill | source and the standing suite disagree | re-derives from the CFG; the standing suite is reference only, a claim to verify |
+| backfill | a judge returns a `change` verdict against the node | the remediation unit is the node re-derived from its CFG, not the cited lines (`../backfill/README.md`) |
 | backfill | an act in code leaves no observable trace | adds the record rather than dropping the act from the suite |
 | any | a judge verdict arrives (`JUDGE_FEEDBACK`) | a revision pass — fixes only the failing scenarios and sections |
 
@@ -61,6 +62,7 @@ differs is the goal it arrives with.
 |---|---|---|
 | `USER_INPUT` | create | — |
 | `BACKFILL` | backfill | — |
+| `BACKFILL_STEPS` (returned, not received) | backfill | — |
 | `COMMAND_SURFACE`, `DESIGN_DECISIONS` | create, revise | — |
 | `JUDGE_FEEDBACK` | any, on a revision pass | — |
 | `USER_ANSWERS` | any, paired with a prior `needs-input` | — |
@@ -221,6 +223,11 @@ Phase 2 — the suite:
   executable form of `../suite-format/README.md`) over the authored suite and fix any violation (a
   non-boolean `Then`, a hedge adverb, leaked rubric lingo) before reporting complete. Settling this
   mechanical bar here spends no cold-judge round on a defect a linter catches every time.
+- **Self-check the governance tells before returning** — the same tells the gate's pre-flight
+  corroboration will read (`../spec-gate/README.md` owns the tell set and its applicability rules;
+  they are referenced here, not re-listed). This is the **forward face of a mirrored duty**: the
+  judge corroborates, the producer corroborates itself first. A tell that misses at the gate costs a
+  full cold round for a property you can check in the artifact you just wrote.
 
 ## The output boundary
 
@@ -235,6 +242,10 @@ The producer writes the **spec body and the `.feature`**, nothing else:
   field in its structured output, listing an empty set rather than omitting the field when it loaded
   none. This is provenance for the spec-judge's pre-flight check (`../spec-gate/README.md`), carried
   through the dispatch channel — it is never written into `spec.md` or the `.feature`.
+- On **backfill** it also returns `BACKFILL_STEPS` — the ordered step record the backfill workflow
+  produces, one entry per step (`../backfill/README.md`). Like `governances_loaded` it is
+  **provenance carried through the dispatch channel**, never written into `spec.md` or the
+  `.feature`, and a run missing an entry is reported rather than returned as complete.
 
 **Producer/judge separation.** The producer authors the diff; a **distinct judge** actor
 verifies it (`../spec-gate/`). The producer self-aligns against the same governances the

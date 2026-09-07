@@ -229,6 +229,41 @@ Feature: The conductor — running one mission segment
     Then it does not decide which governances were required
     And it does not filter or amend the declared set
 
+  # ---- Backfill step-record relay — producer_backfill_steps ----
+
+  Scenario: the conductor relays the mode it invoked the producer in
+    Given the conductor invoked the spec-producer in backfill mode
+    When it dispatches the spec-judge
+    Then the dispatch carries producer_mode backfill
+
+  Scenario: the relayed mode is the conductor's own, not the producer's report
+    Given the conductor invoked the spec-producer in backfill mode
+    And the producer's structured output declares no backfill governance
+    When it dispatches the spec-judge
+    Then the dispatch carries producer_mode backfill
+
+  Scenario: a backfill mode with no returned record still relays the mode
+    Given the conductor invoked the spec-producer in backfill mode
+    And the producer returned no BACKFILL_STEPS record
+    When it dispatches the spec-judge
+    Then the dispatch carries producer_mode backfill and no producer_backfill_steps field
+
+  Scenario: the conductor forwards a backfill step record to the spec-judge
+    Given a spec-producer's structured output returns a BACKFILL_STEPS record
+    When the conductor dispatches the spec-judge
+    Then the dispatch carries producer_backfill_steps with that same record
+
+  Scenario: the conductor relays an incomplete step record without judging it
+    Given a spec-producer's structured output returns a BACKFILL_STEPS record with an entry absent
+    When the conductor dispatches the spec-judge
+    Then it forwards that record with the entry still absent
+    And it renders no opinion on whether the record is complete
+
+  Scenario: a producer returning no step record relays no step-record field
+    Given a spec-producer invoked in revise mode returns no BACKFILL_STEPS record
+    When the conductor dispatches the spec-judge
+    Then the dispatch carries no producer_backfill_steps field
+
   # ---- Explore — build to learn (step 2) ----
 
   Scenario: explore is entered from a non-frozen suite, not from a mode input

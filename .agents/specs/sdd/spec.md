@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/sdd
 approval:
   spec:
@@ -11,6 +11,15 @@ approval:
       blast: medium — the change is small (one engine, one root script entry, one new node) but its reach is not: it turns a check ON corpus-wide for every commit and every PR, and `code / all-checks` is now the required gate on `main`. A repo installing `cyber-sdd` inherits the same total floor. Contained by measuring the cost before wiring it, by running the two gate engines directly rather than through the chain under repair, and by fixing the two pre-existing broken anchors the floor's first real run surfaced
       novelty: low — a second scope on an existing harness, reusing the engine set, the resolution path and the report shape unchanged. The one design question with genuine freedom — whether the recursion lives in the engine or in the package manager — was settled on a stated ground (SDD ships as a plugin to repos that may not use pnpm, and `pnpm -r` would leave the guarantee mediated by an existence check on a manifest string) rather than by taste
       confidence: high — cold `sdd-spec-judge` returned ALIGNED true with oracle/builder/architect all PASS on round 5, after four rounds that each found real defects: a governance pre-flight block that was a genuine omission, two Given-format violations, an unargued near-duplicate, one regression of the mission's own remediation (a decision carried in map prose instead of drawn in the CFG) that was re-planned rather than patched, and a dead edge where half the coverage guard went untested. Both of the issue's triggers were reproduced against `main` before the fix and fail the root chain after it. 47 engine tests, and a 13-mutation sweep in which every mutation lands on a distinct scenario — including two that initially survived and exposed a wrong-target mutation and an order-dependent test, both fixed
+  impl:
+    verdict: approve
+    by: agent
+    cause: dimension
+    why:
+      floor: none — the frozen `spec-floor.feature` was never narrowed. `classify-edit-class` reads the file ADDITIVE against `origin/main` (22 added, 0 modified, 0 removed), and no other suite in the corpus was touched, so every standing `@frozen` file self-clears untouched and no Clearance is owed
+      blast: medium — as at the spec gate. The delivery turns the deterministic floor on for every commit and every PR, and `code / all-checks` is now the required gate on `main`, so the change lands on the enforced path rather than a local convenience. Contained by measuring the cost first (~6s corpus-wide, cold `verify` 15.6s to ~22s, no scoping needed) and by fixing the two pre-existing broken anchors the floor's first real run surfaced
+      novelty: low — a second scope on an existing harness; the engine set, the resolution path and the report shape are unchanged
+      confidence: high — cold `sdd-impl-judge` returned IMPLEMENTATION_PASS true with all 22 frozen scenarios independently re-derived, not read off the producer's assertions: where the producer asserted only an exit code the judge built its own fixtures and ran the real CLI against both streams, and it verified both of the issue's original triggers empirically against this branch and by reading `origin/main`'s `main()`. It confirmed `check-spec-state` — the impl gate's own `implemented`-without-ratification and missing-ledger-line guards — is live in the root chain where it was unreachable before. Its own independent mutation sweep found four verification gaps, all four closed before the gate wrote, none of them an implementation defect. 52 engine tests, green over 15 consecutive runs
 produced-by:
   spec-producer: sdd:automaton
   impl-producer: sdd:automaton

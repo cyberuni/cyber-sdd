@@ -2,21 +2,21 @@
 status: active
 todos:
   - content: "explore: place + draft corpus/spec-floor (the corpus-tier harness + its totality rule)"
-    status: in_progress
+    status: completed
   - content: "explore: revise corpus/README + root spec.md capability index for the new unit"
-    status: pending
+    status: completed
   - content: "spec gate: cold sdd-spec-judge to convergence, freeze corpus/spec-floor.feature"
-    status: pending
+    status: completed
   - content: "deliver: --corpus mode in check-project-specs.mts, drop --check-coverage, reject unknown flags"
-    status: pending
+    status: completed
   - content: "deliver: wire root check:specs to the total mode; fix the 2 broken loops.md anchors"
-    status: pending
+    status: completed
   - content: "deliver: regression tests — truncated node and deleted node must fail the root floor"
-    status: pending
+    status: completed
   - content: "impl gate: cold sdd-impl-judge, pnpm verify green with the floor live"
-    status: pending
+    status: completed
   - content: "handoff: changeset, commits, PR against main referencing issue #5"
-    status: pending
+    status: completed
 ---
 
 # CR github-5 — the commit floor must run the spec floor
@@ -118,6 +118,20 @@ CR does not edit `knip.json`.
 
 ## NEXT
 
-Explore: draft the new behavioral node `corpus/spec-floor/` (the corpus-tier harness — totality,
-the two composing sub-checks, the loud unknown-flag failure) plus its `.feature`, and add its row to
-`corpus/README.md` and the root `spec.md` capability index. Then the spec gate.
+Landed. All eight todos completed; PR opened against `main` referencing #5.
+
+Spec gate approved (self-asserted, `by: agent`) after five cold `sdd-spec-judge` rounds;
+impl gate approved after one cold `sdd-impl-judge` round returning IMPLEMENTATION_PASS with
+all 22 frozen scenarios independently re-derived. `corpus/spec-floor/spec-floor.feature` is
+`@frozen`; the project spec advances to `implemented`.
+
+**The mission's own process failure, recorded because it is the more useful finding.** The
+conductor ran both producer roles inline without loading `spec-producer-governance` or
+`impl-producer-governance` — the procedures for the roles it was performing — and hand-rolled
+the spec gate instead of invoking `spec-gate`. The producer bar's step-5 self-check list
+(the miss test, the extensions-against-the-CFG walk, the by-hand `Given` re-read, the
+stated-outcome coverage check) predicts almost every defect the judge then found across four
+rounds, and the bar says so in as many words: settling it there "spends no cold round on a
+contradiction the Architect lens will find every time." Four cold rounds were spent using the
+judge as a self-check. Correction lines 1-5 in the combat log carry the detail; line 5 records
+the consequent process error of editing the worktree mid-grading.

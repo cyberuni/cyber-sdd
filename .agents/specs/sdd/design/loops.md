@@ -87,7 +87,7 @@ Only **explore** and **deliver** iterate **internally** (inside a single cycle);
 ## The lifecycle loop — above the Mission Loop
 
 The Mission Loop ends at handoff (PR created + reported). The **lifecycle loop** picks up from there: **merge → tear down the pod → append to the mission graph → re-derive `ready` → dispatch next**.
-It is **not SDD's loop** — the **Operator owns it** (`../../cyberfleet-plugin/operator/`) and is the **single graph writer**: dispatched missions only *report*, the owner *writes*, so claims and retirements never race.
+It is **not SDD's loop** — the **Operator owns it** (`cyberfleet-plugin/operator/`, in the cyberfleet repo) and is the **single graph writer**: dispatched missions only *report*, the owner *writes*, so claims and retirements never race.
 It is **not a daemon** — summoned, runs one tick, exits; a later tick re-derives fresh state.
 
 This is the end-to-end picture: one CR compiled into a schedule, issued in parallel, retired in order.
@@ -140,7 +140,7 @@ Each piece has a home — this file owns only the topology:
 | the model (hierarchy, hazards, five axes, monadic DAG) | ADR-0025 |
 | the store (append-only, git-tracked, orphan-ref) | ADR-0026 |
 | `fold` / `ready` / `cycles` | `../mission-graph/` |
-| the lifecycle loop + dispatch + capacity K | `../../cyberfleet-plugin/operator/` |
+| the lifecycle loop + dispatch + capacity K | `cyberfleet-plugin/operator/` (cyberfleet repo) |
 | the headless realization (one tick) | `plugins/cyberfleet/agents/headless-operator.md` |
 | merge order, speculative CI, bisection | `merge-backstop-governance` |
 | lowering criteria (SSA, RAW/WAW/WAR) | `../ssa-lowering/`, `../collision-ladder/` |

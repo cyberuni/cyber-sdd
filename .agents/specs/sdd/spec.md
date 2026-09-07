@@ -11,6 +11,9 @@ approval:
       blast: medium — the change is small (one engine, one root script entry, one new node) but its reach is not: it turns a check ON corpus-wide for every commit and every PR, and `code / all-checks` is now the required gate on `main`. A repo installing `cyber-sdd` inherits the same total floor. Contained by measuring the cost before wiring it, by running the two gate engines directly rather than through the chain under repair, and by fixing the two pre-existing broken anchors the floor's first real run surfaced
       novelty: low — a second scope on an existing harness, reusing the engine set, the resolution path and the report shape unchanged. The one design question with genuine freedom — whether the recursion lives in the engine or in the package manager — was settled on a stated ground (SDD ships as a plugin to repos that may not use pnpm, and `pnpm -r` would leave the guarantee mediated by an existence check on a manifest string) rather than by taste
       confidence: high — cold `sdd-spec-judge` returned ALIGNED true with oracle/builder/architect all PASS on round 5, after four rounds that each found real defects: a governance pre-flight block that was a genuine omission, two Given-format violations, an unargued near-duplicate, one regression of the mission's own remediation (a decision carried in map prose instead of drawn in the CFG) that was re-planned rather than patched, and a dead edge where half the coverage guard went untested. Both of the issue's triggers were reproduced against `main` before the fix and fail the root chain after it. 47 engine tests, and a 13-mutation sweep in which every mutation lands on a distinct scenario — including two that initially survived and exposed a wrong-target mutation and an order-dependent test, both fixed
+produced-by:
+  spec-producer: sdd:automaton
+  impl-producer: sdd:automaton
 ---
 
 # Spec-Driven Development (SDD)

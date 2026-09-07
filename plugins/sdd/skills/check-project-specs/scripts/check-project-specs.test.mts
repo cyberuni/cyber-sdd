@@ -498,6 +498,37 @@ test('a failing engine does not stop the engines after it', () => {
 	}
 })
 
+test('the corpus scope runs the engine set and the coverage guard together', () => {
+	// Both sub-checks report in one run. A subject wired to only one of them still
+	// exits 0 on a clean corpus, so the exit code alone does not settle this.
+	const root = corpusFixture([['thing', 'plugins/thing', {}]])
+	try {
+		const { code, out } = inCwdCapturing(root, () => main(['--corpus']))
+		assert.match(out, /every spec is checked by its project/, 'the coverage guard must report')
+		assert.match(out, /\.agents\/specs\/thing/, 'the sweep must report')
+		assert.equal(code, 0)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('a failing project-spec does not stop the ones after it', () => {
+	// The mirror of the sweep test: there the damaged spec sorts last, here first.
+	// Discovery order is not guaranteed, so the pair covers both arrangements.
+	const root = corpusFixture([
+		['aaa', 'plugins/aaa', { broken: TRUNCATED }],
+		['zzz', 'plugins/zzz', {}],
+	])
+	try {
+		const { code, out } = inCwdCapturing(root, () => main(['--corpus']))
+		assert.match(out, /\.agents\/specs\/zzz/, 'the clean spec must still be swept')
+		assert.match(out, /\.agents\/specs\/aaa/)
+		assert.equal(code, 1)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
 test('an empty corpus passes', () => {
 	const root = corpusFixture([])
 	try {
@@ -517,6 +548,41 @@ test('a clean corpus exits 0', () => {
 			inCwd(root, () => main(['--corpus'])),
 			0,
 		)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('the project scope runs the engine set against the one spec that governs it', () => {
+	const root = corpusFixture([['thing', 'plugins/thing', {}]])
+	try {
+		const { code, out } = captureStdout(() => main(['--project', join(root, 'plugins', 'thing')]))
+		assert.match(out, /plugins\/thing -> \.agents\/specs\/thing/)
+		assert.match(out, /ok {3}check-spec-state/)
+		assert.equal(code, 0)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('a damaged spec node fails the project scope', () => {
+	const root = corpusFixture([['thing', 'plugins/thing', { broken: TRUNCATED }]])
+	try {
+		assert.equal(main(['--project', join(root, 'plugins', 'thing')]), 1)
+	} finally {
+		rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('a project claimed by two specs fails', () => {
+	// resolveSpecFor reports `ambiguous` in isolation; this establishes that the
+	// CLI actually refuses on it rather than resolving one claimant and proceeding.
+	const root = corpusFixture([['one', 'plugins/thing', {}]])
+	try {
+		const twin = join(root, '.agents', 'specs', 'two')
+		mkdirSync(twin, { recursive: true })
+		writeFileSync(join(twin, 'spec.md'), readFileSync(join(root, '.agents', 'specs', 'one', 'spec.md'), 'utf8'))
+		assert.equal(main(['--project', join(root, 'plugins', 'thing')]), 1)
 	} finally {
 		rmSync(root, { recursive: true, force: true })
 	}

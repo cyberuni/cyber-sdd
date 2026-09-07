@@ -10,6 +10,27 @@ The procedure the **conductor** follows when it runs the **spec-producer** role 
 
 Load alongside this governance: `sdd:spec-format-governance` (the required `## Use Cases` section and the `spec.md` enrichment / human-readability rule), `sdd:suite-format-governance` (the `.feature` format bar and scenario-ordering convention), and the resolved **oracle**, **builder**, and **architect** actor bars — **forward** face — to self-align before writing (scope and kill-or-ship, testability/coverage, structural fit). These are exactly the bars the spec-judge grades **backward** at the spec gate, so the producer self-aligns to the same lens set it will be graded against. Load `sdd:ownership-governance` for the write-ownership matrix — which fields the spec-producer may write and which belong to the conductor or the gate skill.
 
+**On backfill, run the ordered workflow.** When the conductor invokes you in `backfill` mode, the
+procedure is `sdd:backfill-workflow` — five ordered steps, each owing a named entry in a
+**`BACKFILL_STEPS`** record you return alongside the spec and the suite. Return the record even when
+a step found nothing (the entry reads `none` and names where it looked); a run missing an entry is
+**reported as incomplete**, not returned as complete. Like `governances_loaded` it is provenance
+carried through the dispatch channel — never written into `spec.md` or the `.feature`.
+
+**Self-check the governance tells before you return.** The spec gate's pre-flight corroborates your
+work against a small set of **tells** — properties of the artifact that a producer who never opened
+the bar does not produce. Each tell is a rule of a bar **you already loaded**, so check them there
+rather than looking for a separate list: the explicit-extensions claim and the surface trace's
+forbidden-combination column are `sdd:spec-format-governance`; the guard edge's positive companion is
+`sdd:suite-format-governance`; the step record's correspondence to the artifacts it names is
+`sdd:backfill-workflow`. Run them yourself first, and **report each miss you do not resolve in your `Output`** before
+returning the diff — a self-check whose result never leaves your head is the same silent gap the
+tells exist to surface. A tell that misses at the gate costs a full cold round for a property you can
+check in the artifact you just wrote. Note what this does and does not buy: satisfying a tell is not
+evidence you read the bar, and the tells reach only some of the bars you are graded against — so
+treat the self-check as a floor under your own work, never as a substitute for loading what you are
+bound by.
+
 **Track every governance you load.** The spec-judge cannot otherwise tell a skipped pre-flight from a correctly run one — both look like the same output gap. Keep a running list of each governance name as you load it (this governance plus every bar named above) and declare the full list as `governances_loaded` in your structured output — a **required** field, listed even when empty, and **never** written into `spec.md` or the `.feature`.
 
 ## Inputs (folded in by the conductor)
@@ -84,6 +105,7 @@ STATUS:             complete | needs-input | blocked
 SCENARIOS_WRITTEN:  <count>
 NOTES:              <what was written / revised>
 GOVERNANCES_LOADED: [ every governance name loaded before writing — required, [] when none, never written into spec.md or the .feature ]
+BACKFILL_STEPS:     [ on a backfill only — one entry per ordered step of sdd:backfill-workflow; omitted entirely on create/revise; never written into spec.md or the .feature ]
 QUESTIONS:          [ batched, when needs-input ]
 CONTENT_GAPS:       [ { artifact, location, gap } ]   # become <!-- open: --> markers
 OBSERVATIONS:       [ { owner: architect | strategist, note, evidence } ]

@@ -23,20 +23,38 @@ where it left off.
    first `pending` todo whose prerequisites are met. The body's `## NEXT` section names the
    live frontier and any blocking decisions — honor it over guessing.
 
-3. **Reload the working method — do not relearn or relitigate it.** The plan records *how this
+3. **Re-establish the bars — from disk, this segment.** Before the segment runs any production role
+   or gate, re-run the governance matcher (`sdd:resolve-governances`) for the role being resumed and
+   the artifact-types of the files it will touch, and **load each resolved bar from disk now**.
+   Declare the loaded set exactly as a first segment does, so the gate's pre-flight reads a resumed
+   segment on the same terms — a resume is not an exemption from it.
+
+   **A summary of a bar in the brief is a decision record, never the bar.** The brief faithfully
+   records what was *decided* and says nothing about what was never *read*, so a governance skipped
+   in segment one leaves no trace and would otherwise be inherited silently forever. Where a loaded
+   bar **contradicts** a resolved decision, the bar wins: reopen that decision and name the bar as
+   the evidence. A segment that runs neither a production role nor a gate owes no bar and declares an
+   empty set rather than omitting the declaration.
+
+   The mechanism is that the declared set is **re-derived** from this segment's own resolution rather
+   than copied forward. Where the two sets coincide the declaration alone cannot distinguish a loader
+   from an inheritor; where an earlier segment skipped bars it recorded a **smaller** set, and that is
+   the case that matters and the one this surfaces.
+
+4. **Reload the working method — do not relearn or relitigate it.** The plan records *how this
    mission is run* (its phase model, per-step rhythm, suite/impl conventions, which plugin or
    spec dirs are baseline vs fresh). Treat resolved decisions (the `## Resolved decisions`
    block) as settled; reopen one only on new evidence, and say so.
 
-4. **Load only the spec context the next todo needs.** For a capability sub-mission, read that
+5. **Load only the spec context the next todo needs.** For a capability sub-mission, read that
    capability's `README.md` under `.agents/specs/<project>/<cap>/` plus the SDD design rules and
    governances it references — not the whole tree.
 
-5. **Continue, committing per unit.** Work in the plan's stated rhythm; commit each coherent
+6. **Continue, committing per unit.** Work in the plan's stated rhythm; commit each coherent
    unit (Conventional Commits, one concern, tests green). Update the todo `status` and record
    any new finding or decision **back into the plan** as you go, so the next resume is clean.
 
-6. **Surface blocking decisions; never guess past them.** If `## NEXT` names an open decision
+7. **Surface blocking decisions; never guess past them.** If `## NEXT` names an open decision
    (a scope call, an unresolved `<!-- open: -->` marker), raise it before proceeding past it.
 
 ## Guardrails (carried across sessions)

@@ -31,6 +31,18 @@ producer is responding.
    artifact predates them. Any regression means the loop is **no longer converging**: stop, report
    it, and re-plan. Do not open another remediation round on a regressing loop.
 
+## The unit of repair — the node, when the artifact was derived
+
+Rules 1-3 say how to reason about a finding; they do not say **what you edit**. For an artifact that
+was **derived** rather than written, the unit is the **node re-derived from its graph**, not the
+lines the findings cite. A findings list reads like a work order, and that is exactly when the
+doctrine forbids working down it: re-deriving a 25-scenario node from its graph is cheap, and three
+rounds of patching it is not.
+
+The concrete procedure — re-enter at the earliest implicated step, re-run every step after it, leave
+what precedes it alone — is `sdd:backfill-workflow`, which owns it because it owns the derivation.
+Findings implicating no step of that workflow are answered under the four rules above alone.
+
 ## The Clearance-repair proof — a repaired frozen scenario must fail its pre-repair draft
 
 A `change` verdict that re-opens an **already-frozen** scenario under a **ratified Clearance re-open**
@@ -85,6 +97,8 @@ REMEDIATION:
              swept=<the other instances found, or none>
              ruled-out=<candidates inspected and excluded, with the reason>
              provenance=<pre-existing | regression>
+             re-entry-step=<for a derived artifact: the earliest step re-entered, so a preserved
+                            earlier entry is distinguishable from a stale one | n/a — not derived>
              pre-repair-proof=<the repaired scenario FAILS the pre-repair artifact | n/a — not a Clearance-gated frozen-scenario repair>
 ```
 
@@ -105,9 +119,11 @@ pre-repair draft) is not re-approved.
    instance.
 5. **Re-derive the correction against the rule governing the artifact**, not against the finding
    alone.
-6. **Provenance is derived from the diff** — an artifact changed by the previous round's commits
+6. **For a derived artifact the unit of repair is the node, re-derived** (`sdd:backfill-workflow`) —
+   never the cited lines.
+7. **Provenance is derived from the diff** — an artifact changed by the previous round's commits
    makes its finding a **regression**, which stops the loop for a re-plan rather than another round.
-7. **A Clearance-gated repair of a frozen scenario must fail its pre-repair draft** — re-approval
+8. **A Clearance-gated repair of a frozen scenario must fail its pre-repair draft** — re-approval
    requires the repaired scenario to **fail** against the pre-repair artifact (a repair that already
    passes it is a suspected back-fit; a post-repair pass alone is not enough). The producer
    demonstrates the failure; the gate/judge requires it.

@@ -45,6 +45,28 @@ For each unit the CR touches:
 
 **Governance provenance relay.** When you dispatch the cold spec-judge, forward the inline spec-producer's declared `governances_loaded` (`sdd:spec-producer-governance`) verbatim through the same dispatch channel, keyed **`producer_governances_declared`** — a brief field when the judge is a cold subagent, a mail envelope field when it runs through an agent pool. Forward it **as-is, including an empty set** — you render **no opinion** on which governances were actually required; that check is the spec-judge's own pre-flight (`sdd:sdd-spec-judge`).
 
+**The dispatch payload — one canonical shape, referenced everywhere else.** Every cold spec-judge
+spawn, from this skill or from `spec-gate`, carries exactly these fields. This block is the **one
+home** for that channel; the judge's `## Input` mirrors it as the consumer, and no other file
+re-describes it in prose:
+
+```
+ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH
+PRODUCER_GOVERNANCES_DECLARED: [ the spec-producer's governances_loaded — verbatim, [] when empty ]
+PRODUCER_MODE:                 create | revise | backfill   # the CONDUCTOR's own knowledge
+PRODUCER_BACKFILL_STEPS:       [ the ordered step record — verbatim, including an incomplete one;
+                                 the field is OMITTED on create/revise ]
+```
+
+The `<unit>.solution.md` stays **out** of the judge's view (grader independence) — that exclusion is
+about the solution, and never a reason to drop the provenance fields above. **A spawn that omits
+`PRODUCER_MODE` silently disables the gate's step-record tell**: the judge reads absent as
+not-a-backfill, the tell becomes inapplicable, and an inapplicable tell is never reported — so the
+bypass looks exactly like a pass. Unlike a missing `PRODUCER_GOVERNANCES_DECLARED`, which degrades
+loudly (an empty set fails the subset check), this one degrades silently. Carry all four.
+
+**Relay the mode too, and it is yours, not the producer's.** You are what invokes the spec-producer in `create` / `revise` / `backfill` mode, so *which mode ran* is **your** knowledge — relay it on the same channel as **`producer_mode`**. This is a deliberate exception to the pure-relay shape: everything else on the channel is the producer's claim forwarded verbatim. It has to be, because the gate's step-record tell fires on this field, and a tell gated on anything the producer says is opt-in by the party it polices. On a **backfill** also relay the producer's ordered step record as **`producer_backfill_steps`** (`sdd:backfill-workflow`) — forwarded verbatim **including an incomplete record**, rendering no opinion on whether it is complete; judging that is the gate's act, and withholding a partial record would hide exactly the case the tell exists to catch. A `create`/`revise` producer returns no record and you relay no such field — absence of the *record* never means "not a backfill", since `producer_mode` alone answers that.
+
 1. Grill the user **live** with the node path, `artifact-types`, and the seed intent (or `backfill` / `revise`); write the draft `spec.md` + `.feature`.
 2. Spawn the cold spec-judge; incorporate its verdict and any `<!-- open: -->` markers.
 3. On convergence → exit to the spec gate.

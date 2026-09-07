@@ -10,11 +10,11 @@ todos:
   - content: "explore: revise authoring/spec-producer (backfill mode enters the workflow)"
     status: pending
   - content: "spec gate: cold sdd-spec-judge to convergence, freeze touched .feature files"
-    status: in_progress
+    status: completed
   - content: "deliver: realize the four units as skills + the spec-judge agent"
-    status: pending
+    status: in_progress
   - content: "impl gate: cold sdd-impl-judge, pnpm verify green"
-    status: pending
+    status: in_progress
   - content: "handoff: changeset, commits, PR against main referencing issue #3"
     status: pending
 ---
@@ -93,18 +93,33 @@ remediation. These are changes of approach, not another round of edits.
 
 ## NEXT
 
-Spec gate: round 1 FAIL (5 findings), round 2 FAIL (4 findings, 2 of them regressions) → loop
-stopped and re-planned per the block above. Explore covers six units:
-`authoring/backfill/` (new), `mission/resume/` (new), and additive revisions to
-`authoring/spec-gate/`, `authoring/spec-producer/`, `mission/conductor/`, and `workflows/`.
-Every frozen `.feature` touched classifies ADDITIVE, so each self-clears and stays `@frozen`;
-no Clearance is owed. `pnpm verify` green 6/6.
+**HALTED at the impl gate — regressing loop, needs a human decision.** Spec gate is APPROVED and
+committed (d7bb1b4); the frozen contract is intact and untouched. Deliver is committed but the impl
+gate has NOT passed: 57/62 frozen scenarios plus two structural blockers.
 
-Two producer-side corrections were made before dispatch, both self-found:
-1. the step record had no relay seam — the corroboration stage read an artifact nothing carried
-   to the judge. Added `producer_backfill_steps` on `mission/conductor/` (README + 3 scenarios),
-   mirroring the existing `producer_governances_declared` relay.
-2. four scenarios sat on plain sequence edges no wrong subject could fail. Re-authored so an
-   enumerate-by-entry-point subject, a patcher, and a bar-inheriting resumed segment each lose.
+Four impl-gate rounds scored 61, 61, 62, **57**. The count fell, and the decisive fact is that the
+canonical dispatch block created in round 3 — added precisely to fix this defect class *at the rule*
+— itself shipped missing a field. Per `sdd:remediation-governance` rule 4 the loop stops for a
+re-plan rather than a fifth round.
 
-After the gate: deliver the six units as skills + the spec-judge agent, changeset, PR.
+**The one defect class, three rounds running:** a field mandated in prose that no `Input` / `Output` /
+payload block carries, or vice versa. Instances still open:
+- the canonical payload block has no `BASE_REF` / `CHANGED_HUNKS`, so stage 2's "what the CR *added*"
+  applicability rule ships without the input it runs on (3 failing scenarios);
+- the judge's `uncorroborated: { bar, tell, artifact }` never says what fills `artifact` per tell
+  (2 failing scenarios);
+- `spec-gate`'s `## Report` gained no `PREFLIGHT` line when §3 gained the field;
+- `spec-producer-governance` mandates reporting misses "in your `Output`" with no such field;
+- the `REMEDIATION` gloss lists 5 keys against a canonical 7;
+- `backfill-workflow` points the producer at `sdd:spec-gate` for a mapping only `sdd:sdd-spec-judge`
+  carries.
+
+**The decision needed.** The re-plan that would actually work is the one the judge named: a
+**mechanical check** reconciling every UPPER_SNAKE token in a shipped block against the prose that
+mandates it, and vice versa. That is a new engine — its own spec node, its own frozen suite, its own
+CR — not a further edit to this one. Turning this doc-only CR into an engine CR is a scope decision
+that is not the agent's to self-assert. Recorded as blocking follow-up (ledger seq 8).
+
+Alternative if the Council prefers to land this CR first: a fifth round of determinate one-clause
+patches would likely reach 62/62, but it is exactly the patching-past-the-stop-signal the CR was
+written to prevent, and the last two rounds show the class survives prose sweeps.

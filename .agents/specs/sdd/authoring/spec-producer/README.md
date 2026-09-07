@@ -226,7 +226,9 @@ Phase 2 — the suite:
 - **Self-check the governance tells before returning** — the same tells the gate's pre-flight
   corroboration will read (`../spec-gate/README.md` owns the tell set and its applicability rules;
   they are referenced here, not re-listed). This is the **forward face of a mirrored duty**: the
-  judge corroborates, the producer corroborates itself first. A tell that misses at the gate costs a
+  judge corroborates, the producer corroborates itself first. **Report each miss you do not resolve**
+  before returning — a self-check whose result never leaves the producer is the same silent gap the
+  tells exist to surface. A tell that misses at the gate costs a
   full cold round for a property you can check in the artifact you just wrote.
 
 ## The output boundary
@@ -242,7 +244,8 @@ The producer writes the **spec body and the `.feature`**, nothing else:
   field in its structured output, listing an empty set rather than omitting the field when it loaded
   none. This is provenance for the spec-judge's pre-flight check (`../spec-gate/README.md`), carried
   through the dispatch channel — it is never written into `spec.md` or the `.feature`.
-- On **backfill** it also returns `BACKFILL_STEPS` — the ordered step record the backfill workflow
+- On **backfill** it also returns `BACKFILL_STEPS` — a field of its structured output alongside
+  `governances_loaded`, never only a prose obligation — the ordered step record the backfill workflow
   produces, one entry per step (`../backfill/README.md`). Like `governances_loaded` it is
   **provenance carried through the dispatch channel**, never written into `spec.md` or the
   `.feature`, and a run missing an entry is reported rather than returned as complete.

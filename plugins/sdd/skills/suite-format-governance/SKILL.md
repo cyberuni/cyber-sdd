@@ -64,7 +64,9 @@ not evidence it works. Rubric-dimension discrimination detail: `references/rubri
 **Backfilling from existing code — derive, don't patch.** When the implementation already exists,
 draw the CFG from the code (`sdd:spec-format-governance` owns the `## Control Flow` + `## Scenario
 map` sections) and **re-derive the whole scenario set from its edges** — one scenario per `(path
-class, edge)` pair, every guard paired with a positive companion. Any pre-existing `.feature` or
+class, edge)` pair, every guard paired with a positive companion. The **ordered procedure** that
+does this, and the per-step record that makes a skipped step visible, is `sdd:backfill-workflow`;
+this bar states what the re-derived suite must look like, not the sequence that produces it. Any pre-existing `.feature` or
 legacy corpus (a retired golden set) is **reference only**: each entry is a **claim to verify against
 the current code**, never the baseline to patch. Reading the standing suite and filling only the gaps
 a diff notices is not this procedure — it leaves stale scenarios in place and misses edges the CFG

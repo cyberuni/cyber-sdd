@@ -29,6 +29,7 @@ one project-spec at a time, under [`../project-spec/`](../project-spec/README.md
 | **discovery** | behavioral | [`discovery/`](./discovery/README.md) | find specs at the **three fixed SDD spec locations** (`.agents/spec`, `.agents/specs/<project>`, `<project-path>/.agents/spec`) **plus any extra anchors declared in `spec-anchors`**, confirmed by lifecycle `status` shape; read frontmatter only and emit a TOON list; match a name to a folder slug, disambiguate with the user |
 | **retired-terms** | behavioral | [`retired-terms/`](./retired-terms/README.md) | flag **survivors of a retired path or convention** corpus-wide: an author registers the retired term in `.agents/sdd/retired-terms.toml` (with what replaced it), and a **verify-time sweep** over every git-tracked file fails the check with a `file:line:term` list — narrowed by built-in provenance exclusions, a per-entry scope, and a two-form allow list |
 | **spec-anchors** | behavioral | [`spec-anchors/`](./spec-anchors/README.md) | declare & curate the **opt-in extra anchors** discovery scans (`.agents/sdd/spec-anchors.toml`): list fixed + custom, CRUD the custom ones, induce a pattern from a sample path, preview its match — a manage-level engine that writes only the config, never spec content (ADR-0019) |
+| **spec-floor** | behavioral | [`spec-floor/`](./spec-floor/README.md) | the **harness** that runs the project-spec-tier engines over the corpus: a **corpus** scope (every project-spec, plus the coverage guard that catches a spec discovery cannot classify) for the commit chain and CI, and a **project** scope for one project-spec; owns no check of its own, writes nothing, and is total by definition — an unclassifiable project-spec fails rather than being skipped |
 
 ## Boundaries
 
@@ -38,6 +39,11 @@ one project-spec at a time, under [`../project-spec/`](../project-spec/README.md
   Nothing at this level writes spec bodies, `status`,
   `approval`, or a freeze — `spec-anchors` writes **only** its own config file
   (`.agents/sdd/spec-anchors.toml`), which is operational config, not spec content.
+- **The harness runs another tier's engines — deliberately.** `spec-floor` is corpus-level because
+  it *ranges across* project-specs; the checks it runs are the intra-spec engines under
+  [`../project-spec/`](../project-spec/README.md). It defines none of them and owns no rule of
+  its own, so the tier split holds: the engines stay single-project, and only their **scheduling**
+  is corpus-level.
 - **Intra-spec maintenance is elsewhere.** digest, concept-index, place-node, check-spec-structure,
   and align-spec operate on one project-spec — they live under
   [`../project-spec/`](../project-spec/README.md).

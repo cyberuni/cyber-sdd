@@ -116,22 +116,35 @@ CR does not edit `knip.json`.
   impl gate its `check-spec-state` legality guards (`implemented` with no recorded ratification, and
   with no durable ledger `gate: impl` line) and is closed by this CR.
 
-## NEXT
+## NEXT — resume here
 
-Landed. All eight todos completed; PR opened against `main` referencing #5.
+**Nothing to resume. Merged and retirement-ready.** No action is owed on this CR.
 
-Spec gate approved (self-asserted, `by: agent`) after five cold `sdd-spec-judge` rounds;
-impl gate approved after one cold `sdd-impl-judge` round returning IMPLEMENTATION_PASS with
-all 22 frozen scenarios independently re-derived. `corpus/spec-floor/spec-floor.feature` is
-`@frozen`; the project spec advances to `implemented`.
+Landed as `f958113` (PR #8, first merge_group run in this repo, clean). Issue #5 closed. Spec
+`status: implemented`; `check-spec-state` clean; both ledger `gate` lines (spec + impl) present, so
+the durable gate floor holds and the reconcile-forward check passes. The retirement itself belongs
+to the doctrine loop's `plan-retirement`, not to this checkpoint.
 
-**The mission's own process failure, recorded because it is the more useful finding.** The
-conductor ran both producer roles inline without loading `spec-producer-governance` or
-`impl-producer-governance` — the procedures for the roles it was performing — and hand-rolled
-the spec gate instead of invoking `spec-gate`. The producer bar's step-5 self-check list
-(the miss test, the extensions-against-the-CFG walk, the by-hand `Given` re-read, the
-stated-outcome coverage check) predicts almost every defect the judge then found across four
-rounds, and the bar says so in as many words: settling it there "spends no cold round on a
-contradiction the Architect lens will find every time." Four cold rounds were spent using the
-judge as a self-check. Correction lines 1-5 in the combat log carry the detail; line 5 records
-the consequent process error of editing the worktree mid-grading.
+### Landed after handoff — not visible in this CR's own diff
+
+- **Issue #11 was filed by this mission and is wrong; it is closed as invalid.** `collectSpecs`
+  already sorts by path, so the corpus sweep is stable and alphabetical. The "surviving mutation"
+  it was filed on was a mutation applied to the first textual match of the loop pattern, which is
+  a loop inside `findCoverageGaps`, not the sweep. Retargeted, it failed correctly. The two test
+  comments carrying that false rationale were corrected before the merge.
+- **#9 and #10 stand** and are recorded in the mission graph under `op-sdd-gate-integrity`.
+- **ADR-0034 (#4) merged** at `0176539` while this mission ran, so the spec-architecture question
+  it was waiting behind is settled.
+
+### The finding worth carrying forward
+
+This mission's own process failure is the more useful artifact and is recorded as corrections 1-5
+in the sibling `*.log.jsonl`: the conductor ran both producer roles inline without loading
+`spec-producer-governance` / `impl-producer-governance`, and hand-rolled the spec gate instead of
+invoking `spec-gate`. Those bars' pre-return self-checks (the miss test, the extensions-against-CFG
+walk, the by-hand `Given` re-read, the stated-outcome coverage sweep) predict nearly every defect
+the cold judge then found across four rounds.
+
+That is the same class as issue #3's halt and issues #9 / #10: **SDD mandates behavior in prose and
+has no mechanical check that the prose was honored.** See `sdd-prose-block-token-reconciler` in the
+mission graph.

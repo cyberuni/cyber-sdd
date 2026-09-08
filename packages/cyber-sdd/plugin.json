@@ -1,0 +1,13 @@
+{
+	"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+	"name": "sdd2",
+	"displayName": "Cyber SDD 2",
+	"version": "0.0.0",
+	"description": "Spec-Driven Development, second generation — the SDD process plugin and its CLI.",
+	"author": { "name": "unional" },
+	"homepage": "https://github.com/cyberuni/cyber-sdd",
+	"repository": "https://github.com/cyberuni/cyber-sdd.git",
+	"license": "MIT",
+	"keywords": ["sdd", "spec", "process", "cli"],
+	"skills": "./skills"
+}

@@ -14,6 +14,12 @@
 			"source": "./plugins/sdd"
 		},
 		{
+			"name": "sdd2",
+			"description": "Spec-Driven Development, second generation — the SDD process plugin and its CLI. Coexists with the shipped sdd plugin while it is built out.",
+			"tags": ["sdd", "spec", "process", "cli"],
+			"source": "./packages/cyber-sdd"
+		},
+		{
 			"name": "aced",
 			"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
 			"tags": ["sdd", "eval", "skills"],

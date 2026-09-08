@@ -7,6 +7,9 @@
 			"entry": ["src/**/*.{astro,ts,mdx}"],
 			"project": ["src/**/*.{astro,ts,mdx}"]
 		},
+		"packages/cyber-sdd": {
+			"project": ["src/**/*.ts"]
+		},
 		"plugins/sdd": {
 			"entry": ["skills/**/scripts/*.mts"],
 			"project": ["skills/**/scripts/*.mts"]

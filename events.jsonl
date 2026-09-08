@@ -1,3 +1,4 @@
 {"v":1,"type":"node","id":"op-sdd-gate-integrity","kind":"operation","capstone":"github-9-impl-gate-floor"}
 {"v":1,"type":"node","id":"op-aced-scoring-comparability","kind":"operation","capstone":"github-13-model-series"}
 {"v":1,"type":"node","id":"op-cc-integration","kind":"operation","capstone":"github-14-cc-adapter"}
+{"v":1,"type":"node","id":"github-5-commit-floor","kind":"mission","status":"claimed","touchSet":[".agents/specs/sdd/corpus",".agents/specs/sdd/spec.md","package.json","plugins/sdd/skills/check-project-specs"],"blast":"medium","hitlOrAfk":"afk","briefPointer":".agents/plans/github-5-commit-floor-runs-spec-floor.plan.md"}

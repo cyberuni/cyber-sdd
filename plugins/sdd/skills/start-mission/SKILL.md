@@ -56,6 +56,10 @@ PRODUCER_GOVERNANCES_DECLARED: [ the spec-producer's governances_loaded — verb
 PRODUCER_MODE:                 create | revise | backfill   # the CONDUCTOR's own knowledge
 PRODUCER_BACKFILL_STEPS:       [ the ordered step record — verbatim, including an incomplete one;
                                  the field is OMITTED on create/revise ]
+BASE_REF:                      <the ref this CR is diffed against — the tip of the declared target>
+CHANGED_HUNKS:                 [ per touched path, the CR's change set against BASE_REF, read
+                                 STRUCTURALLY (per use-case row, per table row, per named Scenario),
+                                 never as a raw line diff ]
 ```
 
 The `<unit>.solution.md` stays **out** of the judge's view (grader independence) — that exclusion is
@@ -63,7 +67,17 @@ about the solution, and never a reason to drop the provenance fields above. **A 
 `PRODUCER_MODE` silently disables the gate's step-record tell**: the judge reads absent as
 not-a-backfill, the tell becomes inapplicable, and an inapplicable tell is never reported — so the
 bypass looks exactly like a pass. Unlike a missing `PRODUCER_GOVERNANCES_DECLARED`, which degrades
-loudly (an empty set fails the subset check), this one degrades silently. Carry all four.
+loudly (an empty set fails the subset check), this one degrades silently. Carry all six.
+
+**`BASE_REF` and `CHANGED_HUNKS` are what the added-unit rule runs on.** Three of the gate's four
+tells fire on what the CR **added** rather than on what it touched, and *added* is a fact about the
+diff, not about the file in the judge's view: the judge cannot tell a use case this CR wrote from one
+that predates it by reading `spec.md` alone. Relay the base ref you rebased onto and the structural
+change set against it. Read the change set the same way the freeze guard does — **per named unit, not
+per line** — so a reflow reads as no change and a row this CR wrote reads as added. **Omitting
+either field degrades silently in the opposite direction to `PRODUCER_MODE`**: with no diff the judge
+either treats every unit as added (and fails a CR for a node's whole history) or none (and evaluates
+nothing), so carry both or the applicability rule has no input.
 
 **Relay the mode too, and it is yours, not the producer's.** You are what invokes the spec-producer in `create` / `revise` / `backfill` mode, so *which mode ran* is **your** knowledge — relay it on the same channel as **`producer_mode`**. This is a deliberate exception to the pure-relay shape: everything else on the channel is the producer's claim forwarded verbatim. It has to be, because the gate's step-record tell fires on this field, and a tell gated on anything the producer says is opt-in by the party it polices. On a **backfill** also relay the producer's ordered step record as **`producer_backfill_steps`** (`sdd:backfill-workflow`) — forwarded verbatim **including an incomplete record**, rendering no opinion on whether it is complete; judging that is the gate's act, and withholding a partial record would hide exactly the case the tell exists to catch. A `create`/`revise` producer returns no record and you relay no such field — absence of the *record* never means "not a backfill", since `producer_mode` alone answers that.
 

@@ -226,7 +226,11 @@ Phase 2 — the suite:
 - **Self-check the governance tells before returning** — the same tells the gate's pre-flight
   corroboration will read (`../spec-gate/README.md` owns the tell set and its applicability rules;
   they are referenced here, not re-listed). This is the **forward face of a mirrored duty**: the
-  judge corroborates, the producer corroborates itself first. **Report each miss you do not resolve**
+  judge corroborates, the producer corroborates itself first. **Report each miss you do not resolve**,
+  as a named field of the producer's own output rather than as prose, and **not** on the dispatch
+  channel — relaying the self-check to the judge would turn the corroboration stage back into a read
+  of a claim, which is the exact defeat stage 2 exists to close. It is a floor under the producer's
+  own work, collected by the conductor and read by no one else. Report it
   before returning — a self-check whose result never leaves the producer is the same silent gap the
   tells exist to surface. A tell that misses at the gate costs a
   full cold round for a property you can check in the artifact you just wrote.

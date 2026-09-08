@@ -23,7 +23,7 @@ the bar does not produce. Each tell is a rule of a bar **you already loaded**, s
 rather than looking for a separate list: the explicit-extensions claim and the surface trace's
 forbidden-combination column are `sdd:spec-format-governance`; the guard edge's positive companion is
 `sdd:suite-format-governance`; the step record's correspondence to the artifacts it names is
-`sdd:backfill-workflow`. Run them yourself first, and **report each miss you do not resolve in your `Output`** before
+`sdd:backfill-workflow`. Run them yourself first, and **report each miss you do not resolve as `TELL_SELF_CHECK` in your `Output`** — the conductor collects it and it is **never relayed on the dispatch channel**, since a judge reading your self-check would be reading a claim again, which is what the corroboration stage exists to close — before
 returning the diff — a self-check whose result never leaves your head is the same silent gap the
 tells exist to surface. A tell that misses at the gate costs a full cold round for a property you can
 check in the artifact you just wrote. Note what this does and does not buy: satisfying a tell is not
@@ -100,11 +100,12 @@ rule governing the artifact · account for provenance, where a regression stops 
 ## Output (the conductor collects)
 
 ```
-REMEDIATION:       <per finding answered: verdict, rule, swept, ruled-out, provenance — `sdd:remediation-governance`; omit when no verdict was answered>
+REMEDIATION:       <per finding answered: verdict, rule, swept, ruled-out, provenance, re-entry-step, pre-repair-proof — the block `sdd:remediation-governance` states canonically; omit when no verdict was answered>
 STATUS:             complete | needs-input | blocked
 SCENARIOS_WRITTEN:  <count>
 NOTES:              <what was written / revised>
 GOVERNANCES_LOADED: [ every governance name loaded before writing — required, [] when none, never written into spec.md or the .feature ]
+TELL_SELF_CHECK:    [ { bar, tell, artifact, why-unresolved } per governance tell you ran and did not resolve — required, [] when every tell you ran is clean or none applied; never written into spec.md or the .feature ]
 BACKFILL_STEPS:     [ on a backfill only — one entry per ordered step of sdd:backfill-workflow; omitted entirely on create/revise; never written into spec.md or the .feature ]
 QUESTIONS:          [ batched, when needs-input ]
 CONTENT_GAPS:       [ { artifact, location, gap } ]   # become <!-- open: --> markers

@@ -48,6 +48,8 @@ ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH
 PRODUCER_GOVERNANCES_DECLARED: [ the spec-producer's declared governances_loaded, relayed by the conductor — or [] ]
 PRODUCER_MODE: [ create | revise | backfill — the mode the CONDUCTOR invoked the producer in; the conductor's own knowledge, not the producer's report ]
 PRODUCER_BACKFILL_STEPS: [ the ordered step record, on a backfill — or absent ]
+BASE_REF: <the ref this change request is diffed against — the tip of the declared target>
+CHANGED_HUNKS: [ per touched path, this change request's change set against BASE_REF, read structurally (per use-case row, per table row, per named Scenario) — what stage 2's added-unit rule runs on ]
 ```
 
 The `<unit>.solution.md` is **not** in view — do not request or read it.
@@ -82,17 +84,23 @@ A **tell** is a property that is (a) checkable from what the CR produced, (b) re
 bar, and (c) **silently wrong by default** — a producer that skipped the bar emits something that
 *reads as complete*. Property (c) is what makes a tell correlate with behavior rather than with care.
 
-| Tell | Owner | Miss it catches |
-|---|---|---|
-| every use case states its **extensions** — rows, or an explicit `extensions: none — <why>` | `sdd:spec-format-governance` | the field is simply absent, and nothing else looks for it |
-| a **surface-trace** table names, per element, what it **may not be combined with** | `sdd:spec-format-governance` | a two-column `Element / Needed by` trace, which reads complete |
-| every **guard / negative** map edge has a **positive companion** on the same path class | `sdd:suite-format-governance` | a lone negative, which reads as coverage and lints clean |
-| each **step record entry corresponds to the artifact it claims to have produced** — step 2's actors to `## Use Cases`, step 4's decisions to the drawn `## Control Flow`, step 5's rows to the `## Scenario map` | `sdd:backfill-workflow` | a record with the right number of entries whose content matches nothing |
+| Tell | Owner | Miss it catches | What fills `artifact` on a miss |
+|---|---|---|---|
+| every use case states its **extensions** — rows, or an explicit `extensions: none — <why>` | `sdd:spec-format-governance` | the field is simply absent, and nothing else looks for it | the `SPEC_PATH` |
+| a **surface-trace** table names, per element, what it **may not be combined with** | `sdd:spec-format-governance` | a two-column `Element / Needed by` trace, which reads complete | the `SPEC_PATH` |
+| every **guard / negative** map edge has a **positive companion** on the same path class | `sdd:suite-format-governance` | a lone negative, which reads as coverage and lints clean | the `FEATURE_PATH` |
+| each **step record entry corresponds to the artifact it claims to have produced** — step 2's actors to `## Use Cases`, step 4's decisions to the drawn `## Control Flow`, step 5's rows to the `## Scenario map` | `sdd:backfill-workflow` | a record with the right number of entries whose content matches nothing | the **step record entry** that corresponds to nothing — its step number; on a missing or empty `PRODUCER_BACKFILL_STEPS`, the string `none` |
+
+`artifact` names **where a reader goes to see the miss**, never the tell restated: a path for the
+three artifact tells, the offending entry for the step-record tell. It is required on every
+`uncorroborated` element — an element that names a `bar` and a `tell` but no `artifact` is not a
+reportable finding.
 
 **Never gate a tell on the producer's declaration.** That would make the check opt-in by the party it
 polices. Each tell fires on a fact **you or the conductor** hold:
 
-- the first three fire on what the CR **added** — a use case it added, a table it added, map rows it
+- the first three fire on what the CR **added**, which you read off `CHANGED_HUNKS` against
+  `BASE_REF` — a use case it added, a table it added, map rows it
   added. For the guard-companion tell, the added rows are **paired against the whole map**: a
   companion the CR did not touch still counts as the pairing, so a CR adding a guard row whose
   positive companion already existed passes. Looking for the companion only among the added rows

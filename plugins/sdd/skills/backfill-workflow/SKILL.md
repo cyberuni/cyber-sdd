@@ -68,8 +68,9 @@ returning the node as complete. Reporting it does not withhold the work from the
 record is relayed verbatim and is the gate's finding to make, not yours to suppress.
 
 **The record is corroborated by correspondence, not by length.** The gate checks each entry against
-the artifact that entry claims to have produced; the per-step mapping is owned by the spec
-gate and stated there, not repeated here. A record with the right number of entries whose content matches nothing is a
+the artifact that entry claims to have produced; the per-step mapping is owned by the spec-judge that
+runs the corroboration stage (`sdd:sdd-spec-judge`, its tell table) and stated there, not repeated
+here — `sdd:spec-gate` relays the record and reports the verdict, and carries no mapping of its own. A record with the right number of entries whose content matches nothing is a
 fabrication and fails. Counting entries would make the record one more list, which is the shape this
 mechanism exists to get away from.
 

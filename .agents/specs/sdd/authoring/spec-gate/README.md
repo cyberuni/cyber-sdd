@@ -227,6 +227,18 @@ holds, because it is the unit the producer is genuinely accountable for: authori
 without stating its extensions is exactly what a producer who never opened the bar does, while
 editing a cell in an old one reveals nothing about whether the bar was read.
 
+**What the judge reads *added* off.** *Added* is a fact about the diff, not about the file in the
+judge's view: reading `spec.md` alone, the judge cannot tell a use case this CR wrote from one that
+predates it. So the applicability unit needs an input, and the dispatch channel carries it — the
+**base ref** this CR is diffed against and the **structural change set** against it, keyed
+**`base_ref`** and **`changed_hunks`** (`../../mission/conductor/README.md` for the channel). The
+change set is read the way the freeze guard reads one — **per named unit, not per line** — so a
+reflow reads as no change and a row this CR wrote reads as added. Unlike `producer_mode`, these are
+not producer provenance and nothing is relayed verbatim: they are the gate's own view of the diff.
+**Both are required.** With neither, the stage has no applicability input at all and degrades
+silently in whichever direction the judge guesses — every unit read as added (blocking a CR for a
+node's whole history) or none read as added (evaluating nothing).
+
 Per tell, the applicable unit is:
 
 - the **extensions** tell — each use case the CR **added** to a **behavioral** `spec.md`; an
@@ -268,6 +280,15 @@ not having the stage at all.
 - **On a miss**, the judge returns `PREFLIGHT: { result: fail, finding-kind:
   governance-preflight-uncorroborated, uncorroborated: [ { bar, tell, artifact } ] }` and halts before
   the three lenses, exactly as a missing declaration does. The gate advances nothing.
+- **`artifact` names where a reader goes to see the miss**, per tell, and is **required on every
+  element** — one that names a `bar` and a `tell` but no `artifact` is not a reportable finding. For
+  the extensions and surface-trace tells it is the `spec.md` path; for the guard-companion tell the
+  `.feature` path; for the step-record tell the **offending entry** — its step number, or the string
+  `none` when `producer_backfill_steps` is missing or empty. It is never the tell restated: a finding
+  a reader cannot walk to is the shape this stage exists to get away from.
+- **The gate reports the pre-flight, pass or fail.** A failed pre-flight short-circuits the lenses,
+  so the gate report carries it **in place of** a lens table rather than alongside one, naming the
+  `finding-kind` and each `missing` governance or `uncorroborated` element.
 
 **A tell is a sample, not an attestation, and the sample is sparse.** It does not prove a bar was
 read. Where a tell *is* applicable it makes not reading cost about what reading costs, and a producer

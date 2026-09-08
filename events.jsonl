@@ -15,3 +15,4 @@
 {"v":1,"type":"edge","kind":"parent-child","from":"op-aced-scoring-comparability","to":"github-12-scoring-model-selection"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-aced-scoring-comparability","to":"github-13-model-series"}
 {"v":1,"type":"edge","kind":"RAW","from":"github-13-model-series","to":"github-12-scoring-model-selection"}
+{"v":1,"type":"edge","kind":"RAW","from":"github-10-gate-through-harness","to":"github-5-commit-floor"}

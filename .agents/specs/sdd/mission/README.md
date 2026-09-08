@@ -91,6 +91,9 @@ A segment-boundary behavior, not a numbered phase:
   later session resumes it (the `pause-mission` skill enacts it); `--approve` additionally clears the
   mission for headless dispatch by setting the brief's `status: approved`
   (`../gateway/dispatch/README.md`).
+- **[`resume/`](./resume/README.md)** — read the brief back and continue the loop (the
+  `resume-mission` skill enacts it), re-establishing the **bars** for the role the resumed segment
+  will run rather than inheriting the brief's summary of them.
 
 ## Where the rules live
 

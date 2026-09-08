@@ -69,7 +69,7 @@ rule governing the artifact · account for provenance, where a regression stops 
 ## Output (the conductor collects)
 
 ```
-REMEDIATION:      <per finding answered: verdict, rule, swept, ruled-out, provenance — `sdd:remediation-governance`; omit when no verdict was answered>
+REMEDIATION:      <per finding answered: verdict, rule, swept, ruled-out, provenance, re-entry-step, pre-repair-proof — the block `sdd:remediation-governance` states canonically; omit when no verdict was answered>
 STATUS:               complete | needs-input | blocked
 ARTIFACTS_WRITTEN:    [ paths ]
 VERIFICATION_WRITTEN: [ paths ]   # one per frozen scenario, each with its level + why

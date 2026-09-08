@@ -46,11 +46,15 @@ them):
 ```
 ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH
 PRODUCER_GOVERNANCES_DECLARED: [ the spec-producer's declared governances_loaded, relayed by the conductor — or [] ]
+PRODUCER_MODE: [ create | revise | backfill — the mode the CONDUCTOR invoked the producer in; the conductor's own knowledge, not the producer's report ]
+PRODUCER_BACKFILL_STEPS: [ the ordered step record, on a backfill — or absent ]
+BASE_REF: <the ref this change request is diffed against — the tip of the declared target>
+CHANGED_HUNKS: [ per touched path, this change request's change set against BASE_REF, read structurally (per use-case row, per table row, per named Scenario) — what stage 2's added-unit rule runs on ]
 ```
 
 The `<unit>.solution.md` is **not** in view — do not request or read it.
 
-## Governance pre-flight check — run first, before any lens
+## Governance pre-flight — two stages, run first, before any lens
 
 The spec-producer declares which governances it loaded (`sdd:spec-producer-governance`); a producer
 that skipped pre-flight and one that ran it correctly otherwise look identical — both just show up as
@@ -67,7 +71,65 @@ before reading spec.md for content:
    governance absent from the declared set> ] }`. The conductor advances no status on this verdict, the
    same as any other judge failure.
 3. **A superset raises no finding.** A declared set covering every expected governance — with or
-   without extras — passes; report `PREFLIGHT: { result: pass }` and proceed to the lenses below.
+   without extras — passes. Then run **stage 2** below; when it also passes, report
+   `PREFLIGHT: { result: pass }` and **proceed to the lenses**.
+
+## Stage 2 — corroboration: check the artifact, not the claim
+
+Stage 1 reads a **claim**, so every check of that shape is defeated by the same move: declare the
+derivable set, skip the load. Stage 2 reads the **artifact** instead — properties a producer that
+never opened a bar does not produce.
+
+A **tell** is a property that is (a) checkable from what the CR produced, (b) required by exactly one
+bar, and (c) **silently wrong by default** — a producer that skipped the bar emits something that
+*reads as complete*. Property (c) is what makes a tell correlate with behavior rather than with care.
+
+| Tell | Owner | Miss it catches | What fills `artifact` on a miss |
+|---|---|---|---|
+| every use case states its **extensions** — rows, or an explicit `extensions: none — <why>` | `sdd:spec-format-governance` | the field is simply absent, and nothing else looks for it | the `SPEC_PATH` |
+| a **surface-trace** table names, per element, what it **may not be combined with** | `sdd:spec-format-governance` | a two-column `Element / Needed by` trace, which reads complete | the `SPEC_PATH` |
+| every **guard / negative** map edge has a **positive companion** on the same path class | `sdd:suite-format-governance` | a lone negative, which reads as coverage and lints clean | the `FEATURE_PATH` |
+| each **step record entry corresponds to the artifact it claims to have produced** — step 2's actors to `## Use Cases`, step 4's decisions to the drawn `## Control Flow`, step 5's rows to the `## Scenario map` | `sdd:backfill-workflow` | a record with the right number of entries whose content matches nothing | the **step record entry** that corresponds to nothing — its step number; on a missing or empty `PRODUCER_BACKFILL_STEPS`, the string `none` |
+
+`artifact` names **where a reader goes to see the miss**, never the tell restated: a path for the
+three artifact tells, the offending entry for the step-record tell. It is required on every
+`uncorroborated` element — an element that names a `bar` and a `tell` but no `artifact` is not a
+reportable finding.
+
+**Never gate a tell on the producer's declaration.** That would make the check opt-in by the party it
+polices. Each tell fires on a fact **you or the conductor** hold:
+
+- the first three fire on what the CR **added**, which you read off `CHANGED_HUNKS` against
+  `BASE_REF` — a use case it added, a table it added, map rows it
+  added. For the guard-companion tell, the added rows are **paired against the whole map**: a
+  companion the CR did not touch still counts as the pairing, so a CR adding a guard row whose
+  positive companion already existed passes. Looking for the companion only among the added rows
+  would block exactly the CR that did the right thing. **Not** on what it merely edited: *changed* has no definition for a table row, so a one-cell
+  edit or a reflow would pull in that row's whole obligation, and the corpus carries **35 of 42**
+  behavioral nodes with no scenario map and **37 of 42** stating no extensions. A tell that inherits a
+  touched node's history gets routed around, which is the same as not having it.
+- the fourth fires on **`PRODUCER_MODE: backfill`**, relayed by the conductor. On `backfill`, a
+  **missing or empty** `PRODUCER_BACKFILL_STEPS` is **the miss, not an exemption**. On `create` or
+  `revise` the tell is inapplicable.
+
+**An inapplicable tell is never evaluated and never reported.** A `reference` or `descriptive` node
+raises no spec-format tell; a capability recording its surface trace in a line rather than a table
+(which the bar allows) raises none; a node with no `## Scenario map` has no edges to pair.
+
+**On a miss**, return `STATUS: blocked`, `ALIGNED: false`, and
+`PREFLIGHT: { result: fail, finding-kind: governance-preflight-uncorroborated, uncorroborated: [ { bar, tell, artifact } ] }`,
+halting before the three lenses exactly as a stage-1 miss does. The gate advances nothing.
+
+**State the limits when you report a pass.** A tell is a **sample, not an attestation**. Tell coverage
+is two bars of the expected set, so a producer that reads `spec-format` and `suite-format` and skips
+the rest passes stage 2 on every CR; a CR that adds no use case, table or map row has **no applicable
+tell at all** and stage 2 is a no-op for it; and a producer that writes **no** surface trace is exempt
+from that tell entirely. And **nothing yet owns how the conductor decides `PRODUCER_MODE`** — the
+producer can no longer exempt itself, but a conductor that labels a shipped-behavior CR `revise`
+never fires tell 4. A **wholesale rewrite** of an existing use case also escapes the extensions
+tell, since the unit is what was *added* — the escape most likely to be exercised in practice, and the
+price of an applicability unit that has no undefined *changed* predicate. A clean stage 2 means "nothing contradicted the declaration where a tell
+could look", never "the bars were read".
 
 ## Spec-format conformance read — a non-blocking warning
 
@@ -232,7 +294,7 @@ narrowing that fires **Clearance**, so never demand it of one.
 
 ```
 STATUS:            complete | needs-input | blocked
-PREFLIGHT:         { result: pass | fail, finding-kind: governance-preflight-missing | null, missing: [ ... ] }
+PREFLIGHT:         { result: pass | fail, finding-kind: governance-preflight-missing | governance-preflight-uncorroborated | null, missing: [ ... ], uncorroborated: [ { bar, tell, artifact } ] }
 CONFORMANCE:       { result: pass | warn, missing: [ <required behavioral spec-format sections absent — e.g. Use Cases, Control Flow, Scenario map> ] }
 LENS:              { oracle: pass | fail, builder: pass | fail, architect: pass | fail }
 ALIGNED:           true | false        # false ⇒ which artifacts are out of sync
@@ -245,7 +307,7 @@ OBSERVATIONS:      [ { owner: architect | strategist, note, evidence } ]
 ```
 
 `PREFLIGHT.result: fail` short-circuits everything below it — `LENS` is omitted, `ALIGNED` is `false`,
-and `BLOCKER` names the missing governances (see "Governance pre-flight check" above).
+and `BLOCKER` names the missing governances (see "Governance pre-flight — two stages" above).
 `CONFORMANCE.result: warn` **short-circuits nothing** — the lenses still run, and it never on its own
 sets `ALIGNED: false` or blocks the advance (see "Spec-format conformance read" above); the gate
 surfaces it as a warning. Otherwise `ALIGNED` is `true` only when all three lenses pass and no open

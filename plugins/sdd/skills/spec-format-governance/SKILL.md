@@ -48,7 +48,8 @@ is derived the other way round:
 The enumeration is checkable both ways: an actor carrying no use case, and a use case whose actor
 is absent from the list, are each a hole. On **backfill** the source yields only the *served* use
 cases by construction — recover the unserved ones from the request history, the issue tracker, and
-recurring workarounds, and record where each came from.
+recurring workarounds, and record where each came from. That recovery is step 3 of
+`sdd:backfill-workflow`, and it owes an entry there even when it finds nothing.
 
 - **Actor and goal — one line each, not a persona.** Name who invokes it (a person in a role,
   another capability, a scheduler) and the outcome **they** want, stated as their result rather
@@ -125,6 +126,9 @@ edges to the map.
 
 ### On backfill — draw the CFG and the scenario map, don't stop at Use Cases
 When the implementation already exists (a **backfill**), the four sections are **still mandatory**.
+The **ordered procedure** that produces them — five steps, each owing a named entry in one step
+record — is `sdd:backfill-workflow`. This bar owns what each section must contain; the workflow owns
+the sequence and the record that makes a skipped step visible.
 Read the source, then **draw the `## Control Flow` CFG from the code** and its 1:1 `## Scenario map` —
 a spec that stops at `## Use Cases` has named its entry points but neither the decisions the
 capability takes nor their coverage. The suite is **re-derived from that CFG**, not patched from the

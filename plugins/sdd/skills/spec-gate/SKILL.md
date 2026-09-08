@@ -104,12 +104,18 @@ footprint, never the whole tree and never one fleet-era folder.
 ## 3. Judge and derive the leash
 
 Resolve the **spec-judge** for each `artifact-types` (a plugin judge or the SDD default
-`sdd-spec-judge`) and **spawn it cold** over the touched node(s) — pass it `spec.md` + the
-`.feature` only (the solution stays out of its view). It grades against the spec-gate lens set
+`sdd-spec-judge`) and **spawn it cold** over the touched node(s), passing the **canonical dispatch
+payload** (`sdd:start-mission`, "The dispatch payload") — `spec.md` + the `.feature` plus the
+relayed provenance fields `PRODUCER_GOVERNANCES_DECLARED`, `PRODUCER_MODE`, `BASE_REF`,
+`CHANGED_HUNKS`, and, on a backfill, `PRODUCER_BACKFILL_STEPS`. The `<unit>.solution.md` stays out of the judge's view; that exclusion
+covers the solution and never the provenance fields, and **dropping `PRODUCER_MODE` silently
+disables the pre-flight's step-record tell** rather than failing loudly. It grades against the spec-gate lens set
 **{oracle, builder, architect}**. Then take the judge's **contract-sync verdict** (derived at this
 gate, never stored) and **derive the leash** (the conductor's autonomy bar,
 baked into `start-mission`) in-session. Collect the judge's `STATUS`,
-`ALIGNED`, failing scenarios, remaining `<!-- open: -->` markers, `CONFORMANCE`, `OBSERVATIONS`, and
+`ALIGNED`, `PREFLIGHT` (a `governance-preflight-missing` **or**
+`governance-preflight-uncorroborated` result advances nothing, like any judge failure),
+failing scenarios, remaining `<!-- open: -->` markers, `CONFORMANCE`, `OBSERVATIONS`, and
 the gate report. The judge is a **distinct cold actor** and never edits the artifact it grades.
 
 **A `CONFORMANCE.result: warn` is surfaced, never a block.** When the judge reports a spec-format
@@ -205,6 +211,11 @@ nothing, advances no status, renders no verdict**. Fixed sections:
 ## Report
 
 - PASS / FAIL per lens, relayed from the judge
+- **Governance pre-flight:** the judge's `PREFLIGHT` — on `fail`, the `finding-kind`
+  (`governance-preflight-missing` or `governance-preflight-uncorroborated`) and, per finding, the
+  `missing` governances or each `uncorroborated` `{ bar, tell, artifact }`. A failed pre-flight
+  **short-circuits the lenses**, so report it in place of a lens table rather than alongside one; it
+  advances nothing, like any judge failure
 - **Spec-format conformance:** the judge's `CONFORMANCE` — on `warn`, a **warning** line naming each
   missing required section (Use Cases / Control Flow / Scenario map) on the touched behavioral
   `spec.md`; non-blocking, surfaced alongside the verdict, never a block on its own

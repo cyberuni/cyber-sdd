@@ -164,6 +164,114 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the spec gate evaluates the diff
     Then it advances no status and reports the blocker
 
+  # ---- Governance pre-flight corroboration (spec-judge) ----
+
+  Scenario: a declared set missing an expected governance is not corroborated
+    Given the spec-judge receives a producer_governances_declared set that omits a governance it expects
+    When the spec-judge runs its pre-flight check
+    Then its preflight result names finding-kind governance-preflight-missing
+    And it lists no uncorroborated tell
+
+  Scenario: a use case with no stated extensions field fails corroboration
+    Given a touched behavioral spec.md whose use case states neither extension rows nor an explicit none claim
+    When the spec-judge corroborates the spec-format tells
+    Then its preflight result names finding-kind governance-preflight-uncorroborated
+    And the uncorroborated list names the spec-format bar and that spec.md
+
+  Scenario: a use case stating an explicit none extensions claim corroborates
+    Given a touched behavioral spec.md whose use case states extensions none with a reason
+    When the spec-judge corroborates the spec-format tells
+    Then its preflight result is pass
+    And it proceeds to judge the diff's content
+
+  Scenario: a reference node is not evaluated for the extensions tell
+    Given a touched spec.md whose spec-type is reference
+    When the spec-judge corroborates the spec-format tells
+    Then the uncorroborated list names no extensions tell against that spec.md
+
+  Scenario: a surface trace table with no forbidden-combination column fails corroboration
+    Given a touched behavioral spec.md carrying a surface trace table whose columns are element and needed-by only
+    When the spec-judge corroborates the spec-format tells
+    Then the uncorroborated list names the surface-trace tell against that spec.md
+
+  Scenario: a capability recording its surface trace in a line is not evaluated for the trace tell
+    Given a touched behavioral spec.md that records its surface trace in a sentence and carries no surface trace table
+    When the spec-judge corroborates the spec-format tells
+    Then the uncorroborated list names no surface-trace tell against that spec.md
+
+  Scenario: a guard edge with no positive companion fails corroboration
+    Given a touched .feature whose sibling scenario map carries a refusal edge and no companion row driving that decision in its firing direction
+    When the spec-judge corroborates the declared suite-format bar
+    Then the uncorroborated list names the guard-companion tell and that .feature
+
+  Scenario: a step record entry naming decisions the drawn graph does not carry fails corroboration
+    Given a dispatch relaying producer_mode backfill
+    And a step record whose step-four entry names a decision absent from the node's drawn Control Flow graph
+    When the spec-judge corroborates the step-record tell
+    Then the uncorroborated list names the step-record tell and that entry
+
+  Scenario: a step record whose entries correspond to the node's artifacts corroborates
+    Given a dispatch relaying producer_mode backfill
+    And a step record whose step-four entry names the decisions of the node's drawn Control Flow graph
+    And whose step-five entry names the rows of the node's Scenario map
+    When the spec-judge corroborates the step-record tell
+    Then its preflight result is pass
+
+  Scenario: a full-length step record whose content corresponds to nothing still fails
+    Given a dispatch relaying producer_mode backfill
+    And a step record carrying one entry per step whose named outputs appear in no artifact of the node
+    When the spec-judge corroborates the step-record tell
+    Then the uncorroborated list names the step-record tell
+
+  Scenario: a backfill dispatch relaying no step record fails rather than skipping the tell
+    Given a dispatch relaying producer_mode backfill and no producer_backfill_steps field
+    When the spec-judge corroborates the step-record tell
+    Then the uncorroborated list names the step-record tell
+
+  Scenario: a revise-mode dispatch is not evaluated for the step-record tell
+    Given a dispatch relaying producer_mode revise
+    When the spec-judge corroborates the tells
+    Then the uncorroborated list names no step-record tell
+
+  Scenario: the step-record tell fires on the relayed mode rather than on what the producer declared
+    Given a dispatch relaying producer_mode backfill whose declared governance set names no backfill bar at all
+    When the spec-judge corroborates the step-record tell
+    Then it evaluates the step-record tell
+
+  Scenario: corroboration reads only the artifacts this change request touched
+    Given a spec.md that predates this change request and states no extensions field on a use case
+    And this change request touches no file in that node
+    When the spec-judge corroborates the spec-format tells
+    Then the uncorroborated list names nothing against that spec.md
+
+  Scenario: a use case that predates the change request is not evaluated for the extensions tell
+    Given a spec.md carrying one use case that predates this change request and states no extensions field
+    And this change request adds a second use case to that spec.md which states its extensions
+    When the spec-judge corroborates the spec-format tells
+    Then the uncorroborated list names nothing against that spec.md
+
+  Scenario: editing an existing use case does not pull in its extensions obligation
+    Given a spec.md carrying one use case that predates this change request and states no extensions field
+    And this change request edits one cell of that use case and adds no use case
+    When the spec-judge corroborates the spec-format tells
+    Then the uncorroborated list names nothing against that spec.md
+
+  Scenario: a use case the change request added is evaluated for the extensions tell
+    Given a spec.md carrying one use case that predates this change request and states its extensions
+    And this change request adds a second use case to that spec.md which states no extensions field
+    When the spec-judge corroborates the spec-format tells
+    Then the uncorroborated list names the extensions tell against that spec.md
+
+  Scenario: an uncorroborated pre-flight renders no content findings
+    Given a touched artifact that misses a tell of a declared bar
+    When the spec-judge runs its pre-flight check
+    Then it renders no content-analysis findings
+
+  Scenario: the gate never advances on a governance-preflight-uncorroborated verdict
+    Given the spec-judge's verdict carries a governance-preflight-uncorroborated finding
+    When the spec gate evaluates the diff
+    Then it advances no status and reports the blocker
+
   # ---- Spec-format conformance warning (spec-judge) ----
 
   Scenario: a behavioral spec.md missing required spec-format sections warns on conformance

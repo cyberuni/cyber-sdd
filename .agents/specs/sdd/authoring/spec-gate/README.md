@@ -19,7 +19,7 @@ it does not produce.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite / `governance-preflight-missing` finding (`## The governance pre-flight check`) → advance nothing, report the blocker; a **spec-format conformance warning** (`## The spec-format conformance warning`) → **surfaced in the report, never a block on its own** |
+| **render the verdict** — a spec + suite diff reaches the gate | the diff, the spec-judge result, the leash assessment | in-leash → self-assert into the async review queue; leash-stop or hard floor → digest shown first, human verdict taken; judge failure / open marker / misaligned suite / a `governance-preflight-missing` **or** `governance-preflight-uncorroborated` finding (`## The governance pre-flight check`) → advance nothing, report the blocker; a **spec-format conformance warning** (`## The spec-format conformance warning`) → **surfaced in the report, never a block on its own** |
 | **apply the verb + freeze** — a verdict is recorded | the verdict (approve / change / reject) + the touched `.feature` files | **approve** → land + freeze each touched file (per-file `@frozen`) + record the per-CR `gate` ledger line; **change** → nothing freezes; **reject** → drop the delta; additive folds into a frozen file (self-clears); a pure move/rename preserves the freeze (not gate-able); narrowing unfreezes its file + fires **Clearance**; `spec.md` kept in sync, never frozen |
 | **emit the digest** — a ratifier needs to see what they are approving | the CR's touched files | a read-only fixed-section summary of the touched files — writes nothing, renders no verdict |
 | **run structural provenance / alignment / spec-type / suite-form / referenced-artifact checks** — before any verdict, before the judge is spawned | the touched files' `produced-by` entries + role resolution (`../../design/provenance-model.md`) + each node's `spec-type` classification (`../../design/spec-structure.md`) + the touched `.feature` files' form (`../suite-format/README.md`) + every backtick-wrapped artifact path the touched `spec.md`/`README.md` names | malformed `produced-by` / **unflagged** off-enum `correction` (a `cause-candidate: true`-flagged one is legal) / unresolvable required role → **fail closed**; a `reference` node carrying a `.feature`, a `reference` node missing `## Subject`, or a `behavioral` node missing `## Use Cases` → **fail closed** (a `descriptive` node raises none); uninstalled-but-valid recorded producer → **flag** only; a touched `.feature` whose form is invalid (a non-boolean step, a missing `Feature`/`Then`) → **fail closed** before the cold judge runs, the form check **scoped to the touched files**; a touched `.feature` the **pinned Gherkin parser cannot parse** → **fail closed** before the cold judge runs, reporting the parse failure and its line *in place of* that file's form findings (a partial read is not evidence) — and this one fails the tree-wide `--root` sweep closed too; a touched **frozen** `.feature` whose **edit class cannot be classified** (the differ reports a parse error, returns no result for the file, or produces no readable result) → **`unclassifiable`** → **escalate to Clearance**, never `no-content-change` and never `additive`; a **CR-introduced** backtick artifact path that resolves to nothing → **surfaced as a judgment finding**, not a hard fail-closed (a pre-existing ref unchanged by the CR is never gated; adjudication follows the floor — obvious stale → served fix, plausibly-intended-optional → accept/escalate), scoped to the touched files (the sweep covering every touched prose `.md` under the spec tree, not just `spec.md`/`README.md`), a template placeholder or glob exempt; a touched behavioral `spec.md` whose `## Use Cases` table row names a scenario that does not resolve in the sibling `.feature` → **fail closed** (a reference/descriptive spec.md or a prose/EARS use case with no row raises none); a `## Use Cases` data row whose `Scenario` cell is non-empty but carries no backtick reference → **fail closed**, the unparseable row reported never skipped; a touched `.feature`'s sibling `## Scenario map` binding checked — every scenario one map row, every row a real scenario, each `(edge, path class)` pair unique — with a data row whose `Scenario` cell is not backtick-wrapped **reported as an unparseable row, never skipped** (a spec carrying no `## Scenario map` section raises none) |
@@ -171,6 +171,169 @@ loading is silent context injection on most, and the one harness that models it 
 call does not observe a **spawned** producer's calls). A portable attested version would capture the
 load at a **repo-owned loader seam** rather than from harness telemetry — tracked as a follow-up, not
 built here.
+
+**The corroboration stage answers the adversarial half.** Everything above reads a **claim**, so every
+check of that shape is defeated by the same move: declare the derivable set, skip the load. The second
+stage below therefore reads the **artifact** instead — properties a producer that never opened a bar
+does not produce. It is still not an attestation and does not pretend to be one; what it changes is
+that the cheapest route to a clean pre-flight stops being "guess the list".
+
+### Stage 1 — the declaration check
+
+The `expected ⊆ declared` subset check stated above. It runs first and short-circuits: a missing
+declaration is reported as `governance-preflight-missing` and stage 2 does not run, so one gap is
+never reported under two finding-kinds.
+
+### Stage 2 — corroboration: check the artifact, not the claim
+
+When `expected ⊆ declared` passes, the judge runs a second stage over the **tells**, checking each
+against what this CR produced.
+
+Three of the four tells belong to a **governance bar**; the fourth belongs to the **backfill
+workflow node**, which is not a bar and needs no registry entry — it fires on the relayed mode, so
+nothing has to resolve it. That asymmetry is deliberate and is the point of the next paragraph.
+
+**A tell is never gated on the producer's own declaration.** Gating stage 2 on "each *declared* bar
+that carries a tell" would make the check opt-in by the party it polices: a producer that skipped a
+bar omits it from the declaration and is never corroborated for it — cheaper than either reading or
+faking. So each tell states its own trigger, and every trigger is a fact the judge or the conductor
+holds rather than one the producer asserts.
+
+A **tell** is a property of the produced artifact that is (a) checkable from the artifact alone,
+(b) required by exactly one bar, and (c) **silently wrong by default** — a producer that never opened
+the bar emits something that *reads as complete*. Property (c) is what makes a tell correlate with
+behavior rather than with care: a tell whose miss is an obvious blank is already caught by every
+reader, and buys nothing here.
+
+| Bar | Tell | The wrong-by-default shape it catches |
+|---|---|---|
+| `sdd:spec-format-governance` | every use case states its **extensions** — rows, or the explicit `extensions: none — <why>` claim | the field is simply absent, and nothing else looks for it |
+| `sdd:spec-format-governance` | a **surface trace** table names, per element, the elements it **may not be combined with** | a two-column `Element / Needed by` trace, which reads complete |
+| `sdd:suite-format-governance` | every **guard / negative** edge on the scenario map carries a **positive companion** on the same path class | a lone negative, which reads as coverage and lints clean |
+| [`../backfill/README.md`](../backfill/README.md), fired by `producer_mode: backfill` | each step record entry **corresponds to the artifact it claims to have produced** — step 2's actors to `## Use Cases`, step 4's decisions to the drawn `## Control Flow`, step 5's rows to the `## Scenario map` | a record with the right number of entries whose content matches nothing, which reads as a completed procedure |
+
+**The unit of applicability is what the CR *added*.** A tell is evaluated against the elements this
+producer **authored** — a use case it added, a table it added, map rows it added — never against an
+element that already existed in a file it happened to touch.
+
+Two weaker units were tried and both fail, so the reasoning is recorded rather than the conclusion
+alone. **Per file** is the obvious one and it inverts the stage: the corpus carries **37 of 42
+behavioral nodes whose use cases state no extensions field**, so a file-granular tell hard-blocks the
+first CR to touch any of them, for debt that CR did not create. **Per touched element** — "added or
+changed" — looks like the fix and is not, because *changed* has no definition for a table row: a
+one-clause edit to a single cell, or a pure reflow, pulls in that row's whole obligation. It moves
+the same failure from file scope to row scope instead of removing it. **Added** is the unit that
+holds, because it is the unit the producer is genuinely accountable for: authoring a new use case
+without stating its extensions is exactly what a producer who never opened the bar does, while
+editing a cell in an old one reveals nothing about whether the bar was read.
+
+**What the judge reads *added* off.** *Added* is a fact about the diff, not about the file in the
+judge's view: reading `spec.md` alone, the judge cannot tell a use case this CR wrote from one that
+predates it. So the applicability unit needs an input, and the dispatch channel carries it — the
+**base ref** this CR is diffed against and the **structural change set** against it, keyed
+**`base_ref`** and **`changed_hunks`** (`../../mission/conductor/README.md` for the channel). The
+change set is read the way the freeze guard reads one — **per named unit, not per line** — so a
+reflow reads as no change and a row this CR wrote reads as added. Unlike `producer_mode`, these are
+not producer provenance and nothing is relayed verbatim: they are the gate's own view of the diff.
+**Both are required.** With neither, the stage has no applicability input at all and degrades
+silently in whichever direction the judge guesses — every unit read as added (blocking a CR for a
+node's whole history) or none read as added (evaluating nothing).
+
+Per tell, the applicable unit is:
+
+- the **extensions** tell — each use case the CR **added** to a **behavioral** `spec.md`; an
+  existing use case is not evaluated even when the CR edits it, and a `reference` or `descriptive`
+  node is not evaluated at all;
+- the **surface-trace** tell — a surface-trace **table** the CR added; a single-entry-point capability
+  recording its trace in a line (which `../spec-format/README.md` allows) is not evaluated;
+- the **guard-companion** tell — the `## Scenario map` rows the CR **added**, paired against the whole
+  map (a companion the CR did not touch still counts as the pairing); a node with no map has no edges
+  to pair;
+- the **step-record** tell — the relayed record, applicable whenever the conductor relays
+  `producer_mode: backfill` (below).
+
+An inapplicable tell is **never evaluated and never reported**.
+
+Reporting an inapplicable tell is the failure mode this stage must avoid. A corroboration stage that
+fires on nodes it does not govern teaches its readers to route around it, which is the same defeat as
+not having the stage at all.
+
+**Scope, ordering, and the verdict.**
+
+- **This CR's production only** — the hunk rule above, restated as scope: a pre-existing node that
+  predates a tell raises nothing, and neither does an untouched use case inside a file the CR edited.
+  The subject is always the producer of *this* diff.
+- **Where the step record comes from, and what fires its tell.** The record is not a repo artifact —
+  it is provenance about how a node was derived, deliberately never written into `spec.md` or the
+  `.feature`. It reaches the judge as **`producer_backfill_steps`**, relayed through the dispatch
+  channel. What *fires* the tell is the sibling **`producer_mode`** the conductor relays on the same
+  channel (`../../mission/conductor/README.md`). The mode is the **conductor's** knowledge — it is the
+  conductor that invokes the producer in `create`, `revise`, or `backfill` mode — so the producer
+  cannot exempt itself by staying quiet. On `producer_mode: backfill` the tell fires, and a **missing
+  or empty** `producer_backfill_steps` is then the miss, not an excuse. On `create` or `revise` the
+  tell is inapplicable.
+- **The tell is artifact-checked, which is what keeps it off the list-shaped pile.** It does not count
+  entries; it checks each against the drawn graph, the map, and the use cases the same CR produced. A
+  record with five well-formed entries whose content corresponds to nothing **fails**.
+- **After the declaration check, and only when it passed.** A missing declaration short-circuits, so
+  one gap is never reported under two finding-kinds.
+- **On a miss**, the judge returns `PREFLIGHT: { result: fail, finding-kind:
+  governance-preflight-uncorroborated, uncorroborated: [ { bar, tell, artifact } ] }` and halts before
+  the three lenses, exactly as a missing declaration does. The gate advances nothing.
+- **`artifact` names where a reader goes to see the miss**, per tell, and is **required on every
+  element** — one that names a `bar` and a `tell` but no `artifact` is not a reportable finding. For
+  the extensions and surface-trace tells it is the `spec.md` path; for the guard-companion tell the
+  `.feature` path; for the step-record tell the **offending entry** — its step number, or the string
+  `none` when `producer_backfill_steps` is missing or empty. It is never the tell restated: a finding
+  a reader cannot walk to is the shape this stage exists to get away from.
+- **The gate reports the pre-flight, pass or fail.** A failed pre-flight short-circuits the lenses,
+  so the gate report carries it **in place of** a lens table rather than alongside one, naming the
+  `finding-kind` and each `missing` governance or `uncorroborated` element.
+
+**A tell is a sample, not an attestation, and the sample is sparse.** It does not prove a bar was
+read. Where a tell *is* applicable it makes not reading cost about what reading costs, and a producer
+that learns the tell and satisfies it without reading has done the specific work the tell names — a
+strictly narrower cheat than the one this stage closes.
+
+But **a large and ordinary class of CRs has no applicable tell at all**, and the stage says so rather
+than claiming otherwise. A CR that edits only prose, a graph, or a `.feature` adds no use case and no
+table. The guard-companion tell reaches only nodes carrying a `## Scenario map`, and **35 of 42**
+behavioral nodes in this corpus carry none. For such a CR stage 2 is a **no-op**, and stage 1's
+declaration check is all that runs. That is a real limit on the mechanism, not a gap in its
+description: the tell set is expected to grow, and the honest reading today is that corroboration
+raises the floor where it applies and is silent everywhere else.
+
+Further escapes are known and named rather than papered over:
+
+- **A wholesale rewrite of an existing use case escapes the extensions tell**, because a rewrite is an
+  edit and the unit is what was *added*. The justification for the `added` unit — that editing a cell
+  in an old use case reveals nothing about whether the bar was read — holds for a cell and does not
+  hold for a rewrite. The unit is kept anyway, because "rewrite" is exactly the undefined predicate
+  that made "changed" unusable; a narrower unit that admits rewrites would reintroduce it.
+- **A producer that writes no surface trace at all is exempt from the surface-trace tell**, because
+  the tell's unit is a table the CR *added*. It therefore catches only a producer that knew to write
+  a trace and got its columns wrong — one that opened the bar partway — and not one that never opened
+  it. That inverts property (c) for this one tell, and it is asymmetric with the extensions tell,
+  which fires precisely on absence. The asymmetry is deliberate: a use case is a required anchor the
+  bar makes mandatory, while a surface trace has no anchor that makes its absence detectable without
+  judging whether the capability exposes anything. Named so the asymmetry is a known cost rather than
+  an assumed symmetry.
+- **Tell coverage is two bars, not the whole expected set.** The tells reach
+  `sdd:spec-format-governance` and `sdd:suite-format-governance`. A producer that reads those two and
+  skips `lifecycle`, `ownership`, `gate-validation`, `combat-log`, `remediation`, `spec-structure`
+  and the three actor bars passes stage 2 on **every** CR — not only on the no-applicable-tell class
+  above. Stage 1 still requires it to *declare* them; nothing corroborates that declaration. This is
+  the largest limit on the stage and the clearest direction for growing the tell set.
+- **Nothing yet owns how the conductor decides `producer_mode`.** The step-record tell can no longer
+  be escaped by the *producer*, which was the point, but a conductor that labels a shipped-behavior CR
+  `revise` never fires it. The escape now requires a different party than the one being policed, which
+  is a real improvement and not a closure. The mode-selection determinant wants a home
+  (`../../mission/conductor/README.md` states the relay, not the decision).
+
+**The duty is mirrored.** The **producer** runs the same tells as a self-check before returning
+(`../spec-producer/README.md`), and the **judge** corroborates them here. The corpus record shows the
+declaration check catching skipped bars at round 1 repeatedly, each costing a full cold judge round; a
+producer-side self-check spends none.
 
 ## The spec-format conformance warning
 

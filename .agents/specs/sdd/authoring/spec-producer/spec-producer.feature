@@ -174,6 +174,26 @@ Feature: The spec-producer procedure — grill a CR into spec prose + a boolean 
     When it writes spec.md and the .feature
     Then neither file contains a governances_loaded field or its contents
 
+  Scenario: a backfill mode invocation runs the ordered backfill workflow
+    Given the spec-producer is invoked in backfill mode
+    When it returns its structured output
+    Then the output carries a BACKFILL_STEPS record with one entry per workflow step
+
+  Scenario: a create or revise invocation returns no step record
+    Given the spec-producer is invoked in revise mode
+    When it returns its structured output
+    Then the output carries no BACKFILL_STEPS record
+
+  Scenario: the step record is never written into a spec artifact
+    Given the spec-producer's structured output carries a BACKFILL_STEPS record
+    When it writes spec.md and the .feature
+    Then neither file contains a BACKFILL_STEPS record or its contents
+
+  Scenario: the producer self-checks the governance tells before returning
+    Given the spec-producer has authored a behavioral spec.md whose use case states no extensions field
+    When it runs its pre-return self-check
+    Then it reports that missing extensions field before returning the diff
+
   # ---- Grilling discipline ----
 
   Scenario: the producer settles the prose before editing the suite

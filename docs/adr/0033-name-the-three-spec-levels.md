@@ -4,6 +4,10 @@
 
 Accepted
 
+Amended by [ADR-0034](0034-colocate-the-node-spec-keep-the-frozen-suite.md): the three levels stand,
+but the **node** level is no longer path-bound to the project-spec tree — a node's spec may live next
+to the subject it specifies. The corpus and project-spec levels are unchanged.
+
 ## Context
 
 "Spec" was overloaded. It meant both **one project's whole durable spec** and **a single

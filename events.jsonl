@@ -60,3 +60,4 @@
 {"v":1,"type":"node","id":"github-10-gate-through-harness","kind":"mission","status":"open","touchSet":["sdd/authoring","sdd/corpus"]}
 {"v":1,"type":"node","id":"github-24-prose-block-reconciler","kind":"mission","status":"open","touchSet":["sdd/corpus"]}
 {"v":1,"type":"node","id":"github-25-plugin-judge-preflight","kind":"mission","status":"open","touchSet":["sdd/authoring","sdd/plugin"]}
+{"v":1,"type":"node","id":"github-26-gate-spawn-scenario","kind":"mission","status":"open","touchSet":["sdd/authoring"]}

@@ -48,3 +48,4 @@
 {"v":1,"type":"edge","kind":"discovered-from","from":"github-3-backfill-enforceable","to":"github-24-prose-block-reconciler"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-sdd-gate-integrity","to":"github-24-prose-block-reconciler"}
 {"v":1,"type":"node","id":"github-25-plugin-judge-preflight","kind":"mission","status":"open","touchSet":[".agents/specs/sdd/authoring",".agents/specs/sdd/plugin","plugins/sdd/skills/spec-gate","plugins/sdd/skills/plugin-contract-governance","plugins/sdd/agents/sdd-spec-judge.md"],"blast":"high","hitlOrAfk":"hitl"}
+{"v":1,"type":"edge","kind":"discovered-from","from":"github-3-backfill-enforceable","to":"github-25-plugin-judge-preflight"}

@@ -36,3 +36,4 @@
 {"v":1,"type":"edge","kind":"RAW","from":"github-4-spec-architecture-decision","to":"github-14-cc-adapter"}
 {"v":1,"type":"edge","kind":"RAW","from":"ext-cyberplace-507-project-captains","to":"github-14-dispatch-captain"}
 {"v":1,"type":"edge","kind":"RAW","from":"ext-cyberplace-227-relayed-authority","to":"github-14-attribution"}
+{"v":1,"type":"edge","kind":"RAW","from":"github-14-cc-adapter","to":"github-14-attribution"}

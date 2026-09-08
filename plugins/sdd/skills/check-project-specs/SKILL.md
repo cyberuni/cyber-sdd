@@ -1,6 +1,6 @@
 ---
 name: check-project-specs
-description: "Partial Skill: invoke by name only — project-spec/check-project-specs' engine that runs every project-spec check against the one spec governing the invoking package — the per-project CI entrypoint, not triggered by users directly."
+description: "Partial Skill: invoke by name only — corpus/spec-floor's engine that runs every project-spec check, over the whole corpus or over one project — the commit-floor and CI entrypoint, not triggered by users directly."
 user-invocable: false
 metadata:
   internal: true
@@ -8,10 +8,27 @@ metadata:
 
 # Check Project Specs
 
-The **per-project entrypoint** for the project-spec checks. It resolves the one spec that governs
-the invoking package and runs each project-spec engine against it, so a project's spec checks are a
-task **the project owns** rather than a path some root script hardcodes. It carries a self-contained
-`.mts` script (the repo's node-≥23.6 / no-deps convention).
+The **entrypoint** for the project-spec checks — the harness behind `corpus/spec-floor`. It resolves
+which spec governs which project and runs each project-spec engine against it. It carries a
+self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention).
+
+Two scopes:
+
+| Scope | Flag | Who runs it |
+|---|---|---|
+| **corpus** — every project-spec, plus the coverage guard | `--corpus` | the repo's `check:specs` chain, so every commit and every CI run |
+| **project** — one project-spec | `--project <dir>`, or no flag (the cwd) | a maintainer inside one project; each project's own `check:spec` |
+
+**The corpus scope is total, and that is the point.** It runs *both* the engine sweep and the
+coverage guard, because neither subsumes the other: the sweep only visits the specs discovery
+**recognizes**, so a spec whose lifecycle `status` is a typo is invisible to it and the sweep would
+report clean; the coverage guard sees that file on disk and escalates it, but says nothing about
+whether the engines pass. Run either alone and a whole project-spec leaves the floor silently.
+
+**An unrecognized flag is an error.** The scope is chosen by a flag, so a flag that falls through to
+a default silently downgrades the run — and project scope, which is what a fall-through reaches,
+resolves no governing spec at a repo root and exits **0**. That is exactly how a coverage-only flag
+guarded this repo's commits and CI while running no engine at all (issue #5).
 
 ## Resolution — spec-first, never by name
 
@@ -31,12 +48,25 @@ mapping and no path is ever written into a package's scripts.
 ## Run it
 
 ```bash
-node "<skill>/scripts/check-project-specs.mts" [--project <dir>]
+node "<skill>/scripts/check-project-specs.mts" --corpus          # the whole corpus — the commit floor
+node "<skill>/scripts/check-project-specs.mts" [--project <dir>] # one project-spec
 ```
 
-Wired as each project's `check:spec` script, via the `sdd-check-specs` bin.
+The corpus scope is wired as the repo's root `check:specs`; the project scope is wired as each
+project's `check:spec` script, via the `sdd-check-specs` bin. `--corpus` and `--project` name
+contradictory scopes and are refused together.
 
 ## Outcomes
+
+**Corpus scope**
+
+- **Clean** — every recognized project-spec passed every engine and every spec file is covered; exits zero.
+- **A coverage gap** — reports each gap with its reason, **then sweeps anyway**, and exits non-zero.
+- **A failing engine** — names the engine and the project-spec, **continues to the next**, exits non-zero.
+- **An empty corpus** — reports that plainly and exits zero. A repo with no project-spec is not a defect.
+- **No repo root** — names the missing workspace marker and exits non-zero; it never falls back to the cwd.
+
+**Project scope**
 
 - **Resolved** — runs every engine against the spec dir, reports `ok` / `FAIL` per engine, and exits
   non-zero if any failed.
@@ -62,6 +92,9 @@ repo-root-relative references against the cwd.
 
 The two `--root` engines are corpus-shaped (they read the first path segment under root as a project
 slug), but a single project-spec dir is a legal root: the slug is only a message tag.
+
+A failing engine never stops the ones after it, at either scope: a floor that returns at the first
+defect reports one defect per invocation, so an author fixes the tree one run at a time.
 
 ## Boundaries
 

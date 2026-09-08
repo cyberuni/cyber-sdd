@@ -149,7 +149,7 @@ export function findCoverageGaps(
  * Without this, a per-project run resolves such a spec to `none` and prints "no spec
  * governs <project> — skipped" with exit 0: a status typo silently exempts the whole
  * project from every engine. A spec that exists but cannot be classified is escalated,
- * not exempted — the same call the corpus-level `--check-coverage` guard makes.
+ * not exempted — the same call the corpus scope’s coverage guard makes.
  */
 export function findDroppedSpecFor(
 	specFiles: string[],
@@ -187,6 +187,32 @@ function readTextOrNull(path: string): string | null {
 	}
 }
 
+// ─── the engine run ───────────────────────────────────────────────────────────
+
+/**
+ * Run the whole engine set against one project-spec dir. Every engine runs even
+ * after one fails: a run that stops at the first failure reports one defect per
+ * invocation, and the corpus scope exists to report the tree's defects in one go.
+ */
+function runEngines(repoRoot: string, specDir: string): number {
+	let failed = 0
+	for (const e of ENGINES) {
+		// cwd is the repo root, not the project dir: the engines resolve
+		// repo-root-relative references against process.cwd().
+		try {
+			execFileSync('node', [join(SKILLS_DIR, e.script), ...e.args(specDir)], {
+				cwd: repoRoot,
+				stdio: 'inherit',
+			})
+			process.stdout.write(`  ok   ${e.name}\n`)
+		} catch {
+			process.stderr.write(`  FAIL ${e.name}\n`)
+			failed++
+		}
+	}
+	return failed
+}
+
 function checkCoverage(root: string): number {
 	const gaps = findCoverageGaps(root, discoverSpecFiles(root), collectSpecs(root), (p) => {
 		try {
@@ -206,16 +232,78 @@ function checkCoverage(root: string): number {
 
 // ─── run ──────────────────────────────────────────────────────────────────────
 
-export function main(argv: string[]): number {
-	if (argv.includes('--check-coverage')) {
-		const root = findRepoRoot(process.cwd())
-		if (!root) {
-			process.stderr.write('check-project-specs: no pnpm-workspace.yaml found above the cwd\n')
-			return 1
+/** The flags the harness defines. Anything else is an error, never a default. */
+export const KNOWN_FLAGS = ['--corpus', '--project'] as const
+
+/**
+ * The scope is chosen by a flag, so an unrecognized one must not fall through to a
+ * default. It used to: project scope at a repo root resolves no governing spec and
+ * exits 0, so a misspelled or retired flag reported success having checked nothing.
+ * That is how `--check-coverage` guarded commits and CI while running no engine.
+ */
+export function unknownFlags(argv: string[]): string[] {
+	const out: string[] = []
+	for (let i = 0; i < argv.length; i++) {
+		const a = argv[i] as string
+		if (!a.startsWith('-')) continue
+		if (a === '--project') {
+			i++ // its value is not a flag
+			continue
 		}
-		return checkCoverage(root)
+		if (!(KNOWN_FLAGS as readonly string[]).includes(a)) out.push(a)
 	}
+	return out
+}
+
+export function main(argv: string[]): number {
+	const unknown = unknownFlags(argv)
+	if (unknown.length) {
+		process.stderr.write(
+			`check-project-specs: unrecognized flag(s) ${unknown.join(', ')} — ` +
+				`the scope is ${KNOWN_FLAGS.join(' | ')} (or none, meaning the cwd's project)\n`,
+		)
+		return 1
+	}
+	if (argv.includes('--corpus') && argv.includes('--project')) {
+		process.stderr.write('check-project-specs: --corpus and --project name contradictory scopes — pass one\n')
+		return 1
+	}
+	if (argv.includes('--corpus')) return checkCorpus()
 	return checkProject(argv)
+}
+
+/**
+ * Corpus scope — the commit floor. Total by definition: every project-spec the
+ * corpus holds is checked, and a spec that cannot be classified fails rather than
+ * being skipped.
+ *
+ * It runs BOTH sub-checks because neither subsumes the other. The sweep iterates
+ * the specs discovery *recognizes*, so a spec whose lifecycle `status` is a typo is
+ * invisible to it — and would report clean. The coverage guard sees that file on
+ * disk and escalates it, but says nothing about whether the engines pass. Run either
+ * alone and a whole project-spec leaves the floor silently.
+ */
+function checkCorpus(): number {
+	const root = findRepoRoot(process.cwd())
+	if (!root) {
+		process.stderr.write('check-project-specs: no pnpm-workspace.yaml found above the cwd\n')
+		return 1
+	}
+
+	// Coverage first, but it never short-circuits the sweep: one run reports every
+	// defect it can see, so an author fixes them in one pass rather than one per run.
+	let failed = checkCoverage(root) === 0 ? 0 : 1
+
+	const specs = collectSpecs(root)
+	if (specs.length === 0) {
+		process.stdout.write('check-project-specs: the corpus holds no project-spec\n')
+		return failed
+	}
+	for (const s of specs) {
+		process.stdout.write(`check-project-specs: ${s.path}\n`)
+		if (runEngines(root, join(root, s.path)) > 0) failed = 1
+	}
+	return failed
 }
 
 function checkProject(argv: string[]): number {
@@ -262,22 +350,7 @@ function checkProject(argv: string[]): number {
 	const specDir = join(repoRoot, res.spec.path)
 	process.stdout.write(`check-project-specs: ${projectRel} -> ${res.spec.path}\n`)
 
-	let failed = 0
-	for (const e of ENGINES) {
-		// cwd is the repo root, not the project dir: the engines resolve
-		// repo-root-relative references against process.cwd().
-		try {
-			execFileSync('node', [join(SKILLS_DIR, e.script), ...e.args(specDir)], {
-				cwd: repoRoot,
-				stdio: 'inherit',
-			})
-			process.stdout.write(`  ok   ${e.name}\n`)
-		} catch {
-			process.stderr.write(`  FAIL ${e.name}\n`)
-			failed++
-		}
-	}
-	return failed === 0 ? 0 : 1
+	return runEngines(repoRoot, specDir) === 0 ? 0 : 1
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) {

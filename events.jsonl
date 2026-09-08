@@ -30,3 +30,4 @@
 {"v":1,"type":"node","id":"github-14-attribution","kind":"mission","status":"open","blast":"high","hitlOrAfk":"hitl"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-cc-integration","to":"github-14-standalone-guard"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-cc-integration","to":"github-14-cc-adapter"}
+{"v":1,"type":"edge","kind":"parent-child","from":"op-cc-integration","to":"github-14-dispatch-captain"}

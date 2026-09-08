@@ -12,3 +12,4 @@
 {"v":1,"type":"edge","kind":"parent-child","from":"op-sdd-gate-integrity","to":"github-3-backfill-enforceable"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-sdd-gate-integrity","to":"github-10-gate-through-harness"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-sdd-gate-integrity","to":"github-9-impl-gate-floor"}
+{"v":1,"type":"edge","kind":"parent-child","from":"op-aced-scoring-comparability","to":"github-12-scoring-model-selection"}

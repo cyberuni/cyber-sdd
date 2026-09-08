@@ -32,3 +32,4 @@
 {"v":1,"type":"edge","kind":"parent-child","from":"op-cc-integration","to":"github-14-cc-adapter"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-cc-integration","to":"github-14-dispatch-captain"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-cc-integration","to":"github-14-attribution"}
+{"v":1,"type":"edge","kind":"RAW","from":"ext-truss-6-extension-contract","to":"github-14-cc-adapter"}

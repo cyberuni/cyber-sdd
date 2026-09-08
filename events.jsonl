@@ -58,3 +58,4 @@
 {"v":1,"type":"node","id":"github-3-backfill-enforceable","kind":"mission","status":"claimed","touchSet":["sdd/authoring","sdd/mission","sdd/workflows"]}
 {"v":1,"type":"node","id":"github-9-impl-gate-floor","kind":"mission","status":"open","touchSet":["sdd/mission"]}
 {"v":1,"type":"node","id":"github-10-gate-through-harness","kind":"mission","status":"open","touchSet":["sdd/authoring","sdd/corpus"]}
+{"v":1,"type":"node","id":"github-24-prose-block-reconciler","kind":"mission","status":"open","touchSet":["sdd/corpus"]}

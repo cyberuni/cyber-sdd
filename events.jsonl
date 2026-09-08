@@ -59,3 +59,4 @@
 {"v":1,"type":"node","id":"github-9-impl-gate-floor","kind":"mission","status":"open","touchSet":["sdd/mission"]}
 {"v":1,"type":"node","id":"github-10-gate-through-harness","kind":"mission","status":"open","touchSet":["sdd/authoring","sdd/corpus"]}
 {"v":1,"type":"node","id":"github-24-prose-block-reconciler","kind":"mission","status":"open","touchSet":["sdd/corpus"]}
+{"v":1,"type":"node","id":"github-25-plugin-judge-preflight","kind":"mission","status":"open","touchSet":["sdd/authoring","sdd/plugin"]}

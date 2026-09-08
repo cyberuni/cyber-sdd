@@ -66,3 +66,4 @@
 {"v":1,"type":"node","id":"github-14-standalone-guard","kind":"mission","status":"open","touchSet":["sdd/workflows"]}
 {"v":1,"type":"node","id":"github-14-cc-adapter","kind":"mission","status":"open","touchSet":["sdd/plugin"]}
 {"v":1,"type":"node","id":"github-14-dispatch-captain","kind":"mission","status":"open","touchSet":["sdd/plugin","sdd/mission"]}
+{"v":1,"type":"node","id":"github-14-attribution","kind":"mission","status":"open","touchSet":["sdd/plugin"]}

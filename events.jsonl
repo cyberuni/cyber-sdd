@@ -41,3 +41,4 @@
 {"v":1,"type":"edge","kind":"discovered-from","from":"github-3-backfill-enforceable","to":"sdd-prose-block-token-reconciler"}
 {"v":1,"type":"edge","kind":"parent-child","from":"op-sdd-gate-integrity","to":"sdd-prose-block-token-reconciler"}
 {"v":1,"type":"node","id":"github-4-spec-architecture-decision","status":"retired"}
+{"v":1,"type":"tombstone","target":"edge","kind":"discovered-from","from":"github-3-backfill-enforceable","to":"sdd-prose-block-token-reconciler"}

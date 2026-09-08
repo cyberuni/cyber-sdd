@@ -2,19 +2,21 @@
 status: active
 todos:
   - content: "explore: place + draft authoring/backfill (ordered workflow, per-step output)"
-    status: pending
+    status: completed
   - content: "explore: draft mission/resume (bar re-establishment on resume)"
-    status: pending
+    status: completed
   - content: "explore: revise authoring/spec-gate (behavior-correlated preflight corroboration)"
-    status: pending
+    status: completed
   - content: "explore: revise authoring/spec-producer (backfill mode enters the workflow)"
-    status: pending
+    status: completed
   - content: "spec gate: cold sdd-spec-judge to convergence, freeze touched .feature files"
     status: completed
   - content: "deliver: realize the four units as skills + the spec-judge agent"
-    status: in_progress
+    status: completed
   - content: "impl gate: cold sdd-impl-judge, pnpm verify green"
     status: in_progress
+  - content: "BLOCKED on Council: regression stop at 61/62 — sequence github-24 first, override, or land at 61/62"
+    status: pending
   - content: "handoff: changeset, commits, PR against main referencing issue #3"
     status: pending
 ---
@@ -93,33 +95,48 @@ remediation. These are changes of approach, not another round of edits.
 
 ## NEXT
 
-**HALTED at the impl gate — regressing loop, needs a human decision.** Spec gate is APPROVED and
-committed (d7bb1b4); the frozen contract is intact and untouched. Deliver is committed but the impl
-gate has NOT passed: 57/62 frozen scenarios plus two structural blockers.
+**HALTED at the impl gate a second time — a regression stop, and the decision is the Council's.**
+Spec gate remains APPROVED (`c4ad9ec`); the frozen contract is intact and untouched by every round
+since. The branch is rebased onto the current target and `pnpm verify` is green.
 
-Four impl-gate rounds scored 61, 61, 62, **57**. The count fell, and the decisive fact is that the
-canonical dispatch block created in round 3 — added precisely to fix this defect class *at the rule*
-— itself shipped missing a field. Per `sdd:remediation-governance` rule 4 the loop stops for a
-re-plan rather than a fifth round.
+**Round 5 scored 61 of 62** (rounds: 61, 61, 62, 57, 61), no structural blocker, no absorption
+finding. The prior halt's scope question was answered by the Council in the mission graph: the
+mechanical reconciler is its own mission, `github-24-prose-block-reconciler` (issue #24), with
+`github-25-plugin-judge-preflight` (#25) and `github-26-gate-spawn-scenario` (#26) split out beside
+it, each carrying a `discovered-from` edge from this CR. That freed the round to sweep the six open
+instances by hand, which it did (`bc9ad45`), plus two spec-body desyncs the finding list had not
+named.
 
-**The one defect class, three rounds running:** a field mandated in prose that no `Input` / `Output` /
-payload block carries, or vice versa. Instances still open:
-- the canonical payload block has no `BASE_REF` / `CHANGED_HUNKS`, so stage 2's "what the CR *added*"
-  applicability rule ships without the input it runs on (3 failing scenarios);
-- the judge's `uncorroborated: { bar, tell, artifact }` never says what fills `artifact` per tell
-  (2 failing scenarios);
-- `spec-gate`'s `## Report` gained no `PREFLIGHT` line when §3 gained the field;
-- `spec-producer-governance` mandates reporting misses "in your `Output`" with no such field;
-- the `REMEDIATION` gloss lists 5 keys against a canonical 7;
-- `backfill-workflow` points the producer at `sdd:spec-gate` for a mapping only `sdd:sdd-spec-judge`
-  carries.
+**The one failure.** `conductor.feature`, *"a backfill mode with no returned record still relays the
+mode"*. The canonical dispatch payload block in `plugins/sdd/skills/start-mission/SKILL.md` states
+`PRODUCER_BACKFILL_STEPS` is *"OMITTED on create/revise"* and never says what the conductor does when
+it invoked **backfill** and the producer returned no record — the exact case the scenario tests. This
+CR's own spec body for that node (`.agents/specs/sdd/mission/conductor/README.md`) resolves it
+correctly; the skill a session actually loads does not carry the sentence.
 
-**The decision needed.** The re-plan that would actually work is the one the judge named: a
-**mechanical check** reconciling every UPPER_SNAKE token in a shipped block against the prose that
-mandates it, and vice versa. That is a new engine — its own spec node, its own frozen suite, its own
-CR — not a further edit to this one. Turning this doc-only CR into an engine CR is a scope decision
-that is not the agent's to self-assert. Recorded as blocking follow-up (ledger seq 8).
+**Why the loop stopped rather than patching it.** Rule 4 of `sdd:remediation-governance` is
+diff-derived, not causation-derived: a finding is a **regression** when the artifact it names was
+changed by the previous round's commits. `start-mission/SKILL.md` was changed by `bc9ad45`, and the
+cited region is the block that commit edited. The rule is mechanical precisely so a producer cannot
+argue its way past the stop, and the substance backs it here — **that block has been the failing
+artifact two rounds running**, on two different completeness defects (round 4: a missing field;
+round 5: an unstated case). Patching it a sixth time is the shape this CR exists to prevent.
 
-Alternative if the Council prefers to land this CR first: a fifth round of determinate one-clause
-patches would likely reach 62/62, but it is exactly the patching-past-the-stop-signal the CR was
-written to prevent, and the last two rounds show the class survives prose sweeps.
+**The decision needed — three options, none the agent's to self-assert.**
+
+1. **Sequence #24 before this CR.** Add a RAW edge `github-24-prose-block-reconciler → github-3` so
+   this CR waits on the reconciler that would catch the class mechanically. Structurally the honest
+   answer: the CR installs a property it cannot self-verify. Cost: this CR does not land until #24
+   does. The judge's strategist observation asks that #24's scope also widen to **cross-document**
+   sweeps (a node's spec body vs. its enacting skill), not only within-file token matching — this
+   round's failure is exactly what such a differ catches cheaply, and is the fifth instance of that
+   shape across five rounds.
+2. **Override the stop and land 62/62.** One sentence in the payload block mirroring the README's
+   resolution. Determinate and almost certainly correct — and exactly the patching-past-the-signal
+   the doctrine forbids. A deliberate, recorded Council override, not an agent self-assertion.
+3. **Land this CR at 61/62** with the failing scenario carried as a known gap against #24. Requires
+   an Oracle-lens judgment that the scenario is not fatal, which the impl gate's rollup rule does not
+   currently permit — every frozen scenario needs a passing check to advance.
+
+**State of the branch.** PR #7 is `MERGEABLE` and still a **draft**; CI green. It does not go
+ready-for-review until this decision lands, since the impl gate has not passed.

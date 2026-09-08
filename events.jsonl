@@ -20,3 +20,4 @@
 {"v":1,"type":"tombstone","target":"edge","kind":"RAW","from":"github-10-gate-through-harness","to":"github-5-commit-floor"}
 {"v":1,"type":"edge","kind":"RAW","from":"github-12-scoring-model-selection","to":"github-13-model-series"}
 {"v":1,"type":"edge","kind":"RAW","from":"github-5-commit-floor","to":"github-10-gate-through-harness"}
+{"v":1,"type":"node","id":"github-5-commit-floor","status":"retired"}

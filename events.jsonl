@@ -7,3 +7,4 @@
 {"v":1,"type":"node","id":"github-9-impl-gate-floor","kind":"mission","status":"open","touchSet":[".agents/specs/sdd/mission",".agents/specs/sdd/spec.md","plugins/sdd/skills/verify-scenarios","plugins/sdd/skills/manage-scenario-bridge","plugins/sdd/agents/sdd-impl-judge.md"],"blast":"high","hitlOrAfk":"hitl"}
 {"v":1,"type":"node","id":"github-12-scoring-model-selection","kind":"mission","status":"open","touchSet":[".agents/specs/aced","plugins/aced/skills/report","plugins/aced/skills/improve","plugins/aced/skills/run"],"blast":"medium","hitlOrAfk":"afk"}
 {"v":1,"type":"node","id":"github-13-model-series","kind":"mission","status":"open","touchSet":[".agents/specs/aced","plugins/aced/skills/manage-model-runners"],"blast":"medium","hitlOrAfk":"hitl"}
+{"v":1,"type":"node","id":"github-4-spec-architecture-decision","kind":"mission","status":"open","touchSet":["docs/adr",".research/next-spec-architecture"],"blast":"high","hitlOrAfk":"hitl"}

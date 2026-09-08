@@ -56,3 +56,4 @@
 {"v":1,"type":"node","id":"github-24-prose-block-reconciler","kind":"mission","status":"open","touchSet":["plugins/sdd/skills/check-prose-blocks",".agents/specs/sdd/corpus",".agents/specs/sdd/spec.md"],"blast":"medium","hitlOrAfk":"hitl"}
 {"v":1,"type":"node","id":"github-5-commit-floor","kind":"mission","status":"retired","touchSet":["sdd/corpus"]}
 {"v":1,"type":"node","id":"github-3-backfill-enforceable","kind":"mission","status":"claimed","touchSet":["sdd/authoring","sdd/mission","sdd/workflows"]}
+{"v":1,"type":"node","id":"github-9-impl-gate-floor","kind":"mission","status":"open","touchSet":["sdd/mission"]}

@@ -62,3 +62,4 @@
 {"v":1,"type":"node","id":"github-25-plugin-judge-preflight","kind":"mission","status":"open","touchSet":["sdd/authoring","sdd/plugin"]}
 {"v":1,"type":"node","id":"github-26-gate-spawn-scenario","kind":"mission","status":"open","touchSet":["sdd/authoring"]}
 {"v":1,"type":"node","id":"github-12-scoring-model-selection","kind":"mission","status":"open","touchSet":["aced/eval-run","aced/ledger"]}
+{"v":1,"type":"node","id":"github-13-model-series","kind":"mission","status":"open","touchSet":["aced/registry","aced/manage"]}

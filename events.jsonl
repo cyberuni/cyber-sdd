@@ -38,3 +38,4 @@
 {"v":1,"type":"edge","kind":"RAW","from":"ext-cyberplace-227-relayed-authority","to":"github-14-attribution"}
 {"v":1,"type":"edge","kind":"RAW","from":"github-14-cc-adapter","to":"github-14-attribution"}
 {"v":1,"type":"node","id":"sdd-prose-block-token-reconciler","kind":"mission","status":"open","touchSet":["plugins/sdd/skills/check-prose-blocks",".agents/specs/sdd/corpus"],"blast":"medium","hitlOrAfk":"hitl"}
+{"v":1,"type":"edge","kind":"discovered-from","from":"github-3-backfill-enforceable","to":"sdd-prose-block-token-reconciler"}

@@ -51,9 +51,9 @@ Two options, and the agent correctly refused to self-assert between them:
 - **A fifth patching round** — likely reaches 62/62, but is the patching-past-the-stop-signal that
   CR was written to prevent, and two rounds show the class survives prose sweeps.
 
-**#24 is the only #3-discovered mission that is ready now.** #25 and #26 are WAW-held by claimed
-#3 (they overlap `plugins/sdd/skills/spec-gate/` and `.agents/specs/sdd/authoring/`); #24's
-touch-set does not, so it can start without #3 moving at all.
+**#24 is the only #3-discovered mission ready now**, and #3 and #24 can run concurrently. #3 holds
+`sdd/authoring`, `sdd/mission`, `sdd/workflows`; #24 holds `sdd/corpus`. Disjoint. #25 and #26 both
+hold `sdd/authoring` and are WAW-held by claimed #3, as are #9 and #10.
 
 **Recommendation: the engine, sequenced first**, because #3, #9, #10 and the #5 mission's own
 process failure share one root — SDD mandates behavior in prose with no mechanical check that the
@@ -97,6 +97,15 @@ a plugin-judged domain it would have passed straight through.
 - **RAW edge direction is `--from A --to B` meaning A must finish before B.** Both edges were
   first appended reversed and had to be tombstoned; `ready` reporting "no RAW predecessors" for a
   node you believe is blocked is the tell.
+- **A touch-set's atom is a work area — `<project>/<capability>` — not a file path.** Every node
+  here was first declared in file paths, which is the wrong grain in both directions: it let
+  unrelated missions look disjoint, and then, once `.agents/specs/sdd/spec.md` was added to one, it
+  made every sdd mission collide with every other. The root `spec.md` is **not** a work area: every
+  mission writes its frontmatter at its own gates, so including it encodes a constant rather than a
+  distinguishing fact, and `approval` is last-write-wins by contract anyway. All touch-sets are now
+  re-declared in work areas. `collision-ladder` cannot rescue a wrong-grain declaration — asked
+  about the `spec.md` overlap it returned `hard / rung: node / confidence: low / reason: no-anchor`,
+  which is it correctly declining to guess.
 - **Issue #11 was filed in error and is closed** — see the `github-5` brief.
 
 ## Resolved decisions — do not relitigate

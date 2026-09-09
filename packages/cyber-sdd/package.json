@@ -1,0 +1,48 @@
+{
+	"name": "cyber-sdd-2",
+	"version": "0.0.0",
+	"description": "Spec-Driven Development, second generation — plugin and CLI.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/cyberuni/cyber-sdd.git",
+		"directory": "packages/cyber-sdd"
+	},
+	"license": "MIT",
+	"type": "module",
+	"exports": {
+		".": {
+			"import": "./dist/index.js",
+			"types": "./dist/index.d.ts"
+		}
+	},
+	"bin": {
+		"cyber-sdd-2": "./dist/cli.js"
+	},
+	"files": [
+		"dist",
+		"!dist/**/*.test.*",
+		"skills",
+		"plugin.json",
+		".claude-plugin"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"dev": "tsx src/cli.ts",
+		"test": "vitest run src",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"clibuilder": "^11.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^24.12.4",
+		"tsdown": "^0.23.0",
+		"tsx": "^4.23.13",
+		"typescript": "^7.0.2",
+		"vitest": "^5.0.0"
+	},
+	"engines": {
+		"node": ">=22.11"
+	},
+	"homepage": "https://github.com/cyberuni/cyber-sdd"
+}

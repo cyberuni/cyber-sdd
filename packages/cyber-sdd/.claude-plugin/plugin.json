@@ -1,0 +1,10 @@
+{
+	"$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+	"name": "sdd2",
+	"description": "Spec-Driven Development, second generation — the SDD process plugin and its CLI.",
+	"author": { "name": "unional" },
+	"homepage": "https://github.com/cyberuni/cyber-sdd",
+	"repository": "https://github.com/cyberuni/cyber-sdd",
+	"version": "0.0.0",
+	"skills": "./skills"
+}

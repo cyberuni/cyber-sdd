@@ -46,7 +46,7 @@ Each is a claim a check or a scenario could fail. Markers record how each is enf
 stands behind it — `computed` needs no agent, `tested` has trial evidence, `reasoned` does not
 yet, `v1 has this` means the machinery already ships.
 
-### A · Shape
+### A · Specification shape
 
 **C1.** A node's specification is **intent + criteria**. Criteria live in `{spec}`. The
 executable suite lives in `{code, test, story}`. — *tested*
@@ -66,7 +66,7 @@ no such event and incurs no obligation. — *reasoned*
 > Promoting intent into criteria is what takes on the debt. This also gives C11 its baseline and
 > C10 its drafting behavior for free.
 
-### B · Sets
+### B · Artifact-sets
 
 **C4.** Artifact-sets are drawn by **agent responsibility** — truss's unit-of-change axis.
 `{code, test, story}` is one set with one owner. — *reasoned*
@@ -87,7 +87,7 @@ intra-quality pass over `code ↔ test ↔ story` is that controller. — *reaso
 > Completeness strain is defined on a connection and there are no connections inside a set. This
 > is what removes the need for a separate coverage pair on axis 2.
 
-### C · Evaluation
+### C · Connections
 
 **C7.** A connection is declared as a **relation that must hold, never as a handler**. Restoring
 it is defined once and is traversable from either end. — *reasoned*

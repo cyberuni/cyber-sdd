@@ -59,10 +59,30 @@ and a revert to `draft`.
 
 **But three things become load-bearing, and none is optional.**
 
-1. **The criteria diff must be gate-bound.** Arm C is what a pipeline does when a criteria
-   edit lands without a judge seeing before-and-after — it passes, every time. The entire
-   result rests on the diff reaching a judge. A criteria change that can land unreviewed
-   removes the only ratchet there is.
+1. **Re-key the narrowing escalation off `@frozen`.** This requirement was first written as
+   "the criteria diff must be gate-bound", which under-credited v1. The machinery already
+   exists: `spec-gate` runs `classify-edit-class` over `gherkin-cli diff --format json`,
+   classifying every edit **additive / no-content-change / narrowing / mixed** — additive
+   self-clears on the `addOnly` result, and *"a modified or removed baseline scenario is a
+   **narrowing** — flagged as a **Clearance** finding (never silently absorbed)"*.
+
+   The defect is its trigger. *"A `narrowing`/`mixed` result **on a still-`@frozen` file**
+   routes to Clearance."* The escalation is keyed to the freeze, and the freeze is set **at
+   approve** — spec-gate's approve action is "land the diff; **freeze** each touched
+   `.feature`". So the freeze exists to protect the **`approved` → `implemented` window**:
+   the one stretch where the spec gate has already run and the only remaining gate is the
+   impl gate, which evaluates implementation-against-criteria as **state**. Arm C is a
+   faithful model of the impl-judge.
+
+   Dropping `@frozen` therefore does not merely remove a ratchet — it **silently disarms an
+   escalation that already works**. Re-key that routing to something the freeze is not
+   carrying: the criterion's owner, or simply "a criteria file touched after approval".
+
+   Two smaller leaks ride along. The diff is **baseline-relative** (`--base`, default `HEAD`;
+   *"absent ⇒ every ref counts as introduced"*), so a narrowing landed in one commit becomes
+   the baseline the next reads as purely additive. And the corpus floor runs none of this —
+   ADR-0034 measured root `pnpm check:specs` returning **exit 0** with a spec *and* its frozen
+   suite both deleted.
 
 2. **The mechanical backstop, which needs no judgment.** *A change that adds behavior while
    its suite stays invariant to that behavior has specified nothing.* Both corrected Arm D
@@ -134,9 +154,9 @@ ACED already has this discipline.
 ## Still open
 
 - **The attentive posture is assumed.** Every Arm D run was *asked* to review a change and
-  produce findings. That says nothing about a pipeline where a criteria edit can land without
-  a judge in it at all — which is precisely what Arm C models, and Arm C passes every time.
-  Requirement 1 is therefore the whole result; the rest is refinement.
+  produce findings, which is the posture `classify-edit-class` routes a narrowing into. It is
+  not the posture of a check that has not been routed anything — and per requirement 1, an
+  unfrozen file is not routed.
 - **Owner provenance is designed, not tested.** Requirement 4 is reasoned from a judge's
   observation and from `@pinned`'s existence. No trial has yet put an inherited criterion in
   front of a judge and watched what happens.

@@ -8,16 +8,16 @@ What this dossier changed, and what it deliberately did not.
 
 ## Not landed, deliberately
 
-- **No ADR.** ADR-0034 stands unamended until the ratchet question is answered. Amending
-  it on this dossier alone would adopt validate-over-approval without having tested the
-  property freezing actually bought.
-- **No governance edits.** The negative-constraint rule and the N>1 discipline in
-  `conclusion.md` are requirements on a future change, not applied here.
+- **No ADR.** ADR-0034 stands unamended. The conclusion names three requirements and two
+  open questions; the narrowing-alone case in particular should be tested first, since it
+  is the half of the weakening this trial did not isolate.
+- **No governance edits.** The negative-constraint trigger, the invariant-suite backstop,
+  and the N>1 discipline are requirements on a future change, not applied here.
 - **No files were modified on the subject.** `place-node`, its suite, and its `.feature`
-  are untouched; every run was read-only.
+  are untouched. Every run was read-only; the trial pairs are copies.
 
-## Next
+## Kept deliberately
 
-The ratchet trial: can a criteria judge detect a criterion and its test being weakened
-together in one change? That is the question that decides whether criteria are frozen or
-merely validated, and it is the last one standing between here and an ADR.
+`trial-ratchet/before/` and `after/` are the **defective** first pair. They are retained
+as a record of what was run and why it was discarded, not as evidence. Their three
+construction defects are documented in `trial-ratchet/README.md`.

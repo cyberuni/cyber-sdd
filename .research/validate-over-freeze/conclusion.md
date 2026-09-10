@@ -1,67 +1,90 @@
 # Conclusion
 
-**The SDD 2 arrangement holds on the claim that sank Direction A2, and fails on a
-different one that is cheaper to fix.**
+Two trials on `place-node`, twelve cold runs. **The SDD 2 arrangement holds, and
+criteria do not need to be frozen — but the criteria *diff* has to be gate-bound.**
 
-## The verdict
+## Trial 1 — can a criteria judge replace a frozen suite?
 
 ADR-0034 rejected moving the suite down because an implementation-native suite covered
 5 of 7 frozen scenarios, missed both negative constraints, and shipped a **false green**
-that nothing in `pnpm verify` detected. The false green was the decisive finding: a test
-whose name asserts a property while its assertions do not establish it.
+nothing in `pnpm verify` detected.
 
-Under the SDD 2 arrangement — criteria held in the spec set, the executable suite
-producer-authored in `{code, test, story}`, and a judge that reads criteria it did not
-write — that false green was caught **4 times out of 4**, in both arms, unprompted.
-
-The uncovered negative constraint was caught **3 times out of 4**.
-
-## What this changes about ADR-0034
+Under the SDD 2 arrangement — criteria in the spec set, the executable suite
+producer-authored in `{code, test, story}`, a judge reading criteria it did not write —
+the false green was caught **4 of 4**, in both arms, unprompted. The uncovered negative
+constraint was caught **3 of 4**.
 
 ADR-0034's evidence is not overturned; its **premise** is. It reasoned that A2 left
-ADR-0016 with nothing to re-derive from, because the only candidate anchor it considered
-was the `.feature`. The criteria are a sufficient anchor, and the trial shows a judge
-holding them makes the comparison reliably.
+ADR-0016 with nothing to re-derive from, because the only anchor it considered was the
+`.feature`. **A2 deleted the criteria** — under A2 nobody would ever have made the 5-of-7
+comparison. SDD 2 keeps them and moves only the executable half.
 
-The distinction is exact: **A2 deleted the criteria.** Under A2 nobody would ever have
-performed the 5-of-7 comparison, because there would have been nothing to compare
-against. SDD 2 keeps them and moves only the executable half.
+Two findings the proposal did not anticipate:
 
-## What the trial found that the proposal did not anticipate
+- **The arrangement does the work, not the instruction.** The naive arm went 2 for 2 on
+  both defects; the arm carrying the standing `sdd-impl-judge` bar went 1 for 2 on the
+  negative constraint. Holding criteria produces the catch.
+- **The one miss was a threshold failure, not a perception failure.** The failing run saw
+  the gap and recorded it "missing (not fatal)". It set its own bar and set it low —
+  which is the cost of ADR-0016's re-derivation latitude.
 
-**The instruction is not doing the work — the arrangement is.** The naive arm, asked only
-"does the suite cover this?", went 2 for 2 on both defects. The arm carrying the standing
-`sdd-impl-judge` bar went 2 for 2 on the false green and **1 for 2** on the negative
-constraint. Holding criteria is what produces the catch; the elaborate bar did not add to
-it, and cost variance.
+## Trial 2 — does validation ratchet?
 
-**ADR-0016's re-derivation duty is double-edged.** Deriving the required verification from
-the scenario rather than from the existing tests is the mechanism's point. It is also
-where the miss entered: the failing run derived a weaker requirement and then found it
-satisfied. Latitude to re-derive is latitude to set the bar low.
+A coherent change weakened one criterion and deleted another, motivated by a real scan
+cache, shipping a **genuinely stronger test** for the criterion it kept. No freeze marker
+on either side.
 
-**The miss was a threshold failure, not a perception failure.** The failing run saw the
-gap and recorded it as "missing (not fatal)". That is fixable by stating the threshold,
-where a perception failure would not have been.
+| Arm | Sees | Result |
+|---|---|---|
+| **C** — state only | the current state | passed the gate, 2 of 2. **The weakening is invisible.** |
+| **D** — the change | before and after | **rejected, 2 of 2.** |
 
-## Required before this ships
+Clean separation. Pure validate-over-approval — evaluate whether the relation holds *now* —
+has **no ratchet**. Both ends can move together and the relation holds perfectly. Give a
+judge the diff and the weakening is named immediately, in the change's own terms:
 
-1. **State the negative-constraint rule.** A criterion asserting that something does *not*
-   happen requires a check that **would fail if the constraint were violated**. Absence of
-   the forbidden thing from a fixture is not evidence that it would be ignored if present.
-   The passing run articulated this unprompted; the failing run did not apply it. Written
-   into the judge bar, it converts the one miss into a catch.
+> Removing a scenario that the diff's implementation would fail is the defining shape of a
+> spec-to-fit change.
 
-2. **Run the criteria judgment N > 1 and fail closed on disagreement.** A 3-of-4 result is
-   unreliable at the N=1 a gate actually runs at. ACED already runs judges N times and
-   collapses to a boolean; the same discipline applies here, with disagreement across runs
-   treated as a failure rather than a majority vote.
+## What this settles for SDD 2
+
+**Criteria need not be frozen.** Freezing prevents; review detects, and detection was
+reliable here. That buys the agility the proposal is after: tests iterate with no
+ceremony, and a criteria amendment is argued rather than requiring a whole-suite unfreeze
+and a revert to `draft`.
+
+**But three things become load-bearing, and none is optional.**
+
+1. **The criteria diff must be gate-bound.** Arm C is what a pipeline does when a criteria
+   edit lands without a judge seeing before-and-after — it passes, every time. The entire
+   result rests on the diff reaching a judge. A criteria change that can land unreviewed
+   removes the only ratchet there is.
+
+2. **The mechanical backstop, which needs no judgment.** *A change that adds behavior while
+   its suite stays invariant to that behavior has specified nothing.* Both corrected Arm D
+   runs stated it — "deleting `readCache`/`writeCache` would leave all 6 tests green" — and
+   it is computable from a diff plus a coverage run. Build this before the agentic check;
+   it is cheaper and it does not vary.
+
+3. **The negative-constraint rule, via a mechanism that already exists.** Trial 1's miss
+   was a judge passing a negative criterion with no falsifying check. `sdd-impl-judge`
+   already carries an **Exercise backstop** — "verify the passing check fails when the named
+   behavior breaks" — but keys it to blast radius alone, and a **low**-blast-radius scenario
+   **skips** it. `place-node` is low blast radius, so the bar permitted the skip. The fix is
+   one more trigger, not a new mechanism: **a negative criterion always gets the backstop,
+   whatever the blast radius.** Detecting one is mechanical (a `Then` carrying
+   `no`/`not`/`never`/`nothing`), and `check-suite` already scans `Then` clauses.
+
+Also carry forward from Trial 1: **run the criteria judgment N > 1 and fail closed on
+disagreement**, never majority vote. 3-of-4 is unreliable at the N=1 a gate runs at, and
+ACED already has this discipline.
 
 ## Still open
 
-- **The ratchet.** Nothing here tests whether validate-over-approval prevents co-drift —
-  criteria and tests weakened together, relation still holding. Truss names the hazard:
-  *"restore the relation is satisfied by amending the requirement just as legitimately as
-  by bending the code."* This is the remaining argument for freezing **criteria** while
-  letting tests iterate, and it needs its own trial.
-- **Generalization.** One subject, the easy one, N=2 per arm.
+- **Narrowing alone is untested.** Both Arm D runs led with the *deleted* scenario, the
+  blatant half. Whether a narrowing with no deletion is caught is the subtler question and
+  this trial does not answer it. It is the first thing to test before an ADR.
+- **Authority.** D1 observed that the deleted criterion cited a repo-wide rule, and that a
+  leaf tool has no standing to retire one. Nothing in SDD 2 as designed distinguishes a
+  criterion a node owns from one it inherits.
+- **Generalization.** One subject, the easy one, N=2 per arm on the corrected pair.

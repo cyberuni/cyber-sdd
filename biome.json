@@ -9,7 +9,8 @@
 			"!skills-lock.json",
 			"!.agents",
 			"!**/.astro",
-			"!.cyberfleet"
+			"!.cyberfleet",
+			"!.research"
 		]
 	},
 	"overrides": [

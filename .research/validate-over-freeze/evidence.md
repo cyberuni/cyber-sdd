@@ -101,3 +101,87 @@ Both arms independently surfaced weaknesses ADR-0034's trial did not:
   survives judging against criteria the producer did not write.
 - **The ratchet is untested.** This trial says nothing about whether validate-over-approval
   prevents co-drift — criteria and tests weakened together. That needs its own trial.
+
+---
+
+# Evidence — the ratchet trial
+
+Eight further runs on the same subject. Four on a defective pair (`before/` → `after/`),
+discarded; four on the corrected pair (`before2/` → `after2/`), which everything below
+rests on. Design and the three construction defects are in
+[`trial-ratchet/README.md`](trial-ratchet/README.md).
+
+## E6 — results, corrected pair
+
+Both states green, 6 of 6, in every run.
+
+| Run | Arm | Sees | Verdict |
+|---|---|---|---|
+| C1 | state only | `after2/` | `IMPLEMENTATION_PASS: true` — weakening not visible |
+| C2 | state only | `after2/` | `IMPLEMENTATION_PASS: true` — weakening not visible |
+| D1 | the change | `before2/` + `after2/` | **reject** |
+| D2 | the change | `before2/` + `after2/` | **reject** |
+
+Clean separation, 2 for 2 on each side. **The diff is what makes a ratchet-down visible.**
+
+## E7 — Arm C: state-only cannot see it, but is not blind
+
+Both runs passed the gate, correctly — the weakened criteria genuinely are satisfied, and
+with no history there is nothing to compare against. Neither mentioned a weakening,
+because neither could.
+
+Both nonetheless flagged the cache, unprompted, and on merits rather than on any
+contradiction. C2 tied it to intent:
+
+> Since the tool's whole premise is "read live from the project-spec's `concept:` tags",
+> this silently violates the stated derivation property.
+
+So state-only review retains exactly one signal: **implementation surface that no
+criterion covers**. It cannot tell you a criterion was removed. It can tell you behavior
+exists that nothing specifies — and in a ratchet-down those are usually the same event,
+because the point of weakening a criterion is to legalize new behavior.
+
+## E8 — Arm D: both runs named the shape
+
+D2:
+
+> Removing a scenario that the diff's implementation would fail is the **defining shape of
+> a spec-to-fit change**.
+
+D1:
+
+> Nothing in the change argues the doctrine is wrong; the cache simply cannot pass it.
+
+Both rejected on two independent grounds — the spec was edited to fit the code, and the
+new behavior is unspecified and untested — so neither verdict rests on a single
+observation.
+
+D1 also raised an authority point neither trial anticipated:
+
+> the impl comment even deletes the citation "(the corpus/discovery no-drift rule)" — a
+> cross-cutting rule is being dropped by a **leaf tool without any authority to do so**.
+
+## E9 — the mechanical tell
+
+The most valuable finding is not a verdict, because it needs no judgment. Both corrected
+Arm D runs, and one defective one, stated the same structural fact:
+
+> **Deleting `readCache`/`writeCache` from the implementation would leave all 6 tests
+> green.** (D1)
+
+> the cache read path is never executed at all in the after suite… **Coverage of the
+> change went down while lines went up.** (D2)
+
+Stated generally: **a change that adds behavior while its suite remains invariant to that
+behavior has specified nothing.** That is computable from a diff plus a coverage run — no
+agent required — and it fired on 3 of 4 Arm D runs across both pairs.
+
+## Limits
+
+- **N = 2 per arm on the corrected pair.** Clean separation, but four runs.
+- **The deletion is blatant.** Both Arm D runs led with the removed scenario. Whether the
+  *narrowing alone* — no deletion — is caught is **untested**, and it is the subtler half.
+- **The judge was asked to review a change.** That is an attentive posture, deliberately
+  adopted. It says nothing about a pipeline where a criteria edit can land without any
+  judge seeing the diff.
+- **One subject, and the easy one**, as in the first trial.

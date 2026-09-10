@@ -95,6 +95,20 @@ and a revert to `draft`.
    Without this, dropping the freeze silently makes every inherited rule locally deletable.
    `@pinned` is proof the pattern is already wanted — it was just never generalized past the user.
 
+   **Grade it, do not floor it, and build no second bar.** A blanket "an inherited criterion
+   is never self-assertable" recreates v1's whole-suite rigidity in miniature. Instead: **an
+   upward repair on an inherited criterion puts the owner in the mission's touch-set.**
+   `blast-estimate` already measures **centrality — dependency fan-in** across an area's full
+   root set, and the leash already grades on blast. Scoping the repair to the owner rather
+   than the node makes the existing engine grade it unchanged: a corpus-wide governance reads
+   high fan-in, high blast, narrow leash, stop-and-ask; a low-fan-in owner reads low and the
+   agent self-asserts with a ledger record for async review.
+
+   This also closes a live under-call. A leaf tool retiring a corpus-wide rule is today a
+   tiny touch-set with corpus-wide consequence — exactly the shape `blast-estimate` has an
+   `under-called` verdict for and no input to detect. Owner provenance is that input, so the
+   check becomes **computed rather than judged**.
+
 5. **The negative-constraint rule, via a mechanism that already exists.** Trial 1's miss
    was a judge passing a negative criterion with no falsifying check. `sdd-impl-judge`
    already carries an **Exercise backstop** — "verify the passing check fails when the named

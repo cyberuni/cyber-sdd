@@ -4,7 +4,12 @@ What this dossier changed, and what it deliberately did not.
 
 ## Landed
 
-- This dossier. Nothing else.
+- This dossier.
+- [`packages/cyber-sdd/GLOSSARY.md`](../../packages/cyber-sdd/GLOSSARY.md) — SDD 2's
+  ubiquitous language, kept apart from v1's. Records the connection lifecycle
+  (**unsettle → evaluate → hold / raise → discharge → settle**), **repair direction**, and
+  **owner**, plus the terms deliberately not used. `repair direction` is a general model
+  term and should be upstreamed to truss's model glossary.
 
 ## Not landed, deliberately
 

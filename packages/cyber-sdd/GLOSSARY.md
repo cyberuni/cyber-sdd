@@ -75,12 +75,48 @@ graded rather than waved through.
   authorization.
 - **governance**, inherited from a cross-cutting rule the node does not own.
 
-**upward-repair scoping rule** *(SDD 2)*: an upward repair on an inherited criterion puts the owner
-in the mission's touch-set. Autonomy is then graded by machinery that already exists.
-`blast-estimate` measures the owner's dependency fan-in, and the leash grades on that blast. A
-corpus-wide governance reads high, which narrows the leash to stop-and-ask. A low-fan-in owner
-reads low, and the agent self-asserts with a ledger record for async review. There is no second
-autonomy bar, and the grading is computed rather than judged.
+**upward-repair scoping rule** *(SDD 2)*: an upward repair on an inherited criterion counts the
+owner among the areas the change touches. Reach is then measured from the owner rather than from
+the node, and the leash grades on that reach. A corpus-wide governance reads high, which narrows
+the leash to stop-and-ask. An owner little else depends on reads low, and the agent records its
+decision and continues. No second autonomy bar, and the grading is computed rather than judged.
+
+## Terms borrowed from v1
+
+SDD 2 reuses machinery that already ships in v1, so its criteria name it. These entries exist so a
+reader who has not worked in v1 can resolve those references. They describe v1 as it stands, not
+what SDD 2 requires of it.
+
+**node**: one unit of a project spec, covering one capability. A node holds prose and, when it
+specifies behavior, criteria.
+
+**spec gate** / **impl gate**: the two points a change passes through. The spec gate grades the
+spec and its criteria before implementation starts. The impl gate grades the implementation
+against those criteria.
+
+**change request**: one bounded unit of work against a project spec, with its own lifecycle. It is
+what carries `draft`, `approved` and `implemented` in SDD 2 (C19).
+
+**reach**: how much of a project a change disturbs. v1 computes it as dependency fan-in and calls
+the computation `blast-estimate`.
+
+**leash**: how far an agent may act without asking. v1 derives it from reach at the start of a run.
+Inside the leash the agent records its decision and continues, and outside it the agent stops and
+asks.
+
+**ledger**: the durable, append-only record beside a project spec. A `gate` line in it records an
+approval: the verdict, and what that approval froze.
+
+**`@frozen`**: a v1 tag written onto a suite file when the spec gate approves it. It marks the file
+as a settled contract, and v1's narrowing escalation fires only while it is present. SDD 2 has no
+such tag and takes the same signal from the approve commit (C10, C11).
+
+**`@pinned`**: a v1 tag marking one scenario as the user's. An agent may propose a change to it but
+never make one without in-session authorization. It is the single-owner ancestor of C17's owner.
+
+**`campaign/` and `forge/`**: two capabilities described in v1's own project spec for which no
+implementation exists. They sit inside a project marked `implemented`, which is the defect this
+governance exists to prevent.
 
 ## Terms deliberately not used
 

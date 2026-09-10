@@ -5,7 +5,7 @@
 This is a **cross-cutting governance**, not a node and not a project spec. It constrains how
 every node in SDD 2 is specced, diffed, and gated, so it has no single capability owner and is
 not colocated (C20). A governance runs **proposed → in force → retired**; `implemented` is
-meaningless for a bar, because a bar is applied rather than built.
+meaningless for a governance, because a governance is applied rather than built.
 
 Evidence is in [`.research/validate-over-freeze/`](../../../../../.research/validate-over-freeze/conclusion.md).
 Vocabulary is in [`GLOSSARY.md`](../../../GLOSSARY.md).
@@ -22,13 +22,14 @@ Aspiration belongs here and nowhere else, which is what stops it becoming a fals
 | **Purpose** | Let a project's specification run ahead of its code without lying about what is built, and let the executable suite iterate without ceremony. |
 | **Frame** | SDD 2 is the **two-set instance** of the truss model: `{spec}` and `{code, test, story}`, one connection, discharge at the impl gate. |
 | **Serves** | An agent amending a spec mid-mission; a producer whose implementation meets a criterion it cannot satisfy; a reader asking what a project actually guarantees today. |
-| **Does not serve** | Replacing v1. The two coexist while this is built. SDD 2 re-implements no part of the mission loop. |
+| **Does not serve** | Replacing v1. The two coexist while this is built. SDD 2 re-implements none of v1's machinery for running a change from request to handoff. |
 | **Direction** | Move checks from judged to computed wherever the same defect can be caught either way. |
-| **Roles** | The **spec-producer** writes intent and criteria; the **spec-judge** grades them. The **impl-producer** reads the spec read-only and acts on `{code, test, story}`; the **impl-judge** re-runs the deterministic checks, grades intra-quality across that set, and grades criteria against the implementation. |
+| **Roles** | The **spec-producer** writes intent and criteria; the **spec-judge** grades them. The **impl-producer** reads the spec read-only and acts on `{code, test, story}`; the **impl-judge** re-runs the deterministic checks, grades the internal consistency of that set, and grades the criteria against the implementation. |
 
 **Use cases are intent, not criteria.** v1 already chains
 `## Use Cases → ## Control Flow → ## Scenario map → scenarios`: use cases name what the thing
-serves and sit upstream of the evaluable end. That is why a backfill can draw the CFG from code
+serves and sit upstream of the evaluable end. That is why a backfill can draw the control-flow
+graph from code
 but must recover unserved use cases from request history. The source yields only the *served* use
 cases by construction.
 
@@ -37,7 +38,8 @@ and roughly 40 nodes; a node README carrying `status` fails closed by deliberate
 `verify-scenarios`, the only mechanism where one side of a comparison is running code, is opt-in
 through a `scenario-bridge.toml` that does not exist anywhere in this repository. The
 `implemented` claim has never been checked against a suite. It is not wrong so much as
-**unfalsifiable**, which is how two of SDD's four outer loops sit inside it unbuilt.
+**unfalsifiable**, which is how two whole capabilities that v1's own spec describes sit inside it
+with nothing built.
 
 ---
 
@@ -84,11 +86,14 @@ substitute for them. *(reasoned)*
 > The set is the unit of ownership; the criterion is the unit of evaluation. Coarse sets do not
 > mean coarse reporting.
 
-**C6.** Intra-set consistency is the **controller's** job, not a connection. The impl-judge's
-intra-quality pass over `code ↔ test ↔ story` is that controller. *(reasoned)*
+**C6.** Consistency *inside* a set is the **controller's** job, not a connection's. For
+`{code, test, story}` that controller is the impl-judge's pass over the internal consistency of
+`code ↔ test ↔ story`. *(reasoned)*
 
-> Completeness strain is defined on a connection and there are no connections inside a set. This
-> is what removes the need for a separate coverage pair on axis 2.
+> Strain is a property of a connection, and there are no connections inside a set. So a defect
+> wholly inside `{code, test, story}`, such as code shipped without a test, is the controller's to
+> catch and not the connection's. That is what removes the need for a second, separate pair of sets
+> declared only to police coverage.
 
 ### C · Connections and strain
 
@@ -178,12 +183,12 @@ narrowing. `additive` and `no-content-change` self-clear. *(v1 has the detector;
 
 > A criterion with **no approve baseline has nothing to narrow against**, so authoring before
 > approval classifies as additive by construction and the drafting phase needs no special case.
-> Pre-authorization is what keeps a deliberate narrowing cheap: declare it in the CR and it is
-> argued, not ambushed.
+> Pre-authorization is what keeps a deliberate narrowing cheap: declare it in the change request
+> and it is argued, not ambushed.
 >
-> v1 ships this detector and this routing but conditions the trigger on the file still carrying
-> `@frozen`. v2 has no such tag; the same trigger comes from the approve baseline in C11, so only
-> the condition changes and the detector is reused.
+> v1 ships this detector and this routing, but fires it only while the file still carries a
+> `@frozen` tag written at approval. v2 has no such tag. It gets the same signal from the commit
+> the approve event recorded, so the condition changes and the detector is reused as it stands.
 
 **C11.** The classifier's baseline is **the commit recorded by the approve event**, never the
 working head. *(computed, reasoned)*
@@ -208,7 +213,8 @@ compelled the edit. *(computed, tested)*
 thing happens**. This holds regardless of the change's reach. *(v1 has the check; tested)*
 
 > Absence of the forbidden thing from a fixture is not evidence it would be ignored if present.
-> v1 ships this check but keys it to blast radius alone and lets a low-reach change skip it, which
+> v1 ships this check but keys it to reach alone (how much of the project a change disturbs) and
+> lets a low-reach change skip it, which
 > is why the one trial miss was within the rules rather than a judge error. Detection is
 > mechanical: a negation in the criterion's assertion clause.
 
@@ -234,9 +240,11 @@ position in the document. *(v1 has this; reasoned)*
 
 **C17.** Every criterion carries an **owner**: `node`, `user`, or `governance`. *(v1 has one owner; reasoned)*
 
-> Freezing did two jobs and the ratchet trial tested one. The diff replaces the freeze's ratchet,
-> not its authority gate. A judge reading a diff cannot know a criterion is inherited. v1 has the
-> shape as `@pinned`, with exactly one owner.
+> v1 froze a suite at approval, which did two jobs at once. It stopped the contract weakening
+> silently, and it made removing anything an escalation. Reviewing the diff replaces the first job
+> and not the second: a judge reading a diff cannot tell that a criterion was inherited from a rule
+> the node does not own. v1 has the shape already in `@pinned`, which marks a scenario as the
+> user's, but it recognizes only that one owner.
 
 **C18.** An upward repair on an **inherited** criterion is scoped to that criterion's **owner**,
 so the change's reach is measured from the owner rather than from the node. Autonomy is graded on
@@ -244,26 +252,28 @@ that reach. *(v1 grades on reach; reasoned)*
 
 > Graded, not floored. A blanket prohibition rebuilds v1's rigidity at a smaller scale. v1 already
 > measures reach as dependency fan-in and already grades autonomy on it, so scoping to the owner
-> makes both grade this unchanged, with no second autonomy bar. It also closes a live under-call: a
-> leaf tool retiring a corpus-wide rule is today a tiny touch-set with corpus-wide consequence.
+> makes both grade this unchanged, with no second autonomy bar. It also fixes a case v1 reads too
+> low: a leaf tool retiring a corpus-wide rule touches almost nothing, so reach comes out small
+> while the consequence is corpus-wide.
 
 ### F · Placement and lifecycle
 
 **C19.** A **project spec carries no `status`**. Lifecycle belongs to the change request; a
 project's state is the derived roll-up over its criteria. *(computed, reasoned)*
 
-> Three of v1's four values are CR-shaped: a living project is permanently `draft`, a whole
-> contract does not `approve`, and `implemented` is momentarily true at best, and it is the value that
-> went false. Only `deprecated` is genuinely project-level and deserves its own field. Under
+> Three of v1's four values belong to a change request rather than a project. A living project is
+> permanently `draft`. A whole contract does not `approve`. And `implemented` is momentarily true
+> at best, which is the value that went false. Only `deprecated` is genuinely project-level and deserves its own field. Under
 > per-criterion evaluation the aggregate is derivable, so storing it is the stored-derived-fact
 > ADR-0017 removed `aligned` for.
 
 **C20.** A **cross-cutting contract is a governance, not a node**, and is not colocated, because it has
-no single subject. A bar with one capability owner colocates with that capability. *(v1 has this; reasoned)*
+no single subject. A governance with one capability owner colocates with that capability. *(v1 has this; reasoned)*
 
-> v1 already draws this line: the cross-cutting home is for the bars with no single capability
-> owner, while single-owner bars live in their capability. Screaming architecture organizes
-> capabilities, and a bar is not one, so ADR-0034's colocation does not reach it.
+> v1 already draws this line. Its cross-cutting home holds the governances with no single
+> capability owner, and a governance that has one lives in that capability instead. Organizing by
+> capability (screaming architecture) has no place to put a rule that spans all of them, which is
+> why ADR-0034's colocation does not reach this document.
 
 ### G · Producing a spec
 

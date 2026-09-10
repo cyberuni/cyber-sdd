@@ -10,7 +10,8 @@
 			"!.agents",
 			"!**/.astro",
 			"!.cyberfleet",
-			"!.research"
+			"!.research",
+			"!.claude"
 		]
 	},
 	"overrides": [

@@ -17,8 +17,10 @@ registry **shape** lives in `../design/specialists-and-squads.md`; the registry
 Cursor symlink), and the contract-registry **init-WRITE**.
 **Non-goals** — it does **not** own the registry **shape** (→ `../design/specialists-and-squads.md`)
 or its **READ/resolution** (→ `../mission/`); the **plugin contract** itself is the reference node
-[`./plugin-contract/`](./plugin-contract/README.md); and the user-facing **plugin/governance
-management** + **marketplace** are net-new, deferred to follow-up CRs (their spec + suite are
+[`./plugin-contract/`](./plugin-contract/README.md); whether a manifest's declared components will
+actually **ship** is the child node
+[`./check-plugin-manifests/`](./check-plugin-manifests/README.md); and the user-facing
+**plugin/governance management** + **marketplace** are net-new, deferred to follow-up CRs (their spec + suite are
 authored when that work lands).
 
 | Trigger | Inputs | Outcome |
@@ -32,15 +34,23 @@ Every scenario in [`plugin.feature`](./plugin.feature) maps to one of these thre
 ## SDD ships as a plugin
 
 The SDD plugin is authored as markdown skills and agents plus TypeScript verification
-scripts — not a compiled npm package — and is distributed through agent marketplaces, not
-`npm publish`.
+scripts rather than compiled sources, and reaches a host runtime two ways: an agent
+marketplace installs it straight from the repository directory, and it is also published to
+npm as `cyber-sdd`.
 
 - **Public manifest.** `plugins/sdd/.plugin/plugin.json` declares `name: "sdd"`, its
   description, and the `skills: ./skills` and `agents: ./agents` pointers — the contract for
   which skills, agents, and commands the plugin exposes to a host agent runtime.
-- **Marketplace listings.** Listings live in `.claude-plugin/marketplace.json` and
-  `.cursor-plugin/marketplace.json`; `plugins/sdd/package.json` is `private` (no npm
-  publish).
+- **Marketplace listing.** The listing lives in the repository's root
+  `.claude-plugin/marketplace.json`, which sources each plugin from its directory in this
+  repository — so what a marketplace ships is the directory itself, and a package `files`
+  allowlist does not gate it. A package that also publishes to npm reaches installers by a second
+  route, where `files` does gate it. The child node checks each route against its own requirement.
+- **A declared component must ship.** A pointer naming something the package does not carry is
+  valid JSON, satisfies the schema, and is copied into every generated vendor manifest — it fails
+  only on an installer's machine, after publish. Guarding that is the child node
+  [`./check-plugin-manifests/`](./check-plugin-manifests/README.md); this folder owns which keys a
+  manifest may declare, that node owns whether what it declares will arrive.
 
 The `plugin.json` shape is the spec-level contract; the actual manifest and marketplace
 files are the code-level artifacts it abstracts. The universal-plugin format itself is

@@ -24,6 +24,7 @@ Aspiration belongs here and nowhere else, which is what stops it becoming a fals
 | **Serves** | An agent amending a spec mid-mission; a producer whose implementation meets a criterion it cannot satisfy; a reader asking what a project actually guarantees today. |
 | **Does not serve** | Replacing v1. The two coexist while this is built. SDD 2 re-implements no part of the mission loop. |
 | **Direction** | Move checks from judged to computed wherever the same defect can be caught either way. |
+| **Roles** | The **spec-producer** writes intent and criteria; the **spec-judge** grades them. The **impl-producer** reads the spec read-only and acts on `{code, test, story}`; the **impl-judge** re-runs the deterministic checks, grades intra-quality across that set, and grades criteria against the implementation. |
 
 **Use cases are intent, not criteria.** v1 already chains
 `## Use Cases → ## Control Flow → ## Scenario map → scenarios`: use cases name what the thing
@@ -265,6 +266,41 @@ reasoned*
 > owner, while single-owner bars live in their capability. Screaming architecture organizes
 > capabilities, and a bar is not one, so ADR-0034's colocation does not reach it.
 
+### G · Producing a spec
+
+**C27.** Before a spec reaches the gate, the **spec-producer re-reads it as a cold reader** and
+rewrites whatever resolves only with the authoring context. — *reasoned*
+
+> A governance is read cold by definition; that is what makes it cross-cutting. Every defect this
+> pass exists to catch was found by a reader who had not been in the conversation, and every one of
+> them was invisible to the author who had. Five criteria in this document needed it.
+
+**C28.** A criterion **resolves without its authoring context**: it states what must be true of its
+own subject rather than what was wrong with a predecessor; every term it introduces is defined
+where it is named; every pronoun has one unambiguous antecedent; and no term carries a second sense
+elsewhere in the document. — *reasoned*
+
+> Each clause is a defect this document shipped. C10 read "not only on a `@frozen` file" — a
+> predecessor's defect, unusable to a reader who does not know that predecessor — and C14 and C18
+> named a predecessor's mechanisms instead of stating the requirement. C7 used "never as a handler"
+> without the contrast that gives it meaning, and "restoring it" with an antecedent that read as the
+> wrong noun. C22 named three strain types and left the mapping to be inferred. A group label read
+> "Sets" in a document that also uses criteria set, touch-set and root set.
+
+**C29.** A criterion that **paraphrases defined vocabulary** either uses the term or is missing a
+criterion. Determine which; do not leave the paraphrase standing. — *reasoned*
+
+> The highest-yield check in the pass, because a paraphrase is a structural symptom rather than a
+> wording defect. "Restoring the relation is defined once" was discharge written as prose, and
+> following it found an entire missing layer — the transition rules that became C25 and C26.
+
+**C30.** A **count or claim a document makes about itself is derived when written**, never recalled.
+— *computed, reasoned*
+
+> This document twice stated a marker tally from memory and was wrong both times, and a third
+> attempt by `grep` over-counted on a prose mention of the very word being counted. A
+> self-describing number is a claim like any other, and it is checkable at zero cost.
+
 ---
 
 ## Still open
@@ -272,8 +308,8 @@ reasoned*
 - **The attentive posture is assumed.** Every judge that caught a ratchet-down was *asked* to
   review a change — the posture a narrowing is routed into. It is not the posture of a check that
   has been routed nothing, and per C10 that is what an unrouted criteria edit gets.
-- **Nineteen of twenty-six are reasoned, not measured.** All of groups A (bar C1), B, C, E and F,
-  plus C9, C11 and C21. No trial has diffed criteria that are not Gherkin, put an inherited
+- **Twenty-three of thirty are reasoned, not measured.** All of groups A (bar C1), B, C, E, F and
+  G, plus C9, C11 and C21. No trial has diffed criteria that are not Gherkin, put an inherited
   criterion in front of a judge, or carried an obligation across a gate.
 - **Generalization.** One subject, and the easy one: a small, deterministic, already-colocated
   tool, at N=2 and N=3 per corrected pair.

@@ -7,8 +7,8 @@ every node in SDD 2 is specced, diffed, and gated, so it has no single capabilit
 not colocated (C20). A governance runs **proposed → in force → retired**; `implemented` is
 meaningless for a bar, because a bar is applied rather than built.
 
-Evidence is in [`.research/validate-over-freeze/`](../../.research/validate-over-freeze/conclusion.md).
-Vocabulary is in [`GLOSSARY.md`](./GLOSSARY.md).
+Evidence is in [`.research/validate-over-freeze/`](../../../../../.research/validate-over-freeze/conclusion.md).
+Vocabulary is in [`GLOSSARY.md`](../../../GLOSSARY.md).
 
 ---
 

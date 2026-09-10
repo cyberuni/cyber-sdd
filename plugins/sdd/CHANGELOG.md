@@ -1,5 +1,43 @@
 # cyber-sdd
 
+## 0.3.0
+
+### Minor Changes
+
+- 9bb913b: A new `check-plugin-manifests` guard: a plugin manifest may declare only components the package
+  actually ships.
+  
+  A manifest pointer naming something the package does not carry is valid JSON, satisfies the schema,
+  and is copied into every generated vendor manifest — so it fails only on an installer's machine,
+  after publish, as a component the host runtime cannot load. Nothing in the repo compared a
+  manifest's pointers against what ships.
+  
+  The guard resolves every `./`-prefixed pointer two ways, because a component can fail to arrive in
+  two independent ways: against **disk** (does the path exist?) and, for a package that publishes,
+  against its **`files` allowlist** (will the tarball carry it?). A directory can exist and be
+  excluded; a `files` entry can name a directory nobody created.
+  
+  Keyed on the **value shape** rather than a component-key list, so a key the manifest format adds
+  later is covered without editing the engine. Pointers resolve against the **plugin root**, not the
+  manifest's own directory, so a generated vendor manifest one level down is read correctly.
+  
+  It joins the root chain as `check:plugins`, so it runs on every `pnpm verify` and in CI. A finding
+  always exits non-zero — there is deliberately no report-only mode, because a chain that reports
+  green over a defect is treated as clearance to commit.
+- 4a0230a: `check-project-specs` gains a total **corpus scope** and refuses flags it does not define.
+  
+  `--corpus` runs the coverage guard **and** the engine set over every project-spec in the corpus,
+  so a repo's commit floor checks the whole tree rather than one project. The two sub-checks compose
+  deliberately: the sweep only visits the specs discovery recognizes, so a spec whose lifecycle
+  `status` is a typo is invisible to it, while the coverage guard sees that file on disk but says
+  nothing about whether the engines pass.
+  
+  **Breaking for callers of `--check-coverage`:** that flag is removed, and an unrecognized flag is
+  now an error instead of falling through to project scope. The fall-through was silent — project
+  scope at a repo root resolves no governing spec and exits `0` — so a coverage-only flag could guard
+  every commit and every CI run while running no engine at all. Replace `--check-coverage` with
+  `--corpus`.
+
 ## 0.2.1
 
 ### Patch Changes

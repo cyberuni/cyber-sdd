@@ -8,7 +8,6 @@
 	},
 	"homepage": "https://github.com/cyberuni/cyber-sdd",
 	"repository": "https://github.com/cyberuni/cyber-sdd",
-	"commands": "./commands",
 	"skills": "./skills",
 	"agents": [
 		"./agents/aced-case-judge.md",

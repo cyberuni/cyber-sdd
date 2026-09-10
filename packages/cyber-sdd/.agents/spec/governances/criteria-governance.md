@@ -89,13 +89,19 @@ intra-quality pass over `code ↔ test ↔ story` is that controller. — *reaso
 
 ### C · Connections and strain
 
-**C7.** A connection is declared as a **relation that must hold, never as a handler**. Restoring
-it is defined once and is traversable from either end. — *reasoned*
+**C7.** A connection is declared as a **relation that must hold** between two artifact-sets — not
+as a rule that fires when one of them changes. **Restoring the relation** is defined once, and
+applies whichever end the change landed on. — *reasoned*
 
-> Procedural framing needs one path per direction: two entry points, two code paths, two results,
-> and confluence is gone before the first connection ships. The vocabulary follows from the shape
-> — a delta **unsettles** a connection, the connection is **evaluated**, the relation **holds** or
-> strain is **raised**, strain is **discharged**, the connection **settles**.
+> As a relation: *every criterion has a check that establishes it*. As rules that fire: *when
+> criteria change, regenerate the checks* plus *when checks change, validate them against the
+> criteria* — one rule per direction, and nothing keeps the two agreeing. Two entry points, two
+> code paths, two results, and confluence is gone before the first connection ships. Written as a
+> relation there is one statement to restore, no matter which end moved.
+>
+> The vocabulary follows from the shape: a delta **unsettles** a connection, the connection is
+> **evaluated**, the relation **holds** or strain is **raised**, strain is **discharged**, and the
+> connection **settles**.
 
 **C8.** **No connection declares a direction.** Direction is recorded on the repair, not on the
 relation. — *reasoned*
@@ -104,13 +110,14 @@ relation. — *reasoned*
 > second-class. Amending criteria is as legitimate as amending code, which is why an upward repair
 > needs an authority check rather than a prohibition.
 
-**C22.** A connection that does not hold carries a **typed** strain — `completeness`,
-`obligation`, or `conformance`. The type decides what blocks; the size of the gap does not. —
-*reasoned*
+**C22.** A connection that does not hold carries a **typed** strain: **completeness** — the change
+is incomplete right now; **obligation** — the change created a debt to discharge later; or
+**conformance** — criteria evaluated cold, with no change in hand. The type decides what blocks;
+the size of the gap does not. — *reasoned*
 
-> A single measure cannot separate "this change is incomplete right now" from "this change created
-> a debt to discharge later" from "criteria evaluated cold, with no delta at all". Those need three
-> different responses, and only the first should stop the change.
+> The three need three different responses, and only completeness should stop the change in front
+> of you. It is also why a gap *score* is the wrong instrument: the useful information is which
+> kind, not how big.
 
 **C23.** **Obligation strain may be carried** across a discharge point when it is recorded and
 classified. Completeness strain may not. An implementation is complete when completeness strain is

@@ -7,6 +7,23 @@ Terms marked *(SDD 2)* are ours; the rest are truss's and must not drift from it
 This is deliberately **not** `.agents/specs/sdd/glossary.md`. That file is v1's ubiquitous
 language, and v1 does not speak this vocabulary.
 
+## The two nouns
+
+Keep these apart. Conflating them is the most common misreading of the model, and truss's own
+glossary invites it (see [Upstream](#upstream)).
+
+- **connection** — a **relation between two artifact-sets that must hold**. Undirected, declared
+  once, and standing: a connection is never consumed. It survives every evaluation and every
+  discharge.
+- **strain** — a **condition**, not a thing: the state of a connection whose relation does not
+  currently hold *for a given criterion*. Typed `completeness` / `obligation` / `conformance`
+  (C22). Raised by evaluation, removed by discharge — and the connection remains either way.
+
+> **A connection is not a strain.** Discharge removes the strain and leaves the connection
+> standing; that is the quickest test. And one connection carries many criteria with **one verdict
+> per criterion** (C5, C26), so several independent strains can sit on one connection at once —
+> which is incoherent if strain is a kind of connection.
+
 ## The connection lifecycle
 
 One verb per step, and none of them makes the connection an actor. A connection is a
@@ -24,7 +41,8 @@ path per direction and loses confluence immediately.
 - **evaluate** — what is done *to* a connection to learn whether its relation holds. The
   subject of the active verb is always the evaluator (a controller, a check, a judge),
   never the connection.
-- **hold** / **strained** — the two outcomes of evaluating.
+- **holds** / **strained** / **unevaluated** / **declined** — the four verdicts evaluation can
+  yield (C26). `unevaluated` never reports as `holds`.
 - **raise** — what a delta does to strain, once evaluation has found the relation broken.
 - **discharge** — resolving strain, at a point the workflow names.
 - **settle** — the state a connection returns to once discharged.
@@ -67,5 +85,12 @@ path per direction and loses confluence immediately.
 
 ## Upstream
 
-**repair direction** is a general model term, not an SDD-specific one. It belongs in
-truss's own model glossary; it is recorded here because that is where it was coined.
+Two items belong in truss's own model glossary rather than here.
+
+- **repair direction** is a general model term, not an SDD-specific one. It is recorded here
+  because this is where it was coined.
+- **strain is a condition, not a connection.** Truss defines it as *"a connection whose relation
+  does not currently hold"*, which reads as making strain a kind of connection. Every other use in
+  truss treats it as a condition: strain is *raised*, *carried across a crossing*, and
+  *discharged*, none of which a connection does, and all of which it survives. SDD 2 uses the
+  condition reading, and C5 and C26 require it.

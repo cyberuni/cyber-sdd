@@ -89,9 +89,14 @@ intra-quality pass over `code ↔ test ↔ story` is that controller. — *reaso
 
 ### C · Connections and strain
 
+Three layers, and each term belongs to exactly one of them. **Declaration** — what a connection
+is (C7, C8). **State** — what it is in (C22). **Transition** — how it moves between states (C25,
+C26). Keeping them apart is what stops a transition rule from being restated as prose inside a
+declaration, and it gives each term borrowed from truss a fixed home.
+
+
 **C7.** A connection is declared as a **relation that must hold** between two artifact-sets — not
-as a rule that fires when one of them changes. **Restoring the relation** is defined once, and
-applies whichever end the change landed on. — *reasoned*
+as a rule that fires when one of them changes. — *reasoned*
 
 > As a relation: *every criterion has a check that establishes it*. As rules that fire: *when
 > criteria change, regenerate the checks* plus *when checks change, validate them against the
@@ -133,6 +138,25 @@ the record. — *reasoned*
 > Without it any report nags forever, and an accumulating gap count is one everyone learns to
 > ignore. `campaign/` and `forge/` may well be legitimate declines; today there is nowhere to say
 > so.
+
+
+**C25.** **Discharge is defined once per connection**, and applies whichever end the delta landed
+on. — *reasoned*
+
+> This is C7's transition half, stated separately so C7 stays about what a connection *is*. It also
+> uses the vocabulary rather than paraphrasing it: restoring a relation *is* discharge, and what
+> follows is the connection settling.
+
+**C26.** Evaluating a criterion yields exactly one of: **holds**; **strained**, typed per C22;
+**unevaluated**, meaning no check binds to it; or **declined**, per C24. **`unevaluated` never
+reports as `holds`.** — *v1 has three of the four; reasoned*
+
+> C5 says one verdict per criterion; this says which verdicts exist. v1's bridge already returns
+> PASS / FAIL / UNBOUND, and truss independently recorded that two states are not enough — *"the
+> `.github` repo does not score as unstrained, it scores as never-checked, and reporting those two
+> the same way is exactly the defect that let the merge through."* Two projects reached the same
+> three-state requirement separately, which is the strongest evidence in the set for any criterion
+> marked *reasoned*.
 
 
 ### D · The ratchet
@@ -248,7 +272,7 @@ reasoned*
 - **The attentive posture is assumed.** Every judge that caught a ratchet-down was *asked* to
   review a change — the posture a narrowing is routed into. It is not the posture of a check that
   has been routed nothing, and per C10 that is what an unrouted criteria edit gets.
-- **Seventeen of twenty-four are reasoned, not measured.** All of groups A (bar C1), B, C, E and F,
+- **Nineteen of twenty-six are reasoned, not measured.** All of groups A (bar C1), B, C, E and F,
   plus C9, C11 and C21. No trial has diffed criteria that are not Gherkin, put an inherited
   criterion in front of a judge, or carried an obligation across a gate.
 - **Generalization.** One subject, and the easy one: a small, deterministic, already-colocated

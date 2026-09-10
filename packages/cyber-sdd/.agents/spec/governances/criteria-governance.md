@@ -87,7 +87,7 @@ intra-quality pass over `code ↔ test ↔ story` is that controller. — *reaso
 > Completeness strain is defined on a connection and there are no connections inside a set. This
 > is what removes the need for a separate coverage pair on axis 2.
 
-### C · Connections
+### C · Connections and strain
 
 **C7.** A connection is declared as a **relation that must hold, never as a handler**. Restoring
 it is defined once and is traversable from either end. — *reasoned*
@@ -103,6 +103,30 @@ relation. — *reasoned*
 > Writing direction into a connection bakes in one workflow and makes every other traversal
 > second-class. Amending criteria is as legitimate as amending code, which is why an upward repair
 > needs an authority check rather than a prohibition.
+
+**C22.** A connection that does not hold carries a **typed** strain — `completeness`,
+`obligation`, or `conformance`. The type decides what blocks; the size of the gap does not. —
+*reasoned*
+
+> A single measure cannot separate "this change is incomplete right now" from "this change created
+> a debt to discharge later" from "criteria evaluated cold, with no delta at all". Those need three
+> different responses, and only the first should stop the change.
+
+**C23.** **Obligation strain may be carried** across a discharge point when it is recorded and
+classified. Completeness strain may not. An implementation is complete when completeness strain is
+zero and **no obligation is undeclared**. — *reasoned*
+
+> v1 pins obligation to zero at the impl gate, which is the waterfall policy and the strict one.
+> That leaves a legitimately carried debt nowhere to sit, so aspiration goes underground and
+> reappears as a false `implemented`. This states the injury as a policy rather than as a bug.
+
+**C24.** **Declining is a legal discharge.** An obligation may be discharged without being done, on
+the record. — *reasoned*
+
+> Without it any report nags forever, and an accumulating gap count is one everyone learns to
+> ignore. `campaign/` and `forge/` may well be legitimate declines; today there is nowhere to say
+> so.
+
 
 ### D · The ratchet
 
@@ -217,9 +241,9 @@ reasoned*
 - **The attentive posture is assumed.** Every judge that caught a ratchet-down was *asked* to
   review a change — the posture a narrowing is routed into. It is not the posture of a check that
   has been routed nothing, and per C10 that is what an unrouted criteria edit gets.
-- **Twelve of twenty-one are reasoned, not measured.** All of groups B, C and F, both of E, plus
-  C9, C11 and C21. No trial has diffed criteria that are not Gherkin, or put an inherited criterion
-  in front of a judge.
+- **Seventeen of twenty-four are reasoned, not measured.** All of groups A (bar C1), B, C, E and F,
+  plus C9, C11 and C21. No trial has diffed criteria that are not Gherkin, put an inherited
+  criterion in front of a judge, or carried an obligation across a gate.
 - **Generalization.** One subject, and the easy one: a small, deterministic, already-colocated
   tool, at N=2 and N=3 per corrected pair.
 

@@ -1,6 +1,6 @@
-# criteria-governance — the SDD 2 criteria contract
+# criteria-governance: the SDD 2 criteria contract
 
-**Status: `draft` — not yet in force.**
+**Status: `draft`. Not yet in force.**
 
 This is a **cross-cutting governance**, not a node and not a project spec. It constrains how
 every node in SDD 2 is specced, diffed, and gated, so it has no single capability owner and is
@@ -29,8 +29,8 @@ Aspiration belongs here and nowhere else, which is what stops it becoming a fals
 **Use cases are intent, not criteria.** v1 already chains
 `## Use Cases → ## Control Flow → ## Scenario map → scenarios`: use cases name what the thing
 serves and sit upstream of the evaluable end. That is why a backfill can draw the CFG from code
-but must recover unserved use cases from request history — the source yields only the *served*
-use cases by construction.
+but must recover unserved use cases from request history. The source yields only the *served* use
+cases by construction.
 
 **What v1 leaves unmeasured.** One lifecycle flag on the root `spec.md` covers 46 feature files
 and roughly 40 nodes; a node README carrying `status` fails closed by deliberate rule. And
@@ -44,64 +44,66 @@ through a `scenario-bridge.toml` that does not exist anywhere in this repository
 ## Criteria
 
 Each is a claim a check or a scenario could fail. Markers record how each is enforced and what
-stands behind it — `computed` needs no agent, `tested` has trial evidence, `reasoned` does not
-yet, `v1 has this` means the machinery already ships.
+stands behind it. `computed` needs no agent. `tested` has trial evidence. `reasoned` has none yet.
+`v1 has this` means the machinery already ships.
 
 ### A · Specification shape
 
 **C1.** A node's specification is **intent + criteria**. Criteria live in `{spec}`. The
-executable suite lives in `{code, test, story}`. — *tested*
+executable suite lives in `{code, test, story}`. *(tested)*
 
 > Only the executable half crosses the boundary. ADR-0034 rejected moving the suite down because
 > that direction deleted the criteria, leaving ADR-0016 nothing to re-derive from.
 
 **C2.** Intent makes no evaluable claim. Aspirational detail belongs in intent and is never
-expressed as a criterion. — *reasoned*
+expressed as a criterion. *(reasoned)*
 
 > Nothing claims `campaign/` is built, so the lie has nowhere to form. This removes a lifecycle
 > state rather than adding one.
 
 **C3.** A criterion is **in force only from the approve event that records it**. Intent carries
-no such event and incurs no obligation. — *reasoned*
+no such event and incurs no obligation. *(reasoned)*
 
 > Promoting intent into criteria is what takes on the debt. This also gives C11 its baseline and
 > C10 its drafting behavior for free.
 
 ### B · Artifact-sets
 
-**C4.** Artifact-sets are drawn by **agent responsibility** — truss's unit-of-change axis.
-`{code, test, story}` is one set with one owner. — *reasoned*
+**C4.** Artifact-sets are drawn by **agent responsibility**, which is truss's unit-of-change axis.
+`{code, test, story}` is one set with one owner. *(reasoned)*
 
 > Splitting code from test forces a traversal order: test-first is TDD, code-first reaches for
 > what the code does and not for what it must never do. One set removes the question instead of
 > answering it, which is ADR-0028's standing co-development doctrine.
 
 **C5.** **Evaluation reports one verdict per criterion.** A set-level verdict is never a
-substitute for them. — *reasoned*
+substitute for them. *(reasoned)*
 
 > The set is the unit of ownership; the criterion is the unit of evaluation. Coarse sets do not
 > mean coarse reporting.
 
 **C6.** Intra-set consistency is the **controller's** job, not a connection. The impl-judge's
-intra-quality pass over `code ↔ test ↔ story` is that controller. — *reasoned*
+intra-quality pass over `code ↔ test ↔ story` is that controller. *(reasoned)*
 
 > Completeness strain is defined on a connection and there are no connections inside a set. This
 > is what removes the need for a separate coverage pair on axis 2.
 
 ### C · Connections and strain
 
-Three layers, and each term belongs to exactly one of them. **Declaration** — what a connection
-is (C7, C8). **State** — what it is in (C22). **Transition** — how it moves between states (C25,
-C26). Keeping them apart is what stops a transition rule from being restated as prose inside a
-declaration, and it gives each term borrowed from truss a fixed home.
+A connection, the strain on it, and the move between the two are different things. C7 and C8 say
+what a connection is. C22 says what it can be in. C25 and C26 say how it moves.
+
+Mixing them put a discharge rule inside C7, written as prose because it had nowhere else to sit.
+Separating them also gives every term borrowed from truss a fixed home. Reconciling with that
+model then becomes a question per layer, not per word.
 
 
-**C7.** A connection is declared as a **relation that must hold** between two artifact-sets — not
-as a rule that fires when one of them changes. — *reasoned*
+**C7.** A connection is declared as a **relation that must hold** between two artifact-sets, not
+as a rule that fires when one of them changes. *(reasoned)*
 
 > As a relation: *every criterion has a check that establishes it*. As rules that fire: *when
 > criteria change, regenerate the checks* plus *when checks change, validate them against the
-> criteria* — one rule per direction, and nothing keeps the two agreeing. Two entry points, two
+> criteria*. One rule per direction, and nothing keeps the two agreeing. Two entry points, two
 > code paths, two results, and confluence is gone before the first connection ships. Written as a
 > relation there is one statement to restore, no matter which end moved.
 >
@@ -110,16 +112,16 @@ as a rule that fires when one of them changes. — *reasoned*
 > connection **settles**.
 
 **C8.** **No connection declares a direction.** Direction is recorded on the repair, not on the
-relation. — *reasoned*
+relation. *(reasoned)*
 
 > Writing direction into a connection bakes in one workflow and makes every other traversal
 > second-class. Amending criteria is as legitimate as amending code, which is why an upward repair
 > needs an authority check rather than a prohibition.
 
-**C22.** A connection that does not hold carries a **typed** strain: **completeness** — the change
-is incomplete right now; **obligation** — the change created a debt to discharge later; or
-**conformance** — criteria evaluated cold, with no change in hand. The type decides what blocks;
-the size of the gap does not. — *reasoned*
+**C22.** A connection that does not hold carries a **typed** strain. **completeness**: the change is
+incomplete right now. **obligation**: the change created a debt to discharge later.
+**conformance**: criteria evaluated cold, with no change in hand. The type decides what blocks;
+the size of the gap does not. *(reasoned)*
 
 > The three need three different responses, and only completeness should stop the change in front
 > of you. It is also why a gap *score* is the wrong instrument: the useful information is which
@@ -127,14 +129,14 @@ the size of the gap does not. — *reasoned*
 
 **C23.** **Obligation strain may be carried** across a discharge point when it is recorded and
 classified. Completeness strain may not. An implementation is complete when completeness strain is
-zero and **no obligation is undeclared**. — *reasoned*
+zero and **no obligation is undeclared**. *(reasoned)*
 
 > v1 pins obligation to zero at the impl gate, which is the waterfall policy and the strict one.
 > That leaves a legitimately carried debt nowhere to sit, so aspiration goes underground and
 > reappears as a false `implemented`. This states the injury as a policy rather than as a bug.
 
 **C24.** **Declining is a legal discharge.** An obligation may be discharged without being done, on
-the record. — *reasoned*
+the record. *(reasoned)*
 
 > Without it any report nags forever, and an accumulating gap count is one everyone learns to
 > ignore. `campaign/` and `forge/` may well be legitimate declines; today there is nowhere to say
@@ -142,7 +144,7 @@ the record. — *reasoned*
 
 
 **C25.** **Discharge is defined once per connection**, and applies whichever end the delta landed
-on. — *reasoned*
+on. *(reasoned)*
 
 > This is C7's transition half, stated separately so C7 stays about what a connection *is*. It also
 > uses the vocabulary rather than paraphrasing it: restoring a relation *is* discharge, and what
@@ -150,10 +152,10 @@ on. — *reasoned*
 
 **C26.** Evaluating a criterion yields exactly one of: **holds**; **strained**, typed per C22;
 **unevaluated**, meaning no check binds to it; or **declined**, per C24. **`unevaluated` never
-reports as `holds`.** — *v1 has three of the four; reasoned*
+reports as `holds`.** *(v1 has three of the four; reasoned)*
 
 > C5 says one verdict per criterion; this says which verdicts exist. v1's bridge already returns
-> PASS / FAIL / UNBOUND, and truss independently recorded that two states are not enough — *"the
+> PASS / FAIL / UNBOUND, and truss independently recorded that two states are not enough: *"the
 > `.github` repo does not score as unstrained, it scores as never-checked, and reporting those two
 > the same way is exactly the defect that let the merge through."* Two projects reached the same
 > three-state requirement separately, which is the strongest evidence in the set for any criterion
@@ -163,16 +165,15 @@ reports as `holds`.** — *v1 has three of the four; reasoned*
 ### D · The ratchet
 
 **C9.** The edit classifier points at **criteria**, not at the suite. Every criteria edit is
-classified `additive` / `no-content-change` / `narrowing` / `mixed`. — *v1 has this, on the suite;
-reasoned*
+classified `additive` / `no-content-change` / `narrowing` / `mixed`. *(v1 has this, on the suite; reasoned)*
 
 > Criteria stay in one set and one format; suites are domain-specific. Pointing at criteria means
 > one classifier covers Vitest, `evals.json`, Storybook and prose, with no per-suite differ to
 > build in any domain.
 
 **C10.** A criteria edit classified `narrowing` or `mixed` against its approve baseline
-**escalates, and is never silently absorbed** — unless the change request pre-authorized that
-narrowing. `additive` and `no-content-change` self-clear. — *v1 has the detector; tested*
+**escalates, and is never silently absorbed**, unless the change request pre-authorized that
+narrowing. `additive` and `no-content-change` self-clear. *(v1 has the detector; tested)*
 
 > A criterion with **no approve baseline has nothing to narrow against**, so authoring before
 > approval classifies as additive by construction and the drafting phase needs no special case.
@@ -183,27 +184,27 @@ narrowing. `additive` and `no-content-change` self-clear. — *v1 has the detect
 > `@frozen`. v2 has no such tag; the same trigger comes from the approve baseline in C11, so only
 > the condition changes and the detector is reused.
 
-**C11.** The classifier's baseline is **the commit recorded by the approve event** — never the
-working head. — *computed, reasoned*
+**C11.** The classifier's baseline is **the commit recorded by the approve event**, never the
+working head. *(computed, reasoned)*
 
 > Frozen-ness becomes derived rather than stored, which is ADR-0017's own rule, and the
 > moving-baseline leak closes in the same stroke. v1's ledger `gate` line already carries the
 > verdict and what it froze; it needs the ref. **Risk to carry: a squash or rebase orphans it.**
 
 **C12.** **Invariant-suite backstop.** A change that adds behavior while its suite stays invariant
-to that behavior has specified nothing. — *computed, tested*
+to that behavior has specified nothing. *(computed, tested)*
 
 > Stated independently by three of four judges. Computable from a diff plus a coverage run.
 
 **C13.** A criteria relaxation that **verification would not have caught must carry a recorded
 argument**. Run the before-suite against the after-implementation; if it still passes, nothing
-compelled the edit. — *computed, tested*
+compelled the edit. *(computed, tested)*
 
 > It does not prove bad faith. It proves the edit was invisible to verification, which is the
 > class of change that has to be argued rather than presented as necessity.
 
 **C14.** A criterion that **forbids** something requires a check that **fails when the forbidden
-thing happens**. This holds regardless of the change's reach. — *v1 has the check; tested*
+thing happens**. This holds regardless of the change's reach. *(v1 has the check; tested)*
 
 > Absence of the forbidden thing from a fixture is not evidence it would be ignored if present.
 > v1 ships this check but keys it to blast radius alone and lets a low-reach change skip it, which
@@ -211,18 +212,17 @@ thing happens**. This holds regardless of the change's reach. — *v1 has the ch
 > mechanical: a negation in the criterion's assertion clause.
 
 **C15.** An **intended edit that yields zero delta is an error**. A zero-delta change raising
-nothing stays the rule; the inverse must be surfaced. — *computed, tested*
+nothing stays the rule; the inverse must be surfaced. *(computed, tested)*
 
 > The false green on the authoring side: report and reality disagree and nothing detects it. This
 > produced the worst defect in the trials themselves, twice.
 
-**C16.** Criteria judgment runs **N > 1 and fails closed on disagreement** — never majority vote.
-— *tested*
+**C16.** Criteria judgment runs **N > 1 and fails closed on disagreement**, never majority vote. *(tested)*
 
 > 3-of-4 is unreliable at the N=1 a gate actually runs at. ACED already carries this discipline.
 
 **C21.** Every criterion carries a **stable identity**, independent of its wording and of its
-position in the document. — *v1 has this; reasoned*
+position in the document. *(v1 has this; reasoned)*
 
 > Without one a classifier cannot tell a *modification* from a *removal plus an addition*, and a
 > line-diff is fooled outright by content moved between adjacent criteria. v1 warns about exactly
@@ -231,18 +231,17 @@ position in the document. — *v1 has this; reasoned*
 
 ### E · Authority
 
-**C17.** Every criterion carries an **owner**: `node`, `user`, or `governance`. — *v1 has one
-owner; reasoned*
+**C17.** Every criterion carries an **owner**: `node`, `user`, or `governance`. *(v1 has one owner; reasoned)*
 
 > Freezing did two jobs and the ratchet trial tested one. The diff replaces the freeze's ratchet,
-> not its authority gate — a judge reading a diff cannot know a criterion is inherited. v1 has the
+> not its authority gate. A judge reading a diff cannot know a criterion is inherited. v1 has the
 > shape as `@pinned`, with exactly one owner.
 
 **C18.** An upward repair on an **inherited** criterion is scoped to that criterion's **owner**,
 so the change's reach is measured from the owner rather than from the node. Autonomy is graded on
-that reach. — *v1 grades on reach; reasoned*
+that reach. *(v1 grades on reach; reasoned)*
 
-> Graded, not floored — a blanket prohibition rebuilds v1's rigidity at a smaller scale. v1 already
+> Graded, not floored. A blanket prohibition rebuilds v1's rigidity at a smaller scale. v1 already
 > measures reach as dependency fan-in and already grades autonomy on it, so scoping to the owner
 > makes both grade this unchanged, with no second autonomy bar. It also closes a live under-call: a
 > leaf tool retiring a corpus-wide rule is today a tiny touch-set with corpus-wide consequence.
@@ -250,17 +249,16 @@ that reach. — *v1 grades on reach; reasoned*
 ### F · Placement and lifecycle
 
 **C19.** A **project spec carries no `status`**. Lifecycle belongs to the change request; a
-project's state is the derived roll-up over its criteria. — *computed, reasoned*
+project's state is the derived roll-up over its criteria. *(computed, reasoned)*
 
 > Three of v1's four values are CR-shaped: a living project is permanently `draft`, a whole
-> contract does not `approve`, and `implemented` is momentarily true at best — it is the value that
+> contract does not `approve`, and `implemented` is momentarily true at best, and it is the value that
 > went false. Only `deprecated` is genuinely project-level and deserves its own field. Under
 > per-criterion evaluation the aggregate is derivable, so storing it is the stored-derived-fact
 > ADR-0017 removed `aligned` for.
 
-**C20.** A **cross-cutting contract is a governance, not a node**, and is not colocated — it has
-no single subject. A bar with one capability owner colocates with that capability. — *v1 has this;
-reasoned*
+**C20.** A **cross-cutting contract is a governance, not a node**, and is not colocated, because it has
+no single subject. A bar with one capability owner colocates with that capability. *(v1 has this; reasoned)*
 
 > v1 already draws this line: the cross-cutting home is for the bars with no single capability
 > owner, while single-owner bars live in their capability. Screaming architecture organizes
@@ -269,7 +267,7 @@ reasoned*
 ### G · Producing a spec
 
 **C27.** Before a spec reaches the gate, the **spec-producer re-reads it as a cold reader** and
-rewrites whatever resolves only with the authoring context. — *reasoned*
+rewrites whatever resolves only with the authoring context. *(reasoned)*
 
 > A governance is read cold by definition; that is what makes it cross-cutting. Every defect this
 > pass exists to catch was found by a reader who had not been in the conversation, and every one of
@@ -278,24 +276,23 @@ rewrites whatever resolves only with the authoring context. — *reasoned*
 **C28.** A criterion **resolves without its authoring context**: it states what must be true of its
 own subject rather than what was wrong with a predecessor; every term it introduces is defined
 where it is named; every pronoun has one unambiguous antecedent; and no term carries a second sense
-elsewhere in the document. — *reasoned*
+elsewhere in the document. *(reasoned)*
 
-> Each clause is a defect this document shipped. C10 read "not only on a `@frozen` file" — a
-> predecessor's defect, unusable to a reader who does not know that predecessor — and C14 and C18
+> Each clause is a defect this document shipped. C10 read "not only on a `@frozen` file", which is
+> a predecessor's defect and unusable to a reader who does not know that predecessor. C14 and C18
 > named a predecessor's mechanisms instead of stating the requirement. C7 used "never as a handler"
 > without the contrast that gives it meaning, and "restoring it" with an antecedent that read as the
 > wrong noun. C22 named three strain types and left the mapping to be inferred. A group label read
 > "Sets" in a document that also uses criteria set, touch-set and root set.
 
 **C29.** A criterion that **paraphrases defined vocabulary** either uses the term or is missing a
-criterion. Determine which; do not leave the paraphrase standing. — *reasoned*
+criterion. Determine which; do not leave the paraphrase standing. *(reasoned)*
 
 > The highest-yield check in the pass, because a paraphrase is a structural symptom rather than a
 > wording defect. "Restoring the relation is defined once" was discharge written as prose, and
-> following it found an entire missing layer — the transition rules that became C25 and C26.
+> following it found an entire missing layer: the transition rules that became C25 and C26.
 
-**C30.** A **count or claim a document makes about itself is derived when written**, never recalled.
-— *computed, reasoned*
+**C30.** A **count or claim a document makes about itself is derived when written**, never recalled. *(computed, reasoned)*
 
 > This document twice stated a marker tally from memory and was wrong both times, and a third
 > attempt by `grep` over-counted on a prose mention of the very word being counted. A
@@ -306,7 +303,7 @@ criterion. Determine which; do not leave the paraphrase standing. — *reasoned*
 ## Still open
 
 - **The attentive posture is assumed.** Every judge that caught a ratchet-down was *asked* to
-  review a change — the posture a narrowing is routed into. It is not the posture of a check that
+  review a change, which is the posture a narrowing is routed into. It is not the posture of a check that
   has been routed nothing, and per C10 that is what an unrouted criteria edit gets.
 - **Twenty-three of thirty are reasoned, not measured.** All of groups A (bar C1), B, C, E, F and
   G, plus C9, C11 and C21. No trial has diffed criteria that are not Gherkin, put an inherited
@@ -314,5 +311,5 @@ criterion. Determine which; do not leave the paraphrase standing. — *reasoned*
 - **Generalization.** One subject, and the easy one: a small, deterministic, already-colocated
   tool, at N=2 and N=3 per corrected pair.
 
-ADR-0034 stands unamended, deliberately. Its evidence is not overturned — its premise is, and only
+ADR-0034 stands unamended, deliberately. Its evidence is not overturned. Its premise is, and only
 for the arrangement that keeps criteria in the spec set.

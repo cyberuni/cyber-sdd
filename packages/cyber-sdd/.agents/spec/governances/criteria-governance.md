@@ -64,8 +64,10 @@ expressed as a criterion. *(reasoned)*
 **C3.** A criterion is **in force only from the approve event that records it**. Intent carries
 no such event and incurs no obligation. *(reasoned)*
 
-> Promoting intent into criteria is what takes on the debt. This also gives C11 its baseline and
-> C10 its drafting behavior for free.
+> Promoting intent into criteria is what takes on the debt. Two later criteria fall out of it. The
+> approve event's commit is the baseline every criteria diff is measured against (C11), and a
+> criterion with no approve event has nothing to narrow against, so drafting classifies as additive
+> without needing an exemption (C10).
 
 ### B · Artifact-sets
 
@@ -93,9 +95,8 @@ intra-quality pass over `code ↔ test ↔ story` is that controller. *(reasoned
 A connection, the strain on it, and the move between the two are different things. C7 and C8 say
 what a connection is. C22 says what it can be in. C25 and C26 say how it moves.
 
-Mixing them put a discharge rule inside C7, written as prose because it had nowhere else to sit.
-Separating them also gives every term borrowed from truss a fixed home. Reconciling with that
-model then becomes a question per layer, not per word.
+Separating them gives every term borrowed from truss a fixed home. Reconciling with that model
+then becomes a question per layer, not per word.
 
 
 **C7.** A connection is declared as a **relation that must hold** between two artifact-sets, not

@@ -71,6 +71,38 @@ no such event and incurs no obligation. *(reasoned)*
 > criterion with no approve event has nothing to narrow against, so drafting classifies as additive
 > without needing an exemption (C10).
 
+```mermaid
+flowchart LR
+  subgraph v1["SDD 1"]
+    direction TB
+    subgraph v1spec["{ spec }"]
+      v1i["intent"]
+      v1c["criteria"]
+      v1s["executable suite, frozen"]
+    end
+    subgraph v1impl["{ code, test, story }"]
+      v1u["inner unit tests only"]
+    end
+    v1spec -- "judge re-derives" --> v1impl
+  end
+  subgraph v2["SDD 2"]
+    direction TB
+    subgraph v2spec["{ spec }"]
+      v2i["intent"]
+      v2c["criteria"]
+    end
+    subgraph v2impl["{ code, test, story }"]
+      v2s["executable suite, iterates"]
+    end
+    v2spec -- "evaluated per criterion" --> v2impl
+  end
+  v1 ~~~ v2
+```
+
+*Only the executable half crosses the boundary.* ADR-0034 rejected moving the suite down because
+the direction it tested deleted the criteria, which left ADR-0016 nothing to re-derive from. Keep
+the criteria in `{spec}` and the judge still holds an artifact the producer did not write.
+
 ### B · Artifact-sets
 
 **C4.** Artifact-sets are drawn by **agent responsibility**, which is truss's unit-of-change axis.
@@ -95,6 +127,18 @@ substitute for them. *(reasoned)*
 > catch and not the connection's. That is what removes the need for a second, separate pair of sets
 > declared only to police coverage.
 
+```mermaid
+flowchart LR
+  spec["{ spec }<br/>criteria a, b, c"] --- conn(("one connection")) --- impl["{ code, test, story }<br/>one set, one owner"]
+  conn --> ev["evaluation: one verdict per criterion<br/>a: holds<br/>b: strained<br/>c: unevaluated"]
+  impl -.- ctl["inside the set: kept consistent by the controller, not by a connection"]
+```
+
+*The set is the unit of ownership; the criterion is the unit of evaluation (C4, C5).* One connection
+joins the two sets, and evaluating it returns a verdict for each criterion it carries. There is no
+connection inside `{code, test, story}`: keeping code, test and story consistent with each other is
+the controller's job (C6).
+
 ### C · Connections and strain
 
 A connection, the strain on it, and the move between the two are different things. C7 and C8 say
@@ -107,15 +151,40 @@ then becomes a question per layer, not per word.
 **C7.** A connection is declared as a **relation that must hold** between two artifact-sets, not
 as a rule that fires when one of them changes. *(reasoned)*
 
-> As a relation: *every criterion has a check that establishes it*. As rules that fire: *when
-> criteria change, regenerate the checks* plus *when checks change, validate them against the
-> criteria*. One rule per direction, and nothing keeps the two agreeing. Two entry points, two
-> code paths, two results, and confluence is gone before the first connection ships. Written as a
-> relation there is one statement to restore, no matter which end moved.
+> Written as rules, a connection needs one rule for each end that can change: *when criteria
+> change, regenerate the checks*, and *when checks change, validate them against the criteria*.
+> Nothing makes those two rules agree. The same intended change runs the first rule when it starts
+> at the criteria and the second when it starts at the checks, and the two can settle in different
+> states. The outcome then depends on which end was edited first. That is exactly what
+> **confluence** rules out: whichever artifact changes first, the result must be the same. The rule
+> form loses it by design, before any particular connection is written.
+>
+> Written as a relation there is one statement, *every criterion has a check that establishes it*.
+> Every repair restores that same statement, whichever end moved, so there is one place to settle.
 >
 > The vocabulary follows from the shape: a delta **unsettles** a connection, the connection is
 > **evaluated**, the relation **holds** or strain is **raised**, strain is **discharged**, and the
 > connection **settles**.
+
+```mermaid
+flowchart LR
+  subgraph rules["Written as rules: one per end"]
+    direction TB
+    re1["edit the criteria"] --> r1["rule 1: regenerate the checks"] --> rs1["state A"]
+    re2["edit the checks"] --> r2["rule 2: validate the checks against the criteria"] --> rs2["state B"]
+    rs1 -. "nothing forces A = B" .- rs2
+  end
+  subgraph relation["Written as a relation"]
+    direction TB
+    fe1["edit the criteria"] --> rel["restore: every criterion has a check that establishes it"]
+    fe2["edit the checks"] --> rel
+    rel --> fs["one settled state"]
+  end
+  rules ~~~ relation
+```
+
+*Two entry points need two rules, and two rules can disagree.* A relation gives both entry points the
+same statement to restore, so the settled state cannot depend on which end moved first.
 
 **C8.** **No connection declares a direction.** Direction is recorded on the repair, not on the
 relation. *(reasoned)*
@@ -167,6 +236,35 @@ reports as `holds`.** *(v1 has three of the four; reasoned)*
 > three-state requirement separately, which is the strongest evidence in the set for any criterion
 > marked *reasoned*.
 
+```mermaid
+stateDiagram-v2
+  settled --> unsettled: a delta lands
+  unsettled --> holds: evaluated
+  unsettled --> strained: evaluated
+  holds --> settled
+  strained --> settled: discharged (done or declined)
+```
+
+*`unsettle` is outcome-neutral.* It says the relation is no longer known to hold, not that it broke.
+Strain is raised only after evaluation finds the relation broken, which is why "the delta raises
+strain" prejudges an evaluation that has not happened yet. `unsettle` is the inverse of truss's own
+*settles*.
+
+```mermaid
+flowchart LR
+  st["a criterion is strained"] --> ty{"strain type (C22)"}
+  ty -- completeness --> blk["blocks the change in hand"]
+  ty -- obligation --> rec{"recorded and classified?"}
+  rec -- yes --> car["carried across the discharge point (C23)"]
+  rec -- no --> und["blocks: an undeclared obligation"]
+  car --> later["discharged later: done, or declined (C24)"]
+  ty -- conformance --> cold["evaluated cold, with no change in hand"]
+```
+
+*The type decides what blocks, and only completeness stops the change in front of you.* An
+obligation may cross the impl gate, but only once it is on the record, which is what keeps
+`implemented` from being claimed over work that was never built.
+
 
 ### D · The ratchet
 
@@ -196,6 +294,65 @@ working head. *(computed, reasoned)*
 > Frozen-ness becomes derived rather than stored, which is ADR-0017's own rule, and the
 > moving-baseline leak closes in the same stroke. v1's ledger `gate` line already carries the
 > verdict and what it froze; it needs the ref. **Risk to carry: a squash or rebase orphans it.**
+
+```mermaid
+flowchart LR
+  subgraph before["Before"]
+    direction TB
+    bc["criterion: creates, relocates, and edits no file"]
+    bt["test: checks the exit code only"]
+    bc -. "unverified gap" .- bt
+  end
+  subgraph after["After"]
+    direction TB
+    ac["criterion: narrowed"]
+    at["test: strengthened to a full before/after snapshot"]
+    ac ---|"relation holds"| at
+  end
+  before -- "one edit" --> after
+```
+
+*Every local measure improves while the contract shrinks.* The test really did get better: a full
+before/after content snapshot replaced a bare exit code. But it is a stronger check of a smaller
+claim. Afterwards the relation holds perfectly, so evaluating the state alone reports nothing
+wrong. Only a diff of the criteria against their approve baseline sees the coverage that was lost.
+
+```mermaid
+flowchart TB
+  subgraph v1["SDD 1"]
+    direction TB
+    d1["gherkin-cli diff"] --> f1[".feature: criteria and suite in one file, straddling the set boundary"]
+  end
+  subgraph v2["SDD 2"]
+    direction TB
+    d2["criteria diff"] --> c2["criteria, in { spec }"]
+    subgraph suites["{ code, test, story }: domain-specific, never the ratchet surface"]
+      direction LR
+      vt["Vitest"]
+      ev["evals.json"]
+      sb["stories"]
+      vt ~~~ ev ~~~ sb
+    end
+  end
+  v1 ~~~ v2
+```
+
+*One classifier, because criteria stay in one place and one format.* `gherkin-cli diff` worked
+because the `.feature` was both artifacts at once. What made it work was that criteria carry stable
+identity and structure (C21), not that they were Gherkin. Point the classifier at criteria and the
+suite's format stops mattering.
+
+```mermaid
+flowchart LR
+  ap(["approve commit"]) --> im(["impl"]) --> na(["narrowing"]) --> hd(["HEAD"])
+  na -. "base HEAD: reads additive" .-> hd
+  ap == "base approve commit: reads narrowing" ==> hd
+```
+
+*Freezing as a recorded boundary, not a stored tag.* A narrowing that landed in an earlier commit
+becomes invisible to a diff against the working head, because by then it *is* the head. The ledger
+`gate` line already records the verdict and what the approval froze; adding the commit ref makes
+frozen-ness derived rather than stored, which is ADR-0017's own rule.
 
 **C12.** **Invariant-suite backstop.** A change that adds behavior while its suite stays invariant
 to that behavior has specified nothing. *(computed, tested)*
@@ -236,6 +393,20 @@ position in the document. *(v1 has this; reasoned)*
 > that case and keys on the scenario name or an explicit id rather than on lines. **C9 is
 > unbuildable without this.**
 
+```mermaid
+flowchart LR
+  ed["criteria edit"] --> cl["classify against the approve baseline (C9, C11)"]
+  cl -- "additive, no-content-change" --> sc["self-clears"]
+  cl -- "narrowing, mixed" --> pa{"pre-authorized by the change request?"}
+  pa -- yes --> la["lands, argued"]
+  pa -- no --> es["escalates (C10), graded by owner and leash (C17, C18)"]
+```
+
+*Three criteria, one pipeline.* C9 says what is classified: criteria, not the suite. C11 says what
+it is classified against: the approve commit, not the working head. C10 says what each class does.
+A criterion with no approve baseline has nothing to narrow against, so drafting is additive by
+construction and needs no exemption.
+
 ### E · Authority
 
 **C17.** Every criterion carries an **owner**: `node`, `user`, or `governance`. *(v1 has one owner; reasoned)*
@@ -255,6 +426,23 @@ that reach. *(v1 grades on reach; reasoned)*
 > makes both grade this unchanged, with no second autonomy bar. It also fixes a case v1 reads too
 > low: a leaf tool retiring a corpus-wide rule touches almost nothing, so reach comes out small
 > while the consequence is corpus-wide.
+
+```mermaid
+flowchart TB
+  dl["delta in { code, test }"] --> dir{"repair direction?"}
+  dir -- downward --> dn["fix the code: ordinary, discharged at the impl gate"]
+  dir -- upward --> own{"amend criteria: who owns the criterion?"}
+  own -- node --> nd["the criteria diff is reviewed"]
+  own -- user --> us["propose only"]
+  own -- governance --> gv["the owner counts toward the change's reach"]
+  gv --> be["blast-estimate measures reach from the owner"]
+  be --> le{"leash"}
+  le -- "high fan-in" --> ask["stop and ask"]
+  le -- "low fan-in" --> go["record in the ledger and continue"]
+```
+
+*No second autonomy bar.* `blast-estimate` already measures dependency fan-in and the leash already
+grades on reach. Scoping the repair to the owner rather than the node makes both grade it unchanged.
 
 ### F · Placement and lifecycle
 

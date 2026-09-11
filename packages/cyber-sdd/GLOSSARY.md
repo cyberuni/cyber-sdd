@@ -26,15 +26,35 @@ There is a second test. One connection carries many criteria, and evaluation ret
 per criterion (C5, C26), so several independent strains can sit on one connection at once. That
 makes no sense if a strain is a kind of connection.
 
+```mermaid
+flowchart LR
+  spec["{ spec }"] --- conn(("connection")) --- impl["{ code, test, story }"]
+  conn -.- s1["strain on criterion b: completeness"]
+  conn -.- s2["strain on criterion d: obligation"]
+```
+
+One connection, two strains on it at once. Discharging either strain removes that strain; the
+connection is still there.
+
 ## The connection lifecycle
 
 Each step has one verb, and none of them makes the connection an actor. A connection states a
-relation that must hold. It is never a handler and never a trigger. Procedural framing needs one
-path per direction, and confluence is gone as soon as the second path exists.
+relation that must hold. It is never a handler and never a trigger. A handler needs one rule for
+each end that can change, and nothing makes those rules produce the same result. The settled state
+would then depend on which end moved first, and that is the loss of **confluence**.
 
 > A change to `{test}` **unsettles** the `{spec} ↔ {test}` connection. The connection is
 > **evaluated**. Either the relation **holds**, or **strain is raised**. The strain is
 > **discharged** at a discharge point, and the connection is **settled**.
+
+```mermaid
+stateDiagram-v2
+  settled --> unsettled: a delta lands
+  unsettled --> holds: evaluated
+  unsettled --> strained: evaluated
+  holds --> settled
+  strained --> settled: discharged (done or declined)
+```
 
 **unsettle** *(SDD 2)*: what a delta does to a connection. The connection is no longer known to be
 settled, so it must be evaluated. The word is outcome-neutral on purpose: it does not claim the
@@ -52,6 +72,11 @@ active verb is always the evaluator (a controller, a check, a judge), never the 
 
 **settle**: the state a connection returns to once discharged.
 
+**confluence**: the guarantee that the settled state does not depend on which artifact was changed
+first. Truss states it as *"whichever artifact you change first, the repository settles into the
+same state."* It is the reason a connection is written as a relation rather than as rules: two
+rules, one per end, can settle in two different places.
+
 ## Repair
 
 **repair direction** *(SDD 2)*: which end of a connection a repair is made on. It is a property of
@@ -65,6 +90,18 @@ The ordinary case.
 **upward repair**: the delta landed in the implementation set, and the repair is made on `{spec}`
 by amending criteria. Legitimate, and also the shape a ratchet-down takes. That is why it must be
 graded rather than waved through.
+
+```mermaid
+flowchart LR
+  d["delta lands in { code, test, story }"] --> q{"which end is repaired?"}
+  q -- "downward" --> dn["amend { code, test, story }"]
+  q -- "upward" --> up["amend criteria in { spec }, graded by owner"]
+  dn --> ok["relation restored"]
+  up --> ok
+```
+
+Both repairs restore the same relation. The connection does not prefer either one; the grading on
+an upward repair is about who may amend a criterion (see *owner*), not about direction.
 
 ## Owner
 

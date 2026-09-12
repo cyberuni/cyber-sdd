@@ -271,19 +271,20 @@ relation. *(reasoned)*
 > second-class. Amending criteria is as legitimate as amending code, which is why an upward repair
 > needs an authority check rather than a prohibition.
 
-**C22.** A strain is carried by **one criterion**, and is **exactly one** of three kinds.
-**incompleteness**: the change is incomplete right now. **obligation**: the change created a debt
-to discharge later. **nonconformance**: the criterion was evaluated cold, with no change in hand.
-The kind decides what blocks; the size of the gap does not. *(reasoned)*
+**C22.** A strain is carried by **one criterion that is unmet**, and is **exactly one** of three
+kinds, decided by where whatever would meet it sits relative to the change in hand.
+**incompleteness**: in the change itself, and not done — the change is incomplete right now.
+**obligation**: in a later change — a debt, not a mistake. **nonconformance**: there is no change
+in hand at all, and the criterion is unmet on the repository as it stands. The kind decides what
+blocks; the size of the gap does not. *(reasoned)*
 
 > The three need three different responses, and only incompleteness should stop the change in
 > front of you. It is also why a gap *score* is the wrong instrument: the useful information is
 > which kind, not how big.
 >
-> The kinds are exclusive, not three dimensions to score independently. They are distinguished by
-> where the counterpart sits relative to the change in hand: both ends in it, the implementation in
-> another change, or no change at all. A connection can still carry several strains at once, one
-> per criterion (C5), which is the only place a mixture is meaningful.
+> The kinds are exclusive, not three dimensions to score independently: the counterpart sits in
+> exactly one of those three places. A connection can still carry several strains at once, one per
+> criterion (C5), which is the only place a mixture is meaningful.
 >
 > The kind therefore belongs to an evaluation and not to the criterion. The same failing criterion
 > is an incompleteness when swept in a change touching both ends, and a nonconformance when swept
@@ -345,7 +346,7 @@ flowchart LR
   rec -- yes --> car["carried across the discharge point (C23)"]
   rec -- no --> und["blocks: an undeclared obligation"]
   car --> later["discharged later: done, or declined (C24)"]
-  ty -- nonconformance --> cold["evaluated cold, with no change in hand"]
+  ty -- nonconformance --> cold["no change to stop; reported against the repository as it stands"]
 ```
 
 *The kind decides what blocks, and only incompleteness stops the change in front of you.* An

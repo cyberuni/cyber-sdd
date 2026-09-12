@@ -103,6 +103,40 @@ flowchart LR
 the direction it tested deleted the criteria, which left ADR-0016 nothing to re-derive from. Keep
 the criteria in `{spec}` and the judge still holds an artifact the producer did not write.
 
+**C31.** Whether the criteria **cover** the intent is re-judged once the intent has changed since
+that judgment was last made. The trigger is computed by comparing the `## Intent` section at the
+commit the approve event recorded against the working tree, **never from file timestamps**, and an
+outstanding re-judgment is an **obligation** on `{spec}`. *(computed, reasoned)*
+
+> Coverage itself cannot be computed (C6). Whether the judgment is *owed* can be, which is this
+> document's stated direction applied to the one judgment that will never move. The baseline is
+> already recorded for the ratchet (C11), so one ref serves both.
+>
+> Timestamps would not do even where they look convenient: git neither records nor restores them, so
+> a fresh clone stamps every file with the checkout time and the check reads *not stale* forever.
+> That is the green-that-means-unmeasured this document exists to prevent.
+>
+> It is also why intent and criteria stay in **one file**. The comparison is a section slice at a
+> known commit rather than a file-level history query, so splitting them would save a little
+> extraction and cost the oracle lens the ability to read both halves together: the computable step
+> optimized at the expense of the judged one. The `## Intent` heading is therefore a contract the
+> extractor depends on. Splitting for **placement** reasons (C20) is a separate decision.
+
+```mermaid
+flowchart TB
+  subgraph spec["{ spec }"]
+    intent["intent"]
+    criteria["criteria"]
+    intent ---|"covered by? judged, never computed (C6)"| criteria
+  end
+  criteria ---|"met by? evaluated per criterion, as strain (C22)"| impl["{ code, test, story }"]
+  criteria --> roll["roll-up: meets its criteria, never serves its intent (C19)"]
+```
+
+*Only the lower relation is a connection.* Intent and criteria sit in one set, so their relation is
+the controller's and carries no strain. That is why a green roll-up cannot mean the intent is
+served, and why C31 computes when the judgment is owed rather than pretending to make it.
+
 ### B · Artifact-sets
 
 **C4.** Artifact-sets are drawn by **agent responsibility**, which is truss's unit-of-change axis.
@@ -120,12 +154,18 @@ substitute for them. *(reasoned)*
 
 **C6.** Consistency *inside* a set is the **controller's** job, not a connection's. For
 `{code, test, story}` that controller is the impl-judge's pass over the internal consistency of
-`code ↔ test ↔ story`. *(reasoned)*
+`code ↔ test ↔ story`. For `{spec}` it is the spec gate's **oracle lens**, judging whether the
+criteria cover the intent, and that judgment is **judged, never computed**. *(reasoned)*
 
 > Strain is a property of a connection, and there are no connections inside a set. So a defect
 > wholly inside `{code, test, story}`, such as code shipped without a test, is the controller's to
 > catch and not the connection's. That is what removes the need for a second, separate pair of sets
 > declared only to police coverage.
+>
+> `{spec}` holds both halves of a specification (C1), so intent ↔ criteria is the same intra-set
+> case and is owned the same way. Intent is argued with rather than evaluated (C2), so no
+> accumulation of satisfied criteria stands in for that judgment and no strain report can reach it.
+> Naming the controller is what stops the coverage question being nobody's.
 
 ```mermaid
 flowchart LR
@@ -494,13 +534,19 @@ grades on reach. Scoping the repair to the owner rather than the node makes both
 ### F · Placement and lifecycle
 
 **C19.** A **project spec carries no `status`**. Lifecycle belongs to the change request; a
-project's state is the derived roll-up over its criteria. *(computed, reasoned)*
+project's state is the derived roll-up over its criteria, and **the roll-up states what it
+answers**: that the implementation meets the criteria in force at a named baseline, never that the
+project serves its intent. *(computed, reasoned)*
 
 > Three of v1's four values belong to a change request rather than a project. A living project is
 > permanently `draft`. A whole contract does not `approve`. And `implemented` is momentarily true
 > at best, which is the value that went false. Only `deprecated` is genuinely project-level and deserves its own field. Under
 > per-criterion evaluation the aggregate is derivable, so storing it is the stored-derived-fact
 > ADR-0017 removed `aligned` for.
+>
+> The roll-up is the artifact most likely to be read as the whole truth, so it carries its own
+> scope. This is C26's rule one level up: there, `unevaluated` never reports as `holds`; here,
+> *covers its criteria* never reports as *serves its intent*.
 
 **C20.** A **cross-cutting contract is a governance, not a node**, and is not colocated, because it has
 no single subject. A governance with one capability owner colocates with that capability. *(v1 has this; reasoned)*
@@ -551,9 +597,14 @@ criterion. Determine which; do not leave the paraphrase standing. *(reasoned)*
 - **The attentive posture is assumed.** Every judge that caught a ratchet-down was *asked* to
   review a change, which is the posture a narrowing is routed into. It is not the posture of a check that
   has been routed nothing, and per C10 that is what an unrouted criteria edit gets.
-- **Twenty-three of thirty are reasoned, not measured.** All of groups A (bar C1), B, C, E, F and
+- **Twenty-four of thirty-one are reasoned, not measured.** All of groups A (bar C1), B, C, E, F and
   G, plus C9, C11 and C21. No trial has diffed criteria that are not Gherkin, put an inherited
   criterion in front of a judge, or carried an obligation across a gate.
+- **Coverage of intent has no loop running it.** C6 names the controller and C31 says when the
+  judgment is owed, but nothing runs it continuously. v1 specifies that loop — `campaign/`, the
+  Oracle's — and it is one of the two capabilities that are specified and unbuilt. Its absence is
+  invisible for the reason under discussion: no criterion is strained by the absence of the loop
+  whose job is to notice missing criteria.
 - **Generalization.** One subject, and the easy one: a small, deterministic, already-colocated
   tool, at N=2 and N=3 per corrected pair.
 

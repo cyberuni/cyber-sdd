@@ -16,7 +16,7 @@ Truss's own glossary invites the confusion between these, so start here (see
 and standing. A connection is never consumed. It survives every evaluation and every discharge.
 
 **strain**: the state of a connection whose relation does not hold for a given criterion. A
-condition, not a thing. Typed `completeness`, `obligation`, or `conformance` (C22). Evaluation
+condition, not a thing. Exactly one of `incompleteness`, `obligation`, or `nonconformance` (C22). Evaluation
 raises it and discharge removes it. The connection remains either way.
 
 A connection is not a strain. Discharge is the quickest test between them: it removes the strain
@@ -29,7 +29,7 @@ makes no sense if a strain is a kind of connection.
 ```mermaid
 flowchart LR
   spec["{ spec }"] --- conn(("connection")) --- impl["{ code, test, story }"]
-  conn -.- s1["strain on criterion b: completeness"]
+  conn -.- s1["strain on criterion b: incompleteness"]
   conn -.- s2["strain on criterion d: obligation"]
 ```
 

@@ -166,25 +166,63 @@ as a rule that fires when one of them changes. *(reasoned)*
 > **evaluated**, the relation **holds** or strain is **raised**, strain is **discharged**, and the
 > connection **settles**.
 
-```mermaid
-flowchart LR
-  subgraph rules["Written as rules: one per end"]
-    direction TB
-    re1["edit the criteria"] --> r1["rule 1: regenerate the checks"] --> rs1["state A"]
-    re2["edit the checks"] --> r2["rule 2: validate the checks against the criteria"] --> rs2["state B"]
-    rs1 -. "nothing forces A = B" .- rs2
-  end
-  subgraph relation["Written as a relation"]
-    direction TB
-    fe1["edit the criteria"] --> rel["restore: every criterion has a check that establishes it"]
-    fe2["edit the checks"] --> rel
-    rel --> fs["one settled state"]
-  end
-  rules ~~~ relation
-```
+<figure>
+<svg viewBox="0 0 980 420" role="img" aria-label="Written as rules needs one rule per end and the two ends can disagree; written as a relation both ends restore the same statement and land in one settled state." fill="currentColor" style="max-width: 100%; height: auto; font-family: sans-serif; font-size: 12px;">
+  <defs>
+    <marker id="c7-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+    </marker>
+  </defs>
 
-*Two entry points need two rules, and two rules can disagree.* A relation gives both entry points the
-same statement to restore, so the settled state cannot depend on which end moved first.
+  <rect x="10" y="20" width="460" height="380" rx="12" fill="none" stroke="currentColor" stroke-opacity="0.35" />
+  <rect x="510" y="20" width="460" height="380" rx="12" fill="none" stroke="currentColor" stroke-opacity="0.35" />
+  <text x="240" y="48" text-anchor="middle" font-weight="600">Written as rules: one per end</text>
+  <text x="740" y="48" text-anchor="middle" font-weight="600">Written as a relation</text>
+
+  <!-- left panel: chain 1 (edit the criteria) -->
+  <rect x="30" y="115" width="110" height="50" rx="6" fill="none" stroke="currentColor" />
+  <text x="85" y="136" text-anchor="middle"><tspan x="85">edit the</tspan><tspan x="85" dy="14">criteria</tspan></text>
+  <line x1="140" y1="140" x2="168" y2="140" stroke="currentColor" marker-end="url(#c7-arrow)" />
+  <rect x="170" y="110" width="180" height="60" rx="6" fill="none" stroke="currentColor" />
+  <text x="260" y="126" text-anchor="middle"><tspan x="260">rule 1:</tspan><tspan x="260" dy="14">regenerate</tspan><tspan x="260" dy="14">the checks</tspan></text>
+  <line x1="350" y1="140" x2="388" y2="140" stroke="currentColor" marker-end="url(#c7-arrow)" />
+  <rect x="390" y="115" width="60" height="50" rx="6" fill="none" stroke="currentColor" />
+  <text x="420" y="145" text-anchor="middle">state A</text>
+
+  <!-- left panel: chain 2 (edit the checks) -->
+  <rect x="30" y="285" width="110" height="50" rx="6" fill="none" stroke="currentColor" />
+  <text x="85" y="306" text-anchor="middle"><tspan x="85">edit the</tspan><tspan x="85" dy="14">checks</tspan></text>
+  <line x1="140" y1="310" x2="168" y2="310" stroke="currentColor" marker-end="url(#c7-arrow)" />
+  <rect x="170" y="280" width="180" height="60" rx="6" fill="none" stroke="currentColor" />
+  <text x="260" y="296" text-anchor="middle"><tspan x="260">rule 2: validate</tspan><tspan x="260" dy="14">the checks against</tspan><tspan x="260" dy="14">the criteria</tspan></text>
+  <line x1="350" y1="310" x2="388" y2="310" stroke="currentColor" marker-end="url(#c7-arrow)" />
+  <rect x="390" y="285" width="60" height="50" rx="6" fill="none" stroke="currentColor" />
+  <text x="420" y="315" text-anchor="middle">state B</text>
+
+  <!-- left panel: the defect - nothing ties state A to state B -->
+  <line x1="420" y1="166" x2="420" y2="284" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="5 4" />
+  <line x1="404" y1="166" x2="436" y2="166" stroke="#e11d48" stroke-width="1.5" />
+  <line x1="404" y1="284" x2="436" y2="284" stroke="#e11d48" stroke-width="1.5" />
+  <text x="230" y="219" text-anchor="middle" fill="#e11d48"><tspan x="230">nothing forces</tspan><tspan x="230" dy="15">A = B</tspan></text>
+
+  <!-- right panel: two sources converging on one relation -->
+  <rect x="530" y="115" width="140" height="50" rx="6" fill="none" stroke="currentColor" />
+  <text x="600" y="145" text-anchor="middle">edit the criteria</text>
+  <rect x="530" y="285" width="140" height="50" rx="6" fill="none" stroke="currentColor" />
+  <text x="600" y="315" text-anchor="middle">edit the checks</text>
+
+  <rect x="700" y="195" width="170" height="60" rx="6" fill="none" stroke="currentColor" />
+  <text x="785" y="210" text-anchor="middle"><tspan x="785">restore: every</tspan><tspan x="785" dy="13">criterion has a</tspan><tspan x="785" dy="13">check that</tspan><tspan x="785" dy="13">establishes it</tspan></text>
+
+  <line x1="670" y1="140" x2="698" y2="207" stroke="currentColor" marker-end="url(#c7-arrow)" />
+  <line x1="670" y1="310" x2="698" y2="243" stroke="currentColor" marker-end="url(#c7-arrow)" />
+
+  <line x1="870" y1="225" x2="888" y2="225" stroke="currentColor" marker-end="url(#c7-arrow)" />
+  <rect x="890" y="200" width="60" height="50" rx="6" fill="none" stroke="#16a34a" />
+  <text x="920" y="221" text-anchor="middle" fill="#16a34a"><tspan x="920">one</tspan><tspan x="920" dy="14">settled</tspan></text>
+</svg>
+<figcaption>Two entry points need two rules, and two rules can disagree; a relation gives both entry points the same statement to restore, so the settled state cannot depend on which end moved first.</figcaption>
+</figure>
 
 **C8.** **No connection declares a direction.** Direction is recorded on the repair, not on the
 relation. *(reasoned)*
@@ -193,18 +231,27 @@ relation. *(reasoned)*
 > second-class. Amending criteria is as legitimate as amending code, which is why an upward repair
 > needs an authority check rather than a prohibition.
 
-**C22.** A connection that does not hold carries a **typed** strain. **completeness**: the change is
-incomplete right now. **obligation**: the change created a debt to discharge later.
-**conformance**: criteria evaluated cold, with no change in hand. The type decides what blocks;
-the size of the gap does not. *(reasoned)*
+**C22.** A strain is carried by **one criterion**, and is **exactly one** of three kinds.
+**incompleteness**: the change is incomplete right now. **obligation**: the change created a debt
+to discharge later. **nonconformance**: the criterion was evaluated cold, with no change in hand.
+The kind decides what blocks; the size of the gap does not. *(reasoned)*
 
-> The three need three different responses, and only completeness should stop the change in front
-> of you. It is also why a gap *score* is the wrong instrument: the useful information is which
-> kind, not how big.
+> The three need three different responses, and only incompleteness should stop the change in
+> front of you. It is also why a gap *score* is the wrong instrument: the useful information is
+> which kind, not how big.
+>
+> The kinds are exclusive, not three dimensions to score independently. They are distinguished by
+> where the counterpart sits relative to the change in hand: both ends in it, the implementation in
+> another change, or no change at all. A connection can still carry several strains at once, one
+> per criterion (C5), which is the only place a mixture is meaningful.
+>
+> The kind therefore belongs to an evaluation and not to the criterion. The same failing criterion
+> is an incompleteness when swept in a change touching both ends, and a nonconformance when swept
+> cold. Each name states the defect, so that none of them reads as a property to be scored.
 
 **C23.** **Obligation strain may be carried** across a discharge point when it is recorded and
-classified. Completeness strain may not. An implementation is complete when completeness strain is
-zero and **no obligation is undeclared**. *(reasoned)*
+classified. Incompleteness strain may not. An implementation is complete when incompleteness
+strain is zero and **no obligation is undeclared**. *(reasoned)*
 
 > v1 pins obligation to zero at the impl gate, which is the waterfall policy and the strict one.
 > That leaves a legitimately carried debt nowhere to sit, so aspiration goes underground and
@@ -252,16 +299,16 @@ strain" prejudges an evaluation that has not happened yet. `unsettle` is the inv
 
 ```mermaid
 flowchart LR
-  st["a criterion is strained"] --> ty{"strain type (C22)"}
-  ty -- completeness --> blk["blocks the change in hand"]
+  st["a criterion is strained"] --> ty{"strain kind (C22)"}
+  ty -- incompleteness --> blk["blocks the change in hand"]
   ty -- obligation --> rec{"recorded and classified?"}
   rec -- yes --> car["carried across the discharge point (C23)"]
   rec -- no --> und["blocks: an undeclared obligation"]
   car --> later["discharged later: done, or declined (C24)"]
-  ty -- conformance --> cold["evaluated cold, with no change in hand"]
+  ty -- nonconformance --> cold["evaluated cold, with no change in hand"]
 ```
 
-*The type decides what blocks, and only completeness stops the change in front of you.* An
+*The kind decides what blocks, and only incompleteness stops the change in front of you.* An
 obligation may cross the impl gate, but only once it is on the record, which is what keeps
 `implemented` from being claimed over work that was never built.
 

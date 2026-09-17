@@ -1,6 +1,6 @@
 {
 	"name": "cyber-aced",
-	"version": "0.1.1",
+	"version": "0.2.0",
 	"private": true,
 	"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
 	"repository": {
@@ -14,6 +14,7 @@
 	"files": [
 		"skills",
 		"agents",
+		"governances",
 		".plugin",
 		".codex-plugin",
 		".claude-plugin",

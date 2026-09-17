@@ -7,7 +7,7 @@
 	},
 	"homepage": "https://github.com/cyberuni/cyber-sdd",
 	"repository": "https://github.com/cyberuni/cyber-sdd",
-	"version": "0.3.0",
+	"version": "0.3.1",
 	"skills": "./skills",
 	"agents": [
 		"./agents/sdd-automaton.md",

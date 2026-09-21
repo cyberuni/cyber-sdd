@@ -56,6 +56,39 @@ writing any changes.
   roles for this artifact-type) to author a `.feature` (with inline `@rubric`), or `add-scenario` to
   start one manually. Do not fabricate a pass/fail verdict without a suite to run.
 
+## When the symptom is "didn't follow an instruction"
+
+This is a distinct failure class from a failing eval scenario, and needs a different fix. A
+reworded prompt won't hold, because self-reported compliance is not verified compliance — an agent
+asked to list which rules it applied can produce an accurate-looking list while still not having
+correctly applied them, or can misjudge its own compliance in good faith. The fix is structural:
+does the instruction file carry a paired, checkable way to verify itself — usable both before the
+fact (by the agent that just followed it) and after the fact (by anyone re-checking).
+
+1. **Does the offending instruction — a skill, a governance, a subagent definition, an `AGENTS.md`
+   section — carry a `## Validate` section at all?** No → that is the root gap. Propose adding one:
+   a set of assertions about observable artifact state (diffs, file presence, structural shape),
+   one per binding rule, not a restatement of the rule in other words. Prefer a mechanical check
+   (script/grep/diff) wherever the rule is checkable that way; where it is a genuine judgment call,
+   phrase the assertion as something re-derivable from the artifact by a second, cold reader — never
+   something read off the first agent's own account of what it did. `improve-skill` Q19 flags this
+   gap structurally when auditing a `SKILL.md`.
+2. **Has one, but nothing required the agent to run it before finishing?** An enforcement gap, not a
+   detection gap — the procedure needs to gate completion on the self-check passing, so a violation
+   is caught and fixed by the same agent, before any handoff to review.
+3. **Self-check ran and passed, but an independent read later found a real violation?** The
+   assertion itself is too weak or gameable — tighten it toward artifact-state phrasing rather than
+   trusting a narrative claim.
+4. **Self-check correctly failed and got overridden anyway?** Not a detection gap — an escalation
+   gap. The procedure needs a hard stop there, not a warning the agent can talk itself past.
+
+In SDD specifically, this maps onto the producer/judge split: the producer's own procedure runs the
+`## Validate` section as its own pre-handoff self-check (catching most violations before a judge
+cycle is spent), and the cold judge re-runs the identical section against the artifact — not
+against the producer's `Output` trace — for the genuine cold check. The pattern itself (a paired
+Validate section, run twice, from two vantage points) applies to any instruction file consumed by
+any agent, SDD or not.
+
 ## If no clear fix exists
 
 If failures are caused by inherent non-determinism (high score variance across similar cases),

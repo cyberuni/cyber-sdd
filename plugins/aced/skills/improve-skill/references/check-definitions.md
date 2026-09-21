@@ -128,6 +128,15 @@ Warn if SKILL.md contains large inline reference sections (substantial prose tab
 **Q16 — Defaults not menus (LOW)**
 Warn if the skill body presents multiple tools, libraries, or approaches as equal alternatives without naming a default. "You can use pypdf, pdfplumber, or PyMuPDF…" forces the agent to choose arbitrarily. Instead, name one default and mention alternatives only as an escape hatch for the cases where they apply.
 
+**Q19 — Verifiability: binding rules have a paired Validate section (MEDIUM)**
+Warn if the skill body — or a governance/partial-skill it composes with — states binding rules describing what the *consuming agent* must, must not, always, or never do (imperative language: "must", "never", "always", "required", "do not"), with no paired `## Validate` (or equivalently named) section carrying checkable assertions about the resulting artifact state.
+
+A restatement of the rule in different words does not satisfy this check — e.g. a `## Validate` section that just says "confirm you followed the procedure above" is not an assertion, it is the same instruction again. Look for assertions phrased as observable, falsifiable claims about the artifact or diff (file presence/absence, diff emptiness, structural shape, a named script's exit status) rather than claims about the agent's intent or process ("I checked X", "I was careful to Y").
+
+A well-formed Validate section is checkable by two different readers without coordination: the agent that just followed the instruction, self-checking its own work before declaring done, and a second, cold reader re-checking the same artifact later — neither reader needs the other's account of what happened, since the assertions target the artifact, not a narrative about it. Prefer a mechanical check (a script, grep pattern, or diff) wherever the rule permits one; reserve LLM-judged assertions for genuine judgment calls, and even then phrase them as something the cold reader re-derives from the artifact, not something it reads off the first agent's self-report.
+
+Skip this check for skills whose body carries no binding rules at all (pure informational/reference skills, or skills that only describe *what* to do without normative "must/never" framing) — there is nothing here to verify.
+
 ---
 
 ## Security

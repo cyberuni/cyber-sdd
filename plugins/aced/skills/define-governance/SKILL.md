@@ -73,6 +73,16 @@ Apply when: <one-line scope — the situation or artifact type this governs>
 
 <Normative rules, rubric rows, checklist items, or decision rows>
 
+## Validate
+
+<One assertion per binding rule above, phrased as an observable, falsifiable claim about the
+resulting artifact — a diff, a file's presence/absence, a structural shape — never a claim about
+the agent's intent ("I checked X"). Prefer a mechanical check (a script, grep pattern, or diff)
+wherever the rule permits one. Reserve prose assertions for genuine judgment calls, and phrase even
+those as something a second, cold reader re-derives from the artifact, not something read off the
+first agent's own account. Skip this section only for a pure Rubric governance, where the scored
+dimensions already are the verification.>
+
 ## References
 
 <on-demand standards, sibling files, external HTTPS URLs — no repo file paths>
@@ -83,6 +93,12 @@ Rules for the body:
 - Lead `description` with the `"Partial Skill:"` prefix (recommended form `"Partial Skill: invoke by name only — …"`) — a self-declaration for the reader; keep it minimal and non-trigger-shaped so the harness (which still sees the description) does not auto-match it
 - Do not include `## Why`, `## Rationale`, or causal prose — put that in ADRs
 - Encode decisions and criteria, not facts the model already knows
+- For a **Constraint set**, **Checklist**, or **Decision table** governance, write a `## Validate`
+  section — one checkable assertion per rule, run twice: once by the agent that just followed the
+  rule, as its own pre-handoff self-check, and once by a cold reader re-checking the same artifact
+  later. A `## Validate` section that just says "confirm you followed the rules above" does not
+  count — it restates the instruction instead of asserting something about the result. A pure
+  **Rubric** governance does not need one: its scored dimensions already serve this purpose.
 - Keep each rule atomic and independently falsifiable. To decide whether a multi-clause rule splits,
   ask what each clause has left to check when the other clause is false:
   - **Split it** when each clause states its own demand — something still checkable when the other
@@ -120,6 +136,7 @@ After writing, evaluate the governance file against these checks:
 | G6 | All rules are atomic and independently falsifiable | MEDIUM |
 | G7 | No workflow steps (numbered action sequences) | MEDIUM |
 | G8 | `name` is kebab-case and matches file stem | HIGH |
+| G9 | Constraint set / checklist / decision table content has a paired `## Validate` section with checkable, artifact-state assertions (not restated rules) | MEDIUM |
 
 Report results. Fix any CRITICAL or HIGH failures before presenting the final file.
 

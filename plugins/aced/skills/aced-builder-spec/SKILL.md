@@ -32,6 +32,18 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
   simulation fails. A `partial`-fit subject has no firing scenarios, so this does not bind.
 - **Rule coverage** *(all tiers).* Every major rule/step in the subject has at least one behavior
   scenario. A rule with zero scenarios fails.
+- **Validate-section coverage** *(all tiers; when the subject states binding rules on its
+  consumer).* A subject whose body states rules the consuming agent must, must not, always, or
+  never do (a governance's constraint set/checklist/decision table, or a workflow skill's Standard
+  pattern) must carry its own `## Validate` section — one checkable, artifact-state assertion per
+  binding rule, per `improve-skill` Q19 / `define-governance` G9. The suite must include a boolean
+  scenario asserting that section's presence, and — for every assertion mechanical enough to run —
+  that it actually passes against the built artifact. A subject with binding rules and no such
+  scenario fails this bullet; this is not deferred to a lint pass, because a `## Validate` section
+  with no frozen scenario checking it has nothing forcing it to stay accurate as the subject
+  changes. A subject with no binding rules on its consumer (plain ordered steps, or a pure Rubric
+  governance whose scored dimensions already serve this role) is **N/A** — its absence is not a
+  failure.
 - **Trigger balance** *(strong only).* For a **`strong`**-fit subject, both should-trigger scenarios
   **and near-miss should-not-trigger** scenarios are present (same domain keywords, different intent)
   — not only obviously-irrelevant negatives; a strong suite with no near-miss fails. For a
@@ -109,6 +121,9 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
 
 - `aced:aced-fit` — the fit classifier this bar loads to make trigger-context / trigger-balance
   conditional.
+- `aced:improve-skill` (check Q19) / `aced:define-governance` (check G9) — the structural definition
+  of a well-formed `## Validate` section (artifact-state assertions, not restated rules) that
+  Validate-section coverage requires a scenario for.
 - `sdd:suite-format-governance` — the miss test, the wrong-subject table, the three anti-patterns,
   the substitutability test, and the pairwise-consistency rule this bar specializes.
 - `design/decisions/0002-boundary-vs-surface-more.md`, `design/test-levels.md` — the boolean-smuggling

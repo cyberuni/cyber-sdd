@@ -31,7 +31,7 @@ node "<skill>/scripts/validate.mts" --path skills/my-skill
 
 Replace `<skill>` with this skill's own directory. If `node` is unavailable, read `scripts/validate.mts` and apply the same checks by hand.
 
-This command can be used in CI. Full quality review (Q1, Q6–Q16, E3–E5, E7–E8, P1–P3) still requires running this agent skill.
+This command can be used in CI. Full quality review (Q1, Q6–Q16, Q19, E3–E5, E7–E8, P1–P3) still requires running this agent skill — Q19 needs judgment (is this really a binding rule, is the Validate section a genuine checkable assertion or restated prose) the same way Q13–Q16 do, so it is not in the mechanical subset above.
 
 ### Skill design governance
 
@@ -110,6 +110,7 @@ If you need the exact criteria for any check, read `references/check-definitions
 | Q14 | Quality | SKILL.md ≤ 500 lines and ~5,000 tokens | MEDIUM | |
 | Q15 | Quality | Large reference material in `references/` with explicit load conditions | MEDIUM | |
 | Q16 | Quality | Multiple alternatives have a clear default (no equal-options menus) | LOW | |
+| Q19 | Quality | Binding rules ("must"/"never"/"always"/"required") have a paired, checkable `## Validate` section — not restated prose | MEDIUM | |
 | E1 | Security | No dangerous shell commands (SKILL.md + scripts/) | CRITICAL | |
 | E2 | Security | No prompt injection patterns (SKILL.md + scripts/) | CRITICAL | |
 | E3 | Security | No secret / credential access | CRITICAL | |

@@ -140,6 +140,16 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
   it.
 - **Project-public** skills get a `README.md` beside the SKILL.md (title, when-to-use, what-it-does,
   install line). User-global skills get none.
+- **Binding rules get a `## Validate` section.** If the body states rules the agent must, must not,
+  always, or never do — most commonly the **Standard** pattern, but any pattern can carry one —
+  add a `## Validate` section: one assertion per rule, phrased as an observable, falsifiable claim
+  about the resulting artifact (a diff, a file's presence, a structural shape), not a restatement of
+  the rule or a claim about the agent's intent. Write it so it works run twice, from two vantage
+  points: as the agent's own pre-handoff self-check before declaring the work done, and as an
+  independent re-check by a cold reader later, against the same artifact rather than against
+  anything the first agent said about itself. Prefer a mechanical check (script, grep, diff) wherever
+  the rule permits one. A skill whose body is only ordered steps with no binding rules on the
+  *outcome* does not need one — this is for rules a result can violate, not for the steps themselves.
 
 ### Improving an existing skill
 

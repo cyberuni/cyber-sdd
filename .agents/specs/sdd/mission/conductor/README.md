@@ -27,7 +27,7 @@ or the rules it enacts (lifecycle / freeze / autonomy / provenance / squad shape
 `../../design/`). It writes no `status` and no `spec.md` body or `.feature` scenarios as a
 *judge* — `producer ≠ judge`.
 
-The conductor's behavior groups into fifteen concerns, each a section below; every scenario in
+The conductor's behavior groups into sixteen concerns, each a section below; every scenario in
 [`conductor.feature`](./conductor.feature) maps to one of them:
 
 | Concern | What it covers |
@@ -36,6 +36,7 @@ The conductor's behavior groups into fifteen concerns, each a section below; eve
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
 | **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff |
+| **governance entry set** | load its own bars before it starts — the **entry set** (lifecycle, ownership, spec-format, suite-format, spec-producer, combat-log, gate-validation) read before intake, the **deferred** ones (remediation, impl-producer) named up front and read at the decision that invokes them — and **declare** the set it actually loaded, its own declaration, never the producer's relayed one |
 | **governance provenance relay** | forward the spec-producer's declared `governances_loaded` through the dispatch channel as `producer_governances_declared` (a brief field for a cold subagent, a mail envelope field for an agent pool) — a pure relay, rendering no opinion on which governances were required |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
 | **segment** | one autonomous sitting — suspend / resume, cursor derivation from artifacts, batched questions, OBSERVATIONS routing |
@@ -173,6 +174,38 @@ slot is the doctrine Scanner's), and — on a self-asserted gate within leash �
 `approval.<gate>` entry. It **never** writes `status` (the skill owns it) or a human ratification
 verdict (`by: <name>`) when running headless. A **gate-review segment that runs no producer is
 read-only** — it writes nothing, only reads the artifacts and emits the gate report.
+
+## Governance entry set — what the conductor loads before it starts
+
+The conductor is **bound by** its governance bars, not merely aware of them, so the load is split by
+**reach** rather than deferred wholesale. The **entry set** governs every mission, so it is read
+**before intake opens the CR**: `sdd:lifecycle-governance`, `sdd:ownership-governance`,
+`sdd:spec-format-governance`, `sdd:suite-format-governance`, `sdd:spec-producer-governance`,
+`sdd:combat-log-governance`, `sdd:gate-validation-governance`. Reaching intake without them is acting
+unbound — the conductor would classify, scaffold, and write provenance against rules it has not read.
+
+The rest are **named up front and read at the decision that invokes them**, because each governs one
+moment rather than the run: `sdd:remediation-governance` when a judge returns a `change` verdict, and
+`sdd:impl-producer-governance` at deliver. Naming a governance is not loading it; a mission that
+never reaches deliver never reads the deliver bar.
+
+**The split is by reach, not by phase.** `sdd:gate-validation-governance` fires only at a gate, yet it
+sits in the entry set, because every mission reaches one *and* the declared set is read downstream:
+the spec-judge's pre-flight derives its expected set from its **own** fixed-universal floor — which
+carries `gate-validation` — and checks that floor against the relayed
+`producer_governances_declared` (`../../authoring/spec-gate/README.md`). Deferring it would make that
+pre-flight fail by construction against a producer that did nothing wrong.
+
+The load is made **visible** by a declaration. The conductor states its own `governances_loaded` set
+at entry, and each deferred governance when it loads it — the same shape the spec-producer declares
+(`../../authoring/spec-producer/README.md`). Without it a skipped load and a correctly run one look
+identical from outside, which is the failure this concern exists to close. The declaration reports
+what was **actually** read: a governance the conductor did not load is absent from the set, so the
+skip is legible instead of silent.
+
+**This declaration is the conductor's own, about the conductor** — distinct from the
+`producer_governances_declared` set it relays below, which is the *producer's* declaration passing
+through. The two are recorded separately; neither replaces the other.
 
 ## Governance provenance relay
 

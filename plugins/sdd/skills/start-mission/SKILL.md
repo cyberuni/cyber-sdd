@@ -13,7 +13,47 @@ A CR is the **unit of change-intent** (git-PR-shaped); the mission loop is the w
 
 > **Advise a capable model (e.g. Opus) on entry.** The explore grill runs in this session, so its quality tracks the session model. Surface this **before** the grill so the user can switch if needed. (The harness cannot switch the session model on your behalf.)
 
-Load `sdd:lifecycle-governance` (status enum, the freeze re-open transition), `sdd:ownership-governance` (who writes each field), `sdd:spec-format-governance` + `sdd:suite-format-governance` (the node skeleton + suite bars), `sdd:spec-producer-governance` (the grilling procedure run inline), `sdd:impl-producer-governance` (what the spawned builder loads), `sdd:gate-validation-governance` (legal gate-state tuples), `sdd:remediation-governance` (how a producer answers a `change` verdict at either gate), and `sdd:combat-log-governance` (the provenance shapes). The autonomy bar is baked in (below).
+## Governances — load before you start
+
+You are **bound by** these bars, not merely aware of them. Read the **entry set** now, before
+Step 1 — each one governs every mission, so deferring it means acting unbound:
+
+| Governance | What it binds |
+|---|---|
+| `sdd:lifecycle-governance` | the status enum and the freeze re-open transition |
+| `sdd:ownership-governance` | who writes each field |
+| `sdd:spec-format-governance` | the node skeleton |
+| `sdd:suite-format-governance` | the suite bars |
+| `sdd:spec-producer-governance` | the grilling procedure you run inline |
+| `sdd:combat-log-governance` | the provenance shapes you write |
+| `sdd:gate-validation-governance` | the legal gate-state tuples you derive at both gates |
+
+The rest are **named now, read at the decision that invokes them** — each governs one moment rather
+than the run: `sdd:remediation-governance` (answering a `change` verdict — only when a judge returns
+one) and `sdd:impl-producer-governance` (what the spawned builder loads — at deliver). Naming them
+here is not loading them; load the body when you reach that moment.
+
+**Why `gate-validation` sits in the entry set although it fires only at a gate.** Every mission
+reaches a gate, and the set you declare is read downstream: the spec-judge's pre-flight derives its
+expected set from its **own** fixed-universal floor — which carries `gate-validation` — and checks it
+against the `producer_governances_declared` relay of your inline spec-producer's declaration
+(`sdd:sdd-spec-judge`). Deferring it makes that pre-flight fail by construction on a producer that
+did nothing wrong. Reach, not phase, decides the split.
+
+**Declare what you loaded.** On entry, state your own `governances_loaded` set — the same shape the
+spec-producer declares and you already relay as `producer_governances_declared`. The declaration is
+the conductor's, about the conductor: it makes a skipped load **visible instead of silent**. Declare
+the entry set at entry, and each deferred governance when you load it. Declare it **as it is** —
+never list a governance you did not read. Your declaration and the `producer_governances_declared`
+set you relay are **recorded separately; neither replaces the other** — one is what *you* loaded, the
+other is what the producer declared passing through you.
+
+The partition covers the conductor's **fixed-universal** bars only. A **resolved-actor** bar — one
+`resolve-governances` names per artifact-type, such as `sdd:spec-structure-governance` at placement —
+is neither entry-set nor deferred: it is resolved and loaded per touched file (Step 2), under the
+digest discipline there.
+
+The autonomy bar is baked in (below).
 
 ## Step 1 — intake: open the CR and scaffold the plan
 
@@ -32,7 +72,7 @@ Run authoring **in-session** as the conductor. Explore **builds the implementati
 
 **If plan mode is active, run the `### Plan-mode preview` (end of this step) instead of the live grill loop** — same reasoning, no repo writes, no build-to-learn spikes; the phase ends at **ExitPlanMode**, not the spec gate.
 
-**Resolution first.** Run `resolve-governances` over **only** the project registry `.agents/universal-plugin.json` (never scan plugin dirs), passing the current project's anchors (`--project`, plus `--project-root` in a monorepo — you know the project from `discover-specs` / context). For **each touched file's** `artifact-type` it names each production-chain role's agent (a plugin delegate or the SDD default) plus the resolved-actor bar **candidates bucketed by tier** (`project` / `project-root` / `plugin` / `sdd`). It does **not** compose — **load each candidate and compose them yourself** by precedence `sdd-default < plugin < project-root < project` (most-specific wins on conflict; a governance's own `compose: replace` supersedes its bar's lower-precedence candidates); the fixed-universal governances are loaded from the role/agent definition (the matcher does not emit them) — their **names** up front as a compact digest, each **body lazily** only at the gate/decision that invokes it (`gate-validation`/`lifecycle` at a gate, `suite-format` when authoring a `.feature`; `sdd` governance-resolution), so a one-line change never reads all six. A required role with no real delegate **fails closed**. A **resolved** delegate that **recuses** from a subject (produces nothing, declaring it outside its domain — e.g. a plugin bound by artifact-type meets a subject its lens does not fit) is **not** a fail-closed: **re-resolve that one unit's chain to the SDD defaults** (default producer + SDD-default bars + judge) and proceed, recording the recusal as a combat-log line (never a halt); other units keep their squad (`sdd:lifecycle-governance`). A domain claimed by two plugins → ask (answered live in-session).
+**Resolution first.** Run `resolve-governances` over **only** the project registry `.agents/universal-plugin.json` (never scan plugin dirs), passing the current project's anchors (`--project`, plus `--project-root` in a monorepo — you know the project from `discover-specs` / context). For **each touched file's** `artifact-type` it names each production-chain role's agent (a plugin delegate or the SDD default) plus the resolved-actor bar **candidates bucketed by tier** (`project` / `project-root` / `plugin` / `sdd`). It does **not** compose — **load each candidate and compose them yourself** by precedence `sdd-default < plugin < project-root < project` (most-specific wins on conflict; a governance's own `compose: replace` supersedes its bar's lower-precedence candidates); the fixed-universal governances are loaded from the role/agent definition (the matcher does not emit them) — the **entry set** is already read (above), and the **deferred** ones are read at the decision that invokes them (`remediation` on a `change` verdict, `impl-producer` at deliver), so a one-line change never reads the deferred bodies it never reaches. A required role with no real delegate **fails closed**. A **resolved** delegate that **recuses** from a subject (produces nothing, declaring it outside its domain — e.g. a plugin bound by artifact-type meets a subject its lens does not fit) is **not** a fail-closed: **re-resolve that one unit's chain to the SDD defaults** (default producer + SDD-default bars + judge) and proceed, recording the recusal as a combat-log line (never a halt); other units keep their squad (`sdd:lifecycle-governance`). A domain claimed by two plugins → ask (answered live in-session).
 
 For each unit the CR touches:
 
@@ -69,7 +109,7 @@ Run **only** when plan mode is active (the harness blocks every write except the
 
 On entering the gate, overwrite the statusline file with `spec gate` (same opt-in, best-effort write as explore — skip when plan mode escaped this step via ExitPlanMode).
 
-Run the spec gate as an **internal step** (not a user-invocable skill). Judge each touched unit suite against `sdd:suite-format-governance` (untagged scenarios boolean; `@rubric` well-formed) and the spec-format bars; load `sdd:lifecycle-governance` + `sdd:ownership-governance` + `sdd:gate-validation-governance` for the legal state tuple. **Never advance** with judge failures, open markers, or a suite that does not cover the spec. On a **change** verdict the findings are **evidence, not a work order**: substantiate each before acting, state the **rule** each instantiates and sweep for its other instances, re-derive every correction against the rule **governing the artifact** rather than against the finding alone, and account for each finding's **provenance** — a finding naming an artifact the previous round's commits changed is a **regression**, which stops the loop for a re-plan instead of another round (`sdd:remediation-governance`). ("Regression" here is finding provenance, distinct from the grill loop's convergence above.) On **approve**: **freeze** each touched `.feature` via its `@frozen` tag, record a per-CR `gate` line in **your own shard** in the `ledger/` directory sibling to `spec.md`, and set `status: approved`. `spec.md` stays in sync, never frozen.
+Run the spec gate as an **internal step** (not a user-invocable skill). Judge each touched unit suite against `sdd:suite-format-governance` (untagged scenarios boolean; `@rubric` well-formed) and the spec-format bars; apply `sdd:lifecycle-governance` + `sdd:ownership-governance` + `sdd:gate-validation-governance` — all three already read at entry — for the legal state tuple. **Never advance** with judge failures, open markers, or a suite that does not cover the spec. On a **change** verdict the findings are **evidence, not a work order**: substantiate each before acting, state the **rule** each instantiates and sweep for its other instances, re-derive every correction against the rule **governing the artifact** rather than against the finding alone, and account for each finding's **provenance** — a finding naming an artifact the previous round's commits changed is a **regression**, which stops the loop for a re-plan instead of another round (`sdd:remediation-governance`). ("Regression" here is finding provenance, distinct from the grill loop's convergence above.) On **approve**: **freeze** each touched `.feature` via its `@frozen` tag, record a per-CR `gate` line in **your own shard** in the `ledger/` directory sibling to `spec.md`, and set `status: approved`. `spec.md` stays in sync, never frozen.
 
 ## Step 3 — deliver: build to keep
 

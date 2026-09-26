@@ -204,6 +204,43 @@ Feature: The conductor — running one mission segment
     Then the units stay warm for reuse within that mission
     And the conductor does not tear them down between uses in the mission
 
+  # ---- Governance entry set — the conductor loads and declares its own bars ----
+
+  Scenario: the entry-set governances are loaded before intake opens the CR
+    Given a conductor starting a mission with no plan brief written yet
+    When it declares the governances it has loaded
+    Then the declared set names every governance in the entry set
+    And no CR or plan artifact has been written at that point
+
+  Scenario: a deferred governance is absent from the entry declaration
+    Given a conductor starting a mission in which no judge has returned a change verdict
+    When it declares the governances it has loaded
+    Then the declared set omits the remediation governance
+
+  Scenario: a deferred governance is declared once the decision that invokes it is reached
+    Given a conductor whose entry declaration omitted the remediation governance
+    When a judge returns a change verdict and it loads that governance to answer the findings
+    Then it declares that governance as loaded
+
+  Scenario: a bar that fires at one moment but is read downstream stays in the entry set
+    Given the spec-judge pre-flight derives its expected set from its own fixed-universal floor
+    And that floor carries the gate-legality governance
+    When the conductor declares its entry set before intake
+    Then the declared set names the gate-legality governance
+    And the relayed producer declaration carries it when the spec-judge is dispatched
+
+  Scenario: a governance the conductor never read is absent from its declaration
+    Given a conductor that reached intake having read all but one of the entry-set governances
+    When it declares the governances it has loaded
+    Then the declared set omits the governance it did not read
+
+  Scenario: the conductor's own declaration is separate from the producer set it relays
+    Given a spec-producer's structured output declares governances_loaded
+    And the conductor has declared its own loaded governances
+    When it forwards the producer set as producer_governances_declared
+    Then the two declared sets are recorded separately
+    And its own declaration is not replaced by the relayed producer set
+
   # ---- Governance provenance relay — producer_governances_declared ----
 
   Scenario: the conductor forwards the declared governances in a cold-subagent brief

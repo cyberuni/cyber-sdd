@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/sdd
 approval:
   spec:
@@ -16,10 +16,10 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — built against the frozen mission/conductor suite without editing it; the net suite diff against main is add-only. Semver class additive (patch changeset)
-      blast: low — one bullet in start-mission and three sentences in the headless automaton definition; nothing changes for plugin-delegated judges or for a run with no dispatch capability
-      novelty: low — the rule reuses the existing no-capability fallback for the missing-file route
-      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true, re-deriving both new scenarios against both prose realizations, confirming the computed path resolves in the repo and the installed plugin cache, and confirming the cyberlegion resolver and flags exist. Its four content gaps were wording (name both judges, the right cyberlegion flag, how the headless conductor finds the plugin root, no request rather than no by-name request) and were closed after the pass; pnpm verify is green on the landed tree
+      floor: none — built against the frozen suite; the only suite edit after the freeze was one additive scenario (structural diff: additions only), so no Clearance was entered. Semver class additive: a new read-only check plus documentation-only fixes to eleven shipped definitions.
+      blast: low — a check wired into the commit chain and one-line documentation edits; no agent's procedure or decision text changed, confirmed by the judge reading every survivor diff.
+      novelty: medium — the cross-definition known-field vocabulary and the gloss-or-prose reading of explained are the non-obvious rules; both are bound by the suite.
+      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true on round one: 38 of 38 frozen scenarios with oracles re-derived independently, a live-tree run clean over 93 definitions, and its own twenty-mutant sweep with no surviving contract defect. One surviving mutant exposed a coverage gap (a field glued to an adjacent character) where the shipped behavior is correct; recorded as a follow-up. pnpm verify green on the tree rebased onto main.
 produced-by:
   spec-producer: sdd:automaton
   impl-producer: sdd:automaton

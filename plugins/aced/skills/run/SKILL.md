@@ -76,7 +76,7 @@ itself waiting on its own blind simulator — so it can report before its measur
 correct itself afterwards. Where an agent reports more than once, the **final** report for that agent
 id supersedes the earlier one entirely: never bank the first, never merge them. Do not compute
 results while any judge is still live; a run that ends with cases outstanding reports those cases as
-**unmeasured**, not as passes or failures. A judge that emits `BLOCKER: <reason>` in place of a score
+**unmeasured**, not as passes or failures. A judge that emits `BLOCKER: <reason>` in place of a score <!-- field-mandate-ignore: BLOCKER is aced-case-judge's output, which this skill reads -->
 is likewise unmeasured — surface it rather than folding it into the pass rate.
 
 ## Compute results

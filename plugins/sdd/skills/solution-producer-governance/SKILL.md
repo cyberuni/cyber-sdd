@@ -15,7 +15,7 @@ Load alongside this governance: the resolved **architect** actor bar (structural
 ## Inputs (folded in by the conductor)
 
 ```
-DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, SOLUTION_PATH
+DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, SOLUTION_PATH: the domain under work, its spec folder, its spec.md, its .feature, and its <unit>.solution.md
 MODE: explore | implement
 EXISTING_SOLUTION: <the current <unit>.solution.md, on a revise — or null>
 ```

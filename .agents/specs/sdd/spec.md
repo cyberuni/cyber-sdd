@@ -1,5 +1,5 @@
 ---
-status: implemented
+status: approved
 project-path: plugins/sdd
 approval:
   spec:
@@ -7,10 +7,10 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — additive at the suite level. Six scenarios were added to the already-frozen `mission/conductor/conductor.feature`; the structural diff is insertions only, no standing scenario narrowed, rewritten, or removed, so the file self-clears and stays `@frozen` with no Clearance owed. The one contradiction the CR did introduce was caught at round 1 and resolved without touching a frozen contract — see confidence
-      blast: low — one skill body (`start-mission`) and one spec node (`mission/conductor`). The reach is the conductor's own entry sequence, so every future mission pays the eager read, but nothing downstream of the declaration changes shape: the relayed `producer_governances_declared` field, the judges' pre-flight, and the gate legality rules are all untouched
-      novelty: low — the entry/deferred split reuses the existing digest-vs-body discipline and the existing `governances_loaded` declaration shape the spec-producer already emits. The one design question with real freedom — whether `gate-validation` is deferred (it fires only at a gate) or eager (its absence breaks a downstream consumer) — was settled on a stated ground, reach rather than phase, and written into both the spec and the skill so the next author meets a rule instead of rediscovering the failure
-      confidence: high — cold `sdd-spec-judge` returned ALIGNED true with oracle/builder/architect all PASS on round 2. Round 1 blocked on a genuine defect this CR had introduced: specifying `gate-validation` as deferred made the spec-judge's own pre-flight floor unsatisfiable through the producer relay, so a correct producer would fail it by construction. The fix moved that bar into the entry set rather than re-opening the frozen `spec-gate.feature` (which would have fired Clearance), and added the scenario that pins the reach-not-phase rule — a scenario round 1's own design fails outright
+      floor: none — a new behavioral node with its own suite; no existing .feature was edited, so nothing frozen was narrowed and no Clearance is owed. Semver class additive: a new read-only check.
+      blast: low — one new spec node under sdd/plugin and one pointer line in its parent README; the engine and the survivor fixes are deliver work judged at the impl gate.
+      novelty: medium — the owner-ruled reading of explained (a gloss or a prose mention) and the known-field vocabulary built across every definition are the non-obvious decisions; both are stated in the node with the live-tree measurement behind them.
+      confidence: high — cold sdd-spec-judge returned ALIGNED true with oracle, builder and architect all PASS on round 2 of the restarted loop. Round 1 failed builder on a stated rule with no acceptance edge; the remediation swept every key-terms clause by mutation and bound each survivor. A build-to-learn spike satisfied every draft scenario with no surviving mutant.
   impl:
     verdict: approve
     by: agent
@@ -176,7 +176,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability workf
 | `intake` | `intake/manage-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
 | `lifecycle` | `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) · `workflows/` (workflow) |
 | `orchestration` | `blast-estimate/` (behavior) · `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
-| `plugin` | `plugin/` (behavior) · `plugin/check-plugin-manifests/` (behavior) · `plugin/plugin-contract/` (reference) |
+| `plugin` | `plugin/` (behavior) · `plugin/check-field-mandates/` (behavior) · `plugin/check-plugin-manifests/` (behavior) · `plugin/plugin-contract/` (reference) |
 | `provenance` | `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) · `workflows/` (workflow) |
 | `resolution` | `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) · `workflows/` (workflow) |
 | `routing` | `gateway/` (behavior) · `gateway/dispatch/` (behavior) · `gateway/manage/` (behavior) |

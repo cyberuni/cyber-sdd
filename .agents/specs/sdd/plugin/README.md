@@ -19,7 +19,9 @@ Cursor symlink), and the contract-registry **init-WRITE**.
 or its **READ/resolution** (→ `../mission/`); the **plugin contract** itself is the reference node
 [`./plugin-contract/`](./plugin-contract/README.md); whether a manifest's declared components will
 actually **ship** is the child node
-[`./check-plugin-manifests/`](./check-plugin-manifests/README.md); and the user-facing
+[`./check-plugin-manifests/`](./check-plugin-manifests/README.md); whether a shipped skill or agent
+definition's declared fields and the prose mandating them agree is the child node
+[`./check-field-mandates/`](./check-field-mandates/README.md); and the user-facing
 **plugin/governance management** + **marketplace** are net-new, deferred to follow-up CRs (their spec + suite are
 authored when that work lands).
 

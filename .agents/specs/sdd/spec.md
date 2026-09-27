@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/sdd
 approval:
   spec:
@@ -16,10 +16,10 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — the frozen `mission/conductor/conductor.feature` was never narrowed. The six governance-entry-set scenarios were added to it additively in this same CR and the structural diff carries zero removals or rewrites, so the file self-clears and no Clearance is owed. The implementation is prose in `start-mission`; no contract file was touched at deliver
-      blast: low — one skill body. It changes what the conductor reads before intake and what it declares, so every future mission pays an eager read of seven governance bodies where it previously deferred most of them; nothing downstream of the declaration changes shape
-      novelty: low — the declaration reuses the `governances_loaded` shape the spec-producer already emits, and the entry/deferred split reuses the existing digest-vs-body discipline
-      confidence: high — cold `sdd-impl-judge` returned IMPLEMENTATION_PASS true with all six frozen scenarios re-derived independently against the skill text, an entry/deferred partition completeness check over every `sdd:*-governance` reference in the skill, and a spec↔impl agreement read against the conductor node. It raised one content gap (the skill implied rather than stated the two declarations' non-replacement invariant) and two precision nits (the fresh-load verb reused for three already-loaded bars at the spec gate; whether a resolved-actor bar sits in the partition). All three were closed after the pass — prose only, no frozen scenario affected — and `pnpm verify` is green on the landed tree
+      floor: none — built against the frozen suite; the only suite edit after the freeze was one additive scenario (structural diff: additions only), so no Clearance was entered. Semver class additive: a new read-only check plus documentation-only fixes to eleven shipped definitions.
+      blast: low — a check wired into the commit chain and one-line documentation edits; no agent's procedure or decision text changed, confirmed by the judge reading every survivor diff.
+      novelty: medium — the cross-definition known-field vocabulary and the gloss-or-prose reading of explained are the non-obvious rules; both are bound by the suite.
+      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true on round one: 38 of 38 frozen scenarios with oracles re-derived independently, a live-tree run clean over 93 definitions, and its own twenty-mutant sweep with no surviving contract defect. One surviving mutant exposed a coverage gap (a field glued to an adjacent character) where the shipped behavior is correct; recorded as a follow-up. pnpm verify green on the tree rebased onto main.
 produced-by:
   spec-producer: sdd:automaton
   impl-producer: sdd:automaton

@@ -10,13 +10,13 @@ todos:
   - content: "spec gate: cold sdd-spec-judge (subagent strategy) to convergence, freeze check-field-mandates.feature"
     status: completed
   - content: "deliver: dispatch the builder — engine, one verification per frozen scenario, survivor fixes, check:fields"
-    status: in_progress
+    status: completed
   - content: "deliver: rebase onto main, pnpm verify green"
-    status: pending
+    status: completed
   - content: "impl gate: cold sdd-impl-judge (subagent strategy)"
-    status: pending
+    status: completed
   - content: "handoff: placement pass, changeset, commits, PR closing issue #24, follow-ups"
-    status: pending
+    status: completed
 ---
 
 # CR github-24 — a skill's declared block and the prose mandating it must agree
@@ -49,6 +49,14 @@ Judges and builder dispatch by the subagent strategy (defs carry no `warm` / `in
 
 ## NEXT
 
-Spec gate self-asserted (round 2 ALIGNED; 37 scenarios frozen, plus one additive detail-adjustment = 38).
-Builder is in implement mode: engine, 38 verifications, `check:fields` wiring, live tree green. Next:
-rebase onto `main`, `pnpm verify`, then the cold impl-judge.
+Landed. Both gates passed and self-asserted `by: agent` within leash; no resume action remains.
+
+- **Spec gate** — `check-field-mandates.feature` frozen at 37 scenarios after two cold rounds of the
+  restarted loop (round 2 ALIGNED across oracle, builder and architect), plus one additive
+  detail-adjustment after the freeze (38). No existing `.feature` was touched.
+- **Impl gate** — IMPLEMENTATION_PASS on round one: 38/38 with oracles re-derived independently,
+  live tree clean over 93 definitions, the judge's own mutation sweep with no contract defect.
+- **Landed** — the engine runs in `verify` as `check:fields`; eleven shipped definitions were fixed
+  (three missing `BLOCKER` lines, nine glossed Input lists, two reasoned ignore markers).
+
+Three backlog follow-ups are recorded in the ledger shard.

@@ -44,7 +44,7 @@ them):
 ## Input
 
 ```
-ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH
+ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH: the touched artifact-type, the node folder(s), the spec.md, and the .feature
 PRODUCER_GOVERNANCES_DECLARED: [ the spec-producer's declared governances_loaded, relayed by the conductor — or [] ]
 ```
 

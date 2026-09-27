@@ -44,7 +44,7 @@ when you grade against that bar. The **impl-gate lens set is {builder, architect
 ## Input
 
 ```
-ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH
+ARTIFACT_TYPE, NODE_PATH(s), SPEC_PATH, FEATURE_PATH: the touched artifact-type, the node folder(s), the spec.md, and the .feature
 IMPLEMENTATION_PATHS:  impl-layer paths from the ## Artifacts table
 VERIFICATION_PATHS:    the verification the impl-producer authored (or discoverable across IMPLEMENTATION_PATHS)
 ```

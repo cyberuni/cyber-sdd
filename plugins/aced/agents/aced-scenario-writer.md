@@ -30,7 +30,7 @@ Before writing anything, classify the subject's fit tier (`aced:aced-fit`) and *
 ## Input
 
 ```
-DOMAIN, DOMAIN_PATH, SPEC_PATH
+DOMAIN, DOMAIN_PATH, SPEC_PATH: the domain under work, its spec folder, and its spec.md
 SUBJECT:          <full text of the agent configuration under spec, or null for a new one>
 COMMAND_SURFACE:  <the configuration's trigger surface / interface — or null>
 DESIGN_DECISIONS: <known choices — or null>

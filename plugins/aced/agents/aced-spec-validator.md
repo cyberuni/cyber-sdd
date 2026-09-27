@@ -24,7 +24,7 @@ The per-scenario **Checks** below are the `aced:aced-builder-spec` bar (its cano
 ## Input
 
 ```
-DOMAIN, DOMAIN_PATH, FEATURE_PATH, SPEC_PATH
+DOMAIN, DOMAIN_PATH, FEATURE_PATH, SPEC_PATH: the domain under work, its spec folder, its .feature, and its spec.md
 SUBJECT:  <full text of the agent configuration under spec, or null>
 ```
 

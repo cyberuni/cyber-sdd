@@ -10,7 +10,7 @@
 // are exported for node:test; running the file directly drives the CLI.
 
 import { existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 export const BEGIN_MARKER = '<!-- BEGIN generated: by-concept (project-spec/concept-index) -->'
@@ -120,7 +120,7 @@ function walk(dir: string, specDir: string, out: NodeRecord[]): void {
 		} else if (entry.name.endsWith('.md')) {
 			const fm = parseFrontmatter(readFileSync(full, 'utf8'))
 			if (!fm || fm.concepts.length === 0) continue
-			const relPath = full.slice(specDir.length + 1).replace(/\\/g, '/')
+			const relPath = relative(specDir, full).replace(/\\/g, '/')
 			out.push({
 				relPath,
 				display: displayPath(relPath),

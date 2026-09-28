@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { test } from 'node:test'
 import {
 	applySection,
@@ -89,6 +89,29 @@ test('scanProjectSpec collects only concept-tagged nodes and omits the rest', ()
 		rmSync(dir, { recursive: true, force: true })
 	}
 })
+
+for (const [style, cwdFor, specDirFor] of [
+	['a trailing slash', dirname, (dir: string) => `${dir}/`],
+	['a ./ prefix from the parent', dirname, (dir: string) => `./${basename(dir)}`],
+	['. from inside the spec', (dir: string) => dir, () => '.'],
+] as const) {
+	test(`scanProjectSpec keeps whole relative paths when the spec dir is given with ${style}`, () => {
+		const dir = mkCorpus()
+		const cwd = process.cwd()
+		try {
+			seed(dir, 'cli/bridge-resolution/README.md', 'spec-type: behavioral\nconcept: command-interface')
+			process.chdir(cwdFor(dir))
+			const records = scanProjectSpec(specDirFor(dir))
+			assert.deepEqual(
+				records.map((r) => r.display),
+				['cli/bridge-resolution/'],
+			)
+		} finally {
+			process.chdir(cwd)
+			rmSync(dir, { recursive: true, force: true })
+		}
+	})
+}
 
 test('groupByConcept places a multi-tagged node under each concept', () => {
 	const dir = mkCorpus()

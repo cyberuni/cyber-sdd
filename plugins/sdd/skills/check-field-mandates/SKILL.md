@@ -14,8 +14,6 @@ fields the surrounding prose also mandates. A field the prose mandates and the b
 fail loudly: the stage that depends on it silently never fires. Nothing else in the repo diffs the
 two token sets.
 
-Spec: [`.agents/specs/sdd/plugin/check-field-mandates/`](../../../../.agents/specs/sdd/plugin/check-field-mandates/README.md).
-
 ## What it checks
 
 Every `plugins/<plugin>/skills/**/SKILL.md` and `plugins/<plugin>/agents/*.md`, both directions:

@@ -14,8 +14,6 @@ and is copied into every generated vendor manifest — it fails only on an insta
 publish, as a component the host runtime cannot load. Nothing else in the repo compares a manifest's
 pointers against what ships.
 
-Spec: [`.agents/specs/sdd/plugin/check-plugin-manifests/`](../../../../.agents/specs/sdd/plugin/check-plugin-manifests/README.md).
-
 ## What it checks
 
 Two sub-checks, neither subsuming the other:

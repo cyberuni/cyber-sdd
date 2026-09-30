@@ -1,6 +1,6 @@
 ---
 name: check-field-mandates
-description: "Partial Skill: invoke by name only — plugin/check-field-mandates' guard engine against a skill or agent definition whose structured blocks and prose disagree on a field — the CI guard, not triggered by users directly."
+description: "Partial Skill: invoke by name only"
 user-invocable: false
 metadata:
   internal: true

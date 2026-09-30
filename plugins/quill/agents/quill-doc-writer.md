@@ -20,7 +20,7 @@ Self-align to that set **and** write the verification against it. **Track every 
 ## Input
 
 ```
-DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, SOLUTION_PATH
+DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, SOLUTION_PATH: the domain under work, its spec folder, its spec.md, its .feature, and its <unit>.solution.md
 MODE: explore | implement
 ```
 
@@ -66,6 +66,7 @@ MODE: explore | implement
 
 ```
 STATUS:           complete | needs-input | blocked
+BLOCKER:          <what blocked it — the behavior the frozen contract omits — when STATUS is blocked, else null>
 GOVERNANCES_APPLIED: [ every governance name loaded before writing — required, [] when none, never written into spec.md or the .feature ]
 ARTIFACTS_WRITTEN: [ document paths ]
 VERIFICATION_WRITTEN: <path to verification.md, or "none">

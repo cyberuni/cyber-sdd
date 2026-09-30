@@ -7,19 +7,19 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — additive at the suite level. Six scenarios were added to the already-frozen `mission/conductor/conductor.feature`; the structural diff is insertions only, no standing scenario narrowed, rewritten, or removed, so the file self-clears and stays `@frozen` with no Clearance owed. The one contradiction the CR did introduce was caught at round 1 and resolved without touching a frozen contract — see confidence
-      blast: low — one skill body (`start-mission`) and one spec node (`mission/conductor`). The reach is the conductor's own entry sequence, so every future mission pays the eager read, but nothing downstream of the declaration changes shape: the relayed `producer_governances_declared` field, the judges' pre-flight, and the gate legality rules are all untouched
-      novelty: low — the entry/deferred split reuses the existing digest-vs-body discipline and the existing `governances_loaded` declaration shape the spec-producer already emits. The one design question with real freedom — whether `gate-validation` is deferred (it fires only at a gate) or eager (its absence breaks a downstream consumer) — was settled on a stated ground, reach rather than phase, and written into both the spec and the skill so the next author meets a rule instead of rediscovering the failure
-      confidence: high — cold `sdd-spec-judge` returned ALIGNED true with oracle/builder/architect all PASS on round 2. Round 1 blocked on a genuine defect this CR had introduced: specifying `gate-validation` as deferred made the spec-judge's own pre-flight floor unsatisfiable through the producer relay, so a correct producer would fail it by construction. The fix moved that bar into the entry set rather than re-opening the frozen `spec-gate.feature` (which would have fired Clearance), and added the scenario that pins the reach-not-phase rule — a scenario round 1's own design fails outright
+      floor: none — a new behavioral node with its own suite; no existing .feature was edited, so nothing frozen was narrowed and no Clearance is owed. Semver class additive: a new read-only check.
+      blast: low — one new spec node under sdd/plugin and one pointer line in its parent README; the engine and the survivor fixes are deliver work judged at the impl gate.
+      novelty: medium — the owner-ruled reading of explained (a gloss or a prose mention) and the known-field vocabulary built across every definition are the non-obvious decisions; both are stated in the node with the live-tree measurement behind them.
+      confidence: high — cold sdd-spec-judge returned ALIGNED true with oracle, builder and architect all PASS on round 2 of the restarted loop. Round 1 failed builder on a stated rule with no acceptance edge; the remediation swept every key-terms clause by mutation and bound each survivor. A build-to-learn spike satisfied every draft scenario with no surviving mutant.
   impl:
     verdict: approve
     by: agent
     cause: dimension
     why:
-      floor: none — the frozen `mission/conductor/conductor.feature` was never narrowed. The six governance-entry-set scenarios were added to it additively in this same CR and the structural diff carries zero removals or rewrites, so the file self-clears and no Clearance is owed. The implementation is prose in `start-mission`; no contract file was touched at deliver
-      blast: low — one skill body. It changes what the conductor reads before intake and what it declares, so every future mission pays an eager read of seven governance bodies where it previously deferred most of them; nothing downstream of the declaration changes shape
-      novelty: low — the declaration reuses the `governances_loaded` shape the spec-producer already emits, and the entry/deferred split reuses the existing digest-vs-body discipline
-      confidence: high — cold `sdd-impl-judge` returned IMPLEMENTATION_PASS true with all six frozen scenarios re-derived independently against the skill text, an entry/deferred partition completeness check over every `sdd:*-governance` reference in the skill, and a spec↔impl agreement read against the conductor node. It raised one content gap (the skill implied rather than stated the two declarations' non-replacement invariant) and two precision nits (the fresh-load verb reused for three already-loaded bars at the spec gate; whether a resolved-actor bar sits in the partition). All three were closed after the pass — prose only, no frozen scenario affected — and `pnpm verify` is green on the landed tree
+      floor: none — built against the frozen suite; the only suite edit after the freeze was one additive scenario (structural diff: additions only), so no Clearance was entered. Semver class additive: a new read-only check plus documentation-only fixes to eleven shipped definitions.
+      blast: low — a check wired into the commit chain and one-line documentation edits; no agent's procedure or decision text changed, confirmed by the judge reading every survivor diff.
+      novelty: medium — the cross-definition known-field vocabulary and the gloss-or-prose reading of explained are the non-obvious rules; both are bound by the suite.
+      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true on round one: 38 of 38 frozen scenarios with oracles re-derived independently, a live-tree run clean over 93 definitions, and its own twenty-mutant sweep with no surviving contract defect. One surviving mutant exposed a coverage gap (a field glued to an adjacent character) where the shipped behavior is correct; recorded as a follow-up. pnpm verify green on the tree rebased onto main.
 produced-by:
   spec-producer: sdd:automaton
   impl-producer: sdd:automaton
@@ -176,7 +176,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability workf
 | `intake` | `intake/manage-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
 | `lifecycle` | `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) · `workflows/` (workflow) |
 | `orchestration` | `blast-estimate/` (behavior) · `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
-| `plugin` | `plugin/` (behavior) · `plugin/check-plugin-manifests/` (behavior) · `plugin/plugin-contract/` (reference) |
+| `plugin` | `plugin/` (behavior) · `plugin/check-field-mandates/` (behavior) · `plugin/check-plugin-manifests/` (behavior) · `plugin/plugin-contract/` (reference) |
 | `provenance` | `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) · `workflows/` (workflow) |
 | `resolution` | `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) · `workflows/` (workflow) |
 | `routing` | `gateway/` (behavior) · `gateway/dispatch/` (behavior) · `gateway/manage/` (behavior) |

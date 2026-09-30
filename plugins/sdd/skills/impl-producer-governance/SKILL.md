@@ -16,7 +16,7 @@ declares its own pass.
 ## Inputs (folded in by the conductor)
 
 ```
-DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, SOLUTION_PATH
+DOMAIN, DOMAIN_PATH, SPEC_PATH, FEATURE_PATH, SOLUTION_PATH: the domain under work, its spec folder, its spec.md, its .feature, and its <unit>.solution.md
 MODE: explore | implement
 ```
 
@@ -71,6 +71,7 @@ rule governing the artifact · account for provenance, where a regression stops 
 ```
 REMEDIATION:      <per finding answered: verdict, rule, swept, ruled-out, provenance — `sdd:remediation-governance`; omit when no verdict was answered>
 STATUS:               complete | needs-input | blocked
+BLOCKER:              <what blocked it — the behavior the frozen contract omits — when STATUS is blocked, else null>
 ARTIFACTS_WRITTEN:    [ paths ]
 VERIFICATION_WRITTEN: [ paths ]   # one per frozen scenario, each with its level + why
 CHANGES_MADE:         <what was built>

@@ -1,5 +1,11 @@
 # cyber-sdd
 
+## 0.4.1
+
+### Patch Changes
+
+- f3a7f14: `concept-index` keeps whole node paths when `--spec-dir` is `.`, starts with `./`, or ends with `/`. Before, it cut characters off the front of each path, so `cli/` showed as `i/`.
+
 ## 0.4.0
 
 ### Minor Changes

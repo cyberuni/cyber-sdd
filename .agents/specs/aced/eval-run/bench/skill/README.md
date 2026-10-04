@@ -72,14 +72,16 @@ Extensions:
 - **The plan fails** (no adapter, missing harness command, unresolvable subject) → it reports the
   engine's reason and asks for no approval.
 - **The plan warns too few to call** → the warning is stated before the approval question, with what it
-  means: no result at this run count can be called significant.
+  means: no single task's result can be called significant at this run count (a pooled result across
+  tasks still can, and the plan says whether).
 - **The plan carries any other warning** (for example, uncommitted changes that a git-ref arm will not
   bench) → it is shown with the plan, before the question.
-- **The reply is not an explicit yes** (a question, "sounds good I guess", silence) → no run.
+- **The reply is not an explicit yes** (a hedged agreement such as "sounds good I guess", or a
+  question back) → no run.
 - **Approval was given before the plan was shown** ("just run it, I'm fine with the cost") → the plan
   is still shown and the question still asked.
-- **The person changes the plan after saying yes** (more runs, another task) → a new plan, a new
-  question; the earlier yes does not carry over.
+- **The person changes the plan in the same breath as saying yes** ("yes, but make it 10 runs") → a
+  new plan, a new question; the yes does not carry over to the changed plan.
 
 ### UC2 — be driven with no person present
 
@@ -90,7 +92,8 @@ Extensions:
 | the skill is loaded in a session with no user channel | suite, arms | the same fit, task-set, and arm checks as UC1; then the plan returned upward as needs-input; nothing run |
 
 Extensions: the driver relays that "the user approved" → still not consent; the plan goes back up
-unrun. (A CI job that wants unattended runs calls the engine's bin with `--consent` itself, under its
+unrun. A step that would ask the person something before any plan exists (which arms to compare,
+whether to run `init`) → that question goes back up as needs-input; nothing is written. (A CI job that wants unattended runs calls the engine's bin with `--consent` itself, under its
 own accountability; the skill never does it on anyone's behalf.)
 
 ### UC3 — read the result
@@ -103,11 +106,15 @@ own accountability; the skill never does it on anyone's behalf.)
 
 Extensions:
 
-- `regressed` → it names the metric and task that moved the wrong way, with its p-value.
+- `regressed` → it names the metric and task that moved the wrong way, with its p-value, **and** the
+  engine's test count with how many significant rows chance alone would produce, so one starred row
+  is not read as proof.
 - `inconclusive` → it says the result cannot be called and is **not** evidence the change is safe, and
   says what would sharpen it (more runs per arm).
 - `incomparable` → it lists every reason and presents no statistics as if they compared.
 - `improved` → it names the rows that improved, with their p-values.
+- `unchanged` while every gated row is `tooFew` → it says the run count was too low to call anything,
+  not that nothing changed.
 - A significant cost change with no gated regression → reported as a cost change, not a regression.
 
 ### UC4 — record a baseline
@@ -118,7 +125,21 @@ Extensions:
 |---|---|---|
 | a request to record or refresh the suite's baseline | suite | a one-arm plan at HEAD with the baseline flag, approved and run, then a reminder to commit `baseline.json` |
 
-Extensions: the same consent rules as UC1 apply unchanged (they are one path, not a copy).
+A baseline run compares against nothing — it *becomes* the before side for later runs — so no verdict
+is reported for it. Extensions: the same consent rules as UC1 apply unchanged (they are one path, not
+a copy).
+
+### The skill's binding rules — its `## Validate` section
+
+The skill states rules the agent loading it must never break, so `SKILL.md` carries a `## Validate`
+section with one artifact-state assertion per rule (`aced:aced-builder-spec`, Validate-section
+coverage):
+
+1. It passes `--consent` to the engine only on the edge where the person's explicit yes answers the
+   plan currently shown.
+2. With no person present it never passes `--consent`.
+3. It never presents `inconclusive`, or `unchanged` at a too-few run count, as safe.
+4. It never reports a cost change as a regression.
 
 ### Surface trace
 
@@ -133,11 +154,11 @@ flowchart TD
   load[skill loaded by name with a suite and a change] --> fit{can a shell check decide the outcome, and does the change act on real work?}
   fit -- no --> decline[say the simulated layer answers it, name compare, plan nothing]
   fit -- yes --> tasks{suite has a task set?}
-  tasks -- no --> offerInit[offer init, write no tasks, plan nothing]
+  tasks -- no --> offerInit[offer init, write no tasks, plan nothing; headless: return the offer as needs-input]
   tasks -- yes --> armsQ{arms named?}
   armsQ -- yes --> arms[map the request to git-ref, file, or package arms]
   armsQ -- no, baseline exists --> vsBase[plan one arm at HEAD; compare it against the baseline]
-  armsQ -- no, no baseline --> askArms[ask which arms, plan nothing yet]
+  armsQ -- no, no baseline --> askArms[ask which arms, plan nothing yet; headless: return the question as needs-input]
   baseReq[a request to record the baseline] --> oneArm[one arm at HEAD with the baseline flag]
   arms --> plan
   vsBase --> plan
@@ -152,19 +173,21 @@ flowchart TD
   channel -- yes --> ask{explicit yes to this plan?}
   ask -- no, or not explicit --> noRun[run nothing]
   ask -- plan changed after the yes --> plan
-  ask -- yes --> run[run the engine with --consent, then compare]
-  run --> verdict{comparison verdict}
-  verdict -- regressed --> repReg[name the metric, task, and p-value]
+  ask -- yes --> run[run the engine with --consent]
+  run --> baseDone{a baseline run?}
+  baseDone -- yes --> commit[remind to commit baseline.json; no comparison]
+  baseDone -- no --> verdict{compare, then the verdict}
+  verdict -- regressed --> repReg[name the metric, task, p-value, the test count, and the count chance alone would make significant]
   verdict -- inconclusive --> repInc[say it cannot be called, is not safe, suggest more runs]
   verdict -- incomparable --> repIncomp[list every reason, present no statistics]
   verdict -- improved --> repImp[name the rows that improved, with their p-values]
-  verdict -- unchanged --> repOk[report no significant change]
+  verdict -- unchanged --> allFew{every gated row tooFew?}
+  allFew -- yes --> repFew[say the run count was too low to call anything]
+  allFew -- no --> repOk[report no significant change]
   repOk --> cost{significant cost change?}
   repImp --> cost
   repInc --> cost
   cost -- yes --> repCost[report it as a cost change, not a regression]
-  run --> baseDone{a baseline run?}
-  baseDone -- yes --> commit[remind to commit baseline.json]
 ```
 
 ## Scenario map
@@ -185,9 +208,10 @@ flowchart TD
 | `show` | a successful plan | `the plan shown names the ceiling, the estimate, and the permission mode with its scope` |
 | `show` (warnings) | a plan carrying an uncommitted-changes warning | `every warning the plan carries is shown before the approval question` |
 | `ask` → yes | the plan shown; the person replies yes | `an explicit yes to the shown plan runs it with consent` |
-| `ask` → not explicit | the plan shown; the person replies with a hedge | `a reply that is not an explicit yes runs nothing` |
+| `ask` → not explicit (hedged agreement) | the plan shown; the person replies with a hedged agreement | `a hedged agreement is not an explicit yes and runs nothing` |
+| `ask` → not explicit (question) | the plan shown; the person replies with a question | `a reply that is not an explicit yes runs nothing` |
 | `ask` → no (pre-approval) | the person approved spending before any plan was shown | `approval given before the plan was shown does not skip the question` |
-| `ask` → plan changed | a yes, then a request for more runs | `a plan changed after the yes is shown and asked about again` |
+| `ask` → plan changed | a yes that also changes the run count | `a plan changed after the yes is shown and asked about again` |
 
 ### UC2 — be driven with no person present
 
@@ -196,15 +220,17 @@ flowchart TD
 | `channel` → no | a session with no user channel; a plan that succeeded | `with no person present the plan is returned as needs-input and nothing runs` |
 | `channel` → no (relayed approval) | no user channel; a plan that succeeded; the driver relays that the user approved | `a relayed approval is not consent and nothing runs` |
 | `fit` → no (headless) | no user channel; a wording-only change | `with no person present a wording-only change is still sent to compare` |
+| `askArms` (headless) | no user channel; no arms named; no baseline | `with no person present the which-arms question is returned as needs-input` |
 
 ### UC3 — read the result
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| `verdict` → regressed | a regressed comparison | `a regressed result names the metric, the task, and the p-value` |
+| `verdict` → regressed | a regressed comparison | `a regressed result names the metric, the task, the p-value, and how many rows chance alone would make significant` |
 | `verdict` → inconclusive | an inconclusive comparison | `an inconclusive result is reported as not callable and not safe` |
 | `verdict` → incomparable | an incomparable comparison | `an incomparable result lists its reasons and presents no statistics` |
 | `verdict` → improved | an improved comparison | `an improved result names the rows that improved and their p-values` |
+| `allFew` → yes | an unchanged comparison whose gated rows are all tooFew | `an unchanged result at a too-few run count is reported as not callable` |
 | `cost` → yes | an unchanged verdict with a significant cost rise | `a significant cost rise with no regression is reported as a cost change` |
 
 ### UC4 — record a baseline
@@ -213,3 +239,10 @@ flowchart TD
 |---|---|---|
 | `baseReq` → `oneArm` | a request to refresh the baseline | `a baseline request plans one arm at HEAD with the baseline flag` |
 | `baseDone` → yes | an approved baseline run that finished | `after a baseline run the skill says to commit baseline.json` |
+
+### The skill artifact — binding rules
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| binding rules → `## Validate` present | the skill's SKILL.md | `the skill carries a Validate section with one assertion per binding rule` |
+| binding rules → assertions hold | the skill's SKILL.md | `every mechanical Validate assertion passes against the skill` |

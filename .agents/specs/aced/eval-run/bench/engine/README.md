@@ -39,8 +39,9 @@ change); interpreting comparison tags (the consumer owns their meaning).
 | Term | Meaning |
 |---|---|
 | **suite** | A named task set at `.agents/aced/bench/<suite>/` — `tasks.json`, the `checks/` it calls, and optionally a committed `baseline.json`. Names follow `^[a-z0-9]+(?:[-.][a-z0-9]+)*$`, so an owner can prefix with a dot (`repobuddy.readiness`). |
-| **task set** (`tasks.json`) | Suite-wide fields, each with a default: `model` (`sonnet`), `runs` per arm (3), `maxBudgetUsd` per run (0.50), `permissionMode` (`bypassPermissions`), `timeoutMinutes` per run (20), optional `setup`. Then `tasks[]`, each `{ id, prompt, check, setup?, tags? }`; ids are unique, `prompt` and `check` required, at least one task. |
+| **task set** (`tasks.json`) | Suite-wide fields, each with a default: `model` (`sonnet`), `runs` per arm (3), `maxBudgetUsd` per run (0.50), `permissionMode` (`bypassPermissions`), `timeoutMinutes` per run (20, fractions allowed), optional `setup`. Then `tasks[]`, each `{ id, prompt, check, setup?, tags? }`; ids are unique, `prompt` and `check` required, at least one task. |
 | **task-set commit** | The HEAD commit at plan time. Its committed `tasks.json` and `checks/` are what every run uses, whatever commit the arm checks out. |
+| **task-set hash** | SHA-256 over the task-set commit's `tasks.json` and every file under `checks/`, path-sorted. A changed check changes the hash. |
 | **arm** | A labelled subject — the thing whose effect is measured. A comparison has two arms (`before`/`after`, or `without`/`with`). Written `--arm <label>=<subject>`. |
 | **subject** | One of three kinds, written and recorded as: `git:<ref>` → `{ kind: git-ref, ref, commit }`; `package:<name>@<version>` → `{ kind: package, name, version }`; `file:<path>=ref:<ref>`, `file:<path>=path:<source>`, or `file:<path>=absent` → `{ kind: file, path, from }`. |
 | **adapter** | The harness-specific half: prepare the checkout's harness config, launch headless, parse the transcript into counts. Claude Code is the only adapter in v1. Its launch facts come from `@cyberuni/agent-harness`'s `headless()` fact. |
@@ -49,8 +50,8 @@ change); interpreting comparison tags (the consumer owns their meaning).
 | **run record** | One arm's results: every run's metrics plus a summary, written as JSON. Schema version 3. |
 | **comparison record** | The statistics between two run records, plus a verdict and any caller tags. |
 | **ceiling** | The most a measured run can spend: arms × tasks × runs × `maxBudgetUsd`. |
-| **too few** | A row whose smallest attainable p-value is above 0.05 — no outcome at that run count could make that row significant (3 runs against 3 cannot; 4 against 4 can). A pooled row relabels within each task, so it can reach significance where no single task can. |
-| **compared metrics** | `pass` (0/1), `inputTokens`, `outputTokens`, `cacheReadTokens`, `turns`, `toolCalls`, `wallMs`, `costUsd`. |
+| **too few** | A row whose smallest attainable p-value is above 0.05 — no outcome at that run count could make that row significant (3 runs against 3 cannot; 4 against 4 can). The plan's **too few to call** warning is about **per-task** rows only: a pooled row relabels within each task, so across two or more tasks it can still reach significance where no single task can, and the warning says so. |
+| **compared metrics** | `pass` (0/1), `inputTokens`, `outputTokens`, `cacheReadTokens`, `turns`, `toolCalls`, `wallMs`, `costUsd`. Each gets a per-task row; every metric except `pass` also gets a pooled row (a ratio of pass rates is undefined whenever a side is 0%). |
 | **gated metric** | A compared metric that can make the verdict `regressed`: pass, turns, tool calls, input tokens, output tokens, wall time. `costUsd` and `cacheReadTokens` are compared but never gate — prices change with the model, and cache reads move between buckets without the work changing. |
 
 ## Use Cases
@@ -103,9 +104,10 @@ Extensions:
 - A `git-ref` arm planned from a tree with other uncommitted changes → a warning that those changes
   are not benched.
 - At the requested runs per arm no single task's row can reach significance → a **too few to call**
-  warning, before money is spent.
-- The estimate per task uses stored runs only when they match the plan's model, harness, **and**
-  runner, taking their median cost; otherwise the task counts at `maxBudgetUsd`.
+  warning, before money is spent, which also says whether a pooled row across the planned tasks
+  still can.
+- **The estimate** is the sum over tasks of arms × runs × that task's per-run cost: the median cost of
+  its stored runs when they match the plan's `model`, harness, **and** runner, else `maxBudgetUsd`.
 
 The plan always names the permission mode it will launch under and states that it applies only
 inside the throwaway checkout.
@@ -142,23 +144,28 @@ Extensions:
 - The task-set hash no longer matches the plan's (the suite changed after the plan was approved) →
   refused; the consent was given to a different plan.
 - Setup fails → the run is recorded as `error` with `pass: false`; the agent is not launched.
-- The agent stops without a success result — the budget cap, an error result, or the timeout →
-  `capped: true`. The check still runs.
-- The agent or the check throws → the worktree is still removed.
+- The agent stops without a success result — the budget cap, an error result, the timeout, or the
+  harness process dying (a signal, a crash) → `capped: true`. The check still runs. A crash is the
+  subject's outcome, so it is a failed or passed run like any other, never an `error`: `error` means
+  only that setup failed before the agent ran.
+- The check itself throws → recorded as a failure; the worktree is still removed.
 - No run passes → the arm reports no cost per success (undefined, not zero or infinite).
 - The plan carries `--baseline` → the record is also written to the suite's committed
   `baseline.json`, carrying every run's metrics but no transcript references (they point into the
   git-ignored results). Without `--baseline`, `baseline.json` is left untouched.
 
 **What a run record carries** — `schemaVersion: 3`, `layer: "measured"`, `suite`, the `subject`
-descriptor, `arm`, `harness`, `adapter`, `runner`, `taskSetCommit` and `taskSetHash`, `tags`,
-`scoring_model`, `createdAt`, an `evaluated` set, every run's metrics (`pass`, `wallMs`,
+descriptor, `arm`, `harness`, `adapter`, `runner`, `taskSetCommit` and `taskSetHash`, the ids of the
+tasks it measured, `tags`, `model` (what the engine launched with, the alias as written), `scoring_model`,
+`createdAt`, an `evaluated` set, every run's metrics (`pass`, `wallMs`,
 `inputTokens`, `outputTokens`, `cacheReadTokens`, `cacheCreationTokens`, `turns`, `toolCalls`,
 `costUsd`, `capped`, `error`, `transcript`), and per-task and overall summaries (`passRate`, each
 metric's median, `totalCostUsd`, `costPerSuccessUsd`).
 
-- `scoring_model` is the model the transcript reports; when the transcript reports none, the model
-  the engine launched with. A record from another producer may carry `unknown`.
+- `model` is the key for estimates and for the compare model check — two runs launched with the
+  same alias compare, whatever concrete id the alias resolved to that day.
+- `scoring_model` is the model the transcript reports; when the transcript reports none, the launched
+  `model`. A record from another producer may carry `unknown`.
 - `evaluated` hashes the task set, every file under `checks/`, and a `file` arm's source, in the
   shared `check-freshness` entry shape (path + SHA-256 of current content).
 
@@ -184,16 +191,27 @@ significant rows chance alone would produce.
 
 Extensions:
 
-- A schema version 2 record, or a version 1 record with no version field → read as a `git-ref`
-  subject; a schema version newer than the engine knows → refused with no comparison record.
+- A schema version 2 record, or a version 1 record with no version field → read up with defaults
+  for every field it predates: `layer: measured`, subject `git-ref` at its `commit`, `harness` and
+  `adapter` `claude-code`, `runner` `print` when absent, `scoring_model` = its `model`, and a task-set
+  hash computed from its `taskSetCommit` when that commit is reachable. A record whose task set cannot
+  be reconstructed (version 1 has no `taskSetCommit`) is `incomparable` for that reason alone. A schema
+  version newer than the engine knows → refused with no comparison record.
+- `--before baseline` names the suite's committed `baseline.json`; with no such file, refused.
 - The before side is the baseline: its own per-run metrics are used. A baseline written by bench
   before this port (no per-run metrics) uses the stored run record with the same `createdAt`; if
   that record is not in the results directory → `incomparable`.
 - The two records differ in layer, model, harness, adapter, runner, subject kind, or task-set hash,
   or name the model `unknown` on both sides (an unknown model never matches another unknown) →
   `incomparable`, **every** reason listed, no statistics.
-- Runs recorded as `error` → excluded from the metrics. Failed and capped runs stay in.
-- A task with a non-positive value on either side → dropped from that pooled row.
+- Runs recorded as `error` → excluded from the metrics, and the comparison states how many each side
+  excluded. A task left with no runs on a side → its rows carry no p-value and are not tests. Failed
+  and capped runs stay in.
+- Tasks measured on only one side (a `--task` re-measure against a full run) → not compared; the
+  comparison lists them as unmatched. Only tasks on both sides get rows and enter pooled rows.
+- A task enters a pooled row only when every one of its runs is positive on that metric on both
+  sides, so no relabelling can make a log ratio undefined. With no task left, that pooled row is
+  absent. A pooled row records how many tasks it pooled.
 - At most 200,000 relabellings → exact test; more → 20,000 seeded relabellings, p = (hits+1)/(N+1),
   identical on every run.
 - A row whose smallest attainable p is above 0.05 → flagged `tooFew`.
@@ -219,7 +237,7 @@ regression gate issue #69 §4 specifies, computed here because it is determinist
 
 - `tooFew` needs no term of its own: a `tooFew` row's p cannot be below 0.05.
 - Cost and cache reads sit outside G, so a significant price change is reported but never decides.
-- **Multiplicity is disclosed, not corrected.** G holds six rows per task plus six pooled rows, and
+- **Multiplicity is disclosed, not corrected.** G holds six rows per task plus five pooled rows (pass has no pooled row), and
   rule 2 fires on any one of them with no family-wise correction. Under pure noise some row will
   sometimes land below 0.05, so `regressed` can be a false alarm; the footer states how many such rows
   chance alone would produce, and the comparison record carries the test count for the consumer.
@@ -306,12 +324,12 @@ flowchart TD
   dirty -- yes --> warnDirty[warn: uncommitted changes are not benched]
   dirty -- no --> cost
   warnDirty --> cost[ceiling = arms x tasks x runs x maxBudgetUsd]
-  cost --> est{stored runs for the task on the same model, harness, and runner?}
-  est -- yes --> estStored[estimate from their median cost]
-  est -- no --> estCap[estimate at maxBudgetUsd]
+  cost --> est{stored runs for the task on the same launched model, harness, and runner?}
+  est -- yes --> estStored[task estimate = arms x runs x their median cost]
+  est -- no --> estCap[task estimate = arms x runs x maxBudgetUsd]
   estStored --> power
   estCap --> power{runs per arm let a single task's row reach p below 0.05?}
-  power -- no --> warnFew[warn: too few to call]
+  power -- no --> warnFew[warn: too few to call per task; say whether a pooled row still can]
   power -- yes --> emit
   warnFew --> emit[write the plan file: counts, ceiling, estimate, model, permission mode scoped to the throwaway checkout, warnings, task-set hash; launch nothing, write no record]
 ```
@@ -345,7 +363,7 @@ flowchart TD
   mcp -- no --> launchPlain[no --mcp-config]
   launchMcp --> launch
   launchPlain --> launch[launch: plan's model, cap, permission mode; no session persistence; project settings only; strict MCP; setup time excluded]
-  launch --> stopped{stopped without a success result: cap, error, or timeout?}
+  launch --> stopped{stopped without a success result: cap, error, timeout, or harness killed?}
   stopped -- yes --> capped[capped true]
   stopped -- no --> notCapped[capped false]
   capped --> check
@@ -373,18 +391,23 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  cmp[bench compare] --> ver{each record's schema version}
+  cmp[bench compare] --> baseFile{--before baseline and no baseline.json?}
+  baseFile -- yes --> refuseBase[refuse, write nothing]
+  baseFile -- no --> ver{each record's schema version}
   ver -- newer than known --> refuseVer[refuse, write nothing]
-  ver -- 1 or 2 --> legacy[read as a git-ref subject]
+  ver -- 1 or 2 --> legacy[read up with defaults: measured, git-ref, claude-code, print]
   ver -- 3 --> isBase
-  legacy --> isBase{before is the baseline?}
+  legacy --> tsk{task set reconstructable from taskSetCommit?}
+  tsk -- no --> incomp
+  tsk -- yes --> isBase{before is the baseline?}
   isBase -- no --> match
   isBase -- yes, carries per-run metrics --> match
   isBase -- yes, legacy with no runs --> stored{run record with the same createdAt stored?}
   stored -- no --> incomp
   stored -- yes --> match{same layer, model, harness, adapter, runner, subject kind, task-set hash; model not unknown on both?}
   match -- no --> incomp[incomparable: every reason listed, no rows]
-  match -- yes --> filterErr[drop error runs; keep failed and capped]
+  match -- yes --> unmatched[list tasks present on one side only; compare the rest]
+  unmatched --> filterErr[drop error runs and count them per side; keep failed and capped; a task with no runs left has no p]
   filterErr --> size{relabellings at most 200000?}
   size -- yes --> exact[exact permutation p]
   size -- no --> sampled[20000 seeded relabellings, p = hits+1 over N+1]
@@ -392,7 +415,7 @@ flowchart TD
   sampled --> few{smallest attainable p above 0.05?}
   few -- yes --> flagFew[flag tooFew]
   few -- no --> pooled
-  flagFew --> pooled[pooled row per metric: geometric mean of ratios; drop tasks with a non-positive value]
+  flagFew --> pooled[pooled row per metric except pass: geometric mean of ratios over tasks positive on every run on both sides; absent when none]
   pooled --> footer[footer: test count and test count x 0.05]
   footer --> verdict{verdict rule over G}
   verdict -- wrong-way and significant --> regressed[regressed]
@@ -414,7 +437,7 @@ Grouped by use case, in suite order.
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| `name` → no | one of several names each breaking one part of the rule | `a suite name outside the naming rule is refused` |
+| `name` → no | one of several names each breaking one part of the rule, on plan and on init | `a suite name outside the naming rule is refused` |
 | `name` → yes | a dotted owner-prefixed suite name | `a dotted owner-prefixed suite name is accepted` |
 
 ### UC1 — init
@@ -443,8 +466,8 @@ Grouped by use case, in suite order.
 | `dirty` → yes | a git-ref arm and an uncommitted change outside the suite | `a git-ref arm planned from a tree with uncommitted changes warns that they are not benched` |
 | `dirty` → no | a git-ref arm and a clean tree | `a git-ref arm planned from a clean tree carries no uncommitted-changes warning` |
 | `cost` | any valid plan | `the plan's ceiling is arms times tasks times runs times the per-run cap` |
-| `est` → yes | stored runs for the task on the same model, harness, and runner, with a skewed cost spread | `a task with matching stored runs is estimated from their median cost` |
-| `est` → no (none stored) | no stored runs for the task | `a task with no stored runs is estimated at its cap` |
+| `est` → yes | stored runs for the task on the same model, harness, and runner, with a skewed cost spread; two arms | `a task with matching stored runs is estimated from their median cost` |
+| `est` → no (none stored) | no stored runs for the task; two arms | `a task with no stored runs is estimated at its cap for every run` |
 | `est` → no (one field differs) | stored runs that differ from the plan in one of model, harness, runner | `stored runs that differ in <field> are not used for the estimate` |
 | `power` → no | three runs per arm | `a run count that cannot reach significance is flagged too few to call` |
 | `power` → yes | four runs per arm | `a run count that can reach significance carries no too-few warning` |
@@ -469,7 +492,7 @@ Grouped by use case, in suite order.
 | `launch` (settings) | any subject kind | `every run launches the harness on the checkout's own settings, never the operator's` |
 | `mcp` → yes | a checkout carrying .mcp.json | `a checkout carrying an MCP config passes it to the harness` |
 | `mcp` → no | a checkout with no .mcp.json | `a checkout with no MCP config passes none to the harness` |
-| `stopped` → yes | one of: budget cap, error result, timeout | `a run stopped by <stop> is recorded as capped` |
+| `stopped` → yes | one of: budget cap, error result, timeout, harness killed by a signal | `a run stopped by <stop> is recorded as capped` |
 | `stopped` → no | a transcript ending in a success result | `a run that ends in a success result is not capped` |
 | `check` → yes | a check that exits 0 | `a check that exits zero records a pass` |
 | `check` → no | a check that exits non-zero | `a check that exits non-zero records a failure` |
@@ -488,9 +511,10 @@ Grouped by use case, in suite order.
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| `ver` → 1 or 2 (v2) | a schema version 2 record | `a version 2 record is compared as a git-ref subject` |
-| `ver` → 1 or 2 (v1) | a record with no schemaVersion field | `a record with no schema version is compared as a git-ref subject` |
+| `tsk` → yes (v2) | a schema version 2 record with a reachable taskSetCommit | `a version 2 record is compared as a git-ref subject` |
+| `tsk` → no (v1) | a record with no schemaVersion field, hence no taskSetCommit | `a record with no schema version is read up and incomparable only for its unknown task set` |
 | `ver` → newer | a record of a schema version the engine does not know | `a record of an unknown newer schema version is refused` |
+| `baseFile` → yes | --before baseline in a suite with no baseline.json | `comparing against a baseline the suite does not have is refused` |
 | `isBase` → carries per-run metrics | a version 3 baseline and no stored runs | `a baseline carrying per-run metrics is compared without stored runs` |
 | `stored` → yes | a legacy baseline and its run record stored | `a legacy baseline is compared using its stored run record` |
 | `stored` → no | a legacy baseline and no stored run record | `a legacy baseline whose run record is not stored is incomparable` |
@@ -498,7 +522,10 @@ Grouped by use case, in suite order.
 | `match` → no (several fields) | two records differing in model and harness | `records that differ in several fields list every reason` |
 | `match` → no (unknown model) | two records both naming the model unknown | `two records whose model is unknown on both sides are incomparable` |
 | `filterErr` (errors) | runs recorded as errors on one side | `runs recorded as errors are excluded from the metrics` |
+| `filterErr` (error count) | error runs on both sides | `the comparison states how many error runs each side excluded` |
 | `filterErr` (capped) | capped runs on one side | `capped runs stay in the metrics` |
+| `filterErr` (all errored) | a task whose every run on one side errored | `a task with no runs left on a side carries no p-value and is not a test` |
+| `match` → yes (task sets differ by filter) | an after record measuring one task of the before record's two | `tasks measured on only one side are listed as unmatched and not compared` |
 | `size` → yes | four runs against four | `a comparison small enough to enumerate reports the exact permutation p-value` |
 | `size` → no | thirty runs against thirty | `a comparison too large to enumerate reports a seeded sampled p-value that repeats exactly` |
 | `few` → yes | three runs against three | `a row whose smallest attainable p-value is above 0.05 is flagged too few` |

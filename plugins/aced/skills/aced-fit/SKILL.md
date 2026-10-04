@@ -57,8 +57,8 @@ change only rewords its trigger is `not-worth`; a `partial` procedure driving mu
 2. **Shell-checkable** — a deterministic `check` decides pass/fail; rubric-only outcomes stay
    simulated.
 3. **A decision hinges on the delta** — merge/revert, calibrate a weight, gate a release.
-4. **Detectable at a run count someone will approve.** Under 4 runs per arm no test can reach
-   p < 0.05; real effects usually need about 10. If the question needs more runs than anyone will
+4. **Detectable at a run count someone will approve.** Under 4 runs per arm no single task's
+   test can reach p < 0.05; real effects usually need about 10. If the question needs more runs than anyone will
    approve, it is `not-worth`. The plan's "too few to call" warning reports on this criterion; it does
    not satisfy it.
 
@@ -74,7 +74,7 @@ is **not** a `CONTENT_GAP` (unlike the tier's).
 - **`aced-spec-validator` — enforces**: a `bench:` declaring `worth` with no `suite` or no `why` is a
   `CONTENT_GAP`; it reads `worth`, never re-decides it.
 - **The `bench` skill — re-asks** criteria 1–2 for the change in hand before any plan; the engine's
-  plan re-asks criterion 4. A `worth` subject can still meet a change that is not.
+  plan checks criterion 4's floor. A `worth` subject can still meet a change that is not.
 
 ## References
 

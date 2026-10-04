@@ -11,16 +11,18 @@ Feature: engine — run a task set for real and compare two arms
   # ── Resolving the suite ──
 
   Scenario Outline: a suite name outside the naming rule is refused
-    Given a plan request for the suite "<name>"
+    Given a <verb> request for the suite "<name>"
     When the engine resolves the suite
     Then it exits non-zero with a message naming the suite naming rule
+    And no directory named after "<name>" is created under .agents/aced/bench
 
     Examples:
-      | name           |
-      | Nightly        |
-      | nightly_checks |
-      | nightly..core  |
-      | -nightly       |
+      | verb | name           |
+      | plan | Nightly        |
+      | plan | nightly_checks |
+      | plan | nightly..core  |
+      | plan | -nightly       |
+      | init | ../escape      |
 
   Scenario: a dotted owner-prefixed suite name is accepted
     Given the suite "harbor.nightly" has a task set listing the tasks "trim-logs" and "pin-versions"
@@ -132,14 +134,14 @@ Feature: engine — run a task set for real and compare two arms
   Scenario: a task with matching stored runs is estimated from their median cost
     Given stored runs of the task "trim-logs" on the plan's model, harness, and runner costing 0.05, 0.10, and 0.45 dollars
     And a task set with maxBudgetUsd 0.50
-    When the engine plans 1 arm at 4 runs for that task
-    Then the plan's estimate for "trim-logs" is 0.40 dollars
+    When the engine plans 2 arms at 4 runs for that task
+    Then the plan's estimate for "trim-logs" is 0.80 dollars
 
-  Scenario: a task with no stored runs is estimated at its cap
+  Scenario: a task with no stored runs is estimated at its cap for every run
     Given a results directory holding no run record for the task "trim-logs"
     And a task set with maxBudgetUsd 0.40
-    When the engine plans 1 arm at 4 runs for that task
-    Then the plan's estimate for "trim-logs" is 1.60 dollars
+    When the engine plans 2 arms at 4 runs for that task
+    Then the plan's estimate for "trim-logs" is 3.20 dollars
 
   Scenario Outline: stored runs that differ in <field> are not used for the estimate
     Given stored runs of the task "trim-logs" costing 0.10 dollars each that match the plan except in <field>
@@ -156,7 +158,8 @@ Feature: engine — run a task set for real and compare two arms
   Scenario: a run count that cannot reach significance is flagged too few to call
     Given a task set of 2 tasks
     When the engine plans 2 arms at 3 runs each
-    Then the plan's warnings include that the run count is too few to call
+    Then the plan's warnings include that no single task's result can be called significant at that run count
+    And the warning states that a pooled result across the 2 tasks still can
 
   Scenario: a run count that can reach significance carries no too-few warning
     Given a task set of 2 tasks
@@ -274,6 +277,7 @@ Feature: engine — run a task set for real and compare two arms
       | a result event reporting the budget cap       |
       | a result event marked as an error             |
       | running past timeoutMinutes with no result    |
+      | the harness process exiting on a signal       |
 
   Scenario: a run that ends in a success result is not capped
     Given a stand-in harness whose transcript ends with a success result event
@@ -319,7 +323,7 @@ Feature: engine — run a task set for real and compare two arms
     Given a task set with model "sonnet"
     And a stand-in harness whose transcript reports the model "model-alpha-2026"
     When the engine writes that arm's record
-    Then the record's scoring_model is "model-alpha-2026"
+    Then the record's model is "sonnet" and its scoring_model is "model-alpha-2026"
 
   Scenario: a record whose transcript names no model records the launched model
     Given a task set with model "model-beta"
@@ -338,9 +342,9 @@ Feature: engine — run a task set for real and compare two arms
     Then the summary's costPerSuccessUsd is 0.40
 
   Scenario: a baseline run writes the committed baseline with per-run metrics and no transcript references
-    Given a one-arm plan file carrying the baseline flag for the suite "harbor.nightly"
+    Given a one-arm plan file of 2 tasks and 3 runs carrying the baseline flag for the suite "harbor.nightly"
     When the engine runs that plan with consent
-    Then .agents/aced/bench/harbor.nightly/baseline.json exists holding every run's metrics
+    Then .agents/aced/bench/harbor.nightly/baseline.json exists holding the metrics of 6 runs
     And baseline.json holds no transcript field
 
   Scenario: a run without the baseline flag leaves baseline.json untouched
@@ -352,21 +356,27 @@ Feature: engine — run a task set for real and compare two arms
   # ── UC4 — compare ──
 
   Scenario: a version 2 record is compared as a git-ref subject
-    Given a before record with schemaVersion 2 naming a commit
-    And an after record with schemaVersion 3 and a git-ref subject that matches it on model, harness, runner, and task-set hash
+    Given a before record with schemaVersion 2 naming a commit, the model "sonnet", and a reachable taskSetCommit
+    And an after record with schemaVersion 3, layer measured, harness and adapter claude-code, runner print, model "sonnet", a git-ref subject, and the task-set hash of that taskSetCommit
     When the engine compares them
-    Then the comparison carries per-task rows and no subject-kind incomparable reason
+    Then the comparison carries per-task rows and no incomparable reason
 
-  Scenario: a record with no schema version is compared as a git-ref subject
-    Given a before record with no schemaVersion field naming a commit
-    And an after record with schemaVersion 3 and a git-ref subject that matches it on model, harness, runner, and task-set hash
+  Scenario: a record with no schema version is read up and incomparable only for its unknown task set
+    Given a before record with no schemaVersion field naming a commit and the model "sonnet"
+    And an after record with schemaVersion 3, layer measured, harness and adapter claude-code, runner print, model "sonnet", and a git-ref subject
     When the engine compares them
-    Then the comparison carries per-task rows and no subject-kind incomparable reason
+    Then the comparison's only incomparable reason is that the before record's task set is unknown
 
   Scenario: a record of an unknown newer schema version is refused
     Given a before record with schemaVersion 99
     When the engine compares it with a schemaVersion 3 record
     Then it exits non-zero with a message naming schema version 99
+    And no comparison record is written
+
+  Scenario: comparing against a baseline the suite does not have is refused
+    Given the suite "harbor.nightly" has no baseline.json
+    When the engine compares the baseline with an after record of that suite
+    Then it exits non-zero with a message that the suite has no baseline
     And no comparison record is written
 
   Scenario: a baseline carrying per-run metrics is compared without stored runs
@@ -418,11 +428,31 @@ Feature: engine — run a task set for real and compare two arms
     When the engine compares it with an after arm
     Then the before side's mean turns is 10
 
+  Scenario: the comparison states how many error runs each side excluded
+    Given a before arm of 4 runs, one of which is recorded as an error
+    And an after arm of 4 runs, two of which are recorded as errors
+    When the engine compares them
+    Then the comparison states 1 error run excluded before and 2 excluded after
+
   Scenario: capped runs stay in the metrics
     Given a before arm of 4 runs, one of which is capped at 40 turns
     And each of the other 3 runs took 10 turns
     When the engine compares it with an after arm
     Then the before side's mean turns is 17.5
+
+  Scenario: a task with no runs left on a side carries no p-value and is not a test
+    Given two comparable records of 2 tasks at 4 runs per side
+    And every before run of the task "trim-logs" is recorded as an error
+    When the engine compares them
+    Then every row for "trim-logs" carries no p-value
+    And the footer's test count excludes those rows
+
+  Scenario: tasks measured on only one side are listed as unmatched and not compared
+    Given a before record measuring the tasks "trim-logs" and "pin-versions"
+    And an after record of the same task set measuring only "pin-versions"
+    When the engine compares them
+    Then the comparison lists "trim-logs" as unmatched
+    And it carries rows for "pin-versions" only
 
   Scenario: a comparison small enough to enumerate reports the exact permutation p-value
     Given 4 before runs of 10, 11, 12, 13 turns and 4 after runs of 20, 21, 22, 23 turns on one task
@@ -456,15 +486,15 @@ Feature: engine — run a task set for real and compare two arms
     Then the pooled turns row reports a ratio of 1.0
 
   Scenario: a task with a non-positive value is dropped from the pooled row
-    Given a task whose mean tool calls go from 0 to 4 and a task whose mean tool calls go from 5 to 10
+    Given a task with one run of 0 tool calls among its before runs and a task whose every run's tool calls go from 5 to 10
     When the engine compares them
-    Then the pooled tool-calls row reports a ratio of 2.0 over 1 task
+    Then the pooled tool-calls row reports a ratio of 2.0 and records 1 pooled task
 
   Scenario: the footer states the test count and the count chance alone would make significant
     Given a comparable pair of records covering 2 tasks at 4 runs per side
+    And every run is positive in every metric other than pass
     When the engine compares them
-    Then the footer's test count equals the number of rows in the comparison that carry a p-value
-    And the footer states that count times 0.05
+    Then the footer states a test count of 23 and 1.15 rows expected significant by chance
 
   Scenario Outline: a significant wrong-way move in any gated metric makes the verdict regressed
     Given one task whose 4 before runs and 4 after runs are identical in every metric except <metric>

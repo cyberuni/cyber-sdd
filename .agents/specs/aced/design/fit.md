@@ -55,7 +55,7 @@ A subject is **worth** measuring only when **all four** hold:
    territory).
 3. **A decision hinges on the delta** — merge or revert a lever, calibrate a weight, gate a release.
 4. **The effect is detectable at a run count someone will approve.** Below 4 runs per arm no
-   permutation test can reach p < 0.05 at all, and real effects usually need about 10 per arm on tasks
+   single task's permutation test can reach p < 0.05, and real effects usually need about 10 per arm on tasks
    hard enough that some runs fail. If the question needs more runs than anyone will approve, it is
    `not-worth`. The engine's plan checks the floor at the requested count and says "too few to call"
    before money is spent. That warning reports on this criterion; it does not satisfy it.
@@ -81,7 +81,8 @@ So adding the axis reclassifies no existing node.
 
 **Re-asked per comparison.** A declared `worth` is the subject's standing answer; the `bench` skill
 still re-asks criteria 1–2 of the change in hand before planning a spend, and the engine's plan
-re-asks criterion 4 at the requested run count. A `worth` subject can still meet a change that is not.
+checks criterion 4's floor at the requested run count. Criterion 3 is not re-asked by a tool: the
+person asking for the run is the one with the decision. A `worth` subject can still meet a change that is not.
 
 **Enforced at the gate** by `sdd-roles/spec-validator`: a `bench:` key declaring `worth` with no
 `suite`, or with no `why`, is a `CONTENT_GAP`. The judge does not re-decide `worth`; it reads it.

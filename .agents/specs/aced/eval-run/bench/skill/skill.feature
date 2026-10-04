@@ -63,12 +63,13 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     Given the engine's plan for the request carries a too-few-to-call warning at 3 runs per arm
     When the bench skill presents the plan
     Then the too-few-to-call warning appears before the approval question
-    And it says no result at that run count can be called significant
+    And it says no single task's result can be called significant at that run count
 
   Scenario: the plan shown names the ceiling, the estimate, and the permission mode with its scope
-    Given the engine's plan has a ceiling of 12.00 dollars, an estimate of 4.80 dollars, and the permission mode bypassPermissions
+    Given the engine's plan counts 2 arms, 3 tasks, and 5 runs on the model "model-gamma"
+    And it has a ceiling of 12.00 dollars, an estimate of 4.80 dollars, and the permission mode bypassPermissions
     When the bench skill presents the plan
-    Then the message shows 12.00, 4.80, and bypassPermissions
+    Then the message shows the counts 2 arms, 3 tasks, and 5 runs, the model "model-gamma", 12.00, 4.80, and bypassPermissions
     And it says the permission mode applies only inside the throwaway checkout
 
   Scenario: every warning the plan carries is shown before the approval question
@@ -80,6 +81,11 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     Given the bench skill has shown a plan and asked for approval
     When the developer replies "yes, run it"
     Then the bench skill calls the engine's run for that plan with the consent flag
+
+  Scenario: a hedged agreement is not an explicit yes and runs nothing
+    Given the bench skill has shown a plan and asked for approval
+    When the developer replies "sounds good I guess"
+    Then the bench skill does not call the engine's run
 
   Scenario: a reply that is not an explicit yes runs nothing
     Given the bench skill has shown a plan and asked for approval
@@ -93,11 +99,10 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     Then it shows the plan and asks for approval before calling the engine's run
 
   Scenario: a plan changed after the yes is shown and asked about again
-    Given the developer replied yes to a plan of 5 runs per arm
-    And then asked for 10 runs per arm instead
-    When the bench skill handles the change
+    Given the bench skill has shown a plan of 5 runs per arm and asked for approval
+    When the developer replies "yes, but make it 10 runs per arm"
     Then it calls the engine's plan for 10 runs per arm and asks for approval again
-    And it does not call the engine's run on the earlier yes
+    And it does not call the engine's run before a new explicit yes
 
   # ── UC2 — be driven with no person present ──
 
@@ -110,6 +115,7 @@ Feature: skill — measure a change for real, spending only on an explicit yes
 
   Scenario: a relayed approval is not consent and nothing runs
     Given the bench skill is loaded by a coordinator whose session has no user channel
+    And the engine's plan for the request succeeds
     And the coordinator's brief says "the user approved the spend"
     When the bench skill reaches the approval step
     Then it returns the plan upward marked needs-input
@@ -122,12 +128,22 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     Then it says the simulated layer answers a wording change and names compare
     And it returns no plan
 
+  Scenario: with no person present the which-arms question is returned as needs-input
+    Given the bench skill is loaded by a scheduled agent whose session has no user channel
+    And the request names the suite "harbor.nightly" and a change to how the skill "release-cutter" tags a release, but no arms
+    And .agents/aced/bench/harbor.nightly/ holds a tasks.json and no baseline.json
+    When the bench skill handles the request
+    Then it returns needs-input asking which two arms to compare
+    And it does not call the engine's plan
+
   # ── UC3 — read the result ──
 
-  Scenario: a regressed result names the metric, the task, and the p-value
+  Scenario: a regressed result names the metric, the task, the p-value, and how many rows chance alone would make significant
     Given a comparison whose verdict is regressed because the task "sync-calendar" pass rate fell with p 0.01
+    And whose footer states a test count of 24 and 1.2 rows expected significant by chance
     When the bench skill reports the result
     Then the report names regressed, the task "sync-calendar", pass rate, and p 0.01
+    And it states the test count 24 and that about 1.2 rows would be significant by chance alone
 
   Scenario: an inconclusive result is reported as not callable and not safe
     Given a comparison whose verdict is inconclusive because mean turns rose with p 0.30
@@ -146,6 +162,12 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     When the bench skill reports the result
     Then the report names improved, the task "sync-calendar", turns, and p 0.01
 
+  Scenario: an unchanged result at a too-few run count is reported as not callable
+    Given a comparison whose verdict is unchanged and whose every gated row is flagged tooFew
+    When the bench skill reports the result
+    Then the report says the run count was too low to call any change
+    And it does not say the change is safe or that nothing changed
+
   Scenario: a significant cost rise with no regression is reported as a cost change
     Given a comparison whose verdict is unchanged and whose cost row rose with p 0.02
     When the bench skill reports the result
@@ -163,3 +185,16 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     Given an approved baseline run for the suite "harbor.nightly" has finished
     When the bench skill reports the result
     Then it tells the maintainer to commit .agents/aced/bench/harbor.nightly/baseline.json
+
+  # ── The skill artifact — binding rules ──
+
+  Scenario: the skill carries a Validate section with one assertion per binding rule
+    Given the bench skill's SKILL.md
+    When its sections are read
+    Then it has a ## Validate section
+    And that section holds an assertion for each of: consent only on an explicit yes to the shown plan, no consent with no person present, no unclear result presented as safe, and no cost change called a regression
+
+  Scenario: every mechanical Validate assertion passes against the skill
+    Given the bench skill's SKILL.md and its ## Validate section
+    When each assertion in that section that names a checkable property of the file is checked against the file
+    Then every such assertion holds

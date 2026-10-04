@@ -42,9 +42,44 @@ or does a `node:test` assert it), not merely "has a trigger."
   `CONTENT_GAP` (never default to `strong`); a subject determined wrong-squad is **recused**, not
   graded.
 
+## The measured axis — a second, orthogonal question
+
+The tier says which **simulated** layers carry signal. A separate axis says whether the **measured**
+layer (real headless runs graded by a shell `check`, `eval-run/bench/`) is worth paying for:
+**`measured: worth | not-worth`**. Never derive one axis from the other — a `strong` skill whose
+change only rewords its trigger is `not-worth`; a `partial` procedure driving multi-step work can be
+`worth`.
+
+`worth` only when **all four** hold:
+
+1. **Work, not words** — the change moves how real work turns out (pass rate, turns, tokens); a
+   trigger-only or wording-only change is `not-worth`.
+2. **Shell-checkable** — a deterministic `check` decides pass/fail; rubric-only outcomes stay
+   simulated.
+3. **A decision hinges on the delta** — merge/revert, calibrate a weight, gate a release.
+4. **Detectable at a run count someone will approve.** Under 4 runs per arm no test can reach
+   p < 0.05; real effects usually need about 10. If the question needs more runs than anyone will
+   approve, it is `not-worth`. The plan's "too few to call" warning reports on this criterion; it does
+   not satisfy it.
+
+**Dollars never decide a result** — cost is recorded and compared, never a gate input; willingness
+to pay bounds only criterion 4.
+
+**Declared** in the subject's `eval.md` under `bench:` (beside `eval:`): `measured`, plus `suite` and
+a one-line `why` when `worth`. **Absent `bench:` = `not-worth`** — the axis is opt-in, so its absence
+is **not** a `CONTENT_GAP` (unlike the tier's).
+
+- **`aced-scenario-writer` — decides**, in explore, after the tier: declare `bench:` only when the
+  subject is `worth`; never put the task set in `eval.md`.
+- **`aced-spec-validator` — enforces**: a `bench:` declaring `worth` with no `suite` or no `why` is a
+  `CONTENT_GAP`; it reads `worth`, never re-decides it.
+- **The `bench` skill — re-asks** criteria 1–2 for the change in hand before any plan; the engine's
+  plan re-asks criterion 4. A `worth` subject can still meet a change that is not.
+
 ## References
 
-- `design/fit.md` (`.agents/specs/aced/design/fit.md`) — the normative model + ADR 0001.
+- `design/fit.md` (`.agents/specs/aced/design/fit.md`) — the normative model + ADR 0001 (tier) and
+  ADR 0003 (measured axis).
 - `aced:aced-builder-spec` — the spec bar whose trigger-context / trigger-balance criteria this
   governance makes conditional.
 - `aced:aced-builder-impl` — the impl bar (which eval layers get evals follows the tier).

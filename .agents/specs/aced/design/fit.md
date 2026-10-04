@@ -36,3 +36,54 @@ the **Structural** layer is not an ACED subject — ACED adds nothing an existin
 
 Fit is a **judgment**, not a deterministic derivation — which is why it is encoded as the
 `aced:aced-fit` governance (loaded by the producer and the judge), not a `.mts` engine.
+
+## The measured axis — is a real run worth paying for?
+
+The tier above answers which **simulated** layers carry signal. A second, **orthogonal** axis answers
+whether the **measured** layer (`eval-run/bench/`) — real headless runs graded by a shell check —
+answers a question simulation cannot: **`measured: worth | not-worth`**. The two never derive from
+each other: a `strong` skill can be `not-worth` (its change only rewords a trigger), and a `partial`
+procedure can be `worth` (it drives multi-step work whose pass rate a change can move).
+
+A subject is **worth** measuring only when **all four** hold:
+
+1. **The effect is in the work, not the words.** The change moves how real work turns out — pass
+   rate, turns, tokens. Repo-wide setup, a skill that drives multi-step work, and a package upgrade
+   qualify. A trigger-only or wording-only change does not: simulation already answers it.
+2. **The outcome is deterministically checkable.** A shell `check` decides pass/fail without an LLM
+   judge. If only a rubric can grade it, the subject stays simulated (a judged real run is #64's
+   territory).
+3. **A decision hinges on the delta** — merge or revert a lever, calibrate a weight, gate a release.
+4. **The effect is detectable at a run count someone will approve.** Below 4 runs per arm no
+   permutation test can reach p < 0.05 at all, and real effects usually need about 10 per arm on tasks
+   hard enough that some runs fail. If the question needs more runs than anyone will approve, it is
+   `not-worth`. The engine's plan checks the floor at the requested count and says "too few to call"
+   before money is spent. That warning reports on this criterion; it does not satisfy it.
+
+**Dollars never decide a result.** Cost is recorded and compared, but a price change alone never
+makes a measured result `regressed` — prices move with the model, not the subject. What a person is
+willing to pay bounds only criterion 4, whether a run is worth taking at all.
+
+**Where it is declared.** In the subject node's `eval.md`, under a `bench:` key that sits beside
+`eval:` — never in `spec.md` frontmatter, and never holding the task set (that lives in the suite,
+`.agents/aced/bench/<suite>/`):
+
+```yaml
+bench:
+  measured: worth            # worth | not-worth
+  suite: harbor.nightly      # required when worth
+  why: <one line per criterion above>
+```
+
+**Absence means not-worth.** The axis is opt-in: an `eval.md` with no `bench:` key is a subject
+nobody has chosen to measure, not a content gap. (Contrast the tier, whose absence **is** a gap.)
+So adding the axis reclassifies no existing node.
+
+**Re-asked per comparison.** A declared `worth` is the subject's standing answer; the `bench` skill
+still re-asks criteria 1–2 of the change in hand before planning a spend, and the engine's plan
+re-asks criterion 4 at the requested run count. A `worth` subject can still meet a change that is not.
+
+**Enforced at the gate** by `sdd-roles/spec-validator`: a `bench:` key declaring `worth` with no
+`suite`, or with no `why`, is a `CONTENT_GAP`. The judge does not re-decide `worth`; it reads it.
+
+The decision and its rejected alternatives are ADR 0003 (`decisions/0003-measured-fit-axis.md`).

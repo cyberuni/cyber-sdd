@@ -3,6 +3,11 @@
 	"platformAutomerge": true,
 	"packageRules": [
 		{
+			"description": "astro check does not support TypeScript 7 yet (\"astro check does not currently support TypeScript 7.0\"); lift when @astrojs/check does.",
+			"matchPackageNames": ["typescript"],
+			"allowedVersions": "<7"
+		},
+		{
 			"description": "Auto-merge non-major updates. Majors stay manual.",
 			"matchUpdateTypes": ["minor", "patch", "pin", "digest"],
 			"automerge": true

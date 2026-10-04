@@ -148,7 +148,8 @@ Extensions:
   harness process dying (a signal, a crash) → `capped: true`. The check still runs. A crash is the
   subject's outcome, so it is a failed or passed run like any other, never an `error`: `error` means
   only that setup failed before the agent ran.
-- The check itself throws → recorded as a failure; the worktree is still removed.
+- The engine itself throws mid-run (the harness command can no longer be spawned) → the worktree
+  is still removed.
 - No run passes → the arm reports no cost per success (undefined, not zero or infinite).
 - The plan carries `--baseline` → the record is also written to the suite's committed
   `baseline.json`, carrying every run's metrics but no transcript references (they point into the
@@ -496,7 +497,7 @@ Grouped by use case, in suite order.
 | `stopped` → no | a transcript ending in a success result | `a run that ends in a success result is not capped` |
 | `check` → yes | a check that exits 0 | `a check that exits zero records a pass` |
 | `check` → no | a check that exits non-zero | `a check that exits non-zero records a failure` |
-| `cleanup` | an agent launch that throws | `the worktree is removed even when the run throws` |
+| `cleanup` | a harness command that fails to spawn at run time | `the worktree is removed even when the run throws` |
 | `record` (shape) | a completed arm | `each arm's record carries the measured layer, suite, subject, arm, harness, adapter, runner, and task-set provenance` |
 | `record` (location) | a completed arm | `each arm's record and transcripts are written under the suite's bench results directory` |
 | `record` (evaluated) | a completed file arm | `the record's evaluated set hashes the task set, the checks, and the file arm's source` |

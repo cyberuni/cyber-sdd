@@ -39,6 +39,12 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     When the bench skill builds the plan request
     Then it passes a git-ref arm at "a1b2c3d" and a git-ref arm at "feature/lighter-agents-md" to the engine's plan
 
+  Scenario: two named plugin versions become two package arms
+    Given a developer in the session asks to bench the plugin "lantern-kit" at 1.0.0 against 1.1.0 on the suite "harbor.nightly"
+    And the suite "harbor.nightly" has a task whose check exits zero when the build command passes
+    When the bench skill builds the plan request
+    Then it passes a package arm for "lantern-kit" at 1.0.0 and a package arm for "lantern-kit" at 1.1.0 to the engine's plan
+
   Scenario: with no arms named and a baseline present, HEAD is measured against the baseline
     Given a developer in the session asks to bench the current state of the suite "harbor.nightly" after a change to how the skill "release-cutter" tags a release
     And .agents/aced/bench/harbor.nightly/baseline.json exists
@@ -64,6 +70,7 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     When the bench skill presents the plan
     Then the too-few-to-call warning appears before the approval question
     And it says no single task's result can be called significant at that run count
+    And it repeats whether the plan says a pooled result across tasks still can
 
   Scenario: the plan shown names the ceiling, the estimate, and the permission mode with its scope
     Given the engine's plan counts 2 arms, 3 tasks, and 5 runs on the model "model-gamma"
@@ -136,6 +143,14 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     Then it returns needs-input asking which two arms to compare
     And it does not call the engine's plan
 
+  Scenario: with no person present the init offer is returned as needs-input and nothing is written
+    Given the bench skill is loaded by a scheduled agent whose session has no user channel
+    And the request names the suite "harbor.nightly" and a change to how the skill "release-cutter" tags a release
+    And .agents/aced/bench/harbor.nightly/ holds no tasks.json
+    When the bench skill handles the request
+    Then it returns needs-input offering to run init for "harbor.nightly"
+    And .agents/aced/bench/harbor.nightly/tasks.json still does not exist
+
   # ── UC3 — read the result ──
 
   Scenario: a regressed result names the metric, the task, the p-value, and how many rows chance alone would make significant
@@ -167,6 +182,12 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     When the bench skill reports the result
     Then the report says the run count was too low to call any change
     And it does not say the change is safe or that nothing changed
+
+  Scenario: an unchanged result at a callable run count is reported as no significant change
+    Given a comparison at 10 runs per arm whose verdict is unchanged and whose gated rows are not flagged tooFew
+    When the bench skill reports the result
+    Then the report says there was no significant change
+    And it does not say the run count was too low
 
   Scenario: a significant cost rise with no regression is reported as a cost change
     Given a comparison whose verdict is unchanged and whose cost row rose with p 0.02

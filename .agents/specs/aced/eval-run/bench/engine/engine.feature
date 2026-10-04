@@ -276,7 +276,7 @@ Feature: engine — run a task set for real and compare two arms
       | stop                                         |
       | a result event reporting the budget cap       |
       | a result event marked as an error             |
-      | running past timeoutMinutes with no result    |
+      | running past a timeoutMinutes of 0.01 with no result |
       | the harness process exiting on a signal       |
 
   Scenario: a run that ends in a success result is not capped
@@ -297,7 +297,8 @@ Feature: engine — run a task set for real and compare two arms
     Then the run is recorded with pass false and no error
 
   Scenario: the worktree is removed even when the run throws
-    Given a stand-in harness that exits with a signal mid-transcript
+    Given a plan file written while the stand-in harness was on the PATH
+    And the stand-in harness file is deleted before the run, so launching it fails to spawn
     When the engine runs a task with consent
     Then git worktree list shows no worktree left from that run
 

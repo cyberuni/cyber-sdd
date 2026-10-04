@@ -67,6 +67,8 @@ Extensions:
   says the simulated layer answers it, names `compare`, and plans nothing.
 - **The suite has no task set** → it says so and offers `init`; it writes no tasks of its own and plans
   nothing.
+- `agent-readiness` reaches the same path as a developer, with the suite `repobuddy.readiness`
+  already named; nothing in the procedure depends on which of the two called.
 - **No arms named** → with a committed baseline, it plans one arm at HEAD and compares that arm's
   record against the baseline; with none, it asks which arms to compare instead of guessing.
 - **The plan fails** (no adapter, missing harness command, unresolvable subject) → it reports the
@@ -201,6 +203,7 @@ flowchart TD
 | `fit` → yes | a person present; a change to a multi-step skill with a shell-checkable outcome | `a change that acts on real work with a checkable outcome is planned` |
 | `tasks` → no | a person present; a suite with no task set | `a suite with no task set gets an init offer and no invented tasks` |
 | `armsQ` → yes | two git refs named | `two named refs become two git-ref arms` |
+| `armsQ` → yes (package versions) | two versions of one plugin named | `two named plugin versions become two package arms` |
 | `armsQ` → no, baseline exists | no arms named; a committed baseline | `with no arms named and a baseline present, HEAD is measured against the baseline` |
 | `armsQ` → no, no baseline | no arms named; no baseline | `with no arms named and no baseline, the skill asks which arms to compare` |
 | `plan` → no | the engine plan fails for a missing harness command | `a failed plan is reported and no approval is asked for` |
@@ -221,6 +224,7 @@ flowchart TD
 | `channel` → no (relayed approval) | no user channel; a plan that succeeded; the driver relays that the user approved | `a relayed approval is not consent and nothing runs` |
 | `fit` → no (headless) | no user channel; a wording-only change | `with no person present a wording-only change is still sent to compare` |
 | `askArms` (headless) | no user channel; no arms named; no baseline | `with no person present the which-arms question is returned as needs-input` |
+| `offerInit` (headless) | no user channel; a suite with no task set | `with no person present the init offer is returned as needs-input and nothing is written` |
 
 ### UC3 — read the result
 
@@ -231,6 +235,7 @@ flowchart TD
 | `verdict` → incomparable | an incomparable comparison | `an incomparable result lists its reasons and presents no statistics` |
 | `verdict` → improved | an improved comparison | `an improved result names the rows that improved and their p-values` |
 | `allFew` → yes | an unchanged comparison whose gated rows are all tooFew | `an unchanged result at a too-few run count is reported as not callable` |
+| `allFew` → no | an unchanged comparison whose gated rows are not tooFew | `an unchanged result at a callable run count is reported as no significant change` |
 | `cost` → yes | an unchanged verdict with a significant cost rise | `a significant cost rise with no regression is reported as a cost change` |
 
 ### UC4 — record a baseline

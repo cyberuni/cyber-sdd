@@ -69,8 +69,9 @@ to pay bounds only criterion 4.
 a one-line `why` when `worth`. **Absent `bench:` = `not-worth`** — the axis is opt-in, so its absence
 is **not** a `CONTENT_GAP` (unlike the tier's).
 
-- **`aced-scenario-writer` — decides**, in explore, after the tier: declare `bench:` only when the
-  subject is `worth`; never put the task set in `eval.md`.
+- **`aced-scenario-writer` — decides**, in explore, after the tier: declare `bench:` when the
+  subject is `worth`; an explicit `measured: not-worth` with a `why` is legal to record a considered
+  no, and needs no `suite`; never put the task set in `eval.md`.
 - **`aced-spec-validator` — enforces**: a `bench:` declaring `worth` with no `suite` or no `why` is a
   `CONTENT_GAP`; it reads `worth`, never re-decides it.
 - **The `bench` skill — re-asks** criteria 1–2 for the change in hand before any plan; the engine's

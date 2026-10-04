@@ -19,7 +19,7 @@ the **Structural** layer is not an ACED subject — ACED adds nothing an existin
 | Tier | The subject… | Layers with signal | What ACED does |
 |---|---|---|---|
 | **strong** | makes a genuine **activation decision** (a fuzzy/confusable trigger) **and** has non-deterministic judgment branches | all four | the **full bar** — trigger-context **and** trigger-balance (near-misses) are **required** |
-| **partial** | is a real config but **mechanically executes** a predetermined path — no activation choice, no branch it decides (a spawned/mechanical procedure) | Structural + Behavior (+ Quality) | rule-coverage + edge-coverage + boolean-form apply; **trigger-balance / near-miss is N/A** (its absence is **not** a failure); trigger-context applies **only** to scenarios that assert firing |
+| **partial** | is a real config but **mechanically executes** a predetermined path — no activation choice; it may judge within its fixed steps, and that behavior is still LLM-run and graded (a spawned/mechanical procedure) | Structural + Behavior (+ Quality) | rule-coverage + edge-coverage + boolean-form apply; **trigger-balance / near-miss is N/A** (its absence is **not** a failure); trigger-context applies **only** to scenarios that assert firing |
 | **wrong-squad** | is a **deterministic** script / engine whose output is **assertable, not graded** | Structural only | ACED **recuses** — the producer authors **no `.feature`**; the conductor falls back to the SDD-default builder + a script / `node:test` harness (the recuse→fallback seam, `sdd:design/lifecycle-model.md`) |
 
 ## Where the decision lives, and how it is recorded

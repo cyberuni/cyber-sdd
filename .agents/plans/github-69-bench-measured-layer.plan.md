@@ -4,15 +4,15 @@ todos:
   - content: "intake: read issue #69 design + owner decisions, place nodes under eval-run/bench/"
     status: completed
   - content: "explore: draft eval-run/bench/engine (wrong-squad engine, node:test) spec + suite"
-    status: in_progress
+    status: completed
   - content: "explore: draft eval-run/bench/skill (partial skill, ACED-graded) spec + suite + eval.md"
-    status: pending
+    status: completed
   - content: "explore: extend aced-fit governance, design/fit.md, ADR 0003 with the measured axis"
-    status: pending
-  - content: "spec-judge: cold sdd-spec-judge (engine) + aced-spec-validator (skill) to convergence"
-    status: pending
+    status: completed
+  - content: "spec-judge: cold sdd-spec-judge (engine) + aced-spec-validator (skill), 3-round cap"
+    status: completed
   - content: "handoff: PR with the spec in draft; spec-gate ratification left to the owner"
-    status: pending
+    status: in_progress
   - content: "spec gate: owner ratifies, freeze both suites (owner's act, not this mission's)"
     status: pending
 ---
@@ -54,4 +54,8 @@ suites, step 4); the engine build (steps 3–4); the Codex adapter (step 7).
 
 ## NEXT
 
-Draft the engine node, then the skill node, then the fit axis; run both cold judges.
+Awaiting the owner's spec-gate verdict on the PR. Three judge rounds ran (the cap). Round 3:
+engine oracle + architect PASS with one narrow builder finding; skill 32/33 with one missing guard
+companion. Both were fixed after round 3 and are **not re-judged**. On ratification: freeze
+`engine.feature` and `skill.feature`, record the gate line, then steps 3–4 build against them.
+Owner question carried in the PR: the verdict rule's multiplicity trade.

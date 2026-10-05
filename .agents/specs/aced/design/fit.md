@@ -27,7 +27,7 @@ the **Structural** layer is not an ACED subject — ACED adds nothing an existin
 - **Decided in explore** by `sdd-roles/scenario-writer` **before** authoring any scenario: classify
   the subject, then author to the tier (strong → author near-misses; partial → no fabricated
   near-miss; wrong-squad → recuse, produce nothing).
-- **Recorded** as a `**Fit:** strong | partial` line in the subject's `spec.md` `## Use Cases`
+- **Recorded** as a `**Fit:** strong | partial` line in the subject's node spec (`README.md`) `## Use Cases`
   (a body field — the producer writes no control frontmatter). A **wrong-squad** subject has no
   ACED spec node at all (it was recused), so it carries no `**Fit:**` line.
 - **Enforced at the gate** by `sdd-roles/spec-validator`: read the declared tier; apply
@@ -65,7 +65,7 @@ makes a measured result `regressed` — prices move with the model, not the subj
 willing to pay bounds only criterion 4, whether a run is worth taking at all.
 
 **Where it is declared.** In the subject node's `eval.md`, under a `bench:` key that sits beside
-`eval:` — never in `spec.md` frontmatter, and never holding the task set (that lives in the suite,
+`eval:` — never in the node spec's frontmatter, and never holding the task set (that lives in the suite,
 `.agents/aced/bench/<suite>/`):
 
 ```yaml

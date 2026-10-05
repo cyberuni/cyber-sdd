@@ -29,12 +29,13 @@ subject with signal **only** at Structural is not an ACED subject.
 | **wrong-squad** | is a **deterministic** script / engine whose output is **assertable, not graded** | Structural only | **recuse** — author **no `.feature`**; the conductor falls back to the SDD-default builder + a script / `node:test` harness (the `sdd:` recuse→fallback seam) |
 
 The `partial ↔ wrong-squad` boundary is **graded-vs-assertable output** (does judging it need an LLM,
-or does a `node:test` assert it), not merely "has a trigger."
+or does a `node:test` assert it), not merely "has a trigger." A subject reached only by name (a
+name-only description) makes no activation decision, so it is never `strong`.
 
 ## How each role uses it
 
 - **`aced-scenario-writer` (producer, explore) — decides.** Classify fit **first**; declare it as a
-  `**Fit:** strong | partial` line in the subject `spec.md` `## Use Cases`. Then author to the tier:
+  `**Fit:** strong | partial` line in the subject's node spec (its `README.md`) `## Use Cases`. Then author to the tier:
   `strong` → author should-trigger + same-keyword near-miss; `partial` → author behavior/edge/rule,
   **no fabricated near-miss**; `wrong-squad` → **recuse**, produce nothing, recommend the SDD default.
 - **`aced-spec-validator` (judge, gate) — enforces.** Read the declared tier; apply trigger-context /
@@ -66,12 +67,12 @@ change only rewords its trigger is `not-worth`; a `partial` procedure driving mu
 to pay bounds only criterion 4.
 
 **Declared** in the subject's `eval.md` under `bench:` (beside `eval:`): `measured`, plus `suite` and
-a one-line `why` when `worth`. **Absent `bench:` = `not-worth`** — the axis is opt-in, so its absence
+a `why` of one line per criterion when `worth`. **Absent `bench:` = `not-worth`** — the axis is opt-in, so its absence
 is **not** a `CONTENT_GAP` (unlike the tier's).
 
 - **`aced-scenario-writer` — decides**, in explore, after the tier: declare `bench:` when the
-  subject is `worth`; an explicit `measured: not-worth` with a `why` is legal to record a considered
-  no, and needs no `suite`; never put the task set in `eval.md`.
+  subject is `worth`; an explicit `measured: not-worth` is legal to record a considered no; it needs
+  no `suite`, and a `why` is optional; never put the task set in `eval.md`.
 - **`aced-spec-validator` — enforces**: a `bench:` declaring `worth` with no `suite` or no `why` is a
   `CONTENT_GAP`; it reads `worth`, never re-decides it.
 - **The `bench` skill — re-asks** criteria 1–2 for the change in hand before any plan; the engine's
@@ -82,9 +83,9 @@ is **not** a `CONTENT_GAP` (unlike the tier's).
 Assertions about **the subject being classified**, run by the producer before handoff and re-run by
 the cold judge against the artifact — never against the producer's account of what it did:
 
-1. The subject's node README carries exactly one `**Fit:** strong` or `**Fit:** partial` line in
-   `## Use Cases`; a subject recused as wrong-squad has neither a `**Fit:**` line nor an ACED
-   `eval.md`. *(mechanical)*
+1. The subject's node spec (`README.md`) carries exactly one `**Fit:** strong` or `**Fit:** partial`
+   line in `## Use Cases`; a subject recused as wrong-squad has neither a `**Fit:**` line nor an ACED
+   `eval.md` (its node, if any, was written by the SDD-default chain). *(mechanical)*
 2. A subject declared `strong` does not have a name-only description (one beginning `By name only`
    or `Partial Skill: invoke by name only`): a subject reached only by name makes no activation
    decision. *(mechanical)*
@@ -92,7 +93,8 @@ the cold judge against the artifact — never against the producer's account of 
    *(mechanical)*
 4. A `bench:` declaring `worth` has a non-empty `bench.suite` and a non-empty `bench.why`.
    *(mechanical)*
-5. No `bench:` key holds a task set — no `tasks` or `prompt` key beneath it. *(mechanical)*
+5. `bench:` holds only `measured`, `suite`, and `why` — never the suite's tasks — and the node
+   spec's frontmatter carries no `bench` or `measured` key. *(mechanical)*
 
 ## References
 

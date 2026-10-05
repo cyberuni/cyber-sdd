@@ -16,10 +16,10 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — the frozen `mission/conductor/conductor.feature` was never narrowed. The six governance-entry-set scenarios were added to it additively in this same CR and the structural diff carries zero removals or rewrites, so the file self-clears and no Clearance is owed. The implementation is prose in `start-mission`; no contract file was touched at deliver
-      blast: low — one skill body. It changes what the conductor reads before intake and what it declares, so every future mission pays an eager read of seven governance bodies where it previously deferred most of them; nothing downstream of the declaration changes shape
-      novelty: low — the declaration reuses the `governances_loaded` shape the spec-producer already emits, and the entry/deferred split reuses the existing digest-vs-body discipline
-      confidence: high — cold `sdd-impl-judge` returned IMPLEMENTATION_PASS true with all six frozen scenarios re-derived independently against the skill text, an entry/deferred partition completeness check over every `sdd:*-governance` reference in the skill, and a spec↔impl agreement read against the conductor node. It raised one content gap (the skill implied rather than stated the two declarations' non-replacement invariant) and two precision nits (the fresh-load verb reused for three already-loaded bars at the spec gate; whether a resolved-actor bar sits in the partition). All three were closed after the pass — prose only, no frozen scenario affected — and `pnpm verify` is green on the landed tree
+      floor: none — built against the frozen mission/conductor suite without editing it; the net suite diff against main is add-only. Semver class additive (patch changeset)
+      blast: low — one bullet in start-mission and three sentences in the headless automaton definition; nothing changes for plugin-delegated judges or for a run with no dispatch capability
+      novelty: low — the rule reuses the existing no-capability fallback for the missing-file route
+      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true, re-deriving both new scenarios against both prose realizations, confirming the computed path resolves in the repo and the installed plugin cache, and confirming the cyberlegion resolver and flags exist. Its four content gaps were wording (name both judges, the right cyberlegion flag, how the headless conductor finds the plugin root, no request rather than no by-name request) and were closed after the pass; pnpm verify is green on the landed tree
 produced-by:
   spec-producer: sdd:automaton
   impl-producer: sdd:automaton

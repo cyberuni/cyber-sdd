@@ -2,15 +2,15 @@
 status: active
 todos:
   - content: "explore: specify how the conductor locates SDD's own judge definitions (mission/conductor)"
-    status: in_progress
+    status: completed
   - content: "spec gate: cold sdd-spec-judge to convergence, keep conductor.feature @frozen (additive)"
-    status: pending
+    status: completed
   - content: "deliver: state the definition-path rule in start-mission and the sdd-automaton agent"
-    status: pending
+    status: completed
   - content: "impl gate: cold sdd-impl-judge, pnpm verify green"
-    status: pending
+    status: completed
   - content: "handoff: commits, PR against main closing #58"
-    status: pending
+    status: completed
 ---
 
 # CR github-58 — the conductor locates SDD's own judge definitions by path
@@ -27,4 +27,4 @@ to the dispatch capability itself. A scenario binds it.
 
 ## NEXT
 
-Draft the dispatch-transport addition in `mission/conductor` (README + additive scenarios).
+Landed: conductor spec + scenarios (spec gate), start-mission and sdd-automaton prose (impl gate), PR closing #58. No resume action.

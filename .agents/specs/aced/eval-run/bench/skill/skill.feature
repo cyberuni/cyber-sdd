@@ -21,7 +21,7 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     And it does not call the engine's plan
 
   Scenario: a change that acts on real work with a checkable outcome is planned
-    Given a developer in the session asks to bench the branch "feature/tag-flow" against main, a change to how the skill "release-cutter" tags and publishes a release
+    Given a developer in the session asks to bench the branch "feature/tag-flow" against main on the suite "harbor.nightly", a change to how the skill "release-cutter" tags and publishes a release
     And the suite "harbor.nightly" has a task whose check exits zero when a release tag exists
     When the bench skill handles the request
     Then it calls the engine's plan for the suite "harbor.nightly"
@@ -39,6 +39,13 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     And the suite "harbor.nightly" has a task whose check exits zero when a release tag exists
     When the bench skill handles the request
     Then it calls the engine's plan for the suite "harbor.nightly"
+
+  Scenario: a request that names no suite is asked for one and nothing is planned
+    Given a developer in the session asks to bench the branch "feature/tag-flow" against main, a change to how the skill "release-cutter" tags and publishes a release
+    And the repository has exactly one suite, "harbor.nightly"
+    When the bench skill handles the request
+    Then it asks the developer which suite to use
+    And it does not call the engine's plan
 
   Scenario: a suite with no task set gets an init offer and no invented tasks
     Given a developer in the session asks to bench the branch "feature/tag-flow" against main on the suite "harbor.nightly", a change to how the skill "release-cutter" tags and publishes a release
@@ -61,7 +68,7 @@ Feature: skill — measure a change for real, spending only on an explicit yes
 
   Scenario: with no arms named and a baseline present, HEAD is measured against the baseline
     Given a developer in the session asks to bench the current state of the suite "harbor.nightly" after a change to how the skill "release-cutter" tags a release
-    And .agents/aced/bench/harbor.nightly/baseline.json exists
+    And .agents/aced/bench/harbor.nightly/baseline.json exists with schemaVersion 3
     When the bench skill builds the engine calls
     Then it calls the engine's plan with one git-ref arm at HEAD
     And after the run it calls the engine's compare with the baseline as before and that arm's record as after
@@ -148,10 +155,10 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     And it reports no verdict
 
   Scenario: a consumer's tags reach the engine's compare unchanged
-    Given a consumer tool hands off to the bench skill by name with the suite "harbor.nightly" and the tag lever=Noise-Floor
+    Given a consumer tool hands off to the bench skill by name with the suite "harbor.nightly" and the tag run=nightly-42
     And the run it approved finished
     When the bench skill calls the engine's compare
-    Then the compare call carries the tag lever=Noise-Floor and no other tag
+    Then the compare call carries the tag run=nightly-42 and no other tag
 
   # ── UC2 — be driven with no person present ──
 

@@ -65,6 +65,8 @@ Extensions:
 - **The question is not one real runs answer** — the change only rewords a description or alters when
   something triggers, or the outcome could only be graded by a rubric, not a shell check → the skill
   says the simulated layer answers it, names `compare`, and plans nothing.
+- **No suite named** → it asks which suite to use and plans nothing; it never guesses one, even when
+  only one suite exists.
 - **The suite has no task set** → it says so and offers `init`; it writes no tasks of its own and plans
   nothing.
 - A consumer tool reaches the same path as a developer, with its suite already named; nothing in the
@@ -163,7 +165,9 @@ own beyond the yes it relays as `--consent`, which it relays only on UC1's expli
 flowchart TD
   load[skill loaded by name with a suite and a change] --> fit{can a shell check decide the outcome, and does the change act on real work?}
   fit -- no --> decline[say the simulated layer answers it, name compare, plan nothing]
-  fit -- yes --> tasks{suite has a task set?}
+  fit -- yes --> suiteQ{suite named?}
+  suiteQ -- no --> askSuite[ask which suite, plan nothing]
+  suiteQ -- yes --> tasks{suite has a task set?}
   tasks -- no --> offerInit[offer init, write no tasks, plan nothing; headless: return the offer as needs-input]
   tasks -- yes --> armsQ{arms named?}
   armsQ -- yes --> arms[map the request to git-ref, file, or package arms]
@@ -186,11 +190,14 @@ flowchart TD
   ask -- no, or not explicit --> noRun[run nothing]
   ask -- plan changed after the yes --> plan
   ask -- yes --> run[run the engine with --consent]
-  run --> refused{engine refused run or compare?}
-  refused -- yes --> repRefused[report the engine's reason and whether anything was spent; no verdict]
-  refused -- no --> baseDone{a baseline run?}
+  run --> runRefused{engine refused the run?}
+  runRefused -- yes --> repRunRefused[report the engine's reason and that nothing was spent; no verdict]
+  runRefused -- no --> baseDone{a baseline run?}
   baseDone -- yes --> commit[remind to commit baseline.json; no comparison]
-  baseDone -- no --> verdict{compare with the caller's tags, then the verdict}
+  baseDone -- no --> cmp[compare with the caller's tags]
+  cmp --> cmpRefused{engine refused the compare?}
+  cmpRefused -- yes --> repCmpRefused[report the engine's reason and that the run was paid for; no verdict]
+  cmpRefused -- no --> verdict{the verdict}
   verdict -- regressed --> repReg[name the metric, task, p-value, the test count, and the count chance alone would make significant]
   verdict -- inconclusive --> repInc[say it cannot be called, is not safe, suggest more runs]
   verdict -- incomparable --> repIncomp[list every reason, present no statistics]
@@ -215,10 +222,11 @@ flowchart TD
 | `fit` → yes | a person present; a change to a multi-step skill with a shell-checkable outcome | `a change that acts on real work with a checkable outcome is planned` |
 | `fit` → no (declared worth) | the subject's eval.md declares measured: worth; a wording-only change | `a declared measured worth does not skip the fit re-ask` |
 | `fit` → yes (no declaration) | the subject's eval.md has no bench: key; a shell-checkable change | `a subject with no bench declaration is still planned for a checkable change` |
+| `suiteQ` → no | a person present; a checkable change with no suite named | `a request that names no suite is asked for one and nothing is planned` |
 | `tasks` → no | a person present; a suite with no task set | `a suite with no task set gets an init offer and no invented tasks` |
 | `armsQ` → yes | two git refs named | `two named refs become two git-ref arms` |
 | `armsQ` → yes (package versions) | two versions of one plugin named | `two named plugin versions become two package arms` |
-| `armsQ` → no, baseline exists | no arms named; a committed baseline | `with no arms named and a baseline present, HEAD is measured against the baseline` |
+| `baseOk` → yes | no arms named; a committed baseline of schema version 3 | `with no arms named and a baseline present, HEAD is measured against the baseline` |
 | `armsQ` → no, no baseline | no arms named; no baseline | `with no arms named and no baseline, the skill asks which arms to compare` |
 | `baseOk` → no | no arms named; a baseline of another schema version | `a baseline the engine cannot read is caught before any spend` |
 | `plan` → no | the engine plan fails for a missing harness command | `a failed plan is reported and no approval is asked for` |
@@ -230,9 +238,9 @@ flowchart TD
 | `ask` → not explicit (question) | the plan shown; the person replies with a question | `a reply that is not an explicit yes runs nothing` |
 | `ask` → no (pre-approval) | the person approved spending before any plan was shown | `approval given before the plan was shown does not skip the question` |
 | `ask` → plan changed | a yes that also changes the run count | `a plan changed after the yes is shown and asked about again` |
-| `refused` → yes (run) | an approved plan whose suite changed before the run | `a run the engine refuses is reported with its reason and no verdict` |
-| `refused` → yes (compare) | a finished run whose compare the engine refuses | `a compare the engine refuses is reported as paid for and without a verdict` |
-| `verdict` (tags) | a consumer tool hands off with tags | `a consumer's tags reach the engine's compare unchanged` |
+| `runRefused` → yes | an approved plan whose suite changed before the run | `a run the engine refuses is reported with its reason and no verdict` |
+| `cmpRefused` → yes | a finished run whose compare the engine refuses | `a compare the engine refuses is reported as paid for and without a verdict` |
+| `cmp` (tags) | a consumer tool hands off with tags | `a consumer's tags reach the engine's compare unchanged` |
 
 ### UC2 — be driven with no person present
 

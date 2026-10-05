@@ -553,8 +553,8 @@ Feature: engine — run a task set for real and compare two arms
 
   Scenario: comparison tags are copied verbatim into the comparison record
     Given a comparable pair of records
-    When the engine compares them with the tags lever=Noise-Floor and owner=harbor
-    Then the comparison record's tags are exactly lever "Noise-Floor" and owner "harbor"
+    When the engine compares them with the tags run=nightly-42 and owner=harbor
+    Then the comparison record's tags are exactly run "nightly-42" and owner "harbor"
 
   Scenario: a task's tags are copied into that task's rows
     Given a task set whose task "trim-logs" carries the tag area "logging"

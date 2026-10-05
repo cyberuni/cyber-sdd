@@ -54,8 +54,8 @@ suites, step 4); the engine build (steps 3–4); the Codex adapter (step 7).
 
 ## NEXT
 
-Awaiting the owner's spec-gate verdict on the PR. Three judge rounds ran (the cap). Round 3:
-engine oracle + architect PASS with one narrow builder finding; skill 32/33 with one missing guard
-companion. Both were fixed after round 3 and are **not re-judged**. On ratification: freeze
+Awaiting the owner's spec-gate verdict on PR #71. Owner review added a hard constraint: ACED must
+not depend on repobuddy or any consumer, so the engine reads only its own schema v3 and consumers
+are generic. Last judged state: engine ALIGNED (all lenses PASS); skill round 5 found two
+given-isolation blockers, fixed exactly as prescribed and **not re-judged**. On ratification: freeze
 `engine.feature` and `skill.feature`, record the gate line, then steps 3–4 build against them.
-Owner question carried in the PR: the verdict rule's multiplicity trade.

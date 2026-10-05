@@ -877,6 +877,10 @@ const USAGE = `usage:
 function main(argv: string[]): number {
 	const cwd = process.cwd()
 	const [verb, ...rest] = argv
+	if (verb === 'help' || verb === '--help' || verb === '-h') {
+		process.stdout.write(`${USAGE}\n`)
+		return 0
+	}
 	try {
 		const { values } = parseArgs({
 			args: rest,

@@ -7,19 +7,13 @@ approval:
     by: unional
     cause: clearance
     why:
-      floor: clearance — GRANTED LIVE by the owner, scoped to ONE frozen scenario in run.feature ("the run is persisted as a timestamped record"), whose Then named the suite-local results directory while its own sibling and the new check-freshness node name the shared aced results directory. A pair with no intended winner — the destinations are mutually exclusive — so no additive repair existed. Structural gherkin-cli diff vs merge-base: 6 added / 1 modified / 0 removed; no other frozen scenario touched. A later re-section of the suite to match the map's use-case groups was ruled self-clearing by measurement (the per-scenario structural diff is order-insensitive and added no modified scenario), so the grant was not re-entered. check-freshness.feature is a new node, frozen additively.
-      blast: medium — changes the result-record shape, a producer contract every downstream consumer reads, and adds one behavioral node beside run/compare/report. Bounded by additivity: a legacy record carrying no evaluated set reads `absent`, never `current`, so nothing pre-existing is silently reinterpreted.
-      novelty: medium — recording provenance is ordinary. The non-obvious move is the closed-world treatment: a consumed directory listing is recorded as a hashed entry, so growth is caught without re-resolving the subject, and the residual is pinned by a positive scenario that fails an implementation which re-resolves instead.
-      confidence: high — three cold judges across two nodes over three gate rounds; final round is all three lenses PASS on both nodes, ALIGNED true, CONFORMANCE ok, BLOCKER null, zero open markers, and every scenario in both suites carries a named implementation class that fails it. Round 3 caught a directory-only recorder that passed the suite while silently defeating check-freshness's stale verdict for content edits inside a recorded directory — the CR's own central safety property. Two known limits are stated rather than hidden: under-reporting cannot be bound by any scenario (the only witness is the self-report under test; closing it needs harness tool-call telemetry no ACED node has), and check-freshness ships consulted by nobody until the run/improve wiring lands as a follow-up.
+      floor: clearance — RATIFIED LIVE by the owner, who authorized re-opening both bench suites. skill.feature had one scenario rewritten (the with-and-without file request now becomes two file arms, absent and sourced from HEAD, and no git-ref arm); engine.feature gained one additive scenario (two file arms that differ only in their source compare), so its freeze held.
+      blast: low — one rewritten and one added scenario resolving a cross-suite contradiction; the engine's strict subject-kind rule is unchanged and every other frozen scenario is untouched.
+      novelty: low — the rule already held in the engine; the re-open states it on both sides and pins the comparable file/file pair.
+      confidence: high — cold sdd-spec-judge and aced-spec-validator ALIGNED on both nodes over two rounds; the second round confirmed two owner-requested tightenings.
   impl:
     verdict: approve
     by: unional
-    cause: dimension
-    why:
-      floor: none — the implementation was built against the frozen suites and narrowed nothing. The one Clearance in this CR was granted and applied at the SPEC gate (a frozen scenario naming the wrong results destination); it was not re-entered here. Post-verdict edits touched only SKILL.md prose and .gitignore, no .feature.
-      blast: medium — changes the result-record shape every downstream reader consumes, and adds one deterministic engine beside run/compare/report. Bounded by additivity: a legacy record carrying no evaluated set reads `absent`, never `current`.
-      novelty: medium — recording provenance is ordinary; the non-obvious move is the closed-world treatment, where a consumed directory listing is recorded as a hashed entry so growth is caught without re-resolving the subject.
-      confidence: high — two cold impl-judges, both IMPLEMENTATION_PASS, 8/8 and 22/22, every check-freshness scenario separately confirmed BOUND by mutation rather than by a green run. 277 tests, typecheck, 6/6 spec engines, 0 critical audit findings. Three defects were caught AT this gate and fixed, one of them a testing hole invisible on this filesystem.
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer
@@ -54,7 +48,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 
 | Folder | Type | What |
 |---|---|---|
-| [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report`, `check-freshness` |
+| [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report`, `check-freshness`, and the measured layer `bench/` (`engine`, `skill`) |
 | [`config-authoring/`](./config-authoring/README.md) | descriptive index | author + maintain agent config — `define-skill`, `define-agent`, `define-governance`, `skillify`, `improve-skill`, `manage-model-runners`, `list-skills`, `repair-private-skills` |
 | [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `improve` |
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
@@ -109,11 +103,11 @@ never as a top-level folder.
 | Concept | Facets |
 |---|---|
 | `audit` | `config-authoring/improve-skill/` (behavior) |
-| `benchmarking` | `config-authoring/manage-model-runners/` (behavior) |
+| `benchmarking` | `config-authoring/manage-model-runners/` (behavior) · `eval-run/bench/engine/` (behavior) · `eval-run/bench/skill/` (behavior) |
 | `config-authoring` | `config-authoring/define-agent/` (behavior) · `config-authoring/define-governance/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/improve-skill/` (behavior) · `config-authoring/list-skills/` (behavior) · `config-authoring/manage-model-runners/` (behavior) · `config-authoring/manage-skill-dirs/` (behavior) · `config-authoring/repair-private-skills/` (behavior) · `config-authoring/skillify/` (behavior) |
 | `contribution` | `contribute/contribute-skill/` (behavior) |
 | `discovery` | `config-authoring/manage-skill-dirs/` (behavior) |
-| `eval-run` | `eval-run/check-freshness/` (behavior) · `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
+| `eval-run` | `eval-run/bench/engine/` (behavior) · `eval-run/bench/skill/` (behavior) · `eval-run/check-freshness/` (behavior) · `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
 | `production-chain` | `sdd-roles/actor-bars/` (reference) |
 | `registry` | `registry/` (behavior) |
 | `routing` | `manage/` (behavior) |

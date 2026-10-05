@@ -235,15 +235,23 @@ importers:
         specifier: ^5.0.0
         version: 5.0.0(@types/node@24.13.3)(vite@8.2.2(@types/node@24.13.3)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.0))
 
-  plugins/aced: {}
+  plugins/aced:
+    dependencies:
+      '@cyberuni/agent-harness':
+        specifier: 0.5.0
+        version: 0.5.0(typescript@7.0.2)
+    devDependencies:
+      tsdown:
+        specifier: ^0.23.0
+        version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
 
   plugins/quill: {}
 
   plugins/sdd:
     dependencies:
       gherkin-cli:
-        specifier: 0.0.2
-        version: 0.0.2
+        specifier: 0.2.1
+        version: 0.2.1
 
 packages:
 
@@ -674,6 +682,14 @@ packages:
   '@cucumber/messages@33.0.4':
     resolution: {integrity: sha512-i6P1a0bnmhecOHfvIW0rhMxv/gMKfBKwDMxmD9/Uo1HSqpQ17ocHms1JwWW6uTMLAopqqWlcz7l6Pax+qUOTzg==}
 
+  '@cucumber/messages@34.2.1':
+    resolution: {integrity: sha512-aj2iCAG9ZOpMVcMxcgShifv5fbR96b7SMgdWcPXXh2QbFp7OEcAnQ5MC5YfWUDSDasmw7FU5NJEsOrXdTQOU1A==}
+
+  '@cyberuni/agent-harness@0.5.0':
+    resolution: {integrity: sha512-TyfqEHYfHiU9Uw8CE1J393+H/CyBv9Vv7+w3YrAKHmTgMqoH+cFPujFpgkU3uT5sr7xUg1RiEHICXuVao14Wbg==}
+    engines: {node: '>=22'}
+    hasBin: true
+
   '@emmetio/abbreviation@2.3.3':
     resolution: {integrity: sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA==}
 
@@ -1061,6 +1077,9 @@ packages:
 
   '@just-func/types@0.6.0':
     resolution: {integrity: sha512-5/nFEvX/QizdRCMXjo/VfW4qgBw2pX2+Sz5+aJ907d7NqXVXxEu1Hwu6k35A5INI2NtIOvplQnkm7uFqPGiL0w==}
+
+  '@just-func/types@0.6.1':
+    resolution: {integrity: sha512-uIE3xNCNcyIsM/YhOAEEh8xNwDhcT5KMM6F4R/aQGVijt6sMePjd7CDPeVrXd2XFks2nGiin/cEMTYhAIaXa6A==}
 
   '@manypkg/find-root@3.1.0':
     resolution: {integrity: sha512-BcSqCyKhBVZ5YkSzOiheMCV41kqAFptW6xGqYSTjkVTl9XQpr+pqHhwgGCOHQtjDCv7Is6EFyA14Sm5GVbVABA==}
@@ -1509,6 +1528,9 @@ packages:
   '@simple-libs/stream-utils@2.0.0':
     resolution: {integrity: sha512-fCTuZK4QBa+39Oz9l4OGfJfz+GpwCp3AqO7Zch3to99xHPgstVsRFpeQ8LNd2o1Gv8raL2mCFwiaHh7bFSp5DQ==}
     engines: {node: '>=22'}
+
+  '@toon-format/toon@4.1.1':
+    resolution: {integrity: sha512-SGCkS7IjVpwRmGPgnY8ENKpAf0EdAnZDOQkvFW0d2cgOpdn9FEFl7sTgryESyypXrWr0YajHGpwsAUX4zw9ZvA==}
 
   '@turbo/darwin-64@2.10.11':
     resolution: {integrity: sha512-v3R+1R/Ysozyo+p7Ri8MCIbndOvYt3DgPFrGLhrhQHfvyvbxyH3WyJj+A/2JTNmNleuAlh3JUyCV0iSVHIONTA==}
@@ -2033,6 +2055,10 @@ packages:
     resolution: {integrity: sha512-OU+RPh8Dv8flkiz1qe+uG9OdayPN8hBw7ILD23hCR9jumrHAkYE3vG4omRUlauclesfCWIUrP7cb5zeb9W7UTw==}
     engines: {node: '>= 20.19'}
 
+  clibuilder@11.3.2:
+    resolution: {integrity: sha512-W84b3U2iR1g4ZIRU3ckmfHrSR2LIKNggQgUY9Thuke7UJBle6/+Yo/RgFbheuyJxgTj+NroxtUBwYLlTkLCa3g==}
+    engines: {node: '>= 20.19'}
+
   cliui@9.0.1:
     resolution: {integrity: sha512-k7ndgKhwoQveBL+/1tqGJYNz097I7WOvwbmmU2AR5+magtbjPWQTS1C5vzGkBC8Ym8UWRzfKUzUUqFLypY4Q+w==}
     engines: {node: '>=20'}
@@ -2052,9 +2078,9 @@ packages:
     resolution: {integrity: sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ==}
     engines: {node: '>=16'}
 
-  commander@14.0.3:
-    resolution: {integrity: sha512-H+y0Jo/T1RZ9qPP4Eh1pkcQcLRglraJaSLoyOtHxu6AapkjWVCy2Sit1QQ4x3Dng8qDlSsZEet7g5Pq06MvTgw==}
-    engines: {node: '>=20'}
+  commander@15.0.0:
+    resolution: {integrity: sha512-z67u4ZhzCL/Tydu1lJARtEZYWbWaN7oYLHbsuzocr6y4N6WZAagG3RQ4FW61V1/0+jImpj293XfrcYnd1qxtPg==}
+    engines: {node: '>=22.12.0'}
 
   common-ancestor-path@2.0.0:
     resolution: {integrity: sha512-dnN3ibLeoRf2HNC+OlCiNc5d2zxbLJXOtiZUudNFSXZrNSydxcCsSpRzXwfu7BBWCIfHPw+xTayeBvJCP/D8Ng==}
@@ -2326,8 +2352,8 @@ packages:
     resolution: {integrity: sha512-X6fBC0pmImC70gvX2zm56go9hx0MyoGVdG0tUCkg/D+Xnh5TJsOZ7iDbOdI3PvmtrDxnu1YdDufpK2QJX1Meqw==}
     engines: {node: '>=20.20.0'}
 
-  gherkin-cli@0.0.2:
-    resolution: {integrity: sha512-6ksmT7N2LxXtWIaT/LhnN4unHK6AcyI6l2AQvYu0goP/2x4zhutkhZpgOOmucbI/J6EITUh+WayvKnoJ4UxXzw==}
+  gherkin-cli@0.2.1:
+    resolution: {integrity: sha512-t8aK1bEauKziHYMkjc1nhiSmnGLYmgBAIZllZi5wUdVHPTQWkZLN9TvovPCHj0OI9CtmtgiUl8B9dBV0F5Iedw==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -3019,8 +3045,16 @@ packages:
     peerDependencies:
       standard-log: '>=11.0.1'
 
+  standard-log-color@13.3.1:
+    resolution: {integrity: sha512-CR++e1aHcpuq5bh0jFC2EbwchokUjd3L5EZ+HDl8AwXzOAtn899TkoSdIIR8CgVJX07cBlGOW8xXgZdj3mc9+Q==}
+    peerDependencies:
+      standard-log: '>=11.0.1'
+
   standard-log@13.3.0:
     resolution: {integrity: sha512-G2SVB/gcbCdQIeR+41ciB+Lr/Kp95vvl2jb1fIYwkAIUSKDcr2OR0uEMwfzUYEIlg7x9tzrz09lGfKtH4yEidA==}
+
+  standard-log@13.3.1:
+    resolution: {integrity: sha512-WcDZypKwq35deXwUV1/ttKodpijdGYSaRVVPHHGNtAIPbvS4rC6xIs1faPtXEUBD33W4RdtJKCZ7/oV1uIrQFw==}
 
   std-env@4.2.0:
     resolution: {integrity: sha512-oCUKSupKTHX53EyjDtuZQ64pjLJ6yYCtpmEw0goYxtjG9KpbRe8KAsl2tBUGU9DyMcJ0RwJ8GqJAFzMXcXW1Rw==}
@@ -3062,6 +3096,9 @@ packages:
 
   tersify@4.0.7:
     resolution: {integrity: sha512-HbSau9xNaHqYRJ/Y6lAddBLNpi5wowJhDGuhfM/6LAmyhsIiNKX3Q50qJwRcKFsV4/BV45XMyTdaHZ5nW6OjRg==}
+
+  tersify@4.0.8:
+    resolution: {integrity: sha512-8SP19qXCXiWztbyJLqmCwstqtZg7F5grbSov3yh8C+fyqHgKyfMaI/c5DCMKIGDkpoKX8cIz9ZqJxN7zZDtQcQ==}
 
   tiny-inflate@1.0.3:
     resolution: {integrity: sha512-pkY1fj1cKHb2seWDy0B16HeWyczlJA9/WW3u3c4z/NiWDsO3DOU5D7nhTLE9CF0yXv/QZFY7sEJmj24dK+Rrqw==}
@@ -3150,6 +3187,11 @@ packages:
     resolution: {integrity: sha512-ZdhzmQg7f8oxt5Cbivslk8o3zef8L3ibpKIeGH1ESf73y8ZEY1z9fe4Z3fTxcjmFOb8ESE1TbW/MCgEvpeLC4w==}
     peerDependencies:
       typescript: '>= 5.6.0'
+
+  type-plus@8.0.0-beta.12:
+    resolution: {integrity: sha512-isf19V90L8JOn9VBWWwUfH8DU6G3dfPptr3R+JtraYWHqLAsXYI2f9x1HZVTkajrkSffdEbetXUXf7FcIjSIRg==}
+    peerDependencies:
+      typescript: '>= 5.4.0'
 
   typesafe-path@0.2.2:
     resolution: {integrity: sha512-OJabfkAg1WLZSqJAJ0Z6Sdt3utnbzr/jh+NAHoyWHJe8CMSy79Gm085094M9nvTPy22KzTVn5Zq5mbapCI/hPA==}
@@ -4074,6 +4116,16 @@ snapshots:
 
   '@cucumber/messages@33.0.4': {}
 
+  '@cucumber/messages@34.2.1': {}
+
+  '@cyberuni/agent-harness@0.5.0(typescript@7.0.2)':
+    dependencies:
+      '@toon-format/toon': 4.1.1
+      clibuilder: 11.3.2(typescript@7.0.2)
+      yaml: 2.9.0
+    transitivePeerDependencies:
+      - typescript
+
   '@emmetio/abbreviation@2.3.3':
     dependencies:
       '@emmetio/scanner': 1.0.4
@@ -4365,6 +4417,12 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@just-func/types@0.6.1(typescript@7.0.2)':
+    dependencies:
+      type-plus: 8.0.0-beta.12(typescript@7.0.2)
+    transitivePeerDependencies:
+      - typescript
+
   '@manypkg/find-root@3.1.0':
     dependencies:
       '@manypkg/tools': 2.1.2
@@ -4650,6 +4708,8 @@ snapshots:
       '@simple-libs/stream-utils': 2.0.0
 
   '@simple-libs/stream-utils@2.0.0': {}
+
+  '@toon-format/toon@4.1.1': {}
 
   '@turbo/darwin-64@2.10.11':
     optional: true
@@ -5130,6 +5190,25 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  clibuilder@11.3.2(typescript@7.0.2):
+    dependencies:
+      find-installed-packages: 4.0.1
+      import-meta-resolve: 4.2.0
+      js-yaml: 4.3.2
+      jsonc-parser: 3.3.1
+      pad-right: 0.2.2
+      search-packages: 2.2.3
+      standard-log: 13.3.1(typescript@7.0.2)
+      standard-log-color: 13.3.1(standard-log@13.3.1(typescript@7.0.2))
+      tersify: 4.0.8
+      tmp: 0.2.7
+      tslib: 2.8.1
+      type-plus: 8.0.0-beta.12(typescript@7.0.2)
+      wordwrap: 1.0.0
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - typescript
+
   cliui@9.0.1:
     dependencies:
       string-width: 7.2.0
@@ -5144,7 +5223,7 @@ snapshots:
 
   commander@11.1.0: {}
 
-  commander@14.0.3: {}
+  commander@15.0.0: {}
 
   common-ancestor-path@2.0.0: {}
 
@@ -5401,11 +5480,11 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  gherkin-cli@0.0.2:
+  gherkin-cli@0.2.1:
     dependencies:
       '@cucumber/gherkin': 41.0.0
-      '@cucumber/messages': 33.0.4
-      commander: 14.0.3
+      '@cucumber/messages': 34.2.1
+      commander: 15.0.0
 
   github-slugger@2.0.0: {}
 
@@ -6297,12 +6376,29 @@ snapshots:
       supports-color: 8.1.1
       unpartial: 1.0.8
 
+  standard-log-color@13.3.1(standard-log@13.3.1(typescript@7.0.2)):
+    dependencies:
+      color-map: 2.2.0
+      standard-log: 13.3.1(typescript@7.0.2)
+      supports-color: 8.1.1
+      unpartial: 1.0.8
+
   standard-log@13.3.0(typescript@7.0.2):
     dependencies:
       '@just-func/types': 0.6.0(typescript@7.0.2)
       iso-error: 7.0.0
       ms: 2.1.3
       type-plus: 8.0.0-beta.10(typescript@7.0.2)
+    transitivePeerDependencies:
+      - typescript
+
+  standard-log@13.3.1(typescript@7.0.2):
+    dependencies:
+      '@just-func/types': 0.6.1(typescript@7.0.2)
+      iso-error: 7.0.0
+      ms: 2.1.3
+      type-plus: 8.0.0-beta.12(typescript@7.0.2)
+      unpartial: 1.0.8
     transitivePeerDependencies:
       - typescript
 
@@ -6352,6 +6448,11 @@ snapshots:
       rimraf: 2.6.3
 
   tersify@4.0.7:
+    dependencies:
+      acorn: 8.18.0
+      unpartial: 1.0.8
+
+  tersify@4.0.8:
     dependencies:
       acorn: 8.18.0
       unpartial: 1.0.8
@@ -6422,6 +6523,12 @@ snapshots:
       '@turbo/windows-arm64': 2.10.11
 
   type-plus@8.0.0-beta.10(typescript@7.0.2):
+    dependencies:
+      tersify: 4.0.7
+      typescript: 7.0.2
+      unpartial: 1.0.8
+
+  type-plus@8.0.0-beta.12(typescript@7.0.2):
     dependencies:
       tersify: 4.0.7
       typescript: 7.0.2

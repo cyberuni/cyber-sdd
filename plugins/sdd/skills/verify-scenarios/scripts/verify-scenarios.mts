@@ -49,7 +49,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { parseFeatures } from 'gherkin-cli'
+import { parse } from 'gherkin-cli'
 
 // Resolves a path argument against `--root`: relative paths join beneath root (which defaults to the
 // current directory); an absolute path is used verbatim, never double-prefixed under root.
@@ -132,7 +132,7 @@ export function scenarioKeysFromParse(parsed: GherkinParseOutput): ScenarioKey[]
 // `--feature-root` — see main()).
 export function getScenarioKeys(root: string, featurePath: string, featureRoot: string = root): ScenarioKey[] {
 	const abs = underRoot(featureRoot, featurePath)
-	return scenarioKeysFromParse(parseFeatures([abs]))
+	return scenarioKeysFromParse(parse([abs]))
 }
 
 // ── JUnit parsing (hand-rolled, no xml dep) ──

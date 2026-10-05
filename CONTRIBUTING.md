@@ -53,10 +53,12 @@ Conventional Commits, enforced by commitlint on `commit-msg`. The `pre-commit` h
 
 ## Releasing
 
-`cyber-sdd` publishes from this repo and carries its release history (`cyber-sdd@*` tags).
+`cyber-sdd` and `cyber-aced` publish from this repo and carry their release history
+(`cyber-sdd@*` and `cyber-aced@*` tags). `cyber-aced` ships the `aced-bench` bin compiled to
+`dist/` (Node does not strip types under `node_modules`); `pnpm build` produces it, and the
+bench's `bench-bin` test packs the package and runs the bin from a `node_modules` install.
 
-`cyber-aced` and `cyber-quill` are staged but **not yet published**. Their package
-metadata is complete — name, license, `files`, `repository` — and they are held at
-`"private": true` so a push to `main` cannot publish them by accident. To cut their first
-release, drop `"private": true` from the plugin's `package.json`, add a changeset, and
-merge the release PR.
+`cyber-quill` is staged but **not yet published**. Its package metadata is complete — name,
+license, `files`, `repository` — and it is held at `"private": true` so a push to `main`
+cannot publish it by accident. To cut its first release, drop `"private": true` from its
+`package.json`, add a changeset, and merge the release PR.

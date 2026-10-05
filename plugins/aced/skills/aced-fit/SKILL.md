@@ -29,12 +29,13 @@ subject with signal **only** at Structural is not an ACED subject.
 | **wrong-squad** | is a **deterministic** script / engine whose output is **assertable, not graded** | Structural only | **recuse** — author **no `.feature`**; the conductor falls back to the SDD-default builder + a script / `node:test` harness (the `sdd:` recuse→fallback seam) |
 
 The `partial ↔ wrong-squad` boundary is **graded-vs-assertable output** (does judging it need an LLM,
-or does a `node:test` assert it), not merely "has a trigger."
+or does a `node:test` assert it), not merely "has a trigger." A subject reached only by name (a
+name-only description) makes no activation decision, so it is never `strong`.
 
 ## How each role uses it
 
 - **`aced-scenario-writer` (producer, explore) — decides.** Classify fit **first**; declare it as a
-  `**Fit:** strong | partial` line in the subject `spec.md` `## Use Cases`. Then author to the tier:
+  `**Fit:** strong | partial` line in the subject's node spec (its `README.md`) `## Use Cases`. Then author to the tier:
   `strong` → author should-trigger + same-keyword near-miss; `partial` → author behavior/edge/rule,
   **no fabricated near-miss**; `wrong-squad` → **recuse**, produce nothing, recommend the SDD default.
 - **`aced-spec-validator` (judge, gate) — enforces.** Read the declared tier; apply trigger-context /
@@ -42,9 +43,63 @@ or does a `node:test` assert it), not merely "has a trigger."
   `CONTENT_GAP` (never default to `strong`); a subject determined wrong-squad is **recused**, not
   graded.
 
+## The measured axis — a second, orthogonal question
+
+The tier says which **simulated** layers carry signal. A separate axis says whether the **measured**
+layer (real headless runs graded by a shell `check`, `eval-run/bench/`) is worth paying for:
+**`measured: worth | not-worth`**. Never derive one axis from the other — a `strong` skill whose
+change only rewords its trigger is `not-worth`; a `partial` procedure driving multi-step work can be
+`worth`.
+
+`worth` only when **all four** hold:
+
+1. **Work, not words** — the change moves how real work turns out (pass rate, turns, tokens); a
+   trigger-only or wording-only change is `not-worth`.
+2. **Shell-checkable** — a deterministic `check` decides pass/fail; rubric-only outcomes stay
+   simulated.
+3. **A decision hinges on the delta** — merge/revert, calibrate a weight, gate a release.
+4. **Detectable at a run count someone will approve.** Under 4 runs per arm no single task's test
+   can reach p < 0.05; real effects usually need about 10. If the question needs more runs than
+   anyone will approve, it is `not-worth`. The plan's "too few to call" warning reports on this
+   criterion; it does not satisfy it.
+
+**Dollars never decide a result** — cost is recorded and compared, never a gate input; willingness
+to pay bounds only criterion 4.
+
+**Declared** in the subject's `eval.md` under `bench:` (beside `eval:`): `measured`, plus `suite` and
+a `why` of one line per criterion when `worth`. **Absent `bench:` = `not-worth`** — the axis is opt-in, so its absence
+is **not** a `CONTENT_GAP` (unlike the tier's).
+
+- **`aced-scenario-writer` — decides**, in explore, after the tier: declare `bench:` when the
+  subject is `worth`; an explicit `measured: not-worth` is legal to record a considered no; it needs
+  no `suite`, and a `why` is optional; never put the task set in `eval.md`.
+- **`aced-spec-validator` — enforces**: a `bench:` declaring `worth` with no `suite` or no `why` is a
+  `CONTENT_GAP`; it reads `worth`, never re-decides it.
+- **The `bench` skill — re-asks** criteria 1–2 for the change in hand before any plan; the engine's
+  plan checks criterion 4's floor. A `worth` subject can still meet a change that is not.
+
+## Validate
+
+Assertions about **the subject being classified**, run by the producer before handoff and re-run by
+the cold judge against the artifact — never against the producer's account of what it did:
+
+1. The subject's node spec (`README.md`) carries exactly one `**Fit:** strong` or `**Fit:** partial`
+   line; a subject recused as wrong-squad has neither a `**Fit:**` line nor an ACED
+   `eval.md` (its node, if any, was written by the SDD-default chain). *(mechanical)*
+2. A subject declared `strong` does not have a name-only description (one beginning `By name only`
+   or `Partial Skill: invoke by name only`): a subject reached only by name makes no activation
+   decision. *(mechanical)*
+3. If the subject's `eval.md` has a `bench:` key, `bench.measured` is `worth` or `not-worth`.
+   *(mechanical)*
+4. A `bench:` declaring `worth` has a non-empty `bench.suite` and a non-empty `bench.why`.
+   *(mechanical)*
+5. `bench:` holds only `measured`, `suite`, and `why` — never the suite's tasks — and the node
+   spec's frontmatter carries no `bench` or `measured` key. *(mechanical)*
+
 ## References
 
-- `design/fit.md` (`.agents/specs/aced/design/fit.md`) — the normative model + ADR 0001.
+- `design/fit.md` (`.agents/specs/aced/design/fit.md`) — the normative model + ADR 0001 (tier) and
+  ADR 0003 (measured axis).
 - `aced:aced-builder-spec` — the spec bar whose trigger-context / trigger-balance criteria this
   governance makes conditional.
 - `aced:aced-builder-impl` — the impl bar (which eval layers get evals follows the tier).

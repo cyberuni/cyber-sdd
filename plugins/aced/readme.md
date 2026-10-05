@@ -29,6 +29,10 @@ records a `**Fit:**` line in its spec:
 | **partial** | mechanically executes a predetermined path (graded behavior, no activation choice) | behavior/quality evals; **no trigger near-miss** required |
 | **wrong-squad** | is a deterministic script/engine (assertable output, not graded) | **recuses** — use an ordinary test harness (`node:test`), not ACED |
 
+A second, independent axis — **`measured: worth | not-worth`** — says whether real headless runs
+(the measured layer, `bench`) answer a question simulation cannot. It is opt-in, declared under
+`bench:` in `eval.md`, and dollars never decide it.
+
 Only the **Structural** layer signal on a subject means it is **wrong-squad** — `improve-skill`'s
 `validate.mts` engine already covers that. The classifier lives in `skills/aced-fit/` (model: the
 spec's `design/fit.md`).
@@ -41,6 +45,7 @@ spec's `design/fit.md`).
 | `add-scenario` | Add a new test case from a real failure or edge case |
 | `run` | Score the frozen `.feature` suite against the current agent configuration |
 | `compare` | Diff scores before/after an edit — regression gate |
+| `bench` | Measure a change with real headless runs (the measured layer) — plan, price, and run only on an explicit yes |
 | `improve` | Diagnose failing cases and propose targeted edits |
 | `report` | Project-wide health dashboard across all eval suites |
 
@@ -89,7 +94,7 @@ Run output is **not** colocated with the spec: it is written under the shared
 node is what stops non-deterministic judge output from accumulating beside the frozen suite;
 `init-aced` is responsible for git-ignoring that directory.
 
-`eval.md` is the **measurement policy** — a two-level shape so future measurement kinds (benchmark, telemetry) slot in as siblings of `eval:`:
+`eval.md` is the **measurement policy** — a two-level shape so other measurement kinds slot in as siblings of `eval:`:
 
 ```yaml
 subject: plugins/aced/skills/define-skill/SKILL.md
@@ -101,7 +106,11 @@ eval:
   trigger:
     activation_threshold: 0.5
     runs: 3
-# future (own CRs): benchmark (model matrix over the runner family) / telemetry (per-run capture)
+bench:                          # optional: the measured layer (real headless runs)
+  measured: worth               # worth | not-worth; absent bench: = not-worth
+  suite: harbor.nightly         # task set at .agents/aced/bench/<suite>/
+  why: <one line per fit criterion>
+# future (own CRs): a model matrix over the runner family / telemetry (per-run capture)
 ```
 
 ## Installation

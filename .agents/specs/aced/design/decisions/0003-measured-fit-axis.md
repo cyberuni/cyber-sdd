@@ -13,9 +13,9 @@ real run worth paying for?" needed a home.
 
 Add a second, **orthogonal** fit axis, `measured: worth | not-worth` (`design/fit.md`), declared
 per subject in `eval.md` under `bench:`, opt-in (absence = not-worth), and re-asked per comparison
-by the `bench` skill and the engine's plan. Four criteria must all hold: the effect is in the work,
-the outcome is shell-checkable, a decision hinges on the delta, and the effect is detectable at a
-run count someone will approve. Dollars are recorded and compared but never decide a result.
+by the `bench` skill and the engine's plan. The criteria and their reasoning live in
+`design/fit.md`; the operative rules in `aced:aced-fit`. Dollars are recorded and compared but never
+decide a result.
 
 ## Alternatives rejected
 

@@ -27,8 +27,9 @@ because the consent rule, the headless refusal, and how it words an inconclusive
 result are agent conduct a judge must grade.
 
 **Non-goals** — the statistics, the record schema, the run sequence, and every number in the plan
-(`../engine/`); declaring a subject's `measured` fit in its `eval.md` (the spec-producer, under
-`aced:aced-fit`); the simulated diff (`../../compare/`); the project-wide roll-up (`../../report/`);
+(`../engine/`); defining the fit criteria it re-asks (it loads `aced:aced-fit` and applies that
+governance's measured criteria 1–2 to the change in hand, restating none of them); declaring a
+subject's `measured` fit in its `eval.md` (the spec-producer, under `aced:aced-fit`); the simulated diff (`../../compare/`); the project-wide roll-up (`../../report/`);
 choosing tasks for a suite (the suite maintainer writes `tasks.json`); a model matrix (a separate
 change). The skill is driven by the change in hand, not by the subject's `bench:` declaration: a
 declared `measured: worth` does not skip the fit re-ask, and an absent or `not-worth` declaration does
@@ -163,7 +164,7 @@ own beyond the yes it relays as `--consent`, which it relays only on UC1's expli
 
 ```mermaid
 flowchart TD
-  load[skill loaded by name with a suite and a change] --> fit{can a shell check decide the outcome, and does the change act on real work?}
+  load[skill loaded by name with a suite and a change] --> fit{aced-fit measured criteria 1–2 hold for this change?}
   fit -- no --> decline[say the simulated layer answers it, name compare, plan nothing]
   fit -- yes --> suiteQ{suite named?}
   suiteQ -- no --> askSuite[ask which suite, plan nothing]

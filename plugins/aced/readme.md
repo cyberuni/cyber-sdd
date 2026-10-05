@@ -45,6 +45,7 @@ spec's `design/fit.md`).
 | `add-scenario` | Add a new test case from a real failure or edge case |
 | `run` | Score the frozen `.feature` suite against the current agent configuration |
 | `compare` | Diff scores before/after an edit — regression gate |
+| `bench` | Measure a change with real headless runs (the measured layer) — plan, price, and run only on an explicit yes |
 | `improve` | Diagnose failing cases and propose targeted edits |
 | `report` | Project-wide health dashboard across all eval suites |
 

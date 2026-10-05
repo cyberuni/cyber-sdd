@@ -71,3 +71,11 @@ kinds (issue step 4's `file` / `package` included, since `engine.feature` freeze
 measured mode and `report`'s measured section stay out: they need additive scenarios on those
 nodes' frozen suites first (ledger follow-up seq 3). Engine imports `headlessInvocation` /
 `headlessCommand` from `@cyberuni/agent-harness` (published in 0.5.0).
+
+**Open (owner) — cross-suite contradiction found at deliver:** `skill.feature`'s "a with-and-without
+request for one file becomes an absent file arm and a git-ref arm" mandates arms of two subject kinds
+(`file` + `git-ref`), but `engine.feature`'s "records that differ in subject kind are incomparable"
+makes every such pair `incomparable` — the with/without question can never get a verdict. Fixing it
+re-opens a frozen suite (e.g. the skill scenario's second arm becomes `with=file:<path>=ref:HEAD`).
+SKILL.md follows the frozen scenario for now; its non-frozen "file swapped in" row already uses two
+`file` arms.

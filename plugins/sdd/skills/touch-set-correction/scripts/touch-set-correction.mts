@@ -13,7 +13,7 @@
 //     a live git diff or the live mission-graph store.
 //   - readChangedFiles / resolveArtifactType / changedScenarios / collectChangedFiles /
 //     discoverLayouts are the thin IO SEAM: they shell out to `git`, `resolve-governances.mts`, and
-//     the pinned `gherkin-cli@0.0.2` `diffFeatures` (the same differ classify-edit-class.mts uses —
+//     the pinned `gherkin-cli` `diff` (the same differ classify-edit-class.mts uses —
 //     this tool never reimplements a differ). NOT unit-tested (binary/fs boundary) — the tested
 //     logic is everything downstream of the file list.
 //   - main() is a thin CLI: argv -> collectChangedFiles + assembleCorrection, rendering TOON by
@@ -30,7 +30,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { type DiffReader, diffFeatures } from 'gherkin-cli'
+import { diff as gherkinDiff, type ReadsGitDiff } from 'gherkin-cli'
 
 // ── Types ──
 
@@ -226,7 +226,7 @@ export function resolveArtifactType(path: string, root: string, cwd: string): st
 	}
 }
 
-// `diffFeatures`'s default reader resolves paths against `process.cwd()` and derives git's own cwd
+// `diff`'s default reader resolves paths against `process.cwd()` and derives git's own cwd
 // from that resolved location (`git ls-files --full-name` to recover the repo-relative path) —
 // this reader is that same algorithm, re-pointed at `cwd` (same seam classify-edit-class.mts
 // uses), so it stays robust to a caller whose relative-path bookkeeping doesn't line up with its
@@ -234,7 +234,7 @@ export function resolveArtifactType(path: string, root: string, cwd: string): st
 // reads as "absent" — the outer `changedScenarios` catch-all is this call site's real fail-open
 // boundary, so a thrown `GitError` here is caught there rather than escalated.
 const cwdReader =
-	(cwd: string): DiffReader =>
+	(cwd: string): ReadsGitDiff['readDiff'] =>
 	(file, base) => {
 		const abs = resolve(cwd, file)
 		const dir = dirname(abs)
@@ -272,15 +272,15 @@ const cwdReader =
 		return { head, base: baseText }
 	}
 
-/** The changed scenario names of a touched `.feature`, via the pinned `gherkin-cli@0.0.2`
- *  `diffFeatures` (same tool classify-edit-class.mts uses — never a reimplemented differ). Gated
+/** The changed scenario names of a touched `.feature`, via the pinned `gherkin-cli`
+ *  `diff` (same tool classify-edit-class.mts uses — never a reimplemented differ). Gated
  *  by isFeature — a non-.feature never calls out. On any failure returns []. Reads any `.feature`
  *  regardless of freeze — the freeze gate is a separate concern (spec-gate), not this tool's
  *  business. */
 export function changedScenarios(base: string, path: string, cwd: string): string[] {
 	if (!isFeature(path)) return []
 	try {
-		const { files } = diffFeatures([path], { base, reader: cwdReader(cwd) })
+		const { files } = gherkinDiff([path], { base, full: true }, { readDiff: cwdReader(cwd) })
 		const fileResult = files.find((f) => f.file === path) ?? files[0]
 		return (fileResult?.scenarios ?? []).filter((s) => s.change !== 'unchanged').map((s) => s.name)
 	} catch {

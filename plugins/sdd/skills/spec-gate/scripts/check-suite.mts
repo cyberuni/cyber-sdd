@@ -6,7 +6,7 @@
 import { type Dirent, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { validateFeatures } from 'gherkin-cli'
+import { validate } from 'gherkin-cli'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -143,7 +143,7 @@ export interface ParseError {
 // Maps the pinned parser's per-file report to its errors (empty array when it parses) so callers
 // can look a path up directly.
 export function runGherkinValidate(paths: string[]): Map<string, ParseError[]> {
-	const { files } = validateFeatures(paths)
+	const { files } = validate(paths)
 	const out = new Map<string, ParseError[]>()
 	for (const f of files) {
 		out.set(

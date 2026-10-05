@@ -9,7 +9,7 @@
 // The classification is STRUCTURAL, never a raw git line-diff. A raw line-diff is fooled by a
 // trailing step orphaned off a frozen scenario onto a newly added adjacent scenario: the orphan
 // shows no `-` line and reads as purely additive, so a narrowing self-clears silently and
-// Clearance never fires. The pinned `gherkin-cli@0.0.2` `diffFeatures(paths, {base})` is AST-level
+// Clearance never fires. The pinned `gherkin-cli` `diffFeatures(paths, {base})` is AST-level
 // and is not fooled — it reports the losing baseline scenario as `modified` (`addOnly: false`).
 //
 // The pin is load-bearing, not incidental. Through `0.0.1` the differ's scenario identity covered
@@ -36,7 +36,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { type DiffReader, diffFeatures, GitError } from 'gherkin-cli'
+import { GitError, diff as gherkinDiff, type ReadsGitDiff } from 'gherkin-cli'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 
@@ -193,13 +193,13 @@ function readGitShow(base: string, path: string, cwd: string): string {
 	}
 }
 
-// Thin boundary around the pinned `gherkin-cli` `diffFeatures` — never a re-implemented differ.
+// Thin boundary around the pinned `gherkin-cli` `diff` — never a re-implemented differ.
 // classifyFromDiff / classifyFromFileResult carry the tested logic; this only wires the engine in.
-// Takes a batch of paths (`diffFeatures` is already variadic over paths) so a multi-file caller
+// Takes a batch of paths (`diff` is already variadic over paths) so a multi-file caller
 // pays for one parse pass, not one per file.
 export type GherkinDiffRunner = (base: string, paths: string[], cwd: string) => GherkinDiffOutput
 
-// `diffFeatures`'s default reader resolves each path via `path.resolve(file)` against
+// `diff`'s default reader resolves each path via `path.resolve(file)` against
 // `process.cwd()` and derives git's own cwd from THAT resolved location (`dirname` of the
 // resolved path, then `git ls-files --full-name` to recover the repo-relative path) — it never
 // trusts a caller-supplied cwd for the git commands at all. That self-derivation is why the
@@ -208,7 +208,7 @@ export type GherkinDiffRunner = (base: string, paths: string[], cwd: string) => 
 // This reader is the library's own extension seam ("Injectable so tests can skip git"), replicated
 // verbatim with the one substitution that matters here — `resolve(cwd, file)` instead of
 // `resolve(file)` — so a caller's `cwd` participates without discarding that self-correction.
-function makeCwdReader(cwd: string): DiffReader {
+function makeCwdReader(cwd: string): ReadsGitDiff['readDiff'] {
 	return (file, base) => {
 		const abs = resolve(cwd, file)
 		const dir = dirname(abs)
@@ -249,7 +249,7 @@ function makeCwdReader(cwd: string): DiffReader {
 }
 
 export const runGherkinDiff: GherkinDiffRunner = (base, paths, cwd) =>
-	diffFeatures(paths, { base, reader: makeCwdReader(cwd) })
+	gherkinDiff(paths, { base, full: true }, { readDiff: makeCwdReader(cwd) })
 
 // ─── per-file classification ────────────────────────────────────────────────────
 

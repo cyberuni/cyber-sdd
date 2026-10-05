@@ -1,5 +1,14 @@
 # cyber-sdd
 
+## 0.4.1
+
+### Patch Changes
+
+- f3a7f14: `concept-index` keeps whole node paths when `--spec-dir` is `.`, starts with `./`, or ends with `/`. Before, it cut characters off the front of each path, so `cli/` showed as `i/`.
+- c6eaee4: Adapt to gherkin-cli 0.2: use its renamed `diff`, `parse` and `validate` entry points and injectable git reader.
+- 05d4858: The conductor now hands SDD's own judges (`sdd-spec-judge`, `sdd-impl-judge`) to a dispatch capability by their definition file path, `agents/<name>.md` under the SDD plugin root, instead of by name. A capability that looks up definitions only in the project's own agent folder could not find them, so routing a judge through it failed. When the file is not there, the conductor spawns the judge as a portable cold subagent.
+- f069d67: Fix the `sdd-check-specs` bin from an npm install. It pointed at the `.mts` source, which Node refuses to run under `node_modules` (`ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`). The bin and every engine it spawns now ship compiled to `dist/`; the skill still runs the `.mts` source in place.
+
 ## 0.4.0
 
 ### Minor Changes

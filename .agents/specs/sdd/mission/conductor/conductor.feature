@@ -204,6 +204,22 @@ Feature: The conductor — running one mission segment
     Then the units stay warm for reuse within that mission
     And the conductor does not tear them down between uses in the mission
 
+  Scenario: an SDD-shipped judge is handed to the dispatch capability by its definition file
+    Given a harness-agnostic dispatch capability is available
+    And the judge role resolves to a judge definition the SDD plugin ships
+    And that definition file exists under the SDD plugin's agents folder
+    When the conductor dispatches that judge
+    Then the dispatch request carries the path of that definition file under the SDD plugin's root
+    And the dispatch request does not ask the capability to find the definition by name
+
+  Scenario: an SDD-shipped judge with no definition file in the SDD plugin's agents folder is spawned as a portable subagent
+    Given a harness-agnostic dispatch capability is available
+    And the judge role resolves to a judge definition the SDD plugin ships
+    And the SDD plugin's agents folder holds no file for that judge
+    When the conductor dispatches that judge
+    Then it spawns the judge as a portable cold subagent in a fresh context
+    And it sends the dispatch capability no request for that judge
+
   # ---- Governance entry set — the conductor loads and declares its own bars ----
 
   Scenario: the entry-set governances are loaded before intake opens the CR

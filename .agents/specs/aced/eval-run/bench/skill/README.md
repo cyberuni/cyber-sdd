@@ -17,8 +17,8 @@ at all, picks the arms from what the person asked, and never spends without an e
 exact plan on screen. Afterwards it says plainly whether the change regressed, improved, or could not
 be called — and never presents an unclear result as safe, or a price change as a regression.
 
-It is reached **by name**: from `/bench`, from `agent-readiness`'s hand-off for the suite
-`repobuddy.readiness`, and later from `compare`'s measured mode. It is never matched to a user's
+It is reached **by name**: from `/bench`, from a consumer tool handing off by name with its own
+suite, and later from `compare`'s measured mode. It is never matched to a user's
 situation from its description. So it makes no activation decision of its own.
 
 **Fit:** partial — the skill runs a fixed procedure (fit check → arms → plan → consent → run →
@@ -46,14 +46,14 @@ currently shown.
 | Actor | Goal |
 |---|---|
 | **A developer** changing a skill, an AGENTS.md section, a plugin version, or repo setup | Learn whether the change makes real work turn out better or worse, for a known price. |
-| **`agent-readiness`** (by name, suite `repobuddy.readiness`) | Get a comparison record for a lever so it can calibrate its weights. |
+| **A consumer tool** (hands off by name with its own suite) | Get a comparison record it can act on by its own rules. |
 | **A headless driver** (`sdd-automaton`, a coordinator, a scheduled agent) | Move a mission forward without a person present. |
 | **The person paying** *(stakeholder)* | Never be charged for a run they did not approve, and never be misled about what a result shows. |
 | **A maintainer recording a baseline** | Refresh the suite's committed `baseline.json`. |
 
 ### UC1 — measure a change (`/bench`, or a by-name hand-off)
 
-**Actor** developer, or `agent-readiness`. **Goal** a trustworthy verdict on a change, at a price they
+**Actor** developer, or a consumer tool. **Goal** a trustworthy verdict on a change, at a price they
 agreed to.
 
 | Trigger | Inputs | Outcome |
@@ -67,8 +67,8 @@ Extensions:
   says the simulated layer answers it, names `compare`, and plans nothing.
 - **The suite has no task set** → it says so and offers `init`; it writes no tasks of its own and plans
   nothing.
-- `agent-readiness` reaches the same path as a developer, with the suite `repobuddy.readiness`
-  already named; nothing in the procedure depends on which of the two called.
+- A consumer tool reaches the same path as a developer, with its suite already named; nothing in the
+  procedure depends on which of the two called.
 - **No arms named** → with a committed baseline, it plans one arm at HEAD and compares that arm's
   record against the baseline; with none, it asks which arms to compare instead of guessing.
 - **The plan fails** (no adapter, missing harness command, unresolvable subject) → it reports the
@@ -100,7 +100,7 @@ own accountability; the skill never does it on anyone's behalf.)
 
 ### UC3 — read the result
 
-**Actor** developer, `agent-readiness`. **Goal** know what the comparison actually says.
+**Actor** developer, a consumer tool. **Goal** know what the comparison actually says.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|

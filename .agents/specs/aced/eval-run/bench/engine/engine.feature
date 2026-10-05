@@ -356,23 +356,17 @@ Feature: engine — run a task set for real and compare two arms
 
   # ── UC4 — compare ──
 
-  Scenario: a version 2 record is compared as a git-ref subject
-    Given a before record with schemaVersion 2 naming a commit, the model "sonnet", and a reachable taskSetCommit
-    And an after record with schemaVersion 3, layer measured, harness and adapter claude-code, runner print, model "sonnet", a git-ref subject, and the task-set hash of that taskSetCommit
-    When the engine compares them
-    Then the comparison carries per-task rows and no incomparable reason
-
-  Scenario: a record with no schema version is read up and incomparable only for its unknown task set
-    Given a before record with no schemaVersion field naming a commit and the model "sonnet"
-    And an after record with schemaVersion 3, layer measured, harness and adapter claude-code, runner print, model "sonnet", and a git-ref subject
-    When the engine compares them
-    Then the comparison's only incomparable reason is that the before record's task set is unknown
-
-  Scenario: a record of an unknown newer schema version is refused
-    Given a before record with schemaVersion 99
+  Scenario Outline: a record whose schema version is not 3 is refused
+    Given a before record whose schemaVersion is <version>
     When the engine compares it with a schemaVersion 3 record
-    Then it exits non-zero with a message naming schema version 99
+    Then it exits non-zero with a message naming the schema version it found
     And no comparison record is written
+
+    Examples:
+      | version       |
+      | 2             |
+      | 99            |
+      | absent        |
 
   Scenario: comparing against a baseline the suite does not have is refused
     Given the suite "harbor.nightly" has no baseline.json
@@ -380,23 +374,11 @@ Feature: engine — run a task set for real and compare two arms
     Then it exits non-zero with a message that the suite has no baseline
     And no comparison record is written
 
-  Scenario: a baseline carrying per-run metrics is compared without stored runs
+  Scenario: a baseline is compared from its own per-run metrics without stored runs
     Given a committed baseline.json holding every run's metrics
     And a results directory holding no run record
     When the engine compares the baseline with a comparable after record
     Then the comparison carries per-task rows computed from the baseline's runs
-
-  Scenario: a legacy baseline is compared using its stored run record
-    Given a committed baseline.json written by bench with no per-run results
-    And a results directory holding the run record with that baseline's createdAt
-    When the engine compares the baseline with a comparable after record
-    Then the comparison carries per-task rows computed from that stored run record
-
-  Scenario: a legacy baseline whose run record is not stored is incomparable
-    Given a committed baseline.json written by bench with no per-run results
-    And a results directory holding no run record with that baseline's createdAt
-    When the engine compares the baseline with an after record
-    Then the comparison is incomparable with a reason that the baseline's runs are unavailable
 
   Scenario Outline: records that differ in <field> are incomparable
     Given two run records identical except in <field>

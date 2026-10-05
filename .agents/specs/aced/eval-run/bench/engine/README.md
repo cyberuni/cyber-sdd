@@ -19,8 +19,7 @@ measured can be a git ref, a package version, or one swapped file, and the harne
 through an adapter (Claude Code first).
 
 It ships as `.mts` scripts under `plugins/aced/skills/bench/scripts/` (built in a later change) with a
-published bin, so a consumer such as `agent-readiness` or a CI job can call it without the plugin
-installed. Its output is asserted, not graded, so under ACED fit it is **wrong-squad**: ACED recuses,
+published bin, so a consumer tool or a CI job can call it without the plugin installed. Its output is asserted, not graded, so under ACED fit it is **wrong-squad**: ACED recuses,
 and the SDD-default chain builds it and verifies every scenario below with `node:test`, using a
 stand-in harness binary on the `PATH` that appends its argv and selected environment to a log file
 and replays a scripted transcript.
@@ -38,7 +37,7 @@ change); interpreting comparison tags (the consumer owns their meaning).
 
 | Term | Meaning |
 |---|---|
-| **suite** | A named task set at `.agents/aced/bench/<suite>/` — `tasks.json`, the `checks/` it calls, and optionally a committed `baseline.json`. Names follow `^[a-z0-9]+(?:[-.][a-z0-9]+)*$`, so an owner can prefix with a dot (`repobuddy.readiness`). |
+| **suite** | A named task set at `.agents/aced/bench/<suite>/` — `tasks.json`, the `checks/` it calls, and optionally a committed `baseline.json`. Names follow `^[a-z0-9]+(?:[-.][a-z0-9]+)*$`, so an owner can prefix with a dot (`<owner>.<name>`). |
 | **task set** (`tasks.json`) | Suite-wide fields, each with a default: `model` (`sonnet`), `runs` per arm (3), `maxBudgetUsd` per run (0.50), `permissionMode` (`bypassPermissions`), `timeoutMinutes` per run (20, fractions allowed), optional `setup`. Then `tasks[]`, each `{ id, prompt, check, setup?, tags? }`; ids are unique, `prompt` and `check` required, at least one task. |
 | **task-set commit** | The HEAD commit at plan time. Its committed `tasks.json` and `checks/` are what every run uses, whatever commit the arm checks out. |
 | **task-set hash** | SHA-256 over the task-set commit's `tasks.json` and every file under `checks/`, path-sorted. A changed check changes the hash. |
@@ -47,7 +46,7 @@ change); interpreting comparison tags (the consumer owns their meaning).
 | **adapter** | The harness-specific half: prepare the checkout's harness config, launch headless, parse the transcript into counts. Claude Code is the only adapter in v1. Its launch facts come from `@cyberuni/agent-harness`'s `headless()` fact. |
 | **runner** | How the adapter drives the harness. v1 has one, `print` (headless `-p`); the field exists so records from another runner never compare silently. |
 | **plan** | A JSON file `bench plan --out <file>` writes and `bench run --plan <file>` reads: counts, ceiling, estimate, model, permission mode, warnings, the arms, and the task-set hash. |
-| **run record** | One arm's results: every run's metrics plus a summary, written as JSON. Schema version 3. |
+| **run record** | One arm's results: every run's metrics plus a summary, written as JSON. Schema version 3 — the first version this engine writes, and the only one it reads. A record from any other tool is converted by that tool, never read here. |
 | **comparison record** | The statistics between two run records, plus a verdict and any caller tags. |
 | **ceiling** | The most a measured run can spend: arms × tasks × runs × `maxBudgetUsd`. |
 | **too few** | A row whose smallest attainable p-value is above 0.05 — no outcome at that run count could make that row significant (3 runs against 3 cannot; 4 against 4 can). The plan's **too few to call** warning is about **per-task** rows only: a pooled row relabels within each task, so across two or more tasks it can still reach significance where no single task can, and the warning says so. |
@@ -62,9 +61,9 @@ change); interpreting comparison tags (the consumer owns their meaning).
 |---|---|
 | **The `bench` skill** (`../skill/`) | Show a person what a measured run will cost before anything is spent, then run exactly that plan once they say yes. |
 | **A suite maintainer** (a person writing `tasks.json`) | Start a new suite from a working template instead of from a blank file. |
-| **A consumer tool in CI** (`agent-readiness`, a release job) | Measure two arms and read a versioned comparison record it can act on, without the ACED plugin installed. |
+| **A consumer tool or CI job** (any tool that supplies its own suite and reads the records) | Measure two arms and read a versioned comparison record it can act on, without the ACED plugin installed. |
 | **The person who approves the spend** *(stakeholder)* | Never pay more than the plan they saw allows; never be told a non-significant move is a regression or that an unclear result is safe; be told how many significant rows chance alone would produce. |
-| **The consumer's maintainer** *(stakeholder, e.g. readiness weights)* | Read comparison records across releases without silently misreading an older or newer schema. |
+| **The consumer's maintainer** *(stakeholder)* | Read comparison records across releases without silently misreading a record of another schema version. |
 
 Every goal maps to an entry point below; none is left without one.
 
@@ -172,7 +171,10 @@ metric's median, `totalCostUsd`, `costPerSuccessUsd`).
 
 **Where it goes** — `.agents/aced/results/bench/<suite>/<createdAt>.<arm>.json`, transcripts at
 `…/<createdAt>/<task>-<run>.jsonl.gz`. Both sit inside ACED's results directory, which `init-aced`
-git-ignores (they carry machine paths); only `baseline.json` is committed.
+git-ignores (they carry machine paths); only `baseline.json` is committed. Measured records share
+that ignored root with simulated results but not their keys: simulated readers (`check-freshness`,
+`report`) find records by `target`, and a measured record carries none, so neither layer ever reads
+the other's records.
 
 ### UC4 — `compare`: tell a real change from noise
 
@@ -192,16 +194,10 @@ significant rows chance alone would produce.
 
 Extensions:
 
-- A schema version 2 record, or a version 1 record with no version field → read up with defaults
-  for every field it predates: `layer: measured`, subject `git-ref` at its `commit`, `harness` and
-  `adapter` `claude-code`, `runner` `print` when absent, `scoring_model` = its `model`, and a task-set
-  hash computed from its `taskSetCommit` when that commit is reachable. A record whose task set cannot
-  be reconstructed (version 1 has no `taskSetCommit`) is `incomparable` for that reason alone. A schema
-  version newer than the engine knows → refused with no comparison record.
+- A record whose `schemaVersion` is not 3 — older, newer, or absent → refused with no comparison
+  record. The engine carries no reader for another tool's format.
 - `--before baseline` names the suite's committed `baseline.json`; with no such file, refused.
-- The before side is the baseline: its own per-run metrics are used. A baseline written by bench
-  before this port (no per-run metrics) uses the stored run record with the same `createdAt`; if
-  that record is not in the results directory → `incomparable`.
+- The before side is the baseline: its own per-run metrics are used, so it compares on any machine.
 - The two records differ in layer, model, harness, adapter, runner, subject kind, or task-set hash,
   or name the model `unknown` on both sides (an unknown model never matches another unknown) →
   `incomparable`, **every** reason listed, no statistics.
@@ -395,17 +391,11 @@ flowchart TD
   cmp[bench compare] --> baseFile{--before baseline and no baseline.json?}
   baseFile -- yes --> refuseBase[refuse, write nothing]
   baseFile -- no --> ver{each record's schema version}
-  ver -- newer than known --> refuseVer[refuse, write nothing]
-  ver -- 1 or 2 --> legacy[read up with defaults: measured, git-ref, claude-code, print]
-  ver -- 3 --> isBase
-  legacy --> tsk{task set reconstructable from taskSetCommit?}
-  tsk -- no --> incomp
-  tsk -- yes --> isBase{before is the baseline?}
+  ver -- not 3 --> refuseVer[refuse, write nothing]
+  ver -- 3 --> isBase{before is the baseline?}
+  isBase -- yes --> baseRuns[use the baseline's own per-run metrics]
   isBase -- no --> match
-  isBase -- yes, carries per-run metrics --> match
-  isBase -- yes, legacy with no runs --> stored{run record with the same createdAt stored?}
-  stored -- no --> incomp
-  stored -- yes --> match{same layer, model, harness, adapter, runner, subject kind, task-set hash; model not unknown on both?}
+  baseRuns --> match{same layer, model, harness, adapter, runner, subject kind, task-set hash; model not unknown on both?}
   match -- no --> incomp[incomparable: every reason listed, no rows]
   match -- yes --> unmatched[list tasks present on one side only; compare the rest]
   unmatched --> filterErr[drop error runs and count them per side; keep failed and capped; a task with no runs left has no p]
@@ -512,13 +502,9 @@ Grouped by use case, in suite order.
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| `tsk` → yes (v2) | a schema version 2 record with a reachable taskSetCommit | `a version 2 record is compared as a git-ref subject` |
-| `tsk` → no (v1) | a record with no schemaVersion field, hence no taskSetCommit | `a record with no schema version is read up and incomparable only for its unknown task set` |
-| `ver` → newer | a record of a schema version the engine does not know | `a record of an unknown newer schema version is refused` |
+| `ver` → not 3 | a record whose schemaVersion is older, newer, or absent | `a record whose schema version is not 3 is refused` |
 | `baseFile` → yes | --before baseline in a suite with no baseline.json | `comparing against a baseline the suite does not have is refused` |
-| `isBase` → carries per-run metrics | a version 3 baseline and no stored runs | `a baseline carrying per-run metrics is compared without stored runs` |
-| `stored` → yes | a legacy baseline and its run record stored | `a legacy baseline is compared using its stored run record` |
-| `stored` → no | a legacy baseline and no stored run record | `a legacy baseline whose run record is not stored is incomparable` |
+| `isBase` → yes | a baseline and no stored runs | `a baseline is compared from its own per-run metrics without stored runs` |
 | `match` → no (one field) | two records differing in one listed field | `records that differ in <field> are incomparable` |
 | `match` → no (several fields) | two records differing in model and harness | `records that differ in several fields list every reason` |
 | `match` → no (unknown model) | two records both naming the model unknown | `two records whose model is unknown on both sides are incomparable` |

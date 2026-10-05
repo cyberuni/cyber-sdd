@@ -7,9 +7,10 @@ deterministic shell `check`. It records what the harness itself counts (pass, to
 calls, cost, wall time) and compares two arms with permutation statistics, so a real change can be
 told apart from noise.
 
-It came from repobuddy's `agent-readiness bench`, generalized from "a whole repo at a commit" to
-three subject kinds (a git ref, a package version, a single swapped file). `agent-readiness` is now a
-consumer: it supplies a task set and reads the comparison records.
+It was ported from repobuddy's `agent-readiness bench`, generalized from "a whole repo at a commit"
+to three subject kinds (a git ref, a package version, a single swapped file). ACED depends on no
+consumer: a tool that wants measurements supplies its own suite under `.agents/aced/bench/` and reads
+the versioned records, and any migration of its older data is that tool's job.
 
 | Node | Type | What |
 |---|---|---|

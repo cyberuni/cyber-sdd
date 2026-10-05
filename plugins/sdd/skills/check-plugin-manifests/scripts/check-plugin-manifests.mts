@@ -9,6 +9,8 @@
 // Two sub-checks, neither subsuming the other (spec: .agents/specs/sdd/plugin/check-plugin-manifests/):
 //   disk    — does the pointer resolve to a path that exists?
 //   publish — for a package that publishes, is the pointer inside its `files` allowlist?
+//   pack    — for a package that packs a tarball, does it ship a symbolic link? npm's registry
+//             rejects the whole package ("Symbolic link is not allowed"), so it never arrives.
 // A directory can exist and be excluded from the tarball; a `files` entry can name a directory
 // nobody created. The disk check short-circuits: a pointer dead on disk is reported once, as
 // unresolved, and is not also asked about `files`.
@@ -20,7 +22,7 @@
 // Pure functions are exported for node:test; running the file directly drives the CLI. No
 // dependencies (the repo's node-≥23.6 / no-deps convention).
 
-import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, relative, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -36,7 +38,7 @@ const MANIFEST_DIRS = ['.plugin', '.claude-plugin', '.codex-plugin']
 const MANIFEST_NAME = 'plugin.json'
 const SKIP_DIRS = new Set(['node_modules', '.git'])
 
-export type FindingKind = 'unreadable' | 'unresolved' | 'unpublished'
+export type FindingKind = 'unreadable' | 'unresolved' | 'unpublished' | 'symlink'
 
 export interface Finding {
 	kind: FindingKind
@@ -127,6 +129,8 @@ export function extractPointers(manifest: unknown): Array<{ key: string; pointer
 
 export interface OwningPackage {
 	path: string
+	/** Not `private` — the package packs a tarball, whether or not it declares `files`. */
+	packs: boolean
 	publishes: boolean
 	files: string[]
 }
@@ -148,9 +152,10 @@ export function owningPackage(root: string, pluginRoot: string): OwningPackage |
 			try {
 				const pkg = JSON.parse(readFileSync(abs, 'utf8')) as { private?: unknown; files?: unknown }
 				const files = Array.isArray(pkg.files) ? pkg.files.filter((f): f is string => typeof f === 'string') : null
-				return { path: candidate, publishes: pkg.private !== true && files !== null, files: files ?? [] }
+				const packs = pkg.private !== true
+				return { path: candidate, packs, publishes: packs && files !== null, files: files ?? [] }
 			} catch {
-				return { path: candidate, publishes: false, files: [] }
+				return { path: candidate, packs: false, publishes: false, files: [] }
 			}
 		}
 		if (dir === '') return null
@@ -180,10 +185,47 @@ export function filesCovers(files: string[], pointer: string): boolean {
 	})
 }
 
+// ── The pack sub-check ──
+
+/** Whether a package that packs a tarball ships the package-relative path `./<rel>`. */
+function ships(pkg: OwningPackage | null, rel: string): pkg is OwningPackage {
+	return pkg !== null && pkg.packs && (!pkg.publishes || filesCovers(pkg.files, `./${rel}`))
+}
+
+/** Every symbolic link at or below `abs` — the path itself included, links never followed. */
+export function findSymlinks(abs: string): string[] {
+	let stat: ReturnType<typeof lstatSync>
+	try {
+		stat = lstatSync(abs)
+	} catch {
+		return []
+	}
+	if (stat.isSymbolicLink()) return [abs]
+	if (!stat.isDirectory()) return []
+	return safeReaddir(abs)
+		.filter((e) => !SKIP_DIRS.has(e.name))
+		.flatMap((e) => findSymlinks(join(abs, e.name)))
+}
+
 // ── The sweep ──
 
 export function sweep(root: string, manifests: string[]): Finding[] {
 	const findings: Finding[] = []
+	// One link reported once, however many manifests ship it.
+	const linksSeen = new Set<string>()
+	const reportLinks = (rel: string, abs: string, key?: string, pointer?: string): void => {
+		for (const link of findSymlinks(abs)) {
+			const linkRel = relative(root, link).split(sep).join('/')
+			if (linksSeen.has(linkRel)) continue
+			linksSeen.add(linkRel)
+			findings.push({
+				kind: 'symlink',
+				manifest: rel,
+				...(key === undefined ? {} : { key, pointer }),
+				detail: `${linkRel} is a symbolic link — the registry rejects a package that ships one`,
+			})
+		}
+	}
 	for (const rel of manifests) {
 		let parsed: unknown
 		try {
@@ -194,6 +236,9 @@ export function sweep(root: string, manifests: string[]): Finding[] {
 		}
 		const pluginRoot = pluginRootOf(rel)
 		const pkg = owningPackage(root, pluginRoot)
+		const pkgDir = pkg ? dirname(pkg.path) : ''
+		const fromPkg = (path: string): string => relative(join(root, pkgDir), join(root, path)).split(sep).join('/')
+		if (ships(pkg, fromPkg(rel))) reportLinks(rel, join(root, rel))
 		for (const { key, pointer } of extractPointers(parsed)) {
 			const target = join(root, pluginRoot, pointer)
 			if (!existsSync(target)) {
@@ -208,7 +253,9 @@ export function sweep(root: string, manifests: string[]): Finding[] {
 					pointer,
 					detail: `declared but not published — ${pkg.path} files omits it`,
 				})
+				continue
 			}
+			if (ships(pkg, fromPkg(join(pluginRoot, pointer)))) reportLinks(rel, target, key, pointer)
 		}
 	}
 	return findings

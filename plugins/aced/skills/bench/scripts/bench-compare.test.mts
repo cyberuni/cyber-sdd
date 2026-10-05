@@ -205,6 +205,20 @@ describe('UC4 — compare', () => {
 		assert.deepEqual(c.rows, [])
 	})
 
+	test('two file arms that differ only in their source compare', () => {
+		// Same kind, different `from`: an engine that compared whole subject descriptors would call
+		// this pair incomparable, which the subject-kind row above cannot tell apart.
+		const c = compareOk(
+			record('without', runs('t', 4), { subject: { kind: 'file', path: 'ops/RUNBOOK.md', from: 'absent' } }),
+			record('with', runs('t', 4), {
+				subject: { kind: 'file', path: 'ops/RUNBOOK.md', from: 'ref:HEAD', commit: 'f'.repeat(40) },
+			}),
+		)
+		assert.deepEqual(c.incomparable, [])
+		assert.notEqual(c.verdict, 'incomparable')
+		assert.ok(row(c, 'turns'), 'a per-task turns row')
+	})
+
 	test('runs recorded as errors are excluded from the metrics', () => {
 		const before = record(
 			'before',

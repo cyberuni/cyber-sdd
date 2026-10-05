@@ -86,7 +86,7 @@ non-zero means the engine refused or failed; its stderr carries the reason.
    |---|---|
    | two git refs (commits, branches, tags) | `--arm before=git:<Y> --arm after=git:<X>` |
    | two versions of one package or plugin | `--arm before=package:<name>@<older> --arm after=package:<name>@<newer>` |
-   | with and without one file that HEAD carries | `--arm without=file:<path>=absent --arm with=git:HEAD` |
+   | with and without one file that HEAD carries | `--arm without=file:<path>=absent --arm with=file:<path>=ref:HEAD` — never a git-ref arm |
    | one file swapped in from a ref or a path | `--arm before=file:<path>=ref:HEAD --arm after=file:<path>=ref:<ref>` (or `=path:<source>`) — both arms `file`, since the engine never compares two subject kinds |
    | a request to record or refresh the baseline | `--arm baseline=git:HEAD` plus `--baseline` — one arm only |
    | no arms | read `.agents/aced/bench/<suite>/baseline.json` first (below) |

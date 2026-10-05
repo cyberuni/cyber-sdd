@@ -67,11 +67,12 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     When the bench skill builds the plan request
     Then it passes a package arm for "lantern-kit" at 1.0.0 and a package arm for "lantern-kit" at 1.1.0 to the engine's plan
 
-  Scenario: a with-and-without request for one file becomes an absent file arm and a git-ref arm
+  Scenario: a with-and-without request for one file becomes an absent file arm and a file arm sourced from HEAD
     Given a developer in the session asks to bench the suite "harbor.nightly" with and without the file docs/STYLE.md, which HEAD carries
     And the suite "harbor.nightly" has a task whose check exits zero when the lint command passes
     When the bench skill builds the plan request
-    Then it passes an arm "without=file:docs/STYLE.md=absent" and an arm at git HEAD to the engine's plan
+    Then it passes an arm "without=file:docs/STYLE.md=absent" and an arm "with=file:docs/STYLE.md=ref:HEAD" to the engine's plan
+    And it passes no git-ref arm to the engine's plan
 
   Scenario: with no arms named and a baseline present, HEAD is measured against the baseline
     Given a developer in the session asks to bench the current state of the suite "harbor.nightly" after a change to how the skill "release-cutter" tags a release

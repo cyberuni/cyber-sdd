@@ -72,6 +72,11 @@ Extensions:
   nothing.
 - A consumer tool reaches the same path as a developer, with its suite already named; nothing in the
   procedure depends on which of the two called.
+- **Arms named** → it maps the request to two arms of **one subject kind** — two git refs, two
+  package versions, or two file arms — because the engine refuses to compare records of different
+  subject kinds (`../engine/README.md`, UC4). A with-and-without question about one file is therefore
+  two `file` arms: one `absent` (`without=file:<path>=absent`) and one sourced from HEAD
+  (`with=file:<path>=ref:HEAD`), never a file arm paired with a git-ref arm.
 - **No arms named** → with a committed baseline of a schema version the engine reads, it plans one
   arm at HEAD and compares that arm's record against the baseline. With no baseline, or one of another
   schema version, it says which and asks which arms to compare (or offers to re-record the baseline)
@@ -171,7 +176,7 @@ flowchart TD
   suiteQ -- yes --> tasks{suite has a task set?}
   tasks -- no --> offerInit[offer init, write no tasks, plan nothing; headless: return the offer as needs-input]
   tasks -- yes --> armsQ{arms named?}
-  armsQ -- yes --> arms[map the request to git-ref, file, or package arms]
+  armsQ -- yes --> arms[map the request to two arms of one subject kind: git-ref, file, or package; with vs without a file is two file arms, absent and from HEAD]
   armsQ -- no, baseline exists --> baseOk{baseline of a schema version the engine reads?}
   baseOk -- yes --> vsBase[plan one arm at HEAD; compare it against the baseline]
   baseOk -- no --> askArms
@@ -227,7 +232,7 @@ flowchart TD
 | `tasks` → no | a person present; a suite with no task set | `a suite with no task set gets an init offer and no invented tasks` |
 | `armsQ` → yes | two git refs named | `two named refs become two git-ref arms` |
 | `armsQ` → yes (package versions) | two versions of one plugin named | `two named plugin versions become two package arms` |
-| `armsQ` → yes (with vs without a file) | a with-and-without comparison of one file | `a with-and-without request for one file becomes an absent file arm and a git-ref arm` |
+| `armsQ` → yes (with vs without a file) | a with-and-without comparison of one file | `a with-and-without request for one file becomes an absent file arm and a file arm sourced from HEAD` |
 | `baseOk` → yes | no arms named; a committed baseline of a version the engine reads | `with no arms named and a baseline present, HEAD is measured against the baseline` |
 | `armsQ` → no, no baseline | no arms named; no baseline | `with no arms named and no baseline, the skill asks which arms to compare` |
 | `baseOk` → no | no arms named; a baseline of another schema version | `a baseline the engine cannot read is caught before any spend` |

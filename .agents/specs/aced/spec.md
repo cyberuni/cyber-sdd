@@ -5,12 +5,12 @@ approval:
   spec:
     verdict: approve
     by: unional
-    cause: dimension
+    cause: clearance
     why:
-      floor: none — RATIFIED LIVE by the owner. No frozen scenario was touched; both suites are new nodes (eval-run/bench/engine, eval-run/bench/skill), frozen additively. The aced-fit governance and design/fit.md gained an opt-in second axis, so no existing node changes classification.
-      blast: medium — adds ACED's measured layer and a versioned record schema that consumer tools read, plus a second fit axis every ACED subject is classified under. Bounded by the owner's no-consumer-dependency constraint: the engine reads and writes only ACED's own paths and its own schema v3, and the axis is opt-in.
-      novelty: medium — the engine ports a working tool; the new moves are three subject kinds, a closed-form regression verdict with cost outside the gate, and the orthogonal measured fit axis.
-      confidence: medium-high — cold sdd-spec-judge ALIGNED on the engine (all three lenses PASS, 85/85, every numeric Then re-derived, consumer independence confirmed). Cold aced-spec-validator over six rounds on the skill; the final round passed 39/40 with two precise blockers, both fixed as prescribed together with three refinements, and not re-judged — the residual risk the owner accepted at ratification. The verdict rule's multiplicity trade (any significant gated row, no family-wise correction) is disclosed and kept as issue 69 specifies.
+      floor: clearance — RATIFIED LIVE by the owner, who authorized re-opening both bench suites. skill.feature had one scenario rewritten (the with-and-without file request now becomes two file arms, absent and sourced from HEAD, and no git-ref arm); engine.feature gained one additive scenario (two file arms that differ only in their source compare), so its freeze held.
+      blast: low — one rewritten and one added scenario resolving a cross-suite contradiction; the engine's strict subject-kind rule is unchanged and every other frozen scenario is untouched.
+      novelty: low — the rule already held in the engine; the re-open states it on both sides and pins the comparable file/file pair.
+      confidence: high — cold sdd-spec-judge and aced-spec-validator ALIGNED on both nodes over two rounds; the second round confirmed two owner-requested tightenings.
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer

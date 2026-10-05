@@ -406,6 +406,14 @@ Feature: engine — run a task set for real and compare two arms
     When the engine compares them
     Then the comparison is incomparable with a reason that the model is unknown
 
+  Scenario: two file arms that differ only in their source compare
+    Given a before record of the arm "without=file:ops/RUNBOOK.md=absent"
+    And an after record of the arm "with=file:ops/RUNBOOK.md=ref:HEAD", identical in every other compared field
+    And both records measured the same tasks
+    When the engine compares them
+    Then the comparison carries no incomparable reason and its verdict is not incomparable
+    And it carries per-task rows
+
   Scenario: runs recorded as errors are excluded from the metrics
     Given a before arm of 4 runs, one of which is recorded as an error with 0 turns
     And each of the other 3 runs took 10 turns

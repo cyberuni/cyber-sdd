@@ -72,10 +72,9 @@ measured mode and `report`'s measured section stay out: they need additive scena
 nodes' frozen suites first (ledger follow-up seq 3). Engine imports `headlessInvocation` /
 `headlessCommand` from `@cyberuni/agent-harness` (published in 0.5.0).
 
-**Open (owner) — cross-suite contradiction found at deliver:** `skill.feature`'s "a with-and-without
-request for one file becomes an absent file arm and a git-ref arm" mandates arms of two subject kinds
-(`file` + `git-ref`), but `engine.feature`'s "records that differ in subject kind are incomparable"
-makes every such pair `incomparable` — the with/without question can never get a verdict. Fixing it
-re-opens a frozen suite (e.g. the skill scenario's second arm becomes `with=file:<path>=ref:HEAD`).
-SKILL.md follows the frozen scenario for now; its non-frozen "file swapped in" row already uses two
-`file` arms.
+**Resolved (owner re-open, ratified 2026-10-05):** the frozen skill suite paired a file arm with a
+git-ref arm for a with-and-without file request, which the engine's strict subject-kind rule makes
+incomparable. Both suites re-opened; a with-and-without question is now two `file` arms (`absent` vs
+`ref:HEAD`). Skill scenario rewritten and re-frozen; engine gained the additive scenario "two file
+arms that differ only in their source compare". Next: SKILL.md arms row + an engine test for the new
+scenario, then re-run both impl judges.

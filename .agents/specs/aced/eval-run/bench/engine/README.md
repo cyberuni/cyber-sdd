@@ -216,6 +216,11 @@ Extensions:
   identical on every run.
 - A row whose smallest attainable p is above 0.05 → flagged `tooFew`.
 
+**Subject kind compares the kind, never the source.** A git-ref arm and a file arm measure different
+things (a whole tree versus one swapped file), so they never compare. Two `file` arms with different
+sources do — that is how a with-and-without question about one file is asked: `file:<path>=absent`
+against `file:<path>=ref:HEAD`.
+
 An `incomparable` comparison still writes its comparison record (with the reasons and no rows), so a
 consumer reading records sees it; a refused one writes nothing and exits non-zero.
 
@@ -511,6 +516,7 @@ Grouped by use case, in suite order.
 | `match` → no (one field) | two records differing in one listed field | `records that differ in <field> are incomparable` |
 | `match` → no (several fields) | two records differing in model and harness | `records that differ in several fields list every reason` |
 | `match` → no (unknown model) | two records both naming the model unknown | `two records whose model is unknown on both sides are incomparable` |
+| `match` → yes (file arms, different sources) | an absent file arm and a file arm sourced from HEAD for one path, same tasks on both sides | `two file arms that differ only in their source compare` |
 | `filterErr` (errors) | runs recorded as errors on one side | `runs recorded as errors are excluded from the metrics` |
 | `filterErr` (error count) | error runs on both sides | `the comparison states how many error runs each side excluded` |
 | `filterErr` (capped) | capped runs on one side | `capped runs stay in the metrics` |

@@ -1,0 +1,13 @@
+# cyber-aced
+
+## 0.3.0
+
+### Minor Changes
+
+- a6e6233: Add the measured layer's engine and its `aced-bench` bin. `plan` prices a run of a suite's tasks without spending; `run --consent` runs them for real in throwaway git worktrees through a headless Claude Code; `compare` tells a real change from noise with permutation tests and a regression verdict. An arm can be a git ref, a package version, or one swapped file. Suites live under `.agents/aced/bench/<suite>/`, records under `.agents/aced/results/bench/<suite>/`.
+- 0bdbbd1: Add the `bench` skill: measures a change with the `aced-bench` engine. It checks a measured run fits the question, shows the plan and its price, runs only on an explicit yes to that plan (never with no person present), and reports the verdict without calling an unclear result safe or a price change a regression.
+- bdb3c8b: Publish `cyber-aced` to npm so the `aced-bench` bin reaches consumers: a CI job or tool can run `npx aced-bench` without the ACED plugin installed. The bin ships compiled to `dist/aced-bench.js`, because Node does not strip types from files under `node_modules`. `aced-bench help` (or `--help`, `-h`) prints the usage and exits 0.
+
+### Patch Changes
+
+- f4101cb: `aced-fit` gains a second axis, `measured: worth | not-worth`, for the coming measured layer: whether real headless runs answer a question simulation cannot. It is declared under `bench:` in `eval.md` and is opt-in, so an `eval.md` with no `bench:` key is not-worth and no existing subject changes classification.

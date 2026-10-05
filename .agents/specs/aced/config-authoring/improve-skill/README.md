@@ -185,6 +185,10 @@ flowchart TD
   PUB -->|description exactly 'By name only'| PUBBYNAME[Q2 word count skipped]
   PUB --> PUBOP[Q17 does not apply to public]
 
+  ESCAN --> ESCRIPTS{scripts/ entry?}
+  ESCRIPTS -->|file| ESFILE[inspect its content for Q11 and E9]
+  ESCRIPTS -->|subfolder| ESDIR[walk into it; inspect each nested file]
+
   ESCAN --> E1{E1 destructive-command shape?}
   E1 -->|recursive / forced-recursive delete| E1CRIT[CRITICAL]
   E1 -->|rm -f, single named relative file| E1WARN[WARN, never blocking]
@@ -259,6 +263,7 @@ One row per decision edge, one scenario per row. Rows follow the suite's section
 | `EXIT` → `EXNZ` | a scan with at least one CRITICAL | `a CRITICAL finding produces a non-zero exit code` |
 | `EXIT` → `EXZ` | a scan with only WARN findings | `only warning-level findings still exits zero` |
 | `EXIT` → `EXZ2` | a scan with no findings at all | `a fully clean scan exits zero` |
+| `ESCRIPTS` → `ESDIR` | a scripts/ subfolder holding a script | `a subfolder under a skill's scripts/ is walked, not read as a file` |
 | `E1` → `E1CRIT` | a body embedding `rm -rf` / `rm -r` | `a recursive or forced-recursive delete is a CRITICAL finding` |
 | `E1` → `E1WARN` | `rm -f` at a single named relative file | `a scoped forced delete of a single named file is a warning, not a CRITICAL` |
 | `E1` → `E1ESC` | `rm -f` at a glob / absolute / home target (outline) | `a forced delete whose target escapes a single named relative file stays CRITICAL` |

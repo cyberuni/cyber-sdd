@@ -382,6 +382,13 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     When the engine finishes the scan
     Then it exits zero
 
+  # ---- Mechanical validate engine: nested scripts folder ----
+
+  Scenario: a subfolder under a skill's scripts/ is walked, not read as a file
+    Given a target skill whose scripts/ directory holds a subfolder containing a script
+    When the engine runs its script-content checks
+    Then it completes without crashing and inspects the script inside the subfolder
+
   # ---- Mechanical validate engine: destructive-command severity (E1) ----
   # E1 flags shell commands embedded in a skill body. Severity is graded by blast radius: a
   # catastrophic command (recursive/forced-recursive delete, sudo delete, piped-to-shell download,

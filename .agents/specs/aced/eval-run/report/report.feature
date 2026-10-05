@@ -106,3 +106,99 @@ Feature: report — project-wide eval health
     Given a suite classified degraded
     When report suggests next actions
     Then it points the degraded suite at run for details before improve
+
+  # ---- Measured section ----
+
+  Scenario: a project with no measured suite gets no measured section
+    Given a project tree whose only eval suites are the simulated suites of the skills "invoice-parser" and "ticket-triage"
+    When report renders the dashboard
+    Then the dashboard carries no measured section
+
+  Scenario: every measured suite with a task set is listed in the measured section
+    Given a project tree holding .agents/aced/bench/atlas.migrations/tasks.json and .agents/aced/bench/fleet.smoke/tasks.json
+    And a simulated eval suite for the skill "invoice-parser"
+    When report renders the dashboard
+    Then a measured section separate from the simulated suite table lists "atlas.migrations" and "fleet.smoke"
+
+  Scenario: a bench directory without a task set is not listed as a measured suite
+    Given a project tree holding .agents/aced/bench/atlas.migrations/tasks.json
+    And .agents/aced/bench/orbit.legacy/ holding only baseline.json
+    When report renders the dashboard
+    Then the measured section lists "atlas.migrations"
+    And it does not list "orbit.legacy"
+
+  Scenario: a project with only measured suites still gets its measured section
+    Given a project tree whose only suite is the measured suite at .agents/aced/bench/atlas.migrations/tasks.json
+    And .agents/aced/results/bench/atlas.migrations/ holds one run record
+    When report renders the dashboard
+    Then the dashboard carries a measured section listing "atlas.migrations"
+
+  Scenario: a measured suite shows its latest pass rate, cost per success, and last comparison's age and verdict
+    Given the time is 2026-10-05T12:00:00Z
+    And .agents/aced/results/bench/atlas.migrations/ holds 2026-09-10T12:00:00Z.with.json with pass rate 50%
+    And it holds 2026-09-28T12:00:00Z.with.json with pass rate 75% and a recorded costPerSuccessUsd of 0.42
+    And it holds compare-2026-09-14T12:00:00Z.json with verdict regressed and compare-2026-09-21T12:00:00Z.json with verdict inconclusive
+    When report renders the measured section
+    Then the "atlas.migrations" row shows pass rate 75% and cost per success $0.42
+    And it shows the last comparison as 14 days old with verdict inconclusive
+
+  Scenario: the latest pass rate comes from the newest run record across arms and names its arm
+    Given .agents/aced/results/bench/atlas.migrations/ holds 2026-09-28T12:00:00Z.with.json with pass rate 75%
+    And it holds 2026-09-30T12:00:00Z.without.json with pass rate 25%
+    When report renders the measured section
+    Then the "atlas.migrations" row shows pass rate 25%
+    And it names the arm "without" as the source of that pass rate
+
+  Scenario: a measured suite with no passing run shows cost per success as not applicable
+    Given the latest run record of the measured suite "fleet.smoke" has 0 passing runs of 6
+    And that record's total cost is $2.10
+    And that record carries no costPerSuccessUsd field
+    When report renders the measured section
+    Then the "fleet.smoke" row shows cost per success as not-applicable
+    And it shows neither $0 nor an infinite cost per success
+
+  Scenario: a measured suite with no comparison record shows none and computes no verdict
+    Given .agents/aced/results/bench/atlas.migrations/ holds 2026-09-21T07:00:00Z.without.json and 2026-09-21T08:30:00Z.with.json
+    And those two run records are the only files in that directory
+    When report renders the measured section
+    Then the "atlas.migrations" row shows that the suite has no comparison yet
+    And it shows no verdict and no p-value for the suite
+
+  Scenario: a measured suite with no run record is shown as not yet measured and pointed at bench
+    Given .agents/aced/bench/fleet.smoke/tasks.json is committed
+    And .agents/aced/results/bench/ holds a directory only for "atlas.migrations"
+    When report renders the measured section
+    Then the "fleet.smoke" row is marked not yet measured
+    And it is not marked no-data
+    And its next action is bench
+
+  Scenario: a measured run record the report cannot read is shown as unreadable
+    Given the latest run record of the measured suite "atlas.migrations" carries schemaVersion 2
+    When report renders the measured section
+    Then the "atlas.migrations" row is listed and marked unreadable, naming schema version 2
+
+  Scenario: a measured suite never enters the simulated health classification
+    Given the measured suite "atlas.migrations" whose latest run record has pass rate 40%
+    And whose previous run record has pass rate 90%
+    When report classifies and renders the dashboard
+    Then "atlas.migrations" is not marked healthy, degraded, critical, or trending-down
+    And it carries no trend or mean %max and is not on the needs-attention list
+
+  Scenario: a simulated suite never appears in the measured section
+    Given a simulated eval suite for the skill "invoice-parser" with two results records
+    And the measured suite "atlas.migrations" with one run record
+    When report renders the measured section
+    Then the measured section lists "atlas.migrations" and does not list "invoice-parser"
+
+  # ---- The skill artifact: binding rules ----
+
+  Scenario: the report skill carries a Validate section with one assertion per binding rule
+    Given the report skill's SKILL.md
+    When its sections are read
+    Then it has a ## Validate section
+    And that section holds an assertion for each of: no verdict or p-value computed by report; no measured suite in a simulated health class, trend, or needs-attention list; and no unreadable record dropped silently
+
+  Scenario: every mechanical Validate assertion passes against the report skill
+    Given the report skill's SKILL.md and its ## Validate section
+    When each assertion in that section that names a checkable property of the file is checked against the file
+    Then every such assertion holds

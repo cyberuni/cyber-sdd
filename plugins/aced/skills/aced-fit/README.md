@@ -11,5 +11,11 @@ tier** (required for `strong`, N/A for `partial`), and **recuses** a `wrong-squa
 engine to the SDD-default builder + a script harness instead of forcing the agent-behavior lens onto
 it.
 
-Loaded by the ACED spec-producer and spec-judge; the normative model is `design/fit.md` (ADR 0001).
-Not triggered by users directly.
+A second, orthogonal axis, **`measured: worth | not-worth`**, says whether real headless runs (the
+measured layer, `eval-run/bench/`) answer a question simulation cannot. It is declared under `bench:`
+in `eval.md` and is opt-in: an absent `bench:` means not-worth and is not a content gap. Dollars
+never decide it.
+
+Loaded by the ACED spec-producer and spec-judge, and by the `bench` skill to re-ask the measured
+criteria for the change in hand. The normative model is `design/fit.md` (ADR 0001 for the tier,
+ADR 0003 for the measured axis). Not triggered by users directly.

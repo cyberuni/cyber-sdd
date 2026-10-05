@@ -35,6 +35,7 @@ export default defineConfig({
 						{ label: 'run', link: '/aced/run/' },
 						{ label: 'report', link: '/aced/report/' },
 						{ label: 'compare', link: '/aced/compare/' },
+						{ label: 'bench', link: '/aced/bench/' },
 						{ label: 'improve', link: '/aced/improve/' },
 						{ label: 'add-scenario', link: '/aced/add-scenario/' },
 						{ label: 'define-skill', link: '/aced/define-skill/' },

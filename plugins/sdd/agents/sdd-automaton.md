@@ -104,5 +104,9 @@ depth-2 behavior described here.
 when a capability is available, prefer its **warm** unit over a cold one-shot, else fall back to a
 portable cold subagent. context-clear a warm judge (`npx cyberlegion@<version> unit clear <ref>`) to a fresh context before **each** judgment; a warm
 impl-producer builder **keeps** its context across the mission. Reset or tear down every warm unit at
-handoff. Full model: `start-mission`'s "Dispatch transport" note and the `design/harness-spawning`
+handoff. Hand SDD's own judges (`sdd-spec-judge`, `sdd-impl-judge`) to the
+capability **by file path, never by name** — `agents/<name>.md` under the SDD plugin root, the folder
+your own definition ships in. Locate that root from the SDD skill that spawned you (two levels above
+its base directory) or the plugin root your brief names; if no file is there, send the capability no
+request for that judge and spawn it as a portable cold subagent (`sdd:<name>`) instead. Full model: `start-mission`'s "Dispatch transport" note and the `design/harness-spawning`
 node of the SDD project spec (repo-only).

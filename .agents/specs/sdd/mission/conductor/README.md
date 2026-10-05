@@ -35,7 +35,7 @@ The conductor's behavior groups into sixteen concerns, each a section below; eve
 | **classification** | decide each file's artifact-type — convention-first, the optional `.agents/sdd/` tiebreaker on ambiguity (confirm-not-guess, write-back) |
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
-| **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff |
+| **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff; an SDD-shipped judge is handed to the capability by its definition file, located from the SDD plugin's own root, never by name |
 | **governance entry set** | load its own bars before it starts — the **entry set** (lifecycle, ownership, spec-format, suite-format, spec-producer, combat-log, gate-validation) read before intake, the **deferred** ones (remediation, impl-producer) named up front and read at the decision that invokes them — and **declare** the set it actually loaded, its own declaration, never the producer's relayed one |
 | **governance provenance relay** | forward the spec-producer's declared `governances_loaded` through the dispatch channel as `producer_governances_declared` (a brief field for a cold subagent, a mail envelope field for an agent pool) — a pure relay, rendering no opinion on which governances were required |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
@@ -149,6 +149,21 @@ both satisfy grader independence, so a warm judge unit never weakens it. A **war
 build (no reset between uses) so its learning carries. Warm units live **no longer than one
 mission** — reused within the mission, then cleared (`npx cyberlegion@<version> unit clear`) or torn down at handoff (`../handoff/`),
 never shared into another mission's context.
+
+**SDD's own judges are handed over by file, not by name.** A dispatch capability may resolve an
+agent definition by name only inside the **project's own** agent folder (cyberlegion's does), and then
+it cannot find a definition a plugin ships. When the judge role resolves to one SDD ships (`sdd-spec-judge`, `sdd-impl-judge`), the
+conductor locates the definition itself — **`agents/<name>.md` under the SDD plugin's own root**, the
+plugin the conductor itself ships in (the in-session conductor's `start-mission` skill sits two
+levels below that root; the headless `automaton`'s own definition already sits in that `agents/`
+folder) — and passes the capability **that file path**, never the bare name. If no file exists at that path (a
+plugin layout the conductor cannot see), it does not fall back to a name lookup it knows will miss: it
+takes the existing no-capability route and spawns the judge as a portable cold subagent through the
+harness's own plugin-agent spawn, which does know the plugin. A judge a **plugin** delegates (resolved
+from the registry, not shipped by SDD) is out of this rule's scope.
+
+Extensions: one — no definition file exists at `agents/<name>.md` under the plugin root → portable cold subagent (above).
+What the capability does with a file it is handed is the capability's decision, not this node's.
 
 The five roles apply three **lenses** (governances, not agents): **Oracle** (scope), **Builder**
 (coverage/testability), **Architect** (structure). Producers self-align to the lenses; the

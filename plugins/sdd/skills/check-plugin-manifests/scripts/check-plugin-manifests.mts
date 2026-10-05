@@ -189,7 +189,7 @@ export function filesCovers(files: string[], pointer: string): boolean {
 
 /** Whether a package that packs a tarball ships the package-relative path `./<rel>`. */
 function ships(pkg: OwningPackage | null, rel: string): pkg is OwningPackage {
-	return pkg !== null && pkg.packs && (!pkg.publishes || filesCovers(pkg.files, `./${rel}`))
+	return pkg?.packs === true && (!pkg.publishes || filesCovers(pkg.files, `./${rel}`))
 }
 
 /** Every symbolic link at or below `abs` — the path itself included, links never followed. */

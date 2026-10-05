@@ -14,7 +14,7 @@ shell `check`, records what the harness counted, and compares two arms with perm
 ACED's simulated layers say what an agent *would* do. They cannot say whether a change makes real
 work pass more often, take fewer turns, or burn fewer tokens, and they carry no statistics to tell a
 real effect from run-to-run noise. This engine answers that. It is a port of repobuddy's
-`agent-readiness bench` (`bench.ts`, `bench-compare.ts`), generalized in two ways: the thing being
+`agent-readiness bench`, generalized in two ways: the thing being
 measured can be a git ref, a package version, or one swapped file, and the harness is reached
 through an adapter (Claude Code first).
 
@@ -106,7 +106,8 @@ Extensions:
   warning, before money is spent, which also says whether a pooled row across the planned tasks
   still can.
 - **The estimate** is the sum over tasks of arms × runs × that task's per-run cost: the median cost of
-  its stored runs when they match the plan's `model`, harness, **and** runner, else `maxBudgetUsd`.
+  its stored runs in `.agents/aced/results/bench/<suite>/` when they match the plan's `model`, harness,
+  **and** runner, else `maxBudgetUsd`.
 
 The plan always names the permission mode it will launch under and states that it applies only
 inside the throwaway checkout.
@@ -165,7 +166,7 @@ metric's median, `totalCostUsd`, `costPerSuccessUsd`).
 - `model` is the key for estimates and for the compare model check — two runs launched with the
   same alias compare, whatever concrete id the alias resolved to that day.
 - `scoring_model` is the model the transcript reports; when the transcript reports none, the launched
-  `model`. A record from another producer may carry `unknown`.
+  `model`. A record another tool converted to schema version 3 may carry `unknown`.
 - `evaluated` hashes the task set, every file under `checks/`, and a `file` arm's source, in the
   shared `check-freshness` entry shape (path + SHA-256 of current content).
 
@@ -197,7 +198,9 @@ Extensions:
 - A record whose `schemaVersion` is not 3 — older, newer, or absent → refused with no comparison
   record. The engine carries no reader for another tool's format.
 - `--before baseline` names the suite's committed `baseline.json`; with no such file, refused.
-- The before side is the baseline: its own per-run metrics are used, so it compares on any machine.
+- The before side is the baseline: `baseline.json` is a schema version 3 run record without
+  transcript references, so the same version rule applies, and its own per-run metrics are used, so it
+  compares on any machine.
 - The two records differ in layer, model, harness, adapter, runner, subject kind, or task-set hash,
   or name the model `unknown` on both sides (an unknown model never matches another unknown) →
   `incomparable`, **every** reason listed, no statistics.

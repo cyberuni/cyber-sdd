@@ -26,6 +26,20 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     When the bench skill handles the request
     Then it calls the engine's plan for the suite "harbor.nightly"
 
+  Scenario: a declared measured worth does not skip the fit re-ask
+    Given a developer in the session asks to bench a branch whose only change rewords the description line of the skill "invoice-matcher"
+    And the eval.md of the node for "invoice-matcher" declares bench measured worth with the suite "harbor.nightly"
+    When the bench skill handles the request
+    Then it says the simulated layer answers a wording change and names compare
+    And it does not call the engine's plan
+
+  Scenario: a subject with no bench declaration is still planned for a checkable change
+    Given a developer in the session asks to bench the branch "feature/tag-flow" against main on the suite "harbor.nightly", a change to how the skill "release-cutter" tags and publishes a release
+    And the eval.md of the node for "release-cutter" has no bench key
+    And the suite "harbor.nightly" has a task whose check exits zero when a release tag exists
+    When the bench skill handles the request
+    Then it calls the engine's plan for the suite "harbor.nightly"
+
   Scenario: a suite with no task set gets an init offer and no invented tasks
     Given a developer in the session asks to bench the branch "feature/tag-flow" against main on the suite "harbor.nightly", a change to how the skill "release-cutter" tags and publishes a release
     And .agents/aced/bench/harbor.nightly/ holds no tasks.json
@@ -57,6 +71,14 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     And .agents/aced/bench/harbor.nightly/ holds a tasks.json and no baseline.json
     When the bench skill builds the plan request
     Then it asks the developer which two arms to compare
+    And it does not call the engine's plan
+
+  Scenario: a baseline the engine cannot read is caught before any spend
+    Given a developer in the session asks to bench the current state of the suite "harbor.nightly" after a change to how the skill "release-cutter" tags a release
+    And .agents/aced/bench/harbor.nightly/baseline.json has schemaVersion 2
+    When the bench skill builds the engine calls
+    Then it says the baseline is of a schema version the engine cannot read
+    And it asks which two arms to compare or offers to re-record the baseline
     And it does not call the engine's plan
 
   Scenario: a failed plan is reported and no approval is asked for
@@ -110,6 +132,26 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     When the developer replies "yes, but make it 10 runs per arm"
     Then it calls the engine's plan for 10 runs per arm and asks for approval again
     And it does not call the engine's run before a new explicit yes
+
+  Scenario: a run the engine refuses is reported with its reason and no verdict
+    Given the developer said yes to a shown plan
+    And the engine's run exits non-zero because the suite changed since the plan
+    When the bench skill reports the outcome
+    Then it reports that the suite changed since the plan and that nothing was spent
+    And it reports no verdict
+
+  Scenario: a compare the engine refuses is reported as paid for and without a verdict
+    Given an approved run finished and wrote its record
+    And the engine's compare exits non-zero naming a record it cannot read
+    When the bench skill reports the outcome
+    Then it reports the engine's reason and that the run was paid for
+    And it reports no verdict
+
+  Scenario: a consumer's tags reach the engine's compare unchanged
+    Given a consumer tool hands off to the bench skill by name with the suite "harbor.nightly" and the tag lever=Noise-Floor
+    And the run it approved finished
+    When the bench skill calls the engine's compare
+    Then the compare call carries the tag lever=Noise-Floor and no other tag
 
   # ── UC2 — be driven with no person present ──
 
@@ -186,7 +228,7 @@ Feature: skill — measure a change for real, spending only on an explicit yes
   Scenario: an unchanged result at a callable run count is reported as no significant change
     Given a comparison at 10 runs per arm whose verdict is unchanged and whose gated rows are not flagged tooFew
     When the bench skill reports the result
-    Then the report says there was no significant change
+    Then the report says there was no significant change in any gated metric
     And it does not say the run count was too low
 
   Scenario: a significant cost rise with no regression is reported as a cost change
@@ -206,6 +248,7 @@ Feature: skill — measure a change for real, spending only on an explicit yes
     Given an approved baseline run for the suite "harbor.nightly" has finished
     When the bench skill reports the result
     Then it tells the maintainer to commit .agents/aced/bench/harbor.nightly/baseline.json
+    And it reports no verdict
 
   # ── The skill artifact — binding rules ──
 

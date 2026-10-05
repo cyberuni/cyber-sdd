@@ -270,6 +270,18 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     When the gate runs the feature-form check
     Then the check raises no parse violation for that file
 
+  Scenario: the feature-form check passes a well-formed suite from an installed plugin
+    Given the sdd plugin installed as its shipped files with no package dependencies installed
+    And a touched .feature that is well formed
+    When the feature-form check runs from the installed plugin
+    Then the check raises no violation and exits clean
+
+  Scenario: the feature-form check fails an unparseable suite closed from an installed plugin
+    Given the sdd plugin installed as its shipped files with no package dependencies installed
+    And a touched .feature the pinned Gherkin parser cannot parse
+    When the feature-form check runs from the installed plugin
+    Then the check fails closed and reports the parse failure with its line
+
   # ---- Referenced-artifact-exists pre-filter ----
 
   Scenario: an unresolved reference the CR introduces is surfaced for judgment, not hard-blocked

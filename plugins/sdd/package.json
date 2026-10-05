@@ -26,6 +26,7 @@
 	},
 	"scripts": {
 		"build": "tsdown",
+		"build:vendor": "tsdown -c tsdown.vendor.config.ts",
 		"check:spec": "node ./skills/check-project-specs/scripts/check-project-specs.mts",
 		"test": "node --test \"skills/*/scripts/*.test.mts\"",
 		"typecheck": "tsc -p tsconfig.json"

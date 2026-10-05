@@ -60,6 +60,12 @@ spawns, `cyber-aced`'s `aced-bench`. `pnpm build` produces them, and each bin ha
 packs the package and runs the bin from a `node_modules` install (`check-specs-bin`,
 `bench-bin`).
 
+The plugins install a second way: as their tracked files, with no `node_modules`. A skill script
+that imports a package cannot resolve it there, so `cyber-sdd`'s spec gate imports gherkin-cli
+from a committed bundle (`skills/spec-gate/vendor/gherkin-cli.mjs`). After bumping the
+gherkin-cli pin, run `pnpm --filter cyber-sdd build:vendor` and commit the result;
+`check-suite-installed` fails until you do.
+
 `cyber-quill` is staged but **not yet published**. Its package metadata is complete — name,
 license, `files`, `repository` — and it is held at `"private": true` so a push to `main`
 cannot publish it by accident. To cut its first release, drop `"private": true` from its

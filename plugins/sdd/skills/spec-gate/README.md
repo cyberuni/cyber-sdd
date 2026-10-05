@@ -24,3 +24,7 @@ References `sdd:lifecycle-governance`, `sdd:ownership-governance`, `sdd:gate-val
   reconcile); run via `pnpm verify:specs-new`. Tested by `check-spec-state.test.mts`.
 - `check-suite.mts` — deterministic `.feature`-form validator (Gherkin validity, boolean-`Then`
   form, scenario ordering); run via `pnpm verify:specs-new`. Tested by `check-suite.test.mts`.
+  It imports gherkin-cli from `../vendor/gherkin-cli.mjs`, a committed self-contained bundle, so it
+  runs from an installed plugin, which has no `node_modules`. `pnpm build:vendor` rebuilds the
+  bundle; `check-suite-installed.test.mts` runs the engine from a copy of the plugin's files and
+  fails while the bundle is stale.

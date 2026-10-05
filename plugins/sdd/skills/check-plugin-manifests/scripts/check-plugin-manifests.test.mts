@@ -198,6 +198,58 @@ test('a pointer dead on disk is reported once, not again as unpublished', () => 
 	})
 })
 
+test('a package that packs a tarball and ships a symlinked manifest fails', () => {
+	withTree((dir) => {
+		pkg(dir, 'p/package.json', { name: 'p', files: ['.plugin', '.codex-plugin'] })
+		manifest(dir, 'p/.plugin/plugin.json', { name: 'p' })
+		mkdirSync(join(dir, 'p/.codex-plugin'), { recursive: true })
+		symlinkSync('../.plugin/plugin.json', join(dir, 'p/.codex-plugin/plugin.json'))
+		const { code, out } = guard(dir)
+		assert.equal(code, 1)
+		assert.match(out, /symlink\s+p\/\.codex-plugin\/plugin\.json/, 'names the symlinked manifest')
+		assert.match(out, /1 finding\(s\)/)
+	})
+})
+
+test('a symbolic link inside a shipped component fails', () => {
+	withTree((dir) => {
+		pkg(dir, 'p/package.json', { name: 'p', files: ['.plugin', 'skills'] })
+		mkdirSync(join(dir, 'elsewhere/s'), { recursive: true })
+		mkdirSync(join(dir, 'p/skills'), { recursive: true })
+		symlinkSync('../../elsewhere/s', join(dir, 'p/skills/s'))
+		manifest(dir, 'p/.plugin/plugin.json', { name: 'p', skills: './skills' })
+		const { code, out } = guard(dir)
+		assert.equal(code, 1)
+		assert.match(out, /p\/skills\/s is a symbolic link/, 'names the link inside the component')
+		assert.match(out, /\[skills\]/, 'names the key that ships it')
+		assert.match(out, /1 finding\(s\)/)
+	})
+})
+
+test('a symbolic link in a package marked private passes', () => {
+	withTree((dir) => {
+		pkg(dir, 'p/package.json', { name: 'p', private: true, files: ['.plugin', '.codex-plugin'] })
+		manifest(dir, 'p/.plugin/plugin.json', { name: 'p' })
+		mkdirSync(join(dir, 'p/.codex-plugin'), { recursive: true })
+		symlinkSync('../.plugin/plugin.json', join(dir, 'p/.codex-plugin/plugin.json'))
+		const { code, out } = guard(dir)
+		assert.equal(code, 0, 'a private package packs no tarball')
+		assert.match(out, /2 manifest\(s\) OK/)
+	})
+})
+
+test('a symbolic link the files allowlist excludes passes', () => {
+	withTree((dir) => {
+		pkg(dir, 'p/package.json', { name: 'p', files: ['.plugin'] })
+		manifest(dir, 'p/.plugin/plugin.json', { name: 'p' })
+		mkdirSync(join(dir, 'p/.codex-plugin'), { recursive: true })
+		symlinkSync('../.plugin/plugin.json', join(dir, 'p/.codex-plugin/plugin.json'))
+		const { code, out } = guard(dir)
+		assert.equal(code, 0, 'a link that is not packed cannot be rejected')
+		assert.match(out, /2 manifest\(s\) OK/)
+	})
+})
+
 test('an unparseable manifest fails instead of being skipped', () => {
 	withTree((dir) => {
 		pkg(dir, 'p/package.json', { name: 'p', private: true })

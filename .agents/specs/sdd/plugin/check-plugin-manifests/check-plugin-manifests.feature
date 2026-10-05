@@ -78,6 +78,37 @@ Feature: check-plugin-manifests — no manifest declares a component the package
     And it reports no separate unpublished finding for that pointer
     And the run exits non-zero
 
+  Scenario: a package that packs a tarball and ships a symlinked manifest fails
+    Given a package that does not declare private
+    And its files allowlist names the vendor manifest's directory
+    And that vendor manifest is a symbolic link to the canonical manifest
+    When the guard runs over the tree
+    Then it names the vendor manifest as a symbolic link
+    And the run exits non-zero
+
+  Scenario: a symbolic link inside a shipped component fails
+    Given a package that does not declare private
+    And its manifest declares a component pointer naming a directory its files allowlist names
+    And that directory holds a symbolic link
+    When the guard runs over the tree
+    Then it names the link, the key, and the pointer that ships it
+    And the run exits non-zero
+
+  Scenario: a symbolic link in a package marked private passes
+    Given a package that declares private
+    And its vendor manifest is a symbolic link to the canonical manifest
+    When the guard runs over the tree
+    Then it reports no finding against either manifest
+    And the run exits zero
+
+  Scenario: a symbolic link the files allowlist excludes passes
+    Given a package that does not declare private
+    And its vendor manifest is a symbolic link to the canonical manifest
+    And its files allowlist omits the vendor manifest's directory
+    When the guard runs over the tree
+    Then it reports no finding against either manifest
+    And the run exits zero
+
   Scenario: an unparseable manifest fails instead of being skipped
     Given a manifest file whose contents are not valid JSON
     When the guard runs over the tree

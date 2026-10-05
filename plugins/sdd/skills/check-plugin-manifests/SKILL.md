@@ -18,10 +18,12 @@ Spec: [`.agents/specs/sdd/plugin/check-plugin-manifests/`](../../../../.agents/s
 
 ## What it checks
 
-Two sub-checks, neither subsuming the other:
+Three sub-checks:
 
 - **the disk check** — does the pointer resolve to a path that exists?
 - **the publish check** — for a package that publishes, is the pointer inside its `files` allowlist?
+- **the pack check** — for a package that is not `private`, does the manifest or a component it
+  declares ship as (or hold) a symbolic link? The npm registry rejects such a tarball outright.
 
 A directory can exist and be excluded from the tarball; a `files` entry can name a directory nobody
 created. The disk check **short-circuits**: a pointer dead on disk is reported once, as unresolved,

@@ -21,6 +21,14 @@ A directory the run expanded carries both its own entry and a `file` entry per f
 yielded — the directory hash covers names only, so without the per-file entries an edit inside that
 directory would read `current` forever.
 
+## Measured records
+
+The bench engine writes a measured record per arm to `.agents/aced/results/bench/<suite>/` with an
+`evaluated` set in the same entry shape but no `target`. `--suite <suite> --arm <label>` finds those
+records by the `suite` and `arm` they record, picks the greatest recorded `createdAt`, and compares.
+Every recorded input — `tasks.json`, a check, a `file` arm's source — changes what was measured, so
+any mismatch is `stale`; there is no `incomplete` here.
+
 ## Why the record and not the tree
 
 The first attempt at this capability inferred the subject's dependencies from outside: it guessed
@@ -50,7 +58,8 @@ oversight.
 ## Tests
 
 `scripts/check-freshness.test.mts` — one test per frozen scenario, with fixtures chosen so a
-guessing implementation cannot pass: the result is filed under a deliberately wrong directory name,
+guessing implementation cannot pass: the result is filed under a deliberately wrong directory name (a
+measured record under a file name ending in the wrong arm label),
 alphabetical filename order is the reverse of recorded timestamp order, and one fixture rewrites a
 file's modification time while leaving its bytes identical.
 

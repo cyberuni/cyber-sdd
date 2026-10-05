@@ -12,7 +12,8 @@
 			"!.cyberfleet",
 			"!.research",
 			"!.claude",
-			"!.github/scripts/min-release-age.mjs"
+			"!.github/scripts/min-release-age.mjs",
+			"!plugins/sdd/skills/spec-gate/vendor/gherkin-cli.mjs"
 		]
 	},
 	"overrides": [

@@ -6,7 +6,8 @@
 import { type Dirent, readdirSync, readFileSync, realpathSync } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { validate } from 'gherkin-cli'
+// The bundled copy, not the package: an installed plugin has no node_modules to resolve it from.
+import { validate } from '../vendor/gherkin-cli.mjs'
 
 // ─── types ────────────────────────────────────────────────────────────────────
 

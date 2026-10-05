@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 import type { SpecRecord } from '../../discover-specs/scripts/discover-specs.mts'
 import {
 	ENGINES,
+	enginePath,
 	findCoverageGaps,
 	findDroppedSpecFor,
 	findRepoRoot,
@@ -223,6 +224,15 @@ test('main --project still skips, exit 0, when the project genuinely has no spec
 
 test('every engine is handed the spec dir it was resolved to', () => {
 	for (const e of ENGINES) assert.ok(e.args('SPECDIR').includes('SPECDIR'), `${e.name} drops the spec dir`)
+})
+
+test('enginePath runs the .mts source from the source tree and the compiled .js from dist', () => {
+	const e = ENGINES[0] as (typeof ENGINES)[number]
+	assert.equal(enginePath(e, '/p/skills/check-project-specs/scripts/check-project-specs.mts'), `/p/skills/${e.script}`)
+	assert.equal(
+		enginePath(e, '/p/dist/check-project-specs/scripts/check-project-specs.js'),
+		`/p/dist/${e.script.replace(/\.mts$/, '.js')}`,
+	)
 })
 
 test('check-scenario-overlap is in the per-project set', () => {

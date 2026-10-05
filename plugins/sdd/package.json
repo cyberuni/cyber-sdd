@@ -10,9 +10,10 @@
 	"license": "MIT",
 	"type": "module",
 	"bin": {
-		"sdd-check-specs": "./skills/check-project-specs/scripts/check-project-specs.mts"
+		"sdd-check-specs": "./dist/check-project-specs/scripts/check-project-specs.js"
 	},
 	"files": [
+		"dist",
 		"skills",
 		"agents",
 		".plugin",
@@ -24,9 +25,16 @@
 		"gherkin-cli": "0.2.1"
 	},
 	"scripts": {
+		"build": "tsdown",
 		"check:spec": "node ./skills/check-project-specs/scripts/check-project-specs.mts",
 		"test": "node --test \"skills/*/scripts/*.test.mts\"",
 		"typecheck": "tsc -p tsconfig.json"
 	},
-	"homepage": "https://github.com/cyberuni/cyber-sdd"
+	"homepage": "https://github.com/cyberuni/cyber-sdd",
+	"devDependencies": {
+		"tsdown": "^0.23.0"
+	},
+	"engines": {
+		"node": ">=22.11"
+	}
 }

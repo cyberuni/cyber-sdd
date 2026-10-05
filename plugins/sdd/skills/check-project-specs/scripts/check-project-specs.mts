@@ -20,7 +20,7 @@ import {
 	type SpecRecord,
 } from '../../discover-specs/scripts/discover-specs.mts'
 
-const SKILLS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+const HERE = fileURLToPath(import.meta.url)
 
 // ─── the engine set ───────────────────────────────────────────────────────────
 
@@ -60,6 +60,17 @@ export const ENGINES: Engine[] = [
 		args: (d) => ['--spec-dir', d, '--check'],
 	},
 ]
+
+/**
+ * Where an engine runs from. The .mts source runs its siblings in the skills tree; the
+ * published bin runs from dist/, which mirrors that tree compiled to .js (tsdown.config.ts)
+ * — Node will not strip types under node_modules, so the bin must never reach back into
+ * the .mts tree.
+ */
+export function enginePath(e: Engine, here: string = HERE): string {
+	const skillsDir = resolve(dirname(here), '../..')
+	return join(skillsDir, here.endsWith('.mts') ? e.script : e.script.replace(/\.mts$/, '.js'))
+}
 
 // ─── repo root ────────────────────────────────────────────────────────────────
 
@@ -200,7 +211,7 @@ function runEngines(repoRoot: string, specDir: string): number {
 		// cwd is the repo root, not the project dir: the engines resolve
 		// repo-root-relative references against process.cwd().
 		try {
-			execFileSync('node', [join(SKILLS_DIR, e.script), ...e.args(specDir)], {
+			execFileSync('node', [enginePath(e), ...e.args(specDir)], {
 				cwd: repoRoot,
 				stdio: 'inherit',
 			})

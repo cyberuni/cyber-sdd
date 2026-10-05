@@ -18,7 +18,7 @@ real effect from run-to-run noise. This engine answers that. It is a port of rep
 measured can be a git ref, a package version, or one swapped file, and the harness is reached
 through an adapter (Claude Code first).
 
-It ships as `.mts` scripts under `plugins/aced/skills/bench/scripts/` (built in a later change) with a
+It ships as `.mts` scripts under `plugins/aced/skills/bench/scripts/` with a
 published bin, so a consumer tool or a CI job can call it without the plugin installed. Its output is asserted, not graded, so under ACED fit it is **wrong-squad**: ACED recuses,
 and the SDD-default chain builds it and verifies every scenario below with `node:test`, using a
 stand-in harness binary on the `PATH` that appends its argv and selected environment to a log file

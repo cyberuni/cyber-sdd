@@ -1,5 +1,5 @@
 ---
-status: approved
+status: implemented
 project-path: plugins/aced
 approval:
   spec:
@@ -11,6 +11,9 @@ approval:
       blast: low — one rewritten and one added scenario resolving a cross-suite contradiction; the engine's strict subject-kind rule is unchanged and every other frozen scenario is untouched.
       novelty: low — the rule already held in the engine; the re-open states it on both sides and pins the comparable file/file pair.
       confidence: high — cold sdd-spec-judge and aced-spec-validator ALIGNED on both nodes over two rounds; the second round confirmed two owner-requested tightenings.
+  impl:
+    verdict: approve
+    by: unional
 produced-by:
   spec-producer: aced-scenario-writer
   impl-producer: aced-impl-producer

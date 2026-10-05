@@ -29,7 +29,9 @@ orchestrator loads **by name**, never matched to a user situation. Because a par
 held to identity-for-the-caller: Q1/Q2 (trigger language, specificity word-count) are public-only,
 Q18 flags trigger-shaped phrasing, Q3 requires the `"Partial Skill:"` prefix, and Q17 flags four
 objective operational-detail markers (a slashed path, an `.agents/`/`scripts/` directory, a check-ID,
-a named artifact file). `metadata.internal: true` **alone** does not classify a skill as partial — it
+a named artifact file). A description of exactly `"By name only"` is the by-name mechanism
+([ADR-0031](../../../../../docs/adr/0031-selection-is-not-visibility.md)) and is exempt from the Q2
+word count even when the skill stays visible. `metadata.internal: true` **alone** does not classify a skill as partial — it
 is a marketplace-visibility flag, orthogonal to being a by-name part.
 
 **Fit:** partial (hybrid). The trigger layer (activation vs. the deferrals) and the LLM-audit layer
@@ -180,6 +182,7 @@ flowchart TD
   POP -->|identity + caller only| POPOK[operational-detail check passes]
   PUB --> PUBTRIG[Q1 flags missing trigger language]
   PUB --> PUBSPEC[Q2 flags a sub-twelve-word description]
+  PUB -->|description exactly 'By name only'| PUBBYNAME[Q2 word count skipped]
   PUB --> PUBOP[Q17 does not apply to public]
 
   ESCAN --> E1{E1 destructive-command shape?}
@@ -229,6 +232,7 @@ One row per decision edge, one scenario per row. Rows follow the suite's section
 | `PART` → Q1/Q2 skipped | a partial with no trigger phrasing | `the trigger-language and trigger-specificity checks are public-only` |
 | `PUB` → `PUBTRIG` | a public skill with no trigger phrasing | `the trigger-language check still applies to a public skill` |
 | `PUB` → `PUBSPEC` | a public skill under twelve words | `the specificity word-count check still applies to a public skill` |
+| `PUB` → `PUBBYNAME` | a visible skill whose description is exactly `"By name only"` | `a by-name description is exempt from the specificity word-count check even on a visible skill` |
 | `PTRIG` → `PTFLAG` | a partial carrying `"Use this skill when"` | `a partial-skill description carrying user-facing trigger language is flagged` |
 | `PTRIG` → `PTOK` | a partial with no trigger phrasing | `a partial-skill description with no trigger language is not flagged for trigger language` |
 | `PPRE` → `PPFLAG` | a partial not leading with the prefix | `a partial-skill description not leading with the Partial Skill prefix is flagged` |

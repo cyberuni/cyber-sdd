@@ -219,6 +219,13 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     When the engine runs its description checks
     Then it flags the specificity word count on that public skill
 
+  # ADR-0031: the exact description "By name only" is the by-name mechanism, independent of the
+  # user-invocable visibility flag — a visible by-name skill (listed as a command) is not padded.
+  Scenario: a by-name description is exempt from the specificity word-count check even on a visible skill
+    Given a skill whose description is exactly "By name only" and does not set user-invocable: false
+    When the engine runs its description checks
+    Then it does not flag the specificity word count on that skill
+
   Scenario: a partial-skill description carrying user-facing trigger language is flagged
     Given a partial skill whose description contains "Use this skill when" trigger phrasing
     When the engine runs its description checks

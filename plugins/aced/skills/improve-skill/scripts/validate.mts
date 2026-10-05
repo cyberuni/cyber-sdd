@@ -509,6 +509,9 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	const stripped = stripExamples(content)
 	const invisibleInSkill = findInvisibleUnicode(content)
 	const isPartialSkill = fmInternal
+	// ADR-0031: the exact description "By name only" is the by-name mechanism, independent of
+	// user-invocable (visibility only). A visible by-name skill must not be pushed to pad it (#81).
+	const isByNameDescription = fmDesc === 'By name only'
 	const isPublicShippedSkill = parent === 'skills' && skillBaseParent !== '.agents' && !fmInternal
 
 	// S1: the SKILL.md must sit in its own named subdirectory directly under a recognized scan root.
@@ -609,7 +612,7 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	}
 
 	if (fmDesc) {
-		if (!isPartialSkill) {
+		if (!isPartialSkill && !isByNameDescription) {
 			const wordCount = fmDesc.split(/\s+/).filter(Boolean).length
 			if (wordCount < 12) {
 				warn(

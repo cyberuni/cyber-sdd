@@ -252,6 +252,10 @@ importers:
       gherkin-cli:
         specifier: 0.2.1
         version: 0.2.1
+    devDependencies:
+      tsdown:
+        specifier: ^0.23.0
+        version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
 
 packages:
 

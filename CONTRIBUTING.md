@@ -54,9 +54,11 @@ Conventional Commits, enforced by commitlint on `commit-msg`. The `pre-commit` h
 ## Releasing
 
 `cyber-sdd` and `cyber-aced` publish from this repo and carry their release history
-(`cyber-sdd@*` and `cyber-aced@*` tags). `cyber-aced` ships the `aced-bench` bin compiled to
-`dist/` (Node does not strip types under `node_modules`); `pnpm build` produces it, and the
-bench's `bench-bin` test packs the package and runs the bin from a `node_modules` install.
+(`cyber-sdd@*` and `cyber-aced@*` tags). Each ships its bin compiled to `dist/` (Node does
+not strip types under `node_modules`): `cyber-sdd`'s `sdd-check-specs` with every engine it
+spawns, `cyber-aced`'s `aced-bench`. `pnpm build` produces them, and each bin has a test that
+packs the package and runs the bin from a `node_modules` install (`check-specs-bin`,
+`bench-bin`).
 
 `cyber-quill` is staged but **not yet published**. Its package metadata is complete — name,
 license, `files`, `repository` — and it is held at `"private": true` so a push to `main`

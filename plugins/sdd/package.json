@@ -21,7 +21,7 @@
 		"!skills/**/*.test.mts"
 	],
 	"dependencies": {
-		"gherkin-cli": "0.0.2"
+		"gherkin-cli": "0.2.1"
 	},
 	"scripts": {
 		"check:spec": "node ./skills/check-project-specs/scripts/check-project-specs.mts",

@@ -400,6 +400,228 @@ describe('report the verdict', () => {
 	})
 })
 
+// ─── Measured records ─────────────────────────────────────────────────────────
+//
+// The same discrimination as above: a record filed under a name ending in the WRONG arm label, and
+// two records whose filename order is the reverse of their recorded createdAt.
+
+const SUITE = 'demo.suite'
+const SUITE_DIR = join('.agents', 'aced', 'bench', SUITE)
+const TASKS_REL = join(SUITE_DIR, 'tasks.json')
+const CHECK_REL = join(SUITE_DIR, 'checks', 'passes.sh')
+const SOURCE_REL = join('variants', 'SKILL.md')
+const MEASURED_DIR = join('.agents', 'aced', 'results', 'bench', SUITE)
+
+/** A repo holding a bench suite (tasks.json, one check) and a file-arm source, no records yet. */
+function makeBenchRepo(): string {
+	const root = mkdtempSync(join(tmpdir(), 'freshness-bench-'))
+	roots.push(root)
+	mkdirSync(join(root, '.git'), { recursive: true })
+	write(root, TASKS_REL, '{"tasks":[{"id":"t1"}]}\n')
+	write(root, CHECK_REL, '#!/bin/sh\nexit 0\n')
+	write(root, SOURCE_REL, '# variant\n')
+	return root
+}
+
+/** A measured record in the bench engine's shape; by default a file arm read from SOURCE_REL. */
+function writeMeasured(
+	root: string,
+	opts: {
+		file?: string
+		arm?: string
+		createdAt?: string
+		subject?: object
+		evaluated?: object[] | null
+	} = {},
+) {
+	const arm = opts.arm ?? 'a'
+	const rec: Record<string, unknown> = {
+		schemaVersion: 3,
+		layer: 'measured',
+		suite: SUITE,
+		arm,
+		subject: opts.subject ?? { kind: 'file', path: 'plugins/x/SKILL.md', from: `path:${SOURCE_REL}` },
+		createdAt: opts.createdAt ?? '2026-08-01T00:00:00.000Z',
+		runs: [],
+	}
+	if (opts.evaluated !== null) {
+		rec.evaluated = opts.evaluated ?? [entry(root, TASKS_REL), entry(root, CHECK_REL), entry(root, SOURCE_REL)]
+	}
+	return write(
+		root,
+		join(MEASURED_DIR, opts.file ?? `2026-08-01T00-00-00-000Z.${arm}.json`),
+		JSON.stringify(rec, null, 2),
+	)
+}
+
+function runMeasured(root: string, args: string[] = ['--suite', SUITE, '--arm', 'a']): Run {
+	try {
+		const out = execFileSync('node', [ENGINE, ...args], {
+			cwd: root,
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'pipe'],
+		})
+		return { code: 0, out }
+	} catch (e) {
+		const err = e as { status: number; stdout: string; stderr: string }
+		return { code: err.status, out: (err.stdout ?? '') + (err.stderr ?? '') }
+	}
+}
+
+describe('measured records', () => {
+	test('a measured check given a suite and no arm fails closed', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root)
+		const r = runMeasured(root, ['--suite', SUITE])
+		assert.notEqual(r.code, 0)
+		assert.match(r.out, /missing --arm/)
+		assert.doesNotMatch(r.out, /verdict:/)
+	})
+
+	test('a suite with no measured results reports absent', () => {
+		const r = runMeasured(makeBenchRepo())
+		assert.notEqual(r.code, 0)
+		assert.match(r.out, /verdict: absent/)
+		assert.match(r.out, /nothing is measured for this suite/)
+	})
+
+	test('a suite with no measured record for the arm reports absent', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root, { arm: 'b' })
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: absent/)
+		assert.match(r.out, /no measured record is recorded for this arm/)
+	})
+
+	test('a measured record is matched by the arm it records, not by its file name', () => {
+		const root = makeBenchRepo()
+		// Arm a's coherent, current record filed under a name ending in `.b.json` …
+		writeMeasured(root, { arm: 'a', file: 'r.b.json' })
+		// … and arm b's record, whose recorded tasks hash no longer matches, filed under `.a.json`.
+		writeMeasured(root, {
+			arm: 'b',
+			file: 'r.a.json',
+			evaluated: [{ path: TASKS_REL, sha256: 'not-the-current-hash', kind: 'file' }],
+		})
+		const r = runMeasured(root)
+		assert.equal(r.code, 0)
+		assert.match(r.out, /verdict: current/)
+	})
+
+	test('the newest measured record is the one whose recorded createdAt is greatest', () => {
+		const root = makeBenchRepo()
+		// Alphabetical order (a- < b-) is the REVERSE of recorded createdAt order.
+		writeMeasured(root, { file: 'a-newest.a.json', createdAt: '2026-09-09T00:00:00.000Z' })
+		writeMeasured(root, { file: 'b-oldest.a.json', createdAt: '2026-01-01T00:00:00.000Z', evaluated: null })
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: current/)
+		assert.doesNotMatch(r.out, /no recorded provenance/)
+	})
+
+	test('an unreadable measured record is skipped and named', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root, { file: 'a-good.a.json' })
+		write(root, join(MEASURED_DIR, 'z-broken.a.json'), 'not json {{{')
+		const r = runMeasured(root)
+		assert.match(r.out, /skipped \(unreadable\).*z-broken\.a\.json/)
+		assert.match(r.out, /verdict: current/)
+	})
+
+	test('a measured record carrying no evaluated set reports absent', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root, { evaluated: null })
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: absent/)
+		assert.match(r.out, /no recorded provenance/)
+	})
+
+	test("a measured record whose evaluated set omits the suite's tasks reports absent", () => {
+		const root = makeBenchRepo()
+		writeMeasured(root, { evaluated: [entry(root, CHECK_REL), entry(root, SOURCE_REL)] })
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: absent/)
+		assert.match(r.out, /contradicts the record it accompanies/)
+	})
+
+	test("a measured record whose evaluated set omits the file arm's source reports absent", () => {
+		const root = makeBenchRepo()
+		writeMeasured(root, { evaluated: [entry(root, TASKS_REL), entry(root, CHECK_REL)] })
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: absent/)
+		assert.match(r.out, /omits the file arm's source/)
+	})
+
+	test('a git arm records no source entry and is not incoherent for it', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root, {
+			subject: { kind: 'git-ref', ref: 'main', commit: 'abc' },
+			evaluated: [entry(root, TASKS_REL), entry(root, CHECK_REL)],
+		})
+		const r = runMeasured(root)
+		assert.equal(r.code, 0)
+		assert.match(r.out, /verdict: current/)
+	})
+
+	test('a measured record whose recorded files all match the working tree is current', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root)
+		const r = runMeasured(root)
+		assert.equal(r.code, 0)
+		assert.match(r.out, /suite: demo\.suite/)
+		assert.match(r.out, /verdict: current/)
+	})
+
+	test('a changed task set makes the measured record stale', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root)
+		write(root, TASKS_REL, '{"tasks":[{"id":"t1"},{"id":"t2"}]}\n')
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: stale/)
+		assert.match(r.out, /no longer matching: .*tasks\.json \(content changed\)/)
+		// A measured record has no frozen suite, so a task-set change is never `incomplete`.
+		assert.doesNotMatch(r.out, /verdict: incomplete/)
+	})
+
+	test('a check removed since the measurement makes the measured record stale', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root)
+		rmSync(join(root, CHECK_REL))
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: stale/)
+		assert.match(r.out, /passes\.sh \(missing from the tree\)/)
+	})
+
+	test('a changed file-arm source makes the measured record stale', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root)
+		write(root, SOURCE_REL, '# variant, edited\n')
+		const r = runMeasured(root)
+		assert.match(r.out, /verdict: stale/)
+		assert.match(r.out, new RegExp(`no longer matching: ${SOURCE_REL.replace(/[\\.]/g, '\\$&')}`))
+	})
+
+	test('only a current measured verdict exits zero', () => {
+		const a = makeBenchRepo()
+		writeMeasured(a)
+		assert.equal(runMeasured(a).code, 0)
+
+		const b = makeBenchRepo()
+		writeMeasured(b)
+		write(b, SOURCE_REL, 'edited\n')
+		assert.notEqual(runMeasured(b).code, 0)
+
+		assert.notEqual(runMeasured(makeBenchRepo()).code, 0)
+	})
+
+	test('a measured check writes nothing', () => {
+		const root = makeBenchRepo()
+		writeMeasured(root)
+		const before = snapshot(root)
+		runMeasured(root)
+		assert.deepEqual(snapshot(root), before)
+	})
+})
+
 /** Every file's path and bytes, so a create, a modify, and a delete are all visible. */
 function snapshot(root: string): Record<string, string> {
 	const out: Record<string, string> = {}

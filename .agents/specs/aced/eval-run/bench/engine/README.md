@@ -27,10 +27,9 @@ and replays a scripted transcript.
 **Non-goals** — deciding whether a subject is worth measuring (the `measured` fit axis,
 `../../../design/fit.md`); asking a person for consent and explaining results (`../skill/`); grading a
 run with an LLM judge (a judged real run is #64's territory); `compare`'s and `report`'s measured
-views (`../../compare/`, `../../report/`); `check-freshness` reading measured records — the
-`evaluated` set is written in that engine's entry shape so a later additive change on
-`../../check-freshness/` can read it, but today it matches records by `target` and a measured record
-carries none; an interactive runner (dropped from v1); fanning out over a model matrix (a separate
+views (`../../compare/`, `../../report/`); deciding whether a measured record is still current —
+the `evaluated` set is written in `check-freshness`'s entry shape, and `../../check-freshness/` reads
+it by suite and arm; an interactive runner (dropped from v1); fanning out over a model matrix (a separate
 change); interpreting comparison tags (the consumer owns their meaning).
 
 **Key terms**

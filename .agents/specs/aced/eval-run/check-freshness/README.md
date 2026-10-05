@@ -23,6 +23,12 @@ content hashes (`eval-run/run/`); this check re-hashes those same paths in the w
 compares. Nothing is inferred: no modification times, no guessed file sets, no guessed directory
 names.
 
+The **measured** layer records the same kind of account. The bench engine (`eval-run/bench/engine/`)
+writes one **measured record** per arm to `.agents/aced/results/bench/<suite>/`, carrying an
+`evaluated` set in the same entry shape: the suite's `tasks.json`, every file under its `checks/`, and
+a `file` arm's source file. A measured record names no `target`, so it is found by the **suite** and
+**arm** it records instead (UC3), and compared the same way.
+
 **Key terms**
 
 | Term | Meaning |
@@ -30,6 +36,7 @@ names.
 | **evaluated set** | The list `run` recorded of every input it **reports** consuming to judge the target, each entry a repository path plus a SHA-256 hash. A **file** entry hashes the content read; a **directory** entry hashes the names the listing returned, which is what makes a file *added* to that directory detectable. |
 | **recorded provenance** | The evaluated set carried by one result record — **the run's own account** of what it consumed, not a verified trace (see the trust boundary below). A result written before this contract carries none. |
 | **the frozen suite** | The node's `<node>.feature` — one member of the evaluated set, handled apart from the rest because a change to it means something different. |
+| **measured record** | A run record the bench engine writes for one arm of one suite: `layer: measured`, a `suite`, an `arm` label, a `createdAt` timestamp, and an evaluated set. It names no `target` and no frozen `.feature`. |
 | **subject inputs** | Every member of the evaluated set that is not the frozen suite: the target configuration, the files it loads, any directory `run` recorded listing to find them, and the target's `eval.md`. |
 
 **The four verdicts**
@@ -111,6 +118,7 @@ Enumerated actor-first; entry points are mapped afterward, so a goal with no way
 |---|---|---|
 | A person reviewing a recorded eval result | decide whether the pass they are reading still describes the configuration on disk, and if not, see which inputs moved | UC1 |
 | A gating automation — a CI job or a scheduled run citing a recorded result | stop the moment a cited result stops holding, without parsing a report | UC2 |
+| A person or automation citing a measured result for one arm of a bench suite | know whether the stored measurements still describe the suite's current tasks, checks, and the arm's source | UC3 |
 | `run` and `improve` (sibling capabilities) | skip re-scoring when the recorded result still holds | **nothing — the caller side is unbuilt** (below) |
 | *Affected without invoking:* whoever is handed a report, a diagnosis, or a PR comment that cites a recorded result | not be shown a passing result that stopped being true | reached only through the actors above |
 
@@ -123,8 +131,10 @@ two nodes**, not to this one: each needs scenarios whose `Given` *names* a verdi
 as a follow-up, so until it lands `check-freshness` is specified, tested, and consulted by nobody — a
 recorded gap, not an oversight.
 
-There is **one** entry point, `check-freshness --node <node-dir>`; UC1 and UC2 are two goals reaching
-it, distinguished by which half of its outcome the actor consumes.
+There are **two** entry points. `check-freshness --node <node-dir>` reads a result `run` recorded; UC1
+and UC2 are two goals reaching it, distinguished by which half of its outcome the actor consumes.
+`check-freshness --suite <suite> --arm <label>` reads a measured record; UC3 reaches it, and its exit
+status follows UC2's rule.
 
 ### UC1 — read the verdict on a recorded result
 
@@ -171,16 +181,54 @@ it, distinguished by which half of its outcome the actor consumes.
   The exit status alone therefore never distinguishes *not current* from *could not decide*; the
   report names which, and UC1 is the path for an actor that needs to know.
 
+### UC3 — read the verdict on a measured record
+
+- **Actor** — a person or automation about to cite a stored measurement for one arm of a bench suite.
+- **Goal** — know whether the measurements still describe the suite's current `tasks.json`, its
+  `checks/`, and a `file` arm's source, and which of those moved if they do not.
+- **Entry point** — **trigger:** `check-freshness --suite <suite> --arm <label>`. **Inputs:** the
+  measured records under `.agents/aced/results/bench/<suite>/` and the working tree. **Outcome:** one
+  of `current` / `stale` / `absent`, naming each recorded input that no longer matches; exit zero only
+  for `current`. Nothing is written.
+- **Selection** — a record belongs to the suite and arm its own `suite` and `arm` fields name, never
+  to the ones its file name suggests, and the newest is the one whose recorded `createdAt` is greatest.
+  A file that is not a measured record (a compare record beside them, say) is not a candidate.
+- **No `incomplete`** — every recorded input of a measured record moves what was measured: a changed
+  `tasks.json` changes the prompts, a changed check changes what `pass` means, and a changed source
+  changes the arm. No measurement survives any of them, so any moved input reads `stale`. The
+  `incomplete` verdict needs a frozen suite whose change leaves the scores standing, and a measured
+  record has none.
+- **Coherence** — the bench engine always records the suite's `tasks.json`, and records a `file` arm's
+  source whenever that arm reads it from a path. A record whose evaluated set omits either contradicts
+  itself and reads `absent`, not `current` — the same conditional oracle as UC1's.
+- **Extensions** —
+
+  | Cause | Outcome |
+  |---|---|
+  | `--suite` given without `--arm` | no verdict; the missing option is named; fail closed |
+  | the suite has no measured-results directory | `absent` — nothing was measured for this suite |
+  | records exist for the suite, but none for this arm | `absent` |
+  | the newest file for the arm is unparseable but an older readable record exists | the unreadable file is named and skipped; the verdict comes from the newest **readable** record |
+  | the selected record carries no evaluated set | `absent` — there is nothing to compare |
+  | the selected record's evaluated set omits the suite's `tasks.json` or the `file` arm's source path | `absent` — the provenance is incoherent |
+  | a recorded input changed or is gone | `stale`, naming each |
+
+  The trust boundary is narrower here than for `run`: the bench engine is a script, so its evaluated
+  set is computed rather than reported by an agent. The closed world is the same — a file the suite
+  never recorded is not compared. A `git` or `package` arm records no source entry, because its subject
+  is pinned by a commit or a version that cannot move.
+
 ### Surface trace
 
-The surface is one required option, `--node <node-dir>`, needed by both use cases; there are no
-optional elements and so no combination to constrain. Nothing else is exposed: the verdict and the
-list of non-matching inputs go to standard output, and the exit status is the only other channel —
-each traced to UC1 and UC2 respectively.
+The surface is two invocations. `--node <node-dir>` is needed by UC1 and UC2. `--suite <suite>` and
+`--arm <label>` are needed together by UC3, and one without the other fails closed. Nothing else is
+exposed: the verdict and the list of non-matching inputs go to standard output, and the exit status is
+the only other channel — each traced to UC1/UC3 and UC2/UC3 respectively.
 
 ## Control Flow
 
-One entry point, one pass. Every path ends in a verdict or in a fail-closed exit; nothing is written.
+Two entry points, one pass each. Every path ends in a verdict or in a fail-closed exit; nothing is
+written. The first graph is the `--node` path (UC1, UC2).
 
 ```mermaid
 flowchart TD
@@ -213,6 +261,35 @@ flowchart TD
   STALE --> R
   INC --> R
   CUR --> R
+```
+
+The second graph is the `--suite --arm` path (UC3). Its edges are prefixed `M` so a scenario-map row
+names one graph unambiguously.
+
+```mermaid
+flowchart TD
+  MA[check-freshness --suite s --arm label] --> MB{both options given?}
+  MB -- no --> MX[report the missing option, no verdict, exit non-zero]
+  MB -- yes --> MC{results/bench/s directory present?}
+  MC -- no --> MABS1[verdict absent - nothing measured for this suite]
+  MC -- yes --> MD[scan every record file; keep measured records whose recorded suite and arm match]
+  MD --> ME{any readable record for this arm?}
+  ME -- none --> MABS2[verdict absent - no measured record for this arm]
+  ME -- some --> MF[select the greatest recorded createdAt; name each skipped unreadable file]
+  MF --> MG{does it carry an evaluated set?}
+  MG -- no --> MABS3[verdict absent - no recorded provenance]
+  MG -- yes --> MH{does the evaluated set cover tasks.json and a file arm's source path?}
+  MH -- no --> MABS4[verdict absent - the provenance contradicts the record it accompanies]
+  MH -- yes --> MI{every recorded input still hashes as recorded?}
+  MI -- no --> MSTALE[verdict stale, naming each input that changed or is missing]
+  MI -- yes --> MCUR[verdict current]
+  MX --> MR[exit zero only for current]
+  MABS1 --> MR
+  MABS2 --> MR
+  MABS3 --> MR
+  MABS4 --> MR
+  MSTALE --> MR
+  MCUR --> MR
 ```
 
 ## Scenario map
@@ -255,7 +332,34 @@ Rows follow the CFG top to bottom: resolve the target, select the recorded resul
 |---|---|---|
 | `R` exit code | any of the four verdicts | `only a current verdict exits zero` |
 
+### UC3 — read the verdict on a measured record
+
+Rows follow the second CFG top to bottom: resolve the invocation, select the record, decide the verdict.
+
+| Edge | Path (Given) | Scenario |
+|---|---|---|
+| `MB` → no | a suite option with no arm option | `a measured check given a suite and no arm fails closed` |
+| `MC` → no | a suite with no measured-results directory | `a suite with no measured results reports absent` |
+| `ME` → none | measured records for the suite, each for another arm | `a suite with no measured record for the arm reports absent` |
+| `MD` match on recorded suite and arm | a record whose file name names a different arm than its own arm field | `a measured record is matched by the arm it records, not by its file name` |
+| `MF` greatest recorded createdAt | two records whose filename order disagrees with their recorded createdAt | `the newest measured record is the one whose recorded createdAt is greatest` |
+| `MF` skip unreadable | two records for the arm, the newer one not parseable as JSON | `an unreadable measured record is skipped and named` |
+| `MG` → no | a record carrying no evaluated set | `a measured record carrying no evaluated set reports absent` |
+| `MH` → no, tasks missing | a record whose evaluated set omits the suite's tasks.json | `a measured record whose evaluated set omits the suite's tasks reports absent` |
+| `MH` → no, source missing | a file arm read from a path whose evaluated set omits that path | `a measured record whose evaluated set omits the file arm's source reports absent` |
+| `MI` → yes | every recorded input hashes as recorded | `a measured record whose recorded files all match the working tree is current` |
+| `MI` → no, tasks changed | the suite's tasks.json edited since the record | `a changed task set makes the measured record stale` |
+| `MI` → no, check gone | a recorded check file deleted since the record | `a check removed since the measurement makes the measured record stale` |
+| `MI` → no, source changed | the file arm's source edited since the record | `a changed file-arm source makes the measured record stale` |
+| `MR` exit code | a current, a stale, and an absent measured check | `only a current measured verdict exits zero` |
+| `MR` read-only | any measured invocation | `a measured check writes nothing` |
+
 ## References
+
+- `eval-run/bench/engine/` — the producer of measured records and their evaluated set. It hashes the
+  raw bytes of each file with SHA-256, the same rule as a **file** entry here; it records no
+  **directory** entries, so a check file added to `checks/` after the run changes no recorded entry.
+  That is the closed world again — the added check was not part of what was measured.
 
 - `eval-run/run/` — the producer of the `evaluated` set this node reads. Without that contract every
   answer here would be a guess, which is what the rejected first attempt at this capability was.

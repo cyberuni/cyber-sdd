@@ -84,7 +84,7 @@ Assertions about **the subject being classified**, run by the producer before ha
 the cold judge against the artifact — never against the producer's account of what it did:
 
 1. The subject's node spec (`README.md`) carries exactly one `**Fit:** strong` or `**Fit:** partial`
-   line in `## Use Cases`; a subject recused as wrong-squad has neither a `**Fit:**` line nor an ACED
+   line; a subject recused as wrong-squad has neither a `**Fit:**` line nor an ACED
    `eval.md` (its node, if any, was written by the SDD-default chain). *(mechanical)*
 2. A subject declared `strong` does not have a name-only description (one beginning `By name only`
    or `Partial Skill: invoke by name only`): a subject reached only by name makes no activation

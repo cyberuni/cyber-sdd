@@ -21,11 +21,6 @@ It is reached **by name**: from `/bench`, from a consumer tool handing off by na
 suite, and later from `compare`'s measured mode. It is never matched to a user's
 situation from its description. So it makes no activation decision of its own.
 
-**Fit:** partial — the skill runs a fixed procedure (fit check → arms → plan → consent → run →
-report) reached by name, so trigger near-miss balance is N/A; its behavior carries real signal,
-because the consent rule, the headless refusal, and how it words an inconclusive or incomparable
-result are agent conduct a judge must grade.
-
 **Non-goals** — the statistics, the record schema, the run sequence, and every number in the plan
 (`../engine/`); defining the fit criteria it re-asks (it loads `aced:aced-fit` and applies that
 governance's measured criteria 1–2 to the change in hand, restating none of them); declaring a
@@ -41,6 +36,11 @@ not by itself stop a person from measuring.
 currently shown.
 
 ## Use Cases
+
+**Fit:** partial — the skill runs a fixed procedure (fit check → arms → plan → consent → run →
+report) reached by name, so trigger near-miss balance is N/A; its behavior carries real signal,
+because the consent rule, the headless refusal, and how it words an inconclusive or incomparable
+result are agent conduct a judge must grade.
 
 ### Actors and their goals
 
@@ -63,16 +63,16 @@ agreed to.
 
 Extensions:
 
-- **The question is not one real runs answer** — the change only rewords a description or alters when
-  something triggers, or the outcome could only be graded by a rubric, not a shell check → the skill
-  says the simulated layer answers it, names `compare`, and plans nothing.
+- **The question is not one real runs answer** — `aced:aced-fit`'s measured criterion 1 or 2 fails
+  for this change → the skill says the simulated layer answers it, names `compare`, and plans
+  nothing.
 - **No suite named** → it asks which suite to use and plans nothing; it never guesses one, even when
   only one suite exists.
 - **The suite has no task set** → it says so and offers `init`; it writes no tasks of its own and plans
   nothing.
 - A consumer tool reaches the same path as a developer, with its suite already named; nothing in the
   procedure depends on which of the two called.
-- **No arms named** → with a committed baseline the engine can read (schema version 3), it plans one
+- **No arms named** → with a committed baseline of a schema version the engine reads, it plans one
   arm at HEAD and compares that arm's record against the baseline. With no baseline, or one of another
   schema version, it says which and asks which arms to compare (or offers to re-record the baseline)
   instead of guessing — checked **before** any spend, because the engine would refuse that baseline
@@ -172,10 +172,10 @@ flowchart TD
   tasks -- no --> offerInit[offer init, write no tasks, plan nothing; headless: return the offer as needs-input]
   tasks -- yes --> armsQ{arms named?}
   armsQ -- yes --> arms[map the request to git-ref, file, or package arms]
-  armsQ -- no, baseline exists --> baseOk{baseline is schema version 3?}
+  armsQ -- no, baseline exists --> baseOk{baseline of a schema version the engine reads?}
   baseOk -- yes --> vsBase[plan one arm at HEAD; compare it against the baseline]
   baseOk -- no --> askArms
-  armsQ -- no, no baseline --> askArms[ask which arms, plan nothing yet; headless: return the question as needs-input]
+  armsQ -- no, no baseline --> askArms[ask which arms or offer to re-record the baseline, plan nothing yet; headless: return the question as needs-input]
   baseReq[a request to record the baseline] --> oneArm[one arm at HEAD with the baseline flag]
   arms --> plan
   vsBase --> plan
@@ -227,7 +227,8 @@ flowchart TD
 | `tasks` → no | a person present; a suite with no task set | `a suite with no task set gets an init offer and no invented tasks` |
 | `armsQ` → yes | two git refs named | `two named refs become two git-ref arms` |
 | `armsQ` → yes (package versions) | two versions of one plugin named | `two named plugin versions become two package arms` |
-| `baseOk` → yes | no arms named; a committed baseline of schema version 3 | `with no arms named and a baseline present, HEAD is measured against the baseline` |
+| `armsQ` → yes (with vs without a file) | a with-and-without comparison of one file | `a with-and-without request for one file becomes an absent file arm and a git-ref arm` |
+| `baseOk` → yes | no arms named; a committed baseline of a version the engine reads | `with no arms named and a baseline present, HEAD is measured against the baseline` |
 | `armsQ` → no, no baseline | no arms named; no baseline | `with no arms named and no baseline, the skill asks which arms to compare` |
 | `baseOk` → no | no arms named; a baseline of another schema version | `a baseline the engine cannot read is caught before any spend` |
 | `plan` → no | the engine plan fails for a missing harness command | `a failed plan is reported and no approval is asked for` |

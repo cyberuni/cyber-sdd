@@ -985,6 +985,18 @@ test('the specificity word-count check still applies to a public skill', () => {
 	}
 })
 
+test('a by-name description is exempt from the specificity word-count check even on a visible skill', () => {
+	const root = tmpRoot()
+	try {
+		// no user-invocable:false — the exact "By name only" description alone marks the by-name skill (ADR-0031)
+		const file = writeSkill(root, 'skills/sample-skill', skillFixture({ description: 'By name only' }))
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q2' && /Description too short/.test(f.name)).length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
 // ---- Q18: internal trigger-language inverse check ----
 
 test('a partial-skill description carrying user-facing trigger language is flagged', () => {

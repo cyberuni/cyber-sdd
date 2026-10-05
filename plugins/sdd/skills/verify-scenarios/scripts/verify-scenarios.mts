@@ -49,7 +49,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
 import { isAbsolute, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { parse } from 'gherkin-cli'
+import { parse } from '../../spec-gate/vendor/gherkin-cli.mjs'
 
 // Resolves a path argument against `--root`: relative paths join beneath root (which defaults to the
 // current directory); an absolute path is used verbatim, never double-prefixed under root.

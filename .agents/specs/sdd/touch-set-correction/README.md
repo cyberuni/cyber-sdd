@@ -75,6 +75,7 @@ a touch-set before the work (it only corrects one, after). It reports; it does n
 | **read the real touched areas off the diff** | the changed files + the project layout | each file mapped to its `project/capability` work area, de-duplicated | `Scenario: a changed file under a capability folder maps to its project-and-capability node` |
 | **not lose a stray file** | a changed file under no known project | it is surfaced as **unmapped**, never counted as a touched area | `Scenario: a changed file outside any known project root is surfaced as unmapped` |
 | **record the finer detail** — for a touched suite, which scenarios moved | a touched frozen `.feature` in the diff | the names of the scenarios its diff changed, as extra detail on the area | `Scenario: a touched feature records the scenario names its diff changed` |
+| **run where the plugin is installed** | the same diff, run from an installed plugin's shipped files with no package dependencies beside them | the same scenario detail: the added scenario named, the unchanged one not | `Scenario: a touched feature records its changed scenario names from an installed plugin` |
 | **stay inside the lane** — data, not a hazard verdict | any diff | the correction never labels an area's collision hard or soft, and never descends past node/scenario grain | `Scenario: the recorded scenario detail does not reclassify the node collision` |
 
 Every scenario in [`touch-set-correction.feature`](./touch-set-correction.feature) maps to one of these

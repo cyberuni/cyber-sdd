@@ -61,8 +61,8 @@ packs the package and runs the bin from a `node_modules` install (`check-specs-b
 `bench-bin`).
 
 The plugins install a second way: as their tracked files, with no `node_modules`. A skill script
-that imports a package cannot resolve it there, so `cyber-sdd`'s spec gate imports gherkin-cli
-from a committed bundle (`skills/spec-gate/vendor/gherkin-cli.mjs`). After bumping the
+that imports a package cannot resolve it there, so every `cyber-sdd` engine that uses gherkin-cli
+imports it from one committed bundle (`skills/spec-gate/vendor/gherkin-cli.mjs`). After bumping the
 gherkin-cli pin, run `pnpm --filter cyber-sdd build:vendor` and commit the result;
 `check-suite-installed` fails until you do.
 

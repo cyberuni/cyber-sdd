@@ -1,3 +1,4 @@
+@frozen
 Feature: skill — measure a change for real, spending only on an explicit yes
   Unit suite for the bench skill: the procedure a person reaches by name to run the measured-layer
   engine. It checks real runs can answer the question, picks the arms, shows the plan and its price,

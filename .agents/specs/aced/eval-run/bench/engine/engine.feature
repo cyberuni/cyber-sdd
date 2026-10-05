@@ -1,3 +1,4 @@
+@frozen
 Feature: engine — run a task set for real and compare two arms
   Unit suite for the deterministic measured-layer engine: plan a measured run without spending, run
   arms x tasks x N real headless sessions in throwaway checkouts, grade each run with a shell check,

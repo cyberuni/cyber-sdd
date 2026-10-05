@@ -12,8 +12,10 @@ todos:
   - content: "spec-judge: cold sdd-spec-judge (engine) + aced-spec-validator (skill), 3-round cap"
     status: completed
   - content: "handoff: PR with the spec in draft; spec-gate ratification left to the owner"
-    status: in_progress
+    status: completed
   - content: "spec gate: owner ratifies, freeze both suites (owner's act, not this mission's)"
+    status: completed
+  - content: "deliver (steps 3-4, later PRs): build the engine and skill against the frozen suites"
     status: pending
 ---
 
@@ -54,8 +56,8 @@ suites, step 4); the engine build (steps 3–4); the Codex adapter (step 7).
 
 ## NEXT
 
-Awaiting the owner's spec-gate verdict on PR #71. Owner review added a hard constraint: ACED must
-not depend on repobuddy or any consumer, so the engine reads only its own schema v3 and consumers
-are generic. Last judged state: engine ALIGNED (all lenses PASS); skill round 5 found two
-given-isolation blockers, fixed exactly as prescribed and **not re-judged**. On ratification: freeze
-`engine.feature` and `skill.feature`, record the gate line, then steps 3–4 build against them.
+Spec gate **ratified by the owner**; `engine.feature` and `skill.feature` are `@frozen`, root
+`status: approved`, gate line in the ledger shard. This CR (step 2) is done once PR #71 merges.
+Next is deliver — issue 69 steps 3–4 in later PRs: port the engine under
+`plugins/aced/skills/bench/scripts/` with the Claude Code adapter (needs agent-harness `headless()`),
+then the file/package subjects and the bench skill, until every frozen scenario passes the impl gate.

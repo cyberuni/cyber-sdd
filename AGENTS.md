@@ -7,6 +7,12 @@
 - **Unit of work:** one complete, reviewed, coherent, independently revertable change
 - **Auto-commit rule:** commit a unit of work automatically
 
+## System context
+
+This repo is one package of [cyber-civitas](https://cyber-civitas.github.io), the system its sibling packages compose into. The [layer architecture](https://cyber-civitas.github.io/architecture/layers/) and the [cross-package decisions](https://cyber-civitas.github.io/decisions/) are recorded there; a decision inside this repo cites them rather than restating them.
+
+- The process layer must not depend on the fleet. The fleet calls a sortie carried out by SDD an **SDD-mission**, to keep it apart from a fleet *mission*, which can span repositories; that naming is the fleet's, and nothing here needs to change for it.
+
 ## Architecture
 
 This repo holds the SDD process plugin and the two domain plugins that implement its

@@ -13,6 +13,8 @@ SDD defines the loop — explore, spec gate, deliver, impl gate, handoff. ACED a
 plug into it, supplying the spec-producer, spec-judge, impl-producer, and impl-judge for
 their own domain.
 
+Part of [cyber-civitas](https://cyber-civitas.github.io), a self-contained system for running AI coding agents. This package is its process layer.
+
 ## Install
 
 ```bash

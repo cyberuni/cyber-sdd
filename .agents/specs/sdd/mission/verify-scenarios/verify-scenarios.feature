@@ -224,3 +224,15 @@ Feature: The verify-scenarios procedure — bridge frozen scenarios to test repo
     Given verify-scenarios deriving the scenario set from a frozen feature
     When it needs the scenarios
     Then it obtains them from gherkin-cli rather than a re-implemented Gherkin parser
+
+  Scenario: a fully bound suite passes from an installed plugin
+    Given the sdd plugin installed as its shipped files with no package dependencies installed
+    And a frozen feature every one of whose scenarios a report binds as passing
+    When verify-scenarios runs from the installed plugin
+    Then every scenario is PASS and the tool exits zero
+
+  Scenario: an unbound scenario fails the run from an installed plugin
+    Given the sdd plugin installed as its shipped files with no package dependencies installed
+    And a frozen feature one of whose scenarios no report binds
+    When verify-scenarios runs from the installed plugin
+    Then that scenario is UNBOUND and the tool exits non-zero

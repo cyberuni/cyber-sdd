@@ -30,7 +30,7 @@ import { execFileSync } from 'node:child_process'
 import { readFileSync, realpathSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { diff as gherkinDiff, type ReadsGitDiff } from 'gherkin-cli'
+import { diff as gherkinDiff, type ReadsGitDiff } from '../../spec-gate/vendor/gherkin-cli.mjs'
 
 // ── Types ──
 

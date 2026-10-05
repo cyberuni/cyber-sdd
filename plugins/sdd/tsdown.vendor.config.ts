@@ -1,9 +1,10 @@
 import { defineConfig } from 'tsdown'
 
-// The spec gate's check-suite engine, as a plugin install runs it. A plugin installs as its
-// tracked files with no node_modules, so check-suite cannot import gherkin-cli by package
-// name there. This bundles gherkin-cli and everything it imports into one committed,
-// self-contained module beside the engine. Rebuild it with `pnpm build:vendor` whenever the
+// The gherkin-cli engines, as a plugin install runs them. A plugin installs as its tracked
+// files with no node_modules, so check-suite, classify-edit-class, touch-set-correction and
+// verify-scenarios cannot import gherkin-cli by package name there. This bundles gherkin-cli
+// and everything it imports into one committed, self-contained module in the spec gate's
+// vendor dir, which all four import. Rebuild it with `pnpm build:vendor` whenever the
 // gherkin-cli pin moves; the vendor test fails while the committed file is stale.
 //
 // VENDOR_OUT_DIR lets that test build into a scratch dir and compare.

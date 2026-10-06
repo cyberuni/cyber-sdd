@@ -7,10 +7,16 @@
 // engine diffs the token sets (spec: .agents/specs/sdd/plugin/check-field-mandates/):
 //   unexplained — a block declares a field that carries no gloss and the prose never names
 //   undeclared  — the prose mandates a known field (a code span) that none of the file's blocks declare
+//   miscased    — the prose mandates a field this file declares, but spelled in the other case
 //
 // A field is explained by a gloss OR by the prose — requiring the prose to repeat a glossed
 // declaration would demand filler in every definition. A mandate is a code span naming a KNOWN field
 // (declared somewhere in the tree); that vocabulary is what separates a field from `TODO`.
+//
+// A field token is UPPER_CASE or snake_case. A lowercase word needs an underscore to be a token, so
+// ordinary prose words (`owner`, `summary`) never become fields. Case decides whether two tokens are the
+// same field only for the miscased finding: `governances_loaded` and `GOVERNANCES_LOADED` are one
+// field, spelled two ways, and a file that does both is reported.
 //
 // Pure functions are exported for node:test; running the file directly drives the CLI. No
 // dependencies (the repo's node-≥23.6 / no-deps convention).
@@ -19,7 +25,7 @@ import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from 'n
 import { join, relative, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-export type FindingKind = 'unexplained' | 'undeclared'
+export type FindingKind = 'unexplained' | 'undeclared' | 'miscased'
 
 export interface Finding {
 	kind: FindingKind
@@ -28,6 +34,8 @@ export interface Finding {
 	/** 1-based line: the declaration for `unexplained`, the prose line for `undeclared`. */
 	line: number
 	token: string
+	/** For `miscased`: the spelling this file's declaration uses. */
+	declared?: string
 }
 
 interface Declaration {
@@ -48,7 +56,8 @@ export interface ParsedDefinition {
 	proseWords: Set<string>
 }
 
-const TOKEN = '[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*'
+/** UPPER_CASE, or snake_case with at least one underscore — a bare lowercase word is prose. */
+const TOKEN = '(?:[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*|[a-z][a-z0-9]*(?:_[a-z0-9]+)+)'
 const TOKEN_ITEM = `${TOKEN}(?:\\(s\\))?`
 /** A block line opening with a comma list of tokens, then a colon, a trailing comment, or nothing. */
 const BLOCK_DECLARATION_RE = new RegExp(`^\\s*(${TOKEN_ITEM}(?:\\s*,\\s*${TOKEN_ITEM})*)\\s*(:.*|#.*)?$`)
@@ -67,15 +76,27 @@ function isField(token: string): boolean {
 	return token.length >= 2
 }
 
-/** The forms a token may take and still be the same field — equal, or one trailing `S` apart. */
+/** A token's case-folded form: the spelling-independent name of the field. */
+function fold(token: string): string {
+	return token.toUpperCase()
+}
+
+/** The folded forms a token may take and still be the same field — equal, or one trailing `S` apart. */
 function sameFieldForms(token: string): string[] {
-	const forms = [token, `${token}S`]
-	if (token.endsWith('S') && token.length > 2) forms.push(token.slice(0, -1))
+	const t = fold(token)
+	const forms = [t, `${t}S`]
+	if (t.endsWith('S') && t.length > 2) forms.push(t.slice(0, -1))
 	return forms
 }
 
-function hasSameField(set: Set<string>, token: string): boolean {
-	return sameFieldForms(token).some((f) => set.has(f))
+/** Does the set of folded tokens hold the same field as `token`? */
+function hasSameField(folded: Set<string>, token: string): boolean {
+	return sameFieldForms(token).some((f) => folded.has(f))
+}
+
+/** Is the token spelled lowercase (snake_case) rather than uppercase? */
+function isLower(token: string): boolean {
+	return token !== fold(token)
 }
 
 // ── Parse ──
@@ -212,30 +233,40 @@ export function discoverDefinitions(root: string): string[] {
 
 export function check(parsed: Map<string, ParsedDefinition>): Finding[] {
 	const known = new Set<string>()
-	for (const p of parsed.values()) for (const d of p.declarations) known.add(d.token)
+	for (const p of parsed.values()) for (const d of p.declarations) known.add(fold(d.token))
 
 	const findings: Finding[] = []
 	for (const [file, p] of parsed) {
 		if (p.declarations.length === 0) continue
-		const declared = new Set(p.declarations.map((d) => d.token))
+		const declared = new Set(p.declarations.map((d) => fold(d.token)))
+		const proseWords = new Set([...p.proseWords].map(fold))
 
 		const seen = new Set<string>()
 		for (const d of p.declarations) {
 			if (seen.has(d.token)) continue
 			seen.add(d.token)
 			const glossed = p.declarations.some((o) => o.token === d.token && o.glossed)
-			if (!glossed && !hasSameField(p.proseWords, d.token)) {
+			if (!glossed && !hasSameField(proseWords, d.token)) {
 				findings.push({ kind: 'unexplained', file, line: d.line, token: d.token })
 			}
 		}
 
 		const reported = new Set<string>()
 		for (const m of p.mandates) {
-			if (!hasSameField(known, m.token) || hasSameField(declared, m.token)) continue
+			if (!hasSameField(known, m.token)) continue
 			const key = `${m.line}:${m.token}`
 			if (reported.has(key)) continue
+			if (!hasSameField(declared, m.token)) {
+				reported.add(key)
+				findings.push({ kind: 'undeclared', file, line: m.line, token: m.token })
+				continue
+			}
+			// Declared here — but is any same-field declaration spelled in the mandate's case?
+			const forms = sameFieldForms(m.token)
+			const same = p.declarations.filter((d) => forms.includes(fold(d.token)))
+			if (same.some((d) => isLower(d.token) === isLower(m.token))) continue
 			reported.add(key)
-			findings.push({ kind: 'undeclared', file, line: m.line, token: m.token })
+			findings.push({ kind: 'miscased', file, line: m.line, token: m.token, declared: same[0]?.token })
 		}
 	}
 	return findings.sort((a, b) => (a.file === b.file ? a.line - b.line : a.file < b.file ? -1 : 1))
@@ -246,13 +277,17 @@ export function check(parsed: Map<string, ParsedDefinition>): Finding[] {
 const DETAIL: Record<FindingKind, string> = {
 	unexplained: 'declared in a block, but no gloss and no prose explains it',
 	undeclared: 'mandated in the prose, but no block in this file declares it',
+	miscased: 'mandated in the prose, but this file declares it in the other case',
 }
 
 export function formatReport(definitions: string[], findings: Finding[]): string {
 	if (definitions.length === 0) return 'check-field-mandates: no skill or agent definition found\n'
 	if (findings.length === 0) return `check-field-mandates: ${definitions.length} definition(s) OK\n`
 	const rows = findings
-		.map((f) => `  ${f.kind.padEnd(11)} ${f.file}:${f.line} ${f.token} — ${DETAIL[f.kind]}`)
+		.map(
+			(f) =>
+				`  ${f.kind.padEnd(11)} ${f.file}:${f.line} ${f.token} — ${DETAIL[f.kind]}${f.declared ? ` (${f.declared})` : ''}`,
+		)
 		.join('\n')
 	return `${rows}\ncheck-field-mandates: ${findings.length} finding(s) across ${definitions.length} definition(s)\n`
 }

@@ -348,6 +348,161 @@ test('a field named in the plural resolves to its singular declaration', () =>
 		assert.equal(r.code, 0, r.out)
 	}))
 
+test('a snake_case declaration declares a field', () =>
+	withTree((dir) => {
+		write(dir, AGENT, def(fence('batch_size, retry_limit'), '', 'Raise retry_limit when the store is slow.'))
+		const r = run(dir)
+		const lines = linesFor(r.out, AGENT)
+		assert.ok(
+			lines.some((l) => /unexplained/.test(l) && l.includes(`${AGENT}:4 batch_size`)),
+			r.out,
+		)
+		assert.ok(!lines.some((l) => /\bretry_limit\b/.test(l)), r.out)
+		assert.equal(r.code, 1)
+	}))
+
+test('a lowercase mandate of a field this file declares in upper case is reported miscased', () =>
+	withTree((dir) => {
+		write(dir, SKILL, def(fence('BATCH_SIZE: rows per write'), '', 'Return the `batch_size` you used.'))
+		const r = run(dir)
+		const lines = linesFor(r.out, SKILL)
+		assert.ok(
+			lines.some((l) => /miscased/.test(l) && l.includes(`${SKILL}:7 batch_size`)),
+			r.out,
+		)
+		assert.ok(!lines.some((l) => /undeclared/.test(l)), r.out)
+		assert.equal(r.code, 1)
+	}))
+
+test('an uppercase mandate of a field this file declares in lower case is reported miscased', () =>
+	withTree((dir) => {
+		write(dir, SKILL, def(fence('batch_size: rows per write'), '', 'Return the `BATCH_SIZE` you used.'))
+		const r = run(dir)
+		assert.ok(
+			linesFor(r.out, SKILL).some((l) => /miscased/.test(l) && l.includes(`${SKILL}:7 BATCH_SIZE`)),
+			r.out,
+		)
+		assert.equal(r.code, 1)
+	}))
+
+test('a mandate spelled as its declaration passes in either case', () =>
+	withTree((dir) => {
+		write(
+			dir,
+			SKILL,
+			def(
+				fence('batch_size: rows per write', 'STATUS: done or failed'),
+				'',
+				'Return the `batch_size` you used and a `STATUS`.',
+			),
+		)
+		const r = run(dir)
+		assert.deepEqual(linesFor(r.out, SKILL), [])
+		assert.equal(r.code, 0, r.out)
+	}))
+
+test('a lowercase mandate of a field declared only elsewhere is reported undeclared', () =>
+	withTree((dir) => {
+		write(dir, SKILL, def(fence('STATUS: done or failed'), '', 'Return the `batch_size` you used.'))
+		write(dir, OTHER, def(fence('BATCH_SIZE: rows per write')))
+		const r = run(dir)
+		assert.ok(
+			linesFor(r.out, SKILL).some((l) => /undeclared/.test(l) && l.includes(`${SKILL}:7 batch_size`)),
+			r.out,
+		)
+		assert.equal(r.code, 1)
+	}))
+
+test('a lowercase word with no underscore is not a field', () =>
+	withTree((dir) => {
+		write(dir, SKILL, def(fence('STATUS: done or failed'), '', 'Set the `status` frontmatter key.'))
+		const r = run(dir)
+		assert.deepEqual(linesFor(r.out, SKILL), [])
+		assert.equal(r.code, 0, r.out)
+	}))
+
+test('a bare field the prose names in the other case is explained', () =>
+	withTree((dir) => {
+		write(
+			dir,
+			AGENT,
+			def(fence('BATCH_SIZE, RETRY_LIMIT'), '', 'Pick a batch_size, and a RETRY_LIMIT for the slow store.'),
+		)
+		const r = run(dir)
+		assert.deepEqual(linesFor(r.out, AGENT), [])
+		assert.equal(r.code, 0, r.out)
+	}))
+
+test('a lowercase word with no underscore explains no field', () =>
+	withTree((dir) => {
+		write(dir, AGENT, def(fence('STATUS, RETRY_LIMIT'), '', 'Report the status, and a RETRY_LIMIT for the slow store.'))
+		const r = run(dir)
+		const lines = linesFor(r.out, AGENT)
+		assert.ok(
+			lines.some((l) => /unexplained/.test(l) && l.includes(`${AGENT}:4 STATUS`)),
+			r.out,
+		)
+		assert.ok(!lines.some((l) => /\bRETRY_LIMIT\b/.test(l)), r.out)
+		assert.equal(r.code, 1)
+	}))
+
+test('a mixed-case word mandates no field', () =>
+	withTree((dir) => {
+		write(dir, SKILL, def(fence('BATCH_SIZE: rows per write'), '', 'Return the `Batch_Size` you used.'))
+		const r = run(dir)
+		assert.deepEqual(linesFor(r.out, SKILL), [])
+		assert.equal(r.code, 0, r.out)
+	}))
+
+test('a mixed-case key declares nothing', () =>
+	withTree((dir) => {
+		write(dir, AGENT, def(fence('Batch_Size:', 'STATUS: done or failed')))
+		const r = run(dir)
+		assert.deepEqual(linesFor(r.out, AGENT), [])
+		assert.equal(r.code, 0, r.out)
+	}))
+
+test('a mixed-case word explains no field', () =>
+	withTree((dir) => {
+		write(
+			dir,
+			AGENT,
+			def(fence('BATCH_SIZE, RETRY_LIMIT'), '', 'Pick a Batch_Size, and a RETRY_LIMIT for the slow store.'),
+		)
+		const r = run(dir)
+		assert.ok(
+			linesFor(r.out, AGENT).some((l) => /unexplained/.test(l) && l.includes(`${AGENT}:4 BATCH_SIZE`)),
+			r.out,
+		)
+		assert.equal(r.code, 1)
+	}))
+
+test('a field declared in both cases accepts a mandate in either', () =>
+	withTree((dir) => {
+		write(
+			dir,
+			SKILL,
+			def(
+				fence('BATCH_SIZE: rows per write', 'batch_size: rows per write'),
+				'',
+				'Return the `BATCH_SIZE` you used.',
+				'',
+				'Log the `batch_size` too.',
+			),
+		)
+		const r = run(dir)
+		assert.deepEqual(linesFor(r.out, SKILL), [])
+		assert.equal(r.code, 0, r.out)
+	}))
+
+test('a lowercase key with no underscore declares nothing', () =>
+	withTree((dir) => {
+		write(dir, AGENT, def(fence('notes:', 'STATUS: done or failed')))
+		const r = run(dir)
+		assert.deepEqual(linesFor(r.out, AGENT), [])
+		assert.equal(r.code, 0, r.out)
+	}))
+
 test('a code span that does not open with a field is not a mandate', () =>
 	withTree((dir) => {
 		write(dir, SKILL, def(fence('STATUS: done or failed'), '', 'Check `see BLOCKER` for the wording.'))
@@ -598,3 +753,32 @@ test('a SKILL.md outside a plugin skills directory is not a definition', () =>
 		write(dir, '.agents/skills/x/SKILL.md', def(fence('TARGET_PATH, WORK_MODE')))
 		assert.deepEqual(discoverDefinitions(dir), [])
 	}))
+
+// ── Known answer: issue #29 ──
+//
+// The spec-producer governance's prose spelled `governances_loaded` while its Output block spelled
+// GOVERNANCES_LOADED. The uppercase-only token rule could not see it. Rebuild the pre-fix file from
+// the live one and require the check to name it; then require the live tree, fixed, to pass.
+
+const PRODUCER = 'plugins/sdd/skills/spec-producer-governance/SKILL.md'
+
+test('known answer: the #29 block-versus-prose casing is reported miscased', () => {
+	const repoRoot = join(import.meta.dirname, '..', '..', '..', '..', '..')
+	const live = readFileSync(join(repoRoot, PRODUCER), 'utf8')
+	const preFix = live.replace(/^governances_loaded:/m, 'GOVERNANCES_LOADED:')
+	assert.notEqual(preFix, live, 'the live block must declare governances_loaded')
+	const proseLine = live.split('\n').findIndex((l) => l.includes('as `governances_loaded`')) + 1
+	assert.ok(proseLine > 0)
+
+	const before = check(parsedOf({ [PRODUCER]: preFix }))
+	assert.deepEqual(before, [
+		{ kind: 'miscased', file: PRODUCER, line: proseLine, token: 'governances_loaded', declared: 'GOVERNANCES_LOADED' },
+	])
+	assert.deepEqual(check(parsedOf({ [PRODUCER]: live })), [])
+})
+
+test('the live tree has no casing mismatch', () => {
+	const repoRoot = join(import.meta.dirname, '..', '..', '..', '..', '..')
+	const r = captureMain(['--root', repoRoot])
+	assert.ok(!/miscased/.test(r.out), r.out)
+})

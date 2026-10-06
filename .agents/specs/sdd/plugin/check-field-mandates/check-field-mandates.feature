@@ -183,6 +183,104 @@ Feature: check-field-mandates — a definition's declared fields and its prose a
     Then it reports no finding against the skill definition
     And the run exits zero
 
+  Scenario: a snake_case declaration declares a field
+    Given an agent definition whose structured block holds only the line "batch_size, retry_limit"
+    And its prose names "retry_limit" as a whole word
+    And nothing in the file names "batch_size" outside that declaration
+    When the check runs over the tree
+    Then it names the definition, the declaration's line, and "batch_size" as unexplained
+    And it reports nothing against "retry_limit"
+    And the run exits non-zero
+
+  Scenario: a lowercase mandate of a field this file declares in upper case is reported miscased
+    Given a skill definition whose structured block declares "BATCH_SIZE: rows per write"
+    And its prose names "batch_size" in a code span
+    When the check runs over the tree
+    Then it names the skill definition, the prose line, and "batch_size" as miscased
+    And it reports nothing against "batch_size" as undeclared
+    And the run exits non-zero
+
+  Scenario: an uppercase mandate of a field this file declares in lower case is reported miscased
+    Given a skill definition whose structured block declares "batch_size: rows per write"
+    And its prose names "BATCH_SIZE" in a code span
+    When the check runs over the tree
+    Then it names the skill definition, the prose line, and "BATCH_SIZE" as miscased
+    And the run exits non-zero
+
+  Scenario: a mandate spelled as its declaration passes in either case
+    Given a skill definition whose structured block declares "batch_size: rows per write" and "STATUS: done or failed"
+    And its prose names "batch_size" and "STATUS" each in a code span
+    When the check runs over the tree
+    Then it reports no finding against that definition
+    And the run exits zero
+
+  Scenario: a lowercase mandate of a field declared only elsewhere is reported undeclared
+    Given a skill definition whose structured block declares "STATUS: done or failed"
+    And its prose names "batch_size" in a code span
+    And a second definition whose structured block declares "BATCH_SIZE: rows per write"
+    When the check runs over the tree
+    Then it names the skill definition, the prose line, and "batch_size" as undeclared
+    And the run exits non-zero
+
+  Scenario: a lowercase word with no underscore is not a field
+    Given a skill definition whose structured block declares "STATUS: done or failed"
+    And its prose names "status" in a code span
+    When the check runs over the tree
+    Then it reports no finding against that definition
+    And the run exits zero
+
+  Scenario: a bare field the prose names in the other case is explained
+    Given an agent definition whose structured block holds only the line "BATCH_SIZE, RETRY_LIMIT"
+    And its prose names "batch_size" and "RETRY_LIMIT" as whole words, in no code span
+    When the check runs over the tree
+    Then it reports no finding against that definition
+    And the run exits zero
+
+  Scenario: a lowercase word with no underscore explains no field
+    Given an agent definition whose structured block holds only the line "STATUS, RETRY_LIMIT"
+    And its prose names "status" and "RETRY_LIMIT" as whole words, in no code span
+    And nothing else in the file names "STATUS"
+    When the check runs over the tree
+    Then it names the definition, the declaration's line, and "STATUS" as unexplained
+    And it reports nothing against "RETRY_LIMIT"
+    And the run exits non-zero
+
+  Scenario: a mixed-case word mandates no field
+    Given a skill definition whose structured block declares "BATCH_SIZE: rows per write"
+    And its prose names "Batch_Size" in a code span
+    When the check runs over the tree
+    Then it reports no finding against that definition
+    And the run exits zero
+
+  Scenario: a mixed-case key declares nothing
+    Given an agent definition whose structured block holds the line "Batch_Size:" and then the line "STATUS: done or failed"
+    And nothing in the file names "Batch_Size" outside that block
+    When the check runs over the tree
+    Then it reports no finding against that definition
+    And the run exits zero
+
+  Scenario: a mixed-case word explains no field
+    Given an agent definition whose structured block holds only the line "BATCH_SIZE, RETRY_LIMIT"
+    And its prose names "Batch_Size" and "RETRY_LIMIT" as whole words, in no code span
+    And nothing else in the file names "BATCH_SIZE" in any case
+    When the check runs over the tree
+    Then it names the definition, the declaration's line, and "BATCH_SIZE" as unexplained
+    And the run exits non-zero
+
+  Scenario: a field declared in both cases accepts a mandate in either
+    Given a skill definition whose structured block declares "BATCH_SIZE: rows per write" and "batch_size: rows per write"
+    And its prose names "BATCH_SIZE" in a code span on one line and "batch_size" in a code span on another
+    When the check runs over the tree
+    Then it reports no finding against that definition
+    And the run exits zero
+
+  Scenario: a lowercase key with no underscore declares nothing
+    Given an agent definition whose structured block holds the line "notes:" and then the line "STATUS: done or failed"
+    And nothing in the file names "notes" outside that block
+    When the check runs over the tree
+    Then it reports no finding against that definition
+    And the run exits zero
+
   Scenario: a code span that does not open with a field is not a mandate
     Given a skill definition whose structured block declares "STATUS: done or failed"
     And its prose names "see BLOCKER" in a code span

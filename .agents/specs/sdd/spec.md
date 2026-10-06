@@ -7,19 +7,19 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — a new behavioral node with its own suite; no existing .feature was edited, so nothing frozen was narrowed and no Clearance is owed. Semver class additive: a new read-only check.
-      blast: low — one new spec node under sdd/plugin and one pointer line in its parent README; the engine and the survivor fixes are deliver work judged at the impl gate.
-      novelty: medium — the owner-ruled reading of explained (a gloss or a prose mention) and the known-field vocabulary built across every definition are the non-obvious decisions; both are stated in the node with the live-tree measurement behind them.
-      confidence: high — cold sdd-spec-judge returned ALIGNED true with oracle, builder and architect all PASS on round 2 of the restarted loop. Round 1 failed builder on a stated rule with no acceptance edge; the remediation swept every key-terms clause by mutation and bound each survivor. A build-to-learn spike satisfied every draft scenario with no surviving mutant.
+      floor: clearance — the owner granted the frozen field-token change for this CR (seq 2); as delivered the suite delta is thirteen additive scenarios and no existing scenario's text changed. Semver class additive: a new finding kind on a read-only check.
+      blast: low — one node's spec body and suite under sdd/plugin; the engine, the #29 fix and the quill alignment are deliver work judged at the impl gate.
+      novelty: medium — the case-fold same-field rule, the underscore floor that keeps ordinary lowercase words out of the vocabulary, and the none-of quantifier for miscased are the non-obvious decisions, each bound on every side it applies to.
+      confidence: high — a cold sdd-spec-judge returned ALIGNED true with oracle, builder and architect PASS on round 4. Rounds 1-3 failed builder on stated floors with no binding (the underscore floor on declare and explain, mixed case, the both-cases quantifier); each was bound by an extension row, a map row and a scenario. PREFLIGHT was waived by the conductor: the spec-producer role ran in-session for a narrow owner-directed CR and recorded no governances_loaded set.
   impl:
     verdict: approve
     by: agent
     cause: dimension
     why:
-      floor: none — built against the frozen suite; the only suite edit after the freeze was one additive scenario (structural diff: additions only), so no Clearance was entered. Semver class additive: a new read-only check plus documentation-only fixes to eleven shipped definitions.
-      blast: low — a check wired into the commit chain and one-line documentation edits; no agent's procedure or decision text changed, confirmed by the judge reading every survivor diff.
-      novelty: medium — the cross-definition known-field vocabulary and the gloss-or-prose reading of explained are the non-obvious rules; both are bound by the suite.
-      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true on round one: 38 of 38 frozen scenarios with oracles re-derived independently, a live-tree run clean over 93 definitions, and its own twenty-mutant sweep with no surviving contract defect. One surviving mutant exposed a coverage gap (a field glued to an adjacent character) where the shipped behavior is correct; recorded as a follow-up. pnpm verify green on the tree rebased onto main.
+      floor: none beyond the spec gate's clearance — built against the frozen suite with no further suite edit. Semver class additive (cyber-sdd minor); cyber-quill patch for a documentation-only field respelling.
+      blast: low — the check engine, its tests and skill doc, and a one-field respelling in two shipped definitions; no agent's procedure changed.
+      novelty: medium — case-folded same-field and known-field resolution with a case-class comparison for miscased.
+      confidence: high — a cold sdd-impl-judge passed every frozen scenario on both rounds with oracles re-derived independently, 58 of 58 tests green, the live tree clean over 94 definitions, and mutants killed on their bound scenarios (first- or last-declaration comparer, mixed-case token, no underscore floor, no case comparison). Round 1's absorption escalation (status/gap as the doc example) was cleared by swapping the example word; round 2's (TODO, STATUS, SUBJECT examples unchanged since #55 and gated there) was ruled out of scope by the conductor and filed as a follow-up. A known-answer test rebuilds the pre-fix #29 file and fails against the pre-change engine. pnpm verify green.
 produced-by:
   spec-producer: sdd:automaton
   impl-producer: sdd:automaton

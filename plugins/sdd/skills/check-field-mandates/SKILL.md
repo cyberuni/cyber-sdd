@@ -21,6 +21,11 @@ Every `plugins/<plugin>/skills/**/SKILL.md` and `plugins/<plugin>/agents/*.md`, 
 - **unexplained** — a block declares a field that carries no gloss and that the prose never names.
 - **undeclared** — the prose names a known field in a code span, and none of the file's blocks
   declare it.
+- **miscased** — the prose names, in a code span, a field this file's block declares, but spelled
+  in the other case (`governances_loaded` against `GOVERNANCES_LOADED`).
+
+**A field token** is `UPPER_CASE` or `snake_case`; the two spellings name the same field. A lowercase
+word needs an underscore to be a token, so ordinary prose (`owner`) is never a field.
 
 **A structured block** is a fenced code block with no info string (or `text`). A **declaration** is a
 block line opening with field tokens then a colon (`STATUS: complete | blocked`), a comma list of two

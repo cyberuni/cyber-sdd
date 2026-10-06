@@ -83,7 +83,7 @@ REMEDIATION:       <per finding answered: verdict, rule, swept, ruled-out, prove
 STATUS:             complete | needs-input | blocked
 SCENARIOS_WRITTEN:  <count>
 NOTES:              <what was written / revised>
-GOVERNANCES_LOADED: [ every governance name loaded before writing — required, [] when none, never written into spec.md or the .feature ]
+governances_loaded: [ every governance name loaded before writing — required, [] when none, never written into spec.md or the .feature ]
 QUESTIONS:          [ batched, when needs-input ]
 CONTENT_GAPS:       [ { artifact, location, gap } ]   # become <!-- open: --> markers
 OBSERVATIONS:       [ { owner: architect | strategist, note, evidence } ]

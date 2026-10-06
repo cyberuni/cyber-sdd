@@ -282,6 +282,119 @@ export function findRepoRoot(from: string): string | null {
 
 export const RESULTS_DIR = join('.agents', 'aced', 'results')
 
+// ─── measured records ─────────────────────────────────────────────────────────
+//
+// The bench engine writes one measured record per arm to `.agents/aced/results/bench/<suite>/`.
+// It names no `target`, so it is found by the `suite` and `arm` it RECORDS — never by its file
+// name — and compared with the same hash rule. Every recorded input moves what was measured (the
+// prompts, what `pass` means, the arm itself), so there is no frozen suite to split off and no
+// `incomplete`: any moved input reads `stale`.
+
+export const MEASURED_RESULTS_DIR = join(RESULTS_DIR, 'bench')
+const MEASURED_BENCH_DIR = join('.agents', 'aced', 'bench')
+
+export interface MeasuredRecord {
+	layer?: string
+	suite?: string
+	arm?: string
+	createdAt?: string
+	subject?: { kind?: string; from?: string }
+	evaluated?: EvaluatedEntry[]
+}
+
+export interface MeasuredScan {
+	forArm: Array<{ file: string; record: MeasuredRecord }>
+	unreadable: string[]
+}
+
+/**
+ * Keeps the measured records whose OWN `suite` and `arm` fields match. A file that parses but is
+ * not a measured record — a compare record sitting beside them — is simply not a candidate.
+ */
+export function scanMeasured(files: string[], suite: string, arm: string, read: (f: string) => string): MeasuredScan {
+	const forArm: MeasuredScan['forArm'] = []
+	const unreadable: string[] = []
+	for (const file of files) {
+		let record: MeasuredRecord
+		try {
+			record = JSON.parse(read(file)) as MeasuredRecord
+		} catch {
+			unreadable.push(file)
+			continue
+		}
+		if (record && record.layer === 'measured' && record.suite === suite && record.arm === arm)
+			forArm.push({ file, record })
+	}
+	return { forArm, unreadable }
+}
+
+/** Newest by RECORDED `createdAt`, for the same reason `selectNewest` ignores file names. */
+export function selectNewestMeasured(records: MeasuredScan['forArm']): MeasuredScan['forArm'][number] | null {
+	let best: MeasuredScan['forArm'][number] | null = null
+	for (const r of records) {
+		const t = r.record.createdAt ?? ''
+		if (!best || t > (best.record.createdAt ?? '')) best = r
+	}
+	return best
+}
+
+/**
+ * The bench engine always records the suite's `tasks.json`, and records a `file` arm's source
+ * whenever the arm reads it from a path. A set omitting either contradicts the record carrying it.
+ */
+export function measuredIncoherence(record: MeasuredRecord, suite: string): string | null {
+	const paths = new Set((record.evaluated ?? []).map((e) => e.path))
+	const tasks = join(MEASURED_BENCH_DIR, suite, 'tasks.json')
+	if (!paths.has(tasks)) {
+		return `the recorded provenance contradicts the record it accompanies: it carries no entry for ${tasks}`
+	}
+	const from = record.subject?.kind === 'file' ? record.subject.from : undefined
+	if (from?.startsWith('path:')) {
+		const source = from.slice(5)
+		if (!paths.has(source)) {
+			return `the recorded provenance omits the file arm's source: no entry for ${source}`
+		}
+	}
+	return null
+}
+
+function measuredMain(repoRoot: string, suite: string, arm: string): number {
+	process.stdout.write(`suite: ${suite}\narm: ${arm}\n`)
+
+	const dir = join(repoRoot, MEASURED_RESULTS_DIR, suite)
+	if (!existsSync(dir)) {
+		report({ verdict: 'absent', reason: 'nothing is measured for this suite', mismatched: [], skipped: [] })
+		return 1
+	}
+
+	const scan = scanMeasured(collectResultFiles(dir), suite, arm, (f) => readFileSync(f, 'utf8'))
+	const skipped = scan.unreadable.map((f) => relative(repoRoot, f))
+	const newest = selectNewestMeasured(scan.forArm)
+	if (!newest) {
+		report({
+			verdict: 'absent',
+			reason: 'no measured record is recorded for this arm',
+			mismatched: [],
+			skipped,
+		})
+		return 1
+	}
+	if (!newest.record.evaluated) {
+		report({ verdict: 'absent', reason: 'the record carries no recorded provenance', mismatched: [], skipped })
+		return 1
+	}
+	const bad = measuredIncoherence(newest.record, suite)
+	if (bad) {
+		report({ verdict: 'absent', reason: bad, mismatched: [], skipped })
+		return 1
+	}
+
+	// No frozen suite: every entry is a subject input, so the verdict is `stale` or `current`.
+	const decision = decideVerdict(newest.record, repoRoot, '', skipped)
+	report(decision)
+	return decision.verdict === 'current' ? 0 : 1
+}
+
 // ─── CLI ──────────────────────────────────────────────────────────────────────
 
 function report(d: Decision): void {
@@ -314,10 +427,30 @@ export function main(argv: string[]): number {
 		return 0
 	}
 
+	const suiteIdx = argv.indexOf('--suite')
+	const armIdx = argv.indexOf('--arm')
+	if (suiteIdx !== -1 || armIdx !== -1) {
+		// Fail closed, as the --node path does: one option without the other emits no verdict.
+		const suite = suiteIdx === -1 ? undefined : argv[suiteIdx + 1]
+		const arm = armIdx === -1 ? undefined : argv[armIdx + 1]
+		if (!suite || !arm) {
+			console.error(
+				`✗ a measured check needs both --suite <suite> and --arm <label>; missing ${suite ? '--arm' : '--suite'}; no verdict`,
+			)
+			return 1
+		}
+		const repoRoot = findRepoRoot(process.cwd())
+		if (!repoRoot) {
+			console.error('✗ no repository root above the working directory; no verdict')
+			return 1
+		}
+		return measuredMain(repoRoot, suite, arm)
+	}
+
 	const nodeIdx = argv.indexOf('--node')
 	const nodeArg = nodeIdx === -1 ? undefined : argv[nodeIdx + 1]
 	if (!nodeArg) {
-		console.error('✗ usage: check-freshness --node <node-dir>')
+		console.error('✗ usage: check-freshness --node <node-dir> | --suite <suite> --arm <label>')
 		return 1
 	}
 	const nodeDir = resolve(nodeArg)

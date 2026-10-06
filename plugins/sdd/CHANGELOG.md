@@ -1,5 +1,12 @@
 # cyber-sdd
 
+## 0.4.2
+
+### Patch Changes
+
+- f4a72e2: The spec gate's `check-suite` engine now runs from an installed plugin. It imported gherkin-cli as a package, and an installed plugin has no `node_modules`, so the producer's suite self-check failed with module-not-found. The engine now imports a self-contained gherkin-cli bundle shipped beside it.
+- 770bad2: `classify-edit-class`, `touch-set-correction` and `verify-scenarios` now run from an installed plugin. Each imported gherkin-cli as a package, and an installed plugin has no `node_modules`, so each failed with module-not-found. They now import the same self-contained gherkin-cli bundle the spec gate's `check-suite` uses.
+
 ## 0.4.1
 
 ### Patch Changes

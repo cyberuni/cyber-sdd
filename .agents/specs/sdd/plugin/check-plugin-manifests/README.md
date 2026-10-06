@@ -15,16 +15,23 @@ key into each generated vendor manifest, and the defect only surfaces on a **use
 publish, as a component the runtime cannot load.
 
 **check-plugin-manifests** is the guard for that class. It reads every plugin manifest in the tree
-and resolves each declared pointer against what the package actually ships, in the two ways a
+and resolves each declared pointer against what the package actually ships, in the three ways a
 component can fail to arrive:
 
 | Sub-check | Answers | Blind to |
 |---|---|---|
 | **the disk check** | does the pointer resolve to a path that exists? | a path that exists but is excluded from the published package |
 | **the publish check** | for a package that publishes, is the pointer inside its `files` allowlist? | a path listed in `files` that was never created |
+| **the pack check** | for a package that packs a tarball, does the manifest — or a component it declares — ship as a symbolic link? | a link the `files` allowlist leaves out of the tarball |
 
-Neither subsumes the other. A directory can exist and be excluded from the tarball; a `files` entry
-can name a directory nobody created. Run either alone and one of the two ways ships.
+The first two do not subsume each other. A directory can exist and be excluded from the tarball; a
+`files` entry can name a directory nobody created. Run either alone and one of the two ways ships.
+
+**The pack check guards the whole package, not one component.** The npm registry rejects a tarball
+that carries a symbolic link (`415 Unsupported Media Type: Symbolic link is not allowed`), so one
+symlinked vendor manifest stops every component of that package from arriving. A `private` package
+packs no tarball, so its links are left alone; a package that declares no `files` ships everything,
+so every link it holds is checked.
 
 **A pointer is any `./`-prefixed string value, not a fixed key list.** The manifest format grows new
 component keys, and a guard hardcoding `commands` / `skills` / `agents` fails open on the next one
@@ -84,6 +91,7 @@ generated vendor copies are exactly where a hand-edit to the canonical source fa
 |---|---|
 | a pointer resolves to no path on disk | names the manifest, the key, and the pointer; marks the run failed |
 | a publishable package declares a pointer outside its `files` allowlist | names it as declared-but-unpublished; marks the run failed |
+| a package that is not `private` ships a manifest, or a declared component, that is or holds a symbolic link | names the link as a symlink finding; marks the run failed |
 | the owning package is `private`, or declares no `files` | the publish check is not applied — nothing is published, so nothing can be omitted |
 | a manifest does not parse as JSON | names it and marks the run failed — an unreadable manifest is escalated, never skipped |
 | more than one pointer is dead | the run **reports every one** before exiting non-zero — one invocation reports every defect it can see |
@@ -109,7 +117,8 @@ output; an element no use case needs is surface nobody asked for.
 
 ## Control Flow
 
-One entry point, one graph. The two sub-checks are sequential on the same pointer: a pointer that
+One entry point, one graph. The disk and publish checks are sequential on the same pointer, and
+the pack check runs last, on what the package actually ships: a pointer that
 does not exist on disk is reported once and is not then also asked about `files`, because the
 publish check would report the same missing thing a second way.
 
@@ -125,15 +134,21 @@ graph TD
 
   M --> MP{does it parse as JSON?}
   MP -- no --> F1[name the unparseable manifest, mark failed]
-  MP -- yes --> PT{another pointer in it?}
+  MP -- yes --> ML{package packs it, and the manifest is a symbolic link?}
+  ML -- yes --> F4[name the link, mark failed]
+  ML -- no --> PT{another pointer in it?}
+  F4 -- report and continue --> PT
 
   PT -- yes --> DK{does the pointer resolve on disk?}
   DK -- no --> F2[name manifest, key and pointer, mark failed]
   DK -- yes --> PUB{does the owning package publish?}
-  PUB -- no --> OK[pointer ok]
+  PUB -- no --> LK{package packs it, and it is or holds a symbolic link?}
   PUB -- yes --> FL{is the pointer inside the files allowlist?}
   FL -- no --> F3[name it declared-but-unpublished, mark failed]
-  FL -- yes --> OK
+  FL -- yes --> LK
+  LK -- yes --> F5[name each link, mark failed]
+  LK -- no --> OK[pointer ok]
+  F5 -- report and continue --> PT
 
   F2 -- report and continue --> PT
   F3 -- report and continue --> PT
@@ -171,6 +186,10 @@ against packages that ship by another route entirely — which is how this repo'
 | pointer outside the files allowlist → name it, mark failed | a package not declaring `private`, whose `files` omits the directory its pointer resolves to | `a package that publishes and will not ship a declared component fails` |
 | pointer inside the files allowlist → ok | a package not declaring `private`, whose `files` names the directory its pointer resolves to | `a package that publishes everything it declares passes` |
 | pointer dead on disk → short-circuit past the publish check | a pointer both absent from disk and omitted from `files` — the one path where both sub-checks could fire | `a pointer dead on disk is reported once, not again as unpublished` |
+| shipped manifest is a symbolic link → name it, mark failed | a package not declaring `private` whose `files` ships a symlinked vendor manifest | `a package that packs a tarball and ships a symlinked manifest fails` |
+| shipped component holds a symbolic link → name it, mark failed | a package not declaring `private` whose shipped component directory holds a link | `a symbolic link inside a shipped component fails` |
+| package packs no tarball → skip the pack check | a package declaring `private` with a symlinked vendor manifest | `a symbolic link in a package marked private passes` |
+| link outside the files allowlist → skip the pack check | a package not declaring `private` whose `files` omits the symlinked manifest's directory | `a symbolic link the files allowlist excludes passes` |
 | manifest does not parse → name it, mark failed | a manifest file containing malformed JSON | `an unparseable manifest fails instead of being skipped` |
 | another pointer → take the next | one manifest declaring two dead pointers — the inner loop | `every dead pointer within one manifest is reported` |
 | another manifest → take the next | two manifests, each declaring a dead pointer — the outer loop | `every dead pointer is reported, not only the first` |

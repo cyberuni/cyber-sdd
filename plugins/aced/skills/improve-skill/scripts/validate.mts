@@ -172,6 +172,31 @@ export function recognizedScanRoots(cwd: string, dirGlobs: string[] = []): Set<s
 	return roots
 }
 
+// Every non-hidden file under a skill's scripts/, as a /-separated path relative to it. Recurses
+// into subfolders (e.g. scripts/vendor/) so the content checks see nested scripts too; does not
+// follow a symlinked folder, so a link cycle cannot loop the walk.
+export function listScriptFiles(scriptsDir: string, rel = ''): string[] {
+	const files: string[] = []
+	for (const entry of fs.readdirSync(path.join(scriptsDir, rel), { withFileTypes: true })) {
+		if (entry.name.startsWith('.')) continue
+		const relPath = rel ? `${rel}/${entry.name}` : entry.name
+		if (entry.isDirectory()) {
+			files.push(...listScriptFiles(scriptsDir, relPath))
+		} else if (entry.isFile() || (entry.isSymbolicLink() && isFileTarget(path.join(scriptsDir, relPath)))) {
+			files.push(relPath)
+		}
+	}
+	return files.sort()
+}
+
+function isFileTarget(filePath: string): boolean {
+	try {
+		return fs.statSync(filePath).isFile()
+	} catch {
+		return false
+	}
+}
+
 export function findSkillFiles(dirs: string[], cwd: string): string[] {
 	const seen = new Set<string>()
 	const results: string[] = []
@@ -509,6 +534,9 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	const stripped = stripExamples(content)
 	const invisibleInSkill = findInvisibleUnicode(content)
 	const isPartialSkill = fmInternal
+	// ADR-0031: the exact description "By name only" is the by-name mechanism, independent of
+	// user-invocable (visibility only). A visible by-name skill must not be pushed to pad it (#81).
+	const isByNameDescription = fmDesc === 'By name only'
 	const isPublicShippedSkill = parent === 'skills' && skillBaseParent !== '.agents' && !fmInternal
 
 	// S1: the SKILL.md must sit in its own named subdirectory directly under a recognized scan root.
@@ -609,7 +637,7 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	}
 
 	if (fmDesc) {
-		if (!isPartialSkill) {
+		if (!isPartialSkill && !isByNameDescription) {
 			const wordCount = fmDesc.split(/\s+/).filter(Boolean).length
 			if (wordCount < 12) {
 				warn(
@@ -712,7 +740,7 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	}
 
 	if (hasScripts) {
-		const scriptFiles = fs.readdirSync(scriptsDir).filter((f) => !f.startsWith('.'))
+		const scriptFiles = listScriptFiles(scriptsDir)
 		const hasInteractive = scriptFiles.some((f) => {
 			const src = fs.readFileSync(path.join(scriptsDir, f), 'utf8')
 			return /readline|createInterface|\.question\(/.test(src)
@@ -784,7 +812,7 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	}
 
 	if (hasScripts) {
-		for (const f of fs.readdirSync(scriptsDir).filter((name) => !name.startsWith('.'))) {
+		for (const f of listScriptFiles(scriptsDir)) {
 			const src = fs.readFileSync(path.join(scriptsDir, f), 'utf8')
 			const invisibleInScript = findInvisibleUnicode(src)
 			if (invisibleInScript) {

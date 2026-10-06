@@ -96,6 +96,12 @@ Feature: The touch-set-correction engine — reconcile a declared touch-set agai
     When the correction is assembled
     Then the node records no scenario detail
 
+  Scenario: a touched feature records its changed scenario names from an installed plugin
+    Given the sdd plugin installed as its shipped files with no package dependencies installed
+    And a constructed diff that adds one scenario to a .feature and leaves its other scenario unchanged
+    When the correction is assembled from the installed plugin
+    Then the node records the added scenario name and not the unchanged one
+
   Scenario: the recorded scenario detail does not reclassify the node collision
     Given a node carrying changed-scenario detail
     When the correction is read

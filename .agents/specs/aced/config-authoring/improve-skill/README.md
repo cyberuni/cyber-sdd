@@ -29,7 +29,9 @@ orchestrator loads **by name**, never matched to a user situation. Because a par
 held to identity-for-the-caller: Q1/Q2 (trigger language, specificity word-count) are public-only,
 Q18 flags trigger-shaped phrasing, Q3 requires the `"Partial Skill:"` prefix, and Q17 flags four
 objective operational-detail markers (a slashed path, an `.agents/`/`scripts/` directory, a check-ID,
-a named artifact file). `metadata.internal: true` **alone** does not classify a skill as partial — it
+a named artifact file). A description of exactly `"By name only"` is the by-name mechanism
+([ADR-0031](../../../../../docs/adr/0031-selection-is-not-visibility.md)) and is exempt from the Q2
+word count even when the skill stays visible. `metadata.internal: true` **alone** does not classify a skill as partial — it
 is a marketplace-visibility flag, orthogonal to being a by-name part.
 
 **Fit:** partial (hybrid). The trigger layer (activation vs. the deferrals) and the LLM-audit layer
@@ -180,7 +182,12 @@ flowchart TD
   POP -->|identity + caller only| POPOK[operational-detail check passes]
   PUB --> PUBTRIG[Q1 flags missing trigger language]
   PUB --> PUBSPEC[Q2 flags a sub-twelve-word description]
+  PUB -->|description exactly 'By name only'| PUBBYNAME[Q2 word count skipped]
   PUB --> PUBOP[Q17 does not apply to public]
+
+  ESCAN --> ESCRIPTS{scripts/ entry?}
+  ESCRIPTS -->|file| ESFILE[inspect its content for Q11 and E9]
+  ESCRIPTS -->|subfolder| ESDIR[walk into it; inspect each nested file]
 
   ESCAN --> E1{E1 destructive-command shape?}
   E1 -->|recursive / forced-recursive delete| E1CRIT[CRITICAL]
@@ -229,6 +236,7 @@ One row per decision edge, one scenario per row. Rows follow the suite's section
 | `PART` → Q1/Q2 skipped | a partial with no trigger phrasing | `the trigger-language and trigger-specificity checks are public-only` |
 | `PUB` → `PUBTRIG` | a public skill with no trigger phrasing | `the trigger-language check still applies to a public skill` |
 | `PUB` → `PUBSPEC` | a public skill under twelve words | `the specificity word-count check still applies to a public skill` |
+| `PUB` → `PUBBYNAME` | a visible skill whose description is exactly `"By name only"` | `a by-name description is exempt from the specificity word-count check even on a visible skill` |
 | `PTRIG` → `PTFLAG` | a partial carrying `"Use this skill when"` | `a partial-skill description carrying user-facing trigger language is flagged` |
 | `PTRIG` → `PTOK` | a partial with no trigger phrasing | `a partial-skill description with no trigger language is not flagged for trigger language` |
 | `PPRE` → `PPFLAG` | a partial not leading with the prefix | `a partial-skill description not leading with the Partial Skill prefix is flagged` |
@@ -255,6 +263,7 @@ One row per decision edge, one scenario per row. Rows follow the suite's section
 | `EXIT` → `EXNZ` | a scan with at least one CRITICAL | `a CRITICAL finding produces a non-zero exit code` |
 | `EXIT` → `EXZ` | a scan with only WARN findings | `only warning-level findings still exits zero` |
 | `EXIT` → `EXZ2` | a scan with no findings at all | `a fully clean scan exits zero` |
+| `ESCRIPTS` → `ESDIR` | a scripts/ subfolder holding a script | `a subfolder under a skill's scripts/ is walked, not read as a file` |
 | `E1` → `E1CRIT` | a body embedding `rm -rf` / `rm -r` | `a recursive or forced-recursive delete is a CRITICAL finding` |
 | `E1` → `E1WARN` | `rm -f` at a single named relative file | `a scoped forced delete of a single named file is a warning, not a CRITICAL` |
 | `E1` → `E1ESC` | `rm -f` at a glob / absolute / home target (outline) | `a forced delete whose target escapes a single named relative file stays CRITICAL` |

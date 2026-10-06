@@ -549,6 +549,18 @@ Feature: The spec gate — judge a spec + suite diff and freeze on approve
     Then the change is classified as no content change
     And the classification comes from the rename detection and not from the structural differ
 
+  Scenario: the edit-class classification classifies an added scenario from an installed plugin
+    Given the sdd plugin installed as its shipped files with no package dependencies installed
+    And a touched frozen .feature that gained one whole scenario since its committed baseline
+    When the edit class is classified from the installed plugin
+    Then the change is classified as additive naming the added scenario
+
+  Scenario: the edit-class classification reports an unparseable frozen file unclassifiable from an installed plugin
+    Given the sdd plugin installed as its shipped files with no package dependencies installed
+    And a touched frozen .feature the pinned Gherkin parser cannot parse
+    When the edit class is classified from the installed plugin
+    Then the change is classified as unclassifiable with the parse failure as its reason
+
   Scenario: an unparseable file carrying no frozen tag is skipped by the edit-class routing
     Given a touched .feature the parser cannot parse that carries no frozen tag in either version
     When the gate classifies its edit class

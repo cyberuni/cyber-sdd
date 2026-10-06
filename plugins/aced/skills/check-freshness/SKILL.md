@@ -26,6 +26,18 @@ node "<skill>/scripts/check-freshness.mts" --node <node-dir>
 `.feature`. Exit status is **zero only for `current`**; every other verdict, and every fail-closed
 path, exits non-zero.
 
+For a **measured record** the bench engine wrote, name the suite and arm instead:
+
+```
+node "<skill>/scripts/check-freshness.mts" --suite <suite> --arm <label>
+```
+
+It reads `.agents/aced/results/bench/<suite>/`, keeps the records whose own `suite` and `arm` fields
+match (never the file name), takes the greatest recorded `createdAt`, and compares its evaluated set —
+the suite's `tasks.json`, its `checks/`, and a `file` arm's source. A measured record has no frozen
+suite, so any moved input reads `stale`; it never reads `incomplete`. Run it from inside the
+repository. `--suite` without `--arm`, or the reverse, fails closed with no verdict.
+
 It also exposes the hashing routine, so `run` records entries with the same implementation that
 reads them back — never a second one that merely agrees today:
 

@@ -28,7 +28,7 @@ bound and passing.
 **Non-goals** — it does **not** decide the gate verdict or judge the UNBOUND remainder (that is
 [`../impl-judge/`](../impl-judge/README.md)); it does **not** author or rename tests, and does
 **not** reorganize a `.feature` by runner (that would leak impl into a capability-organized spec);
-it does **not** re-implement a Gherkin parser (it shells `gherkin-cli`); it owns no lifecycle state
+it does **not** re-implement a Gherkin parser (it uses `gherkin-cli`); it owns no lifecycle state
 and writes nothing. Code-coverage is **rejected** as the binding mechanism — a line running is not a
 behavior verified.
 
@@ -46,6 +46,7 @@ behaviors:
 | **path resolution** | a path argument (`--feature` / `--report` / `--config`, and each source's `reportPath`) resolves **beneath its root** when **relative**, and is used **verbatim** when **absolute** — never double-prefixed |
 | **feature-root vs. bridge-root** | `--feature` resolves beneath `--feature-root` (defaults to `--root` when omitted); `--config`'s default path, `--report`, and every source's `reportPath` always resolve beneath `--root` — a monorepo where the frozen `.feature` and the project's config+report live under different roots (e.g. a repo-root spec corpus alongside a package-rooted project) needs no single root to serve both |
 | **exit status** | the tool exits **non-zero** when any scenario is UNBOUND or FAIL, and **zero** only when every scenario is bound and passing |
+| **installed plugin** | run from an installed plugin's shipped files, with no package dependencies beside them, the tool reaches the same report and exit status: a fully bound suite exits zero, an unbound scenario is reported UNBOUND and exits non-zero |
 
 ## Binding convention
 

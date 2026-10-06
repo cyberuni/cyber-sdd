@@ -1,5 +1,16 @@
 # cyber-aced
 
+## 0.4.0
+
+### Minor Changes
+
+- 97b02d2: `check-freshness` now reads measured records. Run `check-freshness --suite <suite> --arm <label>` to find the newest record the bench engine wrote for that arm under `.agents/aced/results/bench/<suite>/` and compare its `evaluated` set with the working tree. A changed `tasks.json`, a changed or removed check, or a changed `file` arm source reads `stale`; a record with nothing to compare reads `absent`. It exits zero only for `current`.
+
+### Patch Changes
+
+- f15619c: `improve-skill`'s validate engine no longer flags a description of exactly `"By name only"` as too short. That description marks a by-name skill on its own (ADR-0031), so a visible by-name skill such as `bench` passes Q2 without padding its description or hiding the command.
+- a0f6c39: `improve-skill`'s validate engine no longer crashes with `EISDIR` when a skill's `scripts/` holds a subfolder such as `scripts/vendor/`. It walks the subfolders, so the Q11 and E9 script checks also cover nested scripts.
+
 ## 0.3.0
 
 ### Minor Changes

@@ -856,6 +856,58 @@ Run \`node scripts/run.mjs --yes\`.
 	}
 })
 
+// ---- Mechanical validate engine: nested scripts folder ----
+
+test('nested scripts folder: a subdirectory under scripts/ does not crash the engine', () => {
+	const root = tmpRoot()
+	try {
+		const skillDir = path.join(root, 'skills', 'sample-skill')
+		fs.mkdirSync(path.join(skillDir, 'scripts', 'vendor'), { recursive: true })
+		fs.writeFileSync(path.join(skillDir, 'scripts', 'vendor', 'x.mjs'), "console.log('safe')\n")
+		const file = writeSkill(root, 'skills/sample-skill', GOOD_FRONTMATTER)
+		const result = runChecks(file)
+		assert.equal(result.criticals.length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('nested scripts folder: E9 reaches a file inside a scripts/ subdirectory', () => {
+	const root = tmpRoot()
+	try {
+		const skillDir = path.join(root, 'skills', 'sample-skill')
+		fs.mkdirSync(path.join(skillDir, 'scripts', 'vendor'), { recursive: true })
+		fs.writeFileSync(
+			path.join(skillDir, 'scripts', 'vendor', 'x.mjs'),
+			`console.log('safe')${String.fromCharCode(0x202e)}\n`,
+		)
+		const file = writeSkill(root, 'skills/sample-skill', GOOD_FRONTMATTER)
+		const result = runChecks(file)
+		const e9 = result.criticals.filter((f) => f.checkId === 'E9')
+		assert.equal(e9.length, 1)
+		assert.match(e9[0]?.evidence ?? '', /scripts\/vendor\/x\.mjs/)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('nested scripts folder: Q11 reaches an interactive script inside a scripts/ subdirectory', () => {
+	const root = tmpRoot()
+	try {
+		const skillDir = path.join(root, 'skills', 'sample-skill')
+		fs.mkdirSync(path.join(skillDir, 'scripts', 'lib'), { recursive: true })
+		fs.writeFileSync(
+			path.join(skillDir, 'scripts', 'lib', 'prompt.mjs'),
+			"import readline from 'node:readline'\nreadline.createInterface({ input: process.stdin })",
+		)
+		const file = writeSkill(root, 'skills/sample-skill', GOOD_FRONTMATTER)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q11').length, 1)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
 // S6 — skill.json schema validation (mechanical subset)
 
 const VALID_FRONTMATTER = `---
@@ -980,6 +1032,18 @@ test('the specificity word-count check still applies to a public skill', () => {
 		const file = writeSkill(root, 'skills/sample-skill', skillFixture({ description: 'Use this skill for cleanup.' }))
 		const result = runChecks(file)
 		assert.ok(result.warnings.some((f) => f.checkId === 'Q2' && /Description too short/.test(f.name)))
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('a by-name description is exempt from the specificity word-count check even on a visible skill', () => {
+	const root = tmpRoot()
+	try {
+		// no user-invocable:false — the exact "By name only" description alone marks the by-name skill (ADR-0031)
+		const file = writeSkill(root, 'skills/sample-skill', skillFixture({ description: 'By name only' }))
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q2' && /Description too short/.test(f.name)).length, 0)
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}

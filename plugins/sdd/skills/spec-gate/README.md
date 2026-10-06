@@ -28,3 +28,8 @@ References `sdd:lifecycle-governance`, `sdd:ownership-governance`, `sdd:gate-val
   runs from an installed plugin, which has no `node_modules`. `pnpm build:vendor` rebuilds the
   bundle; `check-suite-installed.test.mts` runs the engine from a copy of the plugin's files and
   fails while the bundle is stale.
+- `classify-edit-class.mts` — the structural edit-class classifier for touched frozen `.feature`
+  files. It imports the same `../vendor/gherkin-cli.mjs` bundle; `classify-edit-class-installed.test.mts`
+  runs it from a copy of the plugin's files.
+- `vendor/gherkin-cli.mjs` is shared: `touch-set-correction` and `verify-scenarios` import it from
+  here too, so the plugin ships one copy.

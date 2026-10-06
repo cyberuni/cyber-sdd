@@ -8,7 +8,12 @@ script that unions one or more junit (today) result sources against the scenario
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
 - **Script:** [`scripts/verify-scenarios.mts`](./scripts/verify-scenarios.mts)
-- **Tests:** [`scripts/verify-scenarios.test.mts`](./scripts/verify-scenarios.test.mts) (`node:test`)
+- **Tests:** [`scripts/verify-scenarios.test.mts`](./scripts/verify-scenarios.test.mts) (`node:test`);
+  [`scripts/verify-scenarios-installed.test.mts`](./scripts/verify-scenarios-installed.test.mts)
+  runs the engine from a copy of the plugin's files, with no `node_modules`
+
+The engine imports gherkin-cli from the spec gate's committed bundle
+(`../spec-gate/vendor/gherkin-cli.mjs`), so it runs from an installed plugin.
 
 ```bash
 node scripts/verify-scenarios.mts --feature .agents/spec/identity/identity.feature --node cyberlegion/identity

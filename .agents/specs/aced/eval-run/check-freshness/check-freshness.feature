@@ -136,3 +136,86 @@ Feature: check-freshness — is this recorded eval result still current?
     Given any node directory and results directory
     When the check runs against them
     Then no file under the repository is created, modified, or deleted
+
+  # ---- Measured records ----
+
+  Scenario: a measured check given a suite and no arm fails closed
+    Given an invocation naming a bench suite and no arm
+    When the check runs
+    Then it reports the missing arm option, emits no verdict, and exits non-zero
+
+  Scenario: a suite with no measured results reports absent
+    Given a repository holding no measured-results directory for the named suite
+    When the check decides the verdict for that suite and an arm
+    Then it reports absent and states that nothing is measured for this suite
+
+  Scenario: a suite with no measured record for the arm reports absent
+    Given a measured-results directory for the suite holding only records whose recorded arm is a different label
+    When the check decides the verdict for that suite and arm
+    Then it reports absent and states that no measured record is recorded for this arm
+
+  Scenario: a measured record is matched by the arm it records, not by its file name
+    Given a record whose recorded arm is this arm and whose every evaluated entry matches the working tree, filed under a name ending in a different arm label
+    And a record whose recorded arm is that different label and whose evaluated entry no longer matches, filed under a name ending in this arm label
+    When the check decides the verdict for this arm
+    Then it reports current
+
+  Scenario: the newest measured record is the one whose recorded createdAt is greatest
+    Given two records for the arm whose alphabetical filename order is the reverse of their recorded createdAt
+    And only the one carrying the greatest recorded createdAt carries an evaluated set
+    When the check decides the verdict for that arm
+    Then it reports current and does not state that the record carries no recorded provenance
+
+  Scenario: an unreadable measured record is skipped and named
+    Given two record files for the arm, the one sorting last by name holding text that is not parseable JSON
+    When the check decides the verdict for that arm
+    Then it names the unreadable file as skipped and reports the verdict of the readable record
+
+  Scenario: a measured record carrying no evaluated set reports absent
+    Given the newest record for the arm carries a suite, an arm, a createdAt, and runs, and no evaluated set
+    When the check decides the verdict for that arm
+    Then it reports absent and states that the record carries no recorded provenance
+
+  Scenario: a measured record whose evaluated set omits the suite's tasks reports absent
+    Given the newest record for the arm carries an evaluated set with no entry for the suite's tasks.json
+    When the check decides the verdict for that arm
+    Then it reports absent and states that the recorded provenance contradicts the record it accompanies
+
+  Scenario: a measured record whose evaluated set omits the file arm's source reports absent
+    Given the newest record for the arm records a file arm read from a source path
+    And its evaluated set carries no entry for that source path
+    When the check decides the verdict for that arm
+    Then it reports absent and states that the recorded provenance omits the file arm's source
+
+  Scenario: a measured record whose recorded files all match the working tree is current
+    Given the newest record for the arm, whose every evaluated entry hashes to the same content in the working tree
+    When the check decides the verdict for that arm
+    Then it reports current
+
+  Scenario: a changed task set makes the measured record stale
+    Given the newest record for the arm, whose evaluated set includes the suite's tasks.json
+    And that tasks.json has been edited since the record was written
+    When the check decides the verdict for that arm
+    Then it reports stale and names that tasks.json as no longer matching
+
+  Scenario: a check removed since the measurement makes the measured record stale
+    Given the newest record for the arm, whose evaluated set includes a file under the suite's checks directory
+    And that check file has been deleted from the working tree
+    When the check decides the verdict for that arm
+    Then it reports stale and names that check file as missing from the tree
+
+  Scenario: a changed file-arm source makes the measured record stale
+    Given the newest record for a file arm read from a source path, whose evaluated set includes that source
+    And that source file has been edited since the record was written
+    When the check decides the verdict for that arm
+    Then it reports stale and names that source file as no longer matching
+
+  Scenario: only a current measured verdict exits zero
+    Given three measured checks producing current, stale, and absent in turn
+    When the check reports each verdict
+    Then the current check exits zero and the stale and absent checks each exit non-zero
+
+  Scenario: a measured check writes nothing
+    Given any bench suite, arm, and measured-results directory
+    When the check runs against them
+    Then no file under the repository is created, modified, or deleted

@@ -73,6 +73,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
 ```
 STATUS:            complete | needs-input | blocked | recused
+BLOCKER:           <what blocked it — e.g. the frozen suite a finding would narrow — when STATUS is blocked, else null>
 GOVERNANCES_LOADED: [ every governance name loaded in the pre-flight — required, [] when none, an SDD default named as itself, never written into spec.md or the .feature ]
 RECUSAL:           <the production chain the target routes to, when STATUS is recused — else null>
 SCENARIOS_WRITTEN: <count>

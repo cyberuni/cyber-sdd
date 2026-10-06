@@ -15,7 +15,7 @@ Load alongside this governance: `sdd:spec-format-governance` (the required `## U
 ## Inputs (folded in by the conductor)
 
 ```
-DOMAIN, DOMAIN_PATH, SPEC_PATH
+DOMAIN, DOMAIN_PATH, SPEC_PATH: the domain under work, its spec folder, and its spec.md
 COMMAND_SURFACE:  <command syntax / signatures / events — or null>
 DESIGN_DECISIONS: <known choices — or null>
 USER_INPUT:       <What / Why / command surface for a new feature — or null>

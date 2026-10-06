@@ -48,5 +48,5 @@ rationale belong in ADRs and research dossiers.
 Owned elsewhere and referenced from these documents: `plugin-design`, `slash-invocation`, and
 `universal-plugin` ship from the `universal-plugin` package.
 
-See [ADR-0035](../../../docs/adr/0035-authored-governances-ship-as-package-files.md) for why these
+See [ADR-0035](https://github.com/cyberuni/cyber-sdd/blob/main/docs/adr/0035-authored-governances-ship-as-package-files.md) for why these
 ship as package files rather than as governance skills.

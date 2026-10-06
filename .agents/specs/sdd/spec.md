@@ -7,19 +7,19 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: none — two scenarios added to the already-frozen mission/conductor suite; the structural diff against main is add-only (2 added, 0 modified, 0 removed), so the file self-clears and stays @frozen with no Clearance owed. Semver class is additive
-      blast: low — one paragraph and one table cell in one spec node, two scenarios; the rule narrows only how an SDD-shipped judge is named to a dispatch capability and changes nothing for plugin-delegated judges or the no-capability fallback
-      novelty: low — reuses the existing no-capability fallback as the missing-file route; the one real choice, passing a path rather than changing the capability's lookup, was the owner's call on the issue
-      confidence: high — cold sdd-spec-judge round 2 returned ALIGNED true with oracle, builder and architect all PASS and a named losing wrong subject for each new scenario. Round 1 blocked at pre-flight because the inline spec-producer had not loaded the three spec bars; they were loaded and the draft self-aligned, which removed one stated extension no path reached. Two prose observations from round 2 were folded in before the freeze
+      floor: none — a new behavioral node with its own suite; no existing .feature was edited, so nothing frozen was narrowed and no Clearance is owed. Semver class additive: a new read-only check.
+      blast: low — one new spec node under sdd/plugin and one pointer line in its parent README; the engine and the survivor fixes are deliver work judged at the impl gate.
+      novelty: medium — the owner-ruled reading of explained (a gloss or a prose mention) and the known-field vocabulary built across every definition are the non-obvious decisions; both are stated in the node with the live-tree measurement behind them.
+      confidence: high — cold sdd-spec-judge returned ALIGNED true with oracle, builder and architect all PASS on round 2 of the restarted loop. Round 1 failed builder on a stated rule with no acceptance edge; the remediation swept every key-terms clause by mutation and bound each survivor. A build-to-learn spike satisfied every draft scenario with no surviving mutant.
   impl:
     verdict: approve
     by: agent
     cause: dimension
     why:
-      floor: none — built against the frozen mission/conductor suite without editing it; the net suite diff against main is add-only. Semver class additive (patch changeset)
-      blast: low — one bullet in start-mission and three sentences in the headless automaton definition; nothing changes for plugin-delegated judges or for a run with no dispatch capability
-      novelty: low — the rule reuses the existing no-capability fallback for the missing-file route
-      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true, re-deriving both new scenarios against both prose realizations, confirming the computed path resolves in the repo and the installed plugin cache, and confirming the cyberlegion resolver and flags exist. Its four content gaps were wording (name both judges, the right cyberlegion flag, how the headless conductor finds the plugin root, no request rather than no by-name request) and were closed after the pass; pnpm verify is green on the landed tree
+      floor: none — built against the frozen suite; the only suite edit after the freeze was one additive scenario (structural diff: additions only), so no Clearance was entered. Semver class additive: a new read-only check plus documentation-only fixes to eleven shipped definitions.
+      blast: low — a check wired into the commit chain and one-line documentation edits; no agent's procedure or decision text changed, confirmed by the judge reading every survivor diff.
+      novelty: medium — the cross-definition known-field vocabulary and the gloss-or-prose reading of explained are the non-obvious rules; both are bound by the suite.
+      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true on round one: 38 of 38 frozen scenarios with oracles re-derived independently, a live-tree run clean over 93 definitions, and its own twenty-mutant sweep with no surviving contract defect. One surviving mutant exposed a coverage gap (a field glued to an adjacent character) where the shipped behavior is correct; recorded as a follow-up. pnpm verify green on the tree rebased onto main.
 produced-by:
   spec-producer: sdd:automaton
   impl-producer: sdd:automaton
@@ -176,7 +176,7 @@ folder whose capability it serves; rules go to `design/`, cross-capability workf
 | `intake` | `intake/manage-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
 | `lifecycle` | `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) · `workflows/` (workflow) |
 | `orchestration` | `blast-estimate/` (behavior) · `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
-| `plugin` | `plugin/` (behavior) · `plugin/check-plugin-manifests/` (behavior) · `plugin/plugin-contract/` (reference) |
+| `plugin` | `plugin/` (behavior) · `plugin/check-field-mandates/` (behavior) · `plugin/check-plugin-manifests/` (behavior) · `plugin/plugin-contract/` (reference) |
 | `provenance` | `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) · `workflows/` (workflow) |
 | `resolution` | `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) · `workflows/` (workflow) |
 | `routing` | `gateway/` (behavior) · `gateway/dispatch/` (behavior) · `gateway/manage/` (behavior) |

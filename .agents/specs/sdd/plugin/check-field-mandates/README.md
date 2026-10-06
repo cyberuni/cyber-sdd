@@ -27,6 +27,7 @@ directions of disagreement with the file, the line, and the token:
 |---|---|---|
 | **block → prose** | **unexplained** | does every field a block declares have an explanation — a gloss on its own declaration, or a mention in the prose? |
 | **prose → block** | **undeclared** | does every field the prose mandates appear among this file's declarations? |
+| **prose → block** | **miscased** | where this file declares a field the prose mandates, does the prose spell it in the same case? |
 
 **A field is explained by a gloss or by the prose, not by the prose alone.** A declaration such as
 `QUESTIONS: [ batched, when needs-input ]` already says what the field carries; requiring the prose
@@ -42,6 +43,18 @@ ordinary emphasis (*PASS*, *NOT*). A code-span token counts as a mandate only wh
 field**: the same field as one declared by *some* scanned definition. That vocabulary is what separates a field
 from an uppercase literal such as `` `TODO` ``, without a hand-kept list.
 
+**A field is spelled in one case, and the check holds a file to it.** Fields are written
+`UPPER_CASE` or `snake_case`, and both spellings name the same field — `` `governances_loaded` `` and
+`GOVERNANCES_LOADED` are one field. A file whose prose mandates a field in one case while its own
+block declares it in the other is reported **miscased**: the producer's `Output` block spelled
+`GOVERNANCES_LOADED` while its prose, every consumer and the frozen producer suite spelled
+`governances_loaded` ([#29](https://github.com/cyberuni/cyber-sdd/issues/29)), and an uppercase-only
+token rule could not see it. A lowercase word is a field token only when it carries an underscore, so
+ordinary prose (`` `owner` ``, "summary") never becomes a field: it neither declares a field in a
+block, nor mandates one in a code span, nor explains a bare `OWNER` by naming it in a sentence.
+Measured over this repository when the rule was widened, before #29 was fixed, it reported #29 and
+nothing else.
+
 **Non-goals.** It does not check that a field is *consumed* by whoever receives the block (a
 cross-file contract between a dispatcher and its agent); it does not read a prose sentence for
 meaning — "report it in your `Output`" names no token and is out of its reach; it does not validate
@@ -55,16 +68,18 @@ check on the tree as it stands.
 | Term | Plain meaning |
 |---|---|
 | **definition** | a shipped skill or agent file: `plugins/<plugin>/skills/**/SKILL.md` or `plugins/<plugin>/agents/*.md` |
-| **field token** | an uppercase identifier of two or more characters, optionally underscore-joined: `STATUS`, `CONTENT_GAPS` |
+| **field token** | an uppercase identifier of two or more characters, optionally underscore-joined (`STATUS`, `CONTENT_GAPS`); or a lowercase identifier joined by at least one underscore (`governances_loaded`) — a lowercase word with no underscore is not a token, and neither is a mixed-case word (`Batch_Size`, `batchSize`) |
+| **case** | a token is uppercase or lowercase; the two cases of a token spell the same field |
 | **structured block** | a fenced code block with no info string, or the info string `text` |
 | **declaration** | a line in a structured block that opens with one or more comma-separated field tokens (each optionally suffixed `(s)`) followed by a colon, or a comma list of two or more tokens alone on the line; or a list item whose text opens with one or more bold field tokens (`- **SUBJECT** — …`, `- **FEATURE_PATH** + **SCENARIO** — …`) |
 | **gloss** | text after a declaration's colon — a trailing `#` comment included — or, for a list item, after its bold lead — plus any non-declaration line that follows a block declaration, up to the next declaration or the end of the block; a comma-list declaration with no colon is glossed only by those following lines. A lone field token on a block line is never a declaration: it glosses the open declaration, and with none open it declares and glosses nothing |
 | **prose** | every line of the file outside a fenced code block and outside the YAML frontmatter, excluding a list-item declaration's bold lead — the text after the lead is both that declaration's gloss and prose |
-| **explained** | a declared field that carries a gloss, or that the prose names as a whole word |
+| **explained** | a declared field that carries a gloss, or that the prose names as a whole word by a field token, in either case — the prose word "owner" is no token, so it does not explain `OWNER` |
 | **declared field** | a token some declaration in the file declares — a block line or a list item alike |
 | **mandate** | a code span in the prose whose content opens with a known field token — a field named later inside the span (`see BLOCKER`) is not a mandate |
 | **known field** | a token that is the same field as a declared field of some scanned definition |
-| **same field** | two tokens that are equal, or that differ only by one trailing `S` (`CONTENT_GAP` and `CONTENT_GAPS`) |
+| **same field** | two tokens that are equal ignoring case, or that differ only by one trailing `S` ignoring case (`CONTENT_GAP` and `CONTENT_GAPS`; `content_gaps` and `CONTENT_GAPS`) |
+| **miscased** | a mandate of a field this file declares, where none of the file's declarations of that field is spelled in the mandate's case |
 | **ignore marker** | `<!-- field-mandate-ignore: <reason> -->` on a prose line — that line, and only that line, names another agent's field on purpose |
 
 ## Use Cases
@@ -90,7 +105,7 @@ canonical block is paid for by every participant on that channel, none of whom e
 | | |
 |---|---|
 | **Actor** | the committing author; the pull-request check |
-| **Goal** | be told, before the change lands, of every field a definition declares without explaining, or mandates without declaring |
+| **Goal** | be told, before the change lands, of every field a definition declares without explaining, mandates without declaring, or mandates in the other case from its declaration |
 | **Trigger** | the repo's own check chain invokes the engine |
 | **Inputs** | a root directory (defaults to the working directory) |
 | **Outcome** | every definition under the root has had both directions checked; each mismatch is named with its file, line and token; the exit code is 0 only if nothing was found |
@@ -117,6 +132,17 @@ canonical block is paid for by every participant on that channel, none of whom e
 | an ignore marker sits on one prose line and a mandate on another | the marker excuses only its own line; the mandate is checked as usual |
 | a fenced block carries the info string `text` | a structured block, the same as a bare fence |
 | the prose names a field as the same field of one this file declares (`CONTENT_GAP` for `CONTENT_GAPS`) | resolves; nothing reported |
+| a block declares a lowercase field token (`batch_size`) | a declaration like any other — it is explained, mandated and reported the same way |
+| a prose code span mandates a field this file declares, spelled in the other case (`batch_size` for `BATCH_SIZE`, or the reverse) | reported **miscased** at the prose line; the run fails |
+| a prose code span mandates, in lower case, a field declared only by another definition | a known field — reported **undeclared** like its uppercase spelling |
+| a code span names a lowercase word with no underscore (`status`) | not a field token — not a mandate, even where the file declares `STATUS` |
+| a bare declared field is named in the prose in the other case | explained — the prose names the field; nothing reported |
+| a bare declared field with no underscore is named in the prose only as a lowercase word (`STATUS`, "status") | the word is no field token, so it explains nothing; reported **unexplained** |
+| a code span names a mixed-case word (`Batch_Size`) where the file declares `BATCH_SIZE` | not a field token — not a mandate, so not miscased; nothing reported |
+| a block line opens with a mixed-case key (`Batch_Size:`) | not a declaration — it declares nothing, and glosses the open declaration if there is one |
+| a bare declared field is named in the prose only by a mixed-case word | the word is no field token, so it explains nothing; reported **unexplained** |
+| the file declares one field in both cases, and the prose mandates it in either case | a declaration matches the mandate's case — resolves; nothing reported |
+| a block line opens with a lowercase word with no underscore (`notes:`) | not a declaration — it declares nothing, and glosses the open declaration if there is one |
 | a code span names an uppercase token that no definition declares (`TODO`) | not a mandate; nothing reported |
 | a known field is named in the prose outside a code span | not a mandate; nothing reported |
 | the file declares no field at all | its prose names other definitions' fields as a consumer; nothing reported |
@@ -187,12 +213,12 @@ graph TD
   IN -- yes --> FB{is the block's info string empty or text?}
   FB -- no --> LN
   FB -- yes --> DL{does the line open a declaration?}
-  DL -- yes --> DR[declare its tokens of two or more characters, each with any '(s)' dropped; glossed if any text, a comment included, follows the colon]
+  DL -- yes --> DR[declare its field tokens — uppercase of two or more characters, or lowercase with an underscore — each with any '(s)' dropped; glossed if any text, a comment included, follows the colon]
   DR --> LN
   DL -- no --> GC[a non-blank line glosses the open block declaration, if any]
   GC --> LN
   IN -- no --> LI{does a list item open with bold field tokens?}
-  LI -- yes --> DI[declare its tokens of two or more characters; the text after the bold lead is their gloss, and is prose]
+  LI -- yes --> DI[declare its field tokens — uppercase of two or more characters, or lowercase with an underscore; the text after the bold lead is their gloss, and is prose]
   DI --> PR
   LI -- no --> PR[prose: record its words and its code spans]
   PR --> LN
@@ -202,7 +228,7 @@ graph TD
   M --> HD{does it declare any field?}
   HD -- no --> M2
   HD -- yes --> DF{another declared field?}
-  DF -- yes --> GL{glossed, or named in the prose as a whole word?}
+  DF -- yes --> GL{glossed, or named in the prose by a field token, as a whole word, in either case?}
   GL -- no --> F1[report unexplained at the declaration line, mark failed]
   GL -- yes --> DF
   F1 --> DF
@@ -212,7 +238,10 @@ graph TD
   IG -- no --> KF{does its content open with a known field token?}
   KF -- no --> MD
   KF -- yes --> DC{is the same field declared in this file?}
-  DC -- yes --> MD
+  DC -- yes --> CS{is one of those declarations spelled in the mandate's case?}
+  CS -- yes --> MD
+  CS -- no --> F3[report miscased at the prose line, mark failed]
+  F3 --> MD
   DC -- no --> F2[report undeclared at the prose line, mark failed]
   F2 --> MD
   MD -- no --> M2{another definition?}
@@ -258,6 +287,19 @@ would report every consumer reference in the repository.
 | known field mandated, declared here → ok | a definition whose prose code span names a field its own block declares with a value after the colon | `a field the prose mandates and a block declares passes` |
 | same field, differing by a trailing S → ok | a prose code span naming the singular of a plural field this file declares, the singular itself declared by another definition — **so the mandate is known and only same-field resolution can clear it** | `a field named in the singular resolves to its plural declaration` |
 | same field, differing by a trailing S → ok | a prose code span naming the plural of a singular field this file declares, the plural itself declared by another definition — **the symmetric direction** | `a field named in the plural resolves to its singular declaration` |
+| line opens a declaration → declare its tokens | a block line declaring a bare comma list of two lowercase fields, one named in the prose — **binds that a snake_case token is a field token** | `a snake_case declaration declares a field` |
+| same field declared here, none in the mandate's case → report miscased, mark failed | a prose code span naming in lower case a field this file's block declares in upper case — **the #29 shape** | `a lowercase mandate of a field this file declares in upper case is reported miscased` |
+| same field declared here, none in the mandate's case → report miscased, mark failed | a prose code span naming in upper case a field this file's block declares in lower case — **the symmetric direction** | `an uppercase mandate of a field this file declares in lower case is reported miscased` |
+| a declaration spelled in the mandate's case → ok | one lowercase and one uppercase field, each mandated in its own case — **the negative companion: binds that agreement in either case passes** | `a mandate spelled as its declaration passes in either case` |
+| known field mandated, not declared here → report undeclared | a lowercase code span naming a field another definition declares in upper case — **binds that the known-field vocabulary ignores case** | `a lowercase mandate of a field declared only elsewhere is reported undeclared` |
+| code span opens with no field token → not a mandate | a lowercase code span with no underscore spelling a field the file declares in upper case — **binds the underscore floor against a reader that folds every word** | `a lowercase word with no underscore is not a field` |
+| declared field bare but named → explained | a bare uppercase field the prose names only in lower case — **binds that a mention explains in either case** | `a bare field the prose names in the other case is explained` |
+| declared field bare, named only by a word that is no token → report unexplained | a bare uppercase field with no underscore, named in the prose only as the lowercase word — **the negative companion: binds the underscore floor on the explaining side** | `a lowercase word with no underscore explains no field` |
+| code span opens with no field token → not a mandate | a mixed-case code span spelling a field the file declares in upper case — **binds that a mixed-case word is no token, against a reader whose token is any underscore-joined word** | `a mixed-case word mandates no field` |
+| line does not open a declaration → glosses or is skipped | a block whose first line is a mixed-case key with nothing after its colon, then a glossed declaration — **binds the mixed-case exclusion on the declaring side** | `a mixed-case key declares nothing` |
+| declared field bare, named only by a word that is no token → report unexplained | a bare uppercase field named in the prose only by its mixed-case spelling — **binds the mixed-case exclusion on the explaining side** | `a mixed-case word explains no field` |
+| a declaration spelled in the mandate's case → ok | one field declared in both cases, each spelling mandated — **binds "none of the file's declarations", against a reader that compares only the first or the last** | `a field declared in both cases accepts a mandate in either` |
+| line does not open a declaration → glosses or is skipped | a block whose first line is a lowercase key with no underscore and nothing after its colon, then a glossed declaration — **binds the underscore floor on the declaring side** | `a lowercase key with no underscore declares nothing` |
 | code span opens with other text → not a mandate | a code span naming a known field after a leading word — **binds "opens with" against a reader that matches anywhere in the span** | `a code span that does not open with a field is not a mandate` |
 | token of one character → not a field | a single capital letter declared with a gloss in one definition and named in a code span in another — **binds the two-character floor** | `a single capital letter is not a field` |
 | code span opens with no known field → not a mandate | a code span naming an uppercase token that no definition declares | `an uppercase code span that is no field is not a mandate` |
@@ -297,6 +339,8 @@ whose prose mandates returning a `BLOCKER` that its `Output` block has no line f
 
 ## References
 
+- [Issue #29](https://github.com/cyberuni/cyber-sdd/issues/29) — the case-differing field the
+  uppercase-only token rule missed; the known answer the **miscased** finding was widened to catch.
 - [Issue #24](https://github.com/cyberuni/cyber-sdd/issues/24) — backs the claim that prose sweeps
   miss this class (three consecutive impl-gate rounds on one change request failed on it, one after a
   canonical block was added to fix it), and names the three affected actors in the Use Cases.

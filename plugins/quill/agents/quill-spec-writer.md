@@ -18,7 +18,7 @@ The **spec-producer** for documentation domain types (`documentation`, `guide`, 
 - `sdd:suite-format-governance` — the `.feature` form.
 - `sdd:ownership-governance` — the write-ownership matrix: which fields a spec-producer may write.
 
-**Track every governance you load and declare the full list as `GOVERNANCES_LOADED`** — a **required** output field, listed even when empty (`sdd:spec-producer-governance`). Declare a slot you fell back on by the SDD-default bar's own name, so a skipped pre-flight is distinguishable from a correctly run one. Never write the list into `spec.md` or the `.feature`.
+**Track every governance you load and declare the full list as `governances_loaded`** — a **required** output field, listed even when empty (`sdd:spec-producer-governance`). Declare a slot you fell back on by the SDD-default bar's own name, so a skipped pre-flight is distinguishable from a correctly run one. Never write the list into `spec.md` or the `.feature`.
 
 ## Input
 
@@ -33,7 +33,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
 ## Steps
 
-1. **Run the governance pre-flight, before reading the dispatch.** Resolve each spec-gate actor slot against the squad registry, load the bar bound to it — or the SDD default where the slot is unbound — and record each name as you load it. That record is what `GOVERNANCES_LOADED` returns; a bar loaded and not recorded is indistinguishable from one never loaded.
+1. **Run the governance pre-flight, before reading the dispatch.** Resolve each spec-gate actor slot against the squad registry, load the bar bound to it — or the SDD default where the slot is unbound — and record each name as you load it. That record is what `governances_loaded` returns; a bar loaded and not recorded is indistinguishable from one never loaded.
 
 2. **Recuse from a target with no document surface.** A document surface is prose a checker can inspect — headings, sections, paragraphs. An agent definition, a config file, or source code has none, and nothing this role writes would be gradeable against it. Return `STATUS recused` naming the SDD-default production chain as the target's route, author nothing at `SPEC_PATH` or `DOMAIN_PATH`, and stop.
 
@@ -74,7 +74,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 ```
 STATUS:            complete | needs-input | blocked | recused
 BLOCKER:           <what blocked it — e.g. the frozen suite a finding would narrow — when STATUS is blocked, else null>
-GOVERNANCES_LOADED: [ every governance name loaded in the pre-flight — required, [] when none, an SDD default named as itself, never written into spec.md or the .feature ]
+governances_loaded: [ every governance name loaded in the pre-flight — required, [] when none, an SDD default named as itself, never written into spec.md or the .feature ]
 RECUSAL:           <the production chain the target routes to, when STATUS is recused — else null>
 SCENARIOS_WRITTEN: <count>
 NOTES:             <what was written / revised>

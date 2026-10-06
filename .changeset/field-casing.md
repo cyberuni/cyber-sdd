@@ -1,6 +1,5 @@
 ---
 "cyber-sdd": minor
-"cyber-quill": patch
 ---
 
 `check-field-mandates` now catches a field spelled in two cases. A field token is `UPPER_CASE` or

@@ -98,6 +98,28 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     When improve-skill prepares to evaluate checks Q10 through Q12
     Then it loads the agent-tool-output governance before rendering a verdict on those checks
 
+  Scenario: the skill-design governance is read from a project override first, then the skill's own copy
+    Given a project with no .agents/governances/skill-design.md override
+    When improve-skill loads the skill-design governance
+    Then it reads the skill-design copy committed inside its own skill folder
+    And it runs no npx command to fetch the governance
+
+  Scenario: a description that leads with the capability and follows with a trigger clause passes Q1
+    Given a public skill whose description states what the skill does and then says "Use when" followed by concrete situations
+    When improve-skill judges check Q1
+    Then it does not flag the description for its trigger phrasing
+
+  Scenario: a description that opens with a fixed lead-in is flagged under Q1
+    Given a public skill whose description opens with "Use this skill when" before naming what the skill does
+    When improve-skill judges check Q1
+    Then it flags the fixed lead-in
+    And the fix line says to lead with what the skill does
+
+  Scenario: a by-name description is exempt from Q1
+    Given a skill whose description is exactly "By name only"
+    When improve-skill judges check Q1
+    Then it does not flag the description for missing triggering context
+
   # ---- Reporting findings ----
 
   Scenario: a non-passing finding is reported with severity, evidence, and a fix

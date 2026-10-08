@@ -134,6 +134,19 @@ Feature: define-skill — author a workflow skill
     When define-skill writes the SKILL.md
     Then it moves that step to a script and the body retains only when to run it
 
+  Scenario: a user-triggered skill's description leads with the capability, not a fixed lead-in
+    Given a gathered scope and trigger phrasing for a skill the user invokes directly
+    When define-skill writes the SKILL.md
+    Then the description opens with the capability the skill performs
+    And the description does not open with "Use this skill when" or "When to use"
+    And the description is at most 1024 characters
+
+  Scenario: the skill-design rules are read from a local copy, not a remote CLI
+    Given a project with no .agents/governances/skill-design.md override
+    When define-skill loads the skill-design governance before drafting
+    Then it reads the skill-design copy committed inside its own skill folder
+    And it runs no npx command to fetch the governance
+
   # ---- Improving an existing skill ----
 
   Scenario: an existing skill is read before any change
@@ -158,6 +171,12 @@ Feature: define-skill — author a workflow skill
     Given a freshly drafted SKILL.md
     When define-skill finishes drafting
     Then it runs the structural audit before presenting the skill
+
+  Scenario: the structural audit runs a validator that exists
+    Given a freshly drafted SKILL.md
+    When define-skill runs the structural audit
+    Then it runs the improve-skill validate script against the drafted skill's directory
+    And the audit command completes rather than failing as an unknown command
 
   Scenario: a high-severity audit finding is fixed before handoff
     Given the audit reports a CRITICAL finding on the drafted skill

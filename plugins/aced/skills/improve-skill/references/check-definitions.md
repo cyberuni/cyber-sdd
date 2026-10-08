@@ -50,7 +50,7 @@ Warn if the skill root contains markdown files other than `SKILL.md` and `README
 ## Quality
 
 **Q1 — Triggering context (HIGH)**
-Fail if the `description` field lacks triggering context — the situations, user requests, or conditions under which the skill should activate. Good triggers describe what the user is asking for or trying to accomplish (e.g., "when the user asks to commit", "for creating git commits", "handles PR reviews"). Avoid meta-phrases like "When to use" or "Use this skill when" — they add boilerplate without matching value.
+Fail if the `description` field lacks triggering context — the situations, user requests, or conditions under which the skill should activate. Good triggers describe what the user is asking for or trying to accomplish (e.g., "when the user asks to commit", "for creating git commits", "handles PR reviews"). No particular phrase is required: a description that leads with the capability and follows with a trigger clause ("… Use when …") passes. Warn if the description opens with a fixed lead-in such as "Use this skill when" or "When to use" in place of the capability — fix: lead with what the skill does. Skip this check for a name-only skill, whose description is exactly "By name only" (skill-design governance § Description and structure).
 
 **Q2 — Description specificity (HIGH)**
 Warn if the description:
@@ -65,7 +65,7 @@ Warn if the skill is a partial skill (top-level `user-invocable: false` — a re
 Warn if the skill body contains only a description and no actionable steps, numbered instructions, or decision logic. A skill with no instructions gives the agent nothing to execute.
 
 **Q5 — Description length (HIGH)**
-Fail if the `description` frontmatter value exceeds 1024 characters — the agentskills spec hard limit. Drop trailing example phrases ("Use when asked to 'foo', 'bar'...") — those belong in the skill body, not the description.
+Fail if the `description` frontmatter value exceeds 1024 characters — the agentskills spec hard limit. Fix: keep the capability and the main triggers, and move surplus example phrasings to the skill body.
 
 **Q6 — No baked-in stack assumptions (MEDIUM)**
 

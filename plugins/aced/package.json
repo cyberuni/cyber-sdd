@@ -1,6 +1,6 @@
 {
 	"name": "cyber-aced",
-	"version": "0.4.0",
+	"version": "0.4.1",
 	"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
 	"repository": {
 		"type": "git",

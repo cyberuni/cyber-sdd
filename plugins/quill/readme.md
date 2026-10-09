@@ -31,9 +31,9 @@ each entry naming what the judge must quote and a near-miss that must not fire â
 simulation is dispatched to a separate context that never sees the catalog, so the judge is never its
 own blind reader.
 
-**Recurrence is not a defect.** An earlier version of this table led with *"no claim landed twice"*.
-That is retracted on measured grounds: a reader arriving at a section from the sidebar never read the
-earlier statement, so the "redundant" restatement was that reader's only copy of the claim.
+**Recurrence is not a defect.** A reader arriving at a section from the sidebar never read the
+earlier statement, so a restatement is that reader's only copy of the claim. An earlier version of
+this table led with *"no claim landed twice"* and was retracted on those measured grounds.
 
 ## Domain types
 

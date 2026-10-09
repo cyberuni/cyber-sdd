@@ -16,6 +16,6 @@ A judged pass runs **blind, then scores**: it simulates a reader on one declared
 
 The boundary against style is **evidence** at both instruments: a failure must quote both locations — each naming *where* it came from, not only what it said, and confirmed to be two different places — so *"this routing skips a member of the set it enumerated, here they are"* is reportable while *"this reads clumsy"* is not. Tone, register, length, word choice, and section order stay out of scope.
 
-**Recurrence is retracted.** An earlier revision held a claim landed in two passages as a defect; it has no empirical warrant, and its prescribed fix — pointing back rather than restating — is the worse defect for a reader who arrives at the later passage first.
+**Recurrence is not a defect.** A claim landed in two passages has no empirical warrant as a defect, and pointing back rather than restating is the worse defect for a reader who arrives at the later passage first. An earlier revision held the opposite and was retracted.
 
 The complementary contracts are `design/doc-eval-model.md`, which defines both instruments, and `quill-builder-spec`, whose scenario-map rule requires a load-bearing claim be retrievable on each control-flow path that reaches it.

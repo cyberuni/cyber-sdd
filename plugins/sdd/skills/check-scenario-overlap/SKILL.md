@@ -21,8 +21,7 @@ The scheduler treats two missions touching different `.feature` files as **file-
 the **same behavior** is specified in **two** files, a change to that behavior must touch both, so
 what looked disjoint is a **hard collision the scenario rung cannot see** (it diffs changed scenarios
 per file, never across files). One behavior = **one scenario in one owning node** keeps the scenario
-rung honest. Cross-*project* dedup (`dedupe-specs`) was retired when one project became one spec;
-cross-*node* overlap **inside** a project had no detector until this one.
+rung honest. This detector covers cross-*node* overlap **inside** a project.
 
 ## The two deterministic candidate kinds (and one judgment arm)
 

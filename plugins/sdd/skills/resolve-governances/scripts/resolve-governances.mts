@@ -49,7 +49,7 @@ export const ROLE_LOADOUT: Record<RoleKey, { bars: BarKey[] }> = {
 
 // The SDD-default agent per role. A null ref means the conductor runs the role
 // INLINE in the main session (spec/solution-producer) or via a generic spawned
-// builder (impl-producer); both are recorded produced-by sdd:automaton. The two
+// builder (impl-producer); both are recorded produced-by sdd:sdd-automaton. The two
 // judges are spawned cold by name.
 export const SDD_DEFAULT_AGENT: Record<RoleKey, string | null> = {
 	'spec-producer': null,

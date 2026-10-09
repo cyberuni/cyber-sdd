@@ -66,7 +66,7 @@ Sources: `sdd-gate-autonomy`, `sdd-escape-hatch`, `sdd-stop-provenance`, `../des
 Sources: `sdd-contract-registry`, `automaton-resolution`, `plugin/` init-WRITE.
 
 - C1. A plugin's init-write registers an `sdd-plugins` entry; the conductor later resolves that domain's delegates from it without scanning plugin directories.
-- C2. An unfilled producer role degenerates to the conductor authoring inline (`produced-by.<role>: sdd:automaton`); an unfilled judge role spawns the cold SDD-default judge.
+- C2. An unfilled producer role degenerates to the conductor authoring inline (`produced-by.<role>: sdd:sdd-automaton`); an unfilled judge role spawns the cold SDD-default judge.
 - C3. A domain claimed by two plugins returns needs-input once, the choice is recorded, and resume does not loop.
 - C4. A required role with no resolvable delegate hard-fails and records nothing.
 - C5. Re-running init at a newer version reconciles a stale entry; a corrupt registry fails closed and is left untouched.

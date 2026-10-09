@@ -45,14 +45,14 @@ A **producer** role may also name a model-tuned agent to run at its own model/ef
 
 | Role key | Acts | Surface | SDD default |
 |---|---|---|---|
-| `spec-producer` | writes the `spec.md` body + the `.feature` | **in-session** (persona) | the conductor loads `spec-producer-governance` and authors inline (`sdd:automaton`) |
-| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md` — the decision record: chosen approach + rejected alternatives) when a unit has durable rationale | **in-session** (persona) | the conductor loads `solution-producer-governance` and authors inline (`sdd:automaton`) |
+| `spec-producer` | writes the `spec.md` body + the `.feature` | **in-session** (persona) | the conductor loads `spec-producer-governance` and authors inline (`sdd:sdd-automaton`) |
+| `solution-producer` | writes the per-unit **solution** (`<unit>.solution.md` — the decision record: chosen approach + rejected alternatives) when a unit has durable rationale | **in-session** (persona) | the conductor loads `solution-producer-governance` and authors inline (`sdd:sdd-automaton`) |
 | `spec-judge` | judges the `.feature` at the spec gate | **spawned cold** | `sdd-spec-judge` — spawned cold agent |
-| `impl-producer` | builds the artifact **and** its verification | **spawned** | the conductor spawns a builder that loads `impl-producer-governance` (`sdd:automaton` marks the SDD-default chain) |
+| `impl-producer` | builds the artifact **and** its verification | **spawned** | the conductor spawns a builder that loads `impl-producer-governance` (`sdd:sdd-automaton` marks the SDD-default chain) |
 | `impl-judge` | runs the verification against the frozen `.feature` | **spawned cold** | `sdd-impl-judge` — spawned cold agent |
 
 **The conductor is the main session.** The conductor is the main (user) session; it holds the user channel and is the positional ratifier (`lifecycle-model.md`).
-It runs the **spec-producer** and **solution-producer** **inline** (recorded `produced-by.<role>: sdd:automaton`) because spec-producing *is* the live human grill, which must stay where the user channel lives.
+It runs the **spec-producer** and **solution-producer** **inline** (recorded `produced-by.<role>: sdd:sdd-automaton`) because spec-producing *is* the live human grill, which must stay where the user channel lives.
 The **impl-producer** (mechanical — it builds against a contract) and **every judge** (cold, because a grader must not share the author's context) run as **spawned subagents at depth 1 from the main session** — a spawn tree every harness supports (`harness-spawning.md`).
 This is the **role-dependent surface**: a `spec-producer` / `solution-producer` — SDD-default **or** plugin specialist — is **persona-loaded in-session**; an `impl-producer` or any judge is a **spawned subagent**.
 The judge stays a **distinct actor** (producer/judge separation), the surviving invariant of the gate fold.
@@ -121,13 +121,13 @@ Each entry declares one or more **squads**, each serving a **set of artifact-typ
 | `version` | Yes | Installed plugin version |
 | `squads` | Yes | One or more squads. A squad = `{ artifact-types[], roles{}, governances{} }`. A plugin needing a *different* producer/judge per type lists multiple squads; a shared squad lists many types. The plugin's served set (marketplace discovery) = the union of all `squads[].artifact-types` |
 | `squads[].artifact-types` | Yes | Open-string **artifact-type**s this squad serves (e.g. `skill`, `subagent`, `command`, `agents-section`) — never folder names; new types need no schema bump. A type appears in **at most one** squad per plugin |
-| `squads[].roles` | Yes | Map of the five production-chain roles to agents; `null` or omitted = SDD default (a spec/solution-producer role → conductor authors inline as `sdd:automaton`; an impl-producer role → conductor spawns a builder; a judge role → conductor spawns the cold SDD-default judge agent) |
+| `squads[].roles` | Yes | Map of the five production-chain roles to agents; `null` or omitted = SDD default (a spec/solution-producer role → conductor authors inline as `sdd:sdd-automaton`; an impl-producer role → conductor spawns a builder; a judge role → conductor spawns the cold SDD-default judge agent) |
 | `squads[].governances` | Yes | Model-B actor-gate bars (`oracle-spec`, `builder-spec`, `builder-impl`, `architect-spec`, `architect-impl`); the block is required, each binding may be `null` = SDD default |
 
 **Degeneration of `null` / missing keys** (this file guarantees only what is a valid *stored* shape; the traversal is the conductor's):
 
-- **A spec/solution-producer role** that is `null` or absent → the conductor **loads the producer governance and authors inline** (in the main session); the recorded `produced-by.<role>` is `sdd:automaton`.
-- **An impl-producer role** that is `null` or absent → the conductor **spawns a builder** that loads `impl-producer-governance`; the recorded `produced-by.impl-producer` is `sdd:automaton` (the SDD-default-chain marker).
+- **A spec/solution-producer role** that is `null` or absent → the conductor **loads the producer governance and authors inline** (in the main session); the recorded `produced-by.<role>` is `sdd:sdd-automaton`.
+- **An impl-producer role** that is `null` or absent → the conductor **spawns a builder** that loads `impl-producer-governance`; the recorded `produced-by.impl-producer` is `sdd:sdd-automaton` (the SDD-default-chain marker).
 - **A judge role** (`spec-judge`, `impl-judge`) that is `null` or absent → the conductor **spawns the SDD-default cold judge agent** (`sdd-spec-judge`, `sdd-impl-judge`).
   A judge default is never loaded inline — grader independence requires a cold context.
 

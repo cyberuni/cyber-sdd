@@ -51,7 +51,7 @@ test('parseFrontmatter reads status, name, project-path, and approval verdicts',
 
 test('parseFrontmatter ignores nested why blocks and unknown keys', () => {
 	const fm = parseFrontmatter(
-		'---\nstatus: draft\napproval:\n  spec:\n    verdict: approve\n    why:\n      leash: within\n      basis: judged\nproduced-by: sdd:automaton\n---\n',
+		'---\nstatus: draft\napproval:\n  spec:\n    verdict: approve\n    why:\n      leash: within\n      basis: judged\nproduced-by: sdd:sdd-automaton\n---\n',
 	)
 	assert.equal(fm?.status, 'draft')
 	assert.deepEqual(fm?.approval, { spec: 'approve' })

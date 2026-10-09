@@ -8,7 +8,7 @@ description: 'Creates, scaffolds, or formalizes a workflow skill — a process, 
 Create or improve a **workflow skill** — a process, tool-based, or standard SKILL.md — then hand it
 to the ACED eval loop to spec and score.
 
-When the conductor dispatches this skill as a generic builder (`produced-by sdd:automaton`) for the
+When the conductor dispatches this skill as a generic builder (`produced-by sdd:sdd-automaton`) for the
 ACED **impl-producer** role (implement mode, against a frozen `.feature`), it builds the **SKILL.md**
 to pass the frozen suite. The **verification is the frozen `.feature` itself** — its inline `@rubric`
 scenarios and `@trigger` `Examples`, authored by `aced-scenario-writer` at explore — so no separate

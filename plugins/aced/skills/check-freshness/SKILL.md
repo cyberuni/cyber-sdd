@@ -1,6 +1,6 @@
 ---
 name: check-freshness
-description: "Partial Skill: invoke by name only — the ACED eval-result freshness check — decides whether a recorded result still describes the configuration on disk, not user-triggered."
+description: "By name only"
 user-invocable: false
 metadata:
   internal: true
@@ -70,7 +70,7 @@ about what it measured.
 
 **Trust boundary.** `evaluated` is what the run **reports** consuming, not a verified trace. An
 under-reporting run records a shorter set whose entries all match, and this answers `current` with
-full confidence — a silent failure pointing the unsafe way (`#475`). What is checkable is
+full confidence — a silent failure pointing the unsafe way. What is checkable is
 **coherence**: a set omitting the `.feature` whose scenarios the record scores, or the configuration
 its own `target` names, contradicts the record it accompanies and reads `absent`. That catches only
 an *inconsistent* under-reporter; a uniform one escapes.
@@ -81,8 +81,7 @@ it should have" is not, and this engine never claims the second.
 ## Boundaries
 
 Scores nothing (`run`), compares no two versions (`compare`), rolls nothing up (`report`), and does
-not judge whether a recorded *pass* was well-founded (a judge-protocol question, `#477`). It decides
-a verdict and reports it; **what a caller does with that verdict is the caller's** — wiring `run` and
-`improve` to consult it is `#476`.
+not judge whether a recorded *pass* was well-founded (a judge-protocol question). It decides
+a verdict and reports it; **what a caller does with that verdict is the caller's**.
 
 Spec: `.agents/specs/aced/eval-run/check-freshness/`.

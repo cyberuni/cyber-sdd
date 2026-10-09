@@ -103,7 +103,7 @@ The canonical file lives at the canonical path. All runtime locations are symlin
 
 Ask the user:
 
-1. **Name** — kebab-case slug (e.g. `conductor`, `code-reviewer`). If the agent's role is to **score or verify a specific gate or case**, name it by that gate/scope, not a bare action verb: `<domain>-<gate>-judge` for a gate scorer (e.g. `sdd-impl-judge`, `aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aces-case-judge`). Flag any gate/case scorer whose name is not in that form — bare verdict verbs (`implementer`, `judge`, `validator`, `reviewer`, `checker`) and non-verdict action names (`eval-runner`, `grader`) alike. A producer/worker agent (e.g. `scenario-writer`, `doc-writer`) keeps its action-oriented name — this convention only applies to gate/case scorers.
+1. **Name** — kebab-case slug (e.g. `conductor`, `code-reviewer`). If the agent's role is to **score or verify a specific gate or case**, name it by that gate/scope, not a bare action verb: `<domain>-<gate>-judge` for a gate scorer (e.g. `sdd-impl-judge`, `aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aced-case-judge`). Flag any gate/case scorer whose name is not in that form — bare verdict verbs (`implementer`, `judge`, `validator`, `reviewer`, `checker`) and non-verdict action names (`eval-runner`, `grader`) alike. A producer/worker agent (e.g. `scenario-writer`, `doc-writer`) keeps its action-oriented name — this convention only applies to gate/case scorers.
 2. **Role** — one sentence: "You are a [seniority] [role] focused on [bounded concern]."
 3. **Responsibilities** — what does this agent do? (3–6 bounded concerns)
 4. **Output format** — what does it produce? (file, report, JSON, confirmation, etc.)

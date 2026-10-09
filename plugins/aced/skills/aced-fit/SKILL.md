@@ -1,6 +1,6 @@
 ---
 name: aced-fit
-description: "Partial Skill: invoke by name only — the ACED fit classifier — which of ACED's eval layers carry real signal for a subject. Loaded by the ACED spec-producer and the spec-judge. Not triggered by users directly."
+description: "By name only"
 user-invocable: false
 metadata:
   type: governance
@@ -35,7 +35,7 @@ name-only description) makes no activation decision, so it is never `strong`.
 ## How each role uses it
 
 - **`aced-scenario-writer` (producer, explore) — decides.** Classify fit **first**; declare it as a
-  `**Fit:** strong | partial` line in the subject's node spec (its `README.md`) `## Use Cases`. Then author to the tier:
+  `**Fit:** strong | partial` line in the subject's node spec (its `spec.md`) `## Use Cases`. Then author to the tier:
   `strong` → author should-trigger + same-keyword near-miss; `partial` → author behavior/edge/rule,
   **no fabricated near-miss**; `wrong-squad` → **recuse**, produce nothing, recommend the SDD default.
 - **`aced-spec-validator` (judge, gate) — enforces.** Read the declared tier; apply trigger-context /
@@ -83,7 +83,7 @@ is **not** a `CONTENT_GAP` (unlike the tier's).
 Assertions about **the subject being classified**, run by the producer before handoff and re-run by
 the cold judge against the artifact — never against the producer's account of what it did:
 
-1. The subject's node spec (`README.md`) carries exactly one `**Fit:** strong` or `**Fit:** partial`
+1. The subject's node spec (`spec.md`) carries exactly one `**Fit:** strong` or `**Fit:** partial`
    line; a subject recused as wrong-squad has neither a `**Fit:**` line nor an ACED
    `eval.md` (its node, if any, was written by the SDD-default chain). *(mechanical)*
 2. A subject declared `strong` does not have a name-only description (one beginning `By name only`
@@ -98,8 +98,7 @@ the cold judge against the artifact — never against the producer's account of 
 
 ## References
 
-- `design/fit.md` (`.agents/specs/aced/design/fit.md`) — the normative model + ADR 0001 (tier) and
-  ADR 0003 (measured axis).
+- `design/fit.md` (`.agents/specs/aced/design/fit.md`) — the normative model (tier and measured axis).
 - `aced:aced-builder-spec` — the spec bar whose trigger-context / trigger-balance criteria this
   governance makes conditional.
 - `aced:aced-builder-impl` — the impl bar (which eval layers get evals follows the tier).

@@ -59,7 +59,7 @@ Write the file at the canonical path using this structure:
 ```markdown
 ---
 name: <name>
-description: "Partial Skill: invoke by name only — <one sentence: what domain this governs and who loads it>"
+description: "By name only"
 user-invocable: false
 metadata:
   type: governance
@@ -90,7 +90,7 @@ dimensions already are the verification.>
 
 Rules for the body:
 - Set `user-invocable: false` — the classifier for a partial skill (a governance is loaded by name, never user-triggered)
-- Lead `description` with the `"Partial Skill:"` prefix (recommended form `"Partial Skill: invoke by name only — …"`) — a self-declaration for the reader; keep it minimal and non-trigger-shaped so the harness (which still sees the description) does not auto-match it
+- Set `description` to exactly `"By name only"` — the harness still sees the description, so anything added is another handle for a spurious match; put identity and caller in the body
 - Do not include `## Why`, `## Rationale`, or causal prose — put that in ADRs
 - Encode decisions and criteria, not facts the model already knows
 - For a **Constraint set**, **Checklist**, or **Decision table** governance, write a `## Validate`

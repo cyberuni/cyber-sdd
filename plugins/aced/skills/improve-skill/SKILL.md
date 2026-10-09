@@ -90,7 +90,7 @@ If you need the exact criteria for any check, read `references/check-definitions
 | S9 | Structure | Extra documentation files in `references/`, not skill root | LOW | |
 | Q1 | Quality | Description contains triggering context (situations, user requests) | HIGH | |
 | Q2 | Quality | Description is specific (not vague / matches-everything) | HIGH | |
-| Q3 | Quality | Partial skill (`user-invocable: false`) has `Partial Skill:` prefix in description | MEDIUM | |
+| Q3 | Quality | Partial skill (`user-invocable: false`) has description `By name only` (or `Partial Skill:` prefix) | MEDIUM | |
 | Q4 | Quality | Skill has actionable instruction body (not just description) | MEDIUM | |
 | Q5 | Quality | `description` ≤1024 characters (spec hard limit) | HIGH | |
 | Q6 | Quality | No baked-in stack assumptions | MEDIUM | |

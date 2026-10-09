@@ -133,10 +133,9 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
   with the capability, then a "Use when…" trigger clause, then an implicit phrasing. Never open with a
   fixed lead-in such as "Use this skill when" or "When to use". Keep it ≤1024 characters, the
   capability and main triggers first. For a
-  **partial skill** (a reusable part other skills call by name, not user-triggered), set
-  `user-invocable: false` and lead the description with the `"Partial Skill:"` prefix (recommended
-  form `"Partial Skill: invoke by name only — <identity>. <caller>."`), kept minimal and
-  non-trigger-shaped so it does not self-activate.
+  **name-only skill** (a reusable part other skills call by name, never matched to a situation), set
+  `user-invocable: false` and the description to exactly `"By name only"` and nothing else; identity
+  and caller go in the body.
 - **Body** — step-by-step, under 500 lines. Keep the *when* here; move any **deterministic,
   fixed-output** step to a `scripts/` file or an existing CLI and have the body only say when to run
   it.
@@ -164,7 +163,7 @@ is `improve`.
 For a subagent this skill scaffolds (realized as a partial skill, e.g. loaded via the ACED
 impl-producer/impl-judge pattern): if its role is to **score or verify a specific gate or case**,
 name it by that gate/scope, not a bare action verb — `<domain>-<gate>-judge` for a gate scorer (e.g.
-`aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aces-case-judge`). Reject
+`aced-impl-judge`), `<domain>-case-judge` for a case scorer (e.g. `aced-case-judge`). Reject
 `implementer`, `judge`, `validator`, `reviewer`, `checker` alone. A producer subagent (e.g.
 `scenario-writer`, `doc-writer`) keeps its action-oriented name — this check does not fire for it.
 

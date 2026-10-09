@@ -1,6 +1,6 @@
 ---
 name: aced-architect-impl
-description: "Partial Skill: invoke by name only — the ACED Architect bar at the impl gate — whether an agent-configuration artifact is well-formed as configuration. Loaded by the ACED impl-producer to self-align and by the impl-judge to grade. Not triggered by users directly."
+description: "By name only"
 user-invocable: false
 metadata:
   actor: architect

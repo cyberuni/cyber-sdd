@@ -1,6 +1,6 @@
 ---
 name: manage-skill-dirs
-description: "Partial Skill: invoke by name only — config-authoring/skill-dirs' curation engine for the extra skill-scan locations improve-skill's validate engine uses — loaded by the manage gateway, not triggered by users directly."
+description: "By name only"
 user-invocable: false
 metadata:
   internal: true

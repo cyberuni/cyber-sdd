@@ -1,6 +1,6 @@
 ---
 name: aced-builder-spec
-description: "Partial Skill: invoke by name only — the ACED Builder bar at the spec gate — the agent-configuration contract criteria. Loaded by the ACED spec-producer to self-align and by the spec-judge to grade. Not triggered by users directly."
+description: "By name only"
 user-invocable: false
 metadata:
   actor: builder
@@ -78,8 +78,8 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
     - **The test is monadic.** Read the **single** criterion against the output: *can you name an
       attribute of the output this criterion does not touch?* If you can, it is per-attribute and stays
       a dimension. Sibling dimensions are evidence of how the **output decomposes** — never the object
-      of the comparison. Comparing one candidate dimension against another is the twin-scan #280
-      rejected, on this ground exactly as much as on Ground 2.
+      of the comparison. Comparing one candidate dimension against another is the twin-scan the
+      suite format rejects, on this ground exactly as much as on Ground 2.
     - **Span is checked before substitutability.** A whole-output criterion never reaches the trade
       question. So when one is authored **alongside** per-attribute siblings — the shape the
       persona-voice recurrence actually took — the span ruling governs the spanning criterion and the
@@ -99,9 +99,8 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
     `only` bounds Ground 2's own test, not selection as a whole, so it never licenses passing a
     criterion that fails Ground 1. Two `@rubric` dimensions that merely
     **share a criterion**, with no boolean twin deciding either, do **not** fail selection for sharing
-    it — comparing two dimensions to each other is the twin-scan SDD issue #280 rejected (reconciled in
-    `design/decisions/0002-boundary-vs-surface-more.md`); #280's discrimination verdict (noise, not a
-    hole) and this Selection verdict (a smuggled boolean, out of the sum) are orthogonal reads of one
+    it — comparing two dimensions to each other is the twin-scan the suite format rejects; the
+    discrimination verdict (noise, not a hole) and this Selection verdict (a smuggled boolean, out of the sum) are orthogonal reads of one
     dimension.
 - **Discrimination** *(all tiers; every scenario and every `@rubric` dimension).* Each must be able
   to **register a miss** — a plausible wrong config must fail it, or score below the dimension's
@@ -126,5 +125,5 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
   Validate-section coverage requires a scenario for.
 - `sdd:suite-format-governance` — the miss test, the wrong-subject table, the three anti-patterns,
   the substitutability test, and the pairwise-consistency rule this bar specializes.
-- `design/decisions/0002-boundary-vs-surface-more.md`, `design/test-levels.md` — the boolean-smuggling
-  tell and the SDD #280 reconciliation (same-object, not same-criterion) the Selection bullet encodes.
+- `design/test-levels.md` — the boolean-smuggling tell and the same-object, not same-criterion,
+  reconciliation the Selection bullet encodes.

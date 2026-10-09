@@ -51,7 +51,7 @@ harnesses to target if not stated):
 | Mechanism | File | Portability | When to pick it |
 |---|---|---|---|
 | **`commands/` folder** (legacy) | A standalone markdown file, not a `SKILL.md` | Widest support — Claude Code, and GitHub Copilot CLI (reads `.claude/commands/`); the only option for cross-harness plugin commands targeting Cursor too | Default choice; use for anything shipped in a plugin or targeting more than Claude Code |
-| **`disable-model-invocation: true`** (modern) | A `SKILL.md` with the frontmatter flag | Claude Code, Windsurf; **not** Copilot CLI, Codex CLI, or Gemini CLI; has a known Cursor bug hiding plugin-delivered skills from the `/` menu (Mar 2026) | Only when targeting Claude Code / Windsurf exclusively and the command benefits from full `SKILL.md` progressive disclosure (a `references/` or `scripts/` dir) |
+| **`disable-model-invocation: true`** (modern) | A `SKILL.md` with the frontmatter flag | Claude Code, Windsurf; **not** Copilot CLI, Codex CLI, or Gemini CLI; may not surface plugin-delivered skills in Cursor's `/` menu — verify before relying on it | Only when targeting Claude Code / Windsurf exclusively and the command benefits from full `SKILL.md` progressive disclosure (a `references/` or `scripts/` dir) |
 
 If improving an existing file, read it first and keep its current mechanism unless the user asks to
 migrate.
@@ -135,7 +135,7 @@ For the `disable-model-invocation` mechanism, run the structural audit and fix a
 finding before presenting the skill:
 
 ```bash
-npx cyberplace@0.2.4 audit validate --path <placement-dir>/<name>   # resolve <version> via: npm view cyberplace version — never @latest
+npx cyberplace@<version> audit validate --path <placement-dir>/<name>   # resolve <version> via: npm view cyberplace version — never @latest
 ```
 
 The `commands/` folder mechanism is not a `SKILL.md` — the audit tool does not apply; check by hand

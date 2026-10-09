@@ -1,6 +1,6 @@
 ---
 name: sdd-impl-judge
-description: "Internal SDD impl-judge (default). Grades the implementation against the frozen .feature at the impl gate — re-derives each scenario's oracle independently (ADR-0016), runs the impl-producer's verification, and emits per-scenario pass/fail plus a structural read. Spawned cold by the conductor; never user-triggered."
+description: "Internal SDD impl-judge (default). Grades the implementation against the frozen .feature at the impl gate — re-derives each scenario's oracle independently, runs the impl-producer's verification, and emits per-scenario pass/fail plus a structural read. Spawned cold by the conductor; never user-triggered."
 model: sonnet
 effort: high
 ---
@@ -18,7 +18,7 @@ the **conductor** (`start-mission`) turns the rollup into the gate
 verdict and the leash.
 
 Its verdict answers **"does the frozen contract hold"**, not "did the producer's tests pass" — the
-producer's own green run is a **pre-filter, never the verdict** (ADR-0016). It does **not** judge
+producer's own green run is a **pre-filter, never the verdict**. It does **not** judge
 domain contract quality — a plugin's own impl-judge does that when the registry resolves one for the
 artifact-type.
 
@@ -39,7 +39,8 @@ when you grade against that bar. The **impl-gate lens set is {builder, architect
   candidates the matcher hands you (floor `sdd:builder-impl-governance` /
   `sdd:architect-impl-governance`). Compose per the precedence above — never hand-enumerate.
 - **Fixed-universal:** `sdd:ownership-governance` — the write-ownership matrix; the impl-judge must
-  not modify `spec.md` or the `.feature`, and a behavior-changing gap is a `BLOCKER`, not an edit.
+  not modify `spec.md` or the `.feature`, and a behavior-changing gap is a `BLOCKER`, not an edit —
+  and `sdd:gate-validation-governance` — the gate-legality contract (legal-state tuples, derived sync).
 
 ## Input
 
@@ -49,7 +50,7 @@ IMPLEMENTATION_PATHS:  impl-layer paths from the ## Artifacts table
 VERIFICATION_PATHS:    the verification the impl-producer authored (or discoverable across IMPLEMENTATION_PATHS)
 ```
 
-## The layered verdict (ADR-0016)
+## The layered verdict
 
 Cold context removes the author's *conversational* bias but not a same-model grader's *correlated*
 blind spots, and re-running the producer's own assertions only confirms internal consistency. So the

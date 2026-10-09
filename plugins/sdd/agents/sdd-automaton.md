@@ -96,7 +96,7 @@ session, or fold judging into your context, which **forfeits grader independence
 as such. Do not design for depth > 2.
 
 A cold-judge or builder dispatch **may** instead be realized through a general-purpose dispatch
-capability's `subagent | channel` seam (ADR-0023, referenced by intent — never a pinned mechanism);
+capability's `subagent | channel` seam (referenced by intent — never a pinned mechanism);
 that is an alternative realization of the same spawns above, not a change to the default depth-1/
 depth-2 behavior described here.
 
@@ -108,5 +108,4 @@ handoff. Hand SDD's own judges (`sdd-spec-judge`, `sdd-impl-judge`) to the
 capability **by file path, never by name** — `agents/<name>.md` under the SDD plugin root, the folder
 your own definition ships in. Locate that root from the SDD skill that spawned you (two levels above
 its base directory) or the plugin root your brief names; if no file is there, send the capability no
-request for that judge and spawn it as a portable cold subagent (`sdd:<name>`) instead. Full model: `start-mission`'s "Dispatch transport" note and the `design/harness-spawning`
-node of the SDD project spec (repo-only).
+request for that judge and spawn it as a portable cold subagent (`sdd:<name>`) instead. Full model: `start-mission`'s "Dispatch transport" note.

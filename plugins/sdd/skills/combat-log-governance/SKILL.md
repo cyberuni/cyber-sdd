@@ -92,7 +92,7 @@ field.
 ### `report` — per-subagent dispatch (combat log)
 
 ```jsonl
-{"seq": 3, "ts": "2026-06-28T18:30:11Z", "handle": "unional", "kind": "report", "role": "spec-producer", "agent": "sdd:automaton", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
+{"seq": 3, "ts": "2026-06-28T18:30:11Z", "handle": "unional", "kind": "report", "role": "spec-producer", "agent": "sdd:sdd-automaton", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
 ```
 
 `role` is the production role dispatched; `agent` is the plugin-qualified agent name; `outcome` is

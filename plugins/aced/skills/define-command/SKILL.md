@@ -8,7 +8,7 @@ description: 'Use this skill when the user wants to create or improve a command 
 Create or improve a **command** — a workflow the user invokes explicitly via `/name`, never
 triggered automatically by the model.
 
-When the conductor dispatches this skill as a generic builder (`produced-by sdd:automaton`) for the
+When the conductor dispatches this skill as a generic builder (`produced-by sdd:sdd-automaton`) for the
 ACED **impl-producer** role (implement mode, against a frozen `.feature`), it builds the **command
 file** to pass the frozen suite. The **verification is the frozen `.feature` itself** — its inline
 `@rubric` scenarios and `@trigger` `Examples`, authored by `aced-scenario-writer` at explore — so no

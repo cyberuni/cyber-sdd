@@ -1,6 +1,6 @@
 ---
 name: repair-private-skills
-description: "Partial Skill: invoke by name only — the ACED manage-gateway engine that validates and repairs repo-private skill hygiene — loaded in-session by the ACED manage gateway, not user-triggered."
+description: "By name only"
 user-invocable: false
 metadata:
   internal: true

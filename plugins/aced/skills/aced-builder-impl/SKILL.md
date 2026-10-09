@@ -1,6 +1,6 @@
 ---
 name: aced-builder-impl
-description: "Partial Skill: invoke by name only — the ACED Builder bar at the impl gate — the frozen .feature conformance criteria. Loaded by the ACED impl-producer to self-align and by the impl-judge to verify. Not triggered by users directly."
+description: "By name only"
 user-invocable: false
 metadata:
   actor: builder
@@ -29,7 +29,7 @@ agent level.
 - **Run policy is explicit — from `eval.md`.** Read the `eval:` block: `@trigger` scenarios run
   `eval.trigger.runs` against `eval.trigger.activation_threshold` (accuracy); `@behavior`/`@quality`
   scenarios run N times against the scenario's inline `threshold` (else `eval.judge.default_threshold`),
-  scored by `eval.judge.model`. Defaults when omitted: model claude-sonnet-4-6, default_threshold 4,
+  scored by `eval.judge.model`. Defaults when omitted: model the session's current model, default_threshold 4,
   trigger activation_threshold 0.5, trigger runs 3.
 - **Collapse to a boolean.** A scenario passes when its aggregate **total across the rubric's named
   dimensions** ≥ `threshold` and no must-not-do was triggered (trigger scenarios: accuracy ≥

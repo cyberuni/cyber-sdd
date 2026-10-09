@@ -1101,6 +1101,17 @@ test('a partial-skill description not leading with the Partial Skill prefix is f
 	}
 })
 
+test('a partial-skill description of exactly "By name only" passes the prefix check', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(root, 'skills/sample-skill', skillFixture({ internal: true, description: 'By name only' }))
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q3').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
 test('a partial-skill description leading with the Partial Skill prefix passes the prefix check', () => {
 	const root = tmpRoot()
 	try {

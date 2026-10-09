@@ -1,6 +1,6 @@
 ---
 name: aced-impl-producer
-description: "Partial Skill: invoke by name only — the ACED impl-producer's diagnose-and-refine loop — loaded by define-agent, define-skill, and define-governance, and by the public improve skill for ACED-tracked targets, not user-triggered."
+description: "By name only"
 user-invocable: false
 metadata:
   actor: producer
@@ -23,7 +23,7 @@ and its colocated `eval.md` (subject + run policy):
 - Read `eval.md` for the `subject` agent configuration path and the `eval:` run policy
 - Read the `subject` agent configuration in full
 - Read the frozen `<node>.feature` (the eval source)
-- Read the most recent result file from `results/` (sort by filename descending, take first)
+- Read the most recent result file from `.agents/aced/results/<target-slug>/` (sort by filename descending, take first)
 
 If no results exist, run `run` first.
 
@@ -54,7 +54,7 @@ For each pattern, propose a concrete change to the agent configuration. Show exa
 Examples of edit types:
 
 - **Trigger false-positive/negative** → rewrite the `description:` field; add explicit "when NOT to use" section
-- **Missing step** → make the step more prominent; add a concrete example; break it into sub-steps
+- **Missing step** → state the step and why it matters; break it into sub-steps if it is compound
 - **Ambiguous rule** → replace vague language ("prefer X") with decision rule ("use X when Y, use Z when W")
 - **Conflicting instruction** → add explicit precedence rule or split into separate instructions
 - **Description mismatch** → align `description:` to match what the body actually instructs

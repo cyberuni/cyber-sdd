@@ -1,6 +1,6 @@
 ---
 name: manage-model-runners
-description: "Partial Skill: invoke by name only — the ACED manage-model-runners engine — loaded in-session by the ACED manage gateway, not user-triggered."
+description: "By name only"
 user-invocable: false
 metadata:
   internal: true

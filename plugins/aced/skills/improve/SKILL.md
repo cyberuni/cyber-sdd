@@ -31,7 +31,7 @@ Check for the target's node in the project spec — `.agents/specs/<project>/…
 through the SDD spec tree) — carrying a colocated `eval.md` for this target.
 
 - **ACED-tracked (eval suite exists):** ensure a recent result exists — run `run` first if the
-  latest `results/` file is stale or missing. Then load `aced-impl-producer` to identify failing
+  latest file in `.agents/aced/results/<target-slug>/` is stale or missing. Then load `aced-impl-producer` to identify failing
   scenarios, classify them by pattern, and propose concrete before/after edits.
 - **Not yet tracked (no eval suite):** there is nothing to diagnose failures against. Do a general
   review instead:
@@ -94,7 +94,7 @@ any agent, SDD or not.
 If failures are caused by inherent non-determinism (high score variance across similar cases),
 recommend:
 1. Adding more specific examples to the config
-2. Lowering the threshold in `eval.md` for that layer if the bar was set too high
+2. Lowering the bar — but a per-scenario `threshold` is inline in the frozen `.feature`, so lowering it is a narrowing edit that needs a re-open and Clearance at the spec gate, not a casual `eval.md` change (only `eval.judge.default_threshold`, the fallback, lives in `eval.md`)
 3. Splitting the config into two narrower ones
 
 Do not propose removing test cases to fix failing evals — that defeats the purpose.

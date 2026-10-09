@@ -675,13 +675,13 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 		)
 	}
 
-	if (isPartialSkill && fmDesc && !/^Partial Skill:/i.test(fmDesc)) {
+	if (isPartialSkill && fmDesc && !/^(Partial Skill:|By name only$)/i.test(fmDesc.trim())) {
 		warn(
 			'MEDIUM',
 			'Q3',
 			'Partial skill description missing the "Partial Skill:" prefix',
 			`description: ${fmDesc}`,
-			'Lead the description with "Partial Skill: invoke by name only — <identity>. <caller>."',
+			'Set the description to exactly "By name only" (or lead with "Partial Skill:")',
 		)
 	}
 

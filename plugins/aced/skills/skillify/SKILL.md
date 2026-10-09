@@ -31,7 +31,7 @@ The tell is the *target artifact*, not the "reuse this" framing: an agent/person
 Load the **skill-design** governance before drafting:
 
 ```bash
-npx cyberplace@0.2.4 governance show skill-design
+npx cyberplace@<version> governance show skill-design   # resolve <version> via: npm view cyberplace version — never @latest
 ```
 
 Read stdout as the authoritative rules for principles, progressive disclosure, and description structure.
@@ -70,7 +70,7 @@ Ask the user if the context is ambiguous.
 ### 3. Draft the skill name and description
 
 - **Name:** A short verb-noun or noun phrase that identifies the workflow (e.g., `patch-skill`, `deploy-preview`, `sync-tokens`)
-- **Description:** ≤120 characters; must contain "Use this skill when"; specific enough to discriminate from other skills
+- **Description:** 150–400 characters (≤1024 hard limit); must contain "Use this skill when"; specific enough to discriminate from other skills
 
 Test the description: would an agent activate this skill in the right situation and NOT activate it otherwise?
 
@@ -98,13 +98,13 @@ description: Use this skill when <trigger>. <One-line summary.>
 ### 2. <Step title>
 ...
 
-## What NOT to do
+## Pitfalls
 
-- <Common mistake or anti-pattern>
+- <Mistake — the failure it causes and what to do instead>
 ```
 
 Rules:
-- Encode the WHY behind each step (the constraint or decision), not just the WHAT
+- Encode the decision or constraint behind each step as a rule, not an argument; rationale belongs in an ADR
 - Flag deterministic steps as candidates for script extraction (see **skill-design** § Extract deterministic logic)
 - Keep each step focused on one decision or action
 

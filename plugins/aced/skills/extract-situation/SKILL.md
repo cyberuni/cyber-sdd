@@ -1,6 +1,6 @@
 ---
 name: extract-situation
-description: "Partial Skill: invoke by name only — the ACED blind-brief extractor — loaded by aced-case-judge to compose a simulating context's brief, not user-triggered."
+description: "By name only"
 user-invocable: false
 metadata:
   internal: true

@@ -1,6 +1,6 @@
 ---
 name: list-skills
-description: "Partial Skill: invoke by name only — the ACED manage-gateway skill-inventory engine — loaded in-session by the manage gateway, not user-triggered."
+description: "By name only"
 user-invocable: false
 metadata:
   internal: true

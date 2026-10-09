@@ -11,8 +11,8 @@ Generate a project-wide health dashboard across all eval suites.
 
 Scan the project spec (`.agents/specs/`) for behavioral-leaf nodes carrying an `eval.md` (subject + run policy) alongside their `<node>.feature`. For each, read:
 - `eval.md` for target path and threshold
-- The most recent file in `results/` (sort by filename descending)
-- The second-most-recent file in `results/` for trend (if it exists)
+- The most recent file in `.agents/aced/results/<target-slug>/` (sort by filename descending)
+- The second-most-recent file there for trend (if it exists)
 
 If no matching directories are found, report that no eval suites are initialized and suggest `sdd:start-mission` (the conductor resolves the ACED roles).
 

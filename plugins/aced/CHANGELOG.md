@@ -1,5 +1,12 @@
 # cyber-aced
 
+## 0.4.2
+
+### Patch Changes
+
+- f017f7c: Resolve the contradictions a prompt audit found in the shipped skills. Eval results are read from the shared `.agents/aced/results/<target-slug>/` directory everywhere, lowering a per-scenario threshold goes through the spec gate, name-only skills carry exactly `By name only` (the `improve-skill` Q3 check accepts it). `init-aced` registers `architect-impl`, the judge model defaults to the session's current model, the `cyberplace` version is resolved instead of pinned, and issue and ADR references are gone from the skill bodies.
+- a35b43d: Align the impl-judge with the plugin contract (it now also loads `gate-validation-governance`), resolve `sdd:automaton` to `sdd:sdd-automaton`, use one `cyberlegion@<version>` form, name the `gherkin-cli` pin once, and drop history asides and repo-only references from agent and skill bodies.
+
 ## 0.4.1
 
 ### Patch Changes

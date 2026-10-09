@@ -21,8 +21,8 @@ approval:
       novelty: medium — case-folded same-field and known-field resolution with a case-class comparison for miscased.
       confidence: high — a cold sdd-impl-judge passed every frozen scenario on both rounds with oracles re-derived independently, 58 of 58 tests green, the live tree clean over 94 definitions, and mutants killed on their bound scenarios (first- or last-declaration comparer, mixed-case token, no underscore floor, no case comparison). Round 1's absorption escalation (status/gap as the doc example) was cleared by swapping the example word; round 2's (TODO, STATUS, SUBJECT examples unchanged since #55 and gated there) was ruled out of scope by the conductor and filed as a follow-up. A known-answer test rebuilds the pre-fix #29 file and fails against the pre-change engine. pnpm verify green.
 produced-by:
-  spec-producer: sdd:automaton
-  impl-producer: sdd:automaton
+  spec-producer: sdd:sdd-automaton
+  impl-producer: sdd:sdd-automaton
 ---
 
 # Spec-Driven Development (SDD)

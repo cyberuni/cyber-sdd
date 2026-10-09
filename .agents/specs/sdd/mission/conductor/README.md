@@ -73,11 +73,11 @@ Resolution branches on role kind, and (for producers) on the **role-dependent su
 
 - **Spec / solution-producer** (the live grill) → runs **in-session in the conductor**, whether
   the SDD default (conductor loads the governance and authors inline, recorded
-  `produced-by.<role>: sdd:automaton`) or a **named plugin specialist** (persona-loaded
+  `produced-by.<role>: sdd:sdd-automaton`) or a **named plugin specialist** (persona-loaded
   in-session). It must keep the user channel — it is never spawned.
 - **Impl-producer** (mechanical) → the conductor **spawns** a builder: the SDD default spawns a
   generic builder that loads `impl-producer-governance` (`produced-by.impl-producer:
-  sdd:automaton`); a named plugin / model-tuned producer spawns that agent at its **own model
+  sdd:sdd-automaton`); a named plugin / model-tuned producer spawns that agent at its **own model
   and effort**.
 - **Judge, always** → the conductor **spawns a cold agent** in a fresh context
   (`sdd:sdd-spec-judge` / `sdd:sdd-impl-judge`, or the covering plugin's judge) — never inline,

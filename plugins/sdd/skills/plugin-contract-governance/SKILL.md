@@ -20,15 +20,15 @@ means the conductor **spawns** it.
 
 | Role key | Acts | SDD default |
 |---|---|---|
-| `spec-producer` | writes the `spec.md` body + the `.feature` | conductor loads `spec-producer-governance`, authors inline (`sdd:automaton`) |
-| `solution-producer` | writes `<unit>.solution.md` (the durable, ungated design fork) | conductor loads `solution-producer-governance`, authors inline (`sdd:automaton`) |
+| `spec-producer` | writes the `spec.md` body + the `.feature` | conductor loads `spec-producer-governance`, authors inline (`sdd:sdd-automaton`) |
+| `solution-producer` | writes `<unit>.solution.md` (the durable, ungated design fork) | conductor loads `solution-producer-governance`, authors inline (`sdd:sdd-automaton`) |
 | `spec-judge` | judges `spec.md` + the `.feature` at the spec gate | `sdd-spec-judge` — spawned cold agent |
-| `impl-producer` | builds the artifact **and** its verification | conductor loads `impl-producer-governance`, dispatches a generic builder (`sdd:automaton`) |
+| `impl-producer` | builds the artifact **and** its verification | conductor loads `impl-producer-governance`, dispatches a generic builder (`sdd:sdd-automaton`) |
 | `impl-judge` | runs the verification against the frozen `.feature` | `sdd-impl-judge` — spawned cold agent |
 
 **Producers run inline (or via a mechanical builder), judges spawn cold** ("conductor writes, cold
 judges grade"): an SDD-default spec/solution-producer is a governance the conductor loads and runs in
-its own warm main-session context (recorded `produced-by.<role>: sdd:automaton`); the SDD-default
+its own warm main-session context (recorded `produced-by.<role>: sdd:sdd-automaton`); the SDD-default
 impl-producer is mechanical and spawned via a generic builder; an SDD-default judge is a cold agent
 the conductor spawns, because a grader must not share the author's context. A plugin delegate — or a
 model-tuned producer agent named for the slot — is always spawned.
@@ -36,10 +36,6 @@ model-tuned producer agent named for the slot — is always spawned.
 Any of the spawns above may instead be realized through a general-purpose dispatch capability's
 `subagent | channel` seam (ADR-0023, referenced by intent only) — an alternative realization of the
 same spawn, not a change to which roles spawn or how they are graded.
-
-> The legacy role key was `plan-producer` (writing `plan.md` + `tasks.md`); it is renamed
-> **`solution-producer`** writing `<unit>.solution.md` (`sdd:combat-log-governance`). A live registry
-> still carrying `plan-producer` is migrated on encounter.
 
 ## Which governances each role loads
 
@@ -49,10 +45,7 @@ self-aligns to exactly the bars its judge grades. The lens sets are spec gate `{
 architect}`, impl gate `{builder, architect}`, solution `{architect}` (ungated).
 
 **Read each row against that sentence.** A producer row that does not carry its whole lens set is a
-transcription slip, not a narrowing — this table is a shipped copy of one owned by SDD's own spec
-(`design/specialists-and-squads.md`), restated here because a governance loads standalone and cannot
-reach the spec tree. It has drifted once: the spec-producer row lost `architect-spec`, and plugin
-authors building to it shipped agents that loaded three bars and were graded against four.
+transcription slip, not a narrowing.
 
 | Role | Loads |
 |---|---|

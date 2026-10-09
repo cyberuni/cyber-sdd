@@ -143,7 +143,7 @@ Together with `approval` (the judging twin) it gives full per-artifact provenanc
 | `produced-by` | who **made** each artifact | production role (`spec-producer`, `solution-producer`, `impl-producer`) | conductor, at production |
 | `approval` | who **judged** each gate (`verdict` + `by` + `why`) | gate (`spec`, `impl`) | conductor (self-assert) / skill (ratify) |
 
-Each `produced-by` value is the **plugin-qualified agent name** (`aced:aced-scenario-writer`, `quill:quill-doc-writer`, or `sdd:automaton` when SDD's own default chain produced it — the in-session conductor for an inline spec/solution-producer, or its spawned builder for the impl-producer; see `specialists-and-squads.md`).
+Each `produced-by` value is the **plugin-qualified agent name** (`aced:aced-scenario-writer`, `quill:quill-doc-writer`, or `sdd:sdd-automaton` when SDD's own default chain produced it — the in-session conductor for an inline spec/solution-producer, or its spawned builder for the impl-producer; see `specialists-and-squads.md`).
 Recorded **always**, on every production.
 It plays two deliberately separated roles:
 
@@ -154,8 +154,8 @@ It plays two deliberately separated roles:
 status: approved
 produced-by:
   spec-producer: aced:aced-scenario-writer
-  solution-producer: sdd:automaton
-  impl-producer: sdd:automaton
+  solution-producer: sdd:sdd-automaton
+  impl-producer: sdd:sdd-automaton
 approval:
   spec:
     verdict: approve
@@ -220,7 +220,7 @@ One line appended **to the plan** per production-chain dispatch, so a later read
 Removed with the plan at retro (a tracked deletion).
 
 ```jsonl
-{"seq": 3, "ts": "2026-06-28T18:30:11Z", "handle": "unional", "kind": "report", "role": "spec-producer", "agent": "sdd:automaton", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
+{"seq": 3, "ts": "2026-06-28T18:30:11Z", "handle": "unional", "kind": "report", "role": "spec-producer", "agent": "sdd:sdd-automaton", "outcome": "pass", "summary": "wrote 14 scenarios covering the ledger expansion"}
 ```
 
 `role` is the production role dispatched; `agent` is the plugin-qualified agent name; `outcome` is `pass | fail`.

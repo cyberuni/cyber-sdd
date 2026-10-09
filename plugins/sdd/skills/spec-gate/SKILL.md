@@ -158,7 +158,7 @@ change is purely additive with no judge round; a **narrowing/rewriting** edit (a
 scenario) unfreezes its file and fires **Clearance** once the narrowing is confirmed semantically.
 The edit-class classification itself — additive / no-content-change / narrowing / mixed — comes from
 `scripts/classify-edit-class.mts` (`--files <paths> [--base <ref>]`): a **structural** per-named-`Scenario`
-diff via the pinned `gherkin-cli@0.0.2 diff`, plus git rename detection for a pure `git mv`, **never a raw
+diff via the pinned `gherkin-cli@0.2.1 diff`, plus git rename detection for a pure `git mv`, **never a raw
 line diff** (a step orphaned off a frozen scenario onto a new adjacent scenario shows no `-` line and
 would read as additive to a line-diff; the structural diff correctly reports the losing scenario as
 `modified`). It only classifies — additive / no-content-change self-clear, narrowing / mixed take the

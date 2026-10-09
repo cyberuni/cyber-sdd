@@ -207,7 +207,7 @@ handle: the natural in-scenario shape is `narrowing`, so a producer checking whe
 is present in both shapes, never on the class the diff happens to report.
 
 **The freeze sees the rubric only because the differ's pin says it does.** A `@rubric` lives wholly
-inside a DocString. The structural differ is pinned at `gherkin-cli@0.0.2`, which hashes what a step
+inside a DocString. The structural differ is pinned (see `spec-gate`), which hashes what a step
 argument **says**; before that pin its scenario identity covered step text alone, and a rubric could
 be gutted while its scenario still reported `unchanged`. **The pin is load-bearing here** — moved
 backwards, every correction in this queue self-clears silently and Clearance never fires.

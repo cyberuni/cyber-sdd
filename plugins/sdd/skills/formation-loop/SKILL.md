@@ -91,10 +91,7 @@ shares one boundary.
   axis is wrong), not a granularity split to carve as-proposed.
 
 An oversize can be a symptom of the **wrong axis**, not just wrong granularity: turn "this node is too
-big" into "too big **along which axis** — and is that axis real?" (Precedent: a killed
-`identity/`→`presence/` split proposed a plausible-but-unreal axis and was superseded by a realignment
-that split along the package's actual command boundary; the producer/consumer boundary had even been
-validated as sound, yet the *split axis* was never checked against a real command boundary.)
+big" into "too big **along which axis** — and is that axis real?"
 
 Alongside its findings a pass surfaces an **advisory layout-quality signal** — the scheduler's
 **false-conflict rate** doubles as a **partition-quality metric**: a layout that keeps node↔folder

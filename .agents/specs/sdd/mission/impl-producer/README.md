@@ -8,7 +8,7 @@ concept: delivery
 The **impl-producer** procedure: build the implementation **and** one verification per frozen
 scenario, against the **frozen** `.feature`. This is the default `impl-producer-governance` the
 conductor runs by **spawning a generic builder** that loads the governance (recorded
-`produced-by.impl-producer: sdd:automaton`); a plugin / model-tuned producer spawns its own
+`produced-by.impl-producer: sdd:sdd-automaton`); a plugin / model-tuned producer spawns its own
 agent at its own model and effort (`../../design/governance-resolution.md`). Unlike the
 spec / solution-producer (which run inline — the live grill), the impl-producer is **mechanical
 and spawned** on every surface.
@@ -104,7 +104,7 @@ lands** lives with the doctrine Strategist ([`../../doctrine/scanner/`](../../do
 ## Producer surface
 
 The impl-producer is **spawned**, not inline: the conductor spawns a generic builder that loads
-this governance (SDD default, `produced-by.impl-producer: sdd:automaton`), or spawns a named
+this governance (SDD default, `produced-by.impl-producer: sdd:sdd-automaton`), or spawns a named
 plugin / model-tuned producer agent at its own model + effort. The grader is always separate — the
 cold [`../impl-judge/`](../impl-judge/README.md) runs the verification this role authored; this
 governance never declares its own pass verdict.

@@ -14,7 +14,7 @@ Feature: SDD acceptance — resolve a squad (registry → resolution → product
   Scenario: an unfilled producer role degenerates to inline authoring
     Given a domain whose producer role is unfilled
     When the conductor resolves that role
-    Then the conductor authors inline and records produced-by as sdd:automaton
+    Then the conductor authors inline and records produced-by as sdd:sdd-automaton
 
   Scenario: an unfilled judge role is graded by the cold SDD-default judge
     Given a domain whose judge role is unfilled

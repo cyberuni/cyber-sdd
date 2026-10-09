@@ -196,7 +196,7 @@ is separate from strategy-drafting above; you draft nothing and write nothing to
   tracked issue.
 - There is **no legal terminal value** for a plan brief's `status` field to autofix into — the
   contract's own answer to "this mission is over" is retirement (a tracked deletion), not a status
-  flag (`design/provenance-model.md` reserves the plan-level `status` to the two-value dispatch
+  flag (the plan-level `status` is reserved to the two-value dispatch
   flag `active | approved`). You never write a plan brief's `status`.
 
 ## Boundaries

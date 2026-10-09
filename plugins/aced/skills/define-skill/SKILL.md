@@ -1,6 +1,6 @@
 ---
 name: define-skill
-description: 'Use this skill when the user wants to create, scaffold, or formalize a workflow skill — a process, tool-based, or standard SKILL.md — from scratch or from an existing ad-hoc workflow. Trigger on "create a skill", "write a skill for X", "I want a skill that…", "turn this workflow into a skill", or "help me build this skill", even if they do not say "skill" explicitly. Not for agent definitions or personas (define-agent), reference-only rule sets (define-governance), or extracting the current session (skillify).'
+description: 'Creates, scaffolds, or formalizes a workflow skill — a process, tool-based, or standard SKILL.md — from scratch or from an existing ad-hoc workflow. Use when the user asks for one — "create a skill", "write a skill for X", "I want a skill that…", "turn this workflow into a skill", "help me build this skill" — even if they do not say "skill" explicitly. Not for agent definitions or personas (define-agent), reference-only rule sets (define-governance), or extracting the current session (skillify).'
 ---
 
 # Define Skill
@@ -45,16 +45,16 @@ skill here.
 
 ## Load the governance
 
-Before writing content, load the **skill-design** governance and read stdout as the authoritative
-rules for principles, progressive disclosure, description structure, and when to extract deterministic
-logic to a script:
+Before writing content, load the **skill-design** governance as the authoritative rules for
+principles, progressive disclosure, description structure, and when to extract deterministic logic to
+a script. Read the first that exists:
 
-```bash
-npx cyberplace@<version> governance show skill-design   # resolve <version> via: npm view cyberplace version — never @latest
-```
+1. `.agents/governances/skill-design.md` — a project override
+2. `references/governances/skill-design.md` in this skill — the default copy
 
 If the skill will ship a `scripts/` directory or document CLI commands agents run, also load
-**agent-tool-output** for stdout / JSON / non-interactive / stderr rules.
+**agent-tool-output** the same way (`references/governances/agent-tool-output.md`) for stdout / JSON /
+non-interactive / stderr rules.
 
 ## Settle the shape — five questions
 
@@ -129,8 +129,10 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
 2. <step>
 ```
 
-- **Description** — the only field loaded at startup; it carries the whole triggering burden. Target
-  150–400 characters (≤1024 hard limit): capability + "Use when…" + an implicit phrasing. For a
+- **Description** — the only field loaded at startup; it carries the whole triggering burden. Lead
+  with the capability, then a "Use when…" trigger clause, then an implicit phrasing. Never open with a
+  fixed lead-in such as "Use this skill when" or "When to use". Keep it ≤1024 characters, the
+  capability and main triggers first. For a
   **name-only skill** (a reusable part other skills call by name, never matched to a situation), set
   `user-invocable: false` and the description to exactly `"By name only"` and nothing else; identity
   and caller go in the body.
@@ -165,7 +167,7 @@ name it by that gate/scope, not a bare action verb — `<domain>-<gate>-judge` f
 `implementer`, `judge`, `validator`, `reviewer`, `checker` alone. A producer subagent (e.g.
 `scenario-writer`, `doc-writer`) keeps its action-oriented name — this check does not fire for it.
 
-Evaluate this **in-skill quality check** — separate from the mechanical `audit validate` below — before
+Evaluate this **in-skill quality check** — separate from the mechanical structural audit below — before
 handing the skill back: a drafted gate/case scorer named with a bare action verb is a **HIGH** severity
 finding; fix it (rename to the gate-and-scope form) before presenting the skill.
 
@@ -174,8 +176,10 @@ finding; fix it (rename to the gate-and-scope form) before presenting the skill.
 Run the structural audit and fix any CRITICAL or HIGH finding **before** presenting the skill:
 
 ```bash
-npx cyberplace@<version> audit validate --path <placement-dir>/<name>
+node "<improve-skill>/scripts/validate.mts" --path <placement-dir>/<name>
 ```
+
+Replace `<improve-skill>` with the directory of the `improve-skill` skill installed beside this one.
 
 For a fuller pass, invoke the `improve-skill` skill. Do not present a skill with an
 open CRITICAL finding.

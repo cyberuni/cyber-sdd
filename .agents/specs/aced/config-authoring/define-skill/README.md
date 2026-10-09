@@ -46,7 +46,7 @@ is judged, not asserted.
 | Settle the design before building | a request that has not fixed scope, trigger phrasing, output contract, quality bar, and out-of-scope | the five design questions are answered — with the user, never invented — before any file is scaffolded |
 | Choose the pattern | the workflow's shape, and the non-goal persona case | the chosen pattern drives the body shape; a persona request is redirected to `define-agent` |
 | Resolve placement and runtimes | the chosen scope (project-public / user-global) and the target runtimes | the canonical path follows from the scope, a verified symlink is created per runtime, and a README is written for a project-public skill but not a user-global one |
-| Draft the canonical file | the settled design | a `SKILL.md` whose name matches its directory, whose description fits the skill's kind, whose partial skills carry the anti-activation prefix, and whose fixed-output logic is extracted to a script |
+| Draft the canonical file | the settled design | a `SKILL.md` whose name matches its directory, whose description fits the skill's kind and leads with the capability rather than a fixed lead-in, whose partial skills carry the anti-activation prefix, and whose fixed-output logic is extracted to a script |
 | Improve an existing skill | the named skill already exists | the file is read first, only the gaps are changed, and a section the template never generates is preserved |
 | Name gate-scorer subagents by role | a subagent whose role is to score or verify a gate or case | it is named in the gate-and-scope form; an action-named scorer is flagged and corrected, while a non-scorer producer keeps its action name |
 | Audit before handing back | a freshly drafted or improved skill | the structural audit runs before presentation and any CRITICAL-or-HIGH finding is fixed first |
@@ -136,6 +136,8 @@ section order.
 | `DRAFT` (description) | the skill is one the user invokes directly | `a user-triggered skill's description carries the capability, the trigger, and an implicit phrasing` |
 | `DRAFT` (partial prefix) | the skill is a partial skill other skills call by name | `a partial skill's description carries the Partial Skill prefix to prevent accidental activation` |
 | `DRAFT` (script) | a step produces deterministic fixed output | `deterministic fixed-output logic is extracted to a script rather than baked into the body` |
+| `DRAFT` (description lead) | the skill is one the user invokes directly | `a user-triggered skill's description leads with the capability, not a fixed lead-in` |
+| `DRAFT` (governance source) | no project override of skill-design | `the skill-design rules are read from a local copy, not a remote CLI` |
 | `DRAFT` (no eval file) | the author asks to bake a trigger-query eval file in | `a request to bake a trigger-query eval file into the skill is answered with the ACED eval loop` |
 | `SHAPE` → `READ` | the named skill already exists | `an existing skill is read before any change` |
 | `GAPS` | an existing skill missing one field | `only the gaps found are changed when improving` |
@@ -146,6 +148,7 @@ section order.
 | `ROLE` → `RENAME` (non-verb) | a gate scorer named for its action but not a bare verdict word | `a gate scorer named for its action rather than its gate is flagged even when the name is not a bare verdict word` |
 | `ROLE` → `KEEP` | a producer subagent that scores nothing | `a non-scorer producer subagent keeps its action-oriented name` |
 | `AUDIT` (runs) | a freshly drafted skill | `the structural audit runs before the skill is presented` |
+| `AUDIT` (command) | a freshly drafted skill | `the structural audit runs a validator that exists` |
 | `AUDIT` (CRITICAL) | a drafted skill with a CRITICAL finding | `a high-severity audit finding is fixed before handoff` |
 | `AUDIT` (HIGH-only) | a drafted skill whose only finding is HIGH, no CRITICAL | `a HIGH audit finding with no CRITICAL alongside it is still fixed before handoff` |
 | `HAND` → `POINT` | a standalone run producing a triggering skill | `the report names the artifacts and points at the ACED eval loop` |

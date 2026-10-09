@@ -79,7 +79,7 @@ over a named path, never asserted over the document. *"I did not find it"* is no
 
 **A1 and A2 are duals, and repairing one must not create the other.** The repair for an unresolvable
 presupposition is to supply the content; replacing it with a pointer moves the defect rather than
-fixing it. That substitution is precisely what the retracted recurrence rule used to prescribe.
+fixing it. A pointer in place of the missing content is the same defect, moved.
 
 ### B. The passage misrepresents what the reader already has
 
@@ -278,12 +278,11 @@ and a judge that gets routed around catches nothing at all.
 Out of scope here, and not reportable at either instrument: tone, register, length, word choice, and
 section order.
 
-**Recurrence is not a defect.** An earlier revision of this bar required a claim to appear *in
-exactly one place*, later passages referring back. It has no empirical warrant and is retracted: the
-measured comprehension cost attaches to a passage whose given information has **no retrievable
-antecedent**, not to a claim appearing twice (`.research/documentation-craft/`). A claim may recur
-freely. Its prescribed fix — replace the second passage with a pointer — is the worse defect, since a
-bare cross-reference *guarantees* the bridging cost that recurrence only risked.
+**Recurrence is not a defect.** A claim may appear in more than one passage. The measured
+comprehension cost attaches to a passage whose given information has **no retrievable antecedent**,
+not to a claim appearing twice (`.research/documentation-craft/`). Replacing the second passage with
+a pointer is the worse defect, since a bare cross-reference *guarantees* the bridging cost that
+recurrence only risked.
 
 ## Precedence — a frozen scenario outranks this bar
 
@@ -318,6 +317,6 @@ resolve either (`sdd:ownership-governance`).
    A citation carries *where*, not just *what*; two quotes resolving to one place are not a pair.
 8. **The producer reads it whole and checklist-free**, which is the position that sees the pair.
 9. **Tone, length, word choice, and section order are out of scope — and so is recurrence**, which
-   is retracted rather than relocated.
+   is not a defect.
 10. **A frozen scenario outranks the bar** — on a collision the scenario wins and the finding is an
     architect observation, not a `BLOCKER`.

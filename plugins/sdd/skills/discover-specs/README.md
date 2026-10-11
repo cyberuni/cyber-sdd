@@ -11,5 +11,5 @@ specs found.
 - **Tests:** [`scripts/discover-specs.test.mts`](./scripts/discover-specs.test.mts) (`node:test`)
 
 ```bash
-node scripts/discover-specs.mts --root . --format toon
+node ../run-engine.mjs scripts/discover-specs.mts --root . --format toon
 ```

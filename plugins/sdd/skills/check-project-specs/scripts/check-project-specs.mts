@@ -11,7 +11,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync, realpathSync } from 'node:fs'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import {
 	collectSpecs,
@@ -327,7 +327,7 @@ function checkProject(argv: string[]): number {
 		return 1
 	}
 
-	const projectRel = relative(repoRoot, projectDir) || '.'
+	const projectRel = relative(repoRoot, projectDir).split(sep).join('/') || '.'
 	const specs = collectSpecs(repoRoot)
 	const res = resolveSpecFor(specs, projectRel)
 

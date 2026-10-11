@@ -42,7 +42,7 @@ finding against every pointer in the package.
 ## Run it
 
 ```bash
-node "<skill>/scripts/check-plugin-manifests.mts" [--root <dir>]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-plugin-manifests.mts" [--root <dir>]
 ```
 
 `--root` defaults to the working directory. A finding always exits non-zero — there is deliberately

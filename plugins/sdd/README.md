@@ -1,5 +1,10 @@
 # SDD — Spec-Driven Development
 
+The npm package includes runnable JavaScript copies of every shipped skill engine. Skill commands
+go through `skills/run-engine.mjs`: it runs `.mts` source in a checkout and the adjacent compiled
+`.js` file when the package is under `node_modules`, where Node does not strip TypeScript. The
+compiled copies are generated for the npm tarball and are not committed to the source tree.
+
 Keep your project's **spec and behavior suite** alive next to the code, and let an agent
 carry each change through one autonomous loop — from intent, to a frozen contract, to a
 verified result — while you decide *what to build* and the agent decides *how far it may go

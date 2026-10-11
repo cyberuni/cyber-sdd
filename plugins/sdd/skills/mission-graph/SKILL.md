@@ -32,24 +32,24 @@ never touches a derivation.
 ## Run it
 
 ```bash
-node "<skill>/scripts/mission-graph.mts" ready     [--root .] [--format toon|json]
-node "<skill>/scripts/mission-graph.mts" cycles    [--root .] [--format toon|json]
-node "<skill>/scripts/mission-graph.mts" operation --id <operation-id> [--root .] [--format toon|json]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" ready     [--root .] [--format toon|json]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" cycles    [--root .] [--format toon|json]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" operation --id <operation-id> [--root .] [--format toon|json]
 
 # the write path (append-only; --root defaults to .)
-node "<skill>/scripts/mission-graph.mts" append node --id <id> \
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" append node --id <id> \
   [--kind mission|operation] [--status open|claimed|retired] [--touch-set a,b,c] \
   [--blast <level>] [--hitl|--afk] [--model-tier <tier>] [--brief-pointer <path>] [--capstone <id>]
 
-node "<skill>/scripts/mission-graph.mts" append edge --kind RAW|parent-child|discovered-from \
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" append edge --kind RAW|parent-child|discovered-from \
   --from <id> --to <id> [--override]
 
-node "<skill>/scripts/mission-graph.mts" append tombstone --target node --id <id>
-node "<skill>/scripts/mission-graph.mts" append tombstone --target edge --kind <kind> --from <id> --to <id>
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" append tombstone --target node --id <id>
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" append tombstone --target edge --kind <kind> --from <id> --to <id>
 
 # store home + reach (idempotent; --root defaults to .)
-node "<skill>/scripts/mission-graph.mts" migrate  [--root .]
-node "<skill>/scripts/mission-graph.mts" sync     [--root .] [--remote origin]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" migrate  [--root .]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/mission-graph.mts" sync     [--root .] [--remote origin]
 ```
 
 - Default `--root` is the current directory. The store home is resolved at run time — the orphan ref

@@ -11,10 +11,10 @@ config.
 - **Tests:** [`scripts/manage-scenario-bridge.test.mts`](./scripts/manage-scenario-bridge.test.mts) (`node:test`)
 
 ```bash
-node scripts/manage-scenario-bridge.mts --project-path packages/cyberlegion --list
-node scripts/manage-scenario-bridge.mts --project-path packages/cyberlegion --scaffold \
+node ../run-engine.mjs scripts/manage-scenario-bridge.mts --project-path packages/cyberlegion --list
+node ../run-engine.mjs scripts/manage-scenario-bridge.mts --project-path packages/cyberlegion --scaffold \
   --adapter junit --command "vitest run --reporter=junit --outputFile=.agents/.scenario-report.xml" \
   --report-path .agents/.scenario-report.xml
-node scripts/manage-scenario-bridge.mts --project-path packages/cyberlegion --add \
+node ../run-engine.mjs scripts/manage-scenario-bridge.mts --project-path packages/cyberlegion --add \
   --adapter junit --report-path .agents/.other-report.xml
 ```

@@ -43,7 +43,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 5. **Self-check the `.feature` form before returning.** Run the deterministic form check — the `check-suite` engine (`scripts/check-suite.mts` in the `spec-gate` skill), the executable form of `sdd:suite-format-governance` — scoped to what you just authored:
 
    ```bash
-   node "<spec-gate skill>/scripts/check-suite.mts" --files <the authored .feature path(s)>
+   node "<spec-gate skill>/../run-engine.mjs" "<spec-gate skill>/scripts/check-suite.mts" --files <the authored .feature path(s)>
    ```
 
    Exit `0` = form clean; exit `1` prints each `✗ <file>: <reason>`. **Fix every violation** (a non-boolean/hedged `Then`, leaked rubric lingo in an untagged scenario, a missing `Feature`/`Then`, or missing section comments over the sectioning threshold) and re-run until clean **before reporting `STATUS: complete`**. Settling this mechanical bar here spends no cold-judge round on a defect a linter catches every time; the same engine runs fail-closed at the gate (`../spec-gate/`), so an unfixed violation would block there anyway. If `node` is unavailable, self-review against the suite-format bar by hand.
@@ -62,7 +62,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
    the `spec.md`/`README.md` you just authored or touched:
 
    ```bash
-   node "<spec-gate skill>/scripts/check-spec-state.mts" --files <the authored spec.md/README.md path(s)>
+   node "<spec-gate skill>/../run-engine.mjs" "<spec-gate skill>/scripts/check-spec-state.mts" --files <the authored spec.md/README.md path(s)>
    ```
 
    Exit `0` = every referenced path resolves; exit `1` prints each `✗ <file>: references nonexistent

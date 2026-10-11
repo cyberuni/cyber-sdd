@@ -74,7 +74,7 @@ Hand-rolled regex parse, no xml dependency — verified against vitest 4.1.7's J
 ## Run
 
 ```bash
-node "<skill>/scripts/verify-scenarios.mts" \
+node "<skill>/../run-engine.mjs" "<skill>/scripts/verify-scenarios.mts" \
   --feature <path/to/x.feature> --node <project>/<node> \
   [--config .agents/sdd/scenario-bridge.toml] [--root .] [--feature-root <dir>] \
   [--report <xml>] [--run] [--format toon|json]
@@ -100,7 +100,7 @@ report — the common monorepo shape, where specs sit at a repo-root spec corpus
 sit under its `project-path` (e.g. `packages/<project>/`):
 
 ```bash
-node "<skill>/scripts/verify-scenarios.mts" \
+node "<skill>/../run-engine.mjs" "<skill>/scripts/verify-scenarios.mts" \
   --feature .agents/specs/cyberlegion-plugin/identity/identity.feature \
   --node cyberlegion-plugin/identity \
   --feature-root . \

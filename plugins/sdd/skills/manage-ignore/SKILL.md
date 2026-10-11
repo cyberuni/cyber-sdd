@@ -25,7 +25,7 @@ engine therefore **never re-sorts**: `--add` appends, `--remove` preserves the o
 ## Run an operation
 
 ```bash
-node "<skill>/scripts/manage-ignore.mts" [--root .] <operation>
+node "<skill>/../run-engine.mjs" "<skill>/scripts/manage-ignore.mts" [--root .] <operation>
 ```
 
 | Operation | Effect |

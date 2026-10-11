@@ -19,7 +19,7 @@ owner's call (`sdd:spec-structure-governance` — adoption over purity).
 ## Run it
 
 ```bash
-node "<skill>/scripts/check-partition-quality.mts" \
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-partition-quality.mts" \
   --repo <path> --scope <dir> [--partition <name>]... [--floor N] [--limit N] [--format json]
 ```
 

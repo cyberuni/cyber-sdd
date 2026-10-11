@@ -54,7 +54,7 @@ the plan stands on its own). Capture *enough to continue, nothing to relitigate.
    or machine-local locations.
 
 7. **Commit the checkpoint.** Before committing, run the plan-brief leak guard over the brief —
-   `node "<sdd-skills>/check-plan-safety/scripts/check-plan-safety.mts" --path <brief> --check` (the
+   `node "<sdd-skills>/check-plan-safety/../run-engine.mjs" "<sdd-skills>/check-plan-safety/scripts/check-plan-safety.mts" --path <brief> --check` (the
    `check-plan-safety` engine). A hit **blocks the commit**: scrub the machine-local reference (bring
    the content in-repo, reference it repo-relative) and re-run. Then commit the plan update (`docs:`)
    so the pause is durable in git and the working tree is clean. Leave no uncommitted work behind.

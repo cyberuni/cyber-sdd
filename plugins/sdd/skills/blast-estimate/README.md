@@ -20,7 +20,7 @@ across **both**, so centrality counts implementation dependency rather than spec
 Layouts are injected, so tests construct them as fixtures.
 
 ```bash
-node scripts/blast-estimate.mts --root <corpus> --touch-set sdd/mission-graph,sdd/blast-estimate --declared medium
+node ../run-engine.mjs scripts/blast-estimate.mts --root <corpus> --touch-set sdd/mission-graph,sdd/blast-estimate --declared medium
 ```
 
 Read-only, deterministic, reports-never-writes — the mission-graph's single writer records the

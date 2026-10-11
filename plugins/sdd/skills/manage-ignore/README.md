@@ -11,9 +11,9 @@ file. Order is meaningful (last-match-wins), so rules are never re-sorted.
 - **Tests:** [`scripts/manage-ignore.test.mts`](./scripts/manage-ignore.test.mts) (`node:test`)
 
 ```bash
-node scripts/manage-ignore.mts --list
-node scripts/manage-ignore.mts --induce build/output/app.log
-node scripts/manage-ignore.mts --preview '*.log'
-node scripts/manage-ignore.mts --preview '!keep.log'
-node scripts/manage-ignore.mts --add '*.log'
+node ../run-engine.mjs scripts/manage-ignore.mts --list
+node ../run-engine.mjs scripts/manage-ignore.mts --induce build/output/app.log
+node ../run-engine.mjs scripts/manage-ignore.mts --preview '*.log'
+node ../run-engine.mjs scripts/manage-ignore.mts --preview '!keep.log'
+node ../run-engine.mjs scripts/manage-ignore.mts --add '*.log'
 ```

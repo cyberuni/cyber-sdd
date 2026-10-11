@@ -38,7 +38,7 @@ describing home-rooted feature paths (a tool's own `~/.<tool>/` data root). `$HO
 ## Run the scan
 
 ```bash
-node "<skill>/scripts/check-plan-safety.mts" [--root .] [--path <file>]... [--check] [--format toon|json]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-plan-safety.mts" [--root .] [--path <file>]... [--check] [--format toon|json]
 ```
 
 - Default `--root` is the current directory; default `--format` is **TOON** (the token-efficient

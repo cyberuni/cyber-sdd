@@ -11,6 +11,6 @@ an unretired/resumable mission, tallies its todos, reads its top-level `status` 
 - **Tests:** [`scripts/discover-plans.test.mts`](./scripts/discover-plans.test.mts) (`node:test`)
 
 ```bash
-node scripts/discover-plans.mts --root . --format toon
-node scripts/discover-plans.mts --root . --status approved   # the dispatch queue: approved briefs only
+node ../run-engine.mjs scripts/discover-plans.mts --root . --format toon
+node ../run-engine.mjs scripts/discover-plans.mts --root . --status approved   # the dispatch queue: approved briefs only
 ```

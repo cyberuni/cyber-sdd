@@ -48,8 +48,8 @@ mapping and no path is ever written into a package's scripts.
 ## Run it
 
 ```bash
-node "<skill>/scripts/check-project-specs.mts" --corpus          # the whole corpus — the commit floor
-node "<skill>/scripts/check-project-specs.mts" [--project <dir>] # one project-spec
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-project-specs.mts" --corpus          # the whole corpus — the commit floor
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-project-specs.mts" [--project <dir>] # one project-spec
 ```
 
 The corpus scope is wired as the repo's root `check:specs`; the project scope is wired as each

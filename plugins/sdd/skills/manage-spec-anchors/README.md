@@ -11,8 +11,8 @@ that lists / CRUDs / induces / previews the anchors so users never hand-edit
 - **Tests:** [`scripts/manage-spec-anchors.test.mts`](./scripts/manage-spec-anchors.test.mts) (`node:test`)
 
 ```bash
-node scripts/manage-spec-anchors.mts --list
-node scripts/manage-spec-anchors.mts --induce curriculum/web/react/s-01
-node scripts/manage-spec-anchors.mts --preview 'curriculum/*/*/<project>'
-node scripts/manage-spec-anchors.mts --add 'curriculum/*/*/<project>'
+node ../run-engine.mjs scripts/manage-spec-anchors.mts --list
+node ../run-engine.mjs scripts/manage-spec-anchors.mts --induce curriculum/web/react/s-01
+node ../run-engine.mjs scripts/manage-spec-anchors.mts --preview 'curriculum/*/*/<project>'
+node ../run-engine.mjs scripts/manage-spec-anchors.mts --add 'curriculum/*/*/<project>'
 ```

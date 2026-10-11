@@ -14,7 +14,7 @@ conductor's autonomy bar (baked into `start-mission`), a hard floor + a three-di
 ## Legal-state tuples
 
 The mechanical authority is `spec-gate/scripts/check-spec-state.mts` — run it
-(`node <skill>/scripts/check-spec-state.mts`) to enforce; if `node` is unavailable, apply the same
+(`node "<skill>/../run-engine.mjs" "<skill>/scripts/check-spec-state.mts"`) to enforce; if `node` is unavailable, apply the same
 rules by reading frontmatter. The `(status, markers, .feature, approval)` tuple of the root
 `spec.md` — plus the durable gate lines globbed from its sibling `ledger/` shards (a legacy `ledger.jsonl` still counts) — is **illegal** when:
 

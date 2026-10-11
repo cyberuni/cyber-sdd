@@ -56,8 +56,8 @@ allow = [                                       # optional: sanctioned occurrenc
 ## Run the scan
 
 ```bash
-node "<skill>/scripts/check-retired-terms.mts" [--root .]         # the verify-time sweep
-node "<skill>/scripts/check-retired-terms.mts" [--root .] --list  # what is registered
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-retired-terms.mts" [--root .]         # the verify-time sweep
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-retired-terms.mts" [--root .] --list  # what is registered
 ```
 
 - Default `--root` is the current directory.

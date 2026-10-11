@@ -6,9 +6,9 @@ spec (or a chosen node set) — for audits, post-large-change verification, and 
 only project-spec tool that **reconciles** rather than only reporting.
 
 ```bash
-node scripts/align-spec.mts --spec-dir <spec>                    # audit (TOON drift report)
-node scripts/align-spec.mts --spec-dir <spec> --check            # CI guard (fails on drift)
-node scripts/align-spec.mts --spec-dir <spec> --nodes a,b --base HEAD~1
+node ../run-engine.mjs scripts/align-spec.mts --spec-dir <spec>                    # audit (TOON drift report)
+node ../run-engine.mjs scripts/align-spec.mts --spec-dir <spec> --check            # CI guard (fails on drift)
+node ../run-engine.mjs scripts/align-spec.mts --spec-dir <spec> --nodes a,b --base HEAD~1
 ```
 
 Detect splits into a mechanical **scenario-diff** (this engine, reusing `spec-gate`'s

@@ -1,5 +1,8 @@
 node_modules/
 dist/
+plugins/sdd/.generated-skill-engines.json
+plugins/sdd/skills/*/scripts/*.js
+plugins/sdd/skills/spec-gate/vendor/gherkin-cli.js
 .env
 .env.local
 *.tsbuildinfo

@@ -92,6 +92,7 @@ test('live: a shipped CLI actually runs when invoked as the main module', () => 
 	// `import.meta.main` guard on the supported floor this produced empty output and exit 0.
 	// discover-specs is chosen because it is strictly read-only and always prints.
 	const script = join(SKILLS_ROOT, 'discover-specs', 'scripts', 'discover-specs.mts')
-	const out = execFileSync(process.execPath, [script, '--root', REPO_ROOT], { encoding: 'utf8' })
-	assert.match(out, /^specs\[\d+\]/, 'the CLI must reach main() and emit its listing, not exit silently')
+	const runner = join(SKILLS_ROOT, 'run-engine.mjs')
+	const out = execFileSync(process.execPath, [runner, script, '--root', REPO_ROOT], { encoding: 'utf8' })
+	assert.match(out, /^specs\[\d+\]/, 'the launcher must dispatch to the source engine and emit its listing')
 })

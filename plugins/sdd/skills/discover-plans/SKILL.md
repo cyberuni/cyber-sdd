@@ -42,7 +42,7 @@ the flag; it never interprets or writes it.
 ## Run the scan
 
 ```bash
-node "<skill>/scripts/discover-plans.mts" [--root .] [--format toon|json] [--status <value>]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/discover-plans.mts" [--root .] [--format toon|json] [--status <value>]
 ```
 
 - Default `--root` is the current directory; default `--format` is **TOON** (the token-efficient

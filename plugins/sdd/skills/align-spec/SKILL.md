@@ -22,7 +22,7 @@ node-shape or propose splits (`check-spec-structure`'s job).
 ## Run the scan
 
 ```bash
-node "<skill>/scripts/align-spec.mts" [--spec-dir <spec>] [--nodes <a,b,...>] [--base <ref>] [--check] [--format toon|json]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/align-spec.mts" [--spec-dir <spec>] [--nodes <a,b,...>] [--base <ref>] [--check] [--format toon|json]
 ```
 
 - Default `--spec-dir` is `.`; default `--base` is `HEAD` (the scenario-diff baseline); default

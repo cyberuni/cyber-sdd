@@ -26,7 +26,7 @@ self-clear-vs-escalate bar and the four-C floor are the conductor's autonomy bar
 Run before any verdict work; structural validity **fails closed**, availability only **flags**:
 
 ```bash
-node "<skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-spec-state.mts" [--root <specs-dir>]
 ```
 
 Exit `0` = legal; exit `1` prints each violation as `✗ <slug>: <reason>` — fix before continuing.
@@ -41,7 +41,7 @@ the CR touches any `.feature`, run it here **fail-closed, before spawning the co
 the CR's touched files:
 
 ```bash
-node "<skill>/scripts/check-suite.mts" --files <the CR's touched .feature files>
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-suite.mts" --files <the CR's touched .feature files>
 ```
 
 Exit `0` = form clean; exit `1` prints each `✗ <file>: <reason>` — **advance nothing and do not
@@ -67,7 +67,7 @@ or a nested `<project-path>/.agents/spec/` — so a touched `.md` outside the sp
 swept):
 
 ```bash
-node "<skill>/scripts/check-spec-state.mts" --files <the CR's touched .md files> [--base <baseref>]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/check-spec-state.mts" --files <the CR's touched .md files> [--base <baseref>]
 ```
 
 Exit `0` prints each `⚠ <file>: introduces unresolved reference ...` finding (if any) plus the
@@ -166,7 +166,7 @@ Clearance path above; it fires no verdict itself. Run it over the CR's touched f
 to read the edit class before applying the verb:
 
 ```bash
-node "<skill>/scripts/classify-edit-class.mts" --files <the CR's touched .feature files> [--base <baseref>]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/classify-edit-class.mts" --files <the CR's touched .feature files> [--base <baseref>]
 ```
 
 A `narrowing`/`mixed` result on a still-`@frozen` file routes to **Clearance** (escalated unless the CR

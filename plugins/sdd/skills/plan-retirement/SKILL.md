@@ -64,7 +64,7 @@ the sweep does it itself. Only the genuinely non-local judgment (source status) 
 ## Run the sweep
 
 ```bash
-node "<skill>/scripts/retire-plans.mts" \
+node "<skill>/../run-engine.mjs" "<skill>/scripts/retire-plans.mts" \
   --root .agents/plans \
   --ledger .agents/specs/<project>/ledger \
   --retire github-34,asana-7 [--dry-run]

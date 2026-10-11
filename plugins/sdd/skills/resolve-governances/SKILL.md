@@ -20,7 +20,7 @@ the bars. It carries a self-contained `.mts` script (the repo's node-≥23.6 / n
 ## Run the resolution
 
 ```bash
-node "<skill>/scripts/resolve-governances.mts" --root . --artifact-type <type> --project <path> [--project-root <path>]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/resolve-governances.mts" --root . --artifact-type <type> --project <path> [--project-root <path>]
 ```
 
 - `--root` is the **registry** location (default `.`) — `.agents/universal-plugin.json`.

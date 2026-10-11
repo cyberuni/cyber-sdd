@@ -37,7 +37,7 @@ A `spec.md` is a spec only when **both** hold (ADR-0017, narrowed; extra anchors
 ## Run the scan
 
 ```bash
-node "<skill>/scripts/discover-specs.mts" [--root .] [--format toon|json] [--resolve <name>]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/discover-specs.mts" [--root .] [--format toon|json] [--resolve <name>]
 ```
 
 - Default `--root` is the current directory; default `--format` is **TOON** (the token-efficient

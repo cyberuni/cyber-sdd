@@ -62,7 +62,7 @@ than hand-rolling one: run the exported **`distilledCrRefs`** engine from
 the mission's `<cr-ref>` against the set it returns, e.g.
 
 ```
-node -e 'import("../plan-retirement/scripts/retire-plans.mts").then(m => console.log([...m.distilledCrRefs(process.argv[1])].join("\n")))' <ledger-dir>
+node "../run-engine.mjs" --export distilledCrRefs "../plan-retirement/scripts/retire-plans.mts" <ledger-dir>
 ```
 
 `distilledCrRefs` parses **each line** with `JSON.parse` (keying only on `kind === "strategy"` with a

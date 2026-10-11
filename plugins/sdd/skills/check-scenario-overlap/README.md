@@ -6,8 +6,8 @@ one node's `.feature`**, for the formation Warden: the intra-project **spec-leve
 collision ladder, and the cross-node sibling of `check-spec-structure` (intra-node node-shape).
 
 ```bash
-node scripts/check-scenario-overlap.mts --spec-dir <spec>          # audit (TOON candidate set)
-node scripts/check-scenario-overlap.mts --spec-dir <spec> --check  # CI guard (fails on exact-duplicate)
+node ../run-engine.mjs scripts/check-scenario-overlap.mts --spec-dir <spec>          # audit (TOON candidate set)
+node ../run-engine.mjs scripts/check-scenario-overlap.mts --spec-dir <spec> --check  # CI guard (fails on exact-duplicate)
 ```
 
 Two deterministic candidate kinds — **exact-duplicate** (blocking: two nodes share an identical

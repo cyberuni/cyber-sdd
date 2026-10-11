@@ -17,7 +17,7 @@ carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps conven
 ## Run it
 
 ```bash
-node "<skill>/scripts/concept-index.mts" --spec-dir <spec> [--write | --check]
+node "<skill>/../run-engine.mjs" "<skill>/scripts/concept-index.mts" --spec-dir <spec> [--write | --check]
 ```
 
 - default (no mode) — print the rendered "By concept" section to stdout (dry run).

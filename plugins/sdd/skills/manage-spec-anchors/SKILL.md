@@ -26,7 +26,7 @@ never listed here, and never curatable.
 ## Run an operation
 
 ```bash
-node "<skill>/scripts/manage-spec-anchors.mts" [--root .] <operation>
+node "<skill>/../run-engine.mjs" "<skill>/scripts/manage-spec-anchors.mts" [--root .] <operation>
 ```
 
 | Operation | Effect |

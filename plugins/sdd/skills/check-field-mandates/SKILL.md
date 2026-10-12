@@ -52,7 +52,7 @@ A marker with no reason excuses nothing. There is no allow-list file: a real mis
 ## Run it
 
 ```bash
-node "<skill>/scripts/check-field-mandates.mts" [--root <dir>]
+node "<skill>/scripts/check-field-mandates.mjs" [--root <dir>]
 ```
 
 `--root` defaults to the working directory. A finding always exits non-zero, as does a root that is

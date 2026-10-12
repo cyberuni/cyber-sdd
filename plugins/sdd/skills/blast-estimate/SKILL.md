@@ -107,7 +107,7 @@ are scored, so a one-area touch-set costs one matcher pass over the corpus rathe
 ## Run it
 
 ```bash
-node "<skill>/scripts/blast-estimate.mts" --root <repo> --touch-set a,b,c \
+node "<skill>/scripts/blast-estimate.mjs" --root <repo> --touch-set a,b,c \
   [--layout 'sdd:.agents/specs/sdd,plugins/sdd/skills']... \
   [--declared low|medium|high|unknown] [--format toon|json]
 ```

@@ -5,7 +5,7 @@ Internal SDD skill — the concrete engine for the **spec-reference resolution c
 directory, and reports the ones that resolve to nothing.
 
 ```bash
-node scripts/check-spec-references.mts --spec-dir <specDir>
+node scripts/check-spec-references.mjs --spec-dir <specDir>
 ```
 
 Exits non-zero on any unresolved reference, reporting each as `file:line: <ref> -> <resolved path>` — naming the resolved path is the

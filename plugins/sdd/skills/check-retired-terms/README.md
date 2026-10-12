@@ -5,8 +5,8 @@ corpus-wide sweep**. Scans every git-tracked file for a literal, case-sensitive 
 term registered in `.agents/sdd/retired-terms.toml` as retired by a design decision.
 
 ```bash
-node scripts/check-retired-terms.mts --root .            # the verify-time sweep
-node scripts/check-retired-terms.mts --root . --list     # what is registered
+node scripts/check-retired-terms.mjs --root .            # the verify-time sweep
+node scripts/check-retired-terms.mjs --root . --list     # what is registered
 ```
 
 Reports every survivor as `file:line:term — replace with: <replacement>`, then a count, and exits

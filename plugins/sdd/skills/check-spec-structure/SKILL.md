@@ -42,7 +42,7 @@ alignment) and `concept-index` (the by-concept view).
 ## Run the scan
 
 ```bash
-node "<skill>/scripts/check-spec-structure.mts" [--spec-dir <spec>] [--check] [--max-scenarios <n>] [--format toon|json]
+node "<skill>/scripts/check-spec-structure.mjs" [--spec-dir <spec>] [--check] [--max-scenarios <n>] [--format toon|json]
 ```
 
 - Default `--spec-dir` is the current directory; default `--format` is **TOON** (the token-efficient

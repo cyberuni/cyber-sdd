@@ -70,7 +70,7 @@ from **outside the code spans**, so a line that merely quotes the marker keeps i
 ## Run the check
 
 ```bash
-node "<skill>/scripts/check-spec-references.mts" --spec-dir <specDir>
+node "<skill>/scripts/check-spec-references.mjs" --spec-dir <specDir>
 ```
 
 - Exits **zero** on a spec whose every reference resolves, printing a definitive clean line.

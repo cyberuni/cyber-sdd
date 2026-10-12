@@ -11,7 +11,7 @@ and the sdd defaults.
 - **Tests:** [`scripts/resolve-governances.test.mts`](./scripts/resolve-governances.test.mts) (`node:test`)
 
 ```bash
-node scripts/resolve-governances.mts --root . --artifact-type skill
+node scripts/resolve-governances.mjs --root . --artifact-type skill
 ```
 
 Consumed by the conductor (`start-mission`) and the cold judges (`sdd-spec-judge`, `sdd-impl-judge`)

@@ -41,7 +41,7 @@ to `git`, `resolve-governances.mts`, and `npx gherkin-cli`.
 ## Run it
 
 ```bash
-node "<skill>/scripts/touch-set-correction.mts" --base <ref> --declared a,b,c \
+node "<skill>/scripts/touch-set-correction.mjs" --base <ref> --declared a,b,c \
   [--head HEAD] [--root .] \
   [--layout 'sdd:.agents/specs/sdd,plugins/sdd/skills']... \
   [--format toon|json]

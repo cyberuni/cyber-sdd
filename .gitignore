@@ -8,3 +8,4 @@ apps/web/.astro
 .turbo/
 .cyberfleet/
 .claude/worktrees/
+plugins/sdd/skills/*/scripts/*.bundle.mjs

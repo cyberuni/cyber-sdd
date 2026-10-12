@@ -25,10 +25,11 @@
 		"gherkin-cli": "0.2.1"
 	},
 	"scripts": {
-		"build": "tsdown",
+		"build": "tsdown && node scripts/build-skill-engines.mjs",
 		"build:vendor": "tsdown -c tsdown.vendor.config.ts",
 		"check:spec": "node ./skills/check-project-specs/scripts/check-project-specs.mts",
 		"test": "node --test \"skills/*/scripts/*.test.mts\"",
+		"prepack": "node scripts/build-skill-engines.mjs",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"homepage": "https://github.com/cyberuni/cyber-sdd",

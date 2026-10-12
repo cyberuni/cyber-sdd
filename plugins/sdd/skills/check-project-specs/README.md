@@ -3,9 +3,9 @@
 Runs every project-spec check — over the whole corpus, or over one project's spec.
 
 ```bash
-node scripts/check-project-specs.mts --corpus         # every project-spec + the coverage guard
-node scripts/check-project-specs.mts                  # one project, resolved from cwd
-node scripts/check-project-specs.mts --project <dir>  # one project, explicit dir
+node scripts/check-project-specs.mjs --corpus         # every project-spec + the coverage guard
+node scripts/check-project-specs.mjs                  # one project, resolved from cwd
+node scripts/check-project-specs.mjs --project <dir>  # one project, explicit dir
 ```
 
 The **corpus** scope is the repo's commit floor, wired as the root `check:specs`; it is total by

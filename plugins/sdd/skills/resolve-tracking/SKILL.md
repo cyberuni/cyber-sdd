@@ -18,7 +18,7 @@ It carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps con
 ## Run the resolution
 
 ```bash
-node "<skill>/scripts/resolve-tracking.mts" --root . --path <repo-relative-path> [--artifact-type <type>] [--explicit tracked|ignored]
+node "<skill>/scripts/resolve-tracking.mjs" --root . --path <repo-relative-path> [--artifact-type <type>] [--explicit tracked|ignored]
 ```
 
 - `--root` is the repo root (default `.`) — where `.agents/sdd/.sddignore` is read from.

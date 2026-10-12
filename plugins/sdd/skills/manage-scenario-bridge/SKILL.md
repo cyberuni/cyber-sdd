@@ -35,7 +35,7 @@ reports it covers.
 ## Run an operation
 
 ```bash
-node "<skill>/scripts/manage-scenario-bridge.mts" --project-path <dir> <operation>
+node "<skill>/scripts/manage-scenario-bridge.mjs" --project-path <dir> <operation>
 ```
 
 | Operation | Effect |

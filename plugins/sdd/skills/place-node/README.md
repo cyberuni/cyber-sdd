@@ -5,7 +5,7 @@ Internal SDD skill — the concrete engine for the **place-node** step. Given a 
 already lives) and catches possible duplicates, so explore places a node in one lookup.
 
 ```bash
-node scripts/place-node.mts --spec-dir <spec> --concept resolution --name leash
+node scripts/place-node.mjs --spec-dir <spec> --concept resolution --name leash
 ```
 
 Read-only and advisory; placement is finalized at handoff. See [`SKILL.md`](./SKILL.md) for the full

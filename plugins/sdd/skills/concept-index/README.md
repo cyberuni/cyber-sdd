@@ -5,8 +5,8 @@ every node's `concept:` frontmatter and renders the **by-concept view** into the
 re-unifying a cross-cutting concern the capability folder tree scatters.
 
 ```bash
-node scripts/concept-index.mts --spec-dir <spec> --write   # refresh the block
-node scripts/concept-index.mts --spec-dir <spec> --check   # no-drift guard
+node scripts/concept-index.mjs --spec-dir <spec> --write   # refresh the block
+node scripts/concept-index.mjs --spec-dir <spec> --check   # no-drift guard
 ```
 
 Pure derivation, frontmatter only; the write touches only the delimited generated block. See

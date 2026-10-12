@@ -48,7 +48,7 @@ only**: a scenario duplicated **within one node** raises no candidate, and a sce
 ## Run the scan
 
 ```bash
-node "<skill>/scripts/check-scenario-overlap.mts" [--spec-dir <spec>] [--check] [--format toon|json]
+node "<skill>/scripts/check-scenario-overlap.mjs" [--spec-dir <spec>] [--check] [--format toon|json]
 ```
 
 - Default `--spec-dir` is the current directory; default `--format` is **TOON** (the token-efficient

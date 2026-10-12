@@ -29,7 +29,7 @@ On enable, ask whether the mission status should render:
 Before wiring, run the read-only detection — Claude Code's project `statusLine` **replaces** the global one (no merge), so a fresh project wiring would silently shadow a status line living in `~/.claude/settings.json`:
 
 ```bash
-node "<skill>/scripts/wire-statusline.mts" --root . --detect
+node "<skill>/scripts/wire-statusline.mjs" --root . --detect
 ```
 
 It reports the project statusLine (absent | wired | foreign), the global statusLine (present | absent), and the shadow risk. On a shadow risk (project absent, global present), tell the user wiring will shadow their global status line and ask:
@@ -44,8 +44,8 @@ No shadow risk → proceed straight to wiring.
 Run the engine to compose the reader into project settings and (in a git repo) gitignore the status file:
 
 ```bash
-node "<skill>/scripts/wire-statusline.mts" --root . --wire --mode own-line
-node "<skill>/scripts/wire-statusline.mts" --root . --wire --mode same-line   # add --no-global-base to shadow deliberately
+node "<skill>/scripts/wire-statusline.mjs" --root . --wire --mode own-line
+node "<skill>/scripts/wire-statusline.mjs" --root . --wire --mode same-line   # add --no-global-base to shadow deliberately
 ```
 
 The engine:

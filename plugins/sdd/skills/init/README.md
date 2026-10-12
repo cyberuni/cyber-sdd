@@ -11,9 +11,9 @@ and invokes no gate.
 - **Tests:** [`scripts/wire-statusline.test.mts`](./scripts/wire-statusline.test.mts) (`node:test`)
 
 ```bash
-node scripts/wire-statusline.mts --root . --detect
-node scripts/wire-statusline.mts --root . --wire --mode own-line
-node scripts/wire-statusline.mts --root . --wire --mode same-line   # --no-global-base to shadow deliberately
+node scripts/wire-statusline.mjs --root . --detect
+node scripts/wire-statusline.mjs --root . --wire --mode own-line
+node scripts/wire-statusline.mjs --root . --wire --mode same-line   # --no-global-base to shadow deliberately
 ```
 
 The engine writes only project `.claude/settings.json` (never the global settings file) and, in a

@@ -166,6 +166,12 @@ export function main(argv: string[]): number {
 	const cleared = parseCleared(argv.includes('--retire') ? argv[argv.indexOf('--retire') + 1] : undefined)
 	const dryRun = argv.includes('--dry-run')
 
+	// `--distilled <ledger-dir>`: list the cr-refs the ledger records as distilled, one per line.
+	if (argv.includes('--distilled')) {
+		for (const ref of distilledCrRefs(argv[argv.indexOf('--distilled') + 1] ?? '')) process.stdout.write(`${ref}\n`)
+		return 0
+	}
+
 	let retiring: string[]
 	if (!ledgerArg || !existsSync(ledgerArg)) {
 		process.stdout.write(

@@ -5,8 +5,8 @@ internal node-shape and emits a finding set for the formation Warden: the intra-
 retired cross-spec `dedupe-specs`/`split-spec` tools, now that one project is one spec.
 
 ```bash
-node scripts/check-spec-structure.mts --spec-dir <spec>          # audit (TOON finding set)
-node scripts/check-spec-structure.mts --spec-dir <spec> --check  # CI guard (fails on blocking)
+node scripts/check-spec-structure.mjs --spec-dir <spec>          # audit (TOON finding set)
+node scripts/check-spec-structure.mjs --spec-dir <spec> --check  # CI guard (fails on blocking)
 ```
 
 Three deterministic checks — **untagged-node** (blocking: a spec-typed node with no `concept:`),

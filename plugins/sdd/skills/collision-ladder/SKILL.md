@@ -57,10 +57,10 @@ engine's composition.
 
 ```bash
 # constructed input (a ClassifyInput JSON) — the primary, tested path:
-node "<skill>/scripts/collision-ladder.mts" --input <file|-> [--format toon|json]
+node "<skill>/scripts/collision-ladder.mjs" --input <file|-> [--format toon|json]
 
 # sourced from two mission git ranges for one colliding node:
-node "<skill>/scripts/collision-ladder.mts" --from-git --node <project/capability> \
+node "<skill>/scripts/collision-ladder.mjs" --from-git --node <project/capability> \
   --x <base..head> --y <base..head> [--root .] \
   [--layout 'sdd:.agents/specs/sdd,plugins/sdd/skills']... \
   [--shared-thin-threshold 3] [--format toon|json]

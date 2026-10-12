@@ -572,8 +572,10 @@ function readStdin(): string {
 	}
 }
 
-const HERE = dirname(fileURLToPath(import.meta.url))
-const DISCOVER_SPECS_PATH = join(HERE, '..', '..', 'discover-specs', 'scripts', 'discover-specs.mts')
+const HERE = fileURLToPath(import.meta.url)
+// A bundle (built for npm, where Node will not strip types) runs its sibling engines as bundles too.
+const ENGINE_EXT = HERE.endsWith('.mts') ? '.mts' : '.bundle.mjs'
+const DISCOVER_SPECS_PATH = join(dirname(HERE), '..', '..', 'discover-specs', 'scripts', `discover-specs${ENGINE_EXT}`)
 
 interface DiscoveredSpec {
 	path: string

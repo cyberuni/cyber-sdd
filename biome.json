@@ -13,7 +13,8 @@
 			"!.research",
 			"!.claude",
 			"!.github/scripts/min-release-age.mjs",
-			"!plugins/sdd/skills/spec-gate/vendor/gherkin-cli.mjs"
+			"!plugins/sdd/skills/spec-gate/vendor/gherkin-cli.mjs",
+			"!plugins/sdd/skills/*/scripts/*.bundle.mjs"
 		]
 	},
 	"overrides": [

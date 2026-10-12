@@ -5,9 +5,9 @@ the tracked, portable handoff artifacts under `.agents/plans` (the `*.plan.md` b
 docs) for machine-local references that must never enter git history.
 
 ```bash
-node scripts/check-plan-safety.mts --root .                 # audit (TOON finding set)
-node scripts/check-plan-safety.mts --root . --check         # CI guard (fails on any leak)
-node scripts/check-plan-safety.mts --path <file> --check    # check one explicit file
+node scripts/check-plan-safety.mjs --root .                 # audit (TOON finding set)
+node scripts/check-plan-safety.mjs --root . --check         # CI guard (fails on any leak)
+node scripts/check-plan-safety.mjs --path <file> --check    # check one explicit file
 ```
 
 Flags a **home-directory absolute path** (`/home/<user>/…`, `/Users/<user>/…`, `C:\Users\<user>\…`)

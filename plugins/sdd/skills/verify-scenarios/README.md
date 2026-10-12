@@ -16,7 +16,7 @@ The engine imports gherkin-cli from the spec gate's committed bundle
 (`../spec-gate/vendor/gherkin-cli.mjs`), so it runs from an installed plugin.
 
 ```bash
-node scripts/verify-scenarios.mts --feature .agents/spec/identity/identity.feature --node cyberlegion/identity
-node scripts/verify-scenarios.mts --feature x.feature --node proj/x --run --config .agents/sdd/scenario-bridge.toml
-node scripts/verify-scenarios.mts --feature x.feature --node proj/x --report .agents/.scenario-report.xml --format json
+node scripts/verify-scenarios.mjs --feature .agents/spec/identity/identity.feature --node cyberlegion/identity
+node scripts/verify-scenarios.mjs --feature x.feature --node proj/x --run --config .agents/sdd/scenario-bridge.toml
+node scripts/verify-scenarios.mjs --feature x.feature --node proj/x --report .agents/.scenario-report.xml --format json
 ```

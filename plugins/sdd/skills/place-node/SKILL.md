@@ -17,7 +17,7 @@ duplicates, so explore places a node without holding the whole tree in its head 
 ## Run it
 
 ```bash
-node "<skill>/scripts/place-node.mts" --spec-dir <spec> --concept <c> [--name <n>]
+node "<skill>/scripts/place-node.mjs" --spec-dir <spec> --concept <c> [--name <n>]
 ```
 
 - `--concept` — suggests the capability folders where that concept's facets already sit, ranked by count

@@ -69,6 +69,7 @@ export const ENGINES: Engine[] = [
  */
 export function enginePath(e: Engine, here: string = HERE): string {
 	const skillsDir = resolve(dirname(here), '../..')
+	if (here.endsWith('.bundle.mjs')) return join(skillsDir, e.script.replace(/\.mts$/, '.bundle.mjs'))
 	return join(skillsDir, here.endsWith('.mts') ? e.script : e.script.replace(/\.mts$/, '.js'))
 }
 

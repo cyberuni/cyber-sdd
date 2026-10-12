@@ -206,8 +206,17 @@ export function readChangedFiles(base: string, head: string, cwd: string): { pat
 	return results
 }
 
-const HERE = dirname(fileURLToPath(import.meta.url))
-const RESOLVE_GOVERNANCES_PATH = join(HERE, '..', '..', 'resolve-governances', 'scripts', 'resolve-governances.mts')
+const HERE = fileURLToPath(import.meta.url)
+// A bundle (built for npm, where Node will not strip types) runs its sibling engines as bundles too.
+const ENGINE_EXT = HERE.endsWith('.mts') ? '.mts' : '.bundle.mjs'
+const RESOLVE_GOVERNANCES_PATH = join(
+	dirname(HERE),
+	'..',
+	'..',
+	'resolve-governances',
+	'scripts',
+	`resolve-governances${ENGINE_EXT}`,
+)
 
 /** Resolves one file's artifact-type via `resolve-governances --path` (best-effort — its own
  *  no-match "classify by convention" case). On ANY failure (absent tool, bad JSON, non-zero exit)
@@ -299,7 +308,7 @@ export function collectChangedFiles(base: string, head: string, root: string, cw
 	}))
 }
 
-const DISCOVER_SPECS_PATH = join(HERE, '..', '..', 'discover-specs', 'scripts', 'discover-specs.mts')
+const DISCOVER_SPECS_PATH = join(dirname(HERE), '..', '..', 'discover-specs', 'scripts', `discover-specs${ENGINE_EXT}`)
 
 interface DiscoveredSpec {
 	path: string

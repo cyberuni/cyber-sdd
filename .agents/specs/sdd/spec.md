@@ -7,10 +7,10 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: clearance — the owner granted the frozen field-token change for this CR (seq 2); as delivered the suite delta is thirteen additive scenarios and no existing scenario's text changed. Semver class additive: a new finding kind on a read-only check.
-      blast: low — one node's spec body and suite under sdd/plugin; the engine, the #29 fix and the quill alignment are deliver work judged at the impl gate.
-      novelty: medium — the case-fold same-field rule, the underscore floor that keeps ordinary lowercase words out of the vocabulary, and the none-of quantifier for miscased are the non-obvious decisions, each bound on every side it applies to.
-      confidence: high — a cold sdd-spec-judge returned ALIGNED true with oracle, builder and architect PASS on round 4. Rounds 1-3 failed builder on stated floors with no binding (the underscore floor on declare and explain, mixed case, the both-cases quantifier); each was bound by an extension row, a map row and a scenario. PREFLIGHT was waived by the conductor: the spec-producer role ran in-session for a narrow owner-directed CR and recorded no governances_loaded set.
+      floor: none — seven scenarios added to the already-frozen formation suite; the structural diff against main is add-only (7 added, 0 modified, 0 removed), so the file self-clears and stays @frozen with no Clearance owed. Semver class additive
+      blast: low — two design docs, one reference node and one behavioral node (formation); existing trees stay legal because the sdd, aced and quill design folders hold only the ADR log and no capability node sits three deep
+      novelty: low — the design was settled in the issue; the one choice made here is recording the cut trigger in the placement map, where declared layout choices already live and the Warden already reads
+      confidence: high — cold sdd-spec-judge round 2 returned ALIGNED true with oracle, builder and architect all PASS and all seven new scenarios passing. Round 1 blocked at pre-flight because the inline spec-producer had not loaded the three spec bars; they were loaded and the draft self-aligned, adding the positive companions and a stale-record edge. Round 2's advisory prose findings (trigger checkability as the author's duty, the single-version rule, the outcome row, the reference node's consumer list, a trimmed restatement) were folded in before the freeze without touching the suite
   impl:
     verdict: approve
     by: agent

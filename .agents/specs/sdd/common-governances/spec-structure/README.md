@@ -17,14 +17,18 @@ owner: it is loaded wherever a node is placed, judged, or audited.
 - **Contract surface** — the **node taxonomy** (descriptive / reference / behavioral, declared via
   `spec-type`) together with **where each kind lives**: rule-in-design + behavior-in-capability,
   screaming architecture, the non-capability folders (`design/`, `workflows/`, `ledger/`), the
-  two-level depth cap, and suite colocation. Taxonomy and placement are **one rule**, not two — the
+  two-level depth cap on **capability nodes**, the **`design/` shape** (current design at the top,
+  one file per perspective, an optional project-named version folder holding a full copy of the
+  next design, a one-commit cut, and a cut trigger recorded in the placement map), and suite
+  colocation. Taxonomy and placement are **one rule**, not two — the
   placement law is the taxonomy applied to folders and cannot be stated without it
   (`../../design/spec-structure.md`, "the descriptive/behavioral split above, applied across the
   project-spec"). It also carries the **declared-strategy rule**: the layout strategy is read from
   the root `spec.md` placement map, never re-assumed.
 - **Conformance** — verified through consumers, never by this artifact itself: the mechanical
   `check-spec-state.mts` (spec-type vs node shape), the `check-spec-structure` engine (untagged and
-  oversized nodes), and the `architect` bars' structural verdict. A reference artifact carries this
+  oversized nodes), the formation Warden's placement findings (`../../formation/formation.feature`:
+  depth on capability nodes and the `design/` shape), and the `architect` bars' structural verdict. A reference artifact carries this
   `## Subject` in place of `## Use Cases` + a `.feature`.
 - **Boundary** — the **model + rationale** live in `../../design/spec-structure.md` (canonical),
   with `../../design/project-unit.md` fixing what maps to one spec and

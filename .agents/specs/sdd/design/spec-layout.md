@@ -229,6 +229,10 @@ people and the placement ops that consume it already read, the **body of the roo
   homes, the table carries an explicit **tie-break rule** for each known overlap (e.g. *mission vs
   doctrine*, *design vs capability*, *gateway vs intake*): "if it touches both X and Y, prefer Z because…".
   A lookup, not a derivation.
+- **The design version (only while one exists).** When `design/` holds a version folder for the next
+  design, the placement map names that folder and the **checkable trigger** that cuts it over to
+  current. The shape, the cut, and what makes a trigger checkable are in `spec-structure.md`, "The
+  `design/` shape".
 - **The spec `location` mode** (`colocated | hoisted | monorepo-member`) is **derived** from the
   `project-path` frontmatter (hoisted iff `project-path` is not the spec's own dir) — not declared.
 

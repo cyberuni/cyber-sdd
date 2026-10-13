@@ -26,7 +26,9 @@ unbound.
 - **No conflict.** The implementation does not contradict conventions, module boundaries, or a spec's
   contract — including the project's **declared** layout, judged as declared
   (`sdd:spec-structure-governance`). The declaration is not a licence: node <-> capability stays 1:1
-  under every strategy, because the scheduler cuts one mission per node (ADR-0025).
+  under every strategy, because the scheduler cuts one mission per node (ADR-0025). The two-level
+  depth cap covers capability nodes; `design/` keeps its own shape — perspective files at the top and
+  at most one version folder the placement map names for the next design.
 - **Contained complexity.** Watch cyclomatic complexity and coupling; a unit hard to test is usually
   mis-structured — flag it.
 - **A sound verification pyramid.** Across the suite the verification levels form a pyramid — a broad

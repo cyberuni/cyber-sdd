@@ -6,11 +6,11 @@ todos:
   - content: "spec gate: cold sdd-spec-judge to convergence; formation.feature stays @frozen (additive)"
     status: completed
   - content: "deliver: spec-structure-governance, formation-loop, sdd-warden, architect bars; confirm check-spec-structure unchanged"
-    status: pending
+    status: completed
   - content: "impl gate: cold sdd-impl-judge, pnpm verify green"
-    status: pending
+    status: completed
   - content: "handoff: commits, PR against main closing #127"
-    status: pending
+    status: completed
 ---
 
 # CR github-127 — scope the two-level rule to capability nodes; give design/ a versioned shape
@@ -27,4 +27,4 @@ checkable cut trigger recorded in the placement map. A fourth exempt top-level f
 
 ## NEXT
 
-Spec gate passed (round 2 ALIGNED). Next: deliver — governance, formation-loop, sdd-warden, architect bars; then the impl gate.
+Landed: design/ shape and capability-scoped depth cap (spec gate), governance, Warden, formation loop and architect bars (impl gate), PR closing #127. Two backlog follow-ups in the ledger shard. No resume action.

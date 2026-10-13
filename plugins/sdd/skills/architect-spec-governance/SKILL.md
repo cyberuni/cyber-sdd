@@ -34,7 +34,11 @@ unbound.
   they keep **node <-> capability 1:1**, because the mission scheduler cuts one mission per node and a
   scattered capability degrades the schedule toward serial (ADR-0025). **One capability per node,
   never smeared across nodes**, holds under every strategy, and a layered / framework-first *top*
-  level stays discouraged however it is declared.
+  level stays discouraged however it is declared. Depth is judged by kind: a **capability node** sits
+  at most `<capability>/<unit>`, a sub-grouping going to a `concept:` tag; a **design doc** sits at
+  the top of `design/` as one file per perspective, or in the version folder the placement map names
+  for the next design — never in a perspective folder, and never in a sibling top-level folder such
+  as `design-next/`.
 - **A well-formed CFG.** Its control-flow graph connects — every decision reachable, no
   dangling branch — and the suite's sections mirror it.
 - **The CFG reaches every stated extension.** A use case's **extensions** are its divergence paths

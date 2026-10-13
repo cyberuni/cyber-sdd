@@ -21,8 +21,10 @@ Read `SKILL.md` beside this file for the law itself — that is what those four 
 - **The node taxonomy** — descriptive, reference artifact, behavioral artifact; declared in
   frontmatter, never guessed from which files happen to exist.
 - **Placement** — screaming architecture (folders named for capabilities), the three deliberate
-  non-capability folders, rules-in-design vs behavior-in-capability, the two-level depth cap, and
-  the concept axis for anything that cuts across.
+  non-capability folders, rules-in-design vs behavior-in-capability, the two-level depth cap on
+  capability nodes, the concept axis for anything that cuts across, and the shape of `design/` —
+  the current design at the top and, while one is under construction, the next design in a version
+  folder beside it.
 - **One spec per project** — and when a spec is hoisted out of its project directory rather than
   colocated in it.
 - **Strategy is policy, homes are data** — the layout strategy is a choice, so it is declared once

@@ -150,6 +150,48 @@ Feature: The formation loop — keep the spec corpus structurally organized
     Then it judges fit against the capability-first default
     And it reports the undeclared strategy as a finding
 
+  # ── Depth on capability nodes; design/ by its own shape ──
+
+  Scenario: a capability node three levels deep is reported as a depth finding
+    Given a formation pass over a project spec with a node three levels deep inside a capability folder
+    When the Warden judges structural fit
+    Then that node is reported as a depth finding naming it
+    And the finding routes its sub-grouping to a concept tag rather than a folder level
+
+  Scenario: a capability node two levels deep raises no depth finding
+    Given a formation pass over a project spec whose capability nodes all sit at capability/unit
+    When the Warden judges structural fit
+    Then no depth finding is reported
+
+  Scenario: the design version folder the placement map names is not reported as a depth finding
+    Given a formation pass over a project spec whose design/ holds a version folder of perspective files
+    And the placement map names that folder as the design version with a cut trigger
+    When the Warden judges structural fit
+    Then no finding is reported against that version folder or the files inside it
+
+  Scenario: a design/ sub-folder the placement map does not name is reported as a perspective folder
+    Given a formation pass over a project spec whose design/ holds a sub-folder other than decisions/
+    And the placement map does not name that sub-folder as the design version
+    When the Warden judges structural fit
+    Then that sub-folder is reported as a perspective folder finding naming it
+
+  Scenario: the decisions/ ADR log inside design/ is not reported as a perspective folder
+    Given a formation pass over a project spec whose design/ holds a decisions/ ADR log
+    When the Warden judges structural fit
+    Then no perspective folder finding is reported against decisions/
+
+  Scenario: a design version with no recorded cut trigger is reported
+    Given a formation pass over a project spec whose placement map names a design version folder
+    And the placement map records no cut trigger for it
+    When the Warden judges structural fit
+    Then the design version is reported as a finding for its missing cut trigger
+
+  Scenario: a placement map naming a design version folder that does not exist is reported
+    Given a formation pass over a project spec whose placement map names a design version folder
+    And design/ holds no such folder
+    When the Warden judges structural fit
+    Then the design version record is reported as a stale finding naming the folder
+
   # ── Corpus-wide, not the gate ──
 
   Scenario: a formation pass produces a finding set covering every spec

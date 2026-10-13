@@ -58,6 +58,16 @@ misplaced only when it **neither** follows the declared strategy **nor** matches
 — judging on the strategy alone raises false findings against placements a human already adjudicated. A declared layout settles *where a node goes*; it never licenses a capability to
 scatter across nodes. (Strategy is policy — read it; homes are data — derive them.)
 
+**Depth on capability nodes; `design/` by its own shape** (`sdd:spec-structure-governance`). The
+two-level cap covers capability nodes: one three levels deep is a depth finding naming it, its
+sub-grouping owed to a `concept:` tag. `design/` is judged by its own shape instead — current design
+at the top, one file per perspective, the `decisions/` ADR log, and at most one version folder
+holding the next design. The placement map names that version folder and its cut trigger; the named
+folder and its files raise no finding, any other `design/` sub-folder besides `decisions/` is a
+perspective-folder finding, a named version with no cut trigger is a finding, and so is a named
+version whose folder does not exist (a stale record the cut left behind). Tell the two
+apart by the map, never by the folder's contents.
+
 ## The intra-spec structural acts
 
 It acts on each spec's **structure**, not its content — one project is **one spec**, so structural

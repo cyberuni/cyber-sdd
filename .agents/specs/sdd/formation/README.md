@@ -26,7 +26,7 @@ only **cross-mission** structural drift.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
-| **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/` + `project-spec/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: node-shape / split / reconcile candidates, each carrying the Warden's self-clear-or-escalate verdict |
+| **a formation pass fires** — post-mission, corpus-wide and continuous | the corpus **structure** + **discovery** (`corpus/` + `project-spec/`), optionally a forward cursor over the public trail | a **finding set covering every spec**: node-shape / split / reconcile candidates and placement findings against the declared layout, each carrying the Warden's self-clear-or-escalate verdict |
 | **an escalated act reaches across the whole project** — a fence, not a node-owning change | the escalated structural finding + its reach | a CR **called out explicitly as a barrier**, stating it is to be **hoisted early** and **naming the project it fences**; it escalates on reach alone, whatever its contract impact |
 
 A formation pass exercises the three acts under the verdict discipline below; the per-act verdict,
@@ -127,6 +127,22 @@ from.
 
 A placement map naming **no** strategy is judged against the **capability-first** default, and the
 missing declaration is itself a finding.
+
+### Depth applies to capability nodes; `design/` is judged by its own shape
+
+The two-level depth cap (`<capability>/<unit>`, `../design/spec-structure.md`) covers **capability
+nodes**, so a capability node three levels deep is a finding, its sub-grouping owed to a `concept:`
+tag. A folder inside `design/` is **not** judged by that cap; `design/` has its own shape — current
+design at the top, one file per perspective, the `decisions/` ADR log, and at most one version folder
+holding the next design. The Warden tells a version folder from a perspective folder by the placement
+map, never by guessing from its contents: the folder the map names as the design version is legal,
+and any other sub-folder of `design/` besides `decisions/` is a perspective folder and a finding. A
+version folder the map names with **no** cut trigger is a finding too — without a checkable trigger
+the next design drifts into an unofficial current. The Warden checks that a trigger is recorded;
+making it checkable is the author's duty. A map naming a version folder that does not exist
+is a **stale** record — the cut landed without removing it — and is a finding naming the folder.
+The single-version rule needs no check of its own: the map names one version folder, so a second
+folder is unnamed and already reads as a perspective folder.
 
 ## The Warden's per-act self-clear-vs-escalate verdict
 

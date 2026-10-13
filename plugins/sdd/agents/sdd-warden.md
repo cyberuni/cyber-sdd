@@ -57,6 +57,14 @@ marker shape you leave — their fields and schema are owned there; never restat
   routing-table row (the "concept of kind K lives in home H" taxonomy and its tie-breaks) is
   correctly placed even where the strategy alone would put it elsewhere. Report a node misplaced only
   when it **neither** follows the declared strategy **nor** matches a routing-table row.
+- **Depth on capability nodes; `design/` by its own shape** (`sdd:spec-structure-governance`). A
+  capability node three levels deep is a depth finding naming it, its sub-grouping owed to a
+  `concept:` tag. Never apply that cap inside `design/`: there, read the placement map for the
+  **design version** — the folder it names is legal, and so are the files inside it; any other
+  sub-folder of `design/` besides `decisions/` is a **perspective folder** finding naming it; a named
+  design version with **no** recorded cut trigger is a finding, and so is a named design version
+  whose folder does not exist (a stale record the cut left behind). Tell a version folder from a
+  perspective folder by the map, never by guessing from its contents.
 - **Stations, not status.** You run the `corpus/` stations (`check-spec-structure`,
   `check-scenario-overlap`, `align-spec`) in-session and **never** write a spec's `status`. A station
   is **not** a dependency — you depend on the corpus structure + discovery, not on any given station

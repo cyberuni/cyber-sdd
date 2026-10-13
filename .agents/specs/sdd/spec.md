@@ -7,19 +7,19 @@ approval:
     by: agent
     cause: dimension
     why:
-      floor: clearance — the owner granted the frozen field-token change for this CR (seq 2); as delivered the suite delta is thirteen additive scenarios and no existing scenario's text changed. Semver class additive: a new finding kind on a read-only check.
-      blast: low — one node's spec body and suite under sdd/plugin; the engine, the #29 fix and the quill alignment are deliver work judged at the impl gate.
-      novelty: medium — the case-fold same-field rule, the underscore floor that keeps ordinary lowercase words out of the vocabulary, and the none-of quantifier for miscased are the non-obvious decisions, each bound on every side it applies to.
-      confidence: high — a cold sdd-spec-judge returned ALIGNED true with oracle, builder and architect PASS on round 4. Rounds 1-3 failed builder on stated floors with no binding (the underscore floor on declare and explain, mixed case, the both-cases quantifier); each was bound by an extension row, a map row and a scenario. PREFLIGHT was waived by the conductor: the spec-producer role ran in-session for a narrow owner-directed CR and recorded no governances_loaded set.
+      floor: none — seven scenarios added to the already-frozen formation suite; the structural diff against main is add-only (7 added, 0 modified, 0 removed), so the file self-clears and stays @frozen with no Clearance owed. Semver class additive
+      blast: low — two design docs, one reference node and one behavioral node (formation); existing trees stay legal because the sdd, aced and quill design folders hold only the ADR log and no capability node sits three deep
+      novelty: low — the design was settled in the issue; the one choice made here is recording the cut trigger in the placement map, where declared layout choices already live and the Warden already reads
+      confidence: high — cold sdd-spec-judge round 2 returned ALIGNED true with oracle, builder and architect all PASS and all seven new scenarios passing. Round 1 blocked at pre-flight because the inline spec-producer had not loaded the three spec bars; they were loaded and the draft self-aligned, adding the positive companions and a stale-record edge. Round 2's advisory prose findings (trigger checkability as the author's duty, the single-version rule, the outcome row, the reference node's consumer list, a trimmed restatement) were folded in before the freeze without touching the suite
   impl:
     verdict: approve
     by: agent
     cause: dimension
     why:
-      floor: none beyond the spec gate's clearance — built against the frozen suite with no further suite edit. Semver class additive (cyber-sdd minor); cyber-quill patch for a documentation-only field respelling.
-      blast: low — the check engine, its tests and skill doc, and a one-field respelling in two shipped definitions; no agent's procedure changed.
-      novelty: medium — case-folded same-field and known-field resolution with a case-class comparison for miscased.
-      confidence: high — a cold sdd-impl-judge passed every frozen scenario on both rounds with oracles re-derived independently, 58 of 58 tests green, the live tree clean over 94 definitions, and mutants killed on their bound scenarios (first- or last-declaration comparer, mixed-case token, no underscore floor, no case comparison). Round 1's absorption escalation (status/gap as the doc example) was cleared by swapping the example word; round 2's (TODO, STATUS, SUBJECT examples unchanged since #55 and gated there) was ruled out of scope by the conductor and filed as a follow-up. A known-answer test rebuilds the pre-fix #29 file and fails against the pre-change engine. pnpm verify green.
+      floor: none — built against the frozen formation suite without editing it; the net suite diff against main is add-only. Semver class additive (cyber-sdd minor)
+      blast: low — skill and agent prose only: the spec-structure governance, the formation loop and Warden, the two architect bars, and a wording fix in scaffold-project-spec; check-spec-structure is unchanged because it tests node shape, never placement or depth
+      novelty: low — the Warden tells a version folder from a perspective folder by the placement map, reusing the read it already makes for the declared strategy
+      confidence: high — cold sdd-impl-judge returned IMPLEMENTATION_PASS true, re-deriving all seven new scenarios against the Warden and formation-loop prose, confirming the governance, the architect bars and the spec docs agree, and inspecting the check-spec-structure engine for depth or placement logic (none). Its observations, that the governance omitted the record removed at the cut, the author's duty for a checkable trigger, and the design-version entry in the placement map, were folded in after the pass. pnpm verify green
 produced-by:
   spec-producer: sdd:sdd-automaton
   impl-producer: sdd:sdd-automaton

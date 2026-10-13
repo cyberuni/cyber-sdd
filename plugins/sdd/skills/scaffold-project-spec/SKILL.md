@@ -13,7 +13,7 @@ homes. It is **internal** — reached through `start-mission`, never a user entr
 `status: draft`; it authors no node's `## Use Cases`/`.feature`, renders no gate verdict, and freezes nothing.
 
 **Load `sdd:spec-structure-governance`** for the layout law it applies: the node taxonomy (three
-spec-types, the concept axis), the two-level depth cap, screaming architecture and the
+spec-types, the concept axis), the two-level depth cap on capability nodes, screaming architecture and the
 non-capability folders, root-files-not-folders, and the colocate-or-hoist test. This skill does not
 restate that law — it **runs** it, and owns only what is genuinely its own: the **strategy menu**,
 the **shared envelope**, and the seven-step procedure below.
@@ -138,7 +138,7 @@ Then the chosen strategy's **top-level skeleton** of **stub node READMEs**, each
   `.feature`);
 - an **index / rule / structural grouping** → **descriptive** (no marker).
 
-The skeleton obeys the **two-level depth cap** under **every** strategy: a node is
+The skeleton obeys the **two-level depth cap** under **every** strategy: a capability node is
 `<capability>/<unit>` and **never three deep** — a sub-grouping inside a capability is a `concept:` tag
 recovered by the by-concept index, not a third folder level. Under **mirror-source**, mirror **only to the
 unit boundary**: a folder with a testable surface becomes one behavioral leaf that owns its subtree; create

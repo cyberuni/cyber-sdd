@@ -52,13 +52,23 @@ function parseFrontmatter(content) {
 		description
 	};
 }
-function globToRegExp(pattern) {
-	let regex = "";
-	for (const char of pattern) if (char === "*") regex += ".*";
-	else if (char === "?") regex += ".";
-	else if (/[.+^${}()|[\]\\]/.test(char)) regex += `\\${char}`;
-	else regex += char;
-	return new RegExp(`^${regex}$`);
+function globMatch(pattern, name) {
+	let p = 0;
+	let n = 0;
+	let star = -1;
+	let resume = 0;
+	while (n < name.length) if (p < pattern.length && (pattern[p] === "?" || pattern[p] === name[n])) {
+		p++;
+		n++;
+	} else if (p < pattern.length && pattern[p] === "*") {
+		star = p++;
+		resume = n;
+	} else if (star !== -1) {
+		p = star + 1;
+		n = ++resume;
+	} else return false;
+	while (pattern[p] === "*") p++;
+	return p === pattern.length;
 }
 function collectSkillsFromDir(dir, foundIn) {
 	if (!existsSync(dir)) return [];
@@ -79,7 +89,7 @@ function collectSkillsFromDir(dir, foundIn) {
 	return results;
 }
 function listSkills(root, options = {}) {
-	const grep = options.grep ? globToRegExp(options.grep) : void 0;
+	const grep = options.grep;
 	const home = options.home ?? homedir();
 	const packageRoot = options.packageRoot ?? getPackageRoot(root);
 	const sources = [
@@ -104,7 +114,7 @@ function listSkills(root, options = {}) {
 	const results = [];
 	for (const { dir, foundIn } of sources) for (const skill of collectSkillsFromDir(dir, foundIn)) {
 		if (seen.has(skill.name)) continue;
-		if (grep && !grep.test(skill.name)) continue;
+		if (grep && !globMatch(grep, skill.name)) continue;
 		seen.add(skill.name);
 		results.push(skill);
 	}
@@ -129,4 +139,4 @@ function main(argv) {
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
 //#endregion
-export { getPackageRoot, globToRegExp, isPackageManaged, listSkills, main, readSkillManifest };
+export { getPackageRoot, globMatch, isPackageManaged, listSkills, main, readSkillManifest };

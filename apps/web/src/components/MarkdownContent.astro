@@ -1,0 +1,181 @@
+---
+// Wraps Starlight's MarkdownContent so every page renders its ```mermaid
+// fences as diagrams instead of code blocks.
+// biome-ignore lint/correctness/noUnusedImports: used in the template below; biome cannot see Astro template usage
+import Default from '@astrojs/starlight/components/MarkdownContent.astro'
+---
+
+<Default><slot /></Default>
+
+<script>
+	import mermaid from 'mermaid'
+
+	// Normalize any CSS color (hex, hsl, oklch, named) to an rgb() string the
+	// mermaid color engine can parse — resolving Starlight's design tokens
+	// through the browser avoids the "Unsupported color format" failure.
+	function resolveColor(value: string, fallback: string): string {
+		if (!value) return fallback
+		const probe = document.createElement('span')
+		probe.style.color = ''
+		probe.style.color = value
+		if (!probe.style.color) return fallback
+		probe.style.display = 'none'
+		document.body.appendChild(probe)
+		const rgb = getComputedStyle(probe).color
+		probe.remove()
+		return rgb || fallback
+	}
+
+	// Build mermaid theme variables from the live Starlight palette, so diagrams
+	// track both the light/dark toggle and the site's accent color.
+	function themeVariables() {
+		const css = getComputedStyle(document.documentElement)
+		const token = (name: string, fallback: string) =>
+			resolveColor(css.getPropertyValue(name).trim(), fallback)
+
+		const accent = token('--sl-color-accent', '#3b82f6')
+		const accentLow = token('--sl-color-accent-low', '#1e3a5f')
+		const text = token('--sl-color-text', '#e5e7eb')
+		const gray3 = token('--sl-color-gray-3', '#9ca3af')
+		const gray5 = token('--sl-color-gray-5', '#374151')
+		const gray6 = token('--sl-color-gray-6', '#1f2937')
+
+		return {
+			fontSize: '15px',
+			// Primary nodes — accent-tinted fill, accent border, readable text.
+			primaryColor: accentLow,
+			primaryBorderColor: accent,
+			primaryTextColor: text,
+			mainBkg: accentLow,
+			nodeBorder: accent,
+			nodeTextColor: text,
+			textColor: text,
+			titleColor: text,
+			// Edges and their labels — blend the label into the card surface.
+			lineColor: gray3,
+			edgeLabelBackground: gray6,
+			// Subgraph (cluster) framing and alternate surfaces.
+			clusterBkg: gray6,
+			clusterBorder: gray5,
+			secondaryColor: gray6,
+			tertiaryColor: gray6,
+			secondaryBorderColor: gray5,
+			tertiaryBorderColor: gray5,
+		}
+	}
+
+	// Every render gets fresh SVG ids, so a re-render (theme switch, view
+	// transition) never collides with a diagram already on the page.
+	let seq = 0
+
+	// Expressive Code renders a ```mermaid fence as a code block; swap each one
+	// for a placeholder that keeps the diagram source.
+	function collect() {
+		for (const pre of document.querySelectorAll<HTMLElement>('pre[data-language="mermaid"]')) {
+			const lines = pre.querySelectorAll('.ec-line')
+			const source = lines.length
+				? Array.from(lines, (line) => line.textContent ?? '').join('\n')
+				: (pre.textContent ?? '')
+			const figure = document.createElement('figure')
+			figure.className = 'mermaid-figure'
+			const placeholder = document.createElement('pre')
+			placeholder.className = 'mermaid'
+			placeholder.dataset.source = source
+			figure.append(placeholder)
+			;(pre.closest('.expressive-code') ?? pre).replaceWith(figure)
+		}
+	}
+
+	async function render() {
+		collect()
+		const nodes = document.querySelectorAll<HTMLElement>('pre.mermaid')
+		if (nodes.length === 0) return
+
+		mermaid.initialize({
+			startOnLoad: false,
+			theme: 'base',
+			themeVariables: themeVariables(),
+			securityLevel: 'loose',
+			// Measure labels in the font they are drawn in, or text clips.
+			fontFamily: getComputedStyle(document.body).fontFamily,
+			flowchart: {
+				htmlLabels: true,
+				curve: 'basis',
+				useMaxWidth: true,
+				padding: 14,
+				nodeSpacing: 44,
+				rankSpacing: 52,
+			},
+		})
+
+		for (const el of nodes) {
+			const source = el.dataset.source
+			if (!source) continue
+			try {
+				const { svg } = await mermaid.render(`mermaid-svg-${++seq}`, source)
+				el.innerHTML = svg
+			} catch {
+				/* a malformed diagram should not break the page */
+			} finally {
+				// Reveal regardless, so a failed render never leaves a diagram
+				// permanently hidden by the anti-flash rule below.
+				el.classList.add('mermaid-rendered')
+			}
+		}
+	}
+
+	// Renders run one at a time: Starlight sets data-theme while the first
+	// render is still running, and two overlapping renders corrupt each other.
+	let queue: Promise<void> = Promise.resolve()
+	function schedule() {
+		queue = queue.then(render, render)
+	}
+
+	schedule()
+
+	// Re-render when Starlight toggles light/dark.
+	new MutationObserver((mutations) => {
+		if (mutations.some((m) => m.attributeName === 'data-theme')) schedule()
+	}).observe(document.documentElement, { attributes: true })
+
+	// Re-render after Astro view transitions.
+	document.addEventListener('astro:after-swap', schedule)
+</script>
+
+<style is:global>
+	.mermaid-figure {
+		margin: 1.5rem 0;
+		padding: 1.25rem 1rem 1rem;
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 0.75rem;
+		background: var(--sl-color-gray-6);
+		text-align: center;
+	}
+	.mermaid-figure svg {
+		height: auto;
+		max-width: 100%;
+	}
+	/* Edge labels: blend with the card, add breathing room and rounded corners
+	   instead of a tight, hard-edged block. */
+	.mermaid-figure .edgeLabel,
+	.mermaid-figure .edgeLabel p {
+		background-color: var(--sl-color-gray-6) !important;
+		color: var(--sl-color-gray-2) !important;
+	}
+	.mermaid-figure .edgeLabel .label,
+	.mermaid-figure .edgeLabel foreignObject > div {
+		border-radius: 0.4rem;
+	}
+	/* Hide the raw source flash before hydration; revealed once rendered. */
+	.expressive-code:has(pre[data-language='mermaid']),
+	pre.mermaid:not(.mermaid-rendered) {
+		visibility: hidden;
+	}
+	pre.mermaid {
+		background: none;
+		border: none;
+		padding: 0;
+		font-family: var(--sl-font);
+		white-space: normal;
+	}
+</style>

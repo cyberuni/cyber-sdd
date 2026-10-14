@@ -58,6 +58,9 @@ export default defineConfig({
 					],
 				},
 			],
+			components: {
+				MarkdownContent: './src/components/MarkdownContent.astro',
+			},
 			editLink: {
 				baseUrl: 'https://github.com/cyberuni/cyber-sdd/edit/main/apps/web/',
 			},

@@ -8,7 +8,7 @@
  * ships each script compiled by `universal-plugin plugin build`, and commits the output so a
  * git-sourced install carries it too. `plugin build --dry-run` reports each script as `unchanged`,
  * `missing`, `stale` or `version`, but exits 0 either way, so this script turns anything other than
- * `unchanged` into a failure.
+ * `unchanged` into a failure (cyberuni/universal-plugin#191).
  */
 
 import { execFileSync } from 'node:child_process'

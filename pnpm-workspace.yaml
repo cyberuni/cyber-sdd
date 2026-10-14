@@ -34,6 +34,6 @@ minimumReleaseAgeExclude:
 # @cyberuni/agent-harness declares no `sideEffects`, so `universal-plugin plugin build` cannot
 # tree-shake its unused `yaml` import out of aced's compiled bench script. yaml's raw control
 # characters then land in the skill folder and fail aced's invisible-Unicode check (E9). Remove
-# this patch once agent-harness ships `"sideEffects": false`.
+# this patch once agent-harness ships `"sideEffects": false` (cyberuni/agent-harness#92).
 patchedDependencies:
   '@cyberuni/agent-harness@0.6.0': patches/@cyberuni__agent-harness@0.6.0.patch

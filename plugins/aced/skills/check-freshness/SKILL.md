@@ -19,7 +19,7 @@ no modification times, no guessed file sets, no guessed directory names.
 ## Invocation
 
 ```
-node "<skill>/scripts/check-freshness.mts" --node <node-dir>
+node "<skill>/scripts/check-freshness.mjs" --node <node-dir>
 ```
 
 `<node-dir>` holds the node's `eval.md` (whose `subject:` names the target) and its frozen
@@ -29,7 +29,7 @@ path, exits non-zero.
 For a **measured record** the bench engine wrote, name the suite and arm instead:
 
 ```
-node "<skill>/scripts/check-freshness.mts" --suite <suite> --arm <label>
+node "<skill>/scripts/check-freshness.mjs" --suite <suite> --arm <label>
 ```
 
 It reads `.agents/aced/results/bench/<suite>/`, keeps the records whose own `suite` and `arm` fields
@@ -42,8 +42,8 @@ It also exposes the hashing routine, so `run` records entries with the same impl
 reads them back — never a second one that merely agrees today:
 
 ```
-node "<skill>/scripts/check-freshness.mts" --hash-file <path>
-node "<skill>/scripts/check-freshness.mts" --hash-dir  <path>
+node "<skill>/scripts/check-freshness.mjs" --hash-file <path>
+node "<skill>/scripts/check-freshness.mjs" --hash-dir  <path>
 ```
 
 ## The four verdicts

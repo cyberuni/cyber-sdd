@@ -16,7 +16,7 @@ plan and the comparison record say; never compute, round, or restate a statistic
 ## Engine
 
 ```
-node "<skill>/scripts/bench.mts" <verb> …
+node "<skill>/scripts/bench.mjs" <verb> …
 ```
 
 `<skill>` is this skill's folder. Verbs: `init`, `plan`, `run`, `compare`. A suite lives at
@@ -74,7 +74,7 @@ non-zero means the engine refused or failed; its stderr carries the reason.
    nothing. Write no task of your own. Run `init` only on the person's yes to that offer:
 
    ```
-   node "<skill>/scripts/bench.mts" init --suite <suite>
+   node "<skill>/scripts/bench.mjs" init --suite <suite>
    ```
 
    No person present → return the init offer as needs-input; run nothing, write nothing.
@@ -104,7 +104,7 @@ non-zero means the engine refused or failed; its stderr carries the reason.
 6. **Plan.** Pass through only what was asked for (`--runs`, `--task`, `--harness`):
 
    ```
-   node "<skill>/scripts/bench.mts" plan --suite <suite> --arm <label>=<subject> … [--runs <n>] [--task <id>] [--harness <h>] [--baseline] --out <plan-file>
+   node "<skill>/scripts/bench.mjs" plan --suite <suite> --arm <label>=<subject> … [--runs <n>] [--task <id>] [--harness <h>] [--baseline] --out <plan-file>
    ```
 
    Write `<plan-file>` under `.agents/aced/results/bench/<suite>/`, a fresh name per plan. Exit
@@ -138,7 +138,7 @@ non-zero means the engine refused or failed; its stderr carries the reason.
 9. **Run** — only on step 8's explicit yes, for exactly the plan file that was shown:
 
    ```
-   node "<skill>/scripts/bench.mts" run --plan <plan-file> --consent
+   node "<skill>/scripts/bench.mjs" run --plan <plan-file> --consent
    ```
 
    Exit non-zero → report the engine's reason (for example, the suite changed since the plan was
@@ -153,7 +153,7 @@ non-zero means the engine refused or failed; its stderr carries the reason.
 11. **Compare.**
 
     ```
-    node "<skill>/scripts/bench.mts" compare --suite <suite> --before <before-record|baseline> --after <after-record> [--tag <k=v> …]
+    node "<skill>/scripts/bench.mjs" compare --suite <suite> --before <before-record|baseline> --after <after-record> [--tag <k=v> …]
     ```
 
     `--before baseline` when step 5 chose the baseline. The `--tag` pairs are exactly the caller's;

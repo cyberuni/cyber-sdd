@@ -31,7 +31,7 @@ One invocation covers both passes. The caller never sequences them, and never ne
 skill to locate it, then run (add `--row <ROW>` for an outline):
 
 ```
-node --experimental-strip-types "<extract-situation skill dir>/scripts/extract-situation.mts" \
+node "<extract-situation skill dir>/scripts/extract-situation.mjs" \
   --feature <FEATURE_PATH> --scenario "<SCENARIO>"
 ```
 

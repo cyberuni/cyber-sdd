@@ -176,7 +176,7 @@ finding; fix it (rename to the gate-and-scope form) before presenting the skill.
 Run the structural audit and fix any CRITICAL or HIGH finding **before** presenting the skill:
 
 ```bash
-node "<improve-skill>/scripts/validate.mts" --path <placement-dir>/<name>
+node "<improve-skill>/scripts/validate.mjs" --path <placement-dir>/<name>
 ```
 
 Replace `<improve-skill>` with the directory of the `improve-skill` skill installed beside this one.

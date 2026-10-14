@@ -57,7 +57,7 @@ oversight.
 
 ## Tests
 
-`scripts/check-freshness.test.mts` — one test per frozen scenario, with fixtures chosen so a
+`src/check-freshness/check-freshness.test.mts` in the package source (not shipped with the skill) — one test per frozen scenario, with fixtures chosen so a
 guessing implementation cannot pass: the result is filed under a deliberately wrong directory name (a
 measured record under a file name ending in the wrong arm label),
 alphabetical filename order is the reverse of recorded timestamp order, and one fixture rewrites a

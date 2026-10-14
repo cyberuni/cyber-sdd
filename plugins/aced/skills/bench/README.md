@@ -40,7 +40,7 @@ the maintainer to commit `baseline.json`.
 
 ## The engine
 
-`scripts/bench.mts` (bin `aced-bench`) is the deterministic half: `init`, `plan`, `run --consent`,
+`scripts/bench.mjs` (bin `aced-bench`) is the deterministic half: `init`, `plan`, `run --consent`,
 `compare`. It owns every number — the statistics, the record schema, the ceiling and estimate, the
 verdict rule — and is usable without the plugin installed (for example from CI, which passes
 `--consent` itself under its own accountability). The skill adds judgment around it and restates

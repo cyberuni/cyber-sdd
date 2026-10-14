@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { getPackageRoot, globToRegExp, isPackageManaged, listSkills, readSkillManifest } from './list-skills.mts'
+import { getPackageRoot, globMatch, isPackageManaged, listSkills, readSkillManifest } from './list-skills.mts'
 
 function tmp(): string {
 	return mkdtempSync(join(tmpdir(), 'list-skills-'))
@@ -27,7 +27,7 @@ function mkSkill(
 test('reach: the skill is declared non-user-invocable so only the manage gateway loads it', () => {
 	// Regression guard for the frozen "reached via manage gateway, not a bare user invocation"
 	// scenario: a future flip of user-invocable to true (self-triggering) must fail here.
-	const skill = readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8')
+	const skill = readFileSync(new URL('../../skills/list-skills/SKILL.md', import.meta.url), 'utf8')
 	assert.match(skill, /^user-invocable:\s*false\s*$/m)
 })
 
@@ -133,12 +133,23 @@ test('a name found in more than one source is reported once, repo taking precede
 
 // ── filter ──
 
-test('globToRegExp compiles * and ? glob syntax to a full-match RegExp', () => {
-	assert.equal(globToRegExp('init-*').test('init-commit-discipline'), true)
-	assert.equal(globToRegExp('init-*').test('init'), false)
-	assert.equal(globToRegExp('audit-skill').test('audit-skill'), true)
-	assert.equal(globToRegExp('a?dit-skill').test('audit-skill'), true)
-	assert.equal(globToRegExp('a?dit-skill').test('audxxit-skill'), false)
+test('globMatch full-matches * and ? glob syntax', () => {
+	assert.equal(globMatch('init-*', 'init-commit-discipline'), true)
+	assert.equal(globMatch('init-*', 'init'), false)
+	assert.equal(globMatch('audit-skill', 'audit-skill'), true)
+	assert.equal(globMatch('a?dit-skill', 'audit-skill'), true)
+	assert.equal(globMatch('a?dit-skill', 'audxxit-skill'), false)
+	assert.equal(globMatch('*-skill', 'audit-skill'), true)
+	assert.equal(globMatch('*a*b', 'xaxxb'), true)
+	assert.equal(globMatch('*a*b', 'xaxxbc'), false)
+	assert.equal(globMatch('a.c', 'abc'), false, 'regex metacharacters are literal')
+	assert.equal(globMatch('**', ''), true)
+})
+
+test('globMatch stays fast on a pattern of many stars', () => {
+	const started = Date.now()
+	assert.equal(globMatch(`${'*a'.repeat(30)}b`, 'a'.repeat(40)), false)
+	assert.ok(Date.now() - started < 1000)
 })
 
 test('a glob-style --grep pattern restricts the report to matching skills', () => {

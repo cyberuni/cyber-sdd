@@ -29,7 +29,7 @@ source is reported **once** — the earlier-scanned source wins, so `repo` beats
 ## Run the engine
 
 ```bash
-node "<skill>/scripts/list-skills.mts" [--root .] [--grep <pattern>] [--format json]
+node "<skill>/scripts/list-skills.mjs" [--root .] [--grep <pattern>] [--format json]
 ```
 
 | Flag | Effect |

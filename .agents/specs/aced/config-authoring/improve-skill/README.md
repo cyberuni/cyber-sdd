@@ -46,8 +46,8 @@ improve-skill only audits and improves a `SKILL.md` that already exists.
 
 > **This is a single behavioral unit, not an overview** — one skill plus its ported engine. This spec
 > owns the behavior + suite ([`improve-skill.feature`](./improve-skill.feature)); the impl is the
-> `improve-skill` skill in `plugins/aced/skills/improve-skill/` plus a `scripts/validate.mts` engine
-> reachable from it and from CI. Cross-capability e2e scenarios live in `../../workflows/`.
+> `improve-skill` skill in `plugins/aced/skills/improve-skill/` plus a `scripts/validate.mjs` engine
+> (compiled from `plugins/aced/src/improve-skill/validate.mts`) reachable from it and from CI. Cross-capability e2e scenarios live in `../../workflows/`.
 
 ## Use Cases
 
@@ -68,7 +68,7 @@ improve-skill only audits and improves a `SKILL.md` that already exists.
 Two lanes share one check table. The **LLM audit lane** is reached when a user asks to review, audit,
 or pre-install-check a skill: it obtains and resolves targets, sandboxes their content, runs the full
 table (mechanical + agent-only, governance-backed), reports, blocks on CRITICAL, and applies fixes.
-The **mechanical engine lane** is `scripts/validate.mts` run standalone (CI): it resolves scan
+The **mechanical engine lane** is the validate engine run standalone (CI): it resolves scan
 locations, runs only the deterministic subset, and gates an exit code — no LLM, no fixes. Description
 checks in both lanes branch on whether the target is a partial skill.
 

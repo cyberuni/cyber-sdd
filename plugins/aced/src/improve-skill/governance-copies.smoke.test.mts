@@ -8,7 +8,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 
-const PLUGIN_ROOT = new URL('../../../', import.meta.url).pathname.replace(/\/$/, '')
+const PLUGIN_ROOT = new URL('../../', import.meta.url).pathname.replace(/\/$/, '')
 const SKILLS_ROOT = join(PLUGIN_ROOT, 'skills')
 const OWNER_ROOT = join(PLUGIN_ROOT, 'governances')
 

@@ -8,8 +8,9 @@
  * Claude Code and Codex compare the manifest version to decide whether `plugin update` has anything
  * to install, so a manifest left behind keeps users on a stale cached copy.
  *
- * Manifests: `plugins/<name>/{.plugin,.claude-plugin,.codex-plugin}/plugin.json`. A symlinked
- * manifest is skipped; its target is handled directly.
+ * Manifests: `plugins/<name>/{,.plugin,.claude-plugin,.codex-plugin}/plugin.json`, the first being a
+ * root canonical manifest that `universal-plugin plugin build` reads. A symlinked manifest is
+ * skipped; its target is handled directly.
  */
 
 import { existsSync, lstatSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -18,7 +19,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
 const check = process.argv.includes('--check')
-const MANIFEST_DIRS = ['.plugin', '.claude-plugin', '.codex-plugin']
+const MANIFEST_DIRS = ['', '.plugin', '.claude-plugin', '.codex-plugin']
 
 const stale = []
 for (const name of readdirSync(join(root, 'plugins'))) {

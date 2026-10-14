@@ -23,10 +23,10 @@ The skill runs a full rubric covering:
 
 After reporting findings, it applies fixes directly to the SKILL.md.
 
-Mechanical checks can run without an LLM, using this skill's bundled `validate.mts` engine:
+Mechanical checks can run without an LLM, using this skill's bundled `validate.mjs` engine:
 
 ```bash
-node "<skill>/scripts/validate.mts" --path skills/my-skill
+node "<skill>/scripts/validate.mjs" --path skills/my-skill
 ```
 
 Full quality review and fix application require this agent skill after mechanical validation passes.

@@ -105,16 +105,29 @@ function parseFrontmatter(content: string): { name: string; description: string 
 	return { name, description }
 }
 
-// Compile a `*`/`?` glob pattern (name-only, no path separators) into a full-match RegExp.
-export function globToRegExp(pattern: string): RegExp {
-	let regex = ''
-	for (const char of pattern) {
-		if (char === '*') regex += '.*'
-		else if (char === '?') regex += '.'
-		else if (/[.+^${}()|[\]\\]/.test(char)) regex += `\\${char}`
-		else regex += char
+// Full-match a `*`/`?` glob pattern (name-only, no path separators) against a name. Matched
+// directly rather than compiled to a RegExp, so a pattern of many `*` cannot backtrack.
+export function globMatch(pattern: string, name: string): boolean {
+	let p = 0
+	let n = 0
+	let star = -1
+	let resume = 0
+	while (n < name.length) {
+		if (p < pattern.length && (pattern[p] === '?' || pattern[p] === name[n])) {
+			p++
+			n++
+		} else if (p < pattern.length && pattern[p] === '*') {
+			star = p++
+			resume = n
+		} else if (star !== -1) {
+			p = star + 1
+			n = ++resume
+		} else {
+			return false
+		}
 	}
-	return new RegExp(`^${regex}$`)
+	while (pattern[p] === '*') p++
+	return p === pattern.length
 }
 
 function collectSkillsFromDir(dir: string, foundIn: SkillLocation): SkillSummary[] {
@@ -149,7 +162,7 @@ export interface ListSkillsOptions {
 // Scan the four fixed sources, dedupe by name (repo > global > package, matching scan order),
 // apply the optional --grep glob filter, and return the surviving skills sorted alphabetically.
 export function listSkills(root: string, options: ListSkillsOptions = {}): SkillSummary[] {
-	const grep = options.grep ? globToRegExp(options.grep) : undefined
+	const grep = options.grep
 	const home = options.home ?? homedir()
 	const packageRoot = options.packageRoot ?? getPackageRoot(root)
 
@@ -166,7 +179,7 @@ export function listSkills(root: string, options: ListSkillsOptions = {}): Skill
 	for (const { dir, foundIn } of sources) {
 		for (const skill of collectSkillsFromDir(dir, foundIn)) {
 			if (seen.has(skill.name)) continue
-			if (grep && !grep.test(skill.name)) continue
+			if (grep && !globMatch(grep, skill.name)) continue
 
 			seen.add(skill.name)
 			results.push(skill)

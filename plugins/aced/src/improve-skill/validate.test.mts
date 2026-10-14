@@ -1209,7 +1209,7 @@ test('CLI: --help exits zero and prints usage', () => {
 	try {
 		const { status, stdout } = runCli(['--help'], root)
 		assert.equal(status, 0)
-		assert.match(stdout, /usage: validate\.mts/)
+		assert.match(stdout, /usage: validate\.mjs/)
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}

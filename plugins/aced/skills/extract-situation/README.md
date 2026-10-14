@@ -27,6 +27,6 @@ tested code rather than by a judge deciding what to withhold from itself.
 ## Usage
 
 ```
-node "<skill>/scripts/extract-situation.mts" --feature <path-to-.feature> --scenario "<exact name>"
-node "<skill>/scripts/extract-situation.mts" --feature <path> --scenario "<name>" --format json
+node "<skill>/scripts/extract-situation.mjs" --feature <path-to-.feature> --scenario "<exact name>"
+node "<skill>/scripts/extract-situation.mjs" --feature <path> --scenario "<name>" --format json
 ```

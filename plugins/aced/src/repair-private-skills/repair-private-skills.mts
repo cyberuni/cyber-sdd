@@ -270,7 +270,7 @@ export function main(argv: string[]): number {
 		return 0
 	}
 
-	w('usage: repair-private-skills.mts [--root .] <validate|repair> [--format json]')
+	w('usage: repair-private-skills.mjs [--root .] <validate|repair> [--format json]')
 	return 1
 }
 

@@ -109,8 +109,8 @@ Compute each hash with the **shared engine**, never by hand and never with a sec
 the sibling `check-freshness`:
 
 ```bash
-node "<aced-skills>/check-freshness/scripts/check-freshness.mts" --hash-file <repo-relative path>
-node "<aced-skills>/check-freshness/scripts/check-freshness.mts" --hash-dir  <repo-relative path>
+node "<aced-skills>/check-freshness/scripts/check-freshness.mjs" --hash-file <repo-relative path>
+node "<aced-skills>/check-freshness/scripts/check-freshness.mjs" --hash-dir  <repo-relative path>
 ```
 
 `check-freshness` compares using that same routine. Two schemes that merely agree today would

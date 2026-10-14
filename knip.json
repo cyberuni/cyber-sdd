@@ -15,8 +15,8 @@
 			"project": ["skills/**/scripts/*.mts"]
 		},
 		"plugins/aced": {
-			"entry": ["skills/**/scripts/*.mts"],
-			"project": ["skills/**/scripts/*.mts"]
+			"entry": ["src/**/*.mts"],
+			"project": ["src/**/*.mts"]
 		},
 		"plugins/quill": {
 			"entry": [],

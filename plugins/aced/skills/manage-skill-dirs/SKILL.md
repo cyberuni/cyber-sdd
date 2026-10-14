@@ -11,8 +11,7 @@ metadata:
 The concrete engine for the ACED **skill-dirs** config — the opt-in registry of **extra** skill-scan
 locations the validate engine scans on top of its two built-in default roots. It exists so a user
 curates those locations through a clean interface instead of hand-editing the config directly.
-Loaded **in-session** by the `manage` gateway; it carries a self-contained `.mts` script (the repo's
-node-≥23.6 / no-deps convention).
+Loaded **in-session** by the `manage` gateway; it carries a self-contained `.mjs` script, compiled from the package source.
 
 ## The config it curates
 
@@ -26,7 +25,7 @@ skill directories) are **implicit and always scanned** — never listed here, an
 ## Run an operation
 
 ```bash
-node "<skill>/scripts/manage-skill-dirs.mts" [--root .] <operation>
+node "<skill>/scripts/manage-skill-dirs.mjs" [--root .] <operation>
 ```
 
 | Operation | Effect |

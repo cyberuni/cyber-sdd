@@ -10,7 +10,7 @@
 // improve-skill/validate.mts, `check:private-skills` runs repair-private-skills.mts), so on the
 // supported floor those checks passed VACUOUSLY.
 //
-// The portable idiom, from plugins/aced/skills/extract-situation/scripts/extract-situation.mts:
+// The portable idiom, from plugins/aced/src/extract-situation/extract-situation.mts:
 //
 //   process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
 //
@@ -33,14 +33,17 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 
-const SKILLS_ROOT = new URL('../../../skills/', import.meta.url).pathname.replace(/\/$/, '')
+// The sources live in `src/<skill>/`; `plugin build` compiles each entry into
+// `skills/<skill>/scripts/<engine>.mjs`, and the guard line survives into that file.
+const SRC_ROOT = new URL('../', import.meta.url).pathname.replace(/\/$/, '')
+const SKILLS_ROOT = new URL('../../skills/', import.meta.url).pathname.replace(/\/$/, '')
 
-/** Every shipped (non-test) script under the ACED skills tree. */
+/** Every shipped (non-test) script source under the ACED src tree. */
 function shippedScripts(): string[] {
 	const found: string[] = []
-	for (const skill of readdirSync(SKILLS_ROOT, { withFileTypes: true })) {
+	for (const skill of readdirSync(SRC_ROOT, { withFileTypes: true })) {
 		if (!skill.isDirectory()) continue
-		const dir = join(SKILLS_ROOT, skill.name, 'scripts')
+		const dir = join(SRC_ROOT, skill.name)
 		let entries: import('node:fs').Dirent[]
 		try {
 			entries = readdirSync(dir, { withFileTypes: true })
@@ -57,7 +60,7 @@ function shippedScripts(): string[] {
 test('every shipped script is discoverable — the scan itself is operative', () => {
 	// Guards the guard: a scan that silently resolved to zero files would assert nothing while
 	// reporting green — the very failure mode this file exists to prevent.
-	assert.ok(shippedScripts().length > 5, 'expected the ACED skills tree to hold several shipped scripts')
+	assert.ok(shippedScripts().length > 5, 'expected the ACED src tree to hold several shipped scripts')
 })
 
 test('no shipped script guards its entrypoint on import.meta.main', () => {
@@ -95,7 +98,8 @@ test('every shipped script with a CLI uses the portable entrypoint idiom', () =>
 test('live: a shipped CLI actually runs when invoked as the main module', () => {
 	// The static assertions check the SHAPE of the guard; this checks that a real invocation of a real
 	// shipped script reaches main() and emits its report. list-skills is read-only and always prints.
-	const script = join(SKILLS_ROOT, 'list-skills', 'scripts', 'list-skills.mts')
+	// It runs the compiled file a skill ships, not the source.
+	const script = join(SKILLS_ROOT, 'list-skills', 'scripts', 'list-skills.mjs')
 	const out = execFileSync(process.execPath, [script], { encoding: 'utf8' })
 	assert.ok(out.trim().length > 0, 'the CLI must reach main() and emit output, not exit silently')
 })

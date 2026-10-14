@@ -44,10 +44,10 @@ Derive paths:
 
 ### 1. Identify the skill(s) to patch
 
-From context or ask the user. Look up origin using this skill's own `source.mts` script, which resolves in a fixed order: the repo-local lock, then the global lock, then `npx skills find`, returning the FIRST hit:
+From context or ask the user. Look up origin using this skill's own `scripts/source.mjs` script, which resolves in a fixed order: the repo-local lock, then the global lock, then `npx skills find`, returning the FIRST hit:
 
 ```bash
-node "<this-skill's-dir>/scripts/source.mts" <skill-name> --format json
+node "<this-skill's-dir>/scripts/source.mjs" <skill-name> --format json
 ```
 
 Output is JSON: `{ name, source, sourceUrl, skillPath, foundIn }`. Extract `source` (`owner/repo`). `foundIn` tells you which rung resolved it (`repo`, `global`, or `npx-skills`).

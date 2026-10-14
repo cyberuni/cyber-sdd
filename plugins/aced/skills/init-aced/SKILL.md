@@ -67,7 +67,7 @@ Write `.agents/universal-plugin.json` back with the updated contents.
 
 ### 5. Ensure ACED run output is git-ignored
 
-Run `scripts/ensure-results-ignored.mts` (this skill's own `scripts/` dir) to ensure `.agents/aced/results/` — the shared ACED run-output directory `run` writes to — is git-ignored at the repo root. Idempotent; a non-zero exit means it could not guarantee the ignore (e.g. not inside a git repo) — surface that to the user rather than continuing silently.
+Run `scripts/ensure-results-ignored.mjs` (this skill's own `scripts/` dir) to ensure `.agents/aced/results/` — the shared ACED run-output directory `run` writes to — is git-ignored at the repo root. Idempotent; a non-zero exit means it could not guarantee the ignore (e.g. not inside a git repo) — surface that to the user rather than continuing silently.
 
 ### 6. Report
 

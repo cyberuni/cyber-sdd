@@ -1018,7 +1018,7 @@ function printReport(w: (s: string) => void, outcome: ScanOutcome): void {
 	}
 }
 
-const HELP = `usage: validate.mts [--path <path>] [--dir <glob>]... [--root <path>] [--format text|json]
+const HELP = `usage: validate.mjs [--path <path>] [--dir <glob>]... [--root <path>] [--format text|json]
 
 Validate skills against the mechanical check subset (S1-S9, Q2-Q5, Q10-Q11, Q17, Q18, E1-E2, E6, E9).
 

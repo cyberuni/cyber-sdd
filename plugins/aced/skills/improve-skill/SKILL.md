@@ -22,13 +22,13 @@ The mechanical subset of checks (S1–S9, Q2–Q5, Q10–Q11, E1–E2, E6, E9) c
 
 ```bash
 # Audit all skills in the project
-node "<skill>/scripts/validate.mts"
+node "<skill>/scripts/validate.mjs"
 
 # Audit a single skill
-node "<skill>/scripts/validate.mts" --path skills/my-skill
+node "<skill>/scripts/validate.mjs" --path skills/my-skill
 ```
 
-Replace `<skill>` with this skill's own directory. If `node` is unavailable, read `scripts/validate.mts` and apply the same checks by hand.
+Replace `<skill>` with this skill's own directory. If `node` is unavailable, read `scripts/validate.mjs` and apply the same checks by hand.
 
 This command can be used in CI. Full quality review (Q1, Q6–Q16, Q19, E3–E5, E7–E8, P1–P3) still requires running this agent skill — Q19 needs judgment (is this really a binding rule, is the Validate section a genuine checkable assertion or restated prose) the same way Q13–Q16 do, so it is not in the mechanical subset above.
 

@@ -244,7 +244,7 @@ export function main(argv: string[]): number {
 	const format = flag(argv, '--format') ?? (argv.includes('--json') ? 'json' : 'text')
 
 	if (!featurePath || !scenarioName) {
-		console.error('✗ usage: extract-situation.mts --feature <path> --scenario "<name>" [--row <n>] [--format json]')
+		console.error('✗ usage: extract-situation.mjs --feature <path> --scenario "<name>" [--row <n>] [--format json]')
 		return 1
 	}
 

@@ -62,7 +62,7 @@ test('reach: this module exports only the validate/repair engine, no user-invoca
 	assert.equal(typeof repairPrivateSkills, 'function')
 	// Regression guard for the frozen "reached via manage gateway, not a bare user invocation"
 	// scenario: a future flip of user-invocable to true (self-triggering) must fail here.
-	const skill = readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8')
+	const skill = readFileSync(new URL('../../skills/repair-private-skills/SKILL.md', import.meta.url), 'utf8')
 	assert.match(skill, /^user-invocable:\s*false\s*$/m)
 })
 

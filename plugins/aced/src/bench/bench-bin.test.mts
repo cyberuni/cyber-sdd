@@ -11,7 +11,7 @@ import { dirname, join } from 'node:path'
 import { after, test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-const PKG = join(dirname(fileURLToPath(import.meta.url)), '../../..')
+const PKG = join(dirname(fileURLToPath(import.meta.url)), '../..')
 const pkg = JSON.parse(readFileSync(join(PKG, 'package.json'), 'utf8'))
 const root = mkdtempSync(join(tmpdir(), 'aced-bench-bin-'))
 after(() => rmSync(root, { recursive: true, force: true }))

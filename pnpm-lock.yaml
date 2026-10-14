@@ -162,6 +162,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@cyberuni/agent-harness@0.6.0': b4c887424f541fdab199dfc5ee359f522271cd99fd9227607c90535f58559e7f
+
 importers:
 
   .:
@@ -196,6 +199,9 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
+      universal-plugin:
+        specifier: ^0.14.0
+        version: 0.14.0(typescript@7.0.2)
 
   apps/web:
     dependencies:
@@ -239,11 +245,14 @@ importers:
     dependencies:
       '@cyberuni/agent-harness':
         specifier: 0.6.0
-        version: 0.6.0(typescript@7.0.2)
+        version: 0.6.0(patch_hash=b4c887424f541fdab199dfc5ee359f522271cd99fd9227607c90535f58559e7f)(typescript@7.0.2)
     devDependencies:
       tsdown:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
+      universal-plugin:
+        specifier: ^0.14.0
+        version: 0.14.0(typescript@7.0.2)
 
   plugins/quill: {}
 
@@ -605,6 +614,7 @@ packages:
   '@clibuilder/axi@0.1.0':
     resolution: {integrity: sha512-axduLxgCRP33iEPv8AGeFY9xDo0z6LH5JwhqpF/JqNmKo99UNI5rmSLduEjCfgIBc7TRwM1jiV0mBFNPKuLabA==}
     engines: {node: '>= 20.19'}
+    deprecated: Folded into clibuilder 12. Import the value helpers from "clibuilder/axi" and use the output, error and format support built into clibuilder. See https://clibuilder.github.io/clibuilder/guides/upgrade-to-12/
     peerDependencies:
       clibuilder: ^11.0.0
 
@@ -1414,6 +1424,11 @@ packages:
     resolution: {integrity: sha512-dFxQSl+lYZ5Wc9TVUxrSwze9vwC6IBpg4zcbxJkLiZPPnYLX95Zvp9zC+ChPRmc2QpyVzqH4eGnxKzHaVZ1A7Q==}
     peerDependencies:
       '@biomejs/biome': '>= 2'
+
+  '@repobuddy/upx@0.2.0':
+    resolution: {integrity: sha512-uoiPhl9RkZGH9DqIZbsFDdcljmmZEemLNwSB0ZJFcqYs/rq86kFZEb//YFw9NNmHt+jlHtSCwIoAGAaIe4q0Vw==}
+    engines: {node: '>=22'}
+    hasBin: true
 
   '@rolldown/binding-android-arm-eabi@1.2.12':
     resolution: {integrity: sha512-dB/a1214qKfHMXCpgqR4OZT+jS4kTyEXbQGJPqzobt5EwH5rX080pxE37alt3RzvR1bf1Yz/yGqRfrYAxuPw0A==}
@@ -3376,6 +3391,11 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
+  universal-plugin@0.14.0:
+    resolution: {integrity: sha512-+2kSU4mpWFyiFdNTz7TYX1Nj+Y9mOZzxpwSxPNX0QFblRKw6VmAUCx3RNSzfxe+tj8t9o74rc8RDLWx4nDS2+g==}
+    engines: {node: '>=22'}
+    hasBin: true
+
   unpartial@1.0.8:
     resolution: {integrity: sha512-LDZX3wrdUWQdVKLOgouW+fCqNfietx11UzdipDBRsnx1LWKBkv4FpA9OHVeSNz12STLk6oz07dgENEWnHyAgIg==}
     engines: {node: '>= 20'}
@@ -4275,7 +4295,7 @@ snapshots:
 
   '@cucumber/messages@34.2.1': {}
 
-  '@cyberuni/agent-harness@0.6.0(typescript@7.0.2)':
+  '@cyberuni/agent-harness@0.6.0(patch_hash=b4c887424f541fdab199dfc5ee359f522271cd99fd9227607c90535f58559e7f)(typescript@7.0.2)':
     dependencies:
       '@clibuilder/axi': 0.1.0(clibuilder@11.3.2(typescript@7.0.2))
       clibuilder: 11.3.2(typescript@7.0.2)
@@ -4770,6 +4790,10 @@ snapshots:
   '@repobuddy/biome@2.3.1(@biomejs/biome@2.5.10)':
     dependencies:
       '@biomejs/biome': 2.5.10
+
+  '@repobuddy/upx@0.2.0':
+    dependencies:
+      semver: 7.8.5
 
   '@rolldown/binding-android-arm-eabi@1.2.12':
     optional: true
@@ -6811,6 +6835,17 @@ snapshots:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
+
+  universal-plugin@0.14.0(typescript@7.0.2):
+    dependencies:
+      '@cyberuni/agent-harness': 0.6.0(patch_hash=b4c887424f541fdab199dfc5ee359f522271cd99fd9227607c90535f58559e7f)(typescript@7.0.2)
+      '@repobuddy/upx': 0.2.0
+      '@toon-format/toon': 4.1.1
+      commander: 15.0.0
+      rolldown: 1.2.12
+      semver: 7.8.5
+    transitivePeerDependencies:
+      - typescript
 
   unpartial@1.0.8: {}
 

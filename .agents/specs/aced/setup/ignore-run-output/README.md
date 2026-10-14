@@ -11,7 +11,7 @@ commits timestamped, non-deterministic judge output into the tracked tree. The r
 construction** — the engine never needs, and never performs, a post-write re-check. The behavior is
 **idempotent** (a second run adds nothing) and **fail-closed** (every failure exits before any write,
 so it changes nothing it cannot guarantee). The `init-aced` skill invokes this engine
-(`scripts/ensure-results-ignored.mts` under the init-aced skill) as one onboarding step; registering
+(`scripts/ensure-results-ignored.mjs` under the init-aced skill) as one onboarding step; registering
 ACED as the SDD plugin is the separate concern of `../../registry/`.
 
 ## Use Cases

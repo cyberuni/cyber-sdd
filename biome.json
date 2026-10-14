@@ -14,7 +14,9 @@
 			"!.claude",
 			"!.github/scripts/min-release-age.mjs",
 			"!plugins/sdd/skills/spec-gate/vendor/gherkin-cli.mjs",
-			"!plugins/sdd/skills/*/scripts/*.bundle.mjs"
+			"!plugins/sdd/skills/*/scripts/*.bundle.mjs",
+			"!plugins/aced/skills/*/scripts/*.mjs",
+			"!plugins/aced/com.github.copilot"
 		]
 	},
 	"overrides": [

@@ -11,12 +11,12 @@ metadata:
 Not every agent configuration benefits from ACED. **Fit** is ACED's self-assessment of a subject,
 **decided early** — in explore by `aced-scenario-writer`, before any scenario is authored — and only
 **enforced** at the gate by `aced-spec-validator` (which reads the declared tier, never re-decides
-it). Fit is a **judgment**, so it lives here as a governance, not a `.mts` engine.
+it). Fit is a **judgment**, so it lives here as a governance, not a script engine.
 
 ## The diagnostic
 
 **FIT = which of ACED's four eval layers carry real signal for this subject.** The layers:
-**Structural** (fields/format — already covered by `improve-skill`'s `validate.mts` engine), **Trigger** (fires at the
+**Structural** (fields/format — already covered by `improve-skill`'s `validate.mjs` engine), **Trigger** (fires at the
 right times), **Behavior** (follows the steps/rules when invoked), **Quality** (output is good). A
 subject with signal **only** at Structural is not an ACED subject.
 

@@ -1,6 +1,6 @@
 // Verification for ignore-run-output — one check per frozen scenario (9), each constructing a
 // temp git repo fixture exhibiting that scenario's Given and asserting its Then against the
-// engine at plugins/aced/skills/init-aced/scripts/ensure-results-ignored.mts.
+// engine at plugins/aced/src/init-aced/ensure-results-ignored.mts.
 //
 // Includes mutation controls (per the README's "no post-write verification branch" guarantee):
 //   - the negation-override scenario asserts the appended rule is the LAST matching line (not just

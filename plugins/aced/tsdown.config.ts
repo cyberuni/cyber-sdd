@@ -1,11 +1,11 @@
 import { defineConfig } from 'tsdown'
 
 // The published `aced-bench` bin. Node will not strip types from a file under
-// node_modules, so the package ships the engine compiled; the skill keeps running the
-// .mts source in place.
+// node_modules, so the package ships the engine compiled. The skill runs its own copy,
+// compiled into skills/bench/scripts/ by `universal-plugin plugin build`.
 export default defineConfig({
 	entry: {
-		'aced-bench': 'skills/bench/scripts/bench.mts',
+		'aced-bench': 'src/bench/bench.mts',
 	},
 	format: 'esm',
 	outExtensions: () => ({ js: '.js' }),

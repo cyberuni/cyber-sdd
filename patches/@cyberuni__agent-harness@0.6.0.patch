@@ -1,0 +1,12 @@
+diff --git a/package.json b/package.json
+index 210ae48d6a7885a2cc498aa1c506635d01b1fdbe..dcbe1c7d7be8b9afa9470c988f1726c77cb05645 100644
+--- a/package.json
++++ b/package.json
+@@ -26,6 +26,7 @@
+   "license": "MIT",
+   "author": "unional <homawong@gmail.com>",
+   "type": "module",
++  "sideEffects": false,
+   "exports": {
+     ".": "./dist/index.js",
+     "./commands": "./dist/commands.js",

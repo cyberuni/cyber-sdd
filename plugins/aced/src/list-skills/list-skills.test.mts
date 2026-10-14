@@ -27,7 +27,7 @@ function mkSkill(
 test('reach: the skill is declared non-user-invocable so only the manage gateway loads it', () => {
 	// Regression guard for the frozen "reached via manage gateway, not a bare user invocation"
 	// scenario: a future flip of user-invocable to true (self-triggering) must fail here.
-	const skill = readFileSync(new URL('../SKILL.md', import.meta.url), 'utf8')
+	const skill = readFileSync(new URL('../../skills/list-skills/SKILL.md', import.meta.url), 'utf8')
 	assert.match(skill, /^user-invocable:\s*false\s*$/m)
 })
 

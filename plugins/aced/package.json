@@ -18,25 +18,27 @@
 		"skills",
 		"agents",
 		"governances",
-		".plugin",
+		"plugin.json",
 		".codex-plugin",
 		".claude-plugin",
-		"!skills/**/*.test.mts"
+		"com.github.copilot"
 	],
 	"dependencies": {
 		"@cyberuni/agent-harness": "0.6.0"
 	},
 	"scripts": {
 		"build": "tsdown",
+		"build:skills": "universal-plugin plugin build",
 		"check:spec": "node ../sdd/skills/check-project-specs/scripts/check-project-specs.mts",
-		"test": "node --test \"skills/*/scripts/*.test.mts\"",
+		"test": "node --test \"src/**/*.test.mts\"",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"publishConfig": {
 		"access": "public"
 	},
 	"devDependencies": {
-		"tsdown": "^0.23.0"
+		"tsdown": "^0.23.0",
+		"universal-plugin": "^0.14.0"
 	},
 	"engines": {
 		"node": ">=22.11"

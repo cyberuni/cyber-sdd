@@ -14,7 +14,7 @@
 // main module, so the guard line is exactly the line the suite cannot reach. Hence a static guard —
 // it asserts the SHAPE of the line, because the line's behavior is unobservable from in-process.
 //
-// The portable idiom, mirrored from plugins/aced/skills/extract-situation/scripts/extract-situation.mts:
+// The portable idiom, mirrored from plugins/aced/src/extract-situation/extract-situation.mts:
 //
 //   process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href
 //

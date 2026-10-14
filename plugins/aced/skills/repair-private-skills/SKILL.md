@@ -18,13 +18,12 @@ a private skill can drift into:
 
 A directory holding only `SKILL.local.md` / `SKILL.project.md` (no `SKILL.md`) is an
 **augmentation-only** entry and is never flagged. Loaded **in-session** by the `manage` gateway
-(Config runners / hygiene group); it carries a self-contained `.mts` script (the repo's
-node-≥23.6 / no-deps convention).
+(Config runners / hygiene group); it carries a self-contained `.mjs` script, compiled from the package source.
 
 ## Run an operation
 
 ```bash
-node "<skill>/scripts/repair-private-skills.mts" [--root .] <validate|repair> [--format json]
+node "<skill>/scripts/repair-private-skills.mjs" [--root .] <validate|repair> [--format json]
 ```
 
 | Operation | Effect |

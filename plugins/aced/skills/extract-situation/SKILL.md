@@ -17,7 +17,7 @@ withhold. It is **read-only** — it never writes a `.feature`, a brief, or any 
 ## Invocation
 
 ```
-node "<skill>/scripts/extract-situation.mts" --feature <path-to-.feature> --scenario "<exact name>"
+node "<skill>/scripts/extract-situation.mjs" --feature <path-to-.feature> --scenario "<exact name>"
 ```
 
 `--format json` emits `{ steps, given, when, placeholders, examples }` instead of the markdown brief —

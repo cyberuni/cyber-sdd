@@ -1,5 +1,16 @@
 # cyber-sdd
 
+## 0.7.0
+
+### Minor Changes
+
+- a130c6a: Scope the two-level depth rule to capability nodes and give `design/` its own shape: the current design at the top as one file per perspective, an optional project-named version folder (such as `design/next/`) holding a full copy of the next design, a one-commit cut, and a cut trigger recorded in the placement map. The formation Warden and the architect bars judge placement by that rule.
+
+### Patch Changes
+
+- 32b25db: Point the sdd Codex manifest `$schema` at the public Codex plugin manifest schema instead of the retired cyberuni/marketplace repo.
+- 522cbbc: Make the skill engines run when the package is installed from npm. Node will not strip types from a file under `node_modules`, so `node <skill>/scripts/<engine>.mts` failed with `ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`. The skills now document `node <skill>/scripts/<engine>.mjs`, a launcher that runs the `.mts` source in a checkout and a self-contained bundle (built into the package at pack time, with sibling skills inlined) under `node_modules`. `retire-plans` gains `--distilled <ledger-dir>` so the doctrine loop no longer imports the `.mts` directly.
+
 ## 0.6.1
 
 ### Patch Changes

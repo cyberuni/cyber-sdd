@@ -24,7 +24,7 @@
 		"com.github.copilot"
 	],
 	"dependencies": {
-		"@cyberuni/agent-harness": "0.6.0"
+		"@cyberuni/agent-harness": "0.7.1"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -38,7 +38,7 @@
 	},
 	"devDependencies": {
 		"tsdown": "^0.23.0",
-		"universal-plugin": "^0.14.0"
+		"universal-plugin": "^0.14.1"
 	},
 	"engines": {
 		"node": ">=22.11"

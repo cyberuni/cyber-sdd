@@ -31,9 +31,7 @@ minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
   # Renovate security update: astro@7.2.8
   - astro@7.2.8
-# @cyberuni/agent-harness declares no `sideEffects`, so `universal-plugin plugin build` cannot
-# tree-shake its unused `yaml` import out of aced's compiled bench script. yaml's raw control
-# characters then land in the skill folder and fail aced's invisible-Unicode check (E9). Remove
-# this patch once agent-harness ships `"sideEffects": false` (cyberuni/agent-harness#92).
-patchedDependencies:
-  '@cyberuni/agent-harness@0.6.0': patches/@cyberuni__agent-harness@0.6.0.patch
+  # min-release-age: lift universal-plugin@0.14.1 until 2026-10-18T20:00:00Z
+  - 'universal-plugin@0.14.1'
+  # min-release-age: lift @cyberuni/agent-harness@0.7.1 until 2026-10-18T20:00:00Z
+  - '@cyberuni/agent-harness@0.7.1'

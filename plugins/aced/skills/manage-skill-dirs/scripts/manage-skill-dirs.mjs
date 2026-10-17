@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/manage-skill-dirs/manage-skill-dirs.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.2","entry":"skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.3","entry":"skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs","commands":{}};
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";

@@ -1,5 +1,5 @@
 {
-	"$schema": "https://raw.githubusercontent.com/cyberuni/marketplace/main/schema/claude/plugin.json",
+	"$schema": "https://json.schemastore.org/codex-plugin-manifest.json",
 	"name": "sdd",
 	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 	"author": {

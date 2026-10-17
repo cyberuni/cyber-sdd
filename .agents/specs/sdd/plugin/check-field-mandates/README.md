@@ -329,7 +329,7 @@ node owns and states, in the shape its sibling guards use.
 
 Implemented by the **`check-field-mandates`** skill —
 [`plugins/sdd/skills/check-field-mandates/`](../../../../../plugins/sdd/skills/check-field-mandates/)
-— carrying a self-contained `.mts` script (the repo's node ≥23.6 / no-deps convention), in the same
+— carrying a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11), in the same
 shape as its sibling guards. It joins the root check chain as `check:fields`, so it runs on every
 `pnpm verify` and in CI.
 

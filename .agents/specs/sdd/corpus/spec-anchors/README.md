@@ -75,8 +75,7 @@ disk is unchanged). The complementary **read-side** guarantee — that an alread
 
 Implemented by the **`manage-spec-anchors`** skill —
 `plugins/sdd/skills/manage-spec-anchors/` — a non-user-invocable skill (loaded in-session by
-`manage`, `../../gateway/manage/`) carrying a self-contained `.mts` script (the repo's node-≥23.6 /
-no-deps convention). The script realizes `--list`, `--add` / `--remove` / `--edit`, `--induce <path>`,
+`manage`, `../../gateway/manage/`) carrying a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11). The script realizes `--list`, `--add` / `--remove` / `--edit`, `--induce <path>`,
 and `--preview <pattern>`; the config it reads/writes is the same `.agents/sdd/spec-anchors.toml` the
 `discover-specs` engine consumes. The **preview** reuses the discovery scan restricted to the
 candidate pattern.

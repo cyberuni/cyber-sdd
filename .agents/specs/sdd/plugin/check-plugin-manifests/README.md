@@ -213,7 +213,7 @@ owns and states, in the shape [`../../corpus/spec-floor/`](../../corpus/spec-flo
 
 Implemented by the **`check-plugin-manifests`** skill —
 [`plugins/sdd/skills/check-plugin-manifests/`](../../../../../plugins/sdd/skills/check-plugin-manifests/)
-— carrying a self-contained `.mts` script (the repo's node ≥23.6 / no-deps convention), in the same
+— carrying a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11), in the same
 shape as its sibling guards. It joins the root check chain as `check:plugins`, beside
 `check-plan-safety`, `resolve-tracking` and `check-retired-terms`, so it runs on every `pnpm verify`
 and in CI.

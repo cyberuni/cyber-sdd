@@ -12,7 +12,7 @@ The concrete engine for SDD **plan discovery**. It
 locates the **resumable missions** in a repo — the mission **plan briefs** under `.agents/plans` —
 and returns each one's CR ref, name, todo tally, and `## NEXT` resume lead, **without reading the
 rest of the body**, so a consumer (the **gateway**, on entry) can offer resume cheaply. It carries a
-self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention). It is the **plan** sibling
+self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11). It is the **plan** sibling
 of `discover-specs`: that engine finds **specs** by status shape; this one finds **missions** by
 their briefs.
 

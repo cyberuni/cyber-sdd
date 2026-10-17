@@ -15,7 +15,7 @@ project anchors, the matched plugin squad (from the project registry
 `.agents/universal-plugin.json`), and the sdd defaults. It is a **dumb matcher**: it returns each
 bar's candidates **bucketed by tier** and does **not** order by precedence or apply `compose` — the
 consuming agent composes. The conductor and the cold judges run it so they **never hand-enumerate**
-the bars. It carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention).
+the bars. It carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## Run the resolution
 

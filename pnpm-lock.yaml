@@ -196,9 +196,6 @@ importers:
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
-      universal-plugin:
-        specifier: ^0.14.1
-        version: 0.14.1(clibuilder@12.0.0(js-yaml@4.3.2))
 
   apps/web:
     dependencies:
@@ -251,20 +248,22 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
       universal-plugin:
-        specifier: ^0.14.1
-        version: 0.14.1(clibuilder@12.0.0(js-yaml@4.3.2))
+        specifier: ^0.15.0
+        version: 0.15.0(clibuilder@12.0.0(js-yaml@4.3.2))
 
   plugins/quill: {}
 
   plugins/sdd:
-    dependencies:
+    devDependencies:
       gherkin-cli:
         specifier: 0.2.1
         version: 0.2.1
-    devDependencies:
       tsdown:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
+      universal-plugin:
+        specifier: ^0.15.0
+        version: 0.15.0(clibuilder@12.0.0(js-yaml@4.3.2))
 
 packages:
 
@@ -3808,8 +3807,8 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
-  universal-plugin@0.14.1:
-    resolution: {integrity: sha512-s/h39I/lT0RJwgZVfA/X5ZmD2GgDyHLrahsqYYWjNndqU01EWRUGH+eCURmwp3CTySk480n6UkYz9/7PLFJDOw==}
+  universal-plugin@0.15.0:
+    resolution: {integrity: sha512-5cfC/O73/bjxfhAFxLHPWMWghGfRTiAweOCbkNvqyg7UKpbqShAhfCEdcdULQxCL6Pm88S6svGypeqNirzkwPw==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -7693,7 +7692,7 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  universal-plugin@0.14.1(clibuilder@12.0.0(js-yaml@4.3.2)):
+  universal-plugin@0.15.0(clibuilder@12.0.0(js-yaml@4.3.2)):
     dependencies:
       '@cyberuni/agent-harness': 0.7.1(clibuilder@12.0.0(js-yaml@4.3.2))
       '@repobuddy/upx': 0.2.0

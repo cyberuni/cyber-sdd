@@ -109,7 +109,7 @@ in-flight segment is the open plan todo plus the unfrozen `.feature` it touches.
 
 ## Legal-state tuples
 
-The mechanical authority is `spec-gate/scripts/check-spec-state.mts` — run it to enforce; if `node` is unavailable, apply the same rules by reading frontmatter.
+The mechanical authority is `spec-gate/scripts/check-spec-state.mjs` — run it to enforce; if `node` is unavailable, apply the same rules by reading frontmatter.
 The `(status, markers, .feature, approval)` tuple is **illegal** when:
 
 - `status: approved` with no `.feature` — a spec requires a frozen `.feature` to be approved.
@@ -135,7 +135,7 @@ If `check-spec-state.mts` changes, this list follows it — the script is the so
 - `spec-type: reference` with no `## Subject` section — illegal (the reference descriptor is required).
 - `spec-type: behavioral` with no `## Use Cases` section — illegal (a behavioral spec maps use cases to scenarios).
 
-These run wherever the helper runs; `plugins/sdd/skills/spec-gate/scripts/check-spec-state.mts` carries them.
+These run wherever the helper runs; `plugins/sdd/skills/spec-gate/scripts/check-spec-state.mjs` carries them.
 
 **No-resolvable-producer fails closed.**
 A required production role **always** resolves to a real producer — a plugin agent or the SDD default for that role.

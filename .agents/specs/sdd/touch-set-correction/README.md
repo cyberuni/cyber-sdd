@@ -88,7 +88,7 @@ TOON-by-default / JSON-on-request output).
    is a thin call; the tested logic is everything downstream of the file list).
 2. **Recover the work area per file** (capability-first convention). A file under a project's root maps
    to `project/capability`, where the **capability** is the first path segment after the matched root —
-   so `plugins/sdd/skills/mission-graph/scripts/x.mts` and `.agents/specs/sdd/mission-graph/README.md`
+   so `plugins/sdd/skills/mission-graph/scripts/x.mjs` and `.agents/specs/sdd/mission-graph/README.md`
    both recover `sdd/mission-graph`. Files in the same capability collapse to **one** area; a file under
    no known root is **unmapped** (surfaced, never a touched area). The de-duplicated set of recovered
    areas is the **actual touch-set**.
@@ -124,7 +124,7 @@ predictive-touch-set risk + the corrected-from-diff mitigation) and the cyberfle
 ## Delivery
 
 Built as the **`touch-set-correction`** engine — `plugins/sdd/skills/touch-set-correction/` — a
-self-contained, dependency-free script (the repo's node-≥23.6 / no-extra-tools convention, with a
+self-contained, dependency-free script (compiled from `src/`, Node ≥22.11, no extra tools, with a
 by-hand fallback when `node` or a composed tool is absent). Pure derivations (`reconcile`, node
 recovery, correction assembly) take and return plain data — no fs/network access — kept apart from a
 thin seam that runs `git diff`, `resolve-governances`, and `gherkin-cli diff`, so the derivations are

@@ -40,7 +40,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
    **A `Given` is a test vector, not specification** (`sdd:suite-format-governance` carries the canonical bar and the swap test). Author each `Given`'s apparatus — its domain, entities, names, framing — from a domain **the artifact does not illustrate**. On a revise CR the apparatus never reuses the artifact's existing worked examples; on `BACKFILL` it never reuses the illustrations you read out of source. Read those examples in full at step 1 — they are evidence of the behavior you are specifying; exclude them only from the apparatus you author into a `Given`.
 
-5. **Self-check the `.feature` form before returning.** Run the deterministic form check — the `check-suite` engine (`scripts/check-suite.mts` in the `spec-gate` skill), the executable form of `sdd:suite-format-governance` — scoped to what you just authored:
+5. **Self-check the `.feature` form before returning.** Run the deterministic form check — the `check-suite` engine (`scripts/check-suite.mjs` in the `spec-gate` skill), the executable form of `sdd:suite-format-governance` — scoped to what you just authored:
 
    ```bash
    node "<spec-gate skill>/scripts/check-suite.mjs" --files <the authored .feature path(s)>
@@ -58,7 +58,7 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
    **Check coverage and mirroring before returning.** Every outcome and carve-out the node's `## Use Cases` / README states — including an exception named only in prose — must have at least one scenario; do not report `STATUS: complete` while a stated outcome or carve-out has none — add the missing scenario. A **duty specified on one node of a mirrored pair** (producer/judge, sender/receiver) must be **mirrored on the counterpart node**; do not report complete while only one side carries the duty — specify it on the counterpart too (`sdd:suite-format-governance`).
 
-   Also self-run **referenced-artifact-exists** — `check-spec-state.mts` in `scripts/`, scoped to
+   Also self-run **referenced-artifact-exists** — `check-spec-state.mjs` in `scripts/`, scoped to
    the `spec.md`/`README.md` you just authored or touched:
 
    ```bash

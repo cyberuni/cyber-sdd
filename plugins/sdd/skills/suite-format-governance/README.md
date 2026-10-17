@@ -40,7 +40,7 @@ order, stepping down from the happy path to its branches and errors.
 ## The executable check — `check-suite`
 
 The mechanical rules — Gherkin validity, boolean `Then`s, section comments, Outline coverage, and
-the scenario-map binding — are linted by `check-suite` (`spec-gate/scripts/check-suite.mts`). The
+the scenario-map binding — are linted by `check-suite` (`spec-gate/scripts/check-suite.mjs`). The
 spec-producer self-runs it before returning, and the spec gate runs it fail-closed before the cold
 judge. It checks **form only**: whether the map's rows actually cover the drawn CFG — coverage,
 discrimination, consistency — is judged, never linted, so a green check clears no coverage

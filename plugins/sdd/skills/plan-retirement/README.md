@@ -2,7 +2,7 @@
 
 Internal, non-user-invocable SDD skill carrying the Doctrine loop's **last retro step** — the
 gated, idempotent **tracked deletion** of a retired mission plan. It holds a self-contained
-`scripts/retire-plans.mts` (node ≥23.6, no deps; an agent fallback when `node` is absent).
+`scripts/retire-plans.mjs` (node ≥22.11, no deps; an agent fallback when `node` is absent).
 
 **Distill and delete are decoupled.** The Scanner distills the combat log into ledger `strategy`
 early (at `→ implemented`); this sweep deletes the plan **later**, gated on source = `done`/merged
@@ -32,4 +32,4 @@ combat log's presence only — a brief owes no distillation, so a cr-ref with br
 alone does — a brief without a `plan.md` is untouched). Each brief is deleted only if present; an
 absent one is a no-op, same as the missing log half.
 
-Tests (`scripts/retire-plans.test.mts`) run under `pnpm verify:specs`.
+Tests (`src/plan-retirement/retire-plans.test.mts`) run under `pnpm verify:specs`.

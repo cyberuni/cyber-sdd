@@ -10,7 +10,7 @@ metadata:
 
 The **entrypoint** for the project-spec checks — the harness behind `corpus/spec-floor`. It resolves
 which spec governs which project and runs each project-spec engine against it. It carries a
-self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention).
+self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 Two scopes:
 

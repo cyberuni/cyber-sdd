@@ -100,7 +100,7 @@ false "undistilled" conclusions and wasted or duplicate drafting.
 
 The detection **reuses the same parse contract** `plan-retirement`'s mechanical distilled gate
 already uses (the `distilledCrRefs` engine in
-`../../../../../plugins/sdd/skills/plan-retirement/scripts/retire-plans.mts`) rather than hand-rolling
+`../../../../../plugins/sdd/skills/plan-retirement/scripts/retire-plans.mjs`) rather than hand-rolling
 its own: key on the **structured `distills` field only** — an `<cr-ref>` that appears merely inside
 another entry's `evidence` cross-references does **not** count as distilled — tolerate malformed and
 blank lines, and count an **unratified** distilling entry (the Scanner's default) the same as a

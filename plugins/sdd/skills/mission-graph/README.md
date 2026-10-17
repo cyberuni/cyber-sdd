@@ -8,6 +8,6 @@ cyberplace repository, not shipped in this package) carries the authoritative be
 and the frozen 36-scenario contract.
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
-- **Script:** [`scripts/mission-graph.mts`](./scripts/mission-graph.mts)
-- **Tests:** [`scripts/mission-graph.test.mts`](./scripts/mission-graph.test.mts) (`node:test`) —
+- **Script:** [`scripts/mission-graph.mjs`](./scripts/mission-graph.mjs)
+- **Tests:** [`src/mission-graph/mission-graph.test.mts`](../../src/mission-graph/mission-graph.test.mts) (`node:test`) —
   one test per frozen scenario, titled `scenario: <verbatim frozen scenario name>`.

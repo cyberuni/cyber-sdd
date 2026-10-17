@@ -8,9 +8,9 @@
 		"check:fix": "biome check --write",
 		"check:skills": "node plugins/aced/src/improve-skill/validate.mts --root .",
 		"check:private-skills": "node plugins/aced/src/repair-private-skills/repair-private-skills.mts --root . validate",
-		"check:plugins": "node plugins/sdd/skills/check-plugin-manifests/scripts/check-plugin-manifests.mts --root . && node scripts/sync-plugin-versions.mjs --check && node scripts/check-skill-scripts.mjs",
-		"check:fields": "node plugins/sdd/skills/check-field-mandates/scripts/check-field-mandates.mts --root .",
-		"check:specs": "node plugins/sdd/skills/check-project-specs/scripts/check-project-specs.mts --corpus && node plugins/sdd/skills/resolve-governances/scripts/resolve-governances.mts --root . && node plugins/sdd/skills/resolve-tracking/scripts/resolve-tracking.mts --root . && node plugins/sdd/skills/check-plan-safety/scripts/check-plan-safety.mts --root . --check && node plugins/sdd/skills/check-retired-terms/scripts/check-retired-terms.mts --root .",
+		"check:plugins": "node plugins/sdd/src/check-plugin-manifests/check-plugin-manifests.mts --root . && node scripts/sync-plugin-versions.mjs --check && pnpm --recursive --if-present run check:scripts",
+		"check:fields": "node plugins/sdd/src/check-field-mandates/check-field-mandates.mts --root .",
+		"check:specs": "node plugins/sdd/src/check-project-specs/check-project-specs.mts --corpus && node plugins/sdd/src/resolve-governances/resolve-governances.mts --root . && node plugins/sdd/src/resolve-tracking/resolve-tracking.mts --root . && node plugins/sdd/src/check-plan-safety/check-plan-safety.mts --root . --check && node plugins/sdd/src/check-retired-terms/check-retired-terms.mts --root .",
 		"knip": "knip",
 		"prepare": "node -e \"if(!(process.env.CI||process.env.GITHUB_ACTIONS))require('child_process').execSync('husky',{stdio:'inherit'})\"",
 		"release": "changeset publish",
@@ -18,7 +18,7 @@
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck",
 		"verify": "pnpm check && turbo run build typecheck test && pnpm check:skills && pnpm check:private-skills && pnpm check:plugins && pnpm check:fields && pnpm check:specs && pnpm knip",
-		"version": "changeset version && node scripts/sync-plugin-versions.mjs && pnpm --filter cyber-aced build:skills",
+		"version": "changeset version && node scripts/sync-plugin-versions.mjs && pnpm --filter cyber-aced --filter cyber-sdd build:skills",
 		"web": "turbo run --filter=@cyberuni/web"
 	},
 	"devDependencies": {
@@ -31,8 +31,7 @@
 		"husky": "^9.1.7",
 		"knip": "^6.31.0",
 		"turbo": "^2.10.8",
-		"typescript": "^7.0.2",
-		"universal-plugin": "^0.14.1"
+		"typescript": "^7.0.2"
 	},
 	"packageManager": "pnpm@12.14.0",
 	"engines": {

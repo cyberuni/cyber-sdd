@@ -11,6 +11,6 @@ cyberplace repository, not shipped in this package) carries the authoritative be
 and the frozen 18-scenario contract.
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
-- **Script:** [`scripts/collision-ladder.mts`](./scripts/collision-ladder.mts)
-- **Tests:** [`scripts/collision-ladder.test.mts`](./scripts/collision-ladder.test.mts)
+- **Script:** [`scripts/collision-ladder.mjs`](./scripts/collision-ladder.mjs)
+- **Tests:** [`src/collision-ladder/collision-ladder.test.mts`](../../src/collision-ladder/collision-ladder.test.mts)
   (`node:test`) — one test per frozen scenario, titled `scenario: <verbatim frozen scenario name>`.

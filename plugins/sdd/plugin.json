@@ -1,0 +1,55 @@
+{
+	"$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+	"name": "sdd",
+	"version": "0.6.1",
+	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
+	"author": {
+		"name": "unional"
+	},
+	"homepage": "https://github.com/cyberuni/cyber-sdd",
+	"repository": "https://github.com/cyberuni/cyber-sdd",
+	"skills": "./skills",
+	"agents": [
+		"./agents/sdd-automaton.md",
+		"./agents/sdd-impl-judge.md",
+		"./agents/sdd-scanner.md",
+		"./agents/sdd-spec-judge.md",
+		"./agents/sdd-warden.md"
+	],
+	"extensions": {
+		"org.cyberuni.universal-plugin": {
+			"vendors": ["claude-code", "codex"],
+			"scripts": {
+				"skills/align-spec/scripts/align-spec.mjs": "src/align-spec/align-spec.mts",
+				"skills/blast-estimate/scripts/blast-estimate.mjs": "src/blast-estimate/blast-estimate.mts",
+				"skills/check-field-mandates/scripts/check-field-mandates.mjs": "src/check-field-mandates/check-field-mandates.mts",
+				"skills/check-partition-quality/scripts/check-partition-quality.mjs": "src/check-partition-quality/check-partition-quality.mts",
+				"skills/check-plan-safety/scripts/check-plan-safety.mjs": "src/check-plan-safety/check-plan-safety.mts",
+				"skills/check-plugin-manifests/scripts/check-plugin-manifests.mjs": "src/check-plugin-manifests/check-plugin-manifests.mts",
+				"skills/check-project-specs/scripts/check-project-specs.mjs": "src/check-project-specs/check-project-specs.mts",
+				"skills/check-retired-terms/scripts/check-retired-terms.mjs": "src/check-retired-terms/check-retired-terms.mts",
+				"skills/check-scenario-overlap/scripts/check-scenario-overlap.mjs": "src/check-scenario-overlap/check-scenario-overlap.mts",
+				"skills/check-spec-references/scripts/check-spec-references.mjs": "src/check-spec-references/check-spec-references.mts",
+				"skills/check-spec-structure/scripts/check-spec-structure.mjs": "src/check-spec-structure/check-spec-structure.mts",
+				"skills/collision-ladder/scripts/collision-ladder.mjs": "src/collision-ladder/collision-ladder.mts",
+				"skills/concept-index/scripts/concept-index.mjs": "src/concept-index/concept-index.mts",
+				"skills/discover-plans/scripts/discover-plans.mjs": "src/discover-plans/discover-plans.mts",
+				"skills/discover-specs/scripts/discover-specs.mjs": "src/discover-specs/discover-specs.mts",
+				"skills/init/scripts/wire-statusline.mjs": "src/init/wire-statusline.mts",
+				"skills/manage-ignore/scripts/manage-ignore.mjs": "src/manage-ignore/manage-ignore.mts",
+				"skills/manage-scenario-bridge/scripts/manage-scenario-bridge.mjs": "src/manage-scenario-bridge/manage-scenario-bridge.mts",
+				"skills/manage-spec-anchors/scripts/manage-spec-anchors.mjs": "src/manage-spec-anchors/manage-spec-anchors.mts",
+				"skills/mission-graph/scripts/mission-graph.mjs": "src/mission-graph/mission-graph.mts",
+				"skills/place-node/scripts/place-node.mjs": "src/place-node/place-node.mts",
+				"skills/plan-retirement/scripts/retire-plans.mjs": "src/plan-retirement/retire-plans.mts",
+				"skills/resolve-governances/scripts/resolve-governances.mjs": "src/resolve-governances/resolve-governances.mts",
+				"skills/resolve-tracking/scripts/resolve-tracking.mjs": "src/resolve-tracking/resolve-tracking.mts",
+				"skills/spec-gate/scripts/check-spec-state.mjs": "src/spec-gate/check-spec-state.mts",
+				"skills/spec-gate/scripts/check-suite.mjs": "src/spec-gate/check-suite.mts",
+				"skills/spec-gate/scripts/classify-edit-class.mjs": "src/spec-gate/classify-edit-class.mts",
+				"skills/touch-set-correction/scripts/touch-set-correction.mjs": "src/touch-set-correction/touch-set-correction.mts",
+				"skills/verify-scenarios/scripts/verify-scenarios.mjs": "src/verify-scenarios/verify-scenarios.mts"
+			}
+		}
+	}
+}

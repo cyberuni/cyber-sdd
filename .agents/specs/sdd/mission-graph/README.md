@@ -463,7 +463,7 @@ remaining work — checked once at the end (Op1.M2), not as a frozen example.
 ## Delivery
 
 Built as the **`mission-graph`** engine — `plugins/sdd/skills/mission-graph/` — a self-contained,
-dependency-free script (the repo's node-≥23.6 / no-extra-tools convention, with a by-hand fallback when
+dependency-free script (compiled from `src/`, Node ≥22.11, no extra tools, with a by-hand fallback when
 `node` is absent) plus its tests over the hand-built examples. It offers the two read-only views (`ready`
 and `cycles`), the separate write path (add an item / link / status change / removal, with the gentle
 loop-guard), a one-time **`migrate`** command that copies an in-tree list into the orphan ref, and the

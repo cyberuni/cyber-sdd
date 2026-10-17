@@ -12,7 +12,7 @@ The concrete engine for the SDD **spec-anchors** config — the opt-in registry 
 anchors that `discover-specs` scans on top of the three fixed conventions (ADR-0019). It exists so a
 user curates those anchors through a clean interface instead of hand-editing
 `.agents/sdd/spec-anchors.toml`. Loaded **in-session** by the `manage` gateway (Housekeeping group);
-it carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention).
+it carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## The config it curates
 

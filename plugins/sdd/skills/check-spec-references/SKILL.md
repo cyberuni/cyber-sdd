@@ -12,8 +12,8 @@ The concrete engine for the **spec-reference resolution check**. It walks every 
 project spec, extracts each **explicitly-relative** reference, resolves it **against the file's own
 directory**, and fails on every one that resolves to nothing. Read-only, deterministic, and — unlike
 its `check-spec-structure` sibling — single-severity: a reference that does not resolve is always a
-defect, so there is one mode, not a report mode and a gate mode. It carries a self-contained `.mts`
-script (the repo's node-≥23.6 / no-deps convention).
+defect, so there is one mode, not a report mode and a gate mode. It carries a self-contained `.mjs`
+script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 It closes a failure **review cannot catch**: a consistent off-by-one reads as entirely plausible —
 right filename, right-looking depth, wrong level — so re-reading a reference by eye is not a check

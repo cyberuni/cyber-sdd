@@ -99,7 +99,7 @@ exists — the script reads the whole file but its output, hence the agent's con
 
 This unit is implemented by the **`discover-specs`** skill —
 `plugins/sdd/skills/discover-specs/` — a non-user-invocable skill carrying a
-self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention; an agent fallback when
+self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11; an agent fallback when
 `node` is absent). The script realizes **list-the-specs** (scan, status filter, name derivation,
 frontmatter-only TOON) and the **deterministic half of resolve-a-name** (`--resolve <name>` →
 exact-match spec, or the candidate set when ambiguous); the **agentic half** (disambiguating with

@@ -19,6 +19,6 @@
 		".claude-plugin"
 	],
 	"scripts": {
-		"check:spec": "node ../sdd/skills/check-project-specs/scripts/check-project-specs.mts"
+		"check:spec": "node ../sdd/src/check-project-specs/check-project-specs.mts"
 	}
 }

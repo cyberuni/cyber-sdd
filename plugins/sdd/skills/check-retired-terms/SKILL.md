@@ -13,8 +13,7 @@ retires a path, directory, or naming convention, and records it once in
 `.agents/sdd/retired-terms.toml`. This engine guards that the retirement holds: it scans every
 git-tracked file in the repo — not only the node someone happened to touch — for a literal,
 case-sensitive occurrence of a registered term, and reports every survivor as `file:line:term` with
-the replacement to use. It carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps
-convention), parsing the registry with the same minimal hand-rolled TOML subset `discover-specs`
+the replacement to use. It carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11), parsing the registry with the same minimal hand-rolled TOML subset `discover-specs`
 already uses for `spec-anchors.toml`.
 
 It is the corpus-wide, declared-data sibling of `check:metaphor-free`
@@ -67,7 +66,7 @@ node "<skill>/scripts/check-retired-terms.mjs" [--root .] --list  # what is regi
   non-zero, because the registry *is* the check.
 - **`--list`** prints each registered term with its `since` and `replacement`, and exits 0. With no
   registry, it states plainly that nothing is registered — a definitive empty state, not silence.
-- Wired into `check:specs` (`node …/check-retired-terms.mts --root .`), so it runs on every
+- Wired into `check:specs` (`node …/check-retired-terms.mjs --root .`), so it runs on every
   `pnpm verify` and in CI.
 
 When `node` is absent, an agent performs the same derivation by hand: read

@@ -13,7 +13,7 @@ project spec's `intake` node (repo-only). For one touched artifact it decides **
 governs it — spec + gates) or **ignored** (SDD does not govern it; it still gets built) and
 reports which step decided it, so the conductor can skip a task outright (no CR, no draft, no
 gate, no record) when it resolves ignored. The split mirrors git's **tracked vs ignored** files.
-It carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention).
+It carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## Run the resolution
 

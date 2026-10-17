@@ -1,13 +1,12 @@
 {
-	"$schema": "https://json.schemastore.org/codex-plugin-manifest.json",
 	"name": "sdd",
+	"version": "0.6.1",
 	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 	"author": {
 		"name": "unional"
 	},
 	"homepage": "https://github.com/cyberuni/cyber-sdd",
 	"repository": "https://github.com/cyberuni/cyber-sdd",
-	"version": "0.6.1",
 	"skills": "./skills",
 	"agents": [
 		"./agents/sdd-automaton.md",

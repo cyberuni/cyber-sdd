@@ -10,31 +10,28 @@
 	"license": "MIT",
 	"type": "module",
 	"bin": {
-		"sdd-check-specs": "./dist/check-project-specs/scripts/check-project-specs.js"
+		"sdd-check-specs": "./skills/check-project-specs/scripts/check-project-specs.mjs"
 	},
 	"files": [
-		"dist",
 		"skills",
 		"agents",
-		".plugin",
+		"plugin.json",
 		".codex-plugin",
-		".claude-plugin",
-		"!skills/**/*.test.mts"
+		".claude-plugin"
 	],
-	"dependencies": {
-		"gherkin-cli": "0.2.1"
-	},
 	"scripts": {
-		"build": "tsdown && node scripts/build-skill-engines.mjs",
+		"build:skills": "universal-plugin plugin build",
 		"build:vendor": "tsdown -c tsdown.vendor.config.ts",
-		"check:spec": "node ./skills/check-project-specs/scripts/check-project-specs.mts",
-		"test": "node --test \"skills/*/scripts/*.test.mts\"",
-		"prepack": "node scripts/build-skill-engines.mjs",
+		"check:scripts": "universal-plugin plugin build --check",
+		"check:spec": "node ./src/check-project-specs/check-project-specs.mts",
+		"test": "node --test \"src/**/*.test.mts\"",
 		"typecheck": "tsc -p tsconfig.json"
 	},
 	"homepage": "https://github.com/cyberuni/cyber-sdd",
 	"devDependencies": {
-		"tsdown": "^0.23.0"
+		"gherkin-cli": "0.2.1",
+		"tsdown": "^0.23.0",
+		"universal-plugin": "^0.15.0"
 	},
 	"engines": {
 		"node": ">=22.11"

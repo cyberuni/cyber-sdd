@@ -172,7 +172,7 @@ graph TD
 ## Delivery
 
 Implemented by the **`check-retired-terms`** skill — `plugins/sdd/skills/check-retired-terms/` —
-carrying a self-contained `.mts` script (the repo's node ≥23.6 / no-deps convention), parsing its
+carrying a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11), parsing its
 registry with the same minimal hand-rolled TOML subset `discover-specs` already uses for
 `spec-anchors.toml`. It joins the root `check:specs` chain alongside `check-plan-safety` and
 `resolve-tracking`, so it runs on every `pnpm verify` and in CI.

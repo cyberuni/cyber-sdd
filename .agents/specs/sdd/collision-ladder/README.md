@@ -170,7 +170,7 @@ not derived, the shared-thin-file hard→soft downgrade).
 ## Delivery
 
 Built as the **`collision-ladder`** engine — `plugins/sdd/skills/collision-ladder/` — a self-contained,
-dependency-free script (the repo's node-≥23.6 / no-extra-tools convention). Pure derivations (the ladder
+dependency-free script (compiled from `src/`, Node ≥22.11, no extra tools). Pure derivations (the ladder
 descent including the symbol-rung produced/consumed classification, the node rollup, the shared-thin
 flagging) take and return plain data — no fs/network access — kept apart from a thin seam that sources each
 Mission's touched detail (`git diff -U0` line-hunks; produced/consumed symbols extracted from a code file's

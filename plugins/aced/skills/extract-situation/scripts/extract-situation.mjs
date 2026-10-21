@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/extract-situation/extract-situation.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.2","entry":"skills/extract-situation/scripts/extract-situation.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.3","entry":"skills/extract-situation/scripts/extract-situation.mjs","commands":{}};
 import { readFileSync, realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 //#region src/extract-situation/extract-situation.mts

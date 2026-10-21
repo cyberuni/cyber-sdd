@@ -42,7 +42,7 @@ change); interpreting comparison tags (the consumer owns their meaning).
 | **task-set hash** | SHA-256 over the task-set commit's `tasks.json` and every file under `checks/`, path-sorted. A changed check changes the hash. |
 | **arm** | A labelled subject — the thing whose effect is measured. A comparison has two arms (`before`/`after`, or `without`/`with`). Written `--arm <label>=<subject>`. |
 | **subject** | One of three kinds, written and recorded as: `git:<ref>` → `{ kind: git-ref, ref, commit }`; `package:<name>@<version>` → `{ kind: package, name, version }`; `file:<path>=ref:<ref>`, `file:<path>=path:<source>`, or `file:<path>=absent` → `{ kind: file, path, from }`. |
-| **adapter** | The harness-specific half: prepare the checkout's harness config, launch headless, parse the transcript into counts. Claude Code is the only adapter in v1. Its launch facts come from `@cyberuni/agent-harness`'s `headless()` fact. |
+| **adapter** | The harness-specific half: prepare the checkout's harness config, launch headless, parse the transcript into counts. Claude Code is the only adapter in v1. Its launch facts come from `cyber-agentkit`'s `headless()` fact. |
 | **runner** | How the adapter drives the harness. v1 has one, `print` (headless `-p`); the field exists so records from another runner never compare silently. |
 | **plan** | A JSON file `bench plan --out <file>` writes and `bench run --plan <file>` reads: counts, ceiling, estimate, model, permission mode, warnings, the arms, and the task-set hash. |
 | **run record** | One arm's results: every run's metrics plus a summary, written as JSON. Schema version 3 — the first version this engine writes, and the only one it reads. A record from any other tool is converted by that tool, never read here. |

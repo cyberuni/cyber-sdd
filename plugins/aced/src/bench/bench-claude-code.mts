@@ -1,7 +1,7 @@
 // bench-claude-code — the Claude Code adapter: launch headless, parse the transcript into counts.
 //
 // The launch facts (the command, the one-shot flag, how the model, permission mode, and output
-// format are passed, and which flag stops session persistence) come from @cyberuni/agent-harness's
+// format are passed, and which flag stops session persistence) come from cyber-agentkit's
 // headless fact. The spec adds what a measured run must carry beyond those facts: the budget cap,
 // project-only settings and a strict MCP config (the checkout's own, never the operator's), and,
 // for a package arm, the plugin directory. Those are added here.
@@ -14,7 +14,7 @@ import { spawnSync } from 'node:child_process'
 import { copyFileSync, existsSync, mkdirSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { headlessCommand, headlessInvocation } from '@cyberuni/agent-harness'
+import { headlessCommand, headlessInvocation } from 'cyber-agentkit'
 
 export interface LaunchOptions {
 	prompt: string
@@ -121,8 +121,7 @@ function launchArgs(o: LaunchOptions): string[] {
 		permission: o.permissionMode,
 		outputFormat: 'stream-json',
 	})
-	if (!cmd || facts.supported !== true)
-		throw new Error('@cyberuni/agent-harness reports no headless mode for claude-code')
+	if (!cmd || facts.supported !== true) throw new Error('cyber-agentkit reports no headless mode for claude-code')
 	const args = [...cmd.args]
 	// The prompt is placed right after the facts' own (boolean-terminated) flags, so a variadic flag
 	// added below can never swallow it.

@@ -48,7 +48,7 @@ is **spec only** — it stops at the spec gate, and the gate verdict belongs to 
 ## Settled (owner, issue #69)
 
 Paths as proposed; dollars recorded and compared but never gate; ACED owns the runner core (#64's
-runner half); ACED publishes a bin; headless facts in `@cyberuni/agent-harness`; layer "measured",
+runner half); ACED publishes a bin; headless facts in `cyber-agentkit`; layer "measured",
 `eval.md` key `bench:`; `baseline.json` committed; no interactive runner in v1;
 `bypassPermissions` only inside the throwaway worktree, stated in every plan; Claude Code first;
 model matrix is a separate CR.

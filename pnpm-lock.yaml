@@ -162,9 +162,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  '@cyberuni/agent-harness@0.6.0': b4c887424f541fdab199dfc5ee359f522271cd99fd9227607c90535f58559e7f
-
 importers:
 
   .:
@@ -246,9 +243,9 @@ importers:
 
   plugins/aced:
     dependencies:
-      '@cyberuni/agent-harness':
-        specifier: 0.7.1
-        version: 0.7.1(clibuilder@12.0.0(js-yaml@4.3.2))
+      cyber-agentkit:
+        specifier: 1.0.0
+        version: 1.0.0(clibuilder@12.0.0(js-yaml@4.3.2))
     devDependencies:
       tsdown:
         specifier: ^0.23.0
@@ -742,16 +739,6 @@ packages:
     resolution: {integrity: sha512-ELy0pcHiRb9vjaVymBIvCQTDaQTOyliVKEx3MdpiDLeaGAYkhBwgCfoIa/ov/hPFxed4gQdYLBv6O3UTNgr78A==}
     engines: {node: '>=22'}
     hasBin: true
-
-  '@cyberuni/agent-harness@0.7.1':
-    resolution: {integrity: sha512-duoJGvfumx1Nfz8KRfptu7ixJbBbEJwrOlaUP6smfbgH3ioFIiStcIsFO9yNeTkxkgj/9TDUCctQj3Gw6bC3FA==}
-    engines: {node: '>=22'}
-    hasBin: true
-    peerDependencies:
-      clibuilder: ^12.0.0
-    peerDependenciesMeta:
-      clibuilder:
-        optional: true
 
   '@emmetio/abbreviation@2.3.3':
     resolution: {integrity: sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA==}
@@ -2583,6 +2570,16 @@ packages:
   csso@5.0.5:
     resolution: {integrity: sha512-0LrrStPOdJj+SPCCrGhzryycLjwcgUSHBtxNA8aIDxf0GLsRh1cKYhB00Gd1lDOS4yGH69+SNn13+TWbVHETFQ==}
     engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0, npm: '>=7.0.0'}
+
+  cyber-agentkit@1.0.0:
+    resolution: {integrity: sha512-95fpujPJiR4hvt6klML0tEUwrlmHZ4s4XDaSZHnmyyGsZgWiHARpfr+RSWX2oiVwQtJRbELRsuIL0k/z51kWjw==}
+    engines: {node: '>=22'}
+    hasBin: true
+    peerDependencies:
+      clibuilder: ^12.0.0
+    peerDependenciesMeta:
+      clibuilder:
+        optional: true
 
   cytoscape-cose-bilkent@4.1.0:
     resolution: {integrity: sha512-wgQlVIUJF13Quxiv5e1gstZ08rnZj2XaLHGoFMYXz7SkNfCDOOteKBE6SYRfA9WxxI/iBc3ajfDoc6hb/MRAHQ==}
@@ -4870,17 +4867,13 @@ snapshots:
 
   '@cucumber/messages@34.2.1': {}
 
-  '@cyberuni/agent-harness@0.6.0(patch_hash=b4c887424f541fdab199dfc5ee359f522271cd99fd9227607c90535f58559e7f)(typescript@7.0.2)':
+  '@cyberuni/agent-harness@0.6.0(typescript@7.0.2)':
     dependencies:
       '@clibuilder/axi': 0.1.0(clibuilder@11.3.2(typescript@7.0.2))
       clibuilder: 11.3.2(typescript@7.0.2)
       yaml: 2.9.0
     transitivePeerDependencies:
       - typescript
-
-  '@cyberuni/agent-harness@0.7.1(clibuilder@12.0.0(js-yaml@4.3.2))':
-    optionalDependencies:
-      clibuilder: 12.0.0(js-yaml@4.3.2)
 
   '@emmetio/abbreviation@2.3.3':
     dependencies:
@@ -6324,6 +6317,10 @@ snapshots:
   csso@5.0.5:
     dependencies:
       css-tree: 2.2.1
+
+  cyber-agentkit@1.0.0(clibuilder@12.0.0(js-yaml@4.3.2)):
+    optionalDependencies:
+      clibuilder: 12.0.0(js-yaml@4.3.2)
 
   cytoscape-cose-bilkent@4.1.0(cytoscape@3.34.3):
     dependencies:
@@ -7965,7 +7962,7 @@ snapshots:
 
   universal-plugin@0.14.0(typescript@7.0.2):
     dependencies:
-      '@cyberuni/agent-harness': 0.6.0(patch_hash=b4c887424f541fdab199dfc5ee359f522271cd99fd9227607c90535f58559e7f)(typescript@7.0.2)
+      '@cyberuni/agent-harness': 0.6.0(typescript@7.0.2)
       '@repobuddy/upx': 0.2.0
       '@toon-format/toon': 4.1.1
       commander: 15.0.0

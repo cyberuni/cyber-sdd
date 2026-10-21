@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/repair-private-skills/repair-private-skills.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.2","entry":"skills/repair-private-skills/scripts/repair-private-skills.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.3","entry":"skills/repair-private-skills/scripts/repair-private-skills.mjs","commands":{}};
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, unlinkSync, writeFileSync } from "node:fs";
 import { join, sep } from "node:path";
 import { pathToFileURL } from "node:url";

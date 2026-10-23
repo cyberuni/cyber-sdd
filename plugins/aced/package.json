@@ -24,7 +24,7 @@
 		"com.github.copilot"
 	],
 	"dependencies": {
-		"cyber-agentkit": "1.0.0"
+		"cyber-agentkit": "1.1.0"
 	},
 	"scripts": {
 		"build": "tsdown",

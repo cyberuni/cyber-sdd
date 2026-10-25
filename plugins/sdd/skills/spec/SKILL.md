@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write or backfill the spec for X, split a spec, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec".
+description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X (including a spec in an SDD project spec), split a spec, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec".
 ---
 
 # Design spec
@@ -23,6 +23,9 @@ after the build.
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
 
+This includes a spec in an SDD project spec. This skill writes and judges the spec; it does not open a change
+request or start a mission. A mission starts only when the user runs `/start-mission`.
+
 ## Write
 
 Put one capability in one folder: `README.md` holds the spec, `graph.md` holds the decision graph when the
@@ -37,8 +40,8 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
    by the outcome who never invoke it; a missed use case usually hides there. Derive use cases from actors, never by
    walking the interface.
 6. **Use cases.** One per actor goal, each its own heading `### UCn — <title> (<actor IDs>)` with these labelled
-   bullets, in this order: **Trigger**, **Entry points** (grouped by surface, the primary delivery first and named
-   as such), **Inputs**, **Success**, and **Extensions**, every path from the trigger that does not reach the goal, as
+   bullets, in this order: **Trigger**, **Entry node** (only when `graph.md` exists: the graph node the trigger enters
+   at), **Entry points** (grouped by surface, the primary delivery first and named as such), **Inputs**, **Success**, and **Extensions**, every path from the trigger that does not reach the goal, as
    `UCn.m` sub-bullets. A use case with no extensions says `extensions: none, <why>`. The use case states the goal and
    result and is delivery agnostic; the delivery (a skill, a command, a library call) appears only under Entry points,
    and in the criteria group for that adapter.
@@ -150,7 +153,8 @@ git history, not against your report. Each line is pass or fail; `README.md` and
   and its children.
 - V3 No ID that `git log -p` shows removed from the spec labels a different item now.
 - V4 Each use case is a `### UCn — <title> (<actor IDs>)` heading with Trigger, Entry points, Inputs, Success, and
-  Extensions in that order, and its Extensions are `UCn.m` items or read `extensions: none, <why>`.
+  Extensions in that order, and its Extensions are `UCn.m` items or read `extensions: none, <why>`. When `graph.md`
+  exists, an Entry node bullet sits between Trigger and Entry points and names a node that exists in `graph.md`.
 - V5 Every criterion cites a use case ID that exists. When `graph.md` exists, every edge ID a criterion cites exists
   in it, and every outcome node in it is reached by an edge some criterion cites.
 - V6 `grep -nEi '\b(TBD|TODO)\b|not (yet )?built' README.md graph.md` finds nothing.

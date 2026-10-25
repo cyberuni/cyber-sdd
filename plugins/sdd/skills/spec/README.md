@@ -13,6 +13,9 @@ User-invocable.
 - Split a spec that has grown past what its readers need.
 - Derive tests from a spec.
 
+This includes a spec in an SDD project spec. The skill does not open a change request or start a mission; the
+user runs `/start-mission` for that.
+
 ## What it does
 
 - **Write** lays out one capability per folder (`README.md`, plus `graph.md` when the behavior branches) and settles
@@ -33,15 +36,6 @@ The spec is standing: it is compared against on every change. Rationale lives in
 decision graph format is in [`references/decision-graph.md`](references/decision-graph.md). The reasons for each rule
 are in the research topic
 [`.research/design-spec-criteria`](../../../../.research/design-spec-criteria/conclusion.md).
-
-## Open questions
-
-- Q1 How this skill relates to an SDD project spec (a node under `.agents/specs/`, a change request, a frozen
-  `.feature`). Both claim requests such as "revise the gateway spec", and they produce different artifacts. Undecided
-  on purpose: `start-mission` keeps its triggers, and this skill does not defer to it yet.
-- Q2 Whether a use case names the `graph.md` node it enters at. The decision graph reference says it does, but the
-  use case template (Trigger, Entry points, Inputs, Success, Extensions) has no such field and V4 does not check it.
-  Either add an `Entry node` bullet for graph specs, or drop the line from the reference.
 
 ## Install
 

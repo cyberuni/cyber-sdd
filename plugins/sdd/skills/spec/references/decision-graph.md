@@ -8,7 +8,7 @@ Use it when the capability's behavior branches. It is the instrument for C6 to C
 - A node is a decision the capability makes, or an outcome. An edge is a branch. Draw it as a Mermaid `flowchart`.
 - Give each edge a stable ID (`E1`, `E2`, ...) and never reuse a retired one. Criteria cite edge IDs.
 - It describes decisions the consumer can observe, not the code's control flow. Name no function or module.
-- Each use case names the entry node it starts from. Several use cases may share a graph.
+- Each use case names the node it starts from in its **Entry node** bullet. Several use cases may share a graph.
 
 ## Checks it makes possible
 

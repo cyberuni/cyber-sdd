@@ -34,11 +34,11 @@ alone, which matched almost nothing on a real tree. It stays **mention-based** b
 dependency is `ssa-lowering` / `collision-ladder` territory.
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
-- **Script:** [`scripts/blast-estimate.mts`](./scripts/blast-estimate.mts)
-- **Tests:** [`scripts/blast-estimate.test.mts`](./scripts/blast-estimate.test.mts) (`node:test`) —
+- **Script:** [`scripts/blast-estimate.mjs`](./scripts/blast-estimate.mjs)
+- **Tests:** [`src/blast-estimate/blast-estimate.test.mts`](../../src/blast-estimate/blast-estimate.test.mts) (`node:test`) —
   one test per frozen scenario, titled `scenario: <verbatim frozen scenario name>`.
 - **Live-corpus smoke check:**
-  [`scripts/blast-estimate.smoke.test.mts`](./scripts/blast-estimate.smoke.test.mts) — **not** bound
+  [`src/blast-estimate/blast-estimate.smoke.test.mts`](../../src/blast-estimate/blast-estimate.smoke.test.mts) — **not** bound
   to any frozen scenario. The frozen suite mandates constructed corpora, so it is structurally blind
   to whether the engine measures real reach on a real tree; three defects reached an impl gate
   green-on-all-21 for exactly that reason. This asserts live properties (never magic numbers) and is

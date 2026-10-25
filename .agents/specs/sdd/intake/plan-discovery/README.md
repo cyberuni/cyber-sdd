@@ -72,7 +72,7 @@ restate them.
 
 This unit is implemented by the **`discover-plans`** skill —
 `plugins/sdd/skills/discover-plans/` — a non-user-invocable skill carrying a self-contained
-`.mts` script (the repo's node-≥23.6 / no-deps convention; an agent fallback when `node` is absent).
+`.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11; an agent fallback when `node` is absent).
 The script realizes the **list-the-plans** entry point (scan `.agents/plans`, keep each `*.plan.md`
 with frontmatter, tally its todos, read its `## NEXT` lead, emit TOON); **resolve-a-ref** is the
 caller's step over that list. The node and its engine carry different names (capability vs mechanism)

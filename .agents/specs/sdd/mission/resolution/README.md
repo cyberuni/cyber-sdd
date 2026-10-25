@@ -12,7 +12,7 @@ squad, and the **sdd** defaults. It is a **matcher**, not a composer: it returns
 candidates **bucketed by tier** (`project` / `project-root` / `plugin` / `sdd`) and **never** orders
 by precedence or applies `compose` — the consuming agent does that. The concrete engine is the
 [`resolve-governances`](../../../../../plugins/sdd/skills/resolve-governances/) skill, a
-self-contained `.mts` script.
+self-contained `.mjs` script.
 
 ## Use Cases
 
@@ -83,7 +83,7 @@ matcher does **not** emit them.
 
 This unit is implemented by the **`resolve-governances`** skill —
 `plugins/sdd/skills/resolve-governances/` — a non-user-invocable skill carrying a self-contained
-`.mts` script (the repo's node-≥23.6 / no-deps convention; an agent fallback when `node` is absent).
+`.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11; an agent fallback when `node` is absent).
 The script realizes the matching, the tier bucketing, the registry validation, and the needs-input
 disambiguation; its `node:test` is the deterministic oracle for every scenario below.
 

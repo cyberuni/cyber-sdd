@@ -11,8 +11,8 @@
 			"project": ["src/**/*.ts"]
 		},
 		"plugins/sdd": {
-			"entry": ["skills/**/scripts/*.mts"],
-			"project": ["skills/**/scripts/*.mts"]
+			"entry": ["src/**/*.mts"],
+			"project": ["src/**/*.mts"]
 		},
 		"plugins/aced": {
 			"entry": ["src/**/*.mts"],

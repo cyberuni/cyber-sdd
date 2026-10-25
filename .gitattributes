@@ -3,4 +3,5 @@
 pnpm-lock.yaml linguist-generated=true
 pnpm-lock.yaml merge=binary
 
-plugins/sdd/skills/spec-gate/vendor/gherkin-cli.mjs linguist-generated=true
+plugins/sdd/src/vendor/gherkin-cli.mjs linguist-generated=true
+plugins/*/skills/*/scripts/*.mjs linguist-generated=true

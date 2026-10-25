@@ -36,7 +36,7 @@ touched.
 Pure derivations (`isFeature`, `fileToNode`, `reconcile`, `assembleCorrection`) take and return
 plain data — no fs/network access — kept apart from a thin IO seam (`readChangedFiles`,
 `resolveArtifactType`, `changedScenarios`, `collectChangedFiles`, `discoverLayouts`) that shells out
-to `git`, `resolve-governances.mts`, and `npx gherkin-cli`.
+to `git`, `resolve-governances.mjs`, and `npx gherkin-cli`.
 
 ## Run it
 

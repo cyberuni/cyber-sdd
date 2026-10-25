@@ -11,8 +11,8 @@ metadata:
 The concrete engine for the **place-node** step. Given a new
 node's `concept` (and optional name), it suggests a **provisional** capability home and catches possible
 duplicates, so explore places a node without holding the whole tree in its head (it scans the project-spec's
-`concept:` frontmatter and ranks the capability folders those facets already sit in). Self-contained `.mts`
-(the repo's node-≥23.6 / no-deps convention).
+`concept:` frontmatter and ranks the capability folders those facets already sit in). Self-contained `.mjs`
+(compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## Run it
 

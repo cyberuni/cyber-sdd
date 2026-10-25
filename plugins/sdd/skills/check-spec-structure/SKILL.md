@@ -11,8 +11,7 @@ metadata:
 The concrete engine for **spec-structure checking**.
 It audits the **internal node-shape** of one project spec and returns a finding set for the
 formation **Warden** — the **intra-spec** successor to the retired cross-spec `dedupe-specs`/`split-spec`
-tools, now that one project is **one spec**. It carries a self-contained `.mts` script (the repo's
-node-≥23.6 / no-deps convention). It is the **node-shape** sibling of `align-spec` (prose↔suite
+tools, now that one project is **one spec**. It carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11). It is the **node-shape** sibling of `align-spec` (prose↔suite
 alignment) and `concept-index` (the by-concept view).
 
 ## The three deterministic checks (and two judgment arms)

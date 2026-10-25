@@ -23,7 +23,7 @@ plus a zero-dependency **fold** into two read-only views and one write-time guar
   ⊆ the declared set), what's its release floor (the closure alone — support members don't gate
   it), and its completed/total progress.
 
-It carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention). Pure
+It carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11). Pure
 derivations (`fold`, `ready`, `cycles`, `checkOperation`, `proposeEdge`) take and return plain data
 only — no fs access — kept apart from a thin store-IO seam with **two backends**: an in-tree JSONL
 file and the branch-independent orphan ref `refs/sdd/mission-graph`, resolved at run time. The swap

@@ -35,7 +35,7 @@ node "<skill>/scripts/align-spec.mjs" [--spec-dir <spec>] [--nodes <a,b,...>] [-
 
 ## The procedure — Detect
 
-Detect has two layers, and this skill's engine (`scripts/align-spec.mts`) ships code for only
+Detect has two layers, and this skill's engine (`scripts/align-spec.mjs`) ships code for only
 the mechanical one:
 
 1. **Mechanical scenario-diff (engine code)** — for each node's `.feature`, run the same

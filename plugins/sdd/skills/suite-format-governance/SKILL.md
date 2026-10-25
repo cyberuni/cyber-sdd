@@ -304,7 +304,7 @@ every scenario carries a map row, every row names a real scenario, and no two ro
 *and* a path class. Whether the rows **cover the CFG** is judged, not linted: that needs the drawn
 CFG's semantics, so a green check clears no coverage question. A spec with no `## Scenario map`
 section is skipped, not failed — run as `check-suite`
-(`spec-gate/scripts/check-suite.mts`): the spec-producer self-runs it before returning, and the spec
+(`spec-gate/scripts/check-suite.mjs`): the spec-producer self-runs it before returning, and the spec
 gate runs it fail-closed before the cold judge.
 
 **Form only** — coverage adequacy, discrimination,

@@ -549,7 +549,7 @@ function scan(cwd, pathArg, dirGlobs = []) {
 	};
 }
 function printFinding(w, f) {
-	w(`  ${f.severity === "CRITICAL" ? "❌" : "⚠️ "} [${f.severity}] ${f.checkId} — ${f.name}`);
+	w(`  ${f.severity === "CRITICAL" ? "❌" : "⚠\uFE0F "} [${f.severity}] ${f.checkId} — ${f.name}`);
 	w(`     Evidence: ${f.evidence}`);
 	w(`     Fix:      ${f.fix}`);
 }

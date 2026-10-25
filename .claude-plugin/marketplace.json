@@ -11,7 +11,10 @@
 			"name": "sdd",
 			"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 			"tags": ["sdd", "spec", "process"],
-			"source": "./plugins/sdd"
+			"source": "./plugins/sdd",
+			"version": "0.7.0",
+			"homepage": "https://github.com/cyberuni/cyber-sdd",
+			"repository": "https://github.com/cyberuni/cyber-sdd"
 		},
 		{
 			"name": "sdd2",

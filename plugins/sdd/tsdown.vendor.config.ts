@@ -1,11 +1,12 @@
 import { defineConfig } from 'tsdown'
 
-// The gherkin-cli engines, as a plugin install runs them. A plugin installs as its tracked
-// files with no node_modules, so check-suite, classify-edit-class, touch-set-correction and
-// verify-scenarios cannot import gherkin-cli by package name there. This bundles gherkin-cli
-// and everything it imports into one committed, self-contained module in the spec gate's
-// vendor dir, which all four import. Rebuild it with `pnpm build:vendor` whenever the
-// gherkin-cli pin moves; the vendor test fails while the committed file is stale.
+// gherkin-cli and everything it imports, bundled into one committed module that the engines
+// import as `src/vendor/gherkin-cli.mjs`. `universal-plugin plugin build` then inlines it into each
+// compiled skill script. The engines do not import `gherkin-cli` by name because @cucumber/gherkin's
+// Parser.js carries a 175 KB inline source map, on which plugin build's main-guard transform takes
+// about 90 s per script (cyberuni/universal-plugin#201); this bundle has no source map. Rebuild it
+// with `pnpm build:vendor` whenever the gherkin-cli pin moves; the vendor test fails while the
+// committed file is stale.
 //
 // VENDOR_OUT_DIR lets that test build into a scratch dir and compare.
 export default defineConfig({
@@ -13,7 +14,7 @@ export default defineConfig({
 	deps: { alwaysBundle: [/.*/] },
 	format: 'esm',
 	outExtensions: () => ({ js: '.mjs' }),
-	outDir: process.env.VENDOR_OUT_DIR ?? 'skills/spec-gate/vendor',
+	outDir: process.env.VENDOR_OUT_DIR ?? 'src/vendor',
 	clean: false,
 	platform: 'node',
 	target: 'node22',

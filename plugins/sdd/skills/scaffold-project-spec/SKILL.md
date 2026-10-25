@@ -168,7 +168,7 @@ In the same act that writes root `spec.md`, record both so a later edit reads, n
   cross-cutting `concept → its nodes` view. Reserve the block; **leave it for `concept-index` to
   generate** from `concept:` frontmatter — pure derivation, never hand-maintained.
 
-Validate the result with the `spec-gate` skill's `check-spec-state` script (`check-spec-state.mts --root
+Validate the result with the `spec-gate` skill's `check-spec-state` script (`check-spec-state.mjs --root
 <specs-dir>`): the root lifecycle tuple must be legal.
 
 ## 6 — Hand back

@@ -7,8 +7,8 @@ mission runs. A user-invocable setup skill (sibling to `start-mission` / `manage
 and invokes no gate.
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
-- **Script:** [`scripts/wire-statusline.mts`](./scripts/wire-statusline.mts)
-- **Tests:** [`scripts/wire-statusline.test.mts`](./scripts/wire-statusline.test.mts) (`node:test`)
+- **Script:** [`scripts/wire-statusline.mjs`](./scripts/wire-statusline.mjs)
+- **Tests:** [`src/init/wire-statusline.test.mts`](../../src/init/wire-statusline.test.mts) (`node:test`)
 
 ```bash
 node scripts/wire-statusline.mjs --root . --detect

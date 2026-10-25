@@ -54,17 +54,21 @@ Conventional Commits, enforced by commitlint on `commit-msg`. The `pre-commit` h
 ## Releasing
 
 `cyber-sdd` and `cyber-aced` publish from this repo and carry their release history
-(`cyber-sdd@*` and `cyber-aced@*` tags). Each ships its bin compiled to `dist/` (Node does
-not strip types under `node_modules`): `cyber-sdd`'s `sdd-check-specs` with every engine it
-spawns, `cyber-aced`'s `aced-bench`. `pnpm build` produces them, and each bin has a test that
-packs the package and runs the bin from a `node_modules` install (`check-specs-bin`,
-`bench-bin`).
+(`cyber-sdd@*` and `cyber-aced@*` tags). `cyber-sdd`'s `sdd-check-specs` bin points at the compiled
+`skills/check-project-specs/scripts/check-project-specs.mjs`: `universal-plugin plugin build`
+compiles every engine from `plugins/sdd/src/` into one committed, self-contained `.mjs` script
+under `skills/<skill>/scripts/` (no runtime dependencies, Node 22.11 or later), so the package has
+no `dist/` and no separate bin build. `pnpm check:plugins` runs `universal-plugin plugin build
+--check` (the package script `check:scripts`) and fails while a compiled script is stale. A test
+packs the package and runs the bin from a `node_modules` install (`check-specs-bin`). `cyber-aced`
+still ships `aced-bench` compiled to `dist/` with tsdown (Node does not strip types under
+`node_modules`); `pnpm build` produces it, and `bench-bin` runs it the same way.
 
 The plugins install a second way: as their tracked files, with no `node_modules`. A skill script
-that imports a package cannot resolve it there, so every `cyber-sdd` engine that uses gherkin-cli
-imports it from one committed bundle (`skills/spec-gate/vendor/gherkin-cli.mjs`). After bumping the
-gherkin-cli pin, run `pnpm --filter cyber-sdd build:vendor` and commit the result;
-`check-suite-installed` fails until you do.
+that imports a package cannot resolve it there, so the build inlines gherkin-cli into every
+`cyber-sdd` engine that uses it, from one committed bundle (`plugins/sdd/src/vendor/gherkin-cli.mjs`).
+After bumping the gherkin-cli pin, run `pnpm --filter cyber-sdd build:vendor`, rebuild the plugin,
+and commit the result; `check-suite-installed` fails until you do.
 
 `cyber-quill` is staged but **not yet published**. Its package metadata is complete — name,
 license, `files`, `repository` — and it is held at `"private": true` so a push to `main`

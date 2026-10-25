@@ -3,12 +3,12 @@
 The concrete engine for `<project-path>/.agents/sdd/scenario-bridge.toml` — the one-time
 per-project wiring the `verify-scenarios` bridge and the impl-judge step-0 consumption both read. A
 non-user-invocable skill, loaded in-session by the `manage` gateway (Setup & discovery), carrying a
-self-contained `.mts` script that lists / scaffolds / adds sources so users never hand-author the
+self-contained `.mjs` script that lists / scaffolds / adds sources so users never hand-author the
 config.
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)
-- **Script:** [`scripts/manage-scenario-bridge.mts`](./scripts/manage-scenario-bridge.mts)
-- **Tests:** [`scripts/manage-scenario-bridge.test.mts`](./scripts/manage-scenario-bridge.test.mts) (`node:test`)
+- **Script:** [`scripts/manage-scenario-bridge.mjs`](./scripts/manage-scenario-bridge.mjs)
+- **Tests:** [`src/manage-scenario-bridge/manage-scenario-bridge.test.mts`](../../src/manage-scenario-bridge/manage-scenario-bridge.test.mts) (`node:test`)
 
 ```bash
 node scripts/manage-scenario-bridge.mjs --project-path packages/cyberlegion --list

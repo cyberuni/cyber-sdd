@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X (including a spec in an SDD project spec), split a spec, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec".
+description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X, split a spec, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec". Not for a node of a first-generation SDD project spec under .agents/specs/ that carries a .feature suite (the sdd plugin's start-mission).
 ---
 
 # Design spec
@@ -23,8 +23,8 @@ after the build.
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
 
-This includes a spec in an SDD project spec. This skill writes and judges the spec; it does not open a change
-request or start a mission. A mission starts only when the user runs `/start-mission`.
+Not for a node of a first-generation SDD project spec (under `.agents/specs/`, with a `.feature` suite): that is
+the `sdd` plugin's `start-mission`. This skill covers the design spec only, not the functional spec beneath it.
 
 ## Write
 

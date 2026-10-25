@@ -31,8 +31,10 @@ other.
    ```
 
 2. Tell the user what the scaffold covers today: the plugin loads, the CLI
-   answers `--version` and `--help`, and no process commands exist yet.
+   answers `--version` and `--help`, and no process commands exist yet. The
+   `spec` skill writes, reviews, and splits a design spec, and derives tests
+   from one; hand design-spec work to it.
 
 3. Do not improvise the missing process. If the user asks for mission, gate, or
-   spec work that SDD 2 does not implement yet, say so and point at the
+   functional-spec work that SDD 2 does not implement yet, say so and point at the
    first-generation `sdd` gateway.

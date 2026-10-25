@@ -13,8 +13,9 @@ User-invocable.
 - Split a spec that has grown past what its readers need.
 - Derive tests from a spec.
 
-This includes a spec in an SDD project spec. The skill does not open a change request or start a mission; the
-user runs `/start-mission` for that.
+Part of SDD 2 (`cyber-sdd-2`). It covers the design spec only; the functional spec beneath it is not built yet. A
+node of a first-generation SDD project spec (under `.agents/specs/`, with a `.feature` suite) belongs to the `sdd`
+plugin's `start-mission`, not here.
 
 ## What it does
 
@@ -39,5 +40,5 @@ are in the research topic
 
 ## Install
 
-Ships with the `cyber-sdd` plugin. Install the plugin through your agent's marketplace; the skill is then available
-as `spec`.
+Ships with the `sdd2` plugin (`cyber-sdd-2`, not yet published). Install it from this repository's local marketplace;
+the skill is then available as `sdd2:spec`.

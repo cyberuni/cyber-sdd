@@ -339,12 +339,18 @@ function hasStdoutAsDataMitigation(content: string): boolean {
 
 // ── frontmatter / body parsing ──
 
-function parseFrontmatter(content: string): { name: string; description: string; internal: boolean } {
+function parseFrontmatter(content: string): {
+	name: string
+	description: string
+	internal: boolean
+	byNameOnly: boolean
+} {
 	const lines = content.split('\n')
 	let fmCount = 0
 	let name = ''
 	let description = ''
 	let internal = false
+	let noModel = false
 
 	for (const line of lines) {
 		if (line.trim() === '---') {
@@ -363,9 +369,13 @@ function parseFrontmatter(content: string): { name: string; description: string;
 		if (/^user-invocable:\s*false\s*$/i.test(line)) {
 			internal = true
 		}
+		if (/^disable-model-invoc(?:ation|e):\s*true\s*$/i.test(line)) noModel = true
 	}
 
-	return { name, description, internal }
+	// #150: user-invocable:false only hides a skill from the user's command list. A by-name part is
+	// hidden AND never model-matched: disable-model-invocation:true, or a by-name description marker.
+	const byNameOnly = internal && (noModel || /^(Partial Skill:|By name only$)/i.test(description.trim()))
+	return { name, description, internal, byNameOnly }
 }
 
 function extractBody(content: string): string {
@@ -528,12 +538,12 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	const dirName = path.basename(skillDir)
 	const parent = path.basename(skillBaseDir)
 
-	const { name: fmName, description: fmDesc, internal: fmInternal } = parseFrontmatter(content)
+	const { name: fmName, description: fmDesc, internal: fmInternal, byNameOnly: fmByName } = parseFrontmatter(content)
 	const body = extractBody(content)
 	const codeBlocks = extractCodeBlocks(content)
 	const stripped = stripExamples(content)
 	const invisibleInSkill = findInvisibleUnicode(content)
-	const isPartialSkill = fmInternal
+	const isPartialSkill = fmByName
 	// ADR-0031: the exact description "By name only" is the by-name mechanism, independent of
 	// user-invocable (visibility only). A visible by-name skill must not be pushed to pad it (#81).
 	const isByNameDescription = fmDesc === 'By name only'

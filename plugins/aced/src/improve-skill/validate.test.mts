@@ -545,7 +545,7 @@ description: "Use this skill when it helps with general purpose tasks."
 	}
 })
 
-test('Q3: partial-skill description without the "Partial Skill:" prefix warns MEDIUM', () => {
+test('Q3: by-name skill (disable-model-invocation:true) without the "Partial Skill:" prefix warns MEDIUM', () => {
 	const root = tmpRoot()
 	try {
 		const file = writeSkill(
@@ -554,6 +554,7 @@ test('Q3: partial-skill description without the "Partial Skill:" prefix warns ME
 			`---
 name: sample-skill
 user-invocable: false
+disable-model-invocation: true
 description: "The parent-called cleanup helper. Loaded by the orchestrator."
 ---
 
@@ -563,6 +564,52 @@ description: "The parent-called cleanup helper. Loaded by the orchestrator."
 		const result = runChecks(file)
 		const q3 = result.warnings.filter((f) => f.checkId === 'Q3')
 		assert.equal(q3.length, 1)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('Q3/Q18: a hidden but model-invoked skill (user-invocable:false, trigger description) is not a partial skill (#150)', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			`---
+name: sample-skill
+user-invocable: false
+description: "Reviews a failed image snapshot through its review image. Use this skill when a visual test fails with a Snapshot mismatched error, even if the request never mentions images."
+---
+
+# Sample
+`,
+		)
+		const result = runChecks(file)
+		assert.equal(result.warnings.filter((f) => f.checkId === 'Q3' || f.checkId === 'Q18').length, 0)
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+})
+
+test('Q18: user-invocable:false plus disable-model-invocation:true is by-name only and keeps Q3/Q18', () => {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(
+			root,
+			'skills/sample-skill',
+			`---
+name: sample-skill
+user-invocable: false
+disable-model-invocation: true
+description: "Use this skill when the orchestrator dispatches work."
+---
+
+# Sample
+`,
+		)
+		const result = runChecks(file)
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q3'))
+		assert.ok(result.warnings.some((f) => f.checkId === 'Q18'))
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}
@@ -981,9 +1028,15 @@ test('S6 fails when install_via is package_manager but package.name is missing',
 // ---- kind-aware description checks: internal (by-name callee) vs public ----
 
 // Helper: build a SKILL.md fixture. `internal` sets top-level user-invocable:false.
-function skillFixture(opts: { internal?: boolean; metadataInternal?: boolean; description: string }): string {
+function skillFixture(opts: {
+	internal?: boolean
+	noModel?: boolean
+	metadataInternal?: boolean
+	description: string
+}): string {
 	const lines = ['---', 'name: sample-skill']
 	if (opts.internal) lines.push('user-invocable: false')
+	if (opts.noModel) lines.push('disable-model-invocation: true')
 	lines.push(`description: ${JSON.stringify(opts.description)}`)
 	if (opts.metadataInternal) lines.push('metadata:', '  internal: true')
 	lines.push('---', '', '# Sample', '', '## Steps', '')
@@ -1092,7 +1145,7 @@ test('a partial-skill description not leading with the Partial Skill prefix is f
 		const file = writeSkill(
 			root,
 			'skills/sample-skill',
-			skillFixture({ internal: true, description: 'The callee, loaded by the orchestrator.' }),
+			skillFixture({ internal: true, noModel: true, description: 'The callee, loaded by the orchestrator.' }),
 		)
 		const result = runChecks(file)
 		assert.ok(result.warnings.some((f) => f.checkId === 'Q3'))

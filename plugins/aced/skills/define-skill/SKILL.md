@@ -135,7 +135,8 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
   capability and main triggers first. For a
   **name-only skill** (a reusable part other skills call by name, never matched to a situation), set
   `user-invocable: false` and the description to exactly `"By name only"` and nothing else; identity
-  and caller go in the body.
+  and caller go in the body. `user-invocable: false` alone only hides a skill from the command list:
+  a hidden skill the model should still load keeps its trigger description.
 - **Body** — step-by-step, under 500 lines. Keep the *when* here; move any **deterministic,
   fixed-output** step to a `scripts/` file or an existing CLI and have the body only say when to run
   it.

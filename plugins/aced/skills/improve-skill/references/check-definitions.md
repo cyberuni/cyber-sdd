@@ -59,7 +59,7 @@ Warn if the description:
 - Would plausibly match any user request (too broad to discriminate)
 
 **Q3 — Partial-skill prefix (MEDIUM)**
-Warn if the skill is a partial skill (top-level `user-invocable: false` — a reusable part invoked by name by another skill) but its `description` is neither exactly `"By name only"` nor starts with `"Partial Skill:"`. The mechanical engine keys this on `user-invocable: false`; the recommended form is exactly `"By name only"`. A partial skill stays `disable-model-invocation: false` so its caller can invoke it, so a non-declarative or trigger-shaped description may activate unintentionally.
+Warn if the skill is a by-name partial skill (top-level `user-invocable: false` together with `disable-model-invocation: true` or a `"By name only"`/`"Partial Skill:"` description — a reusable part invoked by name by another skill) but its `description` is neither exactly `"By name only"` nor starts with `"Partial Skill:"`. `user-invocable: false` alone only hides the skill from the user's command list; a hidden skill with a trigger description is model-invoked and is not checked here (also Q18). The recommended form is exactly `"By name only"`. A partial skill may stay `disable-model-invocation: false` so its caller can invoke it, so a non-declarative or trigger-shaped description may activate unintentionally.
 
 **Q4 — Instruction body (MEDIUM)**
 Warn if the skill body contains only a description and no actionable steps, numbered instructions, or decision logic. A skill with no instructions gives the agent nothing to execute.

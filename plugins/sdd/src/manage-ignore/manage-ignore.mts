@@ -153,16 +153,18 @@ export function inducePatterns(_root: string, samplePath: string): InduceResult 
 
 export type PreviewResult = { ok: true; negated: boolean; matches: string[] } | { ok: false; reason: string }
 
-// Compile one gitignore pattern (already `!`-stripped) to a full-match RegExp. `**` spans
-// separators, `*`/`?` stay within one segment, a leading `/` (or an internal `/`) anchors to the
-// repo root, a trailing `/` marks a dir. Every match also covers the node's descendants.
-export function gitignoreToRegExp(pattern: string): RegExp {
-	let pat = pattern
-	if (pat.endsWith('/')) pat = pat.slice(0, -1) // trailing-slash dir marker
-	let anchored = pat.startsWith('/')
-	if (anchored) pat = pat.slice(1)
-	if (pat.includes('/')) anchored = true // an internal separator anchors to root
-	let body = ''
+type Token =
+	| { kind: 'lit'; ch: string }
+	| { kind: 'one' } // `?`: one char within a segment
+	| { kind: 'star' } // `*`: any run within a segment
+	| { kind: 'deep' } // `**`: any run, separators included
+	| { kind: 'deepdir' } // `**/`: zero or more whole directory segments
+	| { kind: 'class'; negated: boolean; chars: string }
+
+// Tokenize one gitignore pattern (already `!`-stripped). The pattern is matched by walking
+// these tokens, never compiled to a RegExp: it comes from the user's own rule or a CLI argument.
+function tokenize(pat: string): Token[] {
+	const tokens: Token[] = []
 	for (let i = 0; i < pat.length; i++) {
 		const c = pat[i]
 		if (c === '*') {
@@ -170,40 +172,82 @@ export function gitignoreToRegExp(pattern: string): RegExp {
 				i++
 				if (pat[i + 1] === '/') {
 					i++
-					body += '(?:.*/)?' // `**/` spans zero or more directory segments
-				} else {
-					body += '.*' // `**` spans separators
-				}
-			} else {
-				body += '[^/]*' // `*` stays within a segment
-			}
+					tokens.push({ kind: 'deepdir' })
+				} else tokens.push({ kind: 'deep' })
+			} else tokens.push({ kind: 'star' })
 		} else if (c === '?') {
-			body += '[^/]'
+			tokens.push({ kind: 'one' })
 		} else if (c === '[') {
 			let j = i + 1
-			let cls = '['
-			if (pat[j] === '!') {
-				cls += '^'
-				j++
-			}
-			while (j < pat.length && pat[j] !== ']') {
-				cls += /[\\^\]]/.test(pat[j]) ? `\\${pat[j]}` : pat[j]
-				j++
-			}
-			cls += ']'
-			body += cls
+			const negated = pat[j] === '!'
+			if (negated) j++
+			let chars = ''
+			while (j < pat.length && pat[j] !== ']') chars += pat[j++]
+			tokens.push({ kind: 'class', negated, chars })
 			i = j
-		} else {
-			body += c.replace(/[.+^${}()|\\]/g, '\\$&')
-		}
+		} else tokens.push({ kind: 'lit', ch: c })
 	}
-	const prefix = anchored ? '^' : '^(?:.*/)?' // unanchored patterns match at any depth
-	return new RegExp(`${prefix}${body}(?:/.*)?$`) // also cover everything below the matched node
+	return tokens
 }
 
+function classHas(chars: string, ch: string): boolean {
+	for (let k = 0; k < chars.length; k++) {
+		if (chars[k + 1] === '-' && k + 2 < chars.length) {
+			if (ch >= chars[k] && ch <= chars[k + 2]) return true
+			k += 2
+		} else if (chars[k] === ch) return true
+	}
+	return false
+}
+
+// Does `tokens[ti..]` match `path[pi..]` up to the end of the path or a `/` (a match also covers
+// everything below the matched node)? Memoized on (ti, pi), so it is polynomial in the input.
+function matchTokens(tokens: Token[], path: string, start: number): boolean {
+	const seen = new Set<number>()
+	const walk = (ti: number, pi: number): boolean => {
+		const key = ti * (path.length + 1) + pi
+		if (seen.has(key)) return false
+		seen.add(key)
+		if (ti === tokens.length) return pi === path.length || path[pi] === '/'
+		const t = tokens[ti]
+		switch (t.kind) {
+			case 'lit':
+				return path[pi] === t.ch && walk(ti + 1, pi + 1)
+			case 'one':
+				return pi < path.length && path[pi] !== '/' && walk(ti + 1, pi + 1)
+			case 'class':
+				return pi < path.length && classHas(t.chars, path[pi]) !== t.negated && walk(ti + 1, pi + 1)
+			case 'star':
+				for (let k = pi; ; k++) {
+					if (walk(ti + 1, k)) return true
+					if (k >= path.length || path[k] === '/') return false
+				}
+			case 'deep':
+				for (let k = pi; k <= path.length; k++) if (walk(ti + 1, k)) return true
+				return false
+			case 'deepdir':
+				if (walk(ti + 1, pi)) return true
+				for (let k = pi; k < path.length; k++) if (path[k] === '/' && walk(ti + 1, k + 1)) return true
+				return false
+		}
+	}
+	return walk(0, start)
+}
+
+// `**` spans separators, `*`/`?` stay within one segment, a leading `/` (or an internal `/`)
+// anchors to the repo root, a trailing `/` marks a dir. Every match also covers the node's descendants.
 export function matchesPattern(pattern: string, path: string): boolean {
-	const body = pattern.startsWith('!') ? pattern.slice(1) : pattern
-	return gitignoreToRegExp(body).test(path)
+	let pat = pattern.startsWith('!') ? pattern.slice(1) : pattern
+	if (pat.endsWith('/')) pat = pat.slice(0, -1) // trailing-slash dir marker
+	let anchored = pat.startsWith('/')
+	if (anchored) pat = pat.slice(1)
+	if (pat.includes('/')) anchored = true // an internal separator anchors to root
+	const tokens = tokenize(pat)
+	if (matchTokens(tokens, path, 0)) return true
+	if (anchored) return false
+	// unanchored patterns match at any depth
+	for (let k = 0; k < path.length; k++) if (path[k] === '/' && matchTokens(tokens, path, k + 1)) return true
+	return false
 }
 
 // Every repo-relative path (files and dirs) reachable from the root, skipping SKIP_DIRS.

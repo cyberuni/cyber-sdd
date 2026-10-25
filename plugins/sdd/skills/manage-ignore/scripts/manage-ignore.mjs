@@ -122,13 +122,8 @@ function inducePatterns(_root, samplePath) {
 		candidates: generalized === rel ? [rel] : [rel, generalized]
 	};
 }
-function gitignoreToRegExp(pattern) {
-	let pat = pattern;
-	if (pat.endsWith("/")) pat = pat.slice(0, -1);
-	let anchored = pat.startsWith("/");
-	if (anchored) pat = pat.slice(1);
-	if (pat.includes("/")) anchored = true;
-	let body = "";
+function tokenize(pat) {
+	const tokens = [];
 	for (let i = 0; i < pat.length; i++) {
 		const c = pat[i];
 		if (c === "*") {
@@ -136,30 +131,74 @@ function gitignoreToRegExp(pattern) {
 				i++;
 				if (pat[i + 1] === "/") {
 					i++;
-					body += "(?:.*/)?";
-				} else body += ".*";
-			} else body += "[^/]*";
-		} else if (c === "?") body += "[^/]";
+					tokens.push({ kind: "deepdir" });
+				} else tokens.push({ kind: "deep" });
+			} else tokens.push({ kind: "star" });
+		} else if (c === "?") tokens.push({ kind: "one" });
 		else if (c === "[") {
 			let j = i + 1;
-			let cls = "[";
-			if (pat[j] === "!") {
-				cls += "^";
-				j++;
-			}
-			while (j < pat.length && pat[j] !== "]") {
-				cls += /[\\^\]]/.test(pat[j]) ? `\\${pat[j]}` : pat[j];
-				j++;
-			}
-			cls += "]";
-			body += cls;
+			const negated = pat[j] === "!";
+			if (negated) j++;
+			let chars = "";
+			while (j < pat.length && pat[j] !== "]") chars += pat[j++];
+			tokens.push({
+				kind: "class",
+				negated,
+				chars
+			});
 			i = j;
-		} else body += c.replace(/[.+^${}()|\\]/g, "\\$&");
+		} else tokens.push({
+			kind: "lit",
+			ch: c
+		});
 	}
-	return new RegExp(`${anchored ? "^" : "^(?:.*/)?"}${body}(?:/.*)?$`);
+	return tokens;
+}
+function classHas(chars, ch) {
+	for (let k = 0; k < chars.length; k++) if (chars[k + 1] === "-" && k + 2 < chars.length) {
+		if (ch >= chars[k] && ch <= chars[k + 2]) return true;
+		k += 2;
+	} else if (chars[k] === ch) return true;
+	return false;
+}
+function matchTokens(tokens, path, start) {
+	const seen = /* @__PURE__ */ new Set();
+	const walk = (ti, pi) => {
+		const key = ti * (path.length + 1) + pi;
+		if (seen.has(key)) return false;
+		seen.add(key);
+		if (ti === tokens.length) return pi === path.length || path[pi] === "/";
+		const t = tokens[ti];
+		switch (t.kind) {
+			case "lit": return path[pi] === t.ch && walk(ti + 1, pi + 1);
+			case "one": return pi < path.length && path[pi] !== "/" && walk(ti + 1, pi + 1);
+			case "class": return pi < path.length && classHas(t.chars, path[pi]) !== t.negated && walk(ti + 1, pi + 1);
+			case "star": for (let k = pi;; k++) {
+				if (walk(ti + 1, k)) return true;
+				if (k >= path.length || path[k] === "/") return false;
+			}
+			case "deep":
+				for (let k = pi; k <= path.length; k++) if (walk(ti + 1, k)) return true;
+				return false;
+			case "deepdir":
+				if (walk(ti + 1, pi)) return true;
+				for (let k = pi; k < path.length; k++) if (path[k] === "/" && walk(ti + 1, k + 1)) return true;
+				return false;
+		}
+	};
+	return walk(0, start);
 }
 function matchesPattern(pattern, path) {
-	return gitignoreToRegExp(pattern.startsWith("!") ? pattern.slice(1) : pattern).test(path);
+	let pat = pattern.startsWith("!") ? pattern.slice(1) : pattern;
+	if (pat.endsWith("/")) pat = pat.slice(0, -1);
+	let anchored = pat.startsWith("/");
+	if (anchored) pat = pat.slice(1);
+	if (pat.includes("/")) anchored = true;
+	const tokens = tokenize(pat);
+	if (matchTokens(tokens, path, 0)) return true;
+	if (anchored) return false;
+	for (let k = 0; k < path.length; k++) if (path[k] === "/" && matchTokens(tokens, path, k + 1)) return true;
+	return false;
 }
 function walkTree(root) {
 	const out = [];
@@ -243,4 +282,4 @@ function main(argv) {
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
 //#endregion
-export { addRule, gitignoreToRegExp, inducePatterns, isRuleLine, isValidPattern, listRules, main, matchesPattern, previewPattern, readIgnoreLines, removeRule, splitLines };
+export { addRule, inducePatterns, isRuleLine, isValidPattern, listRules, main, matchesPattern, previewPattern, readIgnoreLines, removeRule, splitLines };

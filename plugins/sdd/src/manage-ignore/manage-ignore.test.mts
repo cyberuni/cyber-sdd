@@ -354,3 +354,13 @@ test('main --preview refuses a malformed pattern (1)', () => {
 		rmSync(dir, { recursive: true, force: true })
 	}
 })
+
+test('matching a pattern full of ** against a long path stays fast and never builds a RegExp from it', () => {
+	const pattern = `${'**a'.repeat(30)}b`
+	const started = Date.now()
+	assert.equal(matchesPattern(pattern, `${'a'.repeat(200)}/c`), false)
+	assert.ok(Date.now() - started < 1000)
+	assert.equal(matchesPattern('src/**/*.t[a-z]s', 'src/x/y/z.tts'), true)
+	assert.equal(matchesPattern('a.b(c)+', 'a.b(c)+'), true)
+	assert.equal(matchesPattern('a.b(c)+', 'aXb(c)+'), false)
+})

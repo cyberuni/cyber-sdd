@@ -211,6 +211,7 @@ function parseFrontmatter(content) {
 	let name = "";
 	let description = "";
 	let internal = false;
+	let noModel = false;
 	for (const line of lines) {
 		if (line.trim() === "---") {
 			fmCount++;
@@ -223,11 +224,14 @@ function parseFrontmatter(content) {
 		const descMatch = line.match(/^description:\s*(.+)/);
 		if (descMatch) description = descMatch[1].trim().replace(/^["']|["']$/g, "");
 		if (/^user-invocable:\s*false\s*$/i.test(line)) internal = true;
+		if (/^disable-model-invoc(?:ation|e):\s*true\s*$/i.test(line)) noModel = true;
 	}
+	const byNameOnly = internal && (noModel || /^(Partial Skill:|By name only$)/i.test(description.trim()));
 	return {
 		name,
 		description,
-		internal
+		internal,
+		byNameOnly
 	};
 }
 function extractBody(content) {
@@ -384,12 +388,12 @@ function runChecks(filePath, scanRoots) {
 	const repoRoot = skillBaseParent === ".agents" ? path.dirname(path.dirname(skillBaseDir)) : path.dirname(skillBaseDir);
 	const dirName = path.basename(skillDir);
 	const parent = path.basename(skillBaseDir);
-	const { name: fmName, description: fmDesc, internal: fmInternal } = parseFrontmatter(content);
+	const { name: fmName, description: fmDesc, internal: fmInternal, byNameOnly: fmByName } = parseFrontmatter(content);
 	const body = extractBody(content);
 	const codeBlocks = extractCodeBlocks(content);
 	const stripped = stripExamples(content);
 	const invisibleInSkill = findInvisibleUnicode(content);
-	const isPartialSkill = fmInternal;
+	const isPartialSkill = fmByName;
 	const isByNameDescription = fmDesc === "By name only";
 	const isPublicShippedSkill = parent === "skills" && skillBaseParent !== ".agents" && !fmInternal;
 	let containerReal = skillBaseDir;

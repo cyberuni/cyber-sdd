@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Use this skill when writing, revising, or reviewing a design spec, the document that states what a capability must do (intent, use cases, and criteria on the outcome) before or alongside its code. Also use it for requests like "spec this feature", "write the spec for X", "is this spec good", or "review the spec", and before deriving tests from a spec.
+description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write or backfill the spec for X, split a spec, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec".
 ---
 
 # Design spec
@@ -11,7 +11,7 @@ evaluated). Intent without criteria cannot be checked. Criteria without intent c
 out to encode the wrong goal.
 
 This skill is spec-anchored: the spec stays and is compared against on every change. It is not scaffolding discarded
-after the build. Its rationale and sources are in [`.research/design-spec-criteria`](https://github.com/cyberuni/cyber-sdd/tree/main/.research/design-spec-criteria).
+after the build.
 
 ## Route
 
@@ -19,6 +19,7 @@ after the build. Its rationale and sources are in [`.research/design-spec-criter
 | --- | --- |
 | write a spec for a capability, or backfill one for existing code | [Write](#write) |
 | change what an existing spec says | [Write](#write), then [Review](#review) the changed parts |
+| split a spec that has grown past what its readers need | [Write](#write), the steps under **Split a spec** |
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
 
@@ -46,7 +47,7 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
 8. **Open questions.** What is unresolved, marked. Empty before the spec is ready.
 9. **References.** Links to rationale, sibling specs, and the home of any shared fact.
 
-**Give every list item an ID** a reader can cite: `N1` for a non-goal, `K1` for a key term, `A1` for an actor and
+**Give every item of these lists an ID** a reader can cite: `N1` for a non-goal, `K1` for a key term, `A1` for an actor and
 `A1.1` for its goal, `UC1` for a use case and `UC1.1` for its extension, `R1` for a criterion, `E1` for a graph edge,
 `Q1` for an open question. An ID is never reused: a removed item retires its ID.
 
@@ -94,11 +95,6 @@ yet. The gap between the criteria and the code is found by checking one against 
 in the project tracker, linked by criterion ID. Link rationale (an ADR, an issue, a research topic) and do not copy it
 in.
 
-**Why the rationale is linked, not inlined.** An agent loads the spec on every task, so every line costs tokens every
-time. Rationale is read only when someone questions a criterion, and it decays on a different clock from the
-criteria. Keep it in one linked home and the spec stays small and current. The same holds for this skill: it states
-the bar and links the reasons.
-
 **Design spec versus functional spec.** The design spec states what a consumer of the capability is judged against:
 names, flags, exit codes, error codes, stated outcomes. Be specific there. Internal contracts, module behavior, and
 scenarios belong in the functional spec co-located with the implementation. Test: if a consumer would notice the
@@ -111,16 +107,15 @@ Gherkin or EARS for one scenario when it clarifies; the functional spec or test 
 each outcome once without naming an adapter: "the status is `missing`", not "exit 1". Map each outcome to each
 adapter's form (exit code, stream, return value, thrown error) in one criteria group, `Adapters`. Group a use case's
 entry points by surface. Behavior that a skill's instructions add on top, such as a fallback or what to tell the user,
-is its own use case, kept apart because no deterministic test reaches it.
+is its own use case. Its criteria are checked by an eval run of the skill, not by a deterministic test.
 
-**Decision graph.** When the behavior branches, draw the decisions in `graph.md` (see
-[decision graph](references/decision-graph.md)) and cite its edge IDs from the criteria. Omit it for a spec that
-states facts or a table.
+**Decision graph.** When the behavior branches, draw the decisions in `graph.md`, in the format of the decision graph
+reference, and cite its edge IDs from the criteria. Omit it for a spec that states facts or a table.
 
 ## Review
 
-Load [the criteria](references/criteria.md) and judge the spec against C1 to C9 in the order given there. A spec is
-ready when none fails.
+Load the criteria reference and judge the spec against C1 to C9 in number order. A spec is ready when none of C1 to
+C9 fails, every check under [Validate](#validate) passes, and Open questions is empty.
 
 Iterate before you present. After each judgment, fix every failing criterion in the spec yourself, then judge it again.
 Repeat a few times, stopping when none fails or when a round fixes nothing new. Take only the fixes the spec and its
@@ -136,6 +131,49 @@ what is wrong and what would fix it.
 ## Derive tests
 
 Build tests from the criteria list, one test or group per criterion ID, as native, deterministic tests of the
-project's own test stack. Do not write a feature file for an agent to run: an agent running prose scenarios spends
-tokens on every run and cannot be relied on to follow them. A criterion that cannot become such a test fails C5;
-send it back to Write instead of guessing.
+project's own test stack. Put the criterion ID in the name of its test or group. Do not write a feature file for an
+agent to run: an agent running prose scenarios spends tokens on every run and cannot be relied on to follow them. A
+criterion of a skill-instruction use case is the exception: an eval run of the skill checks it. Any other criterion
+that cannot become such a test fails C5; send it back to Write instead of guessing.
+
+## Validate
+
+Check the spec folder before you hand it back. A cold reader runs the same checks later against the folder and its
+git history, not against your report. Each line is pass or fail; `README.md` and `graph.md` are the spec folder's.
+
+- V1 A standalone or parent `README.md` has an H1 title followed by a one-sentence outcome, then these `##` sections
+  in this order: What, Non-goals, Key terms, Actors and goals, Use cases, Criteria, Open questions, References. A
+  child's `README.md` has an H1 title with its own outcome, a link to the parent's terms, then Use cases, Criteria,
+  and Open questions (`grep -n '^##\? ' README.md`).
+- V2 Every item under Non-goals, Key terms, Actors and goals, Use cases, Criteria, and Open questions, and every edge
+  in `graph.md`, starts with its ID (`N`, `K`, `A`, `UC`, `R`, `Q`, `E`), and no ID labels two items across the parent
+  and its children.
+- V3 No ID that `git log -p` shows removed from the spec labels a different item now.
+- V4 Each use case is a `### UCn — <title> (<actor IDs>)` heading with Trigger, Entry points, Inputs, Success, and
+  Extensions in that order, and its Extensions are `UCn.m` items or read `extensions: none, <why>`.
+- V5 Every criterion cites a use case ID that exists. When `graph.md` exists, every edge ID a criterion cites exists
+  in it, and every outcome node in it is reached by an edge some criterion cites.
+- V6 `grep -nEi '\b(TBD|TODO)\b|not (yet )?built' README.md graph.md` finds nothing.
+- V7 No criterion names a source file, module, or internal function of the implementation; public names a consumer
+  depends on (flags, exit codes, error codes) are allowed.
+- V8 The spec holds no implementation design, task list, stack choice, or alternatives analysis; rationale appears
+  only as links.
+- V9 A spec presented as ready has no item under Open questions and no node in `graph.md` marked `open`.
+- V10 A Review run without the user (headless, or read-only) added or removed no non-goal, actor, or use case: the
+  diff of the spec over the review adds or removes no line that starts with an `N`, `A`, or `UC` ID.
+- V11 A split commit only moves lines. `git show -U0 --format= <commit> | grep -E '^[-+][^-+]' | cut -c2- | sort |
+  uniq -u` lists only the lines a split adds: each child's title and its link to the parent's terms, and the parent's
+  table of children.
+- V12 After Derive tests, every criterion ID, except those of a skill-instruction use case, names at least one test or
+  group in the project's own suite, and no `.feature` file was added for an agent to run.
+- V13 No child spec folder is named for a delivery or layer (such as `cli`, `lib`, `library`, `skill`, `mcp`).
+
+## References
+
+- **Criteria reference** (`references/criteria.md`): C1 to C9 with their pass conditions and the failure modes they
+  catch. Load it for Review, and for step 2 of each section in Write.
+- **Decision graph reference** (`references/decision-graph.md`): the shape of `graph.md`, its edge IDs, and the
+  decision table and state list that may replace it.
+- **Rationale and sources**: the research topic
+  [design-spec-criteria](https://github.com/cyberuni/cyber-sdd/tree/main/.research/design-spec-criteria), decisions
+  D8 to D19 in its `conclusion.md`.

@@ -1,6 +1,6 @@
 # Criteria for a design spec
 
-Judge in this order. C1 and C2 are cheap and kill early. C3 and C6 catch what is missing; the others catch what is
+Judge C1 to C9 in number order. C1 and C2 are cheap and kill early. C3 and C6 catch what is missing; the others catch what is
 wrong or surplus. Each test is pass or fail. Report the line that fails.
 
 ## A. Intent and scope
@@ -16,7 +16,7 @@ wrong or surplus. Each test is pass or fail. Report the line that fails.
 | ID | Criterion | Pass when |
 | --- | --- | --- |
 | C4 | Outcome-level | Someone without the code can decide each criterion from outputs alone. No criterion names a module, library, or internal step. Renaming an internal breaks none. Public names a consumer depends on (flags, exit codes, error codes) are outcome. |
-| C5 | Checkable, unambiguous | Each criterion is a boolean with one reading and one behavior, with no unmeasured words ("fast", "appropriate", "sometimes"). You can write the failing case and a deterministic test for it. |
+| C5 | Checkable, unambiguous | Each criterion is a boolean with one reading and one behavior, with no unmeasured words ("fast", "appropriate", "sometimes"). You can write the failing case and a deterministic test for it, except for a criterion of a skill-instruction use case, which an eval run of the skill checks. |
 | C6 | Complete over divergence | For each use case, every path that misses the goal (error, absent input, refusal, partial result, contended state) is a criterion, or the use case says `extensions: none, <why>`. A rule left unstated on purpose is recorded as that decision. |
 
 ## C. The spec as a set

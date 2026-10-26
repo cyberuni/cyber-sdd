@@ -248,8 +248,8 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
       universal-plugin:
-        specifier: ^0.15.0
-        version: 0.15.0(clibuilder@12.0.0(js-yaml@4.3.2))
+        specifier: ^0.16.0
+        version: 0.16.2(clibuilder@12.0.0(js-yaml@4.3.2))
 
   plugins/quill: {}
 
@@ -262,8 +262,8 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
       universal-plugin:
-        specifier: ^0.15.0
-        version: 0.15.0(clibuilder@12.0.0(js-yaml@4.3.2))
+        specifier: ^0.16.0
+        version: 0.16.2(clibuilder@12.0.0(js-yaml@4.3.2))
 
 packages:
 
@@ -716,16 +716,6 @@ packages:
 
   '@cucumber/messages@34.2.1':
     resolution: {integrity: sha512-aj2iCAG9ZOpMVcMxcgShifv5fbR96b7SMgdWcPXXh2QbFp7OEcAnQ5MC5YfWUDSDasmw7FU5NJEsOrXdTQOU1A==}
-
-  '@cyberuni/agent-harness@0.7.1':
-    resolution: {integrity: sha512-duoJGvfumx1Nfz8KRfptu7ixJbBbEJwrOlaUP6smfbgH3ioFIiStcIsFO9yNeTkxkgj/9TDUCctQj3Gw6bC3FA==}
-    engines: {node: '>=22'}
-    hasBin: true
-    peerDependencies:
-      clibuilder: ^12.0.0
-    peerDependenciesMeta:
-      clibuilder:
-        optional: true
 
   '@emmetio/abbreviation@2.3.3':
     resolution: {integrity: sha512-mgv58UrU3rh4YgbE/TzgLQwJ3pFsHHhCLqY20aJq+9comytTXUDNGG/SMtSeMJdkpxgXSXunBGLD8Boka3JyVA==}
@@ -3667,8 +3657,8 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
-  universal-plugin@0.15.0:
-    resolution: {integrity: sha512-5cfC/O73/bjxfhAFxLHPWMWghGfRTiAweOCbkNvqyg7UKpbqShAhfCEdcdULQxCL6Pm88S6svGypeqNirzkwPw==}
+  universal-plugin@0.16.2:
+    resolution: {integrity: sha512-xilD8AGTTfzzIYRjm9kzY1h63dRnq2isuAPBZvsZO6QqlJM+XNpncVoe96aSRHLJnSUhOxATp620ebj40iIgag==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -4565,10 +4555,6 @@ snapshots:
   '@cucumber/messages@33.0.4': {}
 
   '@cucumber/messages@34.2.1': {}
-
-  '@cyberuni/agent-harness@0.7.1(clibuilder@12.0.0(js-yaml@4.3.2))':
-    optionalDependencies:
-      clibuilder: 12.0.0(js-yaml@4.3.2)
 
   '@emmetio/abbreviation@2.3.3':
     dependencies:
@@ -7412,12 +7398,12 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  universal-plugin@0.15.0(clibuilder@12.0.0(js-yaml@4.3.2)):
+  universal-plugin@0.16.2(clibuilder@12.0.0(js-yaml@4.3.2)):
     dependencies:
-      '@cyberuni/agent-harness': 0.7.1(clibuilder@12.0.0(js-yaml@4.3.2))
       '@repobuddy/upx': 0.2.0
       '@toon-format/toon': 4.1.1
       commander: 15.0.0
+      cyber-agentkit: 1.2.0(clibuilder@12.0.0(js-yaml@4.3.2))
       rolldown: 1.2.14
       semver: 7.8.5
     transitivePeerDependencies:

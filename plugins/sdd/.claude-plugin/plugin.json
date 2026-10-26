@@ -1,6 +1,6 @@
 {
 	"name": "sdd",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 	"author": {
 		"name": "unional"

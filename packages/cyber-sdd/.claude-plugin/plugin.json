@@ -5,6 +5,6 @@
 	"author": { "name": "unional" },
 	"homepage": "https://github.com/cyberuni/cyber-sdd",
 	"repository": "https://github.com/cyberuni/cyber-sdd",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"skills": "./skills"
 }

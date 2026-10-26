@@ -1,5 +1,20 @@
 # cyber-aced
 
+## 0.5.0
+
+### Minor Changes
+
+- d3fd9fe: Ship ACED's authoring standards as references.
+  
+  - `skill-design`, `skill-repo-structure`, `agent-tool-output`, and `cli-resolution` move from `governances/` to `references/`, where the `reference` skill of `cyber-agentkit` serves them to any skill by name. The package no longer ships a `governances/` folder.
+  - `define-skill` and `improve-skill` load `skill-design` and `agent-tool-output` with the `reference` skill instead of reading paths by hand. A project override now lives at `.agents/references/<name>.md`, not `.agents/governances/<name>.md`.
+  - Each skill's own copy moves to `references/<name>.default.md`, the layout the `reference` skill reads as a skill's default.
+
+### Patch Changes
+
+- 31d32fb: `improve-skill` Q3 and Q18 now treat only by-name skills as partial: `user-invocable: false` together with `disable-model-invocation: true` or a `By name only` / `Partial Skill:` description. A hidden skill with a trigger description is model-invoked and no longer warns.
+- 2133aa5: `improve-skill` S7 no longer warns on a skill-local `agents/` directory that holds host-interface YAML such as `agents/openai.yaml`, which OpenAI's skill layout documents. Any other entry in `agents/`, such as a subagent definition or a subdirectory, still warns.
+
 ## 0.4.3
 
 ### Patch Changes

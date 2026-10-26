@@ -7,5 +7,6 @@
 	"fixed": [],
 	"format": false,
 	"linked": [],
+	"privatePackages": { "version": true, "tag": false },
 	"updateInternalDependencies": "patch"
 }

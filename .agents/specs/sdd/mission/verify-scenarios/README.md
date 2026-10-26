@@ -12,7 +12,7 @@ run-level leash requires, instead of re-verifying every scenario. It is a **lang
 bridge and the SDD **default** verification path — deterministic test-running is not a plugin
 specialty; an unmatched artifact-type already falls through to SDD defaults. The concrete engine is
 the [`verify-scenarios`](../../../../../plugins/sdd/skills/verify-scenarios/) skill, a self-contained
-`.mts` script. It is the bridge the impl gate **consumes** — the default
+`.mjs` script. It is the bridge the impl gate **consumes** — the default
 [`../impl-judge/`](../impl-judge/README.md) runs it for a deterministic artifact-type and judges by
 hand only the UNBOUND set plus every high-blast-radius BOUND+PASS scenario, accepting a
 low-blast-radius BOUND+PASS scenario on the report (wired by `sdd-impl-judge-consume-bridge`); a

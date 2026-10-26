@@ -58,7 +58,7 @@ recorded as distilled).
 **Determine distilled-ness by a structured JSONL parse, never a substring or regex text match.**
 The ledger shards are JSONL (one JSON object per line). **Reuse the existing parse contract** rather
 than hand-rolling one: run the exported **`distilledCrRefs`** engine from
-`../plan-retirement/scripts/retire-plans.mts` (its `--distilled` flag) over the project `ledger/` directory and membership-test
+`../plan-retirement/scripts/retire-plans.mjs` (its `--distilled` flag) over the project `ledger/` directory and membership-test
 the mission's `<cr-ref>` against the set it returns, e.g.
 
 ```

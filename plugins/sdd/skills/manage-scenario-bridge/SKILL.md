@@ -13,7 +13,7 @@ per-project wiring the [`verify-scenarios`](../verify-scenarios/) bridge and the
 step-0 consumption both read. It is the **write** side of that config (`verify-scenarios` is the
 read side). It exists so a user wires a project's scenario bridge through a clean interface instead
 of hand-authoring the TOML. Loaded **in-session** by the `manage` gateway (Setup & discovery group);
-it carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention).
+it carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## The file it curates
 

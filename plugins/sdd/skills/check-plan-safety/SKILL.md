@@ -12,8 +12,7 @@ The concrete engine for the **plan brief's safe-to-publish floor**. The plan bri
 (`.agents/plans/<cr-ref>.plan.md`) and its sibling design docs are **tracked, portable** handoff
 artifacts — committed at handoff and read by any later session, agent, or checkout. This engine
 guards that floor mechanically: it scans those `*.md` files for **machine-local references** that
-must never enter git history. It carries a self-contained `.mts` script (the repo's node-≥23.6 /
-no-deps convention), and is the plan-brief analog of the combat log's safe-to-publish floor
+must never enter git history. It carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11), and is the plan-brief analog of the combat log's safe-to-publish floor
 (`combat-log-governance`) — the same "never committed: absolute paths, OS usernames" rule, extended
 from the ledger to the brief.
 
@@ -47,7 +46,7 @@ node "<skill>/scripts/check-plan-safety.mjs" [--root .] [--path <file>]... [--ch
   `pause-mission` to check the one brief it is about to commit.
 - **Audit mode** (default) emits the finding set (`file, line, kind, token`) and exits **0**.
 - **`--check`** (CI guard) exits **non-zero** iff any leak is found and **writes nothing** else.
-  Wired into `verify:specs` (`node …/check-plan-safety.mts --root . --check`).
+  Wired into `verify:specs` (`node …/check-plan-safety.mjs --root . --check`).
 
 When `node` is absent, an agent performs the same derivation by hand: grep the plan `*.md` files for
 `/home/`, `/Users/`, `C:\Users\`, `$HOME`, and `$USER`.

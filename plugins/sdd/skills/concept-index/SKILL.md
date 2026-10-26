@@ -12,7 +12,7 @@ The concrete engine for the **concept-index** step. It scans
 one project-spec for every node's `concept:` frontmatter and renders the **by-concept view** —
 `concept → {its nodes across every folder}` — that re-unifies a cross-cutting concern the capability
 folder tree scatters (the concept axis: one concern enacted across several capability folders). It
-carries a self-contained `.mts` script (the repo's node-≥23.6 / no-deps convention).
+carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## Run it
 

@@ -35,7 +35,7 @@ carrying a `.feature` or missing its `## Subject`, and a `behavioral` node missi
 **fail closed**; a descriptive node (no marker) raises no violation. If `node` is unavailable,
 perform the same checks by reading each README's frontmatter yourself.
 
-The sibling `scripts/check-suite.mts` is the **`.feature`-form** authority — Gherkin validity,
+The sibling `scripts/check-suite.mjs` is the **`.feature`-form** authority — Gherkin validity,
 boolean-`Then` form (hedge-word + leaked-rubric detection), and scenario ordering/sectioning. When
 the CR touches any `.feature`, run it here **fail-closed, before spawning the cold judge**, scoped to
 the CR's touched files:
@@ -157,7 +157,7 @@ files keep their state. An **additive** scenario folds into a frozen file withou
 change is purely additive with no judge round; a **narrowing/rewriting** edit (a `modified`/`removed`
 scenario) unfreezes its file and fires **Clearance** once the narrowing is confirmed semantically.
 The edit-class classification itself — additive / no-content-change / narrowing / mixed — comes from
-`scripts/classify-edit-class.mts` (`--files <paths> [--base <ref>]`): a **structural** per-named-`Scenario`
+`scripts/classify-edit-class.mjs` (`--files <paths> [--base <ref>]`): a **structural** per-named-`Scenario`
 diff via the pinned `gherkin-cli@0.2.1 diff`, plus git rename detection for a pure `git mv`, **never a raw
 line diff** (a step orphaned off a frozen scenario onto a new adjacent scenario shows no `-` line and
 would read as additive to a line-diff; the structural diff correctly reports the losing scenario as

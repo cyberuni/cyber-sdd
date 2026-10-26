@@ -82,7 +82,7 @@ count** maintained in the ledger.
   idempotent: **before drafting**, detect whether the mission was **already distilled** (a prior
   `strategy` entry whose `distills` equals its `<cr-ref>`) and if so **draft nothing**. Decide this by a
   **structured JSONL parse, never a substring/regex text match** — **reuse** the exported
-  `distilledCrRefs` engine from `../skills/plan-retirement/scripts/retire-plans.mts` over the project
+  `distilledCrRefs` engine from `../skills/plan-retirement/scripts/retire-plans.mjs` over the project
   `ledger/` directory and membership-test the `<cr-ref>`. It parses each line with `JSON.parse`, so it
   is correct against a **pretty-printed** entry (a space after the colon), a wrapped or reordered
   object — a naive no-space grep (`"distills":"<cr-ref>"`) silently under-counts and re-drafts an

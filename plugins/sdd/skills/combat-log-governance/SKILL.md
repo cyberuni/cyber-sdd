@@ -242,7 +242,7 @@ plan/log-surfaced candidate against **current code** (a persisted plan or log is
   closed candidate.
 
 ```jsonl
-{"seq": 3, "handle": "sdd-scanner", "kind": "strategy", "disposition": "resolved", "recommendation": "no action — coverage-gap mechanism already shipped", "evidence": ["current-code: checkReferencedArtifacts + checkUseCaseCoverage live in spec-gate/scripts/check-spec-state.mts"], "ratified": false}
+{"seq": 3, "handle": "sdd-scanner", "kind": "strategy", "disposition": "resolved", "recommendation": "no action — coverage-gap mechanism already shipped", "evidence": ["current-code: checkReferencedArtifacts + checkUseCaseCoverage live in spec-gate/scripts/check-spec-state.mjs"], "ratified": false}
 ```
 
 `disposition` is set **once at write** and never flipped (the append-only invariant) — the Scanner's

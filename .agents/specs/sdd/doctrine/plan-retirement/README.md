@@ -15,7 +15,7 @@ and, for each cleared `<cr-ref>`, deletes that CR's whole **transient artifact s
 orphan behind (`../../design/provenance-model.md` — *The transient CR artifact set*).
 
 > **This is a single behavioral unit, not an overview** — retirement is one skill carrying a
-> self-contained `.mts` script. This spec owns the **behavior + suite**
+> self-contained `.mjs` script. This spec owns the **behavior + suite**
 > ([`plan-retirement.feature`](./plan-retirement.feature)). The provenance gain (history shows
 > when a plan was distilled and dropped) is `../../design/provenance-model.md`'s; this spec does
 > not restate it.
@@ -117,8 +117,7 @@ then, leaving it unswept would preserve exactly the orphan this unit closes.
 
 ## Delivery
 
-Delivered as a **non-user-invocable** skill carrying a self-contained `.mts` script (the repo's
-node-≥23.6 / no-deps convention; an agent fallback when `node` is absent). Pure functions are
+Delivered as a **non-user-invocable** skill carrying a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11; an agent fallback when `node` is absent). Pure functions are
 exported for `node:test`; running the file directly drives the CLI.
 
 ## Scenarios (colocated)

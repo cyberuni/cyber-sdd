@@ -72,5 +72,5 @@ The matcher returns each bar's candidates **bucketed by tier**; it does **not** 
 
 ## The deterministic matcher
 
-The mechanical part — match `metadata` against the caller-passed anchors + the matched plugin squad + the sdd default, and **name** the per-role candidates **bucketed by tier** (`project` / `project-root` / `plugin` / `sdd`) — is the deterministic `.mts` script in the `resolve-governances` skill (node-≥23.6, no deps, agent fallback when node is absent). It carries **no `compose`** and applies **no precedence** — only the variable resolved-actor bars + each role's agent.
+The mechanical part — match `metadata` against the caller-passed anchors + the matched plugin squad + the sdd default, and **name** the per-role candidates **bucketed by tier** (`project` / `project-root` / `plugin` / `sdd`) — is the deterministic `.mjs` script in the `resolve-governances` skill (compiled from `src/`, Node ≥22.11, no deps, agent fallback when node is absent). It carries **no `compose`** and applies **no precedence** — only the variable resolved-actor bars + each role's agent.
 The agent never hand-enumerates: it runs the matcher, then **loads** each candidate (direct-read for project files, harness-load for `<plugin>:<name>` / `sdd:<name>` skills) and **composes by the precedence above**, reading each governance's own `compose` at load time.

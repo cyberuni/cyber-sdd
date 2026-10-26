@@ -12,8 +12,7 @@ The concrete engine for **cross-node scenario-overlap detection** — the intra-
 SSA** partner of the code-side collision ladder. It audits **across the nodes** of one project spec
 and returns the candidates where the **same behavior lives in more than one node's `.feature`**, for
 the formation **Warden**. It is the **cross-node** sibling of `check-spec-structure` (intra-node
-node-shape), whose per-node scope leaves this cross-node axis uncovered. Self-contained `.mts` (the
-repo's node-≥23.6 / no-deps convention).
+node-shape), whose per-node scope leaves this cross-node axis uncovered. Self-contained `.mjs` (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## Why this rung exists
 

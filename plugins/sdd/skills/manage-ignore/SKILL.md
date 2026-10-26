@@ -12,8 +12,7 @@ The concrete engine for `.agents/sdd/.sddignore` — the optional gitignore-synt
 `resolve-tracking` consults to decide whether an artifact is **tracked** or **ignored**. It is the
 **write** side of the ignore file (`resolve-tracking` is the read side). It exists so a user curates
 the ignore rules through a clean interface instead of hand-editing the file. Loaded **in-session** by
-the `manage` gateway (Housekeeping group); it carries a self-contained `.mts` script (the repo's
-node-≥23.6 / no-deps convention).
+the `manage` gateway (Housekeeping group); it carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11).
 
 ## The file it curates
 

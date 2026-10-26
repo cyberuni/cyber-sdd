@@ -137,7 +137,7 @@ section order.
 | `DRAFT` (partial prefix) | the skill is a partial skill other skills call by name | `a partial skill's description carries the Partial Skill prefix to prevent accidental activation` |
 | `DRAFT` (script) | a step produces deterministic fixed output | `deterministic fixed-output logic is extracted to a script rather than baked into the body` |
 | `DRAFT` (description lead) | the skill is one the user invokes directly | `a user-triggered skill's description leads with the capability, not a fixed lead-in` |
-| `DRAFT` (governance source) | no project override of skill-design | `the skill-design rules are read from a local copy, not a remote CLI` |
+| `DRAFT` (reference source) | no project override of skill-design | `the skill-design rules are loaded with the reference skill, not read by path or fetched by a remote CLI` |
 | `DRAFT` (no eval file) | the author asks to bake a trigger-query eval file in | `a request to bake a trigger-query eval file into the skill is answered with the ACED eval loop` |
 | `SHAPE` → `READ` | the named skill already exists | `an existing skill is read before any change` |
 | `GAPS` | an existing skill missing one field | `only the gaps found are changed when improving` |

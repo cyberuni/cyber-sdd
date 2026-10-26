@@ -1,4 +1,6 @@
-# Agent Tool Output
+---
+description: Output rules for scripts, hooks, and CLIs that AI agents invoke — stdout as the machine contract, JSON and agent formats, non-interactive runs, and stderr.
+---
 
 Rules for scripts, hooks, and CLIs that AI agents invoke. Apply when authoring skill `scripts/` or documenting CLI commands in SKILL.md.
 
@@ -79,8 +81,4 @@ When a skill documents commands agents run:
 
 ## References
 
-Related governances (load on demand; read stdout as authoritative):
-
-```bash
-npx cyberplace@<version> governance show skill-design
-```
+Related references (load on demand): Load `skill-design` with the `reference` skill of `cyber-agentkit`.

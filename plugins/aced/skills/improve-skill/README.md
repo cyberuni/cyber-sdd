@@ -18,7 +18,7 @@ Good triggers include:
 The skill runs a full rubric covering:
 
 - Structure and frontmatter (S1–S6)
-- Content quality aligned with skill-design governance (Q1–Q13)
+- Content quality aligned with the skill-design reference (Q1–Q13)
 - Security and supply-chain checks (E1–E9, P1–P3)
 
 After reporting findings, it applies fixes directly to the SKILL.md.

@@ -43,17 +43,14 @@ same config vocabulary:
 A persona request that surfaces mid-authoring is handed to `define-agent` — do not scaffold a persona
 skill here.
 
-## Load the governance
+## Load the references
 
-Before writing content, load the **skill-design** governance as the authoritative rules for
-principles, progressive disclosure, description structure, and when to extract deterministic logic to
-a script. Read the first that exists:
-
-1. `.agents/governances/skill-design.md` — a project override
-2. `references/governances/skill-design.md` in this skill — the default copy
+Before writing content, load `skill-design` with the `reference` skill of `cyber-agentkit`. It is
+the authoritative rules for principles, progressive disclosure, description structure, and when to
+extract deterministic logic to a script.
 
 If the skill will ship a `scripts/` directory or document CLI commands agents run, also load
-**agent-tool-output** the same way (`references/governances/agent-tool-output.md`) for stdout / JSON /
+`agent-tool-output` with the `reference` skill of `cyber-agentkit`, for stdout / JSON /
 non-interactive / stderr rules.
 
 ## Settle the shape — five questions

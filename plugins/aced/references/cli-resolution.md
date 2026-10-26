@@ -1,4 +1,7 @@
-# CLI Resolution
+---
+description: How a skill runs its own scripts and resolves a released CLI it does not ship — call classification, upx and pinned npx fallbacks, optional lookups, and error handling.
+extends: [default]
+---
 
 Rules for running a command line tool from a skill. Apply when authoring or auditing a skill that shells out to a script or to a released npm binary.
 
@@ -62,7 +65,7 @@ Replace `<pkg>` with the npm package name, `<major>` with the major the skill wa
 
 ### An optional lookup never falls back
 
-When the call is a lookup that may legitimately find nothing — a governance override, an optional config — stop at the local tier:
+When the call is a lookup that may legitimately find nothing — an optional override, an optional config — stop at the local tier:
 
 ```bash
 upx --local-only <pkg>@^<major> <subcommand> || true
@@ -92,11 +95,6 @@ Distinguish the two failures when reporting: exit 127 from `upx --local-only` me
 
 ## References
 
-Related governances (load on demand; read stdout as authoritative):
-
-```bash
-governance show skill-design
-governance show agent-tool-output
-```
+Related references (load on demand): Load `skill-design` and `agent-tool-output` with the `reference` skill of `cyber-agentkit`.
 
 - <https://github.com/repobuddy/upx> — `upx` resolution order and the `--local-only` flag

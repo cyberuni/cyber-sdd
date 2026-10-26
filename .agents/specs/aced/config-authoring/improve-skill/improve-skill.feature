@@ -98,11 +98,12 @@ Feature: improve-skill — audit and improve an existing SKILL.md
     When improve-skill prepares to evaluate checks Q10 through Q12
     Then it loads the agent-tool-output governance before rendering a verdict on those checks
 
-  Scenario: the skill-design governance is read from a project override first, then the skill's own copy
-    Given a project with no .agents/governances/skill-design.md override
-    When improve-skill loads the skill-design governance
-    Then it reads the skill-design copy committed inside its own skill folder
-    And it runs no npx command to fetch the governance
+  Scenario: the skill-design reference is loaded with the reference skill, not read by path
+    Given a project with no .agents/references/skill-design.md override
+    When improve-skill loads skill-design
+    Then it loads skill-design with the reference skill of cyber-agentkit
+    And it reads no governances/ path by hand
+    And it runs no npx command to fetch skill-design
 
   Scenario: a description that leads with the capability and follows with a trigger clause passes Q1
     Given a public skill whose description states what the skill does and then says "Use when" followed by concrete situations

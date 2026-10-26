@@ -113,6 +113,34 @@ bench:                          # optional: the measured layer (real headless ru
 # future (own CRs): a model matrix over the runner family / telemetry (per-run capture)
 ```
 
+## References
+
+ACED owns four agent-configuration authoring standards and ships them in `references/`, so any
+skill can load one by name with the `reference` skill of `cyber-agentkit`:
+
+| Name | Purpose |
+| ---- | ------- |
+| `skill-design` | SKILL.md authoring — agent-first structure, placement, patterns, progressive disclosure, deterministic extraction, script placement and bundling, how a skill loads a reference |
+| `skill-repo-structure` | Skill library repo layout — archetypes, manifests, CI, discipline sections, contributor conventions |
+| `agent-tool-output` | Output rules for scripts, hooks, and CLIs that agents invoke |
+| `cli-resolution` | How a skill runs its own scripts and resolves a released CLI it does not ship |
+
+A skill loads them in one line, never by path:
+
+```text
+Load `skill-design` and `agent-tool-output` with the `reference` skill of `cyber-agentkit`.
+```
+
+A project overrides one at `.agents/references/<name>.md`. A skill may carry its own copy at
+`references/<name>.default.md`; ACED's copies declare `extends: [default]`, so they build on that
+copy instead of competing with it. `define-skill` and `improve-skill` carry copies of
+`skill-design` and `agent-tool-output`, kept equal to the ones here by a smoke test.
+
+Write these documents agent-first: dense must / should / do not rules, self-contained, external
+URLs and the names of related references only in `## References`, and no rationale sections.
+ADRs record why. `plugin-design`, `slash-invocation`, and `universal-plugin` are owned by the
+`universal-plugin` package.
+
 ## Installation
 
 ```bash

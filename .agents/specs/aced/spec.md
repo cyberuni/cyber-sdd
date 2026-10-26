@@ -74,11 +74,12 @@ Where a new concept lives — slot here, do not invent placement (`../sdd/design
   roles that read it — a shipped artifact, not a model, so not `design/`. A bar carries the
   *gradeable criteria* and cites `cyberplace governance show <name>` for full depth rather than
   duplicating a shipped contract.
-- **an authored governance** (a standard ACED owns for *other* repositories' skills to consume,
-  copied into them at build time — not an actor bar this plugin's own agents load) →
-  `plugins/aced/governances/<name>.md`, a shipped package file, not a spec node and not a skill.
-  Indexed in [`plugins/aced/governances/README.md`](../../../plugins/aced/governances/README.md);
-  the two governance homes are separated by
+- **an authored standard** (a standard ACED owns for any skill to load by name with the
+  `reference` skill of `cyber-agentkit` — not an actor bar this plugin's own agents load) →
+  `plugins/aced/references/<name>.md`, a shipped reference, not a spec node and not a skill.
+  Indexed in the [plugin readme](../../../plugins/aced/readme.md#references); placed by
+  [ADR-0036](../../../docs/adr/0036-authored-standards-ship-as-references.md), which supersedes the
+  authored-governance half of
   [ADR-0035](../../../docs/adr/0035-authored-governances-ship-as-package-files.md).
 - **plugin registration / discovery** → `registry/`.
 - **local-environment onboarding** (ready a repo to run ACED — e.g. ignore run output) → `setup/`.

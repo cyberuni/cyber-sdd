@@ -141,11 +141,12 @@ Feature: define-skill — author a workflow skill
     And the description does not open with "Use this skill when" or "When to use"
     And the description is at most 1024 characters
 
-  Scenario: the skill-design rules are read from a local copy, not a remote CLI
-    Given a project with no .agents/governances/skill-design.md override
-    When define-skill loads the skill-design governance before drafting
-    Then it reads the skill-design copy committed inside its own skill folder
-    And it runs no npx command to fetch the governance
+  Scenario: the skill-design rules are loaded with the reference skill, not read by path or fetched by a remote CLI
+    Given a project with no .agents/references/skill-design.md override
+    When define-skill loads skill-design before drafting
+    Then it loads skill-design with the reference skill of cyber-agentkit
+    And it reads no governances/ path by hand
+    And it runs no npx command to fetch skill-design
 
   # ---- Improving an existing skill ----
 

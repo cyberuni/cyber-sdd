@@ -108,4 +108,4 @@ npx skills add cyberuni/cyberplace --plugin aced
 
 - [Agent Configuration](/agent-configuration/overview/) — what agent configuration is and why it needs evaluation
 - [SDD Plugin](/sdd/overview/) — spec-driven development; ACED is SDD applied to the agent configuration layer
-- [Skill Design governance](/governances/skill-design/) — authoring rules for `SKILL.md` files
+- [Skill Design reference](https://github.com/cyberuni/cyber-sdd/blob/main/plugins/aced/references/skill-design.md) — authoring rules for `SKILL.md` files

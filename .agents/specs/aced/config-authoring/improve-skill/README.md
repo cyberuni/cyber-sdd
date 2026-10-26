@@ -220,7 +220,7 @@ One row per decision edge, one scenario per row. Rows follow the suite's section
 | `CHECKS` | a resolved set of target skills | `every check in the table is evaluated for each target skill` |
 | `GOV` → `GSD` | about to judge Q6–Q9 | `skill-design governance backs the Q6-Q9 checks` |
 | `GOV` → `GAT` | a target with a scripts/ dir or CLI instructions | `agent-tool-output governance backs the Q10-Q12 checks when scripts are present` |
-| `GOV` → `GSD` (source) | no project override of skill-design | `the skill-design governance is read from a project override first, then the skill's own copy` |
+| `GOV` → `GSD` (source) | no project override of skill-design | `the skill-design reference is loaded with the reference skill, not read by path` |
 | `JUDGE` → `JDESC` (trigger clause) | a capability-first description with a "Use when" clause | `a description that leads with the capability and follows with a trigger clause passes Q1` |
 | `JUDGE` → `JDESC` (fixed lead-in) | a description opening with "Use this skill when" | `a description that opens with a fixed lead-in is flagged under Q1` |
 | `JUDGE` → `JDESC` (by name) | a description of exactly "By name only" | `a by-name description is exempt from Q1` |

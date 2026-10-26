@@ -1,4 +1,6 @@
-# Skill Design
+---
+description: Rules for authoring SKILL.md files that agents load on demand — structure, placement, patterns, progressive disclosure, deterministic extraction, script bundling, and how a skill loads a reference.
+---
 
 Rules for authoring SKILL.md files that agents load on demand. Apply when creating, generalizing, or auditing a skill — before adding scripts or CLI instructions.
 
@@ -9,7 +11,7 @@ SKILL.md must be agent-first: dense normative rules the agent executes without o
 - Do not include `## Why`, `## Rationale`, `## Background`, or `## Context` sections.
 - Do not include causal explanation ("because…") or rationale prose in the body.
 - One-line scope ("Apply when…") is allowed at the top.
-- Put optional depth in `## References` at the end — `governance show` commands, external HTTPS URLs, sibling files in the same skill folder only.
+- Put optional depth in `## References` at the end — references to load by name, external HTTPS URLs, sibling files in the same skill folder only.
 
 **SKILL.md structure:**
 
@@ -232,27 +234,22 @@ Deprecated: `metadata.activation` in SKILL.md frontmatter. Use top-level `activa
 - Links to other repository files mid-workflow
 - Mid-body links to sibling skill files (use References at end)
 
-## Governance lookup order
+## Loading a reference
 
-A skill that reads a governance at run time stops at the first hit:
+A skill that needs a reference at run time names it in one line and never reads a path by hand:
 
-1. `.agents/governances/<name>.md` — project override.
-2. Only when an installed copy exists: `upx --local-only buddy-agent-harness@^<major> governance show <name> --overrides-only` when `upx` is on PATH; else `buddy-agent-harness governance show <name> --overrides-only` when `command -v buddy-agent-harness` finds it. Exit 127 from `upx`, or any non-zero exit, means no override. Never through `npx`.
-3. `references/governances/<name>.md` inside the skill — the default copy, committed to git.
+```text
+Load `<name>` and `<other>` with the `reference` skill of `cyber-agentkit`.
+```
 
-Copies live at `<skill>/references/governances/<name>.md`, and the files in that folder declare which governances the skill uses. A skill copies every governance a copied governance references, and lists every copy in its SKILL.md References, so each stays one level deep. A pointer inside a copy (`governance show <other>`) is read as "load `references/governances/<other>.md`".
-
-`buddy-agent-harness governance` and the copy step in `universal-plugin plugin build` are planned (tracked in https://github.com/repobuddy/buddy-agent-harness/issues/122). Until they ship, a skill uses step 3 only.
+- The `reference` skill decides what answers each name: a project override at `.agents/references/<name>.md`, a user override at `~/.agents/references/<name>.md`, the plugin that ships the name in its `references/`, then the skill's own default.
+- A skill's default copy lives at `references/<name>.default.md` in its folder. It is read on its own only when the `reference` command cannot run.
+- A skill copies every reference a copied reference names, so each stays one level deep.
+- Never read `.agents/references/` or a plugin's `references/` directly.
 
 ## References
 
-Related governances (load on demand; read stdout as authoritative):
-
-```bash
-npx cyberplace@<version> governance show skill-repo-structure
-npx cyberplace@<version> governance show agent-tool-output
-npx cyberplace@<version> governance show universal-plugin
-```
+Related references (load on demand): Load `skill-repo-structure`, `agent-tool-output`, and `universal-plugin` with the `reference` skill of `cyber-agentkit`.
 
 Runtime field reference (re-verify before relying on a version-gated field):
 

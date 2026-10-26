@@ -8,8 +8,8 @@
  * Claude Code and Codex compare the manifest version to decide whether `plugin update` has anything
  * to install, so a manifest left behind keeps users on a stale cached copy.
  *
- * Manifests: `plugins/<name>/{,.plugin,.claude-plugin,.codex-plugin}/plugin.json`, the first being a
- * root canonical manifest that `universal-plugin plugin build` reads. A symlinked manifest is
+ * Manifests: `{plugins,packages}/<name>/{,.plugin,.claude-plugin,.codex-plugin}/plugin.json`, the first
+ * being a root canonical manifest that `universal-plugin plugin build` reads. A symlinked manifest is
  * skipped; its target is handled directly.
  */
 
@@ -19,15 +19,18 @@ import { fileURLToPath } from 'node:url'
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
 const check = process.argv.includes('--check')
+const PACKAGE_ROOTS = ['plugins', 'packages']
 const MANIFEST_DIRS = ['', '.plugin', '.claude-plugin', '.codex-plugin']
 
+const pkgDirs = PACKAGE_ROOTS.flatMap((dir) => readdirSync(join(root, dir)).map((name) => join(root, dir, name)))
+
 const stale = []
-for (const name of readdirSync(join(root, 'plugins'))) {
-	const pkgPath = join(root, 'plugins', name, 'package.json')
+for (const pkgDir of pkgDirs) {
+	const pkgPath = join(pkgDir, 'package.json')
 	if (!existsSync(pkgPath)) continue
 	const { version } = JSON.parse(readFileSync(pkgPath, 'utf8'))
 	for (const dir of MANIFEST_DIRS) {
-		const file = join(root, 'plugins', name, dir, 'plugin.json')
+		const file = join(pkgDir, dir, 'plugin.json')
 		if (!existsSync(file) || lstatSync(file).isSymbolicLink()) continue
 		const text = readFileSync(file, 'utf8')
 		const manifest = JSON.parse(text)

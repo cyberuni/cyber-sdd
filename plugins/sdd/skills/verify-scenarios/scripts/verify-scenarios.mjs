@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/verify-scenarios/verify-scenarios.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.0","entry":"skills/verify-scenarios/scripts/verify-scenarios.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.1","entry":"skills/verify-scenarios/scripts/verify-scenarios.mjs","commands":{}};
 import { execSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, join } from "node:path";

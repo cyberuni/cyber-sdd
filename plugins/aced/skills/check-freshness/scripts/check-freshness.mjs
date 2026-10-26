@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/check-freshness/check-freshness.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.3","entry":"skills/check-freshness/scripts/check-freshness.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.5.0","entry":"skills/check-freshness/scripts/check-freshness.mjs","commands":{}};
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { join, relative, resolve } from "node:path";

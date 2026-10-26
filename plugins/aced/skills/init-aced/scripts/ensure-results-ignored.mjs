@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/init-aced/ensure-results-ignored.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.4.3","entry":"skills/init-aced/scripts/ensure-results-ignored.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.5.0","entry":"skills/init-aced/scripts/ensure-results-ignored.mjs","commands":{}};
 import { execFileSync } from "node:child_process";
 import { accessSync, constants, existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { join } from "node:path";

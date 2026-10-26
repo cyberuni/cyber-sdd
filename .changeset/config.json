@@ -6,8 +6,7 @@
 	"commit": false,
 	"fixed": [],
 	"format": false,
-	"ignore": ["@cyberuni/web"],
 	"linked": [],
-	"privatePackages": { "version": true, "tag": true },
+	"privatePackages": { "version": true, "tag": false },
 	"updateInternalDependencies": "patch"
 }

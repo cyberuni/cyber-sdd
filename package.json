@@ -13,7 +13,7 @@
 		"check:specs": "node plugins/sdd/src/check-project-specs/check-project-specs.mts --corpus && node plugins/sdd/src/resolve-governances/resolve-governances.mts --root . && node plugins/sdd/src/resolve-tracking/resolve-tracking.mts --root . && node plugins/sdd/src/check-plan-safety/check-plan-safety.mts --root . --check && node plugins/sdd/src/check-retired-terms/check-retired-terms.mts --root .",
 		"knip": "knip",
 		"prepare": "node -e \"if(!(process.env.CI||process.env.GITHUB_ACTIONS))require('child_process').execSync('husky',{stdio:'inherit'})\"",
-		"release": "changeset publish",
+		"release": "changeset publish && node scripts/tag-private-releases.mjs",
 		"repair:private-skills": "node plugins/aced/src/repair-private-skills/repair-private-skills.mts --root . repair",
 		"test": "turbo run test",
 		"typecheck": "turbo run typecheck",

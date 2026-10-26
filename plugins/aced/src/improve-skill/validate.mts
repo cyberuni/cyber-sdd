@@ -449,6 +449,20 @@ const ROOT_LOCAL_PATH_PREFIXES = ['docs/', 'governances/', 'skills/', 'src/', 'a
 
 // S7–S9: agentskills.io directory structure checks
 const ALLOWED_SKILL_SUBDIRS = new Set(['scripts', 'references', 'assets'])
+// agents/ is a documented skill subdirectory for host-interface metadata (e.g. Codex's
+// agents/openai.yaml). It passes S7 only while it holds nothing but YAML files.
+const HOST_INTERFACE_SUBDIR = 'agents'
+const HOST_INTERFACE_EXTENSIONS = new Set(['.yaml', '.yml'])
+
+/** Entries under a skill's agents/ that are not host-interface YAML files. */
+function misusedHostInterfaceEntries(agentsDir: string): string[] {
+	return fs
+		.readdirSync(agentsDir, { withFileTypes: true })
+		.filter((e) => !e.name.startsWith('.'))
+		.filter((e) => !(e.isFile() && HOST_INTERFACE_EXTENSIONS.has(path.extname(e.name).toLowerCase())))
+		.map((e) => (e.isDirectory() ? `${e.name}/` : e.name))
+		.sort()
+}
 const STATIC_RESOURCE_EXTENSIONS = new Set([
 	'.png',
 	'.jpg',
@@ -863,7 +877,13 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 	try {
 		const entries = fs.readdirSync(skillDir, { withFileTypes: true })
 		const nonStandardDirs = entries
-			.filter((e) => e.isDirectory() && !e.name.startsWith('.') && !ALLOWED_SKILL_SUBDIRS.has(e.name))
+			.filter(
+				(e) =>
+					e.isDirectory() &&
+					!e.name.startsWith('.') &&
+					!ALLOWED_SKILL_SUBDIRS.has(e.name) &&
+					e.name !== HOST_INTERFACE_SUBDIR,
+			)
 			.map((e) => e.name)
 		if (nonStandardDirs.length > 0) {
 			warn(
@@ -873,6 +893,18 @@ export function runChecks(filePath: string, scanRoots?: Set<string>): CheckResul
 				`found: ${nonStandardDirs.join(', ')}`,
 				'Move contents to scripts/, references/, or assets/ per agentskills.io spec',
 			)
+		}
+		if (entries.some((e) => e.isDirectory() && e.name === HOST_INTERFACE_SUBDIR)) {
+			const misused = misusedHostInterfaceEntries(path.join(skillDir, HOST_INTERFACE_SUBDIR))
+			if (misused.length > 0) {
+				warn(
+					'MEDIUM',
+					'S7',
+					'Non-host-interface content in skill agents/ folder',
+					`found: ${misused.map((name) => `agents/${name}`).join(', ')}`,
+					'Keep only host-interface YAML (e.g. agents/openai.yaml) in agents/; move other content to scripts/, references/, or assets/, and subagent definitions to the plugin-level agents/',
+				)
+			}
 		}
 
 		// S8: Static resources in root

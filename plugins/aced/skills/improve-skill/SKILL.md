@@ -85,7 +85,7 @@ If you need the exact criteria for any check, read `references/check-definitions
 | S4 | Structure | Referenced files/subdirs exist within skill directory | HIGH | |
 | S5 | Structure | Internal markdown links resolve to real sections | MEDIUM | |
 | S6 | Structure | `skill.json` `distribution.install_via` is valid (and `package.name` set when `package_manager`) | CRITICAL | |
-| S7 | Structure | No non-standard directories (only `scripts/`, `references/`, `assets/` allowed) | MEDIUM | |
+| S7 | Structure | No non-standard directories (only `scripts/`, `references/`, `assets/`, and host-interface YAML in `agents/` allowed) | MEDIUM | |
 | S8 | Structure | Templates/static resources in `assets/`, not skill root | LOW | |
 | S9 | Structure | Extra documentation files in `references/`, not skill root | LOW | |
 | Q1 | Quality | Description contains triggering context (situations, user requests) | HIGH | |

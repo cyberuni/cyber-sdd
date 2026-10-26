@@ -505,6 +505,45 @@ Read docs/research/threat-model.md before continuing.
 	}
 })
 
+function s7Findings(setup: (skillDir: string) => void) {
+	const root = tmpRoot()
+	try {
+		const file = writeSkill(root, 'skills/sample-skill', GOOD_FRONTMATTER)
+		setup(path.dirname(file))
+		return runChecks(file).warnings.filter((f) => f.checkId === 'S7')
+	} finally {
+		fs.rmSync(root, { recursive: true, force: true })
+	}
+}
+
+test('S7: a skill-local agents/openai.yaml host-interface file does not warn (#136)', () => {
+	const s7 = s7Findings((dir) => {
+		fs.mkdirSync(path.join(dir, 'agents'))
+		fs.writeFileSync(path.join(dir, 'agents', 'openai.yaml'), 'interface:\n  display_name: Sample\n')
+	})
+	assert.deepEqual(s7, [])
+})
+
+test('S7: non-YAML content in a skill-local agents/ still warns MEDIUM', () => {
+	const s7 = s7Findings((dir) => {
+		fs.mkdirSync(path.join(dir, 'agents', 'nested'), { recursive: true })
+		fs.writeFileSync(path.join(dir, 'agents', 'openai.yaml'), 'interface: {}\n')
+		fs.writeFileSync(path.join(dir, 'agents', 'reviewer.md'), '# Reviewer subagent\n')
+	})
+	assert.equal(s7.length, 1)
+	assert.equal(s7[0]?.severity, 'MEDIUM')
+	assert.equal(s7[0]?.evidence, 'found: agents/nested/, agents/reviewer.md')
+})
+
+test('S7: other non-standard directories still warn', () => {
+	const s7 = s7Findings((dir) => {
+		fs.mkdirSync(path.join(dir, 'commands'))
+		fs.mkdirSync(path.join(dir, 'references'))
+	})
+	assert.equal(s7.length, 1)
+	assert.equal(s7[0]?.evidence, 'found: commands')
+})
+
 test('S5: broken internal anchor link warns MEDIUM', () => {
 	const root = tmpRoot()
 	try {

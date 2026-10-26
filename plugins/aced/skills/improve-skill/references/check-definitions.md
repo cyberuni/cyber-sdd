@@ -37,7 +37,9 @@ Applies only when the skill directory contains a `skill.json` manifest with a `d
 Skip this check entirely when no `skill.json` is present, or when it is present without a `distribution` block.
 
 **S7 — Non-standard directories (MEDIUM)**
-Warn if the skill directory contains immediate subdirectories other than the three allowed by the agentskills.io spec: `scripts/`, `references/`, `assets/`. Hidden directories (starting with `.`) are ignored. Non-standard directories indicate the skill author may have placed files in the wrong location, or the skill layout does not follow the portable spec.
+Warn if the skill directory contains immediate subdirectories other than the three allowed by the agentskills.io spec (`scripts/`, `references/`, `assets/`) and `agents/`. Hidden directories (starting with `.`) are ignored. Non-standard directories indicate the skill author may have placed files in the wrong location, or the skill layout does not follow the portable spec.
+
+`agents/` holds host-interface metadata, such as `agents/openai.yaml`, the UI metadata that Codex and the ChatGPT app read ([OpenAI skill-creator](https://github.com/openai/skills/blob/main/skills/.system/skill-creator/SKILL.md)). It passes only while it contains nothing but YAML files (`*.yaml`, `*.yml`). Warn on any other entry inside it, such as a subagent definition (`*.md`) or a subdirectory: a subagent belongs in the plugin-level `agents/`, and other content belongs in `scripts/`, `references/`, or `assets/`.
 
 **S8 — Static resources in root (LOW)**
 Warn if the skill root contains files that belong in `assets/`: templates (`*.template.*`, `*.tmpl`, `template.*`), images (`*.png`, `*.jpg`, `*.jpeg`, `*.gif`, `*.svg`, `*.ico`, `*.webp`), or data files (`*.json`, `*.yaml`, `*.yml`, `*.toml`, `*.csv`, `*.xml`) other than `skill.json`. These should be moved to `assets/` per spec.

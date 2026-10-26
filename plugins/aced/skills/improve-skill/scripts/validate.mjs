@@ -304,6 +304,12 @@ const ALLOWED_SKILL_SUBDIRS = /* @__PURE__ */ new Set([
 	"references",
 	"assets"
 ]);
+const HOST_INTERFACE_SUBDIR = "agents";
+const HOST_INTERFACE_EXTENSIONS = /* @__PURE__ */ new Set([".yaml", ".yml"]);
+/** Entries under a skill's agents/ that are not host-interface YAML files. */
+function misusedHostInterfaceEntries(agentsDir) {
+	return fs.readdirSync(agentsDir, { withFileTypes: true }).filter((e) => !e.name.startsWith(".")).filter((e) => !(e.isFile() && HOST_INTERFACE_EXTENSIONS.has(path.extname(e.name).toLowerCase()))).map((e) => e.isDirectory() ? `${e.name}/` : e.name).sort();
+}
 const STATIC_RESOURCE_EXTENSIONS = /* @__PURE__ */ new Set([
 	".png",
 	".jpg",
@@ -481,8 +487,12 @@ function runChecks(filePath, scanRoots) {
 	}
 	try {
 		const entries = fs.readdirSync(skillDir, { withFileTypes: true });
-		const nonStandardDirs = entries.filter((e) => e.isDirectory() && !e.name.startsWith(".") && !ALLOWED_SKILL_SUBDIRS.has(e.name)).map((e) => e.name);
+		const nonStandardDirs = entries.filter((e) => e.isDirectory() && !e.name.startsWith(".") && !ALLOWED_SKILL_SUBDIRS.has(e.name) && e.name !== HOST_INTERFACE_SUBDIR).map((e) => e.name);
 		if (nonStandardDirs.length > 0) warn("MEDIUM", "S7", "Non-standard directory in skill folder", `found: ${nonStandardDirs.join(", ")}`, "Move contents to scripts/, references/, or assets/ per agentskills.io spec");
+		if (entries.some((e) => e.isDirectory() && e.name === HOST_INTERFACE_SUBDIR)) {
+			const misused = misusedHostInterfaceEntries(path.join(skillDir, HOST_INTERFACE_SUBDIR));
+			if (misused.length > 0) warn("MEDIUM", "S7", "Non-host-interface content in skill agents/ folder", `found: ${misused.map((name) => `agents/${name}`).join(", ")}`, "Keep only host-interface YAML (e.g. agents/openai.yaml) in agents/; move other content to scripts/, references/, or assets/, and subagent definitions to the plugin-level agents/");
+		}
 		const staticInRoot = entries.filter((e) => {
 			if (!e.isFile()) return false;
 			const name = e.name;

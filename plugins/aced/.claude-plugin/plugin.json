@@ -1,6 +1,6 @@
 {
 	"name": "aced",
-	"version": "0.5.0",
+	"version": "0.5.1",
 	"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
 	"author": {
 		"name": "unional"

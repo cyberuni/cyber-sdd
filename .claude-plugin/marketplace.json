@@ -12,7 +12,7 @@
 			"description": "Spec-Driven Development. Scaffold, validate, and maintain behavioral specs (spec.md + .feature files) for software features.",
 			"tags": ["sdd", "spec", "process"],
 			"source": "./plugins/sdd",
-			"version": "0.7.1",
+			"version": "0.7.2",
 			"homepage": "https://github.com/cyberuni/cyber-sdd",
 			"repository": "https://github.com/cyberuni/cyber-sdd"
 		},
@@ -27,7 +27,7 @@
 			"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
 			"tags": ["sdd", "eval", "skills"],
 			"source": "./plugins/aced",
-			"version": "0.5.0",
+			"version": "0.5.1",
 			"homepage": "https://github.com/cyberuni/cyber-sdd",
 			"repository": "https://github.com/cyberuni/cyber-sdd"
 		},

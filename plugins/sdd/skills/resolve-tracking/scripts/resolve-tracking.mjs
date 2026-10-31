@@ -1,5 +1,5 @@
 // Compiled by `universal-plugin plugin build` from src/resolve-tracking/resolve-tracking.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.1","entry":"skills/resolve-tracking/scripts/resolve-tracking.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.2","entry":"skills/resolve-tracking/scripts/resolve-tracking.mjs","commands":{}};
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/spec-gate/classify-edit-class.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.1","entry":"skills/spec-gate/scripts/classify-edit-class.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.2","entry":"skills/spec-gate/scripts/classify-edit-class.mjs","commands":{}};
 import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import path, { dirname, join, relative, resolve, sep } from "node:path";

@@ -1,5 +1,11 @@
 # cyber-sdd
 
+## 0.7.2
+
+### Patch Changes
+
+- 60bcb1d: Include `CHANGELOG.md` in the published package.
+
 ## 0.7.1
 
 ### Patch Changes

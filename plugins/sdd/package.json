@@ -17,7 +17,8 @@
 		"agents",
 		"plugin.json",
 		".codex-plugin",
-		".claude-plugin"
+		".claude-plugin",
+		"CHANGELOG.md"
 	],
 	"scripts": {
 		"build:skills": "universal-plugin plugin build",

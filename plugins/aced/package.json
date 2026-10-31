@@ -21,7 +21,8 @@
 		"plugin.json",
 		".codex-plugin",
 		".claude-plugin",
-		"com.github.copilot"
+		"com.github.copilot",
+		"CHANGELOG.md"
 	],
 	"dependencies": {
 		"cyber-agentkit": "1.2.0"

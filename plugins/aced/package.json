@@ -25,7 +25,7 @@
 		"CHANGELOG.md"
 	],
 	"dependencies": {
-		"cyber-agentkit": "1.2.0"
+		"cyber-agentkit": "^2.0.0"
 	},
 	"scripts": {
 		"build": "tsdown",

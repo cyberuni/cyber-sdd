@@ -18,7 +18,8 @@ Use it when the capability's behavior branches. It is the instrument for C6 to C
 - **C7.** A combination that must not occur is a guard node. If it is only in prose, the constraint is
   unenforceable.
 - **C8.** An undecided question is a node marked `open`. A search for `open` finds every unresolved point.
-- **C5.** Derive criteria from the graph's edges, not from the prose, so the list can reveal a missing branch.
+- **C5.** Derive criteria from the graph's edges, not from the prose, so the list can reveal a missing branch. A
+  criterion's two readings are checked against the paths that reach its edge.
 
 ## Other instruments
 

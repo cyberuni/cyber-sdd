@@ -23,3 +23,6 @@
   thesis pending a held-out check, and deciding in prose only what building cannot settle. D9 superseded, D17
   superseded in part, and the D3 recommendation superseded. Triggered by the cyber-truss lattice-model rulings (A6,
   A9) and the PR #135 placement check.
+- 2026-11-04. Owner decisions D24 and D25 added: bracket each criterion's strictest and most lenient reading while
+  writing it, and send a criterion revised in two or more review rounds through the placement test. No decision
+  superseded. Triggered by the cyber-truss lattice-model rulings (P10, A10).

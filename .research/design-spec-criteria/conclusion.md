@@ -121,6 +121,15 @@ change to an existing one, rewording included, is breaking. There is no patch ti
   which outcome are wanted. What writing and running the code settles goes to the rung that runs it, where a
   deterministic test is a function by construction. Reason: agent-interpreted Gherkin is not a function, which is the
   churn SDD v1 paid for (cyber-truss A9).
+- D24 Each criterion is bracketed when it is written: its strictest and its most lenient reasonable reading, checked
+  against the use case's extensions and its graph paths. Agreement means the criterion is crisp. Disagreement sends
+  it through the placement test (D22) first, and it is tightened only after that. The readings are a check made while
+  writing, not text in the spec, so D8 still holds. This gives C5's "one reading" a procedure. Reason: tightening in
+  prose is how a design spec fills with implementation detail (cyber-truss P10, an import of MCDT's interval
+  uncertainty, Censi 2017).
+- D25 Churn signals misplacement. In review, a criterion revised in two or more rounds goes through the placement test
+  before it is revised again. Reason: on cyber-agentkit PR #135, 60% of the cases the trim cut to a property had been
+  revised in two or more commits, against 10% of the cases it kept (cyber-truss A10).
 
 ## Reference material
 

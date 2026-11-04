@@ -69,7 +69,10 @@ each section:
    capability does, not what it should do. Decided behavior the code lacks is still written as a criterion; the gap
    goes to the tracker.
 2. Judge the draft against the criteria that apply to it: C1 on the outcome, C2 on the non-goals, C3 on the actors and
-   use cases, C4 to C6 on the criteria, C8 on the open questions.
+   use cases, C4 to C6 on the criteria, C8 on the open questions. Bracket each criterion as you write it: state its
+   strictest and its most lenient reasonable reading, and check both against the use case's extensions and its graph
+   paths. If they agree, the criterion is crisp. If they disagree, apply the placement test (under **Design spec
+   versus functional spec**) first, and tighten the text only after that. The readings are a check made while writing, not text in the spec.
 3. Show the user that section and the questions it raises, and nothing beyond it.
 4. When the user agrees, commit the section, then go to the next.
 
@@ -139,7 +142,8 @@ Load the criteria reference and judge the spec against C1 to C9 in number order.
 C9 fails, every check under [Validate](#validate) passes, and Open questions is empty.
 
 Iterate before you present. After each judgment, fix every failing criterion in the spec yourself, then judge it again.
-Repeat a few times, stopping when none fails or when a round fixes nothing new. Take only the fixes the spec and its
+Repeat a few times, stopping when none fails or when a round fixes nothing new. Churn signals misplacement: a
+criterion revised in two or more rounds goes through the placement test before it is revised again. Take only the fixes the spec and its
 sources settle. A fix that needs a decision the user has not made (a scope call, a rule with two reasonable readings)
 is not a fix: leave it, and put it under Open questions with the options and your recommendation. Keep each round a
 change of the spec's text only; never move the spec's scope without asking.

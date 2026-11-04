@@ -15,8 +15,8 @@ wrong or surplus. Each test is pass or fail. Report the line that fails.
 
 | ID | Criterion | Pass when |
 | --- | --- | --- |
-| C4 | Outcome-level | Someone without the code can decide each criterion from outputs alone. No criterion names a module, library, or internal step. Renaming an internal breaks none. Public names a consumer depends on (flags, exit codes, error codes) are outcome. |
-| C5 | Checkable, unambiguous | Each criterion is a boolean with one reading and one behavior, with no unmeasured words ("fast", "appropriate", "sometimes"). You can write the failing case and a deterministic test for it, except for a criterion of a skill-instruction use case, which an eval run of the skill checks. |
+| C4 | Outcome-level | Someone without the code can decide each criterion from outputs alone. No criterion names a module, library, or internal step. Renaming an internal breaks none. No criterion pins an encoding (a name, literal code, exit number, output field or format, flag syntax, message wording) that the actor would reach the goal without, given any encoding that is stable and keeps distinct outcomes distinct; it states the outcome and the property the actor needs ("distinct per cause", "stable"). |
+| C5 | Checkable, unambiguous | Each criterion is decidable from its own text, with any context it depends on (the path, the use case) written into it; a cited use case or edge is a trace, not its meaning. Each is a boolean with one reading and one behavior, with no unmeasured words ("fast", "appropriate", "sometimes"). One reading means its strictest and its most lenient reasonable readings agree on the use case's extensions and graph paths; where they disagree, the placement test runs before any tightening. You can write the failing case and a deterministic test for it, except for a criterion of a skill-instruction use case, which an eval run of the skill checks. |
 | C6 | Complete over divergence | For each use case, every path that misses the goal (error, absent input, refusal, partial result, contended state) is a criterion, or the use case says `extensions: none, <why>`. A rule left unstated on purpose is recorded as that decision. |
 
 ## C. The spec as a set
@@ -31,7 +31,9 @@ wrong or surplus. Each test is pass or fail. Report the line that fails.
 
 - The spec is the interface restated as requirements (use cases derived from entry points). Caught by C3.
 - Implementation leaks in, so the spec breaks when the code is refactored. C4.
+- Encodings pinned in prose (exit numbers, field names, flag syntax), so the spec churns while the build settles them. C4.
 - Vague adjectives, or two behaviors in one line. C5.
+- A criterion that reads true only beside its use case or graph edge, so its meaning shifts when they change. C5.
 - Happy path only, so the implementer invents the errors. C6.
 - Criteria derived from the prose list rather than the decisions, so the suite can never reveal a hole. C6.
 - The same rule in two places, drifting apart. C7.

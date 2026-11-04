@@ -7,7 +7,8 @@ Use it when the capability's behavior branches. It is the instrument for C6 to C
 
 - A node is a decision the capability makes, or an outcome. An edge is a branch. Draw it as a Mermaid `flowchart`.
 - Give each edge a stable ID (`E1`, `E2`, ...) and never reuse a retired one. Criteria cite edge IDs.
-- It describes decisions the consumer can observe, not the code's control flow. Name no function or module.
+- It describes decisions the consumer can observe, not the code's control flow. Name no function or module, and no
+  encoding of an outcome (an exit number, a literal code, a field name).
 - Each use case names the node it starts from in its **Entry node** bullet. Several use cases may share a graph.
 
 ## Checks it makes possible
@@ -16,8 +17,11 @@ Use it when the capability's behavior branches. It is the instrument for C6 to C
   graph. An extension with no path is a hole in the graph: fix it there.
 - **C7.** A combination that must not occur is a guard node. If it is only in prose, the constraint is
   unenforceable.
+- **C5, at run time.** A leaf whose criterion gave two verdicts on an unchanged state is not a function. Split its
+  path until each leaf covers one case, after the placement test.
 - **C8.** An undecided question is a node marked `open`. A search for `open` finds every unresolved point.
-- **C5.** Derive criteria from the graph's edges, not from the prose, so the list can reveal a missing branch.
+- **C5.** Derive criteria from the graph's edges, not from the prose, so the list can reveal a missing branch. A
+  criterion's two readings are checked against the paths that reach its edge.
 
 ## Other instruments
 

@@ -21,15 +21,22 @@ plugin's `start-mission`, not here.
 
 - **Write** lays out one capability per folder (`README.md`, plus `graph.md` when the behavior branches) and settles
   it with the user one section at a time: outcome, What, Non-goals, Key terms, Actors and goals, Use cases, Criteria,
-  Open questions, References. Every list item carries a stable ID. A headless run drafts every section and puts each
+  Open questions, References. Every list item carries an ID. A criterion's text is its identity: after the spec is
+  first ready, a changed criterion takes a new ID. Each criterion is bracketed as it is written: its strictest and
+  most lenient readings must agree on the use case's paths. A headless run drafts every section and puts each
   question under Open questions.
 - **Review** judges the spec against nine pass/fail criteria (C1 to C9, in
   [`references/criteria.md`](references/criteria.md)), fixes what the spec and its sources settle, and returns the
-  rest as open questions with a recommendation.
+  rest as open questions with a recommendation. A criterion revised in two or more rounds is checked for placement
+  before it is revised again.
 - **Split** moves a spec into a parent and child specs by capability, never by layer, keeping every ID, in a commit
   that only moves text.
+- **Placement** keeps outcomes in the design spec and moves encodings (names, codes, exit numbers, fields, flag
+  syntax, wording) to the functional spec and tests beneath it, unless the actor needs that particular encoding.
 - **Derive tests** turns each criterion into a native, deterministic test of the project's own test stack, named by
-  its criterion ID. Criteria of a skill-instruction use case are checked by an eval run of the skill instead.
+  its criterion ID. Criteria of a skill-instruction use case are checked by an eval run of the skill instead. A test
+  may pin an encoding the spec leaves open; changing what an existing test asserts goes to the owner. A criterion
+  whose verdict flipped on an unchanged state goes back to Write to split its graph path.
 - **Validate** (V1 to V13 in [`SKILL.md`](SKILL.md#validate)) is the self-check before handoff and the re-check a cold
   reader runs against the spec folder.
 

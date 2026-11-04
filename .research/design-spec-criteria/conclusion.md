@@ -2,7 +2,7 @@
 
 ## Last updated
 
-October 2026 (reviewed by the owner; decisions D8 to D19 added)
+November 2026 (decisions D20 onward added from the cyber-truss lattice-model rulings; D8 to D19 from October 2026)
 
 ## Question
 
@@ -25,7 +25,8 @@ These settle the open choices below and override the recommendations where they 
 
 - D8 Rationale and alternatives live outside the spec, linked. Reason: the spec is loaded on every task, so each
   line costs tokens every time; rationale is read only when someone questions a criterion.
-- D9 The design spec is as specific as it can be about the public surface (names, flags, exit codes, codes). It does
+- D9 *(Superseded by D22: an encoding the actor needs no particular form of belongs to the lower rung.)* The design
+  spec is as specific as it can be about the public surface (names, flags, exit codes, codes). It does
   not hold internals. A fact belongs in the design spec when a consumer is judged against it; the rest belongs in the
   functional spec, the spec co-located with the implementation.
 - D10 The spec is standing (spec-anchored): it is compared against on every change, not discarded after the build.
@@ -63,10 +64,13 @@ These settle the open choices below and override the recommendations where they 
   built on it. Code-derived text records what the code does, not what it should do: the reference backfill left eight
   questions (Q1 to Q8) the code could not answer. With no user, every section is drafted and each question goes to
   Open questions.
-- D16 Every list item in a spec carries an ID, and a removed item retires its ID. Reason: grilling and review
+- D16 *(Superseded in part by D20: an ID labels a criterion's text and is not its identity.)* Every list item in a
+  spec carries an ID, and a removed item retires its ID. Reason: grilling and review
   cite items one at a time ("drop N4", "revise A1.2"); without an ID each reference quotes the text, and a reworded
   item can no longer be found by the quote.
-- D17 Outcomes are stated once, adapter-neutral, and one `Adapters` criteria group maps them to each adapter; skill
+- D17 *(Superseded in part by D22: the `Adapters` group states the property each adapter's actor needs, and the
+  mapping from each outcome to an adapter's form moves to the lower rung.)* Outcomes are stated once, adapter-neutral,
+  and one `Adapters` criteria group maps them to each adapter; skill
   instructions get their own use cases. Reason: a CLI, a library, and an MCP server are adapters of one code path, so
   stating an outcome per adapter puts one fact in three homes (C7). The reference spec cited a CLI exit code and a
   low-level function as if they were separate behaviors. A skill's instructions add behavior no adapter has and no
@@ -82,6 +86,59 @@ These settle the open choices below and override the recommendations where they 
   Splitting before the sections are agreed would make each revision of a shared term edit several files: the
   reference spec's stack redesign reopened every section after Key terms. The reference spec split into resolve, write,
   interfaces, and skill, cutting the largest task's read from the whole spec to about 60%.
+
+## Owner decisions (2026-11-04)
+
+These apply the rulings of the cyber-truss lattice model (`cyberuni/cyber-truss`,
+`.research/monotone-co-design/raw/criteria-structure.md` P9 to P13, `raw/q4-model-findings.md` for the semver
+ruling, and `raw/p10-placement-check.md`). Semver for criteria, breaking only: adding a criterion is minor, and any
+change to an existing one, rewording included, is breaking. There is no patch tier.
+
+- D20 A criterion's identity is its self-contained text; its ID is a label for citation and test names. Before the
+  spec is first ready, criteria are revised freely. After that, changing a criterion's text retires its ID and gives
+  it a new one, and the tests derived from it are rechecked. A key term counts as part of the text of every criterion
+  that names it, so the term keeps one home (C7) and criteria stay short, and changing it is a breaking change to
+  every criterion that uses it. Reason: the judge reads a criterion's text, so a rewording can change a verdict, and
+  nothing at authoring time proves it does not (cyber-truss P9 and the semver ruling). Supersedes D16 in part.
+- D21 A criterion is decidable from its own text. Any context it depends on, such as the path or the use case, is
+  written into it; a cited use case or graph edge is a trace, not part of its meaning. Reason: the judge reads the
+  criterion and nothing else, so text that leans on context it does not carry can mean two things (P9's
+  load-bearing condition).
+- D22 *(Thesis.)* Hold the outcome, vary the encoding. An outcome is what the actor gets or can tell apart; an
+  encoding is how it is spelled or carried (names, literal values and codes, exit numbers, output fields and formats,
+  flag syntax, message wording, the order of checks when every order gives the same kind of outcome). If the actor
+  reaches the goal under any encoding that is stable and keeps distinct outcomes distinct, the encoding belongs to the
+  lower rung, the functional spec and the code and tests beneath the design spec. The design spec keeps the outcome
+  and the property the actor needs ("distinct per cause", "stable"). A program actor reads encodings but needs no
+  particular one, so it is judged the same way. Only a case whose outcome differs between readings is a grain defect
+  in the design spec. The `Adapters` group keeps what each adapter's actor needs; the mapping from each outcome to an
+  exit code or stream is pinned by tests. Reason: tightening a design spec in prose
+  fills it with implementation detail; cyber-agentkit PR #135's first use case reached 19 extensions over four review
+  rounds before its trim. Status: a thesis. On that PR's trim it agreed with the hand decision on about 80% of 312
+  cases, as a fit rather than a prediction (cyber-truss A6, `raw/p10-placement-check.md`). A held-out check is still
+  to do; the next spec written with the updated skill serves as that case. Supersedes D9 and D17 in part.
+- D23 Decide in prose only what building cannot settle. The design spec holds what must be judged: which goal and
+  which outcome are wanted. What writing and running the code settles goes to the rung that runs it, where a
+  deterministic test is a function by construction. Reason: agent-interpreted Gherkin is not a function, which is the
+  churn SDD v1 paid for (cyber-truss A9).
+- D24 Each criterion is bracketed when it is written: its strictest and its most lenient reasonable reading, checked
+  against the use case's extensions and its graph paths. Agreement means the criterion is crisp. Disagreement sends
+  it through the placement test (D22) first, and it is tightened only after that. The readings are a check made while
+  writing, not text in the spec, so D8 still holds. This gives C5's "one reading" a procedure. Reason: tightening in
+  prose is how a design spec fills with implementation detail (cyber-truss P10, an import of MCDT's interval
+  uncertainty, Censi 2017).
+- D25 Churn signals misplacement. In review, a criterion revised in two or more rounds goes through the placement test
+  before it is revised again. Reason: on cyber-agentkit PR #135, 60% of the cases the trim cut to a property had been
+  revised in two or more commits, against 10% of the cases it kept (cyber-truss A10).
+- D26 Lower-rung writes may add, never change. A test that pins an encoding the spec leaves open is the build adding
+  to the lower rung, a minor change. Changing what an existing test asserts is breaking and goes to the owner. Reason:
+  this keeps the consumer stability D22 moves out of the design spec, and lets the rungs be written in parallel
+  (cyber-truss A8).
+- D27 A criterion whose verdict flipped on an unchanged state is not a function under its judge. It goes back to
+  Write, where its graph path is split, with placement (D22) first. In practice this applies to the eval-checked
+  criteria of a skill-instruction use case. Reason: the cause may be a prose criterion read two ways, a flaky test,
+  or judge noise, and the remedy is the same; the graph is an authoring instrument, so a run-time failure is fixed by
+  authoring (cyber-truss P11 B3, and C3 under P13).
 
 ## Reference material
 
@@ -176,7 +233,8 @@ the two that catch what is missing; the rest catch what is wrong or surplus.
 - D3 Where does HOW stop? spec-kit and Gherkin say never HOW; Tessl-style specs include an API section and
   Kiro has design.md alongside; Fowler found the boundary unclear. Public surface (names, signatures, exit codes) is
   outcome when consumers depend on it; internals are not. The dependencies example lists CLI flags and exit codes as
-  outcome. Rule of thumb: if a consumer is judged against it, it is criterion.
+  outcome. Rule of thumb: if a consumer is judged against it, it is criterion. *(Recommendation superseded by D22:
+  an encoding is criterion only when the actor needs that particular one.)*
 - D4 Implicit criteria. 29148/830 push "complete"; cyber-truss says some criteria are never stated by decision. Resolve
   by requiring that the decision be recorded (C6), not that everything be written.
 - D5 Notation. Kiro uses EARS; OpenSpec uses SHALL plus WHEN/THEN scenarios; SDD uses Gherkin from a control-flow
@@ -191,7 +249,8 @@ the two that catch what is missing; the rest catch what is wrong or surplus.
 packages/cyber-agentkit/.agents/spec/dependencies/README.md has: What + Non-goals + Key terms; Use Cases with an actors
 table and per-UC entry points, inputs, outcome, extensions; Control Flow; Scenario map; References. Extension lists
 are long (UC1 has about 11), showing C6 in practice and C9 pressure. It adds a decision graph and scenario map
-beyond the minimal list because the capability branches. It states exit codes and stable error codes as outcome (D3).
+beyond the minimal list because the capability branches. It states exit codes and stable error codes as outcome (D3,
+superseded by D22, under which they belong to the lower rung).
 
 ## Confidence
 
@@ -237,3 +296,5 @@ Low for the exact wording of IEEE 830 and 29148 (secondary sources only).
 - Obtain 29148 clause 5.2 text; verify the "nine individual, five set" characteristics.
 - Cucumber's official Gherkin reference (one behavior per scenario) was not fetched.
 - Re-run once the cyber-truss model leaves "Thesis" status for use cases and implicit criteria.
+- Check D22 on a held-out spec: the next spec written with the updated skill, with its review history, classified
+  blind against the placement test.

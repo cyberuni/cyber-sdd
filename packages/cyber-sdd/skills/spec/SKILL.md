@@ -22,6 +22,10 @@ after the build.
 | split a spec that has grown past what its readers need | [Write](#write), the steps under **Split a spec** |
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
+| a criterion whose verdict flipped on an unchanged state | [Write](#write): split its graph path, placement test first |
+
+A criterion whose verdict flips on an unchanged state is not a function under its judge. In practice this is an
+eval-checked criterion of a skill-instruction use case.
 
 Not for a node of a first-generation SDD project spec (under `.agents/specs/`, with a `.feature` suite): that is
 the `sdd` plugin's `start-mission`. This skill covers the design spec only, not the functional spec beneath it.
@@ -45,14 +49,21 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
    `UCn.m` sub-bullets. A use case with no extensions says `extensions: none, <why>`. The use case states the goal and
    result and is delivery agnostic; the delivery (a skill, a command, a library call) appears only under Entry points,
    and in the criteria group for that adapter.
-7. **Criteria.** A list of boolean statements about the outcome, one per line, each with a stable ID and bound to a
-   use case and, where a graph exists, to an edge in it.
+7. **Criteria.** A list of boolean statements about the outcome, one per line, each with an ID and bound to a use
+   case and, where a graph exists, to an edge in it. Each is self-contained: decidable from its own text, with any
+   context it depends on, such as the path or the use case, written into it. The cited use case and edge are a trace,
+   not part of its meaning.
 8. **Open questions.** What is unresolved, marked. Empty before the spec is ready.
 9. **References.** Links to rationale, sibling specs, and the home of any shared fact.
 
 **Give every item of these lists an ID** a reader can cite: `N1` for a non-goal, `K1` for a key term, `A1` for an actor and
 `A1.1` for its goal, `UC1` for a use case and `UC1.1` for its extension, `R1` for a criterion, `E1` for a graph edge,
 `Q1` for an open question. An ID is never reused: a removed item retires its ID.
+
+**An ID labels a criterion's text; the text is the criterion.** Use the ID to cite it and to name its tests. Before
+the spec is first ready, revise criteria freely. After that, changing a criterion's text retires its ID, gives the
+criterion a new one, and rechecks the tests derived from it. A key term counts as part of the text of every criterion
+that names it, so changing a key term changes every such criterion and retires each one's ID.
 
 **Settle one section at a time.** Grill the spec with the user, one section at a time, in the order above. Each
 section is derived from the ones before it, so a wrong outcome or a missed actor carries into every criterion. For
@@ -62,7 +73,10 @@ each section:
    capability does, not what it should do. Decided behavior the code lacks is still written as a criterion; the gap
    goes to the tracker.
 2. Judge the draft against the criteria that apply to it: C1 on the outcome, C2 on the non-goals, C3 on the actors and
-   use cases, C4 to C6 on the criteria, C8 on the open questions.
+   use cases, C4 to C6 on the criteria, C8 on the open questions. Bracket each criterion as you write it: state its
+   strictest and its most lenient reasonable reading, and check both against the use case's extensions and its graph
+   paths. If they agree, the criterion is crisp. If they disagree, apply the placement test (under **Design spec
+   versus functional spec**) first, and tighten the text only after that. The readings are a check made while writing, not text in the spec.
 3. Show the user that section and the questions it raises, and nothing beyond it.
 4. When the user agrees, commit the section, then go to the next.
 
@@ -85,7 +99,7 @@ a revision never straddles files.
 
 1. Table the tasks, the sections each needs, and its share of the spec. Split only when most shares are under half.
 2. Put in the parent what every task needs: the What, Non-goals, Key terms, Actors, the criteria groups that span
-   children (such as `Adapters`, names, the output contract), the open questions they share, References, and a table
+   children (such as `Adapters` or the output contract), the open questions they share, References, and a table
    linking each child with its use cases.
 3. Give each child its use cases, the criteria groups bound to them, its open questions, a title naming its own
    outcome, and a line linking the parent's terms. A child is never read without its parent.
@@ -98,18 +112,29 @@ yet. The gap between the criteria and the code is found by checking one against 
 in the project tracker, linked by criterion ID. Link rationale (an ADR, an issue, a research topic) and do not copy it
 in.
 
-**Design spec versus functional spec.** The design spec states what a consumer of the capability is judged against:
-names, flags, exit codes, error codes, stated outcomes. Be specific there. Internal contracts, module behavior, and
-scenarios belong in the functional spec co-located with the implementation. Test: if a consumer would notice the
-change, it is a criterion here. Otherwise it is not.
+**Design spec versus functional spec.** The design spec states outcomes: what the actor gets or can tell apart. An
+encoding is how an outcome is spelled or carried: names, literal values and codes, exit numbers, output fields and
+formats, flag syntax, message wording, the order of checks when every order gives the same kind of outcome. Encodings,
+internal contracts, module behavior, and scenarios belong to the lower rung: the functional spec co-located with the
+implementation, and the code and tests beneath it.
+
+- **Hold the outcome, vary the encoding.** If the actor reaches the goal under any encoding that is stable and keeps
+  distinct outcomes distinct, the encoding belongs to the lower rung. The design spec keeps the outcome and the
+  property the actor needs ("distinct per cause", "stable"). A program actor reads encodings but needs no particular
+  one, so it is judged the same way. Only a case whose outcome differs between two readings of a criterion is a grain
+  defect in the design spec; a difference in encoding alone moves the encoding down. This is the placement test.
+- **Decide in prose only what building cannot settle.** The design spec holds what must be judged: which goal and
+  which outcome are wanted. What writing and running the code settles goes to the rung that runs it, where a
+  deterministic test gives one verdict per state. A prose scenario an agent interprets does not.
 
 **Notation.** The design spec names no scenario form. Use cases and criteria are the contract. A use case may carry
 Gherkin or EARS for one scenario when it clarifies; the functional spec or test plan owns the form of the rest.
 
 **Several surfaces.** When the same code is reached through several adapters (a CLI, a library, an MCP server), state
-each outcome once without naming an adapter: "the status is `missing`", not "exit 1". Map each outcome to each
-adapter's form (exit code, stream, return value, thrown error) in one criteria group, `Adapters`. Group a use case's
-entry points by surface. Behavior that a skill's instructions add on top, such as a fallback or what to tell the user,
+each outcome once without naming an adapter: "the reference is reported missing", not "exit 1". One criteria group,
+`Adapters`, states what each adapter's actor needs of its form, such as each outcome told apart, distinct per cause,
+and stable. The mapping from each outcome to an exit code, stream, return value, or thrown error belongs to the lower
+rung, pinned by its tests. Group a use case's entry points by surface. Behavior that a skill's instructions add on top, such as a fallback or what to tell the user,
 is its own use case. Its criteria are checked by an eval run of the skill, not by a deterministic test.
 
 **Decision graph.** When the behavior branches, draw the decisions in `graph.md`, in the format of the decision graph
@@ -121,7 +146,8 @@ Load the criteria reference and judge the spec against C1 to C9 in number order.
 C9 fails, every check under [Validate](#validate) passes, and Open questions is empty.
 
 Iterate before you present. After each judgment, fix every failing criterion in the spec yourself, then judge it again.
-Repeat a few times, stopping when none fails or when a round fixes nothing new. Take only the fixes the spec and its
+Repeat a few times, stopping when none fails or when a round fixes nothing new. Churn signals misplacement: a
+criterion revised in two or more rounds goes through the placement test before it is revised again. Take only the fixes the spec and its
 sources settle. A fix that needs a decision the user has not made (a scope call, a rule with two reasonable readings)
 is not a fix: leave it, and put it under Open questions with the options and your recommendation. Keep each round a
 change of the spec's text only; never move the spec's scope without asking.
@@ -138,6 +164,10 @@ project's own test stack. Put the criterion ID in the name of its test or group.
 agent to run: an agent running prose scenarios spends tokens on every run and cannot be relied on to follow them. A
 criterion of a skill-instruction use case is the exception: an eval run of the skill checks it. Any other criterion
 that cannot become such a test fails C5; send it back to Write instead of guessing.
+
+Lower-rung writes may add, never change. A test that pins an encoding the spec leaves open, such as the exit code for
+an outcome, is the build adding to the lower rung: a minor change, made freely. Changing what an existing test
+asserts is a breaking change: take it to the owner instead of making it.
 
 ## Validate
 
@@ -158,8 +188,9 @@ git history, not against your report. Each line is pass or fail; `README.md` and
 - V5 Every criterion cites a use case ID that exists. When `graph.md` exists, every edge ID a criterion cites exists
   in it, and every outcome node in it is reached by an edge some criterion cites.
 - V6 `grep -nEi '\b(TBD|TODO)\b|not (yet )?built' README.md graph.md` finds nothing.
-- V7 No criterion names a source file, module, or internal function of the implementation; public names a consumer
-  depends on (flags, exit codes, error codes) are allowed.
+- V7 No criterion names a source file, module, or internal function of the implementation, or pins an encoding (an
+  exit number, a literal code or value, flag syntax, an output field or format, message wording) unless the actor's
+  goal fails under some other stable encoding that keeps distinct outcomes distinct.
 - V8 The spec holds no implementation design, task list, stack choice, or alternatives analysis; rationale appears
   only as links.
 - V9 A spec presented as ready has no item under Open questions and no node in `graph.md` marked `open`.
@@ -180,4 +211,4 @@ git history, not against your report. Each line is pass or fail; `README.md` and
   decision table and state list that may replace it.
 - **Rationale and sources**: the research topic
   [design-spec-criteria](https://github.com/cyberuni/cyber-sdd/tree/main/.research/design-spec-criteria), decisions
-  D8 to D19 in its `conclusion.md`.
+  D8 onward in its `conclusion.md`.

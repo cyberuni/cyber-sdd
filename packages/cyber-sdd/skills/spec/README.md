@@ -29,6 +29,8 @@ plugin's `start-mission`, not here.
   rest as open questions with a recommendation.
 - **Split** moves a spec into a parent and child specs by capability, never by layer, keeping every ID, in a commit
   that only moves text.
+- **Placement** keeps outcomes in the design spec and moves encodings (names, codes, exit numbers, fields, flag
+  syntax, wording) to the functional spec and tests beneath it, unless the actor needs that particular encoding.
 - **Derive tests** turns each criterion into a native, deterministic test of the project's own test stack, named by
   its criterion ID. Criteria of a skill-instruction use case are checked by an eval run of the skill instead.
 - **Validate** (V1 to V13 in [`SKILL.md`](SKILL.md#validate)) is the self-check before handoff and the re-check a cold

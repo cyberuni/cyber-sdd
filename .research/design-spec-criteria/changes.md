@@ -19,3 +19,7 @@
 - 2026-11-04. Owner decisions D20 and D21 added: a criterion's identity is its self-contained text, its ID is a label
   that retires when the text changes after the spec is first ready, and a key term is part of every criterion that
   names it. D16 superseded in part. Triggered by the cyber-truss lattice-model rulings (P9, the semver ruling).
+- 2026-11-04. Owner decisions D22 and D23 added: the placement test (hold the outcome, vary the encoding), labeled a
+  thesis pending a held-out check, and deciding in prose only what building cannot settle. D9 superseded, D17
+  superseded in part, and the D3 recommendation superseded. Triggered by the cyber-truss lattice-model rulings (A6,
+  A9) and the PR #135 placement check.

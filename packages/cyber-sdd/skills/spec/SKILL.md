@@ -45,14 +45,21 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
    `UCn.m` sub-bullets. A use case with no extensions says `extensions: none, <why>`. The use case states the goal and
    result and is delivery agnostic; the delivery (a skill, a command, a library call) appears only under Entry points,
    and in the criteria group for that adapter.
-7. **Criteria.** A list of boolean statements about the outcome, one per line, each with a stable ID and bound to a
-   use case and, where a graph exists, to an edge in it.
+7. **Criteria.** A list of boolean statements about the outcome, one per line, each with an ID and bound to a use
+   case and, where a graph exists, to an edge in it. Each is self-contained: decidable from its own text, with any
+   context it depends on, such as the path or the use case, written into it. The cited use case and edge are a trace,
+   not part of its meaning.
 8. **Open questions.** What is unresolved, marked. Empty before the spec is ready.
 9. **References.** Links to rationale, sibling specs, and the home of any shared fact.
 
 **Give every item of these lists an ID** a reader can cite: `N1` for a non-goal, `K1` for a key term, `A1` for an actor and
 `A1.1` for its goal, `UC1` for a use case and `UC1.1` for its extension, `R1` for a criterion, `E1` for a graph edge,
 `Q1` for an open question. An ID is never reused: a removed item retires its ID.
+
+**An ID labels a criterion's text; the text is the criterion.** Use the ID to cite it and to name its tests. Before
+the spec is first ready, revise criteria freely. After that, changing a criterion's text retires its ID, gives the
+criterion a new one, and rechecks the tests derived from it. A key term counts as part of the text of every criterion
+that names it, so changing a key term changes every such criterion and retires each one's ID.
 
 **Settle one section at a time.** Grill the spec with the user, one section at a time, in the order above. Each
 section is derived from the ones before it, so a wrong outcome or a missed actor carries into every criterion. For
@@ -180,4 +187,4 @@ git history, not against your report. Each line is pass or fail; `README.md` and
   decision table and state list that may replace it.
 - **Rationale and sources**: the research topic
   [design-spec-criteria](https://github.com/cyberuni/cyber-sdd/tree/main/.research/design-spec-criteria), decisions
-  D8 to D19 in its `conclusion.md`.
+  D8 onward in its `conclusion.md`.

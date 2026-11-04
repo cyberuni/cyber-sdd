@@ -2,7 +2,7 @@
 
 ## Last updated
 
-October 2026 (reviewed by the owner; decisions D8 to D19 added)
+November 2026 (decisions D20 onward added from the cyber-truss lattice-model rulings; D8 to D19 from October 2026)
 
 ## Question
 
@@ -63,7 +63,8 @@ These settle the open choices below and override the recommendations where they 
   built on it. Code-derived text records what the code does, not what it should do: the reference backfill left eight
   questions (Q1 to Q8) the code could not answer. With no user, every section is drafted and each question goes to
   Open questions.
-- D16 Every list item in a spec carries an ID, and a removed item retires its ID. Reason: grilling and review
+- D16 *(Superseded in part by D20: an ID labels a criterion's text and is not its identity.)* Every list item in a
+  spec carries an ID, and a removed item retires its ID. Reason: grilling and review
   cite items one at a time ("drop N4", "revise A1.2"); without an ID each reference quotes the text, and a reworded
   item can no longer be found by the quote.
 - D17 Outcomes are stated once, adapter-neutral, and one `Adapters` criteria group maps them to each adapter; skill
@@ -82,6 +83,24 @@ These settle the open choices below and override the recommendations where they 
   Splitting before the sections are agreed would make each revision of a shared term edit several files: the
   reference spec's stack redesign reopened every section after Key terms. The reference spec split into resolve, write,
   interfaces, and skill, cutting the largest task's read from the whole spec to about 60%.
+
+## Owner decisions (2026-11-04)
+
+These apply the rulings of the cyber-truss lattice model (`cyberuni/cyber-truss`,
+`.research/monotone-co-design/raw/criteria-structure.md` P9 to P13, `raw/q4-model-findings.md` for the semver
+ruling, and `raw/p10-placement-check.md`). Semver for criteria, breaking only: adding a criterion is minor, and any
+change to an existing one, rewording included, is breaking. There is no patch tier.
+
+- D20 A criterion's identity is its self-contained text; its ID is a label for citation and test names. Before the
+  spec is first ready, criteria are revised freely. After that, changing a criterion's text retires its ID and gives
+  it a new one, and the tests derived from it are rechecked. A key term counts as part of the text of every criterion
+  that names it, so the term keeps one home (C7) and criteria stay short, and changing it is a breaking change to
+  every criterion that uses it. Reason: the judge reads a criterion's text, so a rewording can change a verdict, and
+  nothing at authoring time proves it does not (cyber-truss P9 and the semver ruling). Supersedes D16 in part.
+- D21 A criterion is decidable from its own text. Any context it depends on, such as the path or the use case, is
+  written into it; a cited use case or graph edge is a trace, not part of its meaning. Reason: the judge reads the
+  criterion and nothing else, so text that leans on context it does not carry can mean two things (P9's
+  load-bearing condition).
 
 ## Reference material
 

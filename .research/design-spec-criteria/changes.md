@@ -16,3 +16,6 @@
   Triggered by the owner's grilling of the reference spec's UC2.
 - 2026-10-20. Owner decision D19 added: how a spec splits into child specs, and when. Triggered by splitting the
   reference spec after its grilling.
+- 2026-11-04. Owner decisions D20 and D21 added: a criterion's identity is its self-contained text, its ID is a label
+  that retires when the text changes after the spec is first ready, and a key term is part of every criterion that
+  names it. D16 superseded in part. Triggered by the cyber-truss lattice-model rulings (P9, the semver ruling).

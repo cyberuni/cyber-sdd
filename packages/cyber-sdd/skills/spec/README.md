@@ -21,8 +21,9 @@ plugin's `start-mission`, not here.
 
 - **Write** lays out one capability per folder (`README.md`, plus `graph.md` when the behavior branches) and settles
   it with the user one section at a time: outcome, What, Non-goals, Key terms, Actors and goals, Use cases, Criteria,
-  Open questions, References. Every list item carries a stable ID. A headless run drafts every section and puts each
-  question under Open questions.
+  Open questions, References. Every list item carries an ID. A criterion's text is its identity: after the spec is
+  first ready, a changed criterion takes a new ID. A headless run drafts every section and puts each question under
+  Open questions.
 - **Review** judges the spec against nine pass/fail criteria (C1 to C9, in
   [`references/criteria.md`](references/criteria.md)), fixes what the spec and its sources settle, and returns the
   rest as open questions with a recommendation.

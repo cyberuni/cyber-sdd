@@ -130,6 +130,15 @@ change to an existing one, rewording included, is breaking. There is no patch ti
 - D25 Churn signals misplacement. In review, a criterion revised in two or more rounds goes through the placement test
   before it is revised again. Reason: on cyber-agentkit PR #135, 60% of the cases the trim cut to a property had been
   revised in two or more commits, against 10% of the cases it kept (cyber-truss A10).
+- D26 Lower-rung writes may add, never change. A test that pins an encoding the spec leaves open is the build adding
+  to the lower rung, a minor change. Changing what an existing test asserts is breaking and goes to the owner. Reason:
+  this keeps the consumer stability D22 moves out of the design spec, and lets the rungs be written in parallel
+  (cyber-truss A8).
+- D27 A criterion whose verdict flipped on an unchanged state is not a function under its judge. It goes back to
+  Write, where its graph path is split, with placement (D22) first. In practice this applies to the eval-checked
+  criteria of a skill-instruction use case. Reason: the cause may be a prose criterion read two ways, a flaky test,
+  or judge noise, and the remedy is the same; the graph is an authoring instrument, so a run-time failure is fixed by
+  authoring (cyber-truss P11 B3, and C3 under P13).
 
 ## Reference material
 

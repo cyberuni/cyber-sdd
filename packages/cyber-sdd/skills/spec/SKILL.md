@@ -22,6 +22,10 @@ after the build.
 | split a spec that has grown past what its readers need | [Write](#write), the steps under **Split a spec** |
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
+| a criterion whose verdict flipped on an unchanged state | [Write](#write): split its graph path, placement test first |
+
+A criterion whose verdict flips on an unchanged state is not a function under its judge. In practice this is an
+eval-checked criterion of a skill-instruction use case.
 
 Not for a node of a first-generation SDD project spec (under `.agents/specs/`, with a `.feature` suite): that is
 the `sdd` plugin's `start-mission`. This skill covers the design spec only, not the functional spec beneath it.
@@ -160,6 +164,10 @@ project's own test stack. Put the criterion ID in the name of its test or group.
 agent to run: an agent running prose scenarios spends tokens on every run and cannot be relied on to follow them. A
 criterion of a skill-instruction use case is the exception: an eval run of the skill checks it. Any other criterion
 that cannot become such a test fails C5; send it back to Write instead of guessing.
+
+Lower-rung writes may add, never change. A test that pins an encoding the spec leaves open, such as the exit code for
+an outcome, is the build adding to the lower rung: a minor change, made freely. Changing what an existing test
+asserts is a breaking change: take it to the owner instead of making it.
 
 ## Validate
 

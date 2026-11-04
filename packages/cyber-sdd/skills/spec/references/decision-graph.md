@@ -17,6 +17,8 @@ Use it when the capability's behavior branches. It is the instrument for C6 to C
   graph. An extension with no path is a hole in the graph: fix it there.
 - **C7.** A combination that must not occur is a guard node. If it is only in prose, the constraint is
   unenforceable.
+- **C5, at run time.** A leaf whose criterion gave two verdicts on an unchanged state is not a function. Split its
+  path until each leaf covers one case, after the placement test.
 - **C8.** An undecided question is a node marked `open`. A search for `open` finds every unresolved point.
 - **C5.** Derive criteria from the graph's edges, not from the prose, so the list can reveal a missing branch. A
   criterion's two readings are checked against the paths that reach its edge.

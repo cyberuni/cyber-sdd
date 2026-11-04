@@ -34,7 +34,9 @@ plugin's `start-mission`, not here.
 - **Placement** keeps outcomes in the design spec and moves encodings (names, codes, exit numbers, fields, flag
   syntax, wording) to the functional spec and tests beneath it, unless the actor needs that particular encoding.
 - **Derive tests** turns each criterion into a native, deterministic test of the project's own test stack, named by
-  its criterion ID. Criteria of a skill-instruction use case are checked by an eval run of the skill instead.
+  its criterion ID. Criteria of a skill-instruction use case are checked by an eval run of the skill instead. A test
+  may pin an encoding the spec leaves open; changing what an existing test asserts goes to the owner. A criterion
+  whose verdict flipped on an unchanged state goes back to Write to split its graph path.
 - **Validate** (V1 to V13 in [`SKILL.md`](SKILL.md#validate)) is the self-check before handoff and the re-check a cold
   reader runs against the spec folder.
 

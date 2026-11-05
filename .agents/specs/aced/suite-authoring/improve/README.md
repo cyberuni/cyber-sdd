@@ -15,7 +15,7 @@ suite, a general review against the fit classifier and the matching builder bar.
 **Subject** — improving an existing agent configuration: for an ACED-tracked target, diagnosing its
 failing evals, grouping them by failure pattern, proposing concrete before/after edits, and verifying
 with `compare`; for an untracked target, a general review against the fit and builder bars.
-**Non-goals** — scaffolding a brand-new config (`define-skill` / `define-agent` / `define-governance`);
+**Non-goals** — scaffolding a brand-new config (`define-skill` / `define-agent` / the `reference` skill of `cyber-agentkit`);
 authoring a case (`add-scenario`); scoring the suite (`run`); on-demand diffing (`compare`); auditing a
 SKILL file's structure (`improve-skill`); how a single case is scored (that is `aced-case-judge`).
 
@@ -39,7 +39,7 @@ verify path are judged, not asserted.
 ```mermaid
 flowchart TD
   req[request carrying config vocabulary] --> route{improve this config?}
-  route -- scaffold a new config --> define[defer to define-skill / define-agent / define-governance]
+  route -- scaffold a new config --> define[defer to define-skill / define-agent / the reference skill of cyber-agentkit]
   route -- add a case --> add[defer to add-scenario]
   route -- score the suite --> run[defer to run]
   route -- diff two versions --> compare[defer to compare]

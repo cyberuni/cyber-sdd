@@ -1,7 +1,7 @@
 # config-authoring/ — author + maintain agent configuration
 
 Creating the agent-config artifacts ACED evaluates: workflow skills (`define-skill`), agent
-definitions (`define-agent`), governances (`define-governance`), and skills generalized from the
+definitions (`define-agent`), and skills generalized from the
 current session (`skillify`). Also **improving** an existing one:
 [`improve-skill/`](./improve-skill/README.md) — audit a SKILL.md for structure, quality, and security
 (the agent-graded audit plus a ported deterministic mechanical-check engine usable standalone in CI).

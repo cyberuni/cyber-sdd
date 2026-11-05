@@ -13,7 +13,7 @@ Good triggers include:
 - Filling out an incomplete or weakly-triggering existing SKILL.md
 - Scaffolding the SKILL.md + README + runtime symlinks in one pass
 
-Defer to a sibling when the request is really about an agent or persona (`define-agent`), a reference-only rule set (`define-governance`), extracting the current session (`skillify`), or scoring / diagnosing an existing config (`run` / `add-scenario` / `improve`).
+Defer to a sibling when the request is really about an agent or persona (`define-agent`), a reference-only rule set (the `reference` skill of `cyber-agentkit`), extracting the current session (`skillify`), or scoring / diagnosing an existing config (`run` / `add-scenario` / `improve`).
 
 ## What it does
 

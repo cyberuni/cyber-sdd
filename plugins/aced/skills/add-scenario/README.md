@@ -12,7 +12,7 @@ Good triggers include:
 - "We need to cover this edge case"
 - Turning a pasted agent transcript that went wrong into a guarded-against scenario
 
-Defer to a sibling when the request is about scoring the existing set (`run`), diagnosing why cases fail (`improve`), or there's no suite yet at all (`define-skill` / `define-agent` / `define-governance`, then `sdd:start-mission` to author one).
+Defer to a sibling when the request is about scoring the existing set (`run`), diagnosing why cases fail (`improve`), or there's no suite yet at all (`define-skill` / `define-agent` / the `reference` skill of `cyber-agentkit`, then `sdd:start-mission` to author one).
 
 ## What it does
 

@@ -13,7 +13,7 @@ Good triggers include:
 - Converting an existing workflow skill into a `/name`-only command
 - Deciding between the `commands/` folder and `disable-model-invocation: true` mechanisms
 
-Defer to a sibling when the request is really about a companion command that loads an agent definition into context (`define-agent`), a workflow that should keep auto-triggering (`define-skill`), a reference-only rule set (`define-governance`), or scoring / diagnosing an existing config (`run` / `add-scenario` / `improve`).
+Defer to a sibling when the request is really about a companion command that loads an agent definition into context (`define-agent`), a workflow that should keep auto-triggering (`define-skill`), a reference-only rule set (the `reference` skill of `cyber-agentkit`), or scoring / diagnosing an existing config (`run` / `add-scenario` / `improve`).
 
 ## What it does
 

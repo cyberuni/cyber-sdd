@@ -24,7 +24,7 @@ An artifact can pass every scenario and still be unusable configuration.
 - **Agent-first body.** Dense normative rules the agent executes **without opening a linked file
   first**. A body that defers its own content to a repo path is not self-contained: the model has to
   stop and fetch before it can act. Optional depth belongs in a closing `## References` — a
-  `governance show` command, an external HTTPS URL, or a sibling file in the same skill folder.
+  reference name, an external HTTPS URL, or a sibling file in the same skill folder.
   **Fail:** a mid-workflow link to another repository file.
 - **No rationale prose.** No `## Why`, `## Rationale`, `## Background`, or `## Context` section, and
   no causal "because…" explanation in the body. A one-line scope at the top ("Apply when…") is
@@ -55,8 +55,8 @@ are **not** restated here:
 
 | Artifact-type | Additional contract |
 |---|---|
-| `skill` | `cyberplace governance show skill-design` — frontmatter fields, activation, progressive disclosure, `skill.json`, placement and patterns |
-| `skill` (repo layout) | `cyberplace governance show skill-repo-structure` |
+| `skill` | the `skill-design` reference — frontmatter fields, activation, progressive disclosure, `skill.json`, placement and patterns |
+| `skill` (repo layout) | the `skill-repo-structure` reference |
 | `subagent`, `command`, `agents-section` | no separate shipped contract; this bar is the whole agent-config shape bar for them |
 
 ## Gaps are `CONTENT_GAP`, never guesses
@@ -68,6 +68,6 @@ criterion exists to catch.
 
 ## References
 
-- `cyberplace governance show skill-design` — the full skill authoring contract this bar's criteria
+- the `skill-design` reference, loaded with the `reference` skill of `cyber-agentkit` — the full skill authoring contract this bar's criteria
   are drawn from; read stdout as authoritative.
-- `cyberplace governance show skill-repo-structure` — repository layout for shipped skills.
+- the `skill-repo-structure` reference, loaded with the `reference` skill of `cyber-agentkit` — repository layout for shipped skills.

@@ -2,7 +2,7 @@
 Feature: define-agent — author an agent definition
   Unit suite for the define-agent skill: choose a mode, resolve placement, scaffold the canonical
   agent file plus runtime symlinks and (invokable) a companion command, then verify and report.
-  Authoring a reference-only governance is define-governance; scoring and case authoring are
+  Authoring a reference-only governance is the `reference` skill of `cyber-agentkit`; scoring and case authoring are
   run/add. Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Triggering ----
@@ -22,10 +22,10 @@ Feature: define-agent — author an agent definition
     When ACED routes the request
     Then define-agent does not handle it and define-skill does
 
-  Scenario: a request for a reference-only governance defers to define-governance
+  Scenario: a request for a reference-only governance defers to the reference skill of cyber-agentkit
     Given the user asks to write a rule set that other skills load on demand
     When ACED routes the request
-    Then define-agent does not handle it and define-governance does
+    Then define-agent does not handle it and the reference skill of cyber-agentkit does
 
   Scenario: a request to score a config defers to run
     Given the user asks to run the evals for an agent configuration

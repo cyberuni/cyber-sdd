@@ -15,20 +15,20 @@ The problem it solves is that a workflow performed manually in a session has no 
 next session re-derives every decision from scratch. `skillify` captures what was decided and why so an
 agent can repeat it. The hard part is the boundary — the same "reuse this / make a skill" vocabulary is
 carried by capabilities that scaffold a skill *from scratch* (`define-skill`), extract the session into
-an *agent/persona* (`define-agent`), capture it as a *reference-only rule set* (`define-governance`),
+an *agent/persona* (`define-agent`), capture it as a *reference-only rule set* (the `reference` skill of `cyber-agentkit`),
 or *diagnose* failing evals (`improve`). The tell is the **target artifact**, not the "reuse this"
 framing. `skillify` owns exactly one thing: generalizing *this session's* work into a skill.
 
 **Non-goals.** Scaffolding a skill **from scratch** (from a topic the session did not perform) is
 `define-skill`; diagnosing why an existing skill's golden-set evals fail is `improve`; authoring an
 agent definition or persona is `define-agent`; authoring a reference-only rule set is
-`define-governance`; scoring a config or adding eval cases is `run` / `add-scenario`; contributing an
+the `reference` skill of `cyber-agentkit`; scoring a config or adding eval cases is `run` / `add-scenario`; contributing an
 already-authored installed skill back to its source repo is `contribute-skill`. skillify is the
 session-extraction side of the boundary `define-skill` names from the other side — two faces of one
 routing decision, their Non-goals mirrors.
 
 **Fit:** strong — `skillify` makes a genuine activation decision (generalize *this session's* work vs.
-the same config vocabulary carried by `define-skill`, `improve`, `define-agent`, or `define-governance`)
+the same config vocabulary carried by `define-skill`, `improve`, `define-agent`, or the `reference` skill of `cyber-agentkit`)
 and has non-deterministic judgment (what to extract from the session, decisions vs. documentation,
 placement, pattern, name, description), so all four eval layers carry signal.
 
@@ -56,7 +56,7 @@ flowchart TD
   ROUTE -->|scaffold a skill from scratch, no session behind it| DS([defer to define-skill])
   ROUTE -->|diagnose why a skill's golden-set evals fail| IMP([defer to improve])
   ROUTE -->|extract the session into a delegated agent / persona| DA([defer to define-agent])
-  ROUTE -->|capture the session as a reference-only rule set| DG([defer to define-governance])
+  ROUTE -->|capture the session as a reference-only rule set| DG([defer to the reference skill of cyber-agentkit])
 
   MINE["mine the session — trigger, decisions, steps, inputs, outputs;<br/>keep decisions + why, drop documentation the model knows;<br/>encode only steps the session actually performed"] --> PLACE
 
@@ -102,7 +102,7 @@ follow the suite's section order.
 | `ROUTE` → `DS` | scaffold a skill from scratch with no session work behind it | `a request to scaffold a skill from scratch defers to define-skill` |
 | `ROUTE` → `IMP` | diagnose why a skill's golden-set cases are failing | `a request to diagnose why a skill's evals fail defers to improve` |
 | `ROUTE` → `DA` | turn the session into a delegated code-reviewer agent | `a request to extract the session into a delegated agent defers to define-agent` |
-| `ROUTE` → `DG` | capture the session as criteria other skills load but never execute | `a request to extract the session into a reference-only rule set defers to define-governance` |
+| `ROUTE` → `DG` | capture the session as criteria other skills load but never execute | `a request to extract the session into a reference-only rule set defers to the reference skill of cyber-agentkit` |
 | `MINE` (extract) | a session that manually migrated a config across three files and verified it | `the workflow is mined from what the session actually did` |
 | `MINE` (separate) | a session mixing a load-bearing choice with steps the model already knows | `decisions are separated from documentation` |
 | `MINE` (no-invent guard) | a session that performed four of a workflow's five conceivable steps | `no step the session never performed is invented` |

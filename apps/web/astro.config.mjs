@@ -40,7 +40,6 @@ export default defineConfig({
 						{ label: 'add-scenario', link: '/aced/add-scenario/' },
 						{ label: 'define-skill', link: '/aced/define-skill/' },
 						{ label: 'define-agent', link: '/aced/define-agent/' },
-						{ label: 'define-governance', link: '/aced/define-governance/' },
 						{ label: 'skillify', link: '/aced/skillify/' },
 						{ label: 'contribute-skill', link: '/aced/contribute-skill/' },
 						{ label: 'init-aced', link: '/aced/init-aced/' },

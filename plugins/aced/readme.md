@@ -131,7 +131,7 @@ A skill loads them in one line, never by path:
 Load `skill-design` and `agent-tool-output` with the `reference` skill of `cyber-agentkit`.
 ```
 
-A project overrides one at `.agents/references/<name>.md`. A skill may carry its own copy at
+A repository overrides one at `.agents/references/<name>.md` in its root. A skill may carry its own copy at
 `references/<name>.default.md`; ACED's copies declare `extends: [default]`, so they build on that
 copy instead of competing with it. `define-skill` and `improve-skill` carry copies of
 `skill-design` and `agent-tool-output`, kept equal to the ones here by a smoke test.

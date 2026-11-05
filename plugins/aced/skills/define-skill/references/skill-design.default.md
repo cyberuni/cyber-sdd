@@ -242,7 +242,7 @@ A skill that needs a reference at run time names it in one line and never reads 
 Load `<name>` and `<other>` with the `reference` skill of `cyber-agentkit`.
 ```
 
-- The `reference` skill decides what answers each name: a project override at `.agents/references/<name>.md`, a user override at `~/.agents/references/<name>.md`, the plugin that ships the name in its `references/`, then the skill's own default.
+- The `reference` skill decides what answers each name: a repo override at `.agents/references/<name>.md` in the repository root, a user override at `~/.agents/references/<name>.md`, the plugin that ships the name in its `references/`, then the skill's own default.
 - A skill's default copy lives at `references/<name>.default.md` in its folder. It is read on its own only when the `reference` command cannot run.
 - A skill copies every reference a copied reference names, so each stays one level deep.
 - Never read `.agents/references/` or a plugin's `references/` directly.

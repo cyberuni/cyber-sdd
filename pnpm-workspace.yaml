@@ -35,3 +35,5 @@ minimumReleaseAgeExclude:
   - cyber-agentkit@1.0.0
   # cyber-agentkit@2.0.0 downstream move (cyber-uni/cyber-agentkit#101); published 2026-11-04, removable from 2026-11-05
   - cyber-agentkit@2.0.0
+  # min-release-age: lift cyber-agentkit@2.1.0 until 2026-11-05T17:00:00Z
+  - 'cyber-agentkit@2.1.0'

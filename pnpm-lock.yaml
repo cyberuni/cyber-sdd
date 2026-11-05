@@ -241,8 +241,8 @@ importers:
   plugins/aced:
     dependencies:
       cyber-agentkit:
-        specifier: ^2.0.0
-        version: 2.0.0(clibuilder@12.0.0(js-yaml@4.3.2))
+        specifier: ^2.1.0
+        version: 2.1.0(clibuilder@12.0.0(js-yaml@4.3.2))
     devDependencies:
       tsdown:
         specifier: ^0.23.0
@@ -2406,8 +2406,8 @@ packages:
       clibuilder:
         optional: true
 
-  cyber-agentkit@2.0.0:
-    resolution: {integrity: sha512-+errwcKErS+ZJ+lImtofk8etwcobxYaNRm4Q6V+cL8GM09eN8FJtNePmJGG4xv+V+cq0ptuH3hekv20dmY7Tww==}
+  cyber-agentkit@2.1.0:
+    resolution: {integrity: sha512-PMNXDxGX2cYbJ5xr27yy7//4hSUWYiknDn/OoUwWc7BKRIPQUFaBvpFu1zUkaJLiFgtN8/HtBYjpGn9KPF5MWQ==}
     engines: {node: '>=22'}
     hasBin: true
     peerDependencies:
@@ -5890,7 +5890,7 @@ snapshots:
     optionalDependencies:
       clibuilder: 12.0.0(js-yaml@4.3.2)
 
-  cyber-agentkit@2.0.0(clibuilder@12.0.0(js-yaml@4.3.2)):
+  cyber-agentkit@2.1.0(clibuilder@12.0.0(js-yaml@4.3.2)):
     optionalDependencies:
       clibuilder: 12.0.0(js-yaml@4.3.2)
 

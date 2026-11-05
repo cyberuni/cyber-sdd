@@ -1,6 +1,6 @@
 ---
 name: define-skill
-description: 'Creates, scaffolds, or formalizes a workflow skill — a process, tool-based, or standard SKILL.md — from scratch or from an existing ad-hoc workflow. Use when the user asks for one — "create a skill", "write a skill for X", "I want a skill that…", "turn this workflow into a skill", "help me build this skill" — even if they do not say "skill" explicitly. Not for agent definitions or personas (define-agent), reference-only rule sets (define-governance), or extracting the current session (skillify).'
+description: 'Creates, scaffolds, or formalizes a workflow skill — a process, tool-based, or standard SKILL.md — from scratch or from an existing ad-hoc workflow. Use when the user asks for one — "create a skill", "write a skill for X", "I want a skill that…", "turn this workflow into a skill", "help me build this skill" — even if they do not say "skill" explicitly. Not for agent definitions or personas (define-agent), reference-only rule sets (the `reference` skill of `cyber-agentkit`), or extracting the current session (skillify).'
 ---
 
 # Define Skill
@@ -35,7 +35,7 @@ same config vocabulary:
 | The request is really about… | Defer to |
 |---|---|
 | a named reusable **agent** / delegated worker / an in-context **persona** | `define-agent` |
-| a **reference-only rule set / governance** other skills load but never execute as steps | `define-governance` |
+| a **reference-only rule set / governance** other skills load but never execute as steps | the `reference` skill of `cyber-agentkit` |
 | generalizing **the current session's** work into a skill | `skillify` |
 | **scoring** an existing config, or **adding** an eval case | `run` / `add-scenario` |
 | **diagnosing** why an existing skill's evals fail | `improve` |

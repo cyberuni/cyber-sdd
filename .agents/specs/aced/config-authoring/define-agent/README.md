@@ -30,7 +30,7 @@ to pass that suite — the frozen suite is the verification, so it authors **no 
 points at the ACED eval loop to spec and score the definition.
 
 **Non-goals.** Authoring a workflow skill (`define-skill`). A reference-only rule set
-(`define-governance`). Scoring a config against its suite (`run`), adding an eval case
+(the `reference` skill of `cyber-agentkit`). Scoring a config against its suite (`run`), adding an eval case
 (`add-scenario`), or diagnosing why its evals fail (`improve`). The agent-definition quality rubric
 itself — that is the quality-check governance the skill loads, not this capability.
 
@@ -72,7 +72,7 @@ flowchart TD
   ROUTE -->|create an agent or persona| SHAPE
   ROUTE -->|improve an existing agent definition| SHAPE
   ROUTE -->|a workflow skill| DS([defer to define-skill])
-  ROUTE -->|a reference-only governance| DG([defer to define-governance])
+  ROUTE -->|a reference-only governance| DG([defer to the reference skill of cyber-agentkit])
   ROUTE -->|score a config| DR([defer to run])
   ROUTE -->|add an eval case| DA([defer to add])
   ROUTE -->|fix a failing config| DI([defer to improve])
@@ -136,7 +136,7 @@ One row per edge in the graph above, one scenario per row. Rows follow the suite
 | `ROUTE` → create | the user asks to create a delegated agent | `a request to create an agent definition triggers define-agent` |
 | `ROUTE` → improve | the user asks to improve an agent they already have | `a request to improve an existing agent definition triggers define-agent` |
 | `ROUTE` → `DS` | the user asks for a workflow skill | `a request to create a workflow skill defers to define-skill` |
-| `ROUTE` → `DG` | the user asks for a reference-only rule set | `a request for a reference-only governance defers to define-governance` |
+| `ROUTE` → `DG` | the user asks for a reference-only rule set | `a request for a reference-only governance defers to the reference skill of cyber-agentkit` |
 | `ROUTE` → `DR` | the user asks to score a config | `a request to score a config defers to run` |
 | `ROUTE` → `DA` | the user asks to add an eval case | `a request to add an eval case defers to add` |
 | `ROUTE` → `DI` | the user asks to fix a failing config | `a request to fix a failing config defers to improve` |

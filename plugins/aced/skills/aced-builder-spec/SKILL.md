@@ -36,7 +36,7 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
   consumer).* A subject whose body states rules the consuming agent must, must not, always, or
   never do (a governance's constraint set/checklist/decision table, or a workflow skill's Standard
   pattern) must carry its own `## Validate` section — one checkable, artifact-state assertion per
-  binding rule, per `improve-skill` Q19 / `define-governance` G9. The suite must include a boolean
+  binding rule, per `improve-skill` Q19 / the `rule-set-quality` reference (R5). The suite must include a boolean
   scenario asserting that section's presence, and — for every assertion mechanical enough to run —
   that it actually passes against the built artifact. A subject with binding rules and no such
   scenario fails this bullet; this is not deferred to a lint pass, because a `## Validate` section
@@ -120,7 +120,7 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
 
 - `aced:aced-fit` — the fit classifier this bar loads to make trigger-context / trigger-balance
   conditional.
-- `aced:improve-skill` (check Q19) / `aced:define-governance` (check G9) — the structural definition
+- `aced:improve-skill` (check Q19) / the `rule-set-quality` reference (check R5), loaded with the `reference` skill of `cyber-agentkit` — the structural definition
   of a well-formed `## Validate` section (artifact-state assertions, not restated rules) that
   Validate-section coverage requires a scenario for.
 - `sdd:suite-format-governance` — the miss test, the wrong-subject table, the three anti-patterns,

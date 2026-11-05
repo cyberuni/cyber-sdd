@@ -3,7 +3,7 @@ Feature: define-skill — author a workflow skill
   Unit suite for the define-skill skill: route a "create a skill" request, settle scope, choose the
   pattern, resolve placement, scaffold the SKILL.md (plus a README for a public skill), audit it, and
   hand it to the ACED eval loop to spec and score. Authoring an agent definition or persona is
-  define-agent; a reference-only governance is define-governance; extracting the current session is
+  define-agent; a reference-only governance is the `reference` skill of `cyber-agentkit`; extracting the current session is
   skillify; scoring and case authoring are run / add. Cross-capability e2e scenarios live in
   ../../workflows/.
 
@@ -34,10 +34,10 @@ Feature: define-skill — author a workflow skill
     When ACED routes the request
     Then define-skill does not handle it and define-agent does
 
-  Scenario: a request for a reference-only rule set defers to define-governance
+  Scenario: a request for a reference-only rule set defers to the reference skill of cyber-agentkit
     Given the user asks to write criteria that other skills load on demand but never execute as steps
     When ACED routes the request
-    Then define-skill does not handle it and define-governance does
+    Then define-skill does not handle it and the reference skill of cyber-agentkit does
 
   Scenario: a request to extract the current session into a skill defers to skillify
     Given the user says "turn what we just did in this session into a skill"

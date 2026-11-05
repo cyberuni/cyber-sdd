@@ -5,7 +5,7 @@ Feature: skillify — generalize the current session into a reusable skill
   placement and pattern, draft the name and description, write a SKILL.md that encodes the why, flag
   script-extraction candidates, validate it, and place and link it. Scaffolding a skill from scratch
   is define-skill; diagnosing why a skill's evals fail is improve; an agent or persona is define-agent;
-  a reference-only rule set is define-governance. Cross-capability e2e scenarios live in
+  a reference-only rule set is the `reference` skill of `cyber-agentkit`. Cross-capability e2e scenarios live in
   ../../workflows/.
 
   # ── Triggering ──
@@ -43,10 +43,10 @@ Feature: skillify — generalize the current session into a reusable skill
     When ACED routes the request
     Then skillify does not handle it and define-agent does
 
-  Scenario: a request to extract the session into a reference-only rule set defers to define-governance
+  Scenario: a request to extract the session into a reference-only rule set defers to the reference skill of cyber-agentkit
     Given the user asks to capture the session as criteria other skills load but never execute as steps
     When ACED routes the request
-    Then skillify does not handle it and define-governance does
+    Then skillify does not handle it and the reference skill of cyber-agentkit does
 
   # ── Mining the workflow from the session ──
 

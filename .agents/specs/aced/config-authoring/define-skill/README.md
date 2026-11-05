@@ -28,7 +28,7 @@ by a user, it scaffolds and then points at the ACED eval loop. Invoked **escaped
 non-durable escape hatch before any change request opens — it scaffolds, audits, reports, and stops.
 
 **Non-goals.** Authoring an agent or persona the user delegates to (`define-agent`). A reference-only
-rule set (`define-governance`). Extracting the current session into a skill (`skillify`). Scoring a
+rule set (the `reference` skill of `cyber-agentkit`). Extracting the current session into a skill (`skillify`). Scoring a
 skill against its suite (`run`), adding a case (`add-scenario`), or diagnosing why its evals fail
 (`improve`) — this capability's own improve mode fills gaps in a skill's *definition* at author time,
 which is a different thing from diagnosing eval failures. Authoring the frozen `.feature` or its eval
@@ -74,7 +74,7 @@ flowchart TD
   ROUTE{what is being asked for?}
   ROUTE -->|create / formalize / fill out a skill| SHAPE
   ROUTE -->|agent or persona| D1([defer to define-agent])
-  ROUTE -->|reference-only rule set| D2([defer to define-governance])
+  ROUTE -->|reference-only rule set| D2([defer to the reference skill of cyber-agentkit])
   ROUTE -->|extract this session| D3([defer to skillify])
   ROUTE -->|score / add a case / diagnose evals| D4([defer to run / add-scenario / improve])
 
@@ -118,7 +118,7 @@ section order.
 | `ROUTE` → fill out | the user asks to complete an incomplete skill definition | `a request to fill out an incomplete existing skill definition triggers define-skill` |
 | `ROUTE` → `D1` (agent) | the user asks for an agent or persona | `a request to create an agent or persona defers to define-agent` |
 | `ROUTE` → `D1` (persona) | the user asks for a persona role | `a request for a persona role defers to define-agent` |
-| `ROUTE` → `D2` | the user asks for a reference-only rule set | `a request for a reference-only rule set defers to define-governance` |
+| `ROUTE` → `D2` | the user asks for a reference-only rule set | `a request for a reference-only rule set defers to the reference skill of cyber-agentkit` |
 | `ROUTE` → `D3` | the user asks to extract the current session | `a request to extract the current session into a skill defers to skillify` |
 | `ROUTE` → `D4` (score) | the user asks to score an existing skill | `a request to score an existing skill defers to run` |
 | `ROUTE` → `D4` (add case) | the user asks to add a golden-set case | `a request to add a golden-set case for an existing skill defers to add` |

@@ -1,6 +1,6 @@
 ---
 name: define-command
-description: 'Creates or improves a command — a user-invoked-only slash workflow (`/name`) that never auto-triggers from the model. Trigger on "create a command", "add a slash command", "make a /deploy command", "add a user-only workflow", "convert this skill to a command", or "stop this skill from auto-triggering", even if they do not say "command" explicitly. Not for a companion command scaffolded alongside an agent definition — whether it adopts that agent in-session or gateways to it as a subagent (define-agent) — an auto-triggered workflow skill (define-skill), or a reference-only rule set (define-governance).'
+description: 'Creates or improves a command — a user-invoked-only slash workflow (`/name`) that never auto-triggers from the model. Trigger on "create a command", "add a slash command", "make a /deploy command", "add a user-only workflow", "convert this skill to a command", or "stop this skill from auto-triggering", even if they do not say "command" explicitly. Not for a companion command scaffolded alongside an agent definition — whether it adopts that agent in-session or gateways to it as a subagent (define-agent) — an auto-triggered workflow skill (define-skill), or a reference-only rule set (the `reference` skill of `cyber-agentkit`).'
 ---
 
 # Define Command
@@ -36,7 +36,7 @@ sibling that carries the same config vocabulary:
 |---|---|
 | a thin command that loads an **agent definition** into context (the Invokable-mode companion) | `define-agent` |
 | a workflow that should **auto-trigger** from the model's own judgment | `define-skill` |
-| a **reference-only rule set / governance** other skills load but never execute as steps | `define-governance` |
+| a **reference-only rule set / governance** other skills load but never execute as steps | the `reference` skill of `cyber-agentkit` |
 | **scoring** an existing config, or **adding** an eval case | `run` / `add-scenario` |
 | **diagnosing** why an existing command's evals fail | `improve` |
 

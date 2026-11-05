@@ -40,7 +40,7 @@ never let intent mode fall through to a silent default.
 
 ## 1 — Establish the project shape
 
-**Detection mode** — read signals, do not guess: an **agentic plugin** (`.plugin/` + `skills/` + `agents/`);
+**Detection mode** — read signals, do not guess: an **agentic plugin** (a `plugin.json` manifest + `skills/` + `agents/`);
 a **monorepo** (`apps/`+`packages/`, or multiple package anchors each with their own manifest); whether
 `src/` is **feature-** or **layer-organized**; framework markers; owners (`CODEOWNERS`); size.
 

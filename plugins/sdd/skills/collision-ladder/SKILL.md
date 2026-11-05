@@ -8,8 +8,7 @@ metadata:
 
 # Collision Ladder
 
-The concrete engine for **collision-ladder** — the Op2 second-bullet of the cyberfleet-batch
-self-hosting-kernel (issue #189). The shared work list ([`mission-graph`](../mission-graph/README.md))
+The concrete engine for **collision-ladder**. The shared work list ([`mission-graph`](../mission-graph/README.md))
 holds two Missions apart whenever they touch the **same work area** (a node collision), conservatively
 serializing *any* same-area overlap. Most such overlaps are false — the area holds many files and the
 Missions usually touch **different** ones, or the same file in **different spots**. This engine is the
@@ -29,7 +28,7 @@ The ladder (descend only until classifiable, then stop):
 - **semantic**, split by artifact-type (keyed structurally off the path):
   - **`.feature`** (behavioral prose) → the **scenario**: different scenarios ⇒ **soft**, the same
     scenario ⇒ **hard** (freeze-anchored, the same `gherkin-cli diff` the sibling reuses).
-  - **code** → the **symbol** — the **★ deferred capstone** (issue #189's third bullet): stays
+  - **code** → the **symbol** — **deferred**: stays
     **hard**, flagged `symbol-rung-deferred`.
   - **non-behavioral prose** (governance / reference, no suite) → **no finer anchor**; stay **hard**,
     reason `no-anchor`.
@@ -78,6 +77,5 @@ node "<skill>/scripts/collision-ladder.mjs" --from-git --node <project/capabilit
 **Read-only w.r.t. the mission graph** — it never writes to it and never schedules; it *returns* a
 verdict the scheduler consumes. It does **not** detect a collision (the mission-graph WAW-mutex does —
 this runs only *after* one is found), do **★ SSA lowering** or infer **symbol-level** produce/consume
-dependencies (issue #189's capstone — an overlapping-region code file stays hard, flagged
-`symbol-rung-deferred`), descend past the scenario grain, or decide whether to **split** a shared-thin
+dependencies (an overlapping-region code file stays hard, flagged `symbol-rung-deferred`), descend past the scenario grain, or decide whether to **split** a shared-thin
 file (it surfaces the smell; the architect decides). It classifies; it does not schedule.

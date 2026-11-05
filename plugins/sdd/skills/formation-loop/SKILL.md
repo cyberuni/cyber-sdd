@@ -163,5 +163,5 @@ Formation owns corpus **structure** only and emits **no** out-of-loop decision:
 - a **process lesson** → routed to `doctrine/` (Process); it emits no process edit itself;
 - a **per-spec gate structural check** → **declined**; formation does not run as the gate check.
 
-Cross-capability outcome scenarios (a split or reconcile carried end-to-end) live in
-`../workflows/`; the loop and verdict behaviors are in `formation/formation.feature`.
+Cross-capability outcome scenarios (a split or reconcile carried end-to-end) live in the SDD project
+spec's `workflows` node; the loop and verdict behaviors are in its `formation` node (both repo-only).

@@ -102,7 +102,7 @@ depth-2 behavior described here.
 
 **Same dispatch-transport wiring as the in-session conductor.** State intent, never a pinned command;
 when a capability is available, prefer its **warm** unit over a cold one-shot, else fall back to a
-portable cold subagent. context-clear a warm judge (`npx cyberlegion@<version> unit clear <ref>`) to a fresh context before **each** judgment; a warm
+portable cold subagent. context-clear a warm judge (`unit clear`, as the in-session conductor does) to a fresh context before **each** judgment; a warm
 impl-producer builder **keeps** its context across the mission. Reset or tear down every warm unit at
 handoff. Hand SDD's own judges (`sdd-spec-judge`, `sdd-impl-judge`) to the
 capability **by file path, never by name** — `agents/<name>.md` under the SDD plugin root, the folder

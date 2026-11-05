@@ -8,8 +8,7 @@ metadata:
 
 # Touch-Set Correction
 
-The concrete engine for **touch-set-correction** — the Op2 deferral of the cyberfleet-batch
-self-hosting-kernel (issue #189, first bullet). A Mission's **declared touch-set** is a pre-work
+The concrete engine for **touch-set-correction**. A Mission's **declared touch-set** is a pre-work
 **guess** of the work areas it will change, used by [`mission-graph`](../mission-graph/README.md)
 to keep clashing Missions apart. This engine checks that guess against reality: given a Mission's
 declared touch-set and its `git diff base..head`, it recovers the work areas **actually** touched
@@ -63,5 +62,5 @@ node "<skill>/scripts/touch-set-correction.mjs" --base <ref> --declared a,b,c \
 the corrected touch-set at Mission retirement (the lifecycle loop, deferred to F3). It does **not**
 decide whether two Missions' touch-sets collide hard or soft, run the finer-than-node ladder (file →
 region → semantic downgrade), descend to a region/hunk tier, do SSA lowering or infer symbol-level
-produce/consume dependencies (all later parts of issue #189), or **predict** a touch-set before the
+produce/consume dependencies, or **predict** a touch-set before the
 work — it only corrects one, after.

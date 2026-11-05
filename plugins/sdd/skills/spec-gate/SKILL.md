@@ -46,11 +46,11 @@ node "<skill>/scripts/check-suite.mjs" --files <the CR's touched .feature files>
 
 Exit `0` = form clean; exit `1` prints each `✗ <file>: <reason>` — **advance nothing and do not
 spawn the judge; report the violations for the producer to fix.** Scoping to `--files` keeps the gate
-on the CR's delta; the tree-wide `--root` sweep stays the `verify:specs-new` CI backstop. The cold
+on the CR's delta; the tree-wide `--root` sweep stays the CI backstop. The cold
 spec-judge grades form qualitatively; this engine catches it mechanically, so the judge only ever
 sees a well-formed suite.
 
-The same `check-spec-state.mts` also carries **referenced-artifact-exists** — a backtick-wrapped
+The same `check-spec-state.mjs` also carries **referenced-artifact-exists** — a backtick-wrapped
 path any touched **prose `.md` under the spec tree** names (not just `spec.md`/`README.md` — a
 `design/*.md` or nested node doc too; a relative `./`/`../` reference or a repo-root-relative one
 under `.agents/`, `plugins/`, `packages/`, `apps/`, `docs/`, `.claude/`) must resolve to a real
@@ -198,7 +198,7 @@ nothing, advances no status, renders no verdict**. Fixed sections:
 | **CR** | the `cr` id + its what/why |
 | **What** | the `## What` line of each touched capability's README |
 | **Status** | the spec's `status` |
-| **Scenarios** | the **added / modified / removed** `Scenario:` names across the touched `.feature` files, from a **mechanical diff** against the committed baseline — `npx gherkin-cli@0.0.2 diff --base <baseref> <file> --format json` (its `addOnly` confirms a purely additive change; a `modified`/`removed` scenario is flagged for **semantic** narrowing review — narrowing-vs-widening within a modified scenario stays a judgment). A **brand-new** suite with no committed baseline is listed with `npx gherkin-cli@0.0.2 parse <file>` (compact names / tags / counts) rather than re-tokenizing the raw file by hand |
+| **Scenarios** | the **added / modified / removed** `Scenario:` names across the touched `.feature` files, from a **mechanical diff** against the committed baseline — `npx gherkin-cli@0.2.1 diff --base <baseref> <file> --format json` (its `addOnly` confirms a purely additive change; a `modified`/`removed` scenario is flagged for **semantic** narrowing review — narrowing-vs-widening within a modified scenario stays a judgment). A **brand-new** suite with no committed baseline is listed with `npx gherkin-cli@0.2.1 parse <file>` (compact names / tags / counts) rather than re-tokenizing the raw file by hand |
 | **Key decisions** | the `### ` headings under `## Design decisions` in the touched prose |
 | **Open items** | every `<!-- open: ... -->` marker in the touched files |
 

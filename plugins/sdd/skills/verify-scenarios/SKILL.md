@@ -58,7 +58,7 @@ Add `.agents/.scenario-report.xml` (or wherever `reportPath` points) to the proj
 
 ## JUnit adapter mechanics
 
-Hand-rolled regex parse, no xml dependency — verified against vitest 4.1.7's JUnit reporter:
+Hand-rolled regex parse, no xml dependency — verified against vitest 4.1.7's JUnit reporter (2026-07-08):
 
 - One `<testsuite>` per test file; `classname` = file path; `name` = describe-chain joined by
   `" > "` + leaf title.

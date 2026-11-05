@@ -49,8 +49,8 @@ node "<skill>/scripts/check-spec-structure.mjs" [--spec-dir <spec>] [--check] [-
 - **Audit mode** (default) emits the finding set — a `blocking[]` group then an `advisory[]` group,
   each finding naming the node. `--format json` emits the same findings as a flat JSON array.
 - **`--check`** (CI guard) exits **non-zero** iff a **blocking** finding exists and **writes
-  nothing**; advisory-only findings still exit zero. Wire it after `concept-index --check` in
-  `verify:specs-new` so the project-spec stays structurally clean.
+  nothing**; advisory-only findings still exit zero. Run it in CI after `concept-index --check`
+  so the project-spec stays structurally clean.
 
 When `node` is absent, an agent performs the same derivation by hand: for each `<cap>/<unit>/README.md`
 with a `spec-type`, flag it untagged if it carries no `concept:`; for each with a sibling `.feature`,

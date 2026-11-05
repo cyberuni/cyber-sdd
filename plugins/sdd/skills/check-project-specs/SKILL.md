@@ -27,8 +27,8 @@ whether the engines pass. Run either alone and a whole project-spec leaves the f
 
 **An unrecognized flag is an error.** The scope is chosen by a flag, so a flag that falls through to
 a default silently downgrades the run — and project scope, which is what a fall-through reaches,
-resolves no governing spec at a repo root and exits **0**. That is exactly how a coverage-only flag
-guarded this repo's commits and CI while running no engine at all (issue #5).
+resolves no governing spec at a repo root and exits **0**, so a hook or CI job can pass while
+running no engine at all.
 
 ## Resolution — spec-first, never by name
 
@@ -40,8 +40,8 @@ engine inverts that map via `discover-specs`' `collectSpecs`:
 2. Walk up for `pnpm-workspace.yaml` → the repo root.
 3. Match the repo-relative project dir against each spec's `project-path`.
 
-The reverse map is **irregular and not derivable by name** — `plugins/cyberfleet` is governed by
-`.agents/specs/cyberfleet-plugin`, and two different projects both own a skill named `init`. Only
+The reverse map is **irregular and not derivable by name** — a package directory need not share its
+spec's name, and two different projects can each own a skill of the same name. Only
 `project-path` inverts reliably, which is why the spec stays the single source of truth for the
 mapping and no path is ever written into a package's scripts.
 

@@ -357,20 +357,31 @@ obligation may cross the impl gate, but only once it is on the record, which is 
 ### D · The ratchet
 
 **C9.** The edit classifier points at **criteria**, not at the suite. Every criteria edit is
-classified `additive` / `no-content-change` / `narrowing` / `mixed`. *(v1 has this, on the suite; reasoned)*
+classified by comparing criterion texts (C21) as `additive` or `breaking`. An `additive` edit only
+adds texts. A `breaking` edit takes away at least one existing text, whether it is reworded,
+replaced or removed, with or without additions. An edit that only moves criteria, every text
+unchanged, is no change and is not classified. *(v1 has this, on the suite; reasoned)*
 
 > Criteria stay in one set and one format; suites are domain-specific. Pointing at criteria means
 > one classifier covers Vitest, `evals.json`, Storybook and prose, with no per-suite differ to
 > build in any domain.
+>
+> There is no patch tier. The judge reads a criterion's text, so a rewording can change a verdict,
+> which makes it breaking (C21). v1's `narrowing` and `mixed` both take an existing text away, so
+> they merge into `breaking`; its `no-content-change` survives only as the move that is no change.
 
-**C10.** A criteria edit classified `narrowing` or `mixed` against its approve baseline
-**escalates, and is never silently absorbed**, unless the change request pre-authorized that
-narrowing. `additive` and `no-content-change` self-clear. *(v1 has the detector; tested)*
+**C10.** A criteria edit classified `breaking` against its approve baseline **escalates, and is
+never silently absorbed**, unless the change request pre-authorized that change. `additive`
+self-clears. Once a breaking edit lands, the work in `{ code, test, story }` that was judged
+against a text it took away is **judged again** against the current criteria, and only the work
+that fails is redone. *(v1 has the detector; tested, re-judging reasoned)*
 
-> A criterion with **no approve baseline has nothing to narrow against**, so authoring before
-> approval classifies as additive by construction and the drafting phase needs no special case.
-> Pre-authorization is what keeps a deliberate narrowing cheap: declare it in the change request
-> and it is argued, not ambushed.
+> A criterion with **no approve baseline has no text to take away**, so authoring before approval
+> classifies as additive by construction and the drafting phase needs no special case.
+> Pre-authorization is what keeps a deliberate breaking change cheap: declare it in the change
+> request and it is argued, not ambushed. Judging again before redoing keeps a harmless rewording
+> cheap without a patch tier: work that meets the current criteria stands, whichever wording it
+> was made under.
 >
 > v1 ships this detector and this routing, but fires it only while the file still carries a
 > `@frozen` tag written at approval. v2 has no such tag. It gets the same signal from the commit
@@ -426,15 +437,16 @@ flowchart TB
 ```
 
 *One classifier, because criteria stay in one place and one format.* `gherkin-cli diff` worked
-because the `.feature` was both artifacts at once. What made it work was that criteria carry stable
-identity and structure (C21), not that they were Gherkin. Point the classifier at criteria and the
-suite's format stops mattering.
+because the `.feature` was both artifacts at once. What made it work was that each criterion was a
+separate unit with an identity a diff could key on, not that they were Gherkin. Key that identity on
+the criterion's text (C21), point the classifier at criteria, and the suite's format stops
+mattering.
 
 ```mermaid
 flowchart LR
   ap(["approve commit"]) --> im(["impl"]) --> na(["narrowing"]) --> hd(["HEAD"])
   na -. "base HEAD: reads additive" .-> hd
-  ap == "base approve commit: reads narrowing" ==> hd
+  ap == "base approve commit: reads breaking" ==> hd
 ```
 
 *Freezing as a recorded boundary, not a stored tag.* A narrowing that landed in an earlier commit
@@ -473,27 +485,42 @@ nothing stays the rule; the inverse must be surfaced. *(computed, tested)*
 
 > 3-of-4 is unreliable at the N=1 a gate actually runs at. ACED already carries this discipline.
 
-**C21.** Every criterion carries a **stable identity**, independent of its wording and of its
-position in the document. *(v1 has this; reasoned)*
+**C21.** Every criterion's **identity is its self-contained text**, independent of its position
+in the document. Self-contained means any context the criterion depends on, such as the path or the
+use case, is written into its text, and a key term counts as part of the text of every criterion
+that names it. An ID may stay as a label for citing; it labels one text, and a changed text gets a
+new ID. *(reasoned)*
 
-> Without one a classifier cannot tell a *modification* from a *removal plus an addition*, and a
-> line-diff is fooled outright by content moved between adjacent criteria. v1 warns about exactly
-> that case and keys on the scenario name or an explicit id rather than on lines. **C9 is
-> unbuildable without this.**
+> The judge reads a criterion's text and nothing else, so a rewording can change a verdict, and
+> nothing at authoring time proves it does not. A rewording is therefore a replacement: the old
+> text leaves the set and a new one arrives. A classifier does not need to tell a *modification*
+> from a *removal plus an addition*, because every change to an existing criterion is breaking and
+> only an addition is not, so the two are the same event. The work a change affects is a set
+> difference over texts, and nothing needs to know which new criterion replaced an old one.
+>
+> A line diff is still not the classifier: identity keys on the text, not on lines or positions.
+> Content moved between adjacent criteria is caught, because both texts differ, and a criterion
+> that only moves is no change. v1 keys on the scenario name or an explicit id instead, which lets
+> a rewording under a kept name pass as the same criterion. **C9 is unbuildable without this.**
+> The ruling is recorded as D20 and D21 in
+> [`.research/design-spec-criteria/`](../../../../../.research/design-spec-criteria/conclusion.md).
 
 ```mermaid
 flowchart LR
-  ed["criteria edit"] --> cl["classify against the approve baseline (C9, C11)"]
-  cl -- "additive, no-content-change" --> sc["self-clears"]
-  cl -- "narrowing, mixed" --> pa{"pre-authorized by the change request?"}
+  ed["criteria edit"] --> cl["classify against the approve baseline (C9, C11, C21)"]
+  cl -- "additive" --> sc["self-clears"]
+  cl -- "breaking" --> pa{"pre-authorized by the change request?"}
   pa -- yes --> la["lands, argued"]
   pa -- no --> es["escalates (C10), graded by owner and leash (C17, C18)"]
+  es -- approved --> la
+  la --> rj["affected work judged again; only what fails is redone (C10)"]
 ```
 
-*Three criteria, one pipeline.* C9 says what is classified: criteria, not the suite. C11 says what
-it is classified against: the approve commit, not the working head. C10 says what each class does.
-A criterion with no approve baseline has nothing to narrow against, so drafting is additive by
-construction and needs no exemption.
+*Four criteria, one pipeline.* C9 says what is classified: criteria, not the suite. C11 says what
+it is classified against: the approve commit, not the working head. C21 says what is compared:
+texts, so a reworded criterion reads as one text removed and one added, which is breaking. C10
+says what each class does. A criterion with no approve baseline has no text to take away, so
+drafting is additive by construction and needs no exemption.
 
 ### E · Authority
 

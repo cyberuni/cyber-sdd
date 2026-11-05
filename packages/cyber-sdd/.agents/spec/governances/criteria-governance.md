@@ -426,9 +426,10 @@ flowchart TB
 ```
 
 *One classifier, because criteria stay in one place and one format.* `gherkin-cli diff` worked
-because the `.feature` was both artifacts at once. What made it work was that criteria carry stable
-identity and structure (C21), not that they were Gherkin. Point the classifier at criteria and the
-suite's format stops mattering.
+because the `.feature` was both artifacts at once. What made it work was that each criterion was a
+separate unit with an identity a diff could key on, not that they were Gherkin. Key that identity on
+the criterion's text (C21), point the classifier at criteria, and the suite's format stops
+mattering.
 
 ```mermaid
 flowchart LR
@@ -473,25 +474,39 @@ nothing stays the rule; the inverse must be surfaced. *(computed, tested)*
 
 > 3-of-4 is unreliable at the N=1 a gate actually runs at. ACED already carries this discipline.
 
-**C21.** Every criterion carries a **stable identity**, independent of its wording and of its
-position in the document. *(v1 has this; reasoned)*
+**C21.** Every criterion's **identity is its self-contained text**, independent of its position
+in the document. Self-contained means any context the criterion depends on, such as the path or the
+use case, is written into its text, and a key term counts as part of the text of every criterion
+that names it. An ID may stay as a label for citing; it labels one text, and a changed text gets a
+new ID. *(reasoned)*
 
-> Without one a classifier cannot tell a *modification* from a *removal plus an addition*, and a
-> line-diff is fooled outright by content moved between adjacent criteria. v1 warns about exactly
-> that case and keys on the scenario name or an explicit id rather than on lines. **C9 is
-> unbuildable without this.**
+> The judge reads a criterion's text and nothing else, so a rewording can change a verdict, and
+> nothing at authoring time proves it does not. A rewording is therefore a replacement: the old
+> text leaves the set and a new one arrives. A classifier does not need to tell a *modification*
+> from a *removal plus an addition*, because every change to an existing criterion is breaking and
+> only an addition is not, so the two are the same event. The work a change affects is a set
+> difference over texts, and nothing needs to know which new criterion replaced an old one.
+>
+> A line diff is still not the classifier: identity keys on the text, not on lines or positions.
+> Content moved between adjacent criteria is caught, because both texts differ, and a criterion
+> that only moves is no change. v1 keys on the scenario name or an explicit id instead, which lets
+> a rewording under a kept name pass as the same criterion. **C9 is unbuildable without this.**
+> The ruling is recorded as D20 and D21 in
+> [`.research/design-spec-criteria/`](../../../../../.research/design-spec-criteria/conclusion.md).
 
 ```mermaid
 flowchart LR
-  ed["criteria edit"] --> cl["classify against the approve baseline (C9, C11)"]
+  ed["criteria edit"] --> cl["classify against the approve baseline (C9, C11, C21)"]
   cl -- "additive, no-content-change" --> sc["self-clears"]
   cl -- "narrowing, mixed" --> pa{"pre-authorized by the change request?"}
   pa -- yes --> la["lands, argued"]
   pa -- no --> es["escalates (C10), graded by owner and leash (C17, C18)"]
 ```
 
-*Three criteria, one pipeline.* C9 says what is classified: criteria, not the suite. C11 says what
-it is classified against: the approve commit, not the working head. C10 says what each class does.
+*Four criteria, one pipeline.* C9 says what is classified: criteria, not the suite. C11 says what
+it is classified against: the approve commit, not the working head. C21 says what is compared:
+texts, so a reworded criterion reads as one text removed and one added, never as
+`no-content-change`. C10 says what each class does.
 A criterion with no approve baseline has nothing to narrow against, so drafting is additive by
 construction and needs no exemption.
 

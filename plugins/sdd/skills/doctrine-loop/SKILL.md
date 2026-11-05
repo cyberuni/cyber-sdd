@@ -132,9 +132,8 @@ mission already built.
 ## Cold-instrument evidence — non-author measurement + ablation before a rule-level recommendation
 
 A self-authored measurement is untrustworthy exactly when it grounds a **rule-level decision**: the
-author's own blind spot is baked into the instrument meant to catch it (op6/#224 — a masked generator
-"proved" its own conclusion twice, each ratified then walked back; op6-m5/#254 — a proposed revival
-measured Δ=0 dead weight, caught before landing). Two rules extend the validate-before-drafting gate to
+author's own blind spot is baked into the instrument meant to catch it (a masked generator can
+"prove" its own conclusion, and a self-measured proposal can hide that it adds nothing). Two rules extend the validate-before-drafting gate to
 your rule-level recommendations. This is **the canonical statement** of the non-author-evidence
 standard — other faces (`sdd:spec-producer-governance`'s dimension/cut grounding) reference it.
 

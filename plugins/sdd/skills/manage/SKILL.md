@@ -9,7 +9,7 @@ The **manage-level** front door to an SDD project — the user-facing handler fo
 
 `manage` is a **thin dispatcher**: it classifies a manage request and **loads the matching engine in the current session**, holding **no production logic**, loading **no governance**, and writing **no contract state**. It **opens no CR**, **invokes no gate**, and **performs no behavior change** itself — a needed change to the project's specified behavior is **handed off to `start-mission`**.
 
-> **Manage picks no model.** Like the gateway, the model + effort a piece of work needs is set by the **engine you load** — the `.mts` engines are light; a `backfill` or `formation` grill wants a capable model. The loaded engine advises; the user switches manually. (Harness gap: `manage` cannot switch the session model itself.)
+> **Manage picks no model.** Like the gateway, the model + effort a piece of work needs is set by the **engine you load** — the script engines are light; a `backfill` or `formation` grill wants a capable model. The loaded engine advises; the user switches manually. (Harness gap: `manage` cannot switch the session model itself.)
 
 ## Intake
 
@@ -20,7 +20,7 @@ The **manage-level** front door to an SDD project — the user-facing handler fo
 |---|---|---|
 | 1 | **Setup & discovery** | scaffold a project's spec envelope for the first time → `scaffold-project-spec`; curate discovery's extra spec anchors → `manage-spec-anchors`; curate the ignore file → `manage-ignore`; wire a project's scenario bridge → `manage-scenario-bridge`; set up or configure the mission statusline → `init` (all are prerequisites for a project being found and usable, not routine cleanup) |
 | 2 | **Inspect** | list / navigate the corpus → `discover-specs`, `concept-index`, `place-node`, `discover-plans` |
-| 3 | **Audit & align** | audit node-shape, drift, structure → `check-spec-structure`, `formation-loop`, `align-spec` *(planned)*; scan plan briefs for machine-local path leaks → `check-plan-safety` |
+| 3 | **Audit & align** | audit node-shape, drift, structure → `check-spec-structure`, `formation-loop`, `align-spec`; scan plan briefs for machine-local path leaks → `check-plan-safety` |
 | 4 | **Housekeeping** | retire completed mission plans → `plan-retirement` |
 
 When a group's engine list would exceed four at the second level, present only the most-relevant few (≤ 4) or ask the user to name the engine directly; never enumerate into an over-four question and never truncate silently.
@@ -42,7 +42,7 @@ Classification routes a manage request to the **handler** that handles it; every
 | **Inspect** | list in-progress (resumable) missions | **`discover-plans`** — plan-brief scan |
 | **Audit & align** | audit node-shape (orphans / oversized) | **`check-spec-structure`** — read-only advisory |
 | **Audit & align** | scan plan briefs for machine-local path leaks | **`check-plan-safety`** — read-only guard; flags home-abs paths + `$HOME`/`$USER` in `.agents/plans` |
-| **Audit & align** | reconcile prose↔suite drift | **`align-spec`** *(planned — spec-only, no engine yet)* — a fix that edits behavior **hands off to `start-mission`** |
+| **Audit & align** | reconcile prose↔suite drift | **`align-spec`** — a fix that edits behavior **hands off to `start-mission`** |
 | **Audit & align** | corpus-wide audit / split / reconcile | **`formation-loop`** — emits new CRs (→ `start-mission`) |
 | **Housekeeping** | retire completed mission plans | **`plan-retirement`** — gated, idempotent deletion of retired briefs |
 

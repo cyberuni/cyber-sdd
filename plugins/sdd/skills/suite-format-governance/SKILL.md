@@ -78,9 +78,9 @@ combines two or more *interacting* sub-conditions, state its rule in closed form
 rule's soundness against the real data model — before you draw the CFG.** A **single-condition** fold
 may be specified by example; demanding a closed form of it is the failure mode of this rule, not its
 point. Scenarios drawn off a rule never written down are drawn off a rule never *agreed*, and each
-producer-judge round then rewrites a different corner of it: the corpus ran the A/B — the `github-192`
-fence, specified by example, **diverged** (`1 → 1 → 3` contradictions, each manufactured by the prior
-fix, reverted at the cap); `github-224` stated the rule first and **converged** (zero). Closed form
+producer-judge round then rewrites a different corner of it: specified by example, such a fold
+**diverges**, each round's fix manufacturing the next contradiction; with the rule stated first, it
+**converges**. Closed form
 buys **iteration convergence** — insurance a single-condition fold does not need and a
 multi-condition one rarely survives without. Three qualifications, each a way it is misapplied:
 
@@ -88,9 +88,9 @@ multi-condition one rarely survives without. Three qualifications, each a way it
   single-condition fold by example converges fine (the WAW-mutex touch-set-intersection scenarios
   settled in a handful, no stated rule). Mere aggregation is not the trigger; genuine interaction is.
 - **Closed form is not soundness — re-derive against the real data model.** A rule in closed form,
-  even one carrying a proof, can be unsound against the data it folds: `R''` shipped a termination
-  proof and still deadlocked, its project-scoped exemption violated by graph-global RAW closure, fixed
-  to `R'''` only once the assumption was re-derived against the real graph. A proof over an assumed
+  even one carrying a proof, can be unsound against the data it folds: a termination proof can hold
+  and the fold still deadlock, when an assumption it rests on (a project-scoped exemption) is violated
+  by the real graph (graph-global RAW closure). A proof over an assumed
   model proves nothing about the real one.
 - **Convergence is not coverage — pair the rule with a mutation sweep and a safety dual.** Stating
   the rule kills the divergence, not the gaps. A **mutation sweep** mutates each interacting condition
@@ -105,8 +105,7 @@ multi-condition one rarely survives without. Three qualifications, each a way it
 of interacting conditions is this rule with the closed form written as the **cell function**. Draw
 **every independent cell as its own CFG branch** and exclude the **degenerate** ones (a cell whose
 outcome reconverges with a sibling collapses under the reconvergence rule above, exactly as a
-**universal** "every cell behaves the same" claim is one convergence scenario, not a grid — the
-`github-278` round-4 draft asserted such a universal one row too wide and dropped it). Confirm the
+**universal** "every cell behaves the same" claim is one convergence scenario, not a grid). Confirm the
 cells genuinely independent by the mutation sweep. This is not a separate bar; it is the fold rule.
 
 ## Sections mirror the spec's use-case groups; every scenario binds to a map edge
@@ -152,7 +151,7 @@ only *where the node genuinely owns the routing decision*, and two different dec
 
 - the **harness** — a model matching this config's `description` against a user query. Here the
   decision is **co-owned** (description prose × harness × sibling set) and the node holds one of the
-  three, so freezing it on the node is the seam issue #304 raises.
+  three, so freezing it on the node freezes only one of the three.
 - **an agent applying the node's own doctrine** — e.g. a coordinator reading this doctrine to decide
   whether it governs the situation at hand. No harness is in the loop and the deciding input is the
   node's own content, so **the node owns it outright**.

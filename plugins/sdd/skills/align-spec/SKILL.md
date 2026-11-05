@@ -30,7 +30,7 @@ node "<skill>/scripts/align-spec.mjs" [--spec-dir <spec>] [--nodes <a,b,...>] [-
   README-relative path) instead of every node in the spec.
 - **Audit mode** (default) prints a per-node drift report from the mechanical scan below.
 - **`--check`** (CI guard) exits **non-zero** iff any mechanical drift is found and **writes
-  nothing**; exits zero when the mechanical scan is clean. Wired into `verify:specs` alongside
+  nothing**; exits zero when the mechanical scan is clean. Run it in CI alongside
   `check-spec-structure --check`.
 
 ## The procedure — Detect

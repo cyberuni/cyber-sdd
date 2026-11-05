@@ -1,6 +1,6 @@
 ---
 name: run
-description: Use this skill when running ACED evals to score agent configuration behavior against its frozen .feature suite — after editing a skill, AGENTS.md section, subagent, or command.
+description: Runs ACED evals to score agent configuration behavior against its frozen .feature suite. Use after editing a skill, AGENTS.md section, subagent, or command.
 ---
 
 # ACED Run

@@ -11,7 +11,7 @@ metadata:
 The Doctrine loop's **last retro step** (`sdd:doctrine-loop`; the provenance shape is
 `sdd:combat-log-governance`). Because plans are **tracked** (committed with
 the work, not gitignored), a retired plan leaves the tree by a deliberate **tracked deletion** —
-never a gitignore side effect. This skill carries a self-contained `.mts` sweep that, for each
+never a gitignore side effect. This skill carries a self-contained `.mjs` sweep that, for each
 cleared `<cr-ref>`, deletes that CR's whole **transient artifact set**: the plan pair
 (`<cr-ref>.plan.md` + `<cr-ref>.log.jsonl`) plus its **transient CR-level planning briefs**
 (`<cr-ref>.design.md`, `<cr-ref>.operations.md`, `<cr-ref>.evidence.md`) from `.agents/plans` —

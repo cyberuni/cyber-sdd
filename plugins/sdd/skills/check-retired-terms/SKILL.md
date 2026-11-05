@@ -16,8 +16,7 @@ case-sensitive occurrence of a registered term, and reports every survivor as `f
 the replacement to use. It carries a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11), parsing the registry with the same minimal hand-rolled TOML subset `discover-specs`
 already uses for `spec-anchors.toml`.
 
-It is the corpus-wide, declared-data sibling of `check:metaphor-free`
-(`packages/cyberlegion/src/metaphor-free.ts`): same banned-term / allow-list / exclusion / scope
+It is the corpus-wide, declared-data sibling of cyberlegion's `check:metaphor-free`: same banned-term / allow-list / exclusion / scope
 shape, but the banned list here is registry data any CR can append to, not a hardcoded package
 charter — the `corpus/retired-terms` node of the SDD project spec (repo-only) carries the full
 design rationale.

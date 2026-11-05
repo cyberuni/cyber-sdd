@@ -1,6 +1,6 @@
 ---
 name: add-scenario
-description: Use this skill when adding a new scenario to an ACED .feature suite — from a real failure, a production edge case, or a gap the user noticed.
+description: Adds a new scenario to an ACED .feature suite — from a real failure, a production edge case, or a gap the user noticed.
 ---
 
 # ACED Add Scenario

@@ -1,6 +1,6 @@
 ---
 name: skillify
-description: 'Use this skill when generalizing what the current session actually did into a reusable SKILL.md — "skillify this", "turn what we just did into a skill", "make this reusable". Not for scaffolding a skill from scratch (define-skill), extracting the session into an agent or persona (define-agent), a reference-only rule set (define-governance), or diagnosing failing evals (improve).'
+description: 'Generalizes what the current session actually did into a reusable SKILL.md — "skillify this", "turn what we just did into a skill", "make this reusable". Not for scaffolding a skill from scratch (define-skill), extracting the session into an agent or persona (define-agent), a reference-only rule set (define-governance), or diagnosing failing evals (improve).'
 ---
 
 # Skillify

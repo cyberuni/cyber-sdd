@@ -1,6 +1,6 @@
 ---
 name: define-agent
-description: 'Use this skill when the user wants to create or improve an agent definition — a named, reusable role that can be delegated to as a subagent, loaded in-context as a persona, or both. Trigger on "create an agent", "write a conductor", "make an agent definition", "define a persona", "build a dual-mode agent", or "add an invokable agent".'
+description: 'Creates or improves an agent definition — a named, reusable role that can be delegated to as a subagent, loaded in-context as a persona, or both. Trigger on "create an agent", "write a conductor", "make an agent definition", "define a persona", "build a dual-mode agent", or "add an invokable agent".'
 ---
 
 # Define Agent

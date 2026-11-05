@@ -1,6 +1,6 @@
 ---
 name: init-aced
-description: Use this skill to register ACED as the SDD plugin for agent-configuration domains — writes an aced role-map entry to .agents/universal-plugin.json so the conductor resolves the ACED production-chain roles for skills, subagents, commands, and AGENTS.md sections.
+description: Registers ACED as the SDD plugin for agent-configuration domains — writes an aced role-map entry to .agents/universal-plugin.json so the conductor resolves the ACED production-chain roles for skills, subagents, commands, and AGENTS.md sections.
 ---
 
 # Init ACED

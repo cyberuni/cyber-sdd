@@ -7,8 +7,8 @@ user-invocable: false
 # SDD Plugin Contract Governance
 
 What an SDD plugin must implement and what each part loads. The conductor resolves delegates against
-this contract; a plugin author builds to it. The universal-plugin format itself is `plugin-design`
-(`governance show universal-plugin`); this skill is the SDD-role layer on top.
+this contract; a plugin author builds to it. The universal-plugin format itself is the `plugin-design`
+reference that `universal-plugin` ships (load it with the `reference` skill); this skill is the SDD-role layer on top.
 
 ## The five delegate roles (closed set)
 

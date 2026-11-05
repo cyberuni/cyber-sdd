@@ -37,7 +37,7 @@ static guard here is the recorded `approval.impl` ratification. Open markers at 
 (they block only the *gate*, not the draft state). A `draft` requires **no** ledger shard (no gate
 has run); the durable floor applies only once a gate has advanced the status.
 
-Reject illegal tuples **before** any other gate work. If `check-spec-state.mts` changes, this list
+Reject illegal tuples **before** any other gate work. If `check-spec-state.mjs` changes, this list
 follows it — the script is the source of truth, this prose is the readable mirror.
 
 ## Per-node `spec-type` checks

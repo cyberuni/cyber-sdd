@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Use this skill when the user wants to improve an existing agent configuration — a skill, subagent, command, or AGENTS.md section — whether by diagnosing failing ACED evals or by general review against fit and quality bars. Trigger on "improve this skill", "make this agent better", "why does this config keep failing", or "review this AGENTS.md section", even when no eval suite exists yet.
+description: Improves an existing agent configuration — a skill, subagent, command, or AGENTS.md section — by diagnosing failing ACED evals or by general review against fit and quality bars. Trigger on "improve this skill", "make this agent better", "why does this config keep failing", or "review this AGENTS.md section", even when no eval suite exists yet.
 ---
 
 # ACED Improve

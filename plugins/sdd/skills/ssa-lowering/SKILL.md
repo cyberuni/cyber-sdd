@@ -19,8 +19,8 @@ It sits **above** the shipped deterministic machinery and cites it, never re-imp
 - [`touch-set-correction`](../touch-set-correction/SKILL.md) **reconciles** a declared touch-set against the real diff.
 
 This doctrine **decides** what to record; it does not build the Missions (the mission loop does), store
-them, classify collisions, or **automatically emit** its decision-evidence (SQ-F5 #194, deferred — in v1
-you record the shown-work **by hand**). Working node name only (SQ-name #195).
+them, classify collisions, or **automatically emit** its decision-evidence (you record the shown-work
+**by hand**).
 
 Its output is a **judgment call**, not a pure function. Two SDD actor lenses are pulled forward into
 planning and applied with **strong weight** — judgment first, mechanics second.
@@ -48,12 +48,12 @@ These have nothing to partition, so routing them here buys nothing:
 whatever the cut yields — for a single-capability CR that is one Mission, or **zero** if the Oracle
 kills it. Refusing drops the legitimacy judgment, which is the cheapest judgment to make here and the
 most expensive to skip. Note the standing gap this leaves: a CR routed straight to the mission loop is
-Oracle-vetted by nothing until the intake-vet automation lands (#196).
+Oracle-vetted by nothing.
 
 ## Procedure
 
 Work the steps in order. **Record the shown-work as you go** (see "Decision-evidence") — the produced
-partition is not complete without it, and until SQ-F5 lands nothing emits it for you.
+partition is not complete without it, and nothing emits it for you.
 
 ### 1 — Oracle lens: judge legitimacy before lowering (kill-or-reshape up front)
 
@@ -154,9 +154,9 @@ Emit, for the deterministic back-end to consume:
 The [`mission-graph`](../mission-graph/SKILL.md) store **records** it; the
 [`collision-ladder`](../collision-ladder/SKILL.md) **classifies** node collisions; do **not** re-derive
 `ready`/`cycles`, re-detect collisions, or re-classify grains here. Record the decision-evidence **by
-hand** (SQ-F5 #194 automation is deferred).
+hand**.
 
-## Decision-evidence (record by hand — v1)
+## Decision-evidence (record by hand)
 
 The record **accompanies the produced partition** — the partition is incomplete without it. Record:
 - **Sources** — the CRs, specs, and shipped changes the cut drew on.
@@ -168,7 +168,7 @@ The record **accompanies the produced partition** — the partition is incomplet
   rework-second), each irreducible-hard call, and each conservative-vs-parallel default.
 
 This record must be **in view alongside the partition** when the cut is reviewed or judged; nothing
-emits it automatically until SQ-F5 lands.
+emits it automatically.
 
 ## Boundaries
 
@@ -176,6 +176,6 @@ emits it automatically until SQ-F5 lands.
   ([`mission-graph`](../mission-graph/SKILL.md)), classify a collision at a finer grain
   ([`collision-ladder`](../collision-ladder/SKILL.md)), reconcile a touch-set against a diff
   ([`touch-set-correction`](../touch-set-correction/SKILL.md)), spawn worktrees, or gate.
-- **Out of scope (cite, never build here):** the SQ-F5 decision-evidence **emit** automation (#194); the
-  capability/engine **name** finalization (#195 — keep the working name `ssa-lowering`); the
-  Oracle/Architect **intake-vet** automation (#196). Do not rename or rebuild the shipped back-end.
+- **Out of scope (never build here):** automation that emits the decision-evidence; renaming the
+  capability (keep `ssa-lowering`); automation that vets intake for the Oracle or Architect. Do not
+  rename or rebuild the shipped back-end.

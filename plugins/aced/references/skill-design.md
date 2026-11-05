@@ -217,7 +217,7 @@ description: "<what it does>. Use when <situations>."
 
 **Default:** omit or set `per-situation` — no hook; load via `description` or explicit invoke.
 
-**Hook-backed skills:** set `activation` to the normalized event, then register with `hook register --event …` (cyberplace CLI maps `session-start` → `SessionStart` / `sessionStart`, `post-tool-use` → `PostToolUse` / `postToolUse`). CLI today supports `SessionStart` and `PostToolUse` only; other values are portable declarations until hosts implement them.
+**Hook-backed skills:** set `activation` to the normalized event, then register with `hook register --event …` (cyberplace CLI maps `session-start` → `SessionStart` / `sessionStart`, `post-tool-use` → `PostToolUse` / `postToolUse`). As of 2026-09-17 the CLI supports `SessionStart` and `PostToolUse` only; other values are portable declarations until hosts implement them.
 
 **Defaults by pattern:** persona → `per-situation` (opt-in via `description`); discipline / always-on injection → `session-start`; process / tool-based / standard → `per-situation` or omit.
 

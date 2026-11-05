@@ -46,7 +46,7 @@ node "<skill>/scripts/check-plan-safety.mjs" [--root .] [--path <file>]... [--ch
   `pause-mission` to check the one brief it is about to commit.
 - **Audit mode** (default) emits the finding set (`file, line, kind, token`) and exits **0**.
 - **`--check`** (CI guard) exits **non-zero** iff any leak is found and **writes nothing** else.
-  Wired into `verify:specs` (`node …/check-plan-safety.mjs --root . --check`).
+  Run it in CI as `node …/check-plan-safety.mjs --root . --check`.
 
 When `node` is absent, an agent performs the same derivation by hand: grep the plan `*.md` files for
 `/home/`, `/Users/`, `C:\Users\`, `$HOME`, and `$USER`.

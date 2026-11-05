@@ -296,5 +296,7 @@ Low for the exact wording of IEEE 830 and 29148 (secondary sources only).
 - Obtain 29148 clause 5.2 text; verify the "nine individual, five set" characteristics.
 - Cucumber's official Gherkin reference (one behavior per scenario) was not fetched.
 - Re-run once the cyber-truss model leaves "Thesis" status for use cases and implicit criteria.
-- Check D22 on a held-out spec: the next spec written with the updated skill, with its review history, classified
-  blind against the placement test.
+- Check D22 on a held-out spec written before D22, so its placements were not produced by the placement test. The
+  ground truth must be independent of the test: a later trim in that spec's history, or the owner's blind
+  classification of a sample of its cases. A spec written with the updated skill cannot serve, because the test
+  produced its placements.

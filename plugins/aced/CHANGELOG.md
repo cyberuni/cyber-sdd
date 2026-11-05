@@ -1,5 +1,12 @@
 # cyber-aced
 
+## 0.5.2
+
+### Patch Changes
+
+- 36310cf: Depend on cyber-agentkit `^2.0.0` instead of the exact `1.2.0` pin. No behavior change for aced.
+- 587e730: Depend on cyber-agentkit `^2.1.0`, which adds `reference migrate`. The `skill-design` reference now names the override at `.agents/references/<name>.md` the repository root's `repo` override, as cyber-agentkit 2 reads it.
+
 ## 0.5.1
 
 ### Patch Changes

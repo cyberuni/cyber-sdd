@@ -27,7 +27,7 @@
 			"description": "Agent Config Evaluation & Development. Spec, evaluate, and improve agent configurations: skills, AGENTS.md sections, subagent definitions, and commands.",
 			"tags": ["sdd", "eval", "skills"],
 			"source": "./plugins/aced",
-			"version": "0.5.1",
+			"version": "0.5.2",
 			"homepage": "https://github.com/cyberuni/cyber-sdd",
 			"repository": "https://github.com/cyberuni/cyber-sdd"
 		},

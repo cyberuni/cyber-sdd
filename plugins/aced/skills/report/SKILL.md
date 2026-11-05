@@ -1,6 +1,6 @@
 ---
 name: report
-description: Use this skill when the user wants a project-wide health summary of all ACED eval suites — pass rates, trends, and which agent configurations need attention.
+description: Summarizes the health of all ACED eval suites project-wide — pass rates, trends, and which agent configurations need attention.
 ---
 
 # ACED Report

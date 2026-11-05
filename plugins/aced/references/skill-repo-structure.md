@@ -39,7 +39,7 @@ Collection plus validation and install hygiene.
 - Documented install commands in README
 - Optional committed `skills-lock.json` when the repo dogfoods `npx skills add`
 
-**Validate with:** your skill-validation tool (e.g. the aced `improve-skill` skill's `validate.mts` engine).
+**Validate with:** your skill-validation tool (e.g. the aced `improve-skill` skill's `validate.mjs` engine).
 
 ### Tooling library
 
@@ -154,7 +154,7 @@ Use **`init-skill-repo`** (when shipped) to scaffold and wire disciplines for th
 | Archetype | Minimum check |
 | --- | --- |
 | Collection | Manual or `skills-ref validate` per skill |
-| Maintained / tooling | your skill-validation tool (e.g. the aced `improve-skill` `validate.mts` engine) in CI |
+| Maintained / tooling | your skill-validation tool (e.g. the aced `improve-skill` `validate.mjs` engine) in CI |
 | Tooling library | Full repo verify command documented in AGENTS.md |
 
 Full quality review (Q6–Q13, E3–E8): run the **improve-skill** agent skill after mechanical validation passes.

@@ -1,6 +1,6 @@
 ---
 name: manage
-description: Use this skill when doing manage-level (non-mission) ACED work — inspecting or maintaining the agent-config tooling ACED evaluates, such as "set up the per-model runner agents", "list the model runners", "list the installed skills", or "validate/repair the repo-private skills". Routes to the matching engine; it does not author a config (define-agent / define-skill) or change what ACED specifies (start-mission).
+description: Handles manage-level (non-mission) ACED work — inspecting or maintaining the agent-config tooling ACED evaluates, such as "set up the per-model runner agents", "list the model runners", "list the installed skills", or "validate/repair the repo-private skills". Routes to the matching engine; it does not author a config (define-agent / define-skill) or change what ACED specifies (start-mission).
 ---
 
 # manage

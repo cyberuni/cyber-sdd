@@ -1,6 +1,6 @@
 ---
 name: contribute-skill
-description: Use this skill when contributing local improvements to an installed skill back to its source repo via PR.
+description: Contributes local improvements to an installed skill back to its source repo via PR.
 ---
 
 # Contribute Skill

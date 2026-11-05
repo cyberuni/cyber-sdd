@@ -122,8 +122,8 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
 <the trigger condition, restated for the body>
 
 ## Instructions
-1. <step>
-2. <step>
+<the chosen pattern's body shape: numbered steps for Process, tool usage + guardrails for
+Tool-based, rules + pass conditions for Standard>
 ```
 
 - **Description** — the only field loaded at startup; it carries the whole triggering burden. Lead
@@ -134,7 +134,7 @@ description: <capability> + "Use when <trigger>" + an implicit-phrasing example 
   `user-invocable: false` and the description to exactly `"By name only"` and nothing else; identity
   and caller go in the body. `user-invocable: false` alone only hides a skill from the command list:
   a hidden skill the model should still load keeps its trigger description.
-- **Body** — step-by-step, under 500 lines. Keep the *when* here; move any **deterministic,
+- **Body** — in the chosen pattern's body shape (numbered steps for Process only), under 500 lines. Keep the *when* here; move any **deterministic,
   fixed-output** step to a `scripts/` file or an existing CLI and have the body only say when to run
   it.
 - **Project-public** skills get a `README.md` beside the SKILL.md (title, when-to-use, what-it-does,

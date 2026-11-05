@@ -1,6 +1,6 @@
 ---
 name: compare
-description: Use this skill when comparing two versions of an agent configuration to detect regressions or confirm improvements before committing a change.
+description: Compares two versions of an agent configuration to detect regressions or confirm improvements before committing a change.
 ---
 
 # ACED Compare

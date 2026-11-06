@@ -219,8 +219,8 @@ importers:
   packages/cyber-sdd:
     dependencies:
       clibuilder:
-        specifier: ^12.0.0
-        version: 12.0.0(js-yaml@4.3.2)
+        specifier: ^12.2.0
+        version: 12.2.0(js-yaml@4.3.2)
     devDependencies:
       '@types/node':
         specifier: ^24.12.4
@@ -242,14 +242,14 @@ importers:
     dependencies:
       cyber-agentkit:
         specifier: ^2.1.0
-        version: 2.1.0(clibuilder@12.0.0(js-yaml@4.3.2))
+        version: 2.1.0(clibuilder@12.2.0(js-yaml@4.3.2))
     devDependencies:
       tsdown:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
       universal-plugin:
         specifier: ^0.16.0
-        version: 0.16.2(clibuilder@12.0.0(js-yaml@4.3.2))
+        version: 0.16.2(clibuilder@12.2.0(js-yaml@4.3.2))
 
   plugins/quill: {}
 
@@ -263,7 +263,7 @@ importers:
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
       universal-plugin:
         specifier: ^0.16.0
-        version: 0.16.2(clibuilder@12.0.0(js-yaml@4.3.2))
+        version: 0.16.2(clibuilder@12.2.0(js-yaml@4.3.2))
 
 packages:
 
@@ -2197,8 +2197,8 @@ packages:
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
 
-  args-minus@0.2.0:
-    resolution: {integrity: sha512-WnIUyzhO4me3xx841rxfCU2C/PMpD+M1MraKb8hF2aGY4xS67bSV2EhpmegLlFM0UV11+hV9uHPbNHnH7ypL0w==}
+  args-minus@0.2.3:
+    resolution: {integrity: sha512-OHtJ3DCR44+Yx5XDhXBuA9sYaVEQHek9cz4HplpjeTOCoQ0gMHgLeacyOHAj4tI1qG9jQh/0xkUSKezzUQUsug==}
     engines: {node: '>=20'}
 
   argue-cli@3.1.0:
@@ -2283,8 +2283,8 @@ packages:
     resolution: {integrity: sha512-77PSwercCZU2Fc4sX94eF8k8Pxte6JAwL4/ICZLFjJLqegs7kCuAsqqj/70NQF6TvDpgFjkubQB2FW2ZZddvQg==}
     engines: {node: '>=8'}
 
-  clibuilder@12.0.0:
-    resolution: {integrity: sha512-k4scud2B6EFqzVmxmTVQMiW4xu9KzxV9+KVIPQVJeJFqg735a0H2iDMGFMIsHQVNdxwLqPjmNiK4CEUU5ZxNfA==}
+  clibuilder@12.2.0:
+    resolution: {integrity: sha512-aaKIqEEkt8b/h1TdnZdWSPLcnjooMSOKUCxHOUFqf9aEcCbq523XQf9nE2UtjC+U2VOd8P65Pzqczbw1BfBgaw==}
     engines: {node: '>= 20.19'}
     peerDependencies:
       js-yaml: ^4.1.0
@@ -5643,7 +5643,7 @@ snapshots:
 
   argparse@2.0.1: {}
 
-  args-minus@0.2.0: {}
+  args-minus@0.2.3: {}
 
   argue-cli@3.1.0: {}
 
@@ -5786,10 +5786,10 @@ snapshots:
 
   ci-info@4.4.0: {}
 
-  clibuilder@12.0.0(js-yaml@4.3.2):
+  clibuilder@12.2.0(js-yaml@4.3.2):
     dependencies:
       '@toon-format/toon': 4.1.1
-      args-minus: 0.2.0
+      args-minus: 0.2.3
     optionalDependencies:
       js-yaml: 4.3.2
 
@@ -5886,13 +5886,13 @@ snapshots:
     dependencies:
       css-tree: 2.2.1
 
-  cyber-agentkit@1.2.0(clibuilder@12.0.0(js-yaml@4.3.2)):
+  cyber-agentkit@1.2.0(clibuilder@12.2.0(js-yaml@4.3.2)):
     optionalDependencies:
-      clibuilder: 12.0.0(js-yaml@4.3.2)
+      clibuilder: 12.2.0(js-yaml@4.3.2)
 
-  cyber-agentkit@2.1.0(clibuilder@12.0.0(js-yaml@4.3.2)):
+  cyber-agentkit@2.1.0(clibuilder@12.2.0(js-yaml@4.3.2)):
     optionalDependencies:
-      clibuilder: 12.0.0(js-yaml@4.3.2)
+      clibuilder: 12.2.0(js-yaml@4.3.2)
 
   cytoscape-cose-bilkent@4.1.0(cytoscape@3.34.3):
     dependencies:
@@ -7412,12 +7412,12 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  universal-plugin@0.16.2(clibuilder@12.0.0(js-yaml@4.3.2)):
+  universal-plugin@0.16.2(clibuilder@12.2.0(js-yaml@4.3.2)):
     dependencies:
       '@repobuddy/upx': 0.2.0
       '@toon-format/toon': 4.1.1
       commander: 15.0.0
-      cyber-agentkit: 1.2.0(clibuilder@12.0.0(js-yaml@4.3.2))
+      cyber-agentkit: 1.2.0(clibuilder@12.2.0(js-yaml@4.3.2))
       rolldown: 1.2.14
       semver: 7.8.5
     transitivePeerDependencies:

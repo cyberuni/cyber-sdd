@@ -248,8 +248,8 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
       universal-plugin:
-        specifier: ^0.16.0
-        version: 0.16.2(clibuilder@12.2.0(js-yaml@4.3.2))
+        specifier: ^0.17.0
+        version: 0.17.1
 
   plugins/quill: {}
 
@@ -262,8 +262,8 @@ importers:
         specifier: ^0.23.0
         version: 0.23.0(@volar/typescript@2.4.28(typescript@7.0.2))(oxc-resolver@11.24.2)(tsx@4.23.13)(typescript@7.0.2)
       universal-plugin:
-        specifier: ^0.16.0
-        version: 0.16.2(clibuilder@12.2.0(js-yaml@4.3.2))
+        specifier: ^0.17.0
+        version: 0.17.1
 
 packages:
 
@@ -2396,16 +2396,6 @@ packages:
     resolution: {integrity: sha512-0LrrStPOdJj+SPCCrGhzryycLjwcgUSHBtxNA8aIDxf0GLsRh1cKYhB00Gd1lDOS4yGH69+SNn13+TWbVHETFQ==}
     engines: {node: ^10 || ^12.20.0 || ^14.13.0 || >=15.0.0, npm: '>=7.0.0'}
 
-  cyber-agentkit@1.2.0:
-    resolution: {integrity: sha512-5BhU8aCwdPRWs0JS8ZffwWIYI5Q0+v/hXWLS+OVlfD9NiQxneq3hmdGZihD1QJTbf4j5WkKCEA9+sffqm5jQtg==}
-    engines: {node: '>=22'}
-    hasBin: true
-    peerDependencies:
-      clibuilder: ^12.0.0
-    peerDependenciesMeta:
-      clibuilder:
-        optional: true
-
   cyber-agentkit@2.1.0:
     resolution: {integrity: sha512-PMNXDxGX2cYbJ5xr27yy7//4hSUWYiknDn/OoUwWc7BKRIPQUFaBvpFu1zUkaJLiFgtN8/HtBYjpGn9KPF5MWQ==}
     engines: {node: '>=22'}
@@ -3667,8 +3657,8 @@ packages:
   unist-util-visit@5.1.0:
     resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
-  universal-plugin@0.16.2:
-    resolution: {integrity: sha512-xilD8AGTTfzzIYRjm9kzY1h63dRnq2isuAPBZvsZO6QqlJM+XNpncVoe96aSRHLJnSUhOxATp620ebj40iIgag==}
+  universal-plugin@0.17.1:
+    resolution: {integrity: sha512-pLKkNaS9CWMdz1B8XYPHZDbrXTt3QQr6Y4lfEyezeYsmcaeWd+GLcWtc4Z0zuWfkWkexTUKoqDPxB68d4/CEQw==}
     engines: {node: '>=22'}
     hasBin: true
 
@@ -5886,10 +5876,6 @@ snapshots:
     dependencies:
       css-tree: 2.2.1
 
-  cyber-agentkit@1.2.0(clibuilder@12.2.0(js-yaml@4.3.2)):
-    optionalDependencies:
-      clibuilder: 12.2.0(js-yaml@4.3.2)
-
   cyber-agentkit@2.1.0(clibuilder@12.2.0(js-yaml@4.3.2)):
     optionalDependencies:
       clibuilder: 12.2.0(js-yaml@4.3.2)
@@ -7412,16 +7398,10 @@ snapshots:
       unist-util-is: 6.0.1
       unist-util-visit-parents: 6.0.2
 
-  universal-plugin@0.16.2(clibuilder@12.2.0(js-yaml@4.3.2)):
+  universal-plugin@0.17.1:
     dependencies:
       '@repobuddy/upx': 0.2.0
-      '@toon-format/toon': 4.1.1
-      commander: 15.0.0
-      cyber-agentkit: 1.2.0(clibuilder@12.2.0(js-yaml@4.3.2))
       rolldown: 1.2.14
-      semver: 7.8.5
-    transitivePeerDependencies:
-      - clibuilder
 
   unstorage@1.17.5:
     dependencies:

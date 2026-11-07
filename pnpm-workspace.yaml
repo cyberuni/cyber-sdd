@@ -28,6 +28,4 @@ onlyBuiltDependencies:
 # should carry its reason and the date it becomes removable.
 minimumReleaseAge: 1440 # 1 day
 minimumReleaseAgeStrict: true
-minimumReleaseAgeExclude:
-  # min-release-age: lift cyber-agentkit@2.1.0 until 2026-11-05T17:00:00Z
-  - 'cyber-agentkit@2.1.0'
+minimumReleaseAgeExclude: []

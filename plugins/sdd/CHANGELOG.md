@@ -1,5 +1,11 @@
 # cyber-sdd
 
+## 0.8.0
+
+### Minor Changes
+
+- 9bbfdaa: Upgrade to clibuilder 12.2 and follow its AXI conventions: a bare `cyber-sdd-2` answers with its `bin`, `description` and `version` (TOON) instead of printing help, and the default command carries an example.
+
 ## 0.7.3
 
 ### Patch Changes

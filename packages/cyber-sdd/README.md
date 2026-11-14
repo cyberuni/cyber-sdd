@@ -35,7 +35,7 @@ To settle, in a session of its own:
   `.feature` file for an agent to run (decision D11 in
   [`.research/design-spec-criteria`](../../.research/design-spec-criteria/conclusion.md)).
 - Who produces it and who judges it.
-- How the `spec` skill's criteria (C1 to C9) relate to the draft
+- How the `spec` skill's criteria (C1 to C10) relate to the draft
   [criteria governance](.agents/spec/governances/criteria-governance.md), which
   numbers its own criteria from C1 as well.
 - When `start-mission` hands spec work to SDD 2.

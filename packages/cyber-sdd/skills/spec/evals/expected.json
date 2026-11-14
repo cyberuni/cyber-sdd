@@ -1,0 +1,104 @@
+{
+	"version": 1,
+	"skill": "spec",
+	"at": "2026-11-14T23:17:48.560Z",
+	"verification": "skill-design.aspects.verification from cyber-agentkit",
+	"runs": 3,
+	"threshold": 2,
+	"baseline": "without the skill",
+	"trigger": [
+		{
+			"case": "trigger-1",
+			"prompt": "Write a spec for the branch-archive command before I build it.",
+			"expect": "fire",
+			"fired": 3,
+			"ran": 3,
+			"status": "pass"
+		},
+		{
+			"case": "trigger-2",
+			"prompt": "Is the spec in specs/archive ready? Review it.",
+			"expect": "fire",
+			"fired": 3,
+			"ran": 3,
+			"status": "pass"
+		},
+		{
+			"case": "trigger-3",
+			"prompt": "Backfill a design spec for the existing export feature.",
+			"expect": "fire",
+			"fired": 3,
+			"ran": 3,
+			"status": "pass"
+		},
+		{
+			"case": "trigger-4",
+			"prompt": "Research whether GitHub Actions can run a ChatOps bot.",
+			"expect": "skip",
+			"fired": 0,
+			"ran": 3,
+			"status": "pass"
+		},
+		{
+			"case": "trigger-5",
+			"prompt": "Write the unit tests for src/archive.ts.",
+			"expect": "skip",
+			"fired": 0,
+			"ran": 3,
+			"status": "pass"
+		},
+		{
+			"case": "trigger-6",
+			"prompt": "Write an ADR for choosing a webhook router over Actions.",
+			"expect": "skip",
+			"fired": 0,
+			"ran": 3,
+			"status": "pass"
+		}
+	],
+	"criteria": [],
+	"cases": [
+		{
+			"case": "trigger-1",
+			"status": "pass"
+		},
+		{
+			"case": "trigger-2",
+			"status": "pass"
+		},
+		{
+			"case": "trigger-3",
+			"status": "pass"
+		},
+		{
+			"case": "trigger-4",
+			"status": "pass"
+		},
+		{
+			"case": "trigger-5",
+			"status": "pass"
+		},
+		{
+			"case": "trigger-6",
+			"status": "pass"
+		},
+		{
+			"case": "review-unresearched",
+			"status": "not-tested"
+		}
+	],
+	"notRun": [],
+	"blocked": [
+		{
+			"case": "trigger-4",
+			"arm": "skill",
+			"run": 3,
+			"what": "network",
+			"target": "docs.github.com"
+		}
+	],
+	"cost": 2.9829,
+	"durationMs": 93078,
+	"totalRuns": 24,
+	"noPrevious": true
+}

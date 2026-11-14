@@ -1,0 +1,23 @@
+runs: 3
+threshold: 2
+trigger:
+  - { prompt: "Write a spec for the branch-archive command before I build it.", expect: fire }
+  - { prompt: "Is the spec in specs/archive ready? Review it.", expect: fire }
+  - { prompt: "Backfill a design spec for the existing export feature.", expect: fire }
+  - { prompt: "Research whether GitHub Actions can run a ChatOps bot.", expect: skip }
+  - { prompt: "Write the unit tests for src/archive.ts.", expect: skip }
+  - { prompt: "Write an ADR for choosing a webhook router over Actions.", expect: skip }
+# files/unresearched holds specs/archive: a spec with every section in place whose References has no research link
+# and no recorded skip, so it fails C10 and V14 (#199).
+outcome:
+  - id: review-unresearched
+    prompt: >-
+      Review the spec in specs/archive as a read-only reviewer: judge it, do not edit it. End your reply with one
+      line: "Failed:" then the IDs of the criteria (C) and Validate checks (V) it fails, or "none".
+    files: files/unresearched
+    criteria: [C10]
+    checks:
+      C10:
+        - regex: "Failed:[^\\n]*C10"
+        - regex: "Failed:[^\\n]*V14"
+        - script: "test -z \"$(git status --porcelain --untracked-files=all)\""

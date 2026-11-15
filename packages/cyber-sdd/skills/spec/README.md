@@ -23,9 +23,12 @@ plugin's `start-mission`, not here.
   it with the user one section at a time: outcome, What, Non-goals, Key terms, Actors and goals, Use cases, Criteria,
   Open questions, References. Every list item carries an ID. A criterion's text is its identity: after the spec is
   first ready, a changed criterion takes a new ID. Each criterion is bracketed as it is written: its strictest and
-  most lenient readings must agree on the use case's paths. A headless run drafts every section and puts each
-  question under Open questions.
-- **Review** judges the spec against nine pass/fail criteria (C1 to C9, in
+  most lenient readings must agree on the use case's paths. Once What and Actors and goals are agreed, a research
+  step (the `research.method` reference, by default `research-workbench:deep-research`) checks the idea, its
+  feasibility, and prior art before Use cases and Criteria settle; its artifact is linked under References, or a
+  small change records the skip and its reason. A headless run drafts every section and puts each question under
+  Open questions.
+- **Review** judges the spec against ten pass/fail criteria (C1 to C10, in
   [`references/criteria.md`](references/criteria.md)), fixes what the spec and its sources settle, and returns the
   rest as open questions with a recommendation. A criterion revised in two or more rounds is checked for placement
   before it is revised again.
@@ -37,7 +40,7 @@ plugin's `start-mission`, not here.
   its criterion ID. Criteria of a skill-instruction use case are checked by an eval run of the skill instead. A test
   may pin an encoding the spec leaves open; changing what an existing test asserts goes to the owner. A criterion
   whose verdict flipped on an unchanged state goes back to Write to split its graph path.
-- **Validate** (V1 to V13 in [`SKILL.md`](SKILL.md#validate)) is the self-check before handoff and the re-check a cold
+- **Validate** (V1 to V14 in [`SKILL.md`](SKILL.md#validate)) is the self-check before handoff and the re-check a cold
   reader runs against the spec folder.
 
 The spec is standing: it is compared against on every change. Rationale lives in a linked home, not in the spec. The

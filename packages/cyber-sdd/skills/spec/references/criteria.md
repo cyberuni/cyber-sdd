@@ -1,6 +1,6 @@
 # Criteria for a design spec
 
-Judge C1 to C9 in number order. C1 and C2 are cheap and kill early. C3 and C6 catch what is missing; the others catch what is
+Judge C1 to C10 in number order. C1 and C2 are cheap and kill early. C3 and C6 catch what is missing; the others catch what is
 wrong or surplus. Each test is pass or fail. Report the line that fails.
 
 ## A. Intent and scope
@@ -27,6 +27,12 @@ wrong or surplus. Each test is pass or fail. Report the line that fails.
 | C8 | Nothing hidden | Every unresolved question is under Open questions. No `TBD`, no guessed default, and nothing the criteria need is deferred. |
 | C9 | Proportionate | The size matches the risk: a small change gets a few criteria, not a document. The spec states only what the code, the conventions, or a linked home do not. A task that reads the spec (changing one behavior, deriving its tests, checking a consumer contract) needs most of what it loads; otherwise it is several specs, split by capability and never by layer (library, CLI, skill). |
 
+## D. Grounding
+
+| ID | Criterion | Pass when |
+| --- | --- | --- |
+| C10 | Researched | Before the spec is presented as ready, References links a research artifact covering the idea, its feasibility, and prior art, or records `Research: skipped, <reason>` with a reason. Every change to the intent the research caused is recorded in the artifact, and every feasibility limit that constrains behavior is a criterion or a non-goal. A child spec passes through its parent. |
+
 ## Failure modes to look for
 
 - The spec is the interface restated as requirements (use cases derived from entry points). Caught by C3.
@@ -40,6 +46,8 @@ wrong or surplus. Each test is pass or fail. Report the line that fails.
 - A plausible guess filled in silently. C8.
 - Verbosity: a bug fix with a page of criteria. C9.
 - An invariant that always holds listed as a criterion. It is not a decision. C3.
+- A capability specced without asking whether an existing solution already does it, or whether the platform allows
+  it; or research skipped with no reason, so a reviewer cannot tell skipped on purpose from forgotten. C10.
 
 A one-time review cannot catch a spec going stale or being revised from the code it constrains. That needs a check
 on each change, outside this skill.

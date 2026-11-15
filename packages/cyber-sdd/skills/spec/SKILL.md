@@ -54,7 +54,8 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
    context it depends on, such as the path or the use case, written into it. The cited use case and edge are a trace,
    not part of its meaning.
 8. **Open questions.** What is unresolved, marked. Empty before the spec is ready.
-9. **References.** Links to rationale, sibling specs, and the home of any shared fact.
+9. **References.** Links to rationale, sibling specs, and the home of any shared fact, and the research line: a link
+   to the research artifact, or `Research: skipped, <reason>`.
 
 **Give every item of these lists an ID** a reader can cite: `N1` for a non-goal, `K1` for a key term, `A1` for an actor and
 `A1.1` for its goal, `UC1` for a use case and `UC1.1` for its extension, `R1` for a criterion, `E1` for a graph edge,
@@ -73,7 +74,7 @@ each section:
    capability does, not what it should do. Decided behavior the code lacks is still written as a criterion; the gap
    goes to the tracker.
 2. Judge the draft against the criteria that apply to it: C1 on the outcome, C2 on the non-goals, C3 on the actors and
-   use cases, C4 to C6 on the criteria, C8 on the open questions. Bracket each criterion as you write it: state its
+   use cases, C4 to C6 on the criteria, C8 on the open questions, C10 on the research line. Bracket each criterion as you write it: state its
    strictest and its most lenient reasonable reading, and check both against the use case's extensions and its graph
    paths. If they agree, the criterion is crisp. If they disagree, apply the placement test (under **Design spec
    versus functional spec**) first, and tighten the text only after that. The readings are a check made while writing, not text in the spec.
@@ -82,6 +83,22 @@ each section:
 
 A change to an earlier section reopens every section after it. With no user to ask (a headless run), draft every
 section and put each question under Open questions; the spec is not ready until they are answered.
+
+**Research before the use cases.** Once What and Actors and goals are agreed, and before Use cases and Criteria are
+settled, research the idea, its feasibility, and prior art. Load `research.method` with the `reference` skill of
+`cyber-agentkit` and follow it, giving it the outcome, the What, and the actors and goals as drafted; its default
+delegates to `research-workbench:deep-research`. Then act on what it returns:
+
+1. Link the artifact it produced under References. Do not copy its findings into the spec.
+2. Write each feasibility limit that constrains behavior as a criterion, or as a non-goal when it rules a goal out.
+   Everything else stays in the artifact.
+3. When a finding changes the intent (adopt or extend an existing solution, a use case cut by a limit), reopen the
+   section it changes and settle it again with the user. The change is recorded in the artifact.
+
+A small change, such as a bug fix or a revision that leaves the What and the actors as they were, skips the research:
+write `Research: skipped, <reason>` under References instead. A revision whose What or actors changed researches the
+change. With no user to ask, run the research; when it cannot run, or its finding changes the intent, put the
+question under Open questions.
 
 **Split by capability, never by layer.** A child spec is a capability an actor can name (what they get), such as
 `update` or `history`, so the folder names say what the system does. Never split into a library spec, a CLI spec, and a
@@ -142,8 +159,8 @@ reference, and cite its edge IDs from the criteria. Omit it for a spec that stat
 
 ## Review
 
-Load the criteria reference and judge the spec against C1 to C9 in number order. A spec is ready when none of C1 to
-C9 fails, every check under [Validate](#validate) passes, and Open questions is empty.
+Load the criteria reference and judge the spec against C1 to C10 in number order. A spec is ready when none of C1 to
+C10 fails, every check under [Validate](#validate) passes, and Open questions is empty.
 
 Iterate before you present. After each judgment, fix every failing criterion in the spec yourself, then judge it again.
 Repeat a few times, stopping when none fails or when a round fixes nothing new. Churn signals misplacement: a
@@ -202,13 +219,35 @@ git history, not against your report. Each line is pass or fail; `README.md` and
 - V12 After Derive tests, every criterion ID, except those of a skill-instruction use case, names at least one test or
   group in the project's own suite, and no `.feature` file was added for an agent to run.
 - V13 No child spec folder is named for a delivery or layer (such as `cli`, `lib`, `library`, `skill`, `mcp`).
+- V14 A standalone or parent spec presented as ready has, under References, a link to a research artifact or a line
+  `Research: skipped, <reason>` with a reason (`grep -ni 'research' README.md` shows the line).
 
 ## References
 
-- **Criteria reference** (`references/criteria.md`): C1 to C9 with their pass conditions and the failure modes they
+- **Criteria reference** ([`references/criteria.md`](references/criteria.md)): C1 to C10 with their pass conditions and the failure modes they
   catch. Load it for Review, and for step 2 of each section in Write.
-- **Decision graph reference** (`references/decision-graph.md`): the shape of `graph.md`, its edge IDs, and the
+- **Decision graph reference** ([`references/decision-graph.md`](references/decision-graph.md)): the shape of `graph.md`, its edge IDs, and the
   decision table and state list that may replace it.
+- **`research.method`** (default `references/research.method.default.md`): how the research step runs and what
+  artifact it leaves. Loaded by name in Write; a team swaps in its own method with the `reference` skill's Customize
+  mode.
 - **Rationale and sources**: the research topic
   [design-spec-criteria](https://github.com/cyberuni/cyber-sdd/tree/main/.research/design-spec-criteria), decisions
   D8 onward in its `conclusion.md`.
+
+## Done when
+
+Before reporting done, check each of these against the result. Report any that fails. Here `C1` to `C10` of the
+criteria reference are written `spec C1` to `spec C10`.
+
+- **C1.** Every check under Validate passes on the spec folder handed back, or the reply names each one that fails.
+- **C2.** A spec presented as ready has no item under Open questions, and fails none of spec C1 to spec C10.
+- **C3.** A spec presented as ready links a research artifact under References or records `Research: skipped,
+  <reason>`, and a Review of a spec with neither reports it failing spec C10 and V14.
+- **C4.** A read-only Review changed no file, and named each failing criterion and check by its ID with the line that
+  fails it.
+- **C5.** A split commit only moves lines, and no child spec folder is named for a delivery or layer.
+- **C6.** After Derive tests, every criterion ID except those of a skill-instruction use case names a test or group in
+  the project's own suite, and no `.feature` file was added for an agent to run.
+- **C7.** A headless run put every question it could not settle under Open questions and did not present the spec as
+  ready.

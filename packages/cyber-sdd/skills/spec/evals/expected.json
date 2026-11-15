@@ -1,7 +1,7 @@
 {
 	"version": 1,
 	"skill": "spec",
-	"at": "2026-11-14T23:17:48.560Z",
+	"at": "2026-11-15T00:01:17.473Z",
 	"verification": "skill-design.aspects.verification from cyber-agentkit",
 	"runs": 3,
 	"threshold": 2,
@@ -56,7 +56,53 @@
 			"status": "pass"
 		}
 	],
-	"criteria": [],
+	"criteria": [
+		{
+			"id": "C1",
+			"status": "not-tested",
+			"reason": "its rubric needs a judge, and none was named"
+		},
+		{
+			"id": "C2",
+			"status": "not-tested",
+			"reason": "its rubric needs a judge, and none was named"
+		},
+		{
+			"id": "C3",
+			"status": "pass",
+			"passed": 3,
+			"ran": 3,
+			"baseline": {
+				"passed": 0,
+				"ran": 3
+			}
+		},
+		{
+			"id": "C4",
+			"status": "pass",
+			"passed": 3,
+			"ran": 3,
+			"baseline": {
+				"passed": 3,
+				"ran": 3
+			}
+		},
+		{
+			"id": "C5",
+			"status": "not-tested",
+			"reason": "its rubric needs a judge, and none was named"
+		},
+		{
+			"id": "C6",
+			"status": "not-tested",
+			"reason": "no outcome case that runs tests it"
+		},
+		{
+			"id": "C7",
+			"status": "not-tested",
+			"reason": "its rubric needs a judge, and none was named"
+		}
+	],
 	"cases": [
 		{
 			"case": "trigger-1",
@@ -84,21 +130,13 @@
 		},
 		{
 			"case": "review-unresearched",
-			"status": "not-tested"
+			"status": "pass"
 		}
 	],
 	"notRun": [],
-	"blocked": [
-		{
-			"case": "trigger-4",
-			"arm": "skill",
-			"run": 3,
-			"what": "network",
-			"target": "docs.github.com"
-		}
-	],
-	"cost": 2.9829,
-	"durationMs": 93078,
+	"cost": 2.8709,
+	"durationMs": 105107,
 	"totalRuns": 24,
-	"noPrevious": true
+	"comparedWith": "expected",
+	"changed": []
 }

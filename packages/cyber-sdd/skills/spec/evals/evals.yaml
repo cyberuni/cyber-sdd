@@ -8,16 +8,33 @@ trigger:
   - { prompt: "Write the unit tests for src/archive.ts.", expect: skip }
   - { prompt: "Write an ADR for choosing a webhook router over Actions.", expect: skip }
 # files/unresearched holds specs/archive: a spec with every section in place whose References has no research link
-# and no recorded skip, so it fails C10 and V14 (#199).
+# and no recorded skip, so a review must report it failing spec C10 and V14 (#199). The case's criteria are the
+# skill's Done when IDs; the regexes look for the spec criterion and Validate check IDs in the reply.
 outcome:
   - id: review-unresearched
     prompt: >-
       Review the spec in specs/archive as a read-only reviewer: judge it, do not edit it. End your reply with one
       line: "Failed:" then the IDs of the criteria (C) and Validate checks (V) it fails, or "none".
     files: files/unresearched
-    criteria: [C10]
+    criteria: [C3, C4]
     checks:
-      C10:
-        - regex: "Failed:[^\\n]*C10"
-        - regex: "Failed:[^\\n]*V14"
+      C3:
+        - regex: "Failed:[^\\n]*\\bC10\\b"
+        - regex: "Failed:[^\\n]*\\bV14\\b"
+      C4:
         - script: "test -z \"$(git status --porcelain --untracked-files=all)\""
+        - regex: "Failed:[^\\n]*\\b[CV]\\d+\\b"
+# Rubrics for the Done when items no outcome case tests yet. C1, C2, C5's move-only half, and C7 need a judge, since
+# no script decides them from a run's folder; a test names a judge to run them.
+rubrics:
+  C1:
+    - judge: Pass when every Validate check (V1 to V14) passes on the spec folder handed back, or the reply names each one that fails.
+  C2:
+    - judge: Pass when a spec the reply presents as ready has no item under Open questions and the reply reports none of the spec criteria C1 to C10 failing.
+  C5:
+    - script: "! find . -path ./.git -prune -o -type d \\( -name cli -o -name lib -o -name library -o -name skill -o -name mcp \\) -print | grep -q ."
+    - judge: Pass when the split commit only moves lines, adding nothing but each child's title and link to the parent's terms and the parent's table of children.
+  C6:
+    - script: "test -z \"$(git ls-files --others --exclude-standard -- '*.feature')\""
+  C7:
+    - judge: Pass when every question the run could not settle is under Open questions and the reply does not present the spec as ready.

@@ -234,3 +234,20 @@ git history, not against your report. Each line is pass or fail; `README.md` and
 - **Rationale and sources**: the research topic
   [design-spec-criteria](https://github.com/cyberuni/cyber-sdd/tree/main/.research/design-spec-criteria), decisions
   D8 onward in its `conclusion.md`.
+
+## Done when
+
+Before reporting done, check each of these against the result. Report any that fails. Here `C1` to `C10` of the
+criteria reference are written `spec C1` to `spec C10`.
+
+- **C1.** Every check under Validate passes on the spec folder handed back, or the reply names each one that fails.
+- **C2.** A spec presented as ready has no item under Open questions, and fails none of spec C1 to spec C10.
+- **C3.** A spec presented as ready links a research artifact under References or records `Research: skipped,
+  <reason>`, and a Review of a spec with neither reports it failing spec C10 and V14.
+- **C4.** A read-only Review changed no file, and named each failing criterion and check by its ID with the line that
+  fails it.
+- **C5.** A split commit only moves lines, and no child spec folder is named for a delivery or layer.
+- **C6.** After Derive tests, every criterion ID except those of a skill-instruction use case names a test or group in
+  the project's own suite, and no `.feature` file was added for an agent to run.
+- **C7.** A headless run put every question it could not settle under Open questions and did not present the spec as
+  ready.

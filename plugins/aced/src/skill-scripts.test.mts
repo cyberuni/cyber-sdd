@@ -22,8 +22,8 @@ const PROBE: Record<string, string[]> = {
 	'skills/bench/scripts/bench.mjs': ['--help'],
 	'skills/check-freshness/scripts/check-freshness.mjs': [],
 	'skills/contribute-skill/scripts/source.mjs': [],
+	'references/scripts/check-verification.mjs': ['skills/list-skills'],
 	'skills/extract-situation/scripts/extract-situation.mjs': [],
-	'skills/improve-skill/scripts/validate.mjs': ['--help'],
 	'skills/init-aced/scripts/ensure-results-ignored.mjs': [],
 	'skills/list-skills/scripts/list-skills.mjs': ['--grep', 'no-such-skill-anywhere'],
 	'skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs': ['--help'],
@@ -73,11 +73,13 @@ test('no skill or agent doc runs a .mts engine', () => {
 
 for (const [out, args] of Object.entries(PROBE)) {
 	test(`${out} runs from a lone copy of its skill under node_modules`, () => {
-		const skill = out.split('/')[1] as string
-		const home = join(work, skill)
-		const dest = join(home, 'node_modules', 'cyber-aced', 'skills', skill)
+		const [area, name] = out.split('/') as [string, string]
+		// A skill script ships beside its skill; a reference's check script ships with `references/`.
+		const unit = area === 'references' ? 'references' : join('skills', name)
+		const home = join(work, area === 'references' ? 'references' : name)
+		const dest = join(home, 'node_modules', 'cyber-aced', unit)
 		mkdirSync(dest, { recursive: true })
-		cpSync(join(PLUGIN_ROOT, 'skills', skill), dest, { recursive: true })
+		cpSync(join(PLUGIN_ROOT, unit), dest, { recursive: true })
 		const r = spawnSync(process.execPath, [join(home, 'node_modules', 'cyber-aced', out), ...args], {
 			cwd: home,
 			encoding: 'utf8',

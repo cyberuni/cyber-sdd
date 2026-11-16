@@ -82,7 +82,7 @@ flowchart TD
 
   WRITE["write the SKILL.md — encode the why per step;<br/>flag deterministic fixed-output steps as script-extraction candidates;<br/>generalize session-specific values, hard-code nothing"] --> VALIDATE
 
-  VALIDATE{audit the draft via improve-skill}
+  VALIDATE{audit the draft via skill check}
   VALIDATE -->|CRITICAL finding| FIX[fix it before handoff]
   VALIDATE -->|clean| PLACEIT
   FIX --> PLACEIT

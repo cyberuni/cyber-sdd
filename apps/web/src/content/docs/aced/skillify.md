@@ -31,5 +31,5 @@ npx skills add cyberuni/cyberplace --skill skillify -g
 
 ## Related
 
-- `improve-skill` (`aced` plugin) — validates the drafted skill
+- `/cyber-agentkit:skill check` (`cyber-agentkit`) — validates the drafted skill
 - [Skill Design reference](https://github.com/cyberuni/cyber-sdd/blob/main/plugins/aced/references/skill-design.md) — the authoring rules this skill applies

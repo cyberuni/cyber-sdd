@@ -1,4 +1,4 @@
-# Extra skill-scan locations for the improve-skill mechanical validate engine.
+# Extra skill-scan roots for `/cyber-agentkit:skill check` (fed by manage-skill-dirs).
 # Opt-in and additive: these are unioned ONTO the two built-in defaults (skills/, .agents/skills/).
 # Patterns are repo-relative directory globs — `*` matches one path segment, `**` any depth.
 # Each matched directory's immediate children are scanned for <child>/SKILL.md.

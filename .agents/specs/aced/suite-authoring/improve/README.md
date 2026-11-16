@@ -17,16 +17,16 @@ failing evals, grouping them by failure pattern, proposing concrete before/after
 with `compare`; for an untracked target, a general review against the fit and builder bars.
 **Non-goals** — scaffolding a brand-new config (`define-skill` / `define-agent` / the `reference` skill of `cyber-agentkit`);
 authoring a case (`add-scenario`); scoring the suite (`run`); on-demand diffing (`compare`); auditing a
-SKILL file's structure (`improve-skill`); how a single case is scored (that is `aced-case-judge`).
+SKILL file's structure (`/cyber-agentkit:skill check`); how a single case is scored (that is `aced-case-judge`).
 
 **Fit:** strong — the capability carries a genuine activation decision (a fix-the-config request versus
-sibling intents — `define-*` / `add-scenario` / `run` / `compare` / `improve-skill` — that share the
+sibling intents — `define-*` / `add-scenario` / `run` / `compare` / `/cyber-agentkit:skill check` — that share the
 same config vocabulary), and its tracked-vs-untracked routing, failure grouping, diff proposal, and
 verify path are judged, not asserted.
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Trigger on a fix request | a request to diagnose / fix a config whose evals are failing, vs. a sibling intent (scaffold new, capture a case, score, diff, audit structure) carrying the same config vocabulary | `improve` fires for a fix-the-config request and defers when the intent belongs to `define-*` / `add-scenario` / `run` / `compare` / `improve-skill` |
+| Trigger on a fix request | a request to diagnose / fix a config whose evals are failing, vs. a sibling intent (scaffold new, capture a case, score, diff, audit structure) carrying the same config vocabulary | `improve` fires for a fix-the-config request and defers when the intent belongs to `define-*` / `add-scenario` / `run` / `compare` / `/cyber-agentkit:skill check` |
 | Locate the target | a config that may be a skill, subagent, command, or AGENTS.md section | the artifact type is identified and the config is read in full |
 | Route the diagnostic path | whether the target has an eval suite in the project spec | ACED-tracked → diagnose failing evals; untracked → a general review against the fit classifier and the matching builder bar |
 | Load the context (tracked) | the eval config, the target, and the latest results record | the target is read in full alongside the most recent results, or the user is pointed at `run` when no results exist |
@@ -43,7 +43,7 @@ flowchart TD
   route -- add a case --> add[defer to add-scenario]
   route -- score the suite --> run[defer to run]
   route -- diff two versions --> compare[defer to compare]
-  route -- audit SKILL structure --> impskill[defer to improve-skill]
+  route -- audit SKILL structure --> impskill[defer to skill check]
   route -- improve this config --> locate[identify artifact type; read config in full]
 
   locate --> tracked{eval suite in the project spec?}
@@ -78,7 +78,7 @@ One scenario per row, following the suite's section order. Each decision edge is
 | `route` → defer to run | a request to score the config | `a request to score the suite defers to run` |
 | `route` → defer to compare | a request to compare two versions | `a request to diff two versions defers to compare` |
 | `route` → defer to define | a request to create a new config from scratch | `scaffolding a brand-new config defers to define` |
-| `route` → defer to improve-skill | a request to check a SKILL file's structure | `auditing a SKILL file's structure defers to improve-skill` |
+| `route` → defer to skill check | a request to check a SKILL file's structure | `auditing a SKILL file's structure defers to skill check` |
 | `locate` identify + read | a skill / subagent / command / AGENTS.md target | `the artifact type is identified and the config read in full` |
 | `tracked` → yes (read results) | a suite with an eval config and a results record | `the target and latest results are read together` |
 | `results` → none | a suite never run, no results record | `no results yet points the user at run` |

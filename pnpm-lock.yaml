@@ -193,6 +193,9 @@ importers:
       '@types/node':
         specifier: ^24.12.4
         version: 24.13.3
+      cyber-agentkit:
+        specifier: ^2.6.1
+        version: 2.6.1(clibuilder@12.2.0(js-yaml@4.3.2))
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -2595,6 +2598,16 @@ packages:
     hasBin: true
     peerDependencies:
       clibuilder: ^12.0.0
+    peerDependenciesMeta:
+      clibuilder:
+        optional: true
+
+  cyber-agentkit@2.6.1:
+    resolution: {integrity: sha512-fCjYfFLwH0nqJlx/E0LDmzROXvGrJoqakC7PfBmD8+fFcs9+1puyxWQeEpaFyp94Nvy6TMA7askwj/22CHChjw==}
+    engines: {node: '>=22'}
+    hasBin: true
+    peerDependencies:
+      clibuilder: ^12.2.0
     peerDependenciesMeta:
       clibuilder:
         optional: true
@@ -6200,6 +6213,10 @@ snapshots:
       css-tree: 2.2.1
 
   cyber-agentkit@2.1.0(clibuilder@12.2.0(js-yaml@4.3.2)):
+    optionalDependencies:
+      clibuilder: 12.2.0(js-yaml@4.3.2)
+
+  cyber-agentkit@2.6.1(clibuilder@12.2.0(js-yaml@4.3.2)):
     optionalDependencies:
       clibuilder: 12.2.0(js-yaml@4.3.2)
 

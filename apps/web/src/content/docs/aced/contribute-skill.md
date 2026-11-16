@@ -33,4 +33,4 @@ npx skills add cyberuni/cyberplace --skill contribute-skill -g
 ## Related
 
 - [skillify](/aced/skillify/) — generalizes a session workflow into a new skill (this skill contributes an existing one upstream)
-- `improve-skill` (`aced` plugin) — validate before opening the PR
+- `/cyber-agentkit:skill check` (`cyber-agentkit`) — validate before opening the PR

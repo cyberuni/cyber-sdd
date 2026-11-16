@@ -8,9 +8,9 @@ concept: [config-authoring, discovery]
 ## What
 
 An **internal, non-invokable** curation engine that declares and maintains the **extra skill-dir
-patterns** the `improve-skill` mechanical validate engine scans on top of its two built-in default
+patterns** `/cyber-agentkit:skill check` scans on top of its two built-in default
 roots (`skills/`, `.agents/skills/`). It is reached only through the ACED `manage` gateway
-(`../../manage/`); it curates config the validate engine *reads*.
+(`../../manage/`); it curates config `skill check` *reads*.
 
 The problem it solves is that the validate engine must not bake a monorepo layout in (the repo's
 "no baked-in opinions — detect the setup at runtime" rule): a single-package repo scanning `skills/`
@@ -24,7 +24,7 @@ interface (list / add / remove / edit / induce / preview) instead of hand-editin
 validates on the **write** side so a bad pattern is never persisted. It reuses SDD's `spec-anchors`
 grammar (ADR-0019), dropping only the `<project>` capture that spec discovery needs.
 
-**Non-goals.** Scanning or validating skills (`improve-skill`'s validate engine, which *reads* this
+**Non-goals.** Scanning or validating skills (`/cyber-agentkit:skill check`, which *reads* this
 config). Writing any skill content, `spec.md`, `status`, approval, or freeze — it writes **only**
 `.agents/aced/skill-dirs.toml`, so `manage`'s write-ownership guard holds. A `<project>` capture
 token. It is **not user-invocable** — it is reached via `manage`.

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // manage-skill-dirs — config-authoring/skill-dirs' concrete curation engine. Declares and curates the
-// OPT-IN extra skill-dir patterns the improve-skill validate engine scans on top of its two built-in
+// OPT-IN extra skill-dir patterns the `cyber-agentkit skill check` engine scans on top of its two built-in
 // default roots (skills/, .agents/skills/). It reads/writes ONLY `.agents/aced/skill-dirs.toml` —
 // never a SKILL.md, spec.md, status, approval, or freeze.
 //
@@ -201,7 +201,7 @@ function collectDescendants(root: string, startDir: string): string[] {
 }
 
 // Expand a pattern against the filesystem into the set of directories it matches (mirrors the
-// improve-skill validate engine's own expansion). Does NOT read or persist anything to the config.
+// skill check engine's own expansion). Does NOT read or persist anything to the config.
 function expandPattern(root: string, pattern: string): string[] {
 	const segs = pattern
 		.replace(/\\/g, '/')

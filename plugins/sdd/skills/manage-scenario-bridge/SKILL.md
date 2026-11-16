@@ -9,7 +9,7 @@ metadata:
 # Manage Scenario Bridge
 
 The concrete engine for `<project-path>/.agents/sdd/scenario-bridge.toml` — the one-time
-per-project wiring the [`verify-scenarios`](../verify-scenarios/) bridge and the `sdd-impl-judge`
+per-project wiring the `verify-scenarios` bridge and the `sdd-impl-judge`
 step-0 consumption both read. It is the **write** side of that config (`verify-scenarios` is the
 read side). It exists so a user wires a project's scenario bridge through a clean interface instead
 of hand-authoring the TOML. Loaded **in-session** by the `manage` gateway (Setup & discovery group);
@@ -58,3 +58,10 @@ and the impl-judge do).
 When `node` is absent, an agent performs the same edits by hand: read the file, apply the
 list/scaffold/add, and refuse a scaffold over an existing file or a request missing a required
 field.
+
+## Done when
+
+- **C1.** After `--scaffold`, `<project-path>/.agents/sdd/scenario-bridge.toml` exists with exactly one `[[source]]` block carrying the given adapter and report path.
+- **C2.** After `--add`, the config holds the earlier source blocks unchanged followed by the new block.
+- **C3.** A `--scaffold` over an existing file, an `--add` with no existing file, or either missing `--adapter` or `--report-path` was refused and wrote no source block.
+- **C4.** No file other than `<project-path>/.agents/sdd/scenario-bridge.toml` was written.

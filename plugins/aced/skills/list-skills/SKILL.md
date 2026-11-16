@@ -53,3 +53,9 @@ When `node` is absent, an agent performs the same scan by hand: walk the four so
 keep only subdirectories with a `SKILL.md`, parse the `name:`/`description:` frontmatter (directory
 name as fallback), dedupe by name keeping the first-scanned (repo-first) copy, apply the glob
 filter if one was given, and sort the result alphabetically by name.
+
+## Done when
+
+- **C1.** The report lists each discovered skill once by name, sorted alphabetically, with its `foundIn` source and description.
+- **C2.** When two sources hold a skill of the same name, only the first-scanned copy is listed.
+- **C3.** No file was written or changed.

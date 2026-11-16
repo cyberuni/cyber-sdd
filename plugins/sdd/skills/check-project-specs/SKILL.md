@@ -101,3 +101,9 @@ defect reports one defect per invocation, so an author fixes the tree one run at
 It owns no checks of its own — it resolves and delegates. It writes nothing, and it never decides
 what a finding means. Adding a project-spec engine means adding it here, which is what keeps every
 project's coverage identical.
+
+## Done when
+
+- **C1.** At corpus scope, the run reports both the engine sweep and the coverage guard, continues past a failing engine, and exits zero only when every recognized spec passed and every spec file is covered.
+- **C2.** At project scope, each engine is reported as `ok` or `FAIL`; a project governed by no spec exits zero and a project claimed by two specs exits non-zero.
+- **C3.** Giving both `--corpus` and `--project`, or an unrecognized flag, is refused with a non-zero exit.

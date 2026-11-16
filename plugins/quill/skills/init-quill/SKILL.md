@@ -73,3 +73,9 @@ Confirm:
 - Domains registered: `documentation`, `guide`, `tutorial`, `article`, `reference`
 
 Next step: use `sdd:start-mission` to scaffold a documentation spec; the conductor resolves the quill roles automatically.
+
+## Done when
+
+- **C1.** `.agents/universal-plugin.json` has exactly one entry named `quill` in `sdd-plugins` with its role-map for documentation artifact types.
+- **C2.** Other entries in the file are unchanged, and a malformed existing file was left unmodified with an error reported.
+- **C3.** The report confirms the entry and names the next step.

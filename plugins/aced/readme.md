@@ -12,7 +12,7 @@ Evaluation runs in layers:
 
 | Layer | What it checks |
 |---|---|
-| **Structural** | Required fields and format (via `improve-skill`'s `validate.mjs` engine) |
+| **Structural** | Required fields and format (via `/cyber-agentkit:skill check`) |
 | **Trigger** | Does the agent invoke this configuration at the right times? |
 | **Behavior** | When invoked, does the agent follow the steps and rules? |
 | **Quality** | Is the output actually good? |
@@ -33,8 +33,8 @@ A second, independent axis — **`measured: worth | not-worth`** — says whethe
 (the measured layer, `bench`) answer a question simulation cannot. It is opt-in, declared under
 `bench:` in `eval.md`, and dollars never decide it.
 
-Only the **Structural** layer signal on a subject means it is **wrong-squad** — `improve-skill`'s
-`validate.mjs` engine already covers that. The classifier lives in `skills/aced-fit/` (model: the
+Only the **Structural** layer signal on a subject means it is **wrong-squad** — `/cyber-agentkit:skill check`
+already covers that. The classifier lives in `skills/aced-fit/` (model: the
 spec's `design/fit.md`).
 
 ## Skills
@@ -133,7 +133,7 @@ Load `skill-design` and `agent-tool-output` with the `reference` skill of `cyber
 
 A repository overrides one at `.agents/references/<name>.md` in its root. A skill may carry its own copy at
 `references/<name>.default.md`; ACED's copies declare `extends: [default]`, so they build on that
-copy instead of competing with it. `define-skill` and `improve-skill` carry copies of
+copy instead of competing with it. `define-skill` carries copies of
 `skill-design` and `agent-tool-output`, kept equal to the ones here by a smoke test.
 
 Write these documents agent-first: dense must / should / do not rules, self-contained, external

@@ -71,3 +71,9 @@ criterion exists to catch.
 - the `skill-design` reference, loaded with the `reference` skill of `cyber-agentkit` — the full skill authoring contract this bar's criteria
   are drawn from; read stdout as authoritative.
 - the `skill-repo-structure` reference, loaded with the `reference` skill of `cyber-agentkit` — repository layout for shipped skills.
+
+## Done when
+
+- **C1.** No artifact judged by this bar has a mid-workflow link to another repository file in its body.
+- **C2.** No judged artifact has a `## Why`, `## Rationale`, `## Background`, or `## Context` section.
+- **C3.** Every gap the judge could not resolve from the artifact is reported as `CONTENT_GAP`, and none is filled by a guess.

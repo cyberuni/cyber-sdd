@@ -139,9 +139,9 @@ Tool-based, rules + pass conditions for Standard>
   it.
 - **Project-public** skills get a `README.md` beside the SKILL.md (title, when-to-use, what-it-does,
   install line). User-global skills get none.
-- **Binding rules get a `## Validate` section.** If the body states rules the agent must, must not,
+- **Binding rules get a `## Done when` section.** If the body states rules the agent must, must not,
   always, or never do — most commonly the **Standard** pattern, but any pattern can carry one —
-  add a `## Validate` section: one assertion per rule, phrased as an observable, falsifiable claim
+  add a `## Done when` section: one true/false outcome claim per rule, phrased as an observable, falsifiable claim
   about the resulting artifact (a diff, a file's presence, a structural shape), not a restatement of
   the rule or a claim about the agent's intent. Write it so it works run twice, from two vantage
   points: as the agent's own pre-handoff self-check before declaring the work done, and as an
@@ -171,16 +171,8 @@ finding; fix it (rename to the gate-and-scope form) before presenting the skill.
 
 ## Audit before handing back
 
-Run the structural audit and fix any CRITICAL or HIGH finding **before** presenting the skill:
-
-```bash
-node "<improve-skill>/scripts/validate.mjs" --path <placement-dir>/<name>
-```
-
-Replace `<improve-skill>` with the directory of the `improve-skill` skill installed beside this one.
-
-For a fuller pass, invoke the `improve-skill` skill. Do not present a skill with an
-open CRITICAL finding.
+Run `/cyber-agentkit:skill check <placement-dir>/<name>` and fix any critical failure **before**
+presenting the skill. Do not present a skill with an open critical failure.
 
 ## Report and hand off to the ACED eval loop
 
@@ -199,3 +191,9 @@ the skill — run `sdd:start-mission` (the conductor resolves the ACED roles for
 artifact-type) to author its frozen `.feature` (with inline `@rubric`), or `add-scenario` / `run` to
 grow and score it. Do **not** embed a legacy trigger-query eval file as the test step — scoring is the
 ACED loop's job.
+
+## Done when
+
+- **C1.** The skill's `SKILL.md` exists at its placement path with `name` and `description` frontmatter, and its runtime symlinks resolve to it.
+- **C2.** The structural audit reports no open CRITICAL or HIGH finding for the skill.
+- **C3.** The report lists the SKILL.md path, the symlinks, and the audit outcome, and a non-escaped skill is pointed to the ACED eval loop.

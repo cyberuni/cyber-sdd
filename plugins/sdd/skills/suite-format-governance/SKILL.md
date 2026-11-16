@@ -59,7 +59,7 @@ guard, an orphaned negative, or a `Given` that states its own answer. The **miss
 *name a plausible wrong subject and check it takes the wrong branch; if none can, the edge is
 inert.* Plausible, not strawman — a memorizer, a copier, a single-brancher, never an empty artifact.
 Discrimination is **judged, not linted**; a **measured ceiling is a tell an edge cannot be lost**,
-not evidence it works. Rubric-dimension discrimination detail: `references/rubric.md`.
+not evidence it works. Rubric-dimension discrimination detail: [references/rubric.md](references/rubric.md).
 
 **Backfilling from existing code — derive, don't patch.** When the implementation already exists,
 draw the CFG from the code (`sdd:spec-format-governance` owns the `## Control Flow` + `## Scenario
@@ -335,3 +335,10 @@ compressed form of this bar, not as a summary that replaces it:
    not the verb**. Asserting an *act* is fine when the act leaves a trace; where it records nothing,
    **add the record and assert that**, rather than dropping the act. Never assert how the artifact
    was authored, nor internal state.
+
+## Done when
+
+- **C1.** `check-suite.mjs` exits `0` on the authored `.feature`, and every untagged `Then` is a boolean statement with no leaked rubric wording.
+- **C2.** Every scenario has exactly one `## Scenario map` row naming its edge and path class, every row names a real scenario, and no two rows share both an edge and a path class.
+- **C3.** Every scenario sits on a nameable edge, and none asserts a pure invariant or a property co-owned with another node unless it is tagged `@pinned`.
+- **C4.** A `@pinned` scenario is unchanged unless the user authorized the change, and a file tagged `@frozen` has no added, removed, or rewritten scenario.

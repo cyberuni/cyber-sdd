@@ -36,3 +36,9 @@ Frontmatter only — no node body reaches the output. The write touches **only**
 generated-block markers; lifecycle frontmatter, prose, and the capability map are left untouched. It
 owns no lifecycle state and renders no verdict. When `node` is absent, an agent performs the same
 derivation by hand: read each node's `concept:` tag, group by concept, and render the table.
+
+## Done when
+
+- **C1.** The rendered table lists each concept with its nodes from every folder, and each node is annotated with its facet kind.
+- **C2.** Rendering twice gives identical output, and `--check` exits non-zero if and only if the block in `spec.md` differs from the fresh render.
+- **C3.** After `--write`, only the content between the generated-block markers differs from before.

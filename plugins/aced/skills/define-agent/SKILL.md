@@ -277,3 +277,9 @@ Summarize:
 - Companion command path (Invokable mode only)
 - Quality check outcome
 - Suggested next step: run `sdd:start-mission` (the conductor resolves the ACED roles) to spec and eval for this agent definition
+
+## Done when
+
+- **C1.** The agent definition exists at its canonical path with `name` and `description` frontmatter, and its runtime symlinks resolve to it.
+- **C2.** An Invokable-mode agent has a companion command file at the path the report names.
+- **C3.** The report lists the canonical path, the symlinks, the quality check outcome, and a next step pointing to `sdd:start-mission`, and no CRITICAL or HIGH check is left failing.

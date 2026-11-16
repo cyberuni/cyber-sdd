@@ -305,11 +305,11 @@ test('preview lists the SKILL.md file(s) a candidate pattern would discover', ()
 	const dir = tmp()
 	try {
 		seedSkill(dir, 'plugins/aced/skills/manage-skill-dirs')
-		seedSkill(dir, 'plugins/aced/skills/improve-skill')
+		seedSkill(dir, 'plugins/aced/skills/check-skill-fixture')
 		const r = previewPattern(dir, 'plugins/aced/skills')
 		assert.ok(r.ok)
 		assert.deepEqual(r.ok && r.matches.map((m) => [m.path, m.name]), [
-			['plugins/aced/skills/improve-skill/SKILL.md', 'improve-skill'],
+			['plugins/aced/skills/check-skill-fixture/SKILL.md', 'check-skill-fixture'],
 			['plugins/aced/skills/manage-skill-dirs/SKILL.md', 'manage-skill-dirs'],
 		])
 	} finally {

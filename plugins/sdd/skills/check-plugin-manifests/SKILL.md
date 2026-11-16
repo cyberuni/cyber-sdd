@@ -51,3 +51,9 @@ green is what the repo treats as clearance to commit. An unrecognized flag is an
 input to ignore.
 
 It joins the root check chain as **`check:plugins`**, so it runs on every `pnpm verify` and in CI.
+
+## Done when
+
+- **C1.** Every manifest pointer that is dead on disk is reported once as unresolved and is not also reported against `files`.
+- **C2.** A package that declares no `files` produces no publish-check finding, and a symbolic link in a non-private package's manifest or components is reported.
+- **C3.** Any finding or unrecognized flag makes the exit code non-zero, and no file was changed.

@@ -21,8 +21,8 @@
 			"scripts": {
 				"skills/bench/scripts/bench.mjs": "src/bench/bench.mts",
 				"skills/check-freshness/scripts/check-freshness.mjs": "src/check-freshness/check-freshness.mts",
+				"references/scripts/check-verification.mjs": "src/skill-design/check-verification.mts",
 				"skills/extract-situation/scripts/extract-situation.mjs": "src/extract-situation/extract-situation.mts",
-				"skills/improve-skill/scripts/validate.mjs": "src/improve-skill/validate.mts",
 				"skills/init-aced/scripts/ensure-results-ignored.mjs": "src/init-aced/ensure-results-ignored.mts",
 				"skills/list-skills/scripts/list-skills.mjs": "src/list-skills/list-skills.mts",
 				"skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs": "src/manage-skill-dirs/manage-skill-dirs.mts",

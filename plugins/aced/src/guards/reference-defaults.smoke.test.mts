@@ -31,10 +31,9 @@ function defaultCopies(): { skill: string; name: string; path: string }[] {
 	return found
 }
 
-test('the scan finds the copies define-skill and improve-skill carry', () => {
+test('the scan finds the copies define-skill carries', () => {
 	const skills = new Set(defaultCopies().map((c) => c.skill))
 	assert.ok(skills.has('define-skill'), 'expected define-skill to carry default copies')
-	assert.ok(skills.has('improve-skill'), 'expected improve-skill to carry default copies')
 })
 
 test('no ACED skill or the plugin ships a governances/ folder', () => {

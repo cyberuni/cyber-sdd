@@ -111,3 +111,10 @@ pre-repair draft) is not re-approved.
    requires the repaired scenario to **fail** against the pre-repair artifact (a repair that already
    passes it is a suspected back-fit; a post-repair pass alone is not enough). The producer
    demonstrates the failure; the gate/judge requires it.
+
+## Done when
+
+- **C1.** Each finding answered has a `REMEDIATION` entry with a verdict of `remediated` or `contested`, plus its rule, swept instances, ruled-out candidates, and provenance.
+- **C2.** A `contested` finding carries evidence against it and the artifact it named has no edit.
+- **C3.** Each swept rule lists the other instances found and the candidates excluded with a reason each.
+- **C4.** A repair of a frozen scenario under a Clearance re-open carries a `pre-repair-proof` showing the repaired scenario fails the pre-repair artifact, and a finding on an artifact the previous round changed is reported as a regression with no new round opened.

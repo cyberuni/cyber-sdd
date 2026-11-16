@@ -32,10 +32,10 @@ Feature: improve — diagnose failures and propose config fixes
     When ACED routes the request
     Then improve does not handle it and define-skill does
 
-  Scenario: auditing a SKILL file's structure defers to improve-skill
+  Scenario: auditing a SKILL file's structure defers to skill check
     Given the user asks to check a SKILL file's structure and compliance
     When ACED routes the request
-    Then improve does not handle it and improve-skill does
+    Then improve does not handle it and `/cyber-agentkit:skill check` does
 
   # ---- Loading context ----
 

@@ -16,6 +16,7 @@
 			"!plugins/sdd/src/vendor/gherkin-cli.mjs",
 			"!plugins/sdd/skills/*/scripts/*.mjs",
 			"!plugins/aced/skills/*/scripts/*.mjs",
+			"!plugins/aced/references/scripts/*.mjs",
 			"!plugins/aced/com.github.copilot"
 		]
 	},

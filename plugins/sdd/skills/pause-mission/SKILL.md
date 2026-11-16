@@ -110,3 +110,10 @@ enum + the three-way `status` distinction live in the SDD `provenance-model`). R
 
 The plan is self-sufficient: any session that opens it can continue. `resume-mission` reads this
 back conveniently, but is not required.
+
+## Done when
+
+- **C1.** `.agents/plans/<cr-ref>.plan.md` exists with `todos` statuses set to `pending`, `in_progress`, or `completed`, and no partially finished todo is marked `completed`.
+- **C2.** The plan has a `## NEXT — resume here` section whose first line is a concrete next action naming the unit or file and the skill or command to run.
+- **C3.** The plan contains no absolute path, home directory, username, or other machine-local reference, `check-plan-safety` reports no hit, and the checkpoint is committed with a clean working tree.
+- **C4.** Only the plan brief changed: `spec.md` `status` and `approval` are untouched, and the plan's top-level `status` is `approved` only if `--approve` was passed by a human session.

@@ -85,3 +85,10 @@ agent and not even an SDD default), the gate **fails closed** with a blocker; it
 This is a **structural** error, the same fail-closed class as a malformed `produced-by` entry or an
 **unflagged** off-enum `cause` (a `cause-candidate: true`-flagged one is legal; `sdd:combat-log-governance`). Distinct from availability: a recorded
 producer whose plugin is merely uninstalled is **flagged**, not blocked.
+
+## Done when
+
+- **C1.** A gate run on a root `spec.md` stops with a blocker before any other gate work when its tuple is illegal, such as `approved` with no `.feature`, an open marker, or no ratified `approval` and ledger `gate` line.
+- **C2.** A `reference` node with a sibling `.feature` or no `## Subject`, a `behavioral` node with no `## Use Cases`, and a node README carrying a lifecycle field are each reported illegal.
+- **C3.** A required role with no resolvable producer fails the gate closed with a blocker and advances no status, while an uninstalled but recorded producer is flagged instead.
+- **C4.** No `aligned` field was stored, and `implemented` was reached only after every impl-judge passed.

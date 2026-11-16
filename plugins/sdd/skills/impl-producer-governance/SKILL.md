@@ -93,3 +93,10 @@ OBSERVATIONS:         [ { owner: architect | strategist, note, evidence } ]
    falsifier / judge / check) inverts the default: **mutation-sweep-first**, reading supplementary.
 5. **Never modify `spec.md` / the suite; never touch a `@pinned` scenario without user
    authorization.**
+
+## Done when
+
+- **C1.** Each frozen scenario has one verification check anchored to it, and each check records its level and why.
+- **C2.** Neither `spec.md`, nor the suite, nor any `@pinned` scenario was modified, and a needed behavior the suite omits is returned as a `CONTENT_GAP`.
+- **C3.** The output carries `STATUS` as `complete`, `needs-input`, or `blocked`, `ARTIFACTS_WRITTEN`, `VERIFICATION_WRITTEN`, and a `REMEDIATION` entry for each answered finding.
+- **C4.** An instrument subject was verified by a mutation sweep as the primary method.

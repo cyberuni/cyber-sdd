@@ -59,3 +59,8 @@ node "<skill>/scripts/check-field-mandates.mjs" [--root <dir>]
 not a readable directory and an unrecognized flag — there is deliberately no report-only mode.
 
 It joins the root check chain as **`check:fields`**, so it runs on every `pnpm verify` and in CI.
+
+## Done when
+
+- **C1.** The report lists every unexplained, undeclared, and miscased field with its file, and a tree with none exits zero.
+- **C2.** Any finding or unreadable root makes the exit code non-zero, and no file was changed.

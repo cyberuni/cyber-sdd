@@ -32,14 +32,14 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
   simulation fails. A `partial`-fit subject has no firing scenarios, so this does not bind.
 - **Rule coverage** *(all tiers).* Every major rule/step in the subject has at least one behavior
   scenario. A rule with zero scenarios fails.
-- **Validate-section coverage** *(all tiers; when the subject states binding rules on its
+- **Done-when coverage** *(all tiers; when the subject states binding rules on its
   consumer).* A subject whose body states rules the consuming agent must, must not, always, or
   never do (a governance's constraint set/checklist/decision table, or a workflow skill's Standard
-  pattern) must carry its own `## Validate` section — one checkable, artifact-state assertion per
-  binding rule, per `improve-skill` Q19 / the `rule-set-quality` reference (R5). The suite must include a boolean
+  pattern) must carry its own `## Done when` section — one true/false outcome claim, checkable against the
+  artifact, per binding rule, per the `rule-set-quality` reference (R5). The suite must include a boolean
   scenario asserting that section's presence, and — for every assertion mechanical enough to run —
   that it actually passes against the built artifact. A subject with binding rules and no such
-  scenario fails this bullet; this is not deferred to a lint pass, because a `## Validate` section
+  scenario fails this bullet; this is not deferred to a lint pass, because a `## Done when` section
   with no frozen scenario checking it has nothing forcing it to stay accurate as the subject
   changes. A subject with no binding rules on its consumer (plain ordered steps, or a pure Rubric
   governance whose scored dimensions already serve this role) is **N/A** — its absence is not a
@@ -120,10 +120,16 @@ bar. Two criteria below are **conditional on tier**; a **missing** `**Fit:**` de
 
 - `aced:aced-fit` — the fit classifier this bar loads to make trigger-context / trigger-balance
   conditional.
-- `aced:improve-skill` (check Q19) / the `rule-set-quality` reference (check R5), loaded with the `reference` skill of `cyber-agentkit` — the structural definition
-  of a well-formed `## Validate` section (artifact-state assertions, not restated rules) that
-  Validate-section coverage requires a scenario for.
+- the `rule-set-quality` reference (check R5), loaded with the `reference` skill of `cyber-agentkit` — the structural definition
+  of a well-formed `## Done when` section (true/false outcome claims, not restated rules) that
+  Done-when coverage requires a scenario for.
 - `sdd:suite-format-governance` — the miss test, the wrong-subject table, the three anti-patterns,
   the substitutability test, and the pairwise-consistency rule this bar specializes.
 - `design/test-levels.md` — the boolean-smuggling tell and the same-object, not same-criterion,
   reconciliation the Selection bullet encodes.
+
+## Done when
+
+- **C1.** Every scenario in a judged `.feature` has a per-scenario verdict, and each failing verdict names the bar criterion it failed.
+- **C2.** Each skill-trigger `.feature` that was judged either contains a trigger scenario with near-miss examples or states that its fit tier exempts it.
+- **C3.** Every gap the judge could not resolve from the spec is reported as `CONTENT_GAP`, and none is filled by a guess.

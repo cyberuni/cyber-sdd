@@ -176,7 +176,7 @@ Feature: define-skill — author a workflow skill
   Scenario: the structural audit runs a validator that exists
     Given a freshly drafted SKILL.md
     When define-skill runs the structural audit
-    Then it runs the improve-skill validate script against the drafted skill's directory
+    Then it runs `/cyber-agentkit:skill check` against the drafted skill
     And the audit command completes rather than failing as an unknown command
 
   Scenario: a high-severity audit finding is fixed before handoff

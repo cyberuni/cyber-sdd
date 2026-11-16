@@ -72,3 +72,9 @@ Frontmatter + the `## NEXT` section only — it never reads the rest of a brief'
 lifecycle state, and writes nothing. It **never resumes** a mission (that is `resume-mission`) and
 **never retires** a brief (that is `plan-retirement`). Ref resolution over the returned list
 (matching a CR ref to a filename slug) is the **caller's** step, not the script's.
+
+## Done when
+
+- **C1.** The output has one row per plan brief directly under `.agents/plans` that ends `.plan.md` and has frontmatter, sorted by CR ref, with the columns `cr,name,total,completed,inProgress,status,next`.
+- **C2.** A `*.plan.md` with no frontmatter and any non-`.plan.md` sibling are absent from the output.
+- **C3.** An unset `status` reads `active`, and `--status <value>` keeps only briefs at that status.

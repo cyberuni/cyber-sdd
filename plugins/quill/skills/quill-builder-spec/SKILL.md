@@ -279,3 +279,9 @@ the audience element exists to catch.
 10. **After an edit, reconcile the references *and* audit the `Then`s you touched** — quote each
     against its source clause and classify same / narrower / wider / different. The reference sweep
     alone measurably misses mistranscription.
+
+## Done when
+
+- **C1.** A judged documentation spec either contains every element the bar requires or the report names each missing element.
+- **C2.** No judged spec freezes anything the bar lists as never frozen.
+- **C3.** Every gap the judge could not resolve from the spec is reported as `CONTENT_GAP`, and none is filled by a guess.

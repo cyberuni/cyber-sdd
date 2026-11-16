@@ -45,9 +45,15 @@ write a pattern the user has not seen the effect of.
 
 Writes **only** the skill-dirs config — never a skill, `spec.md`, `status`, `approval`, or a freeze;
 it is operational config, not skill content (so `manage`'s write-ownership guard holds). It does
-**not** scan or validate skills — that is `improve-skill`'s validate engine, which *reads* this
+**not** scan or validate skills — that is `/cyber-agentkit:skill check`, which *reads* this
 config. This engine validates on the **write** side so a bad pattern is never persisted.
 
 When `node` is absent, an agent performs the same edits by hand: read the `anchors` array, apply the
 CRUD, validate a pattern is repo-relative with only literal / `*` / `**` segments (never `<` or `>`),
 and never write a fixed default root.
+
+## Done when
+
+- **C1.** Only the skill-dirs config changed, and no skill, `spec.md`, `status`, `approval`, or freeze file was written.
+- **C2.** A fixed default root or a malformed pattern was not written to the config.
+- **C3.** A pattern added through `--add` was shown with its `--preview` of matched skills before it was written.

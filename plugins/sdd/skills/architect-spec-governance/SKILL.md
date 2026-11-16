@@ -72,3 +72,9 @@ from `spec.md` + the suite only — the solution is out of view (grader independ
    an extension with no edge is a dangling branch read from the prose side, a forbidden combination
    with no guard is unenforceable.
 4. **Structural concerns in another capability are deferred** — an observation that spawns a new spec.
+
+## Done when
+
+- **C1.** No concept in the judged spec has two homes, and its placement matches the declared layout with one capability per node.
+- **C2.** Every stated extension has a path in the control-flow graph, and every forbidden combination has a guard.
+- **C3.** A structural problem in another capability appears as a deferred new spec, not as an edit to this one.

@@ -92,3 +92,10 @@ skip it. A cr-ref with **no** `log.jsonl` has nothing to distill and needs no su
 delete `<cr-ref>.plan.md`, `<cr-ref>.log.jsonl`, `<cr-ref>.design.md`, `<cr-ref>.operations.md`, and
 `<cr-ref>.evidence.md` if present, touching nothing else — and only if `<cr-ref>.plan.md` is
 present in the first place (a brief alone never triggers deletion).
+
+## Done when
+
+- **C1.** For each cleared `<cr-ref>` that was retired, its `.plan.md` and any present `.log.jsonl`, `.design.md`, `.operations.md`, and `.evidence.md` are gone from `.agents/plans`.
+- **C2.** A `<cr-ref>` not named in `--retire`, or whose combat log exists with no ledger `strategy` entry where `distills` equals the `<cr-ref>`, still has all its files.
+- **C3.** A brief whose `<cr-ref>.plan.md` is absent is untouched, and no file outside the transient set was deleted.
+- **C4.** When `--ledger` was omitted or unreadable, or `--dry-run` was passed, no file was deleted.

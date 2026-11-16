@@ -60,3 +60,9 @@ When the route resolves, **load the matched engine in the current session** and 
 - **Hand off a behavior change.** When an operation surfaces a needed change to the project's specified behavior — a `formation` reconcile, an `align-spec` drift whose fix edits the spec/suite — **hand off to `start-mission`**, which opens a CR and runs the mission loop. Do not edit the spec/suite here.
 - **A change request is not a manage operation.** A request to **add or revise** the project's specified behavior is **redirected to `start-mission`**, not handled as a manage operation.
 - **Thin classifier.** Classifying loads **no governance** and holds **no production logic** — it only loads the matched engine.
+
+## Done when
+
+- **C1.** Each manage request ended with the matching engine loaded in the current session, with nothing spawned.
+- **C2.** No CR was opened, and no `status` or `approval` was written.
+- **C3.** A request to add or revise specified behavior was redirected to `start-mission`, and no manage operation changed what the project specifies.

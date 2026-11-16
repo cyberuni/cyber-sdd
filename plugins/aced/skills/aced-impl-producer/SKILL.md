@@ -73,3 +73,9 @@ If failures are caused by inherent non-determinism (high score variance across s
 3. Splitting the agent configuration into two narrower ones
 
 Do not propose removing scenarios to fix failing evals — that defeats the purpose.
+
+## Done when
+
+- **C1.** The report lists each failing scenario with the pattern it was grouped under.
+- **C2.** Every proposed edit is shown as an exact before and after diff, and no file is changed before the user approves.
+- **C3.** When no clear fix exists, the report says so and no file is changed.

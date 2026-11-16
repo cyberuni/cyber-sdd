@@ -54,3 +54,10 @@ persisted.
 When `node` is absent, an agent performs the same edits by hand: read the `anchors` array, apply the
 CRUD, validate a pattern is repo-relative with only literal / `*` / `**` / `<project>` segments, and never
 write a fixed convention.
+
+## Done when
+
+- **C1.** After `--add`, `.agents/sdd/spec-anchors.toml` lists the new pattern in `anchors` beside the earlier custom anchors, and none of the three fixed conventions appears in the file.
+- **C2.** After `--add` or `--edit` with a malformed pattern, or `--add` of a fixed convention, the command was refused and the config is unchanged.
+- **C3.** After `--remove` or `--edit`, only the named custom anchor was dropped or replaced; removing an absent anchor leaves the config unchanged.
+- **C4.** `--induce` and `--preview` persisted nothing, and no file other than `.agents/sdd/spec-anchors.toml` was written.

@@ -114,3 +114,10 @@ gherkin-cli parse <feature> --format json`) for the scenario set — never re-im
 Gherkin parser. Does not reorganize `.feature` files by runner and does not wire itself into the
 impl-judge (a separate CR grows the default `sdd-impl-judge` to call this for deterministic
 artifact-types, run through SDD's own spec gate).
+
+## Done when
+
+- **C1.** The output reports `N/M BOUND, P pass, F fail, U unbound` and a per-scenario row for every scenario in the `.feature`.
+- **C2.** A scenario whose title matches no test appears as UNBOUND, an exact match wins over a punctuation-folded one, and a punctuation-only near-miss is reported as a PROBABLE TITLE MISMATCH naming both titles.
+- **C3.** A key bound by several tests is PASS only when none of them failed, and a test bound to an already-covered key is listed under EXTRA without failing the run.
+- **C4.** The exit code is zero only when every scenario is BOUND and PASS, and no file was written.

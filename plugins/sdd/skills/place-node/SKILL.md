@@ -45,3 +45,9 @@ provisional and finalized at handoff (the `start-mission` handoff step), so a
 suggestion never has to be correct — only useful. Frontmatter only — no node body is read. When `node` is
 absent, an agent does the same by hand: read the `concept:` tags, see where that concept already lives,
 and place near them.
+
+## Done when
+
+- **C1.** The report lists capability folders that already carry the given concept, ranked by facet count, or states an empty suggestion when no node carries the concept.
+- **C2.** When `--name` was given, the report lists existing nodes whose path overlaps the name, or states none.
+- **C3.** The report marks the suggested home as provisional, and no file in the repository was created, moved, or edited.

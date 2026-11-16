@@ -56,3 +56,9 @@ tree, delete it; otherwise read `SKILL.md` (skip if absent and a `SKILL.local.md
 `SKILL.project.md` exists instead; flag if neither exists), skip if its first line is not `---`
 (malformed frontmatter is never auto-fixed), and insert `metadata.internal: true` under an existing
 `metadata:` block (or append a new one) when it is missing.
+
+## Done when
+
+- **C1.** After `validate`, the report lists every issue by kind, no file changed, and the exit status is non-zero if and only if issues exist.
+- **C2.** After `repair`, every `SKILL.md` under `.agents/skills` that has frontmatter carries `metadata.internal: true`, and no symlink there resolves into the public `skills/` tree.
+- **C3.** Nothing under the public `skills/` tree was created, modified, or deleted.

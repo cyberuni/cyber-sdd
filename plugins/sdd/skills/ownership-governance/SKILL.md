@@ -102,3 +102,10 @@ when a file unfreezes. The marker and its seed-growth role are `sdd:suite-format
    self-asserted within leash.
 4. **A `@pinned` scenario is user-owned** — the agent proposes, never executes a change or removal
    without in-session user authorization.
+
+## Done when
+
+- **C1.** After a mission that applied this skill, each control field and artifact changed was written only by the role the matrix names for it.
+- **C2.** No scenario was added, removed, or rewritten in a `.feature` that carries `@frozen`, and a gap needing such a change was returned as a `BLOCKER`.
+- **C3.** Every `by: <name>` approval, human-ratified `gate` line, and status change to `approved` or `implemented` was written from the in-session position, and a headless run wrote only `by: agent` or `pause` entries.
+- **C4.** Every `@pinned` scenario is unchanged unless the user authorized the change in session.

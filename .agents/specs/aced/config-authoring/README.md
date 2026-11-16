@@ -2,10 +2,7 @@
 
 Creating the agent-config artifacts ACED evaluates: workflow skills (`define-skill`), agent
 definitions (`define-agent`), and skills generalized from the
-current session (`skillify`). Also **improving** an existing one:
-[`improve-skill/`](./improve-skill/README.md) — audit a SKILL.md for structure, quality, and security
-(the agent-graded audit plus a ported deterministic mechanical-check engine usable standalone in CI).
-
+current session (`skillify`). 
 The **maintenance** engines — internal, non-invokable, reached via the [`manage/`](../manage/README.md)
 gateway — also live here beside the config they touch:
 

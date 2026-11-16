@@ -52,3 +52,9 @@ scenarios; `--feature` or `--scenario` missing.
 
 The contract this engine serves: `aced-case-judge`'s blind two-pass protocol, spec'd at
 `.agents/specs/aced/sdd-roles/judge/`.
+
+## Done when
+
+- **C1.** The brief contains every `Given` and `When` step of the named scenario, including `And` and `But` steps that inherit those keywords, in file order.
+- **C2.** The brief contains no scenario name, no `Then` step, no inline `@rubric` docstring, and no tag.
+- **C3.** An unreadable `.feature`, a missing or ambiguous scenario name, or a missing flag produced no brief and a non-zero exit.

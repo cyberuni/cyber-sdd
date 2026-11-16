@@ -132,3 +132,10 @@ false one at finer-than-node grain (v1: any same-node touch-set overlap is a har
 or annotate the frontier, run or assign a Mission, or coordinate a fleet of agents (all deferred,
 see the spec's Non-goals). Status is read **only** from the graph, never from a Mission's
 `.plan.md` brief — the graph is the sole scheduling authority.
+
+## Done when
+
+- **C1.** After an `append` command, the store gains exactly one new event line and no earlier line is changed or removed.
+- **C2.** An `append edge --kind RAW` that would close a RAW loop was rejected with nothing appended, unless `--override` was passed.
+- **C3.** `ready` lists only Missions whose RAW dependencies are all retired and whose touch-set does not clash with in-flight work, and every Mission on a RAW cycle is absent from it and named by `cycles`.
+- **C4.** A `sync` that finds diverged local and remote refs, or an unreachable remote, exited nonzero and changed neither ref.

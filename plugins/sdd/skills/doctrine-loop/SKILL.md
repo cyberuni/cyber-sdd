@@ -58,7 +58,7 @@ recorded as distilled).
 **Determine distilled-ness by a structured JSONL parse, never a substring or regex text match.**
 The ledger shards are JSONL (one JSON object per line). **Reuse the existing parse contract** rather
 than hand-rolling one: run the exported **`distilledCrRefs`** engine from
-`../plan-retirement/scripts/retire-plans.mjs` (its `--distilled` flag) over the project `ledger/` directory and membership-test
+the `retire-plans` script of the `plan-retirement` skill (its `--distilled` flag) over the project `ledger/` directory and membership-test
 the mission's `<cr-ref>` against the set it returns, e.g.
 
 ```
@@ -228,3 +228,10 @@ a separate unit (`sdd:plan-retirement`). The distill (writing `strategy` here) f
 `→ implemented`; the delete is a later step gated on source = `done`/merged **and** distilled. The
 source-cleared set `plan-retirement` consumes via `--retire` is, per above, the Scanner's derived
 retirement clearance set — never a raw, uncross-checked source-only judgment.
+
+## Done when
+
+- **C1.** Every drafted `strategy` entry sits in the Scanner's own ledger shard with `ratified: false`, a `disposition`, and its driving evidence, and no mission `status` or plan `status` was written.
+- **C2.** A Ship or Kill entry carries `distills: <cr-ref>` for its one mission, no entry was drafted for a mission already distilled, and a milestone, drift, or token-waste entry omits `distills`.
+- **C3.** A candidate that current code already resolves has a `disposition: resolved` entry with its evidence and no issue, and each still-open candidate has one deduped tracked issue with no spec or mission opened.
+- **C4.** The retirement clearance set holds exactly the briefs whose todos are all done and whose source is closed, and a disagreeing brief is named in the pass summary instead.

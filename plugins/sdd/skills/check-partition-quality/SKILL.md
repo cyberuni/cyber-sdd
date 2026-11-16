@@ -49,3 +49,9 @@ why they are not used. Two engines built on them would recommend a layered layou
 Measurement only — no file is moved, no spec written, no layout approved or rejected. Thin history is
 **reported, never scored**: below the floor it emits no rate rather than a confident number drawn
 from noise. It reads `git log` and nothing else; no node body, no spec frontmatter.
+
+## Done when
+
+- **C1.** Each compared partition reports its parallelizable share, together with the same metric over a shuffled partition of identical node sizes.
+- **C2.** Below the floor of usable multi-file commits, the run reports thin history and emits no rate.
+- **C3.** No file was moved or written, and the report states no verdict on a layout.

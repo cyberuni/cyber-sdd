@@ -73,3 +73,9 @@ adding a scenario self-clears. Run `check-suite --files <path>` to confirm the s
 well-formed.
 
 Report the scenario name and suggest running `run` to score it against the current agent configuration.
+
+## Done when
+
+- **C1.** The scenario appears once in the node's frozen `.feature`, inside its lifecycle-stage section, and the suite keeps its feature-level `@frozen` tag.
+- **C2.** `check-suite --files` on the changed `.feature` reports no failure.
+- **C3.** The report names the new scenario and suggests running `run`.

@@ -57,3 +57,8 @@ Read-only — it writes nothing and acts on no finding. It does not fix a leak (
 does not check gate legality (`spec-gate`), and does not audit node-shape (`check-spec-structure`).
 It is loaded by the `manage` gateway (Audit & align) for an on-demand scan and by `pause-mission`
 before a checkpoint commit.
+
+## Done when
+
+- **C1.** Every finding names its file, line, kind (`home-abs-path`, `env-home`, or `env-user`), and token, and a bare `~/` is not among them.
+- **C2.** In `--check` mode the exit code is non-zero if and only if a leak was found, and no file was written.

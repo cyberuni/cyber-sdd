@@ -190,3 +190,10 @@ Write the skeleton, the root envelope (`project-path` frontmatter + placement ma
 index block), the `design/decisions/` home, and `glossary.md` — nothing else. Do **not** author any node's `## Use Cases`/`.feature`, render a gate verdict,
 freeze, or write `status` / `approval` / `produced-by` (the conductor's and `spec-gate`'s; see
 `ownership-governance`).
+
+## Done when
+
+- **C1.** The spec root holds `spec.md` with `project-path` frontmatter and a placement map that names the chosen strategy, plus a reserved by-concept index block, a `design/decisions/` folder, a `workflows/` folder, a tooling home, and a root `glossary.md`.
+- **C2.** Every stub node README declares a `spec-type`, no capability node is three folders deep, and no node has a `## Use Cases` section filled in or a `.feature` file.
+- **C3.** The root `spec.md` has `status: draft`, and no `approval` or `produced-by` entry was written and nothing is frozen.
+- **C4.** `check-spec-state.mjs --root <specs-dir>` reports the root lifecycle tuple as legal, and the report gives the count of stub nodes.

@@ -5,10 +5,9 @@
 //
 // `import.meta.main` arrived in Node 24.2.0, but this repo's engines floor is `>=22`, where it is
 // `undefined`. A CLI guarded on it never reaches `main()` — it prints nothing and exits 0, which a
-// caller keying on the exit code reads as "checked everything, found no problem". Two of this
-// plugin's scripts are wired into the repo's own root checks (`check:skills` runs
-// improve-skill/validate.mts, `check:private-skills` runs repair-private-skills.mts), so on the
-// supported floor those checks passed VACUOUSLY.
+// caller keying on the exit code reads as "checked everything, found no problem". A script
+// of this plugin is wired into the repo's own root checks (`check:private-skills` runs
+// repair-private-skills.mts), so on the supported floor that check passed VACUOUSLY.
 //
 // The portable idiom, from plugins/aced/src/extract-situation/extract-situation.mts:
 //
@@ -82,7 +81,7 @@ test('no shipped script compares import.meta.url to a hand-built file:// string'
 })
 
 test('every shipped script with a CLI uses the portable entrypoint idiom', () => {
-	// `fs.realpathSync` as well as the bare form — validate.mts imports node:fs as a namespace.
+	// `fs.realpathSync` as well as the bare form — a script may import node:fs as a namespace.
 	const PORTABLE = /import\.meta\.url === pathToFileURL\((?:fs\.)?realpathSync\(process\.argv\[1\]\)\)\.href/
 	const bad: string[] = []
 	for (const f of shippedScripts()) {

@@ -14,9 +14,9 @@ The reasoning **front-end** of the CR→mission compiler. Given one-or-more chan
 and provenance that the deterministic back-end then records and classifies.
 
 It sits **above** the shipped deterministic machinery and cites it, never re-implements it:
-- the [`mission-graph`](../mission-graph/SKILL.md) store **records** the partition (nodes, edges, status);
-- the [`collision-ladder`](../collision-ladder/SKILL.md) **classifies** a known node collision hard/soft;
-- [`touch-set-correction`](../touch-set-correction/SKILL.md) **reconciles** a declared touch-set against the real diff.
+- the `mission-graph` store **records** the partition (nodes, edges, status);
+- the `collision-ladder` **classifies** a known node collision hard/soft;
+- `touch-set-correction` **reconciles** a declared touch-set against the real diff.
 
 This doctrine **decides** what to record; it does not build the Missions (the mission loop does), store
 them, classify collisions, or **automatically emit** its decision-evidence (you record the shown-work
@@ -126,7 +126,7 @@ When two concerns both need to write the **same** existing node, do not emit two
   not resolve it); **serialize** the two writes (do not start them concurrently); and **flag** that the
   second write needs real **rework**, not a clean replay, because the first moved the ground.
 - The coarser the atom, the more a same-node clash biases to serial. Emit the RAW / hard-collision
-  annotation for the back-end; the [`collision-ladder`](../collision-ladder/SKILL.md) — not this doctrine
+  annotation for the back-end; the `collision-ladder` — not this doctrine
   — later descends the finer grains to justify any hard→soft downgrade.
 
 ### 5 — Lower lazily (monadic) and default conservative-first
@@ -151,8 +151,8 @@ Emit, for the deterministic back-end to consume:
 - each Mission's **provenance** (originating CR(s)) and **locally-minted ref**;
 - the hard-collision / order annotations.
 
-The [`mission-graph`](../mission-graph/SKILL.md) store **records** it; the
-[`collision-ladder`](../collision-ladder/SKILL.md) **classifies** node collisions; do **not** re-derive
+The `mission-graph` store **records** it; the
+`collision-ladder` **classifies** node collisions; do **not** re-derive
 `ready`/`cycles`, re-detect collisions, or re-classify grains here. Record the decision-evidence **by
 hand**.
 
@@ -173,9 +173,16 @@ emits it automatically.
 ## Boundaries
 
 - **Decides the cut only.** Does not build Missions (mission loop), record the plan
-  ([`mission-graph`](../mission-graph/SKILL.md)), classify a collision at a finer grain
-  ([`collision-ladder`](../collision-ladder/SKILL.md)), reconcile a touch-set against a diff
-  ([`touch-set-correction`](../touch-set-correction/SKILL.md)), spawn worktrees, or gate.
+  (`mission-graph`), classify a collision at a finer grain
+  (`collision-ladder`), reconcile a touch-set against a diff
+  (`touch-set-correction`), spawn worktrees, or gate.
 - **Out of scope (never build here):** automation that emits the decision-evidence; renaming the
   capability (keep `ssa-lowering`); automation that vets intake for the Oracle or Architect. Do not
   rename or rebuild the shipped back-end.
+
+## Done when
+
+- **C1.** Every spec-node in the combined write-set is owned by exactly one Mission, and each Mission records its originating CR or CRs and a locally minted mission ref rather than a tracker ref.
+- **C2.** A CR the Oracle step judged stale or misaligned and killed contributes zero Missions, and each CR has a recorded ship, reshape, or kill verdict with a reason.
+- **C3.** Two Missions that need the same existing node are linked by a RAW edge or flagged as an irreducible hard collision, and Missions on independent nodes have no edge between them.
+- **C4.** A decision-evidence record listing sources, the Oracle verdict, the Architect verdict, and the cut decisions accompanies the partition, and a project-wide change is marked a barrier owned by no single node.

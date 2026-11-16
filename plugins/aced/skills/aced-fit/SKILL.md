@@ -16,7 +16,7 @@ it). Fit is a **judgment**, so it lives here as a governance, not a script engin
 ## The diagnostic
 
 **FIT = which of ACED's four eval layers carry real signal for this subject.** The layers:
-**Structural** (fields/format — already covered by `improve-skill`'s `validate.mjs` engine), **Trigger** (fires at the
+**Structural** (fields/format — already covered by `/cyber-agentkit:skill check`), **Trigger** (fires at the
 right times), **Behavior** (follows the steps/rules when invoked), **Quality** (output is good). A
 subject with signal **only** at Structural is not an ACED subject.
 
@@ -78,23 +78,6 @@ is **not** a `CONTENT_GAP` (unlike the tier's).
 - **The `bench` skill — re-asks** criteria 1–2 for the change in hand before any plan; the engine's
   plan checks criterion 4's floor. A `worth` subject can still meet a change that is not.
 
-## Validate
-
-Assertions about **the subject being classified**, run by the producer before handoff and re-run by
-the cold judge against the artifact — never against the producer's account of what it did:
-
-1. The subject's node spec (`spec.md`) carries exactly one `**Fit:** strong` or `**Fit:** partial`
-   line; a subject recused as wrong-squad has neither a `**Fit:**` line nor an ACED
-   `eval.md` (its node, if any, was written by the SDD-default chain). *(mechanical)*
-2. A subject declared `strong` does not have a name-only description (one beginning `By name only`
-   or `Partial Skill: invoke by name only`): a subject reached only by name makes no activation
-   decision. *(mechanical)*
-3. If the subject's `eval.md` has a `bench:` key, `bench.measured` is `worth` or `not-worth`.
-   *(mechanical)*
-4. A `bench:` declaring `worth` has a non-empty `bench.suite` and a non-empty `bench.why`.
-   *(mechanical)*
-5. `bench:` holds only `measured`, `suite`, and `why` — never the suite's tasks — and the node
-   spec's frontmatter carries no `bench` or `measured` key. *(mechanical)*
 
 ## References
 
@@ -102,3 +85,10 @@ the cold judge against the artifact — never against the producer's account of 
 - `aced:aced-builder-spec` — the spec bar whose trigger-context / trigger-balance criteria this
   governance makes conditional.
 - `aced:aced-builder-impl` — the impl bar (which eval layers get evals follows the tier).
+
+## Done when
+
+- **C1.** The subject's node `spec.md` carries exactly one `**Fit:** strong` or `**Fit:** partial` line, except a subject recused as wrong-squad, which has neither that line nor an ACED `eval.md`.
+- **C2.** No subject declared `strong` has a description beginning `By name only` or `Partial Skill: invoke by name only`.
+- **C3.** If the subject's `eval.md` has a `bench:` key, `bench.measured` is `worth` or `not-worth`, and a `worth` value comes with a non-empty `bench.suite` and a non-empty `bench.why`.
+- **C4.** The `bench:` key holds only `measured`, `suite`, and `why`, and the node spec's frontmatter has no `bench` or `measured` key.

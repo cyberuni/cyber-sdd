@@ -40,10 +40,10 @@ USER_ANSWERS:     <answers to previously returned QUESTIONS — or null>
 
    **A `Given` is a test vector, not specification** (`sdd:suite-format-governance` carries the canonical bar and the swap test). Author each `Given`'s apparatus — its domain, entities, names, framing — from a domain **the artifact does not illustrate**. On a revise CR the apparatus never reuses the artifact's existing worked examples; on `BACKFILL` it never reuses the illustrations you read out of source. Read those examples in full at step 1 — they are evidence of the behavior you are specifying; exclude them only from the apparatus you author into a `Given`.
 
-5. **Self-check the `.feature` form before returning.** Run the deterministic form check — the `check-suite` engine (`scripts/check-suite.mjs` in the `spec-gate` skill), the executable form of `sdd:suite-format-governance` — scoped to what you just authored:
+5. **Self-check the `.feature` form before returning.** Run the deterministic form check — the `check-suite` engine (`check-suite.mjs` in the `spec-gate` skill), the executable form of `sdd:suite-format-governance` — scoped to what you just authored:
 
    ```bash
-   node "<spec-gate skill>/scripts/check-suite.mjs" --files <the authored .feature path(s)>
+   node "<spec-gate skill scripts>/check-suite.mjs" --files <the authored .feature path(s)>
    ```
 
    Exit `0` = form clean; exit `1` prints each `✗ <file>: <reason>`. **Fix every violation** (a non-boolean/hedged `Then`, leaked rubric lingo in an untagged scenario, a missing `Feature`/`Then`, or missing section comments over the sectioning threshold) and re-run until clean **before reporting `STATUS: complete`**. Settling this mechanical bar here spends no cold-judge round on a defect a linter catches every time; the same engine runs fail-closed at the gate (`../spec-gate/`), so an unfixed violation would block there anyway. If `node` is unavailable, self-review against the suite-format bar by hand.
@@ -88,3 +88,10 @@ QUESTIONS:          [ batched, when needs-input ]
 CONTENT_GAPS:       [ { artifact, location, gap } ]   # become <!-- open: --> markers
 OBSERVATIONS:       [ { owner: architect | strategist, note, evidence } ]
 ```
+
+## Done when
+
+- **C1.** The output reports `STATUS`, `SCENARIOS_WRITTEN` as a count, and the list of every governance loaded before writing.
+- **C2.** `check-suite.mjs` exits `0` on each authored `.feature`, and `check-spec-state.mjs --files` reports no reference to a nonexistent artifact in the authored `spec.md` or README.
+- **C3.** Every outcome and carve-out stated in the node's `## Use Cases` has at least one scenario, and no two scenarios sharing a `When` demand opposite verdicts on one snapshot.
+- **C4.** The control frontmatter (`status`, `project-path`, `approval`, `produced-by`) is unchanged, and each missing input is a `CONTENT_GAP` entry rather than a written marker.

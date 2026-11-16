@@ -63,3 +63,8 @@ read-only. `manage` only routes.
   **`start-mission`**, which opens a CR and runs the mission loop.
 - **Thin classifier.** Classifying loads **no governance** and holds **no production logic** — it
   only loads the matched engine.
+
+## Done when
+
+- **C1.** The request was routed to the engine the routing table names for it, and that engine's skill was loaded in-session.
+- **C2.** No `spec.md`, `status`, `approval`, or freeze file was written.

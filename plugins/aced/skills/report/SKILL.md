@@ -72,3 +72,9 @@ If the user asks for details on a specific suite, print all failing cases from t
 - For `degraded`: suggest `run` for details, then `improve`
 - For `no-data`: suggest `run`
 - For all `healthy` with no trend data: suggest `add-scenario` to expand coverage
+
+## Done when
+
+- **C1.** The report has one row per eval suite with its status, pass rate, mean percentage of max, and trend.
+- **C2.** Every suite classified degraded or critical appears under needs attention with a suggested next command.
+- **C3.** Each suite with no results is listed as such.

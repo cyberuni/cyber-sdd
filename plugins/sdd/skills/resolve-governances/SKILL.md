@@ -48,3 +48,10 @@ each (direct-read for project files, harness-load for plugin/sdd skills), reads 
 `compose`, and composes by precedence `sdd-default < plugin < project-root < project` (most-specific
 wins; `replace` supersedes). Registry matching is deterministic; **disambiguating** an artifact-type
 claimed by two plugins is the consumer's agentic step (the plan returns `status: needs-input`).
+
+## Done when
+
+- **C1.** For a given `--artifact-type`, the output is JSON giving each role its resolved `agent` and its resolved-actor `bars`, with each bar's `candidates` bucketed under `project`, `project-root`, `plugin`, and `sdd`.
+- **C2.** The output does not order candidates by precedence or apply `compose`, and no file was written.
+- **C3.** With neither `--artifact-type` nor `--path`, the output is `governance registry OK` or lists each registry violation.
+- **C4.** An artifact type claimed by two plugins yields `status: needs-input` rather than a chosen agent.

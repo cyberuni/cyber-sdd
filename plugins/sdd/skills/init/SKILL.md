@@ -66,3 +66,10 @@ State whether the statusline was enabled or declined, the chosen mode (if enable
 ## Boundaries
 
 Writes **only** operational config (`.claude/settings.json`, `.gitignore`) — never a `spec.md`, `status`, `approval`, or freeze. Opens no CR, invokes no gate. Never wires the **global** settings file — SDD is repo-scoped, a user's global status line is theirs; the global file is read only to detect a statusLine to compose against, never written. Does not move `scaffold-project-spec` / `manage-spec-anchors` / `manage-ignore` into itself. Never writes or clears the statusline **value** — that is the conductor's during the mission loop.
+
+## Done when
+
+- **C1.** A decline wrote nothing, with no change to `.claude/settings.json` and no `.gitignore` entry.
+- **C2.** After enabling, the project `.claude/settings.json` holds one managed statusline block in the chosen mode, an existing project or global status line is preserved as its base unless shadowing was chosen, and the global settings file is unchanged.
+- **C3.** In a git repo, `.gitignore` holds `.agents/sdd/statusline` exactly once, including after a re-run.
+- **C4.** The report states whether the statusline was enabled or declined, the mode, whether a global statusline was composed or shadowed, and the `.gitignore` outcome.

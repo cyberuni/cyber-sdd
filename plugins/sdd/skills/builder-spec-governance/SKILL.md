@@ -62,3 +62,10 @@ plugin may bind its own, and this loads when the registry leaves `builder`/`spec
    out of the `.feature`.
 5. **A dimension or cut is grounded on non-author evidence** — a measurement justifying it must be not
    solely the author's own (canonical standard: `sdd:doctrine-loop`); the cold-instrument doctrine.
+
+## Done when
+
+- **C1.** Every edge of the capability's control-flow graph has a scenario, every guard is paired with a positive companion, and the scenario map is 1:1 with no orphan.
+- **C2.** Every stated extension is a path in the graph, and no scenario was derived from the prose directly.
+- **C3.** Every scenario asserts an observable boolean outcome, and a graded subject carries its rubric in a judge-only `@rubric` scenario outside the boolean `.feature`.
+- **C4.** Any measurement that justifies a rubric dimension or cut was produced or reviewed by someone other than its author.

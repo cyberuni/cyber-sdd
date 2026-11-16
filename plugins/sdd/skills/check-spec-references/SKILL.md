@@ -94,3 +94,9 @@ Read-only — it writes nothing and fixes no reference (an author edits, or a fo
 corpus scale). It never judges whether a reference is the *right* artifact to cite, only that the
 cited path exists; it never follows a reference's content, never checks link text, and never reaches
 outside the spec dir it is given.
+
+## Done when
+
+- **C1.** Every unresolved reference is printed as `file:line: <ref> -> <resolved>` followed by a count, ordered by file, line, then reference.
+- **C2.** The exit code is zero if and only if every reference resolves, and no file was changed.
+- **C3.** A missing `--spec-dir` is refused rather than defaulted.

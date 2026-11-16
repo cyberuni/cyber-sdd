@@ -218,3 +218,9 @@ Run compare after editing the agent configuration.
 ```
 
 If pass rate is 100%, say so and suggest running `add-scenario` to expand edge case coverage.
+
+## Done when
+
+- **C1.** Per-scenario results were written to the results directory, and the report shows the overall pass rate and the trigger layer and behavior layer rates.
+- **C2.** Every failing scenario is listed worst first with its score against its threshold.
+- **C3.** The result file records the model that scored the run and the inputs evaluated, so `check-freshness` can read it.

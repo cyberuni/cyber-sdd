@@ -42,3 +42,10 @@ QUESTIONS:       [ batched, when needs-input ]
 CONTENT_GAPS:    [ { artifact, location, gap } ]
 OBSERVATIONS:    [ { owner: architect | strategist, note, evidence } ]
 ```
+
+## Done when
+
+- **C1.** The output reports `STATUS` and `SOLUTION_WRITTEN` as one of `written`, `tightened`, `removed`, or `none`, with `NOTES` naming the fork recorded or why none was warranted.
+- **C2.** A written `<unit>.solution.md` states the chosen approach and each rejected alternative with why it lost, and does not restate the spec's `What` or the suite's scenarios.
+- **C3.** `spec.md`, the `.feature`, and all control frontmatter are byte-for-byte unchanged, and any behavior gap appears as a `CONTENT_GAP` or `OBSERVATIONS` entry.
+- **C4.** A unit with no real design fork has no `.solution.md` file.

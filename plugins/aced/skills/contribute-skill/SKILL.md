@@ -220,7 +220,7 @@ gh pr create \
 
 ## Test plan
 
-- [ ] Run improve-skill / `audit validate` against the updated skill(s)
+- [ ] Run `/cyber-agentkit:skill check` against the updated skill(s)
 - [ ] Confirm no files outside `skills/` were modified
 
 🤖 Generated with [Claude Code](https://claude.com/claude-code)
@@ -239,3 +239,9 @@ Output the PR URL. After merge, run `npx skills update` in the consumer repo to 
 - Do not create a PR if every mapped file is identical to upstream
 - Do not update `.agents/skills/` or any path outside `skills/<skill-name>/` in the source repo
 - Do not use Contents API `PUT` per file (multi-commit noise); use Git Data API (section 5)
+
+## Done when
+
+- **C1.** A pull request URL is reported, or the report says no PR was created because every mapped file matched upstream.
+- **C2.** The pull request changes only files under `skills/<skill-name>/` in the source repo and includes no `SKILL.local.md` content.
+- **C3.** No push happened before the user confirmed the shown diffs.

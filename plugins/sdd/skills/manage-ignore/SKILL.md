@@ -49,3 +49,10 @@ guarantee; this engine validates on the **write** side so a malformed pattern is
 
 When `node` is absent, an agent performs the same edits by hand: read the file, apply the CRUD,
 validate a line is a well-formed gitignore pattern, and preserve rule order (never re-sort).
+
+## Done when
+
+- **C1.** After `--add` with a well-formed pattern, `.agents/sdd/.sddignore` ends with that rule and every earlier rule is unchanged and in its original order.
+- **C2.** After `--add` or `--preview` with a malformed pattern, the command exits nonzero and `.sddignore` is byte-for-byte unchanged.
+- **C3.** After `--remove`, only the matching rule is gone and the surviving rules keep their order; removing an absent rule leaves the file unchanged.
+- **C4.** No file other than `.agents/sdd/.sddignore` was written, and `--induce` and `--preview` persisted nothing.

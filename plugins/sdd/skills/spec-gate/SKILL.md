@@ -215,3 +215,10 @@ nothing, advances no status, renders no verdict**. Fixed sections:
   ratified), and which `.feature` files were frozen
 
 Do not fix issues automatically — report them for the user to address or confirm intent.
+
+## Done when
+
+- **C1.** The report gives PASS or FAIL for each of the oracle, builder, and architect lenses, an `ALIGNED` value, and the effective leash for the gate.
+- **C2.** On approve, each touched `.feature` carries `@frozen`, the spec `status` is `approved`, and a `gate` line with `verdict: approve` and its `frozen[]` list was appended to the mission's own ledger shard.
+- **C3.** On change or reject, no `.feature` was frozen and `status` is unchanged, and when the judge reported failures, remaining `<!-- open: -->` markers, or a misaligned suite, the gate did not advance.
+- **C4.** `approval.spec` has `by: agent` with a `why` for a self-assertion, or `by: <name>` for a human verdict, and `check-spec-state.mjs` reports the resulting tuple as legal.

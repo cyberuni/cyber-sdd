@@ -166,3 +166,10 @@ must be resolved (count = 0) before a spec may advance to `approved`; they are p
 (markers block only the *gate*, not the draft state). `sdd:gate-validation-governance` defines how
 markers interact with legal state; producers emit gaps that the conductor turns into markers
 (`sdd:ownership-governance`).
+
+## Done when
+
+- **C1.** Every `spec.md` status is one of `draft`, `approved`, `implemented`, or `deprecated`, and lifecycle frontmatter appears only in the root `spec.md`.
+- **C2.** A behavior change after approval returned the spec to `draft` instead of editing a frozen file, and an `approved` spec has zero open markers.
+- **C3.** A `.feature` carries `@frozen` after the spec gate approved it, a pure rename with no content change keeps its `@frozen` tag, and a narrowed or rewritten scenario unfreezes its file.
+- **C4.** No ledger shard is marked frozen.

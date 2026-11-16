@@ -77,3 +77,9 @@ the same exclusion / scope / allow rules by hand.
 Read-only — it writes nothing and fixes no survivor (a person or a follow-up CR edits). It does not
 decide that something is retired (a CR does, then registers it), does not curate the registry (the
 file is hand-edited), and reads no spec frontmatter.
+
+## Done when
+
+- **C1.** Every surviving occurrence of a registered term is listed as `file:line:term` with its replacement, and a clean corpus or absent registry exits zero.
+- **C2.** A malformed registry names its parse error and exits non-zero rather than reporting clean.
+- **C3.** No file was written, and `--list` prints each registered term with its `since` and `replacement` and exits zero.

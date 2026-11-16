@@ -294,3 +294,9 @@ editing another writer's shard, and never editing or deleting a prior line. Full
 
 A human-ratified `gate` line follows the **positional authority** rule (`sdd:lifecycle-governance`):
 only the in-session position holding the user channel writes `by: <name>`.
+
+## Done when
+
+- **C1.** A provenance record written under these rules holds only appended lines, with no prior line edited or deleted, and each writer's lines sit in that writer's own shard with the next `seq`.
+- **C2.** Each line sits in the home its kind names: `report`, `correction`, and `halt` in the plan's combat log, and `leash`, `gate`, `followup`, and `strategy` lines in the ledger.
+- **C3.** A `gate` line with `by: <name>` was written only by the in-session position holding the user channel, and no producer or judge wrote any line.

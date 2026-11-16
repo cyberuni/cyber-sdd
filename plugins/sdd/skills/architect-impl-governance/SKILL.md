@@ -45,3 +45,9 @@ unbound.
 2. **A sound verification pyramid** — cheap base, thin e2e cap; neither all-e2e nor capless.
 3. **Per-scenario level is the builder's call; this bar judges the shape.**
 4. **Structural concerns in another capability are deferred.**
+
+## Done when
+
+- **C1.** Every rule, contract, or piece of logic the judged implementation holds has exactly one home, and units that merely resemble each other were not merged.
+- **C2.** The finding set names any contradiction of a convention, module boundary, or spec contract, and any all-e2e or capless suite shape.
+- **C3.** A structural problem in another capability appears as a deferred new spec, not as a change in this implementation.

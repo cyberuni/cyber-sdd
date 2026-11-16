@@ -180,3 +180,10 @@ Enrichment (diagrams, formatting) is `spec.md` only; the suite stays plain Gherk
 5. **A `@pinned` behavior enters as a seed** the agent grows the CFG around.
 6. **Plain language is a gate bar** — a reader with no domain context follows the spec (and its
    suite) on first read; define every term, simplify the writing not the domain.
+
+## Done when
+
+- **C1.** A behavioral node's `spec.md` has `## What`, `## Use Cases`, `## Control Flow`, and `## Scenario map` in that order, with `## References` only after them and only when it has content.
+- **C2.** Each use case names its implementation surface and carries an actor and goal, an entry point, and extensions or an explicit `extensions: none` with a reason.
+- **C3.** Every actor listed has a use case, every use case names a listed actor, and every public surface element is tied to a use case.
+- **C4.** The `## Control Flow` section holds a fenced Mermaid graph, and each `## Scenario map` row has `Edge`, `Path (Given)`, and a backtick-wrapped `Scenario` cell, with one row per scenario.

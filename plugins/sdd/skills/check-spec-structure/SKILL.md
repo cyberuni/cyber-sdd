@@ -63,3 +63,9 @@ nothing. It **never acts** on a finding (a split, a reconcile) — that is the W
 (`sdd:formation-loop`) under its own self-clear-vs-escalate verdict. It does **not** render the
 by-concept view (`concept-index`), advise a new node's home (`place-node`), or check gate legality
 (`spec-gate`'s `check-spec-state`, fail-closed at the gate).
+
+## Done when
+
+- **C1.** Each finding names its node and is grouped as blocking (`untagged-node`) or advisory (`oversized-node`, `incomplete-node`).
+- **C2.** In `--check` mode the exit code is non-zero if and only if a blocking finding exists, and no file was written.
+- **C3.** No finding of a placement-drift kind appears in the output.

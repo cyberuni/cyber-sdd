@@ -109,3 +109,10 @@ An agent performs the mechanical scenario-diff by hand only if `gherkin-cli` too
 unavailable: for each node's `.feature`, compare it scenario-by-scenario against its committed
 baseline; a modified or removed scenario is a narrowing. The judge-orchestrated layer (coverage,
 contradiction) is always by-hand regardless — it is prose reasoning, not a script.
+
+## Done when
+
+- **C1.** Every node in the chosen set (all nodes, or exactly those named by `--nodes`) appears in the report, and a node with no gap, contradiction, or narrowing reports no drift.
+- **C2.** Each modified or removed baseline scenario is reported as a Clearance finding, and none is rewritten silently.
+- **C3.** In `--check` mode, no file changed, and the exit code is non-zero if and only if mechanical drift was found.
+- **C4.** After reconcile, no `status`, `approval`, or freeze field differs from before, and a gap that would narrow a frozen scenario produced a Clearance CR instead of an edit.

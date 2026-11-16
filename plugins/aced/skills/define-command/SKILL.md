@@ -172,3 +172,9 @@ the command — run `sdd:start-mission` (the conductor resolves the ACED roles f
 artifact-type) to author its frozen `.feature` (with inline `@trigger` Examples exercising `/name`
 invocation), or `add-scenario` / `run` to grow and score it. Do **not** embed a legacy trigger-query
 eval file as the test step — scoring is the ACED loop's job.
+
+## Done when
+
+- **C1.** The command exists as a `commands/` file or a `SKILL.md` with `disable-model-invocation` set, and its frontmatter has a `description`.
+- **C2.** For the `disable-model-invocation` mechanism, runtime symlinks exist and resolve to the canonical file.
+- **C3.** The report names the canonical path, the mechanism chosen, and the audit outcome, and no CRITICAL or HIGH finding is left open.

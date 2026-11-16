@@ -62,3 +62,10 @@ deciding step, so the caller can log or surface why.
 - The kind-default location globs are fixed in this script, not configurable — a project that
   disagrees with a specific binding uses `.sddignore` to override it (keep the low-friction
   default, add the override valve).
+
+## Done when
+
+- **C1.** The output is two lines: a verdict of `tracked` or `ignored`, and a `reason:` line naming the step that decided it.
+- **C2.** The verdict follows the first deciding step in this order: `--explicit`, the last matching `.sddignore` rule, the kind default, then `tracked`.
+- **C3.** A path that no step matches resolves `tracked`.
+- **C4.** With no `--path`, the output is `.sddignore OK` or per-line parse notes, and no file was written.

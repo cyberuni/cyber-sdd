@@ -8,7 +8,7 @@ metadata:
 
 # Collision Ladder
 
-The concrete engine for **collision-ladder**. The shared work list ([`mission-graph`](../mission-graph/README.md))
+The concrete engine for **collision-ladder**. The shared work list (`mission-graph`)
 holds two Missions apart whenever they touch the **same work area** (a node collision), conservatively
 serializing *any* same-area overlap. Most such overlaps are false — the area holds many files and the
 Missions usually touch **different** ones, or the same file in **different spots**. This engine is the
@@ -42,7 +42,7 @@ file changed in disjoint regions (or different scenarios) downgrades **hard→so
 A file whose touching-mission **degree** reaches a threshold (default 3) is flagged `sharedThin` and
 surfaced as an **architectural smell** to consider splitting (surfacing only — it never performs the split).
 
-It **composes** the sibling [`touch-set-correction`](../touch-set-correction/README.md)'s
+It **composes** the sibling `touch-set-correction`'s
 `collectChangedFiles` (which itself composes `resolve-governances` for artifact-type and the pinned
 `gherkin-cli diff` for changed scenarios — never a reimplemented differ) and adds one finer source,
 `git diff -U0` line-hunks (the region rung).
@@ -79,3 +79,9 @@ verdict the scheduler consumes. It does **not** detect a collision (the mission-
 this runs only *after* one is found), do **★ SSA lowering** or infer **symbol-level** produce/consume
 dependencies (an overlapping-region code file stays hard, flagged `symbol-rung-deferred`), descend past the scenario grain, or decide whether to **split** a shared-thin
 file (it surfaces the smell; the architect decides). It classifies; it does not schedule.
+
+## Done when
+
+- **C1.** The verdict names the node, a `hard` or `soft` collision, the decisive rung, and a confidence.
+- **C2.** A node is `hard` if any shared file is hard and `soft` otherwise, and an overlapping code file stays `hard` with `symbol-rung-deferred`.
+- **C3.** A file touched by Missions at or above the threshold degree is flagged `sharedThin`, and nothing was written to the mission graph.

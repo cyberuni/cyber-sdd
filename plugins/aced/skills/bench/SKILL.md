@@ -175,25 +175,15 @@ non-zero means the engine refused or failed; its stderr carries the reason.
     its own line, under any verdict except `incomparable`. It is never a regression and never turns
     the verdict into one; only the engine's verdict says `regressed`.
 
-## Validate
-
-Assertions about this file, checked by its author before handoff and by a cold reader after:
-
-1. **Consent only on an explicit yes to the shown plan.** Exactly one fenced command in this file
-   carries `--consent`: the `run` command in step 9, and step 9 opens with "only on step 8's
-   explicit yes, for exactly the plan file that was shown". *(mechanical: count fenced lines
-   containing `--consent`; read step 9's first line)*
-2. **No consent with no person present.** Step 8's no-person bullet returns the plan as
-   needs-input and says not to call `run`, and the Binding rules' no-person bullet says to run
-   nothing, ever. *(mechanical: both bullets present with those words)*
-3. **No unclear result presented as safe.** The step-12 rows for `inconclusive` and for
-   `unchanged` with every gated row `tooFew` each contain "not evidence the change is safe".
-   *(mechanical: grep those two rows)*
-4. **No cost change called a regression.** Step 12's **Cost** paragraph says a significant cost row
-   is reported as a cost change and is never a regression. *(mechanical: the paragraph contains
-   "never a regression")*
 
 ## References
 
 - `aced:aced-fit` — loaded by name in step 2; its measured criteria 1–2 are the fit test.
 - `README.md` in this folder — the engine's surface, its verdicts, and who calls this skill.
+
+## Done when
+
+- **C1.** Exactly one fenced command in the skill, the `run` command, carries `--consent`, and it ran only after the user answered yes to the plan shown.
+- **C2.** A run with no person present returned the plan as needs-input and executed nothing.
+- **C3.** A verdict of `inconclusive`, or `unchanged` with every gated row `tooFew`, is reported with the words "not evidence the change is safe".
+- **C4.** A significant cost row is reported as a cost change, never as a regression.

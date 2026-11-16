@@ -320,3 +320,9 @@ resolve either (`sdd:ownership-governance`).
    is not a defect.
 10. **A frozen scenario outranks the bar** — on a collision the scenario wins and the finding is an
     architect observation, not a `BLOCKER`.
+
+## Done when
+
+- **C1.** Every judged document has an inspection record that enumerates the document's parts and a judgment record naming each catalog defect found, with evidence for both.
+- **C2.** A frozen scenario that passes is never failed by this bar, and a failing finding names the defect catalog entry it matched.
+- **C3.** Any failing document is reported with the finding that failed it.

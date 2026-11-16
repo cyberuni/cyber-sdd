@@ -109,3 +109,10 @@ governance key (name = use it; `null` = SDD default; missing role key = `<plugin
 more plugins claiming the type → return `STATUS: needs-input` for the skill to ask which plugin owns
 it; the choice is recorded as `.agents/sdd/` resolution state (**distinct from `produced-by`**),
 decisive on resume.
+
+## Done when
+
+- **C1.** A plugin built to this contract has an `sdd-plugins[]` entry in `.agents/universal-plugin.json` whose squads each list `artifact-types` and the five role keys, and no artifact type appears in more than one squad of that plugin.
+- **C2.** Each role key in a squad is an agent name, `null`, or omitted, and each governance key is a name or `null`.
+- **C3.** Each role's recorded loads match the role table: the spec-producer and spec-judge carry the `oracle-spec`, `builder-spec`, and `architect-spec` bars, and the impl roles carry the `builder-impl` and `architect-impl` bars.
+- **C4.** An artifact type claimed by two plugins produced `STATUS: needs-input` and no role was resolved for it.

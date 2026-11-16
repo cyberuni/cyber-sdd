@@ -53,3 +53,9 @@ unbound.
    suite.
 4. **Deterministic combinatorics go to units** (the pyramid base); missing that coverage withholds the
    pass; a non-deterministic subject verifies at the acceptance level only.
+
+## Done when
+
+- **C1.** Each scenario of the frozen suite has one check derived from it, with its verification level and the reason recorded.
+- **C2.** No check or suite file was edited to make a result pass.
+- **C3.** Deterministic combinatorics are covered by unit-level checks, or the pass is withheld.

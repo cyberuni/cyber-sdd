@@ -158,3 +158,10 @@ Once landed, **do not spawn** the formation Warden. Surface a **one-line nudge**
 A mission runs as **segments** (one autonomous sitting each). Position is **derived from the artifacts** (`spec.md`, the `.feature`, frontmatter, the plan), never a stored cursor. To checkpoint a mission into its plan, use `pause-mission`; to pick one up, `resume-mission` reads the `.plan.md` and continues this loop where it left off.
 
 **Clear the statusline file on pause too.** A pause is an exit path like handoff — before (or as part of) invoking `pause-mission`, delete `.agents/sdd/statusline`. This is **your** write (the conductor's), not `pause-mission`'s — its write scope stays boundaried to the plan brief (`todos`, `## NEXT`, and, with `--approve`, `status`); it never touches the statusline file.
+
+## Done when
+
+- **C1.** A plan brief named `.agents/plans/<cr-ref>-<what>.plan.md` exists, and a request with no suite-relevant behavior or only ignored artifacts produced no draft, gate, or record.
+- **C2.** Each touched unit has a `spec.md` or README with a declared `spec-type` and, for a behavioral node, a `.feature` that the cold spec-judge graded, and the spec gate did not advance with any judge failure or open marker remaining.
+- **C3.** A landed mission has `status: implemented`, every frozen scenario's verification passed at the impl gate, and the plan brief's `todos` are terminal with a `## NEXT` that names no remaining resume action.
+- **C4.** Every follow-up the mission noticed has a `kind: followup` line in the CR's own ledger shard, whether or not filing succeeded, and a refused filing is reported as refused.

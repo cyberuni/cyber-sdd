@@ -60,3 +60,10 @@ writing, the cold spec-judge judges kill-or-ship. Oracle has no impl face. The S
    case, a use case with no listed actor); a goal restating the mechanism is an unanswered Why; a
    backfill list drawn only from source covers the served cases by construction.
 5. **Worth shipping or kill** — value must clear the build cost; a fatal proof reverts to Draft.
+
+## Done when
+
+- **C1.** The spec judged under this bar names its outcome as one capability, and its out-of-scope items are stated in the spec.
+- **C2.** Every flag, option, or parameter in the spec is tied to a use case, and every actor listed has a use case and every use case names a listed actor.
+- **C3.** Every scenario in the suite tests a decision the node owns, and none states a pure invariant unless it is tagged `@pinned`.
+- **C4.** The verdict reports ship or kill for the capability, and a kill or fatal finding names the deal-breaker.

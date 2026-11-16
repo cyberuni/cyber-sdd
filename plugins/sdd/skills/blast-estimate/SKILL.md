@@ -131,3 +131,10 @@ dimension), rank by surface location, decide HITL vs AFK, render a self-clear-or
 only *modulates* a conductor's judgment), *produce* a touch-set (it consumes one — pre-work declared,
 or `touch-set-correction`'s post-work corrected one), or **reimplement node recovery** (it imports
 `fileToNode`; it never reinvents or shells out to it).
+
+## Done when
+
+- **C1.** The result lists every touch-set id as either resolved or unresolved, and none is dropped.
+- **C2.** A touch-set that resolves to zero areas computes `unknown`, never `low`.
+- **C3.** A missing sensitive-paths file marks no area sensitive, while any other read failure returns `computed: null` with an `error` naming the file.
+- **C4.** No file was written, and the result carries a line-up of `agrees`, `under-called`, `over-called`, or `no-declared`.

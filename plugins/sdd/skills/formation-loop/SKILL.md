@@ -165,3 +165,10 @@ Formation owns corpus **structure** only and emits **no** out-of-loop decision:
 
 Cross-capability outcome scenarios (a split or reconcile carried end-to-end) live in the SDD project
 spec's `workflows` node; the loop and verdict behaviors are in its `formation` node (both repo-only).
+
+## Done when
+
+- **C1.** The finding set covers every spec in the corpus, and a request to act as one spec's gate check is declined with no per-spec verdict.
+- **C2.** Each node is judged against the layout its project's placement map declares, and a map naming no strategy is itself a finding.
+- **C3.** A split is proposed only on an axis where each side is a distinct capability, command, or lifecycle phase, and a wrong axis is reported as a wrong-axis reorganization.
+- **C4.** Each structural act has a self-clear or escalate verdict, a narrowing, contested, class-exceeding, or deprecating act appears as a new CR, and no spec `status` was written.

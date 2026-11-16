@@ -74,3 +74,9 @@ consuming agent never spends tokens on a body (`digest` reads bodies; this never
 lifecycle state and writes nothing. The script resolves a name **deterministically** (exact match →
 spec, or the candidate set); **disambiguating with the user** is the consumer's agentic step, not the
 script's.
+
+## Done when
+
+- **C1.** The output has one row per `spec.md` at a recognized location whose frontmatter `status` is in the lifecycle enum, sorted by folder slug, with a `nameSource` of `declared`, `derived`, or `guessed`.
+- **C2.** A `spec.md` with no lifecycle `status`, or at an undeclared location, is absent from the output, and no spec body content appears.
+- **C3.** `--resolve <name>` returns exactly the case-insensitive name matches, and a malformed `spec-anchors.toml` is ignored with a warning rather than aborting the scan.

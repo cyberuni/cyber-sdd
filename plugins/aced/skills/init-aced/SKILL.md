@@ -74,3 +74,9 @@ Run `scripts/ensure-results-ignored.mjs` (this skill's own `scripts/` dir) to en
 Confirm the `.agents/universal-plugin.json` aced entry is present under `sdd-plugins`, stamped with the ACED version, with a squad serving artifact-types `skill`, `subagent`, `command`, `agents-section`.
 
 Next step: use `sdd:start-mission` (sdd plugin) to scaffold an agent-configuration spec; the conductor resolves the ACED roles automatically.
+
+## Done when
+
+- **C1.** `.agents/universal-plugin.json` has exactly one entry named `aced` in `sdd-plugins`, stamped with ACED's version and carrying a `squads[]` shape with a `governances` block.
+- **C2.** Other entries in the file are unchanged in order and content, and a malformed existing file was left unmodified with an error reported.
+- **C3.** `.agents/aced/results/` is git-ignored at the repo root.

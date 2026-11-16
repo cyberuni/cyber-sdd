@@ -70,3 +70,9 @@ state, and writes nothing. It **never acts** on a candidate (a dedup, a relocati
 Warden's (`sdd:formation-loop`) under its own self-clear-vs-escalate verdict. It does **not** audit
 node-shape (`check-spec-structure`), flag within-node duplicate scenarios, render the by-concept view
 (`concept-index`), or advise a new node's home (`place-node`).
+
+## Done when
+
+- **C1.** Each candidate names both nodes and the overlapping scenario, grouped as `blocking[]` (exact-duplicate) or `advisory[]` (title-overlap).
+- **C2.** A scenario duplicated within one node, or appearing once corpus-wide, raises no candidate.
+- **C3.** In `--check` mode the exit code is non-zero if and only if an exact-duplicate candidate exists, and no file was written.

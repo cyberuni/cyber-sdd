@@ -85,3 +85,9 @@ not judge whether a recorded *pass* was well-founded (a judge-protocol question)
 a verdict and reports it; **what a caller does with that verdict is the caller's**.
 
 Spec: `.agents/specs/aced/eval-run/check-freshness/`.
+
+## Done when
+
+- **C1.** The result is exactly one of `current`, `stale`, `incomplete`, or `absent`, or the run failed closed with no verdict.
+- **C2.** The exit status is zero if and only if the verdict is `current`.
+- **C3.** A node with no `eval.md`, or an `eval.md` without a `subject:` key, produced no verdict and a non-zero exit.

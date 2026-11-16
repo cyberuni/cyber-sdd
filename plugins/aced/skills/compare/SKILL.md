@@ -85,3 +85,9 @@ Run improve to address it, or revert and try a different edit.
 ```
 
 If no regressions and net improvement: confirm the change is safe to commit.
+
+## Done when
+
+- **C1.** The report shows the passing count and percentage before and after, the net change, and lists of improved, regressed, and unchanged scenarios.
+- **C2.** When any scenario regressed, the report contains a regression warning and says not to commit.
+- **C3.** When nothing regressed and the net change is an improvement, the report says the change is safe to commit.

@@ -18,7 +18,7 @@ Defer when the intent is narrower than "improve this config":
 | **scoring** a config against its frozen `.feature` suite | `run` |
 | **adding** a new scenario | `add-scenario` |
 | **diffing** two versions before committing a change | `compare` |
-| auditing a `SKILL.md`'s structure/compliance specifically | `improve-skill` |
+| auditing a `SKILL.md`'s structure/compliance specifically | `/cyber-agentkit:skill check` |
 
 ## Locate the target and its artifact type
 
@@ -71,7 +71,7 @@ fact (by the agent that just followed it) and after the fact (by anyone re-check
    one per binding rule, not a restatement of the rule in other words. Prefer a mechanical check
    (script/grep/diff) wherever the rule is checkable that way; where it is a genuine judgment call,
    phrase the assertion as something re-derivable from the artifact by a second, cold reader — never
-   something read off the first agent's own account of what it did. `improve-skill` Q19 flags this
+   something read off the first agent's own account of what it did. `/cyber-agentkit:skill check` flags this
    gap structurally when auditing a `SKILL.md`.
 2. **Has one, but nothing required the agent to run it before finishing?** An enforcement gap, not a
    detection gap — the procedure needs to gate completion on the self-check passing, so a violation
@@ -98,3 +98,9 @@ recommend:
 3. Splitting the config into two narrower ones
 
 Do not propose removing test cases to fix failing evals — that defeats the purpose.
+
+## Done when
+
+- **C1.** Every edit was shown as an exact before and after diff and written only after approval.
+- **C2.** For an ACED-tracked target, a `compare` result exists for the edit and the report states whether any scenario regressed.
+- **C3.** For a target with no suite, the report offers `sdd:start-mission` or `add-scenario` and states no pass or fail verdict.

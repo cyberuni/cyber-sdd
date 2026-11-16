@@ -111,3 +111,9 @@ still keeping exactly one def per model. Do not create model×effort defs.
 
 Summarize what changed: models added (with canonical paths + symlinks), the current family (list), or
 the runners removed. Point the user at the future ACED eval-run sweep that will use these runners.
+
+## Done when
+
+- **C1.** After `add`, each requested model has exactly one `model-runner-*.md` def in `~/.agents/agents/` with its symlinks, and the report lists the paths.
+- **C2.** After `remove`, only the runners the user named are deleted, and the user confirmed each deletion first.
+- **C3.** After `list`, the report shows each runner's model, path, and any `effort:` stamp, and nothing else.

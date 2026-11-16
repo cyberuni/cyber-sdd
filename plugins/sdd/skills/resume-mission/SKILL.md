@@ -51,3 +51,10 @@ where it left off.
   plan marks as the untouched reference baseline.
 - **Commit boundary.** The unit of work is one co-committable change (clear message, green
   tests) — not the whole CR. A CR's mission lands as many commits.
+
+## Done when
+
+- **C1.** `.agents/plans/<cr-ref>.plan.md` exists, created from a minimal template if it was missing.
+- **C2.** Work resumed on the single `in_progress` todo, or else the first `pending` todo whose prerequisites are met, and the plan's `todos` statuses match the work actually done.
+- **C3.** Any finding or decision from the session is recorded in the plan, and each coherent unit of work is its own commit.
+- **C4.** A resolved decision in the plan was not reopened without stated new evidence, and a decision `## NEXT` marks open was raised with the user before work went past it.

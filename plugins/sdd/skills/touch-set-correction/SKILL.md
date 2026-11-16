@@ -9,7 +9,7 @@ metadata:
 # Touch-Set Correction
 
 The concrete engine for **touch-set-correction**. A Mission's **declared touch-set** is a pre-work
-**guess** of the work areas it will change, used by [`mission-graph`](../mission-graph/README.md)
+**guess** of the work areas it will change, used by `mission-graph`
 to keep clashing Missions apart. This engine checks that guess against reality: given a Mission's
 declared touch-set and its `git diff base..head`, it recovers the work areas **actually** touched
 and lines them up against the guess:
@@ -21,7 +21,7 @@ and lines them up against the guess:
   at Mission retirement)
 
 It **composes three tools**, never reimplementing any of them: `git diff --name-status` (the
-changed files), [`resolve-governances`](../resolve-governances/SKILL.md) (each file's artifact-type,
+changed files), `resolve-governances` (each file's artifact-type,
 best-effort — `unknown` when it doesn't resolve), and the pinned `gherkin-cli diff` (a touched
 `.feature`'s changed scenario names — the same tool `classify-edit-class` uses).
 
@@ -64,3 +64,10 @@ decide whether two Missions' touch-sets collide hard or soft, run the finer-than
 region → semantic downgrade), descend to a region/hunk tier, do SSA lowering or infer symbol-level
 produce/consume dependencies, or **predict** a touch-set before the
 work — it only corrects one, after.
+
+## Done when
+
+- **C1.** The output gives `confirmed` as declared intersect actual, `missed` as actual minus declared, `overDeclared` as declared minus actual, and `corrected` as the actual touched set.
+- **C2.** Each changed file under a declared root maps to `project/capability` using the longest matching root, and a spec file and impl file sharing a capability collapse to one node.
+- **C3.** A changed file under no known root is listed in `unmapped` and absent from `corrected`.
+- **C4.** The mission graph and every other file are unchanged by the run.

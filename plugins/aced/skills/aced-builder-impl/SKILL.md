@@ -44,3 +44,8 @@ agent level.
   **mutation sweep is the default verification method** and reading it is supplementary. An author's own
   eval silently assumes the property under test, so a self-authored ablation over the instrument is not
   the whole check; sweep it.
+
+## Done when
+
+- **C1.** The verdict for each judged artifact is derived from the artifact's frozen `.feature` scenario results, and the report names every scenario that failed.
+- **C2.** No artifact is reported as passing while one of its frozen scenarios failed.

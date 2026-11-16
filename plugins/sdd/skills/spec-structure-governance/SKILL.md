@@ -202,3 +202,10 @@ entry condition.
    what ships** (the agentic plugin) — nesting is never the reason.
 7. **Strategy is policy, homes are data** — read the declared strategy from the placement map, derive
    homes from `concept:` tags, and let the strategy pick the derivation.
+
+## Done when
+
+- **C1.** Every node in a spec tree laid out under this skill declares its kind in frontmatter: `spec-type: reference`, `spec-type: behavioral`, or no marker for descriptive.
+- **C2.** Reference nodes have a `## Subject` and no `.feature`, behavioral nodes have `## Use Cases`, and rule documents sit in `design/` while behavioral nodes sit in capability folders.
+- **C3.** No capability node is three folders deep, `glossary.md` is a root file beside `spec.md`, and no spec root holds a folder other than capability folders, `design/`, `workflows/`, and `ledger/`.
+- **C4.** The project has exactly one spec location, and the placement map in the root `spec.md` names the strategy in use.

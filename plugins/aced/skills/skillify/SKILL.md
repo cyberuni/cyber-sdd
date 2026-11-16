@@ -121,7 +121,7 @@ Add a TODO comment in the skill body:
 
 ### 6. Validate
 
-Invoke `improve-skill` on the draft. Fix any CRITICAL findings before continuing.
+Run `/cyber-agentkit:skill check` on the draft. Fix any critical failures before continuing.
 
 Key checks to watch for:
 - **Q1:** Does the description contain "Use this skill when"?
@@ -139,3 +139,9 @@ npx skills add <path-to-skill>
 # Manual fallback:
 ln -sf <path-to-skill> ~/.claude/skills/<name>
 ```
+
+## Done when
+
+- **C1.** A new `SKILL.md` exists with `name` and `description` frontmatter, a `## When to use` section, and numbered steps drawn from what the session did.
+- **C2.** A skill that passed through `/cyber-agentkit:skill check` has no open critical failure.
+- **C3.** The skill is placed and linked so its runtime path resolves to it.

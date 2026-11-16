@@ -1,8 +1,9 @@
 {
 	"version": 1,
 	"skill": "spec",
-	"at": "2026-11-15T00:01:17.473Z",
+	"at": "2026-11-16T02:46:25.830Z",
 	"verification": "skill-design.aspects.verification from cyber-agentkit",
+	"model": "sonnet",
 	"runs": 3,
 	"threshold": 2,
 	"baseline": "without the skill",
@@ -54,6 +55,14 @@
 			"fired": 0,
 			"ran": 3,
 			"status": "pass"
+		},
+		{
+			"case": "trigger-7",
+			"prompt": "Before we grill it, show me roughly what the spec for docs/design/scrum-system.md would look like.",
+			"expect": "fire",
+			"fired": 3,
+			"ran": 3,
+			"status": "pass"
 		}
 	],
 	"criteria": [
@@ -83,7 +92,7 @@
 			"passed": 3,
 			"ran": 3,
 			"baseline": {
-				"passed": 3,
+				"passed": 0,
 				"ran": 3
 			}
 		},
@@ -101,42 +110,104 @@
 			"id": "C7",
 			"status": "not-tested",
 			"reason": "its rubric needs a judge, and none was named"
+		},
+		{
+			"id": "C8",
+			"status": "not-tested",
+			"reason": "its rubric needs a judge, and none was named"
 		}
 	],
 	"cases": [
 		{
 			"case": "trigger-1",
-			"status": "pass"
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
 		},
 		{
 			"case": "trigger-2",
-			"status": "pass"
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
 		},
 		{
 			"case": "trigger-3",
-			"status": "pass"
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
 		},
 		{
 			"case": "trigger-4",
-			"status": "pass"
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
 		},
 		{
 			"case": "trigger-5",
-			"status": "pass"
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
 		},
 		{
 			"case": "trigger-6",
-			"status": "pass"
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
+		},
+		{
+			"case": "trigger-7",
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
 		},
 		{
 			"case": "review-unresearched",
-			"status": "pass"
+			"status": "pass",
+			"passed": 3,
+			"ran": 3
 		}
 	],
 	"notRun": [],
-	"cost": 2.8709,
-	"durationMs": 105107,
-	"totalRuns": 24,
+	"cost": 1.3696,
+	"durationMs": 62339,
+	"totalRuns": 27,
 	"comparedWith": "expected",
-	"changed": []
+	"changed": [],
+	"modelChanged": [
+		{
+			"case": "trigger-1",
+			"from": "unknown",
+			"to": "sonnet"
+		},
+		{
+			"case": "trigger-2",
+			"from": "unknown",
+			"to": "sonnet"
+		},
+		{
+			"case": "trigger-3",
+			"from": "unknown",
+			"to": "sonnet"
+		},
+		{
+			"case": "trigger-4",
+			"from": "unknown",
+			"to": "sonnet"
+		},
+		{
+			"case": "trigger-5",
+			"from": "unknown",
+			"to": "sonnet"
+		},
+		{
+			"case": "trigger-6",
+			"from": "unknown",
+			"to": "sonnet"
+		},
+		{
+			"case": "review-unresearched",
+			"from": "unknown",
+			"to": "sonnet"
+		}
+	]
 }

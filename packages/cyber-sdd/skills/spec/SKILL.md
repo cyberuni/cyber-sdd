@@ -64,7 +64,8 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
 `Q1` for an open question. An ID is never reused: a removed item retires its ID.
 
 **A bare ID is the spec's own.** When the spec links a source with its own IDs (a design record with `K1`, `R1`,
-`D1`), cite the source's IDs with its name, such as `scrum-system D4`.
+`D1`), cite the source's IDs with its name, such as `scrum-system D4`. Reuse the IDs a source took from an
+earlier draft of this spec.
 
 **An ID labels a criterion's text; the text is the criterion.** Use the ID to cite it and to name its tests. Before
 the spec is first ready, revise criteria freely. After that, changing a criterion's text retires its ID, gives the

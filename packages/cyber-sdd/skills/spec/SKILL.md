@@ -19,7 +19,7 @@ after the build.
 | --- | --- |
 | write a spec for a capability, or backfill one for existing code | [Write](#write) |
 | change what an existing spec says | [Write](#write), then [Review](#review) the changed parts |
-| split a spec that has grown past what its readers need | [Write](#write), the steps under **Split a spec** |
+| split a spec that has grown past what its readers need | [Write](#write), then [`references/split.md`](references/split.md) |
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
 | a criterion whose verdict flipped on an unchanged state | [Write](#write): split its graph path, placement test first |
@@ -101,9 +101,10 @@ change. With no user to ask, run the research; when it cannot run, or its findin
 question under Open questions.
 
 **Split by capability, never by layer.** A child spec is a capability an actor can name (what they get), such as
-`update` or `history`, so the folder names say what the system does. Never split into a library spec, a CLI spec, and a
-skill spec: one capability reached through three deliveries is one spec, whose use cases list the deliveries as entry
-points. A layer split writes the functional spec early and scatters one outcome across files.
+`update` or `history`, so the folder names say what the system does. A split stays on one rung: a child is a design
+spec for a narrower capability, never the functional spec, even when it is about specs. Never split into a library
+spec, a CLI spec, and a skill spec: one capability reached through three deliveries is one spec, whose use cases list
+the deliveries as entry points. A layer split writes the functional spec early and scatters one outcome across files.
 
 **Size the spec by the tasks that read it.** When the actors and use cases are settled, list the tasks that will read
 the spec: changing one behavior, deriving its tests, checking scope, a consumer checking its contract. If most of them
@@ -111,32 +112,33 @@ need less than half of it, split the capability into child specs along the line 
 outcome; the parent keeps the shared terms and links each child. Do not split by section type, such as a separate
 criteria file: every task needs a slice of every section.
 
-**Split a spec.** Decide the line once the use cases are settled, and move the text once every section is agreed, so
-a revision never straddles files.
-
-1. Table the tasks, the sections each needs, and its share of the spec. Split only when most shares are under half.
-2. Put in the parent what every task needs: the What, Non-goals, Key terms, Actors, the criteria groups that span
-   children (such as `Adapters` or the output contract), the open questions they share, References, and a table
-   linking each child with its use cases.
-3. Give each child its use cases, the criteria groups bound to them, its open questions, a title naming its own
-   outcome, and a line linking the parent's terms. A child is never read without its parent.
-4. Keep every ID: IDs are shared across the parent and its children, and a retired one stays retired. Move each graph
-   edge with the criteria that cite it; edges several children cite stay in the parent's `graph.md`.
-5. Make the split a commit of its own that moves text without rewording it, and check that no line was lost.
+**Split a spec** by the steps in [`references/split.md`](references/split.md), once the use cases are settled.
 
 Leave out implementation design, task lists, stack choices, alternatives analysis, and whether a criterion is built
 yet. The gap between the criteria and the code is found by checking one against the other; the work to close it lives
 in the project tracker, linked by criterion ID. Link rationale (an ADR, an issue, a research topic) and do not copy it
 in.
 
-**Design spec versus functional spec.** The design spec states outcomes: what the actor gets or can tell apart. An
-encoding is how an outcome is spelled or carried: names, literal values and codes, exit numbers, output fields and
-formats, flag syntax, message wording, the order of checks when every order gives the same kind of outcome. Encodings,
-internal contracts, module behavior, and scenarios belong to the lower rung: the functional spec co-located with the
-implementation, and the code and tests beneath it.
+**Design spec versus functional spec.** Each rung specifies the one beneath it: design spec, functional spec, then
+code and test. Rungs are not parent and child, and not one to one: a functional spec covers a component that several
+capabilities may use.
+
+| | Design spec | Functional spec |
+| --- | --- | --- |
+| Named for | a capability: what an actor gets | a component or artifact of the implementation |
+| Lives | in the project's spec folder, one folder per capability | next to the code it specifies |
+| Use cases | what an actor gets: "merge only changes whose spec and tests agree" | how the code is used: "share state across components through context" |
+
+One design use case may need several functional ones, and many functional ones (wiring, composition, internal
+contracts) trace to no single design use case.
+
+The design spec states outcomes: what the actor gets or can tell apart. An encoding is how an outcome is spelled or
+carried: names, literal values and codes, exit numbers, output fields and formats, flag syntax, message wording, the
+order of checks when every order gives the same kind of outcome. Encodings, internal contracts, module behavior, and
+scenarios belong to the rungs below.
 
 - **Hold the outcome, vary the encoding.** If the actor reaches the goal under any encoding that is stable and keeps
-  distinct outcomes distinct, the encoding belongs to the lower rung. The design spec keeps the outcome and the
+  distinct outcomes distinct, the encoding belongs to a lower rung. The design spec keeps the outcome and the
   property the actor needs ("distinct per cause", "stable"). A program actor reads encodings but needs no particular
   one, so it is judged the same way. Only a case whose outcome differs between two readings of a criterion is a grain
   defect in the design spec; a difference in encoding alone moves the encoding down. This is the placement test.
@@ -150,7 +152,7 @@ Gherkin or EARS for one scenario when it clarifies; the functional spec or test 
 **Several surfaces.** When the same code is reached through several adapters (a CLI, a library, an MCP server), state
 each outcome once without naming an adapter: "the reference is reported missing", not "exit 1". One criteria group,
 `Adapters`, states what each adapter's actor needs of its form, such as each outcome told apart, distinct per cause,
-and stable. The mapping from each outcome to an exit code, stream, return value, or thrown error belongs to the lower
+and stable. The mapping from each outcome to an exit code, stream, return value, or thrown error belongs to a lower
 rung, pinned by its tests. Group a use case's entry points by surface. Behavior that a skill's instructions add on top, such as a fallback or what to tell the user,
 is its own use case. Its criteria are checked by an eval run of the skill, not by a deterministic test.
 
@@ -183,7 +185,7 @@ criterion of a skill-instruction use case is the exception: an eval run of the s
 that cannot become such a test fails C5; send it back to Write instead of guessing.
 
 Lower-rung writes may add, never change. A test that pins an encoding the spec leaves open, such as the exit code for
-an outcome, is the build adding to the lower rung: a minor change, made freely. Changing what an existing test
+an outcome, is the build adding to a lower rung: a minor change, made freely. Changing what an existing test
 asserts is a breaking change: take it to the owner instead of making it.
 
 ## Validate
@@ -226,6 +228,8 @@ git history, not against your report. Each line is pass or fail; `README.md` and
 
 - **Criteria reference** ([`references/criteria.md`](references/criteria.md)): C1 to C10 with their pass conditions and the failure modes they
   catch. Load it for Review, and for step 2 of each section in Write.
+- **Split reference** ([`references/split.md`](references/split.md)): the steps that move a spec into a parent and
+  child specs. Load it only when splitting.
 - **Decision graph reference** ([`references/decision-graph.md`](references/decision-graph.md)): the shape of `graph.md`, its edge IDs, and the
   decision table and state list that may replace it.
 - **`research.method`** (default `references/research.method.default.md`): how the research step runs and what

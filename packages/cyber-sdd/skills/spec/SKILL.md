@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X, split a spec, preview a spec before settling it, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec". Not for a node of a first-generation SDD project spec under .agents/specs/ that carries a .feature suite (the sdd plugin's start-mission).
+description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X, split a spec, preview a whole spec or test it by building from it, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec". Not for a node of a first-generation SDD project spec under .agents/specs/ that carries a .feature suite (the sdd plugin's start-mission).
 ---
 
 # Design spec
@@ -20,7 +20,7 @@ after the build.
 | write a spec for a capability, or backfill one for existing code | [Write](#write) |
 | change what an existing spec says | [Write](#write), then [Review](#review) the changed parts |
 | split a spec that has grown past what its readers need | [Write](#write), then [`references/split.md`](references/split.md) |
-| see what a spec for a large system or a source document would look like, before the grilling | [Preview](#preview) |
+| see a whole spec at once, or build from it to find its gaps | [Preview](#preview) |
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
 | a criterion whose verdict flipped on an unchanged state | [Write](#write): split its graph path, placement test first |
@@ -166,8 +166,9 @@ reference, and cite its edge IDs from the criteria. Omit it for a spec that stat
 
 ## Preview
 
-Preview drafts a sample spec, never at the spec's real location, to show what a spec would look like for a large system
-or beside a source document before the user commits to the grilling. Follow [`references/preview.md`](references/preview.md).
+Preview renders the whole spec as one page linked by ID, then builds what it specifies from the spec alone; each
+guess the build makes is a blind spot to fix or to ask. Follow
+[`references/preview.md`](references/preview.md).
 
 ## Review
 
@@ -258,5 +259,5 @@ criteria reference are written `spec C1` to `spec C10`.
   the project's own suite, and no `.feature` file was added for an agent to run.
 - **C7.** A headless run put every question it could not settle under Open questions and did not present the spec as
   ready.
-- **C8.** A Preview wrote nothing at the spec's real location, drafted only the parent and one child, and presented no
-  spec as ready.
+- **C8.** A Preview changed the spec only through Write, its view showed every actor, use case, criterion with its
+  trace, and open question, and each blind spot but an encoding was fixed or put under Open questions.

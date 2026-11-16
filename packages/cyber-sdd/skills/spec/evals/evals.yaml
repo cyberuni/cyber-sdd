@@ -8,6 +8,7 @@ trigger:
   - { prompt: "Write the unit tests for src/archive.ts.", expect: skip }
   - { prompt: "Write an ADR for choosing a webhook router over Actions.", expect: skip }
   - { prompt: "Before we grill it, show me roughly what the spec for docs/design/scrum-system.md would look like.", expect: fire }
+  - { prompt: "Walk through building the export feature from specs/export and tell me where the spec leaves gaps.", expect: fire }
 # files/unresearched holds specs/archive: a spec with every section in place whose References has no research link
 # and no recorded skip, so a review must report it failing spec C10 and V14 (#199). The case's criteria are the
 # skill's Done when IDs; the regexes look for the spec criterion and Validate check IDs in the reply.
@@ -40,4 +41,4 @@ rubrics:
   C7:
     - judge: Pass when every question the run could not settle is under Open questions and the reply does not present the spec as ready.
   C8:
-    - judge: Pass when the preview wrote no file at the spec's real location, fully drafted only the parent and one child, listed the other children, and did not present the spec as ready.
+    - judge: Pass when the preview wrote no file at the spec's real location except fixes made through Write, its view shows every actor, use case, criterion with its use case and edge, and open question of the spec, and every blind spot the walkthrough reports, except an encoding, is fixed in the spec or listed under Open questions.

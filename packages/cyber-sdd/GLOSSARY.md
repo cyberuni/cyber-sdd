@@ -157,15 +157,17 @@ governance exists to prevent.
 
 ## Spec relationships
 
-**rung** *(SDD 2)*: the level a spec sits at. A design spec sits above a functional spec, which is
-co-located with the implementation. The relation between two rungs is not parent and child.
+**rung**: one level in a chain of specifications. Each rung specifies the rung beneath it and
+implements the rung above ([Specifications exist at every level](https://cyberuni.github.io/cyber-truss/model/specification/#specifications-exist-at-every-level)).
+In engineering the rungs are usually a design spec, a functional spec, and code and test. How a
+rung is identified across artifact types is open in truss.
 
-**split** *(SDD 2)*: dividing one design spec into a parent and child design specs by capability. Parent and
-child are one rung. A child is never the functional spec.
+**functional spec**: the rung below the design spec, kept beside the component it specifies. One
+component may serve several capabilities, so a functional spec is not one design spec's child or
+copy. The `spec` skill writes the design spec only.
 
-**functional spec** *(SDD 2)*: the spec one rung below the design spec, next to the code it specifies. Its use
-cases say how the implementation is used, and need not map one to one to the design spec's. The `spec` skill
-covers the design spec only.
+**split** *(SDD 2)*: dividing one design spec into a **parent** and **child** design specs, each
+child a narrower capability. A split stays on one rung, so a child is never the functional spec.
 
 ## Terms deliberately not used
 
@@ -178,7 +180,7 @@ covers the design spec only.
 
 ## Upstream
 
-Two items belong in truss's own model glossary rather than here.
+Three items belong in truss's own model glossary rather than here.
 
 **repair direction** is a general model term, not an SDD-specific one. It is recorded here because
 this is where it was coined.
@@ -188,3 +190,6 @@ not currently hold"*, which reads as making strain a kind of connection. Every o
 treats it as a condition. Strain is *raised*, *carried across a crossing*, and *discharged*. A
 connection does none of those, and survives all of them. SDD 2 uses the condition reading, and C5
 and C26 require it.
+
+**rung** is used across truss's Specification page but has no entry in its glossary. The entry
+above quotes that page and should move upstream.

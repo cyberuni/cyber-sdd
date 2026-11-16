@@ -30,29 +30,6 @@ eval-checked criterion of a skill-instruction use case.
 Not for a node of a first-generation SDD project spec (under `.agents/specs/`, with a `.feature` suite): that is
 the `sdd` plugin's `start-mission`. This skill covers the design spec only, not the functional spec beneath it.
 
-## Two relationships between specs
-
-Two relationships connect specs, and they are not the same. Name the one you mean.
-
-- **Rung.** A design spec sits above a functional spec. The two are different kinds of spec about the same
-  capability, one rung apart.
-- **Split.** A parent design spec has child design specs. Parent and child are the same kind of spec at the same
-  rung, and the child covers a narrower capability.
-
-A child is therefore never the functional spec, however the word reads. It is a design spec. This holds when the
-capability is itself about specs: a child of a design spec named for functional specs is still a design spec.
-
-| | Design spec | Functional spec |
-| --- | --- | --- |
-| Oriented around | a capability, named for what an actor gets | a component or artifact, named for the implementation |
-| Lives | in a project-level spec folder, one folder per capability | next to the code it specifies |
-| Use cases | what an actor gets: "merge only changes whose spec and tests agree" | how the implementation is used: "share state across several components through context" |
-| Holds | outcomes, and the properties an actor needs ("distinct per cause", "stable") | encodings: names, values, flags, formats, internal contracts |
-
-The use cases of the two rungs are related but need not map one to one. One design use case may need several
-functional use cases, and many functional use cases (wiring, composition, internal contracts) trace to no single
-design use case.
-
 ## Write
 
 Put one capability in one folder: `README.md` holds the spec, `graph.md` holds the decision graph when the
@@ -124,10 +101,10 @@ change. With no user to ask, run the research; when it cannot run, or its findin
 question under Open questions.
 
 **Split by capability, never by layer.** A child spec is a capability an actor can name (what they get), such as
-`update` or `history`, so the folder names say what the system does. A child is a design spec at the same rung as
-its parent, never the functional spec (see [Two relationships between specs](#two-relationships-between-specs)). Never split into a library spec, a CLI spec, and a
-skill spec: one capability reached through three deliveries is one spec, whose use cases list the deliveries as entry
-points. A layer split writes the functional spec early and scatters one outcome across files.
+`update` or `history`, so the folder names say what the system does. A split stays on one rung: a child is a design
+spec for a narrower capability, never the functional spec, even when it is about specs. Never split into a library
+spec, a CLI spec, and a skill spec: one capability reached through three deliveries is one spec, whose use cases list
+the deliveries as entry points. A layer split writes the functional spec early and scatters one outcome across files.
 
 **Size the spec by the tasks that read it.** When the actors and use cases are settled, list the tasks that will read
 the spec: changing one behavior, deriving its tests, checking scope, a consumer checking its contract. If most of them
@@ -142,14 +119,26 @@ yet. The gap between the criteria and the code is found by checking one against 
 in the project tracker, linked by criterion ID. Link rationale (an ADR, an issue, a research topic) and do not copy it
 in.
 
-**Design spec versus functional spec.** The design spec states outcomes: what the actor gets or can tell apart. An
-encoding is how an outcome is spelled or carried: names, literal values and codes, exit numbers, output fields and
-formats, flag syntax, message wording, the order of checks when every order gives the same kind of outcome. Encodings,
-internal contracts, module behavior, and scenarios belong to the lower rung: the functional spec co-located with the
-implementation, and the code and tests beneath it.
+**Design spec versus functional spec.** Each rung specifies the one beneath it: design spec, functional spec, then
+code and test. Rungs are not parent and child, and not one to one: a functional spec covers a component that several
+capabilities may use.
+
+| | Design spec | Functional spec |
+| --- | --- | --- |
+| Named for | a capability: what an actor gets | a component or artifact of the implementation |
+| Lives | in the project's spec folder, one folder per capability | next to the code it specifies |
+| Use cases | what an actor gets: "merge only changes whose spec and tests agree" | how the code is used: "share state across components through context" |
+
+One design use case may need several functional ones, and many functional ones (wiring, composition, internal
+contracts) trace to no single design use case.
+
+The design spec states outcomes: what the actor gets or can tell apart. An encoding is how an outcome is spelled or
+carried: names, literal values and codes, exit numbers, output fields and formats, flag syntax, message wording, the
+order of checks when every order gives the same kind of outcome. Encodings, internal contracts, module behavior, and
+scenarios belong to the rungs below.
 
 - **Hold the outcome, vary the encoding.** If the actor reaches the goal under any encoding that is stable and keeps
-  distinct outcomes distinct, the encoding belongs to the lower rung. The design spec keeps the outcome and the
+  distinct outcomes distinct, the encoding belongs to a lower rung. The design spec keeps the outcome and the
   property the actor needs ("distinct per cause", "stable"). A program actor reads encodings but needs no particular
   one, so it is judged the same way. Only a case whose outcome differs between two readings of a criterion is a grain
   defect in the design spec; a difference in encoding alone moves the encoding down. This is the placement test.
@@ -163,7 +152,7 @@ Gherkin or EARS for one scenario when it clarifies; the functional spec or test 
 **Several surfaces.** When the same code is reached through several adapters (a CLI, a library, an MCP server), state
 each outcome once without naming an adapter: "the reference is reported missing", not "exit 1". One criteria group,
 `Adapters`, states what each adapter's actor needs of its form, such as each outcome told apart, distinct per cause,
-and stable. The mapping from each outcome to an exit code, stream, return value, or thrown error belongs to the lower
+and stable. The mapping from each outcome to an exit code, stream, return value, or thrown error belongs to a lower
 rung, pinned by its tests. Group a use case's entry points by surface. Behavior that a skill's instructions add on top, such as a fallback or what to tell the user,
 is its own use case. Its criteria are checked by an eval run of the skill, not by a deterministic test.
 
@@ -196,7 +185,7 @@ criterion of a skill-instruction use case is the exception: an eval run of the s
 that cannot become such a test fails C5; send it back to Write instead of guessing.
 
 Lower-rung writes may add, never change. A test that pins an encoding the spec leaves open, such as the exit code for
-an outcome, is the build adding to the lower rung: a minor change, made freely. Changing what an existing test
+an outcome, is the build adding to a lower rung: a minor change, made freely. Changing what an existing test
 asserts is a breaking change: take it to the owner instead of making it.
 
 ## Validate

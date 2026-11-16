@@ -155,6 +155,18 @@ never make one without in-session authorization. It is the single-owner ancestor
 implementation exists. They sit inside a project marked `implemented`, which is the defect this
 governance exists to prevent.
 
+## Spec relationships
+
+**rung** *(SDD 2)*: the level a spec sits at. A design spec sits above a functional spec, which is
+co-located with the implementation. The relation between two rungs is not parent and child.
+
+**split** *(SDD 2)*: dividing one design spec into a parent and child design specs by capability. Parent and
+child are one rung. A child is never the functional spec.
+
+**functional spec** *(SDD 2)*: the spec one rung below the design spec, next to the code it specifies. Its use
+cases say how the implementation is used, and need not map one to one to the design spec's. The `spec` skill
+covers the design spec only.
+
 ## Terms deliberately not used
 
 | Term | Why not |

@@ -30,6 +30,29 @@ eval-checked criterion of a skill-instruction use case.
 Not for a node of a first-generation SDD project spec (under `.agents/specs/`, with a `.feature` suite): that is
 the `sdd` plugin's `start-mission`. This skill covers the design spec only, not the functional spec beneath it.
 
+## Two relationships between specs
+
+Two relationships connect specs, and they are not the same. Name the one you mean.
+
+- **Rung.** A design spec sits above a functional spec. The two are different kinds of spec about the same
+  capability, one rung apart.
+- **Split.** A parent design spec has child design specs. Parent and child are the same kind of spec at the same
+  rung, and the child covers a narrower capability.
+
+A child is therefore never the functional spec, however the word reads. It is a design spec. This holds when the
+capability is itself about specs: a child of a design spec named for functional specs is still a design spec.
+
+| | Design spec | Functional spec |
+| --- | --- | --- |
+| Oriented around | a capability, named for what an actor gets | a component or artifact, named for the implementation |
+| Lives | in a project-level spec folder, one folder per capability | next to the code it specifies |
+| Use cases | what an actor gets: "merge only changes whose spec and tests agree" | how the implementation is used: "share state across several components through context" |
+| Holds | outcomes, and the properties an actor needs ("distinct per cause", "stable") | encodings: names, values, flags, formats, internal contracts |
+
+The use cases of the two rungs are related but need not map one to one. One design use case may need several
+functional use cases, and many functional use cases (wiring, composition, internal contracts) trace to no single
+design use case.
+
 ## Write
 
 Put one capability in one folder: `README.md` holds the spec, `graph.md` holds the decision graph when the
@@ -101,7 +124,8 @@ change. With no user to ask, run the research; when it cannot run, or its findin
 question under Open questions.
 
 **Split by capability, never by layer.** A child spec is a capability an actor can name (what they get), such as
-`update` or `history`, so the folder names say what the system does. Never split into a library spec, a CLI spec, and a
+`update` or `history`, so the folder names say what the system does. A child is a design spec at the same rung as
+its parent, never the functional spec (see [Two relationships between specs](#two-relationships-between-specs)). Never split into a library spec, a CLI spec, and a
 skill spec: one capability reached through three deliveries is one spec, whose use cases list the deliveries as entry
 points. A layer split writes the functional spec early and scatters one outcome across files.
 

@@ -1,6 +1,7 @@
 ---
 name: spec
 description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X, split a spec, preview a whole spec or test it by building from it, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec". Not for a node of a first-generation SDD project spec under .agents/specs/ that carries a .feature suite (the sdd plugin's start-mission).
+argument-hint: "[write|review|split|preview|derive tests] [capability, spec folder, or source document]"
 ---
 
 # Design spec

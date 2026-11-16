@@ -1,6 +1,6 @@
 ---
 name: spec
-description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X, split a spec, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec". Not for a node of a first-generation SDD project spec under .agents/specs/ that carries a .feature suite (the sdd plugin's start-mission).
+description: Writes, revises, reviews, and splits a design spec, the document that states what a capability must do (intent, use cases, and checkable criteria on the outcome) before or alongside its code, and derives tests from one. Use when asked to spec a feature, write, revise, or backfill the spec for X, split a spec, preview a whole spec or test it by building from it, judge whether a spec is ready, or turn a spec into tests, even if they only say "is this spec good" or "review the spec". Not for a node of a first-generation SDD project spec under .agents/specs/ that carries a .feature suite (the sdd plugin's start-mission).
 ---
 
 # Design spec
@@ -20,6 +20,7 @@ after the build.
 | write a spec for a capability, or backfill one for existing code | [Write](#write) |
 | change what an existing spec says | [Write](#write), then [Review](#review) the changed parts |
 | split a spec that has grown past what its readers need | [Write](#write), then [`references/split.md`](references/split.md) |
+| see a whole spec at once, or build from it to find its gaps | [Preview](#preview) |
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
 | a criterion whose verdict flipped on an unchanged state | [Write](#write): split its graph path, placement test first |
@@ -50,7 +51,8 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
    result and is delivery agnostic; the delivery (a skill, a command, a library call) appears only under Entry points,
    and in the criteria group for that adapter.
 7. **Criteria.** A list of boolean statements about the outcome, one per line, each with an ID and bound to a use
-   case and, where a graph exists, to an edge in it. Each is self-contained: decidable from its own text, with any
+   case and, where a graph exists, to an edge in it. A parent criterion that holds for every use case under it cites
+   `UC*` (V5), so a child added later is covered without editing the parent. Each is self-contained: decidable from its own text, with any
    context it depends on, such as the path or the use case, written into it. The cited use case and edge are a trace,
    not part of its meaning.
 8. **Open questions.** What is unresolved, marked. Empty before the spec is ready.
@@ -60,6 +62,10 @@ behavior branches. Write these sections of `README.md`, in order. Keep each as s
 **Give every item of these lists an ID** a reader can cite: `N1` for a non-goal, `K1` for a key term, `A1` for an actor and
 `A1.1` for its goal, `UC1` for a use case and `UC1.1` for its extension, `R1` for a criterion, `E1` for a graph edge,
 `Q1` for an open question. An ID is never reused: a removed item retires its ID.
+
+**A bare ID is the spec's own.** When the spec links a source with its own IDs (a design record with `K1`, `R1`,
+`D1`), cite the source's IDs with its name, such as `scrum-system D4`. Reuse the IDs a source took from an
+earlier draft of this spec.
 
 **An ID labels a criterion's text; the text is the criterion.** Use the ID to cite it and to name its tests. Before
 the spec is first ready, revise criteria freely. After that, changing a criterion's text retires its ID, gives the
@@ -159,6 +165,12 @@ is its own use case. Its criteria are checked by an eval run of the skill, not b
 **Decision graph.** When the behavior branches, draw the decisions in `graph.md`, in the format of the decision graph
 reference, and cite its edge IDs from the criteria. Omit it for a spec that states facts or a table.
 
+## Preview
+
+Preview renders the whole spec as one page linked by ID, then builds what it specifies from the spec alone; each
+guess the build makes is a blind spot to fix or to ask. Follow
+[`references/preview.md`](references/preview.md).
+
 ## Review
 
 Load the criteria reference and judge the spec against C1 to C10 in number order. A spec is ready when none of C1 to
@@ -178,15 +190,7 @@ what is wrong and what would fix it.
 
 ## Derive tests
 
-Build tests from the criteria list, one test or group per criterion ID, as native, deterministic tests of the
-project's own test stack. Put the criterion ID in the name of its test or group. Do not write a feature file for an
-agent to run: an agent running prose scenarios spends tokens on every run and cannot be relied on to follow them. A
-criterion of a skill-instruction use case is the exception: an eval run of the skill checks it. Any other criterion
-that cannot become such a test fails C5; send it back to Write instead of guessing.
-
-Lower-rung writes may add, never change. A test that pins an encoding the spec leaves open, such as the exit code for
-an outcome, is the build adding to a lower rung: a minor change, made freely. Changing what an existing test
-asserts is a breaking change: take it to the owner instead of making it.
+Follow [`references/derive-tests.md`](references/derive-tests.md).
 
 ## Validate
 
@@ -204,7 +208,8 @@ git history, not against your report. Each line is pass or fail; `README.md` and
 - V4 Each use case is a `### UCn — <title> (<actor IDs>)` heading with Trigger, Entry points, Inputs, Success, and
   Extensions in that order, and its Extensions are `UCn.m` items or read `extensions: none, <why>`. When `graph.md`
   exists, an Entry node bullet sits between Trigger and Entry points and names a node that exists in `graph.md`.
-- V5 Every criterion cites a use case ID that exists. When `graph.md` exists, every edge ID a criterion cites exists
+- V5 Every criterion cites a use case ID that exists; `UC*` is valid only in a parent, expands to every use case of
+  the parent and its children, and fails when none exists. When `graph.md` exists, every edge ID a criterion cites exists
   in it, and every outcome node in it is reached by an edge some criterion cites.
 - V6 `grep -nEi '\b(TBD|TODO)\b|not (yet )?built' README.md graph.md` finds nothing.
 - V7 No criterion names a source file, module, or internal function of the implementation, or pins an encoding (an
@@ -255,3 +260,5 @@ criteria reference are written `spec C1` to `spec C10`.
   the project's own suite, and no `.feature` file was added for an agent to run.
 - **C7.** A headless run put every question it could not settle under Open questions and did not present the spec as
   ready.
+- **C8.** A Preview changed the spec only through Write, its view showed every actor, use case, criterion with its
+  trace, and open question, and each blind spot but an encoding was fixed or put under Open questions.

@@ -7,6 +7,8 @@ trigger:
   - { prompt: "Research whether GitHub Actions can run a ChatOps bot.", expect: skip }
   - { prompt: "Write the unit tests for src/archive.ts.", expect: skip }
   - { prompt: "Write an ADR for choosing a webhook router over Actions.", expect: skip }
+  - { prompt: "Before we grill it, show me roughly what the spec for docs/design/scrum-system.md would look like.", expect: fire }
+  - { prompt: "Walk through building the export feature from specs/export and tell me where the spec leaves gaps.", expect: fire }
 # files/unresearched holds specs/archive: a spec with every section in place whose References has no research link
 # and no recorded skip, so a review must report it failing spec C10 and V14 (#199). The case's criteria are the
 # skill's Done when IDs; the regexes look for the spec criterion and Validate check IDs in the reply.
@@ -24,7 +26,7 @@ outcome:
       C4:
         - script: "test -z \"$(git status --porcelain --untracked-files=all)\""
         - regex: "Failed:[^\\n]*\\b[CV]\\d+\\b"
-# Rubrics for the Done when items no outcome case tests yet. C1, C2, C5's move-only half, and C7 need a judge, since
+# Rubrics for the Done when items no outcome case tests yet. C1, C2, C5's move-only half, C7, and C8 need a judge, since
 # no script decides them from a run's folder; a test names a judge to run them.
 rubrics:
   C1:
@@ -38,3 +40,5 @@ rubrics:
     - script: "test -z \"$(git ls-files --others --exclude-standard -- '*.feature')\""
   C7:
     - judge: Pass when every question the run could not settle is under Open questions and the reply does not present the spec as ready.
+  C8:
+    - judge: Pass when the preview wrote no file at the spec's real location except fixes made through Write, its view shows every actor, use case, criterion with its use case and edge, and open question of the spec, and every blind spot the walkthrough reports, except an encoding, is fixed in the spec or listed under Open questions.

@@ -31,7 +31,7 @@ wrong or surplus. Each test is pass or fail. Report the line that fails.
 
 | ID | Criterion | Pass when |
 | --- | --- | --- |
-| C10 | Researched | Before the spec is presented as ready, References links a research artifact covering the idea, its feasibility, and prior art, or records `Research: skipped, <reason>` with a reason. Every change to the intent the research caused is recorded in the artifact, and every feasibility limit that constrains behavior is a criterion or a non-goal. A child spec passes through its parent. |
+| C10 | Researched | Before the spec is presented as ready, References links a research artifact covering the idea, its feasibility, and prior art, or records `Research: skipped, <reason>` with a reason. Every change to the intent the research caused is recorded in the artifact, and every feasibility limit that constrains behavior is a criterion or a non-goal. A criterion that depends on the capability of an external system (an API, a platform, a service) cites evidence that it can be met (the research artifact, or a linked source that verified it), or sits under Open questions. A child spec passes through its parent. |
 
 ## Failure modes to look for
 
@@ -48,6 +48,8 @@ wrong or surplus. Each test is pass or fail. Report the line that fails.
 - An invariant that always holds listed as a criterion. It is not a decision. C3.
 - A capability specced without asking whether an existing solution already does it, or whether the platform allows
   it; or research skipped with no reason, so a reviewer cannot tell skipped on purpose from forgotten. C10.
+- A criterion only an external system could meet, with no evidence it can (an edit the API forbids, a feed that does
+  not exist). No behavior can satisfy it, so only amending the criteria repairs it. C10.
 
 A one-time review cannot catch a spec going stale or being revised from the code it constrains. That needs a check
 on each change, outside this skill.

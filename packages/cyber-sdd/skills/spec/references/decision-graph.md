@@ -10,6 +10,8 @@ Use it when the capability's behavior branches. It is the instrument for C6 to C
 - It describes decisions the consumer can observe, not the code's control flow. Name no function or module, and no
   encoding of an outcome (an exit number, a literal code, a field name).
 - Each use case names the node it starts from in its **Entry node** bullet. Several use cases may share a graph.
+- When one run makes several independent decisions, such as which list each task goes in, draw one flowchart per
+  decision in `graph.md`, so every edge stays a branch. The use case's Entry node names the entry of each.
 
 ## Checks it makes possible
 

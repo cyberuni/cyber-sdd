@@ -29,5 +29,5 @@ onlyBuiltDependencies:
 minimumReleaseAge: 1440 # 1 day
 minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
-  # min-release-age: lift cyber-agentkit@2.1.0 until 2026-11-05T17:00:00Z
-  - 'cyber-agentkit@2.1.0'
+  # min-release-age: lift cyber-agentkit@2.9.0 until 2026-11-17T03:00:00Z
+  - 'cyber-agentkit@2.9.0'

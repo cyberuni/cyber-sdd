@@ -11,6 +11,7 @@ User-invocable.
 - Change what an existing spec says.
 - Judge whether a spec is good, or ready.
 - Split a spec that has grown past what its readers need.
+- Preview what a spec for a large system or a source document would look like, before settling it.
 - Derive tests from a spec.
 
 Part of SDD 2 (`cyber-sdd-2`). It covers the design spec only; the functional spec beneath it is not built yet. A
@@ -28,6 +29,8 @@ plugin's `start-mission`, not here.
   feasibility, and prior art before Use cases and Criteria settle; its artifact is linked under References, or a
   small change records the skip and its reason. A headless run drafts every section and puts each question under
   Open questions.
+- **Preview** drafts the parent and one representative child to a scratch folder, lists the other children, and reports
+  what the spec drops from a source document, what it adds, and the open questions it surfaced. It writes no real spec.
 - **Review** judges the spec against ten pass/fail criteria (C1 to C10, in
   [`references/criteria.md`](references/criteria.md)), fixes what the spec and its sources settle, and returns the
   rest as open questions with a recommendation. A criterion revised in two or more rounds is checked for placement

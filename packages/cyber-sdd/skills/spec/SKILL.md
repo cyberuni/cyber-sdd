@@ -19,7 +19,7 @@ after the build.
 | --- | --- |
 | write a spec for a capability, or backfill one for existing code | [Write](#write) |
 | change what an existing spec says | [Write](#write), then [Review](#review) the changed parts |
-| split a spec that has grown past what its readers need | [Write](#write), the steps under **Split a spec** |
+| split a spec that has grown past what its readers need | [Write](#write), then [`references/split.md`](references/split.md) |
 | judge a spec, or decide whether it is ready | [Review](#review) |
 | derive tests from a spec | [Derive tests](#derive-tests) |
 | a criterion whose verdict flipped on an unchanged state | [Write](#write): split its graph path, placement test first |
@@ -135,18 +135,7 @@ need less than half of it, split the capability into child specs along the line 
 outcome; the parent keeps the shared terms and links each child. Do not split by section type, such as a separate
 criteria file: every task needs a slice of every section.
 
-**Split a spec.** Decide the line once the use cases are settled, and move the text once every section is agreed, so
-a revision never straddles files.
-
-1. Table the tasks, the sections each needs, and its share of the spec. Split only when most shares are under half.
-2. Put in the parent what every task needs: the What, Non-goals, Key terms, Actors, the criteria groups that span
-   children (such as `Adapters` or the output contract), the open questions they share, References, and a table
-   linking each child with its use cases.
-3. Give each child its use cases, the criteria groups bound to them, its open questions, a title naming its own
-   outcome, and a line linking the parent's terms. A child is never read without its parent.
-4. Keep every ID: IDs are shared across the parent and its children, and a retired one stays retired. Move each graph
-   edge with the criteria that cite it; edges several children cite stay in the parent's `graph.md`.
-5. Make the split a commit of its own that moves text without rewording it, and check that no line was lost.
+**Split a spec** by the steps in [`references/split.md`](references/split.md), once the use cases are settled.
 
 Leave out implementation design, task lists, stack choices, alternatives analysis, and whether a criterion is built
 yet. The gap between the criteria and the code is found by checking one against the other; the work to close it lives
@@ -250,6 +239,8 @@ git history, not against your report. Each line is pass or fail; `README.md` and
 
 - **Criteria reference** ([`references/criteria.md`](references/criteria.md)): C1 to C10 with their pass conditions and the failure modes they
   catch. Load it for Review, and for step 2 of each section in Write.
+- **Split reference** ([`references/split.md`](references/split.md)): the steps that move a spec into a parent and
+  child specs. Load it only when splitting.
 - **Decision graph reference** ([`references/decision-graph.md`](references/decision-graph.md)): the shape of `graph.md`, its edge IDs, and the
   decision table and state list that may replace it.
 - **`research.method`** (default `references/research.method.default.md`): how the research step runs and what

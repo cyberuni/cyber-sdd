@@ -6,7 +6,7 @@ import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/contribute-skill/source.mts
+// src/contribute-skill/source.mts
 function readLock(lockPath) {
 	if (!existsSync(lockPath)) return null;
 	try {
@@ -119,5 +119,4 @@ function main(argv) {
 	return result.foundIn ? 0 : 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { defaultNpxFind, findSkillSource, main, parseNpxSkillsOutput, readLock };

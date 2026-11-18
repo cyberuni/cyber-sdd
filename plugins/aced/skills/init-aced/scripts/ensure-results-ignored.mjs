@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { accessSync, constants, existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/init-aced/ensure-results-ignored.mts
+// src/init-aced/ensure-results-ignored.mts
 const RESULTS_DIR_RULE = ".agents/aced/results/";
 const PROBE_PATH = ".agents/aced/results/.ensure-ignored-probe";
 function resolveRepoRoot(startDir) {
@@ -99,5 +99,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { RESULTS_DIR_RULE, canWriteGitignore, ensureResultsIgnored, isIgnored, main, resolveRepoRoot };

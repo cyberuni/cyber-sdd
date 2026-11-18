@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { readFileSync, readdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/place-node/place-node.mts
+// src/place-node/place-node.mts
 const SKIP_DIRS = /* @__PURE__ */ new Set([
 	"node_modules",
 	".git",
@@ -113,5 +113,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { findNear, main, parseConcepts, scanProjectSpec, suggestHomes };

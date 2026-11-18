@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, realpathSync, rmSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/mission-graph/mission-graph.mts
+// src/mission-graph/mission-graph.mts
 /** The shared default project — a REAL project every project-less node belongs to together, not a
 *  wildcard that matches every project. */
 const DEFAULT_PROJECT = "";
@@ -1036,5 +1036,4 @@ function main(argv) {
 	return 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { DEFAULT_PROJECT, ORPHAN_REF, appendEdgeChecked, appendEvent, appendNodeChecked, appendOrphanEvent, checkOperation, commitOrphan, compareIds, computeSCCs, cycles, fold, listOperations, main, migrate, operationOf, orphanHead, proposeEdge, proposeNode, quarantinedIds, rawPredecessors, readEvents, readOrphanLines, ready, renderCyclesToon, renderFrontierToon, renderOperationToon, renderSyncToon, resolveBackend, syncStore, wouldCloseCycle };

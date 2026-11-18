@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/check-spec-references/check-spec-references.mts
+// src/check-spec-references/check-spec-references.mts
 /** Suppresses every reference on the line it appears on. Matched as a COMPLETE html comment, not
 * as a substring: a marker whose name merely starts with this one's (a typo, a future sibling)
 * must not silently inherit its power to hide a reference. The optional `: reason` is convention,
@@ -283,5 +283,4 @@ function main(argv, cwd = process.cwd()) {
 	return 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { audit, extractReferences, formatFindings, listMarkdownFiles, main, resolveReference, scanCodeSpans, startsNewBlock };

@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.5.3","entr
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync, unlinkSync, writeFileSync } from "node:fs";
 import { join, sep } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/repair-private-skills/repair-private-skills.mts
+// src/repair-private-skills/repair-private-skills.mts
 function ensureInternalMetadata(content) {
 	const lines = content.split("\n");
 	if (lines[0]?.trim() !== "---") return {
@@ -205,5 +205,4 @@ function main(argv) {
 	return 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { ensureInternalMetadata, main, repairPrivateSkills, validatePrivateSkills };

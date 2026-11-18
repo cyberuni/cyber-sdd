@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, readFileSync, readdirSync, realpathSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/plan-retirement/retire-plans.mts
+// src/plan-retirement/retire-plans.mts
 const PLAN_SUFFIX = ".plan.md";
 const LOG_SUFFIX = ".log.jsonl";
 const DESIGN_SUFFIX = ".design.md";
@@ -119,5 +119,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { decideRetirements, discoverLogs, discoverPlans, distilledCrRefs, main, parseCleared, transientArtifactFiles };

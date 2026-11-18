@@ -5,7 +5,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import path, { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
-//#region src/check-spec-structure/check-spec-structure.mts
+// src/check-spec-structure/check-spec-structure.mts
 const SKIP_DIRS = /* @__PURE__ */ new Set([
 	"node_modules",
 	".git",
@@ -143,8 +143,7 @@ function walk(dir, specDir, out) {
 	}
 }
 if (process.argv[1] && false);
-//#endregion
-//#region src/vendor/gherkin-cli.mjs
+// src/vendor/gherkin-cli.mjs
 var AstNode = class {
 	ruleType;
 	subItems = /* @__PURE__ */ new Map();
@@ -6457,8 +6456,7 @@ function diff(paths, opts, deps = gitReadsDiff) {
 		files
 	};
 }
-//#endregion
-//#region src/spec-gate/classify-edit-class.mts
+// src/spec-gate/classify-edit-class.mts
 function hasFeatureFrozenTag(text) {
 	const lines = text.split("\n");
 	const featureIdx = lines.findIndex((l) => /^\s*Feature:/i.test(l));
@@ -6657,8 +6655,7 @@ function classifyFile(path, base, cwd = ".", diffWith = runGherkinDiff) {
 	return classifyFromDiffOutput(path, diff);
 }
 if (process.argv[1] && false);
-//#endregion
-//#region src/align-spec/align-spec.mts
+// src/align-spec/align-spec.mts
 const DEFAULT_BASE = "HEAD";
 function selectNodes(records, only) {
 	if (!only || only.length === 0) return records;
@@ -6751,5 +6748,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { DEFAULT_BASE, appendScenario, detect, detectNarrowing, findFeaturePath, hasDrift, main, renderFindings, selectNodes, splitFrontmatter, trimProse };

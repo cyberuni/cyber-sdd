@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/vendor/gherkin-cli.mjs
+// src/vendor/gherkin-cli.mjs
 var TokenType;
 (function(TokenType) {
 	TokenType[TokenType["None"] = 0] = "None";
@@ -114,8 +114,7 @@ var KeywordPrefix;
 	KeywordPrefix["HEADER"] = "^(#{1,6}\\s)";
 })(KeywordPrefix || (KeywordPrefix = {}));
 StepKeywordType.UNKNOWN, PickleStepType.UNKNOWN, StepKeywordType.CONTEXT, PickleStepType.CONTEXT, StepKeywordType.ACTION, PickleStepType.ACTION, StepKeywordType.OUTCOME, PickleStepType.OUTCOME, StepKeywordType.CONJUNCTION;
-//#endregion
-//#region src/verify-scenarios/verify-scenarios.mts
+// src/verify-scenarios/verify-scenarios.mts
 function parseSourcesToml(text) {
 	const out = [];
 	const blocks = text.split(/(?=^\s*\[\[source\]\]\s*$)/m).filter((b) => /^\s*\[\[source\]\]\s*$/m.test(b));
@@ -133,8 +132,7 @@ function parseSourcesToml(text) {
 	return out;
 }
 if (process.argv[1] && false);
-//#endregion
-//#region src/manage-scenario-bridge/manage-scenario-bridge.mts
+// src/manage-scenario-bridge/manage-scenario-bridge.mts
 const CONFIG_REL_PATH = ".agents/sdd/scenario-bridge.toml";
 function configPath(projectPath) {
 	return join(projectPath, CONFIG_REL_PATH);
@@ -235,5 +233,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { addSource, configPath, listSources, main, scaffoldSource };

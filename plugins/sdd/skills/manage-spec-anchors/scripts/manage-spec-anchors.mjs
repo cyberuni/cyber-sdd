@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/manage-spec-anchors/manage-spec-anchors.mts
+// src/manage-spec-anchors/manage-spec-anchors.mts
 const ANCHORS_CONFIG = ".agents/sdd/spec-anchors.toml";
 const LIFECYCLE_STATUSES = /* @__PURE__ */ new Set([
 	"draft",
@@ -306,5 +306,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { FIXED_ANCHORS, addAnchor, editAnchor, inducePatterns, isFixedConvention, isValidPattern, listAnchors, main, parseAnchorsToml, previewPattern, readCustomAnchors, removeAnchor, serializeAnchors };

@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-//#region src/discover-specs/discover-specs.mts
+// src/discover-specs/discover-specs.mts
 const LIFECYCLE_STATUSES = /* @__PURE__ */ new Set([
 	"draft",
 	"approved",
@@ -277,15 +277,13 @@ function collectSpecs(root) {
 	return out.sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
 }
 if (process.argv[1] && false);
-//#endregion
-//#region src/sibling-engine.mts
+// src/sibling-engine.mts
 /** The path of `<skill>/<engine>` for an engine running from the file `here`. */
 function siblingEngine(here, skill, engine) {
 	if (here.endsWith(".mts")) return join(dirname(here), "..", skill, `${engine}.mts`);
 	return join(dirname(here), "..", "..", skill, "scripts", `${engine}.mjs`);
 }
-//#endregion
-//#region src/check-project-specs/check-project-specs.mts
+// src/check-project-specs/check-project-specs.mts
 const HERE = fileURLToPath(import.meta.url);
 const ENGINES = [
 	{
@@ -589,5 +587,4 @@ function checkProject(argv) {
 	return runEngines(repoRoot, specDir) === 0 ? 0 : 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { ENGINES, KNOWN_FLAGS, enginePath, findCoverageGaps, findDroppedSpecFor, findRepoRoot, main, resolveSpecFor, unknownFlags };

@@ -27,7 +27,17 @@
 				"skills/list-skills/scripts/list-skills.mjs": "src/list-skills/list-skills.mts",
 				"skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs": "src/manage-skill-dirs/manage-skill-dirs.mts",
 				"skills/repair-private-skills/scripts/repair-private-skills.mjs": "src/repair-private-skills/repair-private-skills.mts",
-				"skills/contribute-skill/scripts/source.mjs": "src/contribute-skill/source.mts"
+				"skills/contribute-skill/scripts/source.mjs": "src/contribute-skill/source.mts",
+				"skills/define-command/scripts/cyberplace.mjs": {
+					"forward": "cyberplace",
+					"package": "cyberplace",
+					"version": "0.3.0"
+				},
+				"skills/skillify/scripts/cyberplace.mjs": {
+					"forward": "cyberplace",
+					"package": "cyberplace",
+					"version": "0.3.0"
+				}
 			}
 		}
 	}

@@ -123,7 +123,7 @@ skill can load one by name with the `reference` skill of `cyber-agentkit`:
 | `skill-design` | SKILL.md authoring — agent-first structure, placement, patterns, progressive disclosure, deterministic extraction, script placement and bundling, how a skill loads a reference |
 | `skill-repo-structure` | Skill library repo layout — archetypes, manifests, CI, discipline sections, contributor conventions |
 | `agent-tool-output` | Output rules for scripts, hooks, and CLIs that agents invoke |
-| `cli-resolution` | How a skill runs its own scripts and resolves a released CLI it does not ship |
+| `cli-resolution` | How a skill runs its own scripts and a CLI it does not compile in, through a forwarding script |
 
 A skill loads them in one line, never by path:
 

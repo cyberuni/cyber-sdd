@@ -35,7 +35,7 @@ The conductor's behavior groups into sixteen concerns, each a section below; eve
 | **classification** | decide each file's artifact-type — convention-first, the optional `.agents/sdd/` tiebreaker on ambiguity (confirm-not-guess, write-back) |
 | **resolution** | read the registry, match each file's artifact-type to a squad, resolve every role to a delegate or the SDD default, fail closed |
 | **production chain** | the five roles, producer-vs-judge, the role-dependent surface (inline / spawned / cold), the write boundary, co-delivery |
-| **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `npx cyberlegion@<version> unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff; an SDD-shipped judge is handed to the capability by its definition file, located from the SDD plugin's own root, never by name |
+| **dispatch transport** | the transport-abstract spawn seam — state a dispatch intent (never a pinned command), route through an available dispatch capability preferring a warm unit else a portable cold-subagent fallback; warm = the unit, cold = the context (context-clear via `node <start-mission>/scripts/cyberlegion.mjs unit clear` per judgment keeps judge independence; the warm builder keeps its context); warm units live one mission, reset at handoff; an SDD-shipped judge is handed to the capability by its definition file, located from the SDD plugin's own root, never by name |
 | **governance entry set** | load its own bars before it starts — the **entry set** (lifecycle, ownership, spec-format, suite-format, spec-producer, combat-log, gate-validation) read before intake, the **deferred** ones (remediation, impl-producer) named up front and read at the decision that invokes them — and **declare** the set it actually loaded, its own declaration, never the producer's relayed one |
 | **governance provenance relay** | forward the spec-producer's declared `governances_loaded` through the dispatch channel as `producer_governances_declared` (a brief field for a cold subagent, a mail envelope field for an agent pool) — a pure relay, rendering no opinion on which governances were required |
 | **explore** | run `../../authoring/` in-session, spike the impl-producer to learn, route a discovery back through the judged grill; or the plan-mode-preview drive mode (reason without writing, render into the plan file, end at ExitPlanMode) |
@@ -143,11 +143,11 @@ capability** is available (e.g. cyberlegion), the conductor routes the spawn thr
 `subagent | channel | run-inline` seam and **prefers a warm unit**; when none is available it
 **falls back** to a portable cold subagent spawn — the ported default. Warmth is a property of the
 **unit/process**, coldness of the **context**: a judge's fresh cold context is realized **either** by
-a newly spawned subagent **or** by **clearing a warm unit** (`npx cyberlegion@<version> unit clear <ref>`) before each judgment —
+a newly spawned subagent **or** by **clearing a warm unit** (`node <start-mission>/scripts/cyberlegion.mjs unit clear <ref>`) before each judgment —
 both satisfy grader independence, so a warm judge unit never weakens it. A **warm producer**
 (the impl-producer builder) instead **keeps** its context across explore spikes and the deliver
 build (no reset between uses) so its learning carries. Warm units live **no longer than one
-mission** — reused within the mission, then cleared (`npx cyberlegion@<version> unit clear`) or torn down at handoff (`../handoff/`),
+mission** — reused within the mission, then cleared (`node <start-mission>/scripts/cyberlegion.mjs unit clear`) or torn down at handoff (`../handoff/`),
 never shared into another mission's context.
 
 **SDD's own judges are handed over by file, not by name.** A dispatch capability may resolve an

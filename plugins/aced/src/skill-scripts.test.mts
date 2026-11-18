@@ -15,7 +15,12 @@ import { after, test } from 'node:test'
 
 const PLUGIN_ROOT = new URL('../', import.meta.url).pathname.replace(/\/$/, '')
 const manifest = JSON.parse(readFileSync(join(PLUGIN_ROOT, 'plugin.json'), 'utf8'))
-const scripts: Record<string, string> = manifest.extensions['org.cyberuni.universal-plugin'].scripts
+const declared: Record<string, string | { forward: string }> =
+	manifest.extensions['org.cyberuni.universal-plugin'].scripts
+// A forwarder (`{ forward }`) compiles no source: it runs another CLI, so only compiled entries count.
+const scripts = Object.fromEntries(
+	Object.entries(declared).filter((e): e is [string, string] => typeof e[1] === 'string'),
+)
 
 /** Arguments that reach each engine's own CLI without side effects (usage text or a read-only run). */
 const PROBE: Record<string, string[]> = {

@@ -52,6 +52,11 @@
 					"package": "gherkin-cli",
 					"version": "0.2.1"
 				},
+				"skills/start-mission/scripts/cyberlegion.mjs": {
+					"forward": "cyberlegion",
+					"package": "cyberlegion",
+					"version": "2.1.0"
+				},
 				"skills/touch-set-correction/scripts/touch-set-correction.mjs": "src/touch-set-correction/touch-set-correction.mts",
 				"skills/verify-scenarios/scripts/verify-scenarios.mjs": "src/verify-scenarios/verify-scenarios.mts"
 			}

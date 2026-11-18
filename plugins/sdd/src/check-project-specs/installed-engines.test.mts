@@ -25,7 +25,12 @@ import { fileURLToPath } from 'node:url'
 const PKG = join(dirname(fileURLToPath(import.meta.url)), '../..')
 const pkg = JSON.parse(readFileSync(join(PKG, 'package.json'), 'utf8'))
 const manifest = JSON.parse(readFileSync(join(PKG, 'plugin.json'), 'utf8'))
-const scripts: Record<string, string> = manifest.extensions['org.cyberuni.universal-plugin'].scripts
+const declared: Record<string, string | { forward: string }> =
+	manifest.extensions['org.cyberuni.universal-plugin'].scripts
+// A forwarder (`{ forward }`) holds no engine: it runs another CLI, so only compiled entries count.
+const scripts = Object.fromEntries(
+	Object.entries(declared).filter((e): e is [string, string] => typeof e[1] === 'string'),
+)
 const root = mkdtempSync(join(tmpdir(), 'sdd-installed-engines-'))
 after(() => rmSync(root, { recursive: true, force: true }))
 

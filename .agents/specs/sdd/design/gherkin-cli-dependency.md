@@ -5,16 +5,19 @@ concept: orchestration
 # The gherkin-cli dependency
 
 SDD's mission loop delegates mechanical `.feature` **parse** and **diff** work to the published
-[`gherkin-cli`](https://www.npmjs.com/package/gherkin-cli) (own cyberuni repo), invoked via
-**pinned npx** — never imported.
+[`gherkin-cli`](https://www.npmjs.com/package/gherkin-cli) (own cyberuni repo), invoked through
+a **pinned forwarding script** — never imported. `spec-gate` ships
+`scripts/gherkin-cli.mjs`, which `universal-plugin plugin build` writes from the
+`{ "forward": "gherkin-cli", "package": "gherkin-cli", "version": "<pin>" }` entry in `plugin.json`;
+it runs a gherkin-cli checkout when it sits in one, else `npx gherkin-cli@<pin>`.
 
 ## What consumes it
 
 - **The gate digest + the conductor's freeze re-open guard** classify scenario changes with
-  `npx gherkin-cli@<pin> diff --base <baseref> <file> --format json`: `addOnly` confirms a purely
+  `node <spec-gate>/scripts/gherkin-cli.mjs diff --base <baseref> <file> --format json`: `addOnly` confirms a purely
   additive change self-clears with no judge round; `modified`/`removed` are flagged for **semantic**
   narrowing review (narrowing-vs-widening within a modified scenario stays a judgment).
-- The digest lists a **brand-new** suite (no baseline) with `npx gherkin-cli@<pin> parse <file>`
+- The digest lists a **brand-new** suite (no baseline) with `node <spec-gate>/scripts/gherkin-cli.mjs parse <file>`
   (compact names / tags / counts) instead of hand-tokenizing the raw file.
 
 ## Why an external npx CLI, not an in-SDD engine

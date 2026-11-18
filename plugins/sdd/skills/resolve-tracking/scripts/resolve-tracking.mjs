@@ -3,7 +3,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/resolve-tracking/resolve-tracking.mts
+// src/resolve-tracking/resolve-tracking.mts
 function globToRegExpBody(glob) {
 	return glob.replace(/[.+^${}()|[\]\\]/g, "\\$&").replace(/\*+/g, (m) => m.length > 1 ? ".*" : "[^/]*").replace(/\?/g, "[^/]");
 }
@@ -148,5 +148,4 @@ function main(argv) {
 	process.stdout.write(`reason: ${result.reason}\n`);
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) main(process.argv.slice(2));
-//#endregion
 export { loadIgnoreRules, main, parseIgnoreFile, parseIgnoreLine, resolveFromIgnore, resolveKindDefault, resolveTracking, validateIgnoreFile };

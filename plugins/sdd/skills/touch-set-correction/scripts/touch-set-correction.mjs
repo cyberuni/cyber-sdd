@@ -5,14 +5,13 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import path, { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-//#region src/sibling-engine.mts
+// src/sibling-engine.mts
 /** The path of `<skill>/<engine>` for an engine running from the file `here`. */
 function siblingEngine(here, skill, engine) {
 	if (here.endsWith(".mts")) return join(dirname(here), "..", skill, `${engine}.mts`);
 	return join(dirname(here), "..", "..", skill, "scripts", `${engine}.mjs`);
 }
-//#endregion
-//#region src/vendor/gherkin-cli.mjs
+// src/vendor/gherkin-cli.mjs
 var AstNode = class {
 	ruleType;
 	subItems = /* @__PURE__ */ new Map();
@@ -6325,8 +6324,7 @@ function diff(paths, opts, deps = gitReadsDiff) {
 		files
 	};
 }
-//#endregion
-//#region src/touch-set-correction/touch-set-correction.mts
+// src/touch-set-correction/touch-set-correction.mts
 /** The scenario-rung gate is STRUCTURAL — the `.feature` extension — never the resolved
 *  artifact-type (a `.feature` with an unresolved artifact-type still gets scenario detail; a
 *  non-`.feature` with a resolved artifact-type never does). */
@@ -6659,5 +6657,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { assembleCorrection, changedScenarios, collectChangedFiles, discoverLayouts, fileToNode, isFeature, main, parseLayoutFlag, readChangedFiles, reconcile, renderCorrectionToon, resolveArtifactType };

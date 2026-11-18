@@ -5,14 +5,13 @@ import { readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { execFileSync } from "node:child_process";
-//#region src/sibling-engine.mts
+// src/sibling-engine.mts
 /** The path of `<skill>/<engine>` for an engine running from the file `here`. */
 function siblingEngine(here, skill, engine) {
 	if (here.endsWith(".mts")) return join(dirname(here), "..", skill, `${engine}.mts`);
 	return join(dirname(here), "..", "..", skill, "scripts", `${engine}.mjs`);
 }
-//#endregion
-//#region src/vendor/gherkin-cli.mjs
+// src/vendor/gherkin-cli.mjs
 var TokenType;
 (function(TokenType) {
 	TokenType[TokenType["None"] = 0] = "None";
@@ -122,8 +121,7 @@ var KeywordPrefix;
 	KeywordPrefix["HEADER"] = "^(#{1,6}\\s)";
 })(KeywordPrefix || (KeywordPrefix = {}));
 StepKeywordType.UNKNOWN, PickleStepType.UNKNOWN, StepKeywordType.CONTEXT, PickleStepType.CONTEXT, StepKeywordType.ACTION, PickleStepType.ACTION, StepKeywordType.OUTCOME, PickleStepType.OUTCOME, StepKeywordType.CONJUNCTION;
-//#endregion
-//#region src/touch-set-correction/touch-set-correction.mts
+// src/touch-set-correction/touch-set-correction.mts
 function stripTrailingSlash$1(root) {
 	return root.endsWith("/") ? root.slice(0, -1) : root;
 }
@@ -192,8 +190,7 @@ function discoverLayouts(root, cwd) {
 	}
 }
 if (process.argv[1] && false);
-//#endregion
-//#region src/blast-estimate/blast-estimate.mts
+// src/blast-estimate/blast-estimate.mts
 const SKIP_DIRS = /* @__PURE__ */ new Set([
 	"node_modules",
 	".git",
@@ -597,5 +594,4 @@ function main(argv) {
 	return result.error ? 1 : 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { computeFanInMap, discoverWorkAreas, estimateBlast, levelFromScore, lineUp, main, parseDeclared, parseLayoutFlag, parseSensitivePaths, projectsCoveredEntirely, readSensitivePaths, renderResultToon, scoreBlast };

@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, lstatSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { dirname, join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/check-plugin-manifests/check-plugin-manifests.mts
+// src/check-plugin-manifests/check-plugin-manifests.mts
 /**
 * Directories that hold a manifest one level below the plugin root.
 *
@@ -246,5 +246,4 @@ function main(argv) {
 	return findings.length === 0 ? 0 : 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { discoverManifests, extractPointers, filesCovers, findSymlinks, formatReport, main, owningPackage, pluginRootOf, sweep };

@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { execFileSync } from "node:child_process";
 import { realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-//#region src/check-partition-quality/check-partition-quality.mts
+// src/check-partition-quality/check-partition-quality.mts
 /** Below this many usable multi-file commits, a rate would be noise — report, never score. */
 const DEFAULT_FLOOR = 20;
 function parseGitLog(stdout, inScope) {
@@ -231,5 +231,4 @@ function main(argv, context = { readHistory }) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { DEFAULT_FLOOR, PARTITIONS, collisionRate, isThin, main, meanNodesTouched, measure, parseGitLog, readHistory, render, renderOne, shuffledControl, toJson, withinNodeCoChangeRatio };

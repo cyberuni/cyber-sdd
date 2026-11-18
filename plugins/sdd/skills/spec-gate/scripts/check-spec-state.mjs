@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/spec-gate/check-spec-state.mts
+// src/spec-gate/check-spec-state.mts
 const LIFECYCLE_STATUSES = [
 	"draft",
 	"approved",
@@ -418,5 +418,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { checkGateFloor, checkNode, checkReferencedArtifacts, checkReferencedArtifactsInFiles, checkSpec, checkUseCaseCoverage, checkUseCaseCoverageInFiles, discoverNodeDirs, discoverSpecDirs, extractPathRefs, extractUseCaseScenarioRefs, filterProseMdInSpecTree, findSiblingFeature, introducedPathRefs, isUnderSpecTree, main, parseFilesArg, parseLedgerGates, parseNode, parseSpecState, readLedgerText, resolveScenarioRef };

@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/init/wire-statusline.mts
+// src/init/wire-statusline.mts
 const STATUS_FILE = ".agents/sdd/statusline";
 const SETTINGS_FILE = ".claude/settings.json";
 const GITIGNORE_FILE = ".gitignore";
@@ -164,5 +164,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { GITIGNORE_FILE, GLOBAL_SETTINGS_FILE, SETTINGS_FILE, STATUS_FILE, addGitignoreEntry, buildCommand, composeStatusLine, detectStatusLines, isGitRepo, main, parseCommand, readStatusLineCommand, wireStatusline };

@@ -5,7 +5,7 @@ import { execSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import { isAbsolute, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/vendor/gherkin-cli.mjs
+// src/vendor/gherkin-cli.mjs
 var AstNode = class {
 	ruleType;
 	subItems = /* @__PURE__ */ new Map();
@@ -6251,8 +6251,7 @@ function parse(paths, opts = {}, deps = nodeReadsFile) {
 		files
 	};
 }
-//#endregion
-//#region src/verify-scenarios/verify-scenarios.mts
+// src/verify-scenarios/verify-scenarios.mts
 function underRoot(root, p) {
 	return isAbsolute(p) ? p : join(root, p);
 }
@@ -6535,5 +6534,4 @@ function main(argv) {
 	return exitCode(report);
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { comparisonKey, exitCode, foldResults, formatText, formatToon, getScenarioKeys, junitResultsFromXml, junitTestcaseToResult, main, parseJUnitTestcases, parseSourcesToml, readSourcesConfig, renderReport, resolveSources, runSource, scenarioKeysFromParse, underRoot, unescapeXml };

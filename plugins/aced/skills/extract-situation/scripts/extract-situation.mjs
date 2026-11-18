@@ -3,7 +3,7 @@
 globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.5.3","entry":"skills/extract-situation/scripts/extract-situation.mjs","commands":{}};
 import { readFileSync, realpathSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-//#region src/extract-situation/extract-situation.mts
+// src/extract-situation/extract-situation.mts
 function parseScenarios(text) {
 	const lines = text.split("\n");
 	const scenarios = [];
@@ -173,5 +173,4 @@ function main(argv) {
 	}
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { AmbiguousScenarioError, EmptySituationError, RowOutOfRangeError, ScenarioNotFoundError, UnparseableFeatureError, extractSituation, formatJson, formatMarkdown, main, parseScenarios };

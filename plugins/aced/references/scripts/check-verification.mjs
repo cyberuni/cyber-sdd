@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.5.3","entr
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { basename, dirname, join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/skill-design/check-verification.mts
+// src/skill-design/check-verification.mts
 const SKIP = /* @__PURE__ */ new Set([
 	"node_modules",
 	"ledger",
@@ -69,5 +69,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { check, countScenarios, findRoot, findSuites };

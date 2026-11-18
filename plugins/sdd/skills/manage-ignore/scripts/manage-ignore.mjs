@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/manage-ignore/manage-ignore.mts
+// src/manage-ignore/manage-ignore.mts
 const IGNORE_FILE = ".agents/sdd/.sddignore";
 const SKIP_DIRS = /* @__PURE__ */ new Set([
 	"node_modules",
@@ -281,5 +281,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { addRule, inducePatterns, isRuleLine, isValidPattern, listRules, main, matchesPattern, previewPattern, readIgnoreLines, removeRule, splitLines };

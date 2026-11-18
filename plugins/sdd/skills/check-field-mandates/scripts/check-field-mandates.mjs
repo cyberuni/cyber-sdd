@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/check-field-mandates/check-field-mandates.mts
+// src/check-field-mandates/check-field-mandates.mts
 /** UPPER_CASE, or snake_case with at least one underscore — a bare lowercase word is prose. */
 const TOKEN = "(?:[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*|[a-z][a-z0-9]*(?:_[a-z0-9]+)+)";
 const TOKEN_ITEM = `${TOKEN}(?:\\(s\\))?`;
@@ -249,5 +249,4 @@ function main(argv) {
 	return findings.length === 0 ? 0 : 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { check, discoverDefinitions, formatReport, isDefinitionPath, main, parseDefinition };

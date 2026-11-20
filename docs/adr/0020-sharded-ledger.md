@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 Partially supersedes the single-file/`merge=union` ledger storage decision in
 [ADR-0015](0015-three-tier-provenance-and-plan-handoff.md). The three-tier model (plan / ledger /
 public trail) is unchanged; only the durable ledger's **on-disk shape** changes.

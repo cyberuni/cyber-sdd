@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** neither. It governs how ACED ships its authored standards, not either SDD version.
+
 Supersedes the **authored governance** row of [ADR-0035](0035-authored-governances-ship-as-package-files.md).
 ADR-0035's other row, that a plugin's own actor bar stays a skill, is unchanged.
 

@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 ## Context
 
 SDD's governance resolution decides, for a touched file's **artifact-type**, which

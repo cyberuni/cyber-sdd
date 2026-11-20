@@ -6,6 +6,8 @@ Accepted. The **authored governance** row is superseded by
 [ADR-0036](0036-authored-standards-ship-as-references.md): those documents now ship from
 `plugins/aced/references/` and load through the `reference` skill.
 
+**SDD version:** neither. It governs how ACED ships its authored standards, not either SDD version.
+
 Refines [ADR-0013](0013-governance-skills.md) — it carves out the case ADR-0013 did not have:
 a governance this repo *authors for other repositories to consume*. ADR-0013's core decision,
 that reference content a plugin's own agents load is a skill, is unchanged.

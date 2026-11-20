@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 ## Context
 
 The SDD **gateway** routes by scanning every `.agents/specs/*/spec.md` **frontmatter only** —

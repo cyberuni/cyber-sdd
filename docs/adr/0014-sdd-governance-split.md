@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 > **Update note (2026-06-28):** The split landed and expanded. Renames since:
 > `spec-governance` → `spec-format-governance` + `suite-format-governance`; the actors are now
 > oracle/builder/architect (`framer` → `oracle`); `sdd-operator` → `conductor`;

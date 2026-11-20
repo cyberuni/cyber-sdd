@@ -4,6 +4,8 @@
 
 Accepted — **amended**, see [Amendment](#amendment--the-orphan-refs-reach-stops-at-the-clone-mission-graph-ref-propagation).
 
+**SDD version:** v1 (`plugins/sdd`).
+
 Scope: this ADR records the **store** decision — where and how the mission graph persists. The
 compiler/scheduler *model* that reads and grows the graph (lowering, hazards, `ready`/`cycles`
 semantics) is [ADR-0025](0025-mission-graph-compiler-scheduler-model.md).

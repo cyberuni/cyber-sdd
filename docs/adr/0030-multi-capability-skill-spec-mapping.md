@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 ## Context
 
 A single skill (or CLI entry point) often implements more than one capability. Examples in this

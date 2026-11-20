@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 > **Update note (2026-06-28):** The three-tier model below is current, but two terms drifted.
 > The durable ledger is now `ledger.jsonl` — the name `combat-log.jsonl` now refers to the
 > per-mission `*.log.jsonl` (mid-flight tier). And the plan is **tracked, not gitignored** —

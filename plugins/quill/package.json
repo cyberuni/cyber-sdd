@@ -1,6 +1,6 @@
 {
 	"name": "cyber-quill",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"private": true,
 	"description": "Documentation SDD plugin. Spec, write, and verify documentation — guides, tutorials, articles, reference pages, and READMEs — as implementation artifacts with verifiable structure.",
 	"repository": {

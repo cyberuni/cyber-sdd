@@ -1,5 +1,18 @@
 # cyber-sdd
 
+## 0.8.0
+
+### Minor Changes
+
+- 9bbfdaa: Upgrade to clibuilder 12.2 and follow its AXI conventions: a bare `cyber-sdd-2` answers with its `bin`, `description` and `version` (TOON) instead of printing help, and the default command carries an example.
+
+### Patch Changes
+
+- 8365430: ACED retires `improve-skill`. Check a skill with `/cyber-agentkit:skill check`; `pnpm verify` gates skills through it. ACED ships a `skill-design.aspects.verification` reference that verifies a skill through the frozen `.feature` suite that names it. Every skill now ends with a `## Done when` section.
+- 257fa32: `spec-gate` runs `gherkin-cli` through a forwarding script, `skills/spec-gate/scripts/gherkin-cli.mjs`, pinned to `gherkin-cli` 0.2.1, instead of `npx gherkin-cli@0.2.1`.
+- 72b0768: `start-mission` clears a warm unit through a forwarding script, `skills/start-mission/scripts/cyberlegion.mjs`, pinned to `cyberlegion` 2.1.0, instead of `npx cyberlegion@<version> unit clear`.
+- 625ae7a: Rebuild the bundled skill scripts with `universal-plugin` 0.22.0.
+
 ## 0.7.3
 
 ### Patch Changes

@@ -1,5 +1,0 @@
----
-"cyber-sdd-2": minor
----
-
-The `spec` skill gains a Preview route. It renders the whole spec as one page linked by ID, then builds the artifact the spec specifies from the spec alone; each place the build has to guess is a blind spot, fixed in the spec or put under Open questions. A source document with no spec yet is drafted to a scratch folder first. The steps live in `references/preview.md`. A parent criterion that holds for every use case under it can cite `UC*`, which V5 expands to every use case of the parent and its children. A bare ID always means the spec's own, and a linked source's IDs are cited with the source's name. C10 now requires evidence that a criterion depending on an external system can be met; a linked source that verified it counts. A source that already uses IDs from an earlier draft keeps them, and the split steps put the table of children under the parent's Use cases and give the parent an outcome of its own, not the sum of its children's. A run that makes several independent decisions draws one flowchart per decision.

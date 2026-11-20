@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Compiled by `universal-plugin plugin build` from src/plan-retirement/retire-plans.mts. Edit the source, not this file.
-globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entry":"skills/plan-retirement/scripts/retire-plans.mjs","commands":{}};
+globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.8.0","entry":"skills/plan-retirement/scripts/retire-plans.mjs","commands":{}};
 import { existsSync, readFileSync, readdirSync, realpathSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";

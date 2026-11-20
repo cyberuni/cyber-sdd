@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 Amends [ADR-0033](0033-name-the-three-spec-levels.md) (the node level is no longer path-bound to
 the project-spec tree). Refines [ADR-0028](0028-suite-design-test-levels.md) (bounds how far the
 suite may move down). Upholds [ADR-0016](0016-impl-judge-verification-independence.md) without

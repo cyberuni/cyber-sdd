@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 ## Context
 
 When a spec is written **after** the implementation already exists (a *backfill*), two failure modes

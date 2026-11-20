@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** neither. It governs how any skill is selected, not either SDD version.
+
 Amends [ADR-0005](0005-skill-taxonomy.md) (adds the Selection and Visibility axes).
 Supersedes the dual-marker decision in [ADR-0013](0013-governance-skills.md).
 

@@ -1,5 +1,5 @@
 ---
-description: How a skill runs its own scripts and resolves a released CLI it does not ship — call classification, upx and pinned npx fallbacks, optional lookups, and error handling.
+description: How a skill runs its own scripts and a CLI it does not compile in — call classification, forwarding scripts, pinned npx for a skill with no forwarder, optional lookups, and error handling.
 extends: [default]
 ---
 
@@ -9,92 +9,97 @@ Rules for running a command line tool from a skill. Apply when authoring or audi
 
 | What the skill runs | How it runs |
 | --- | --- |
-| A script the skill ships | `node <skill-dir>/scripts/<file>` |
-| A released npm CLI the skill does not ship | Local-first: `upx --local-only <pkg>@^<major>`, pinned `npx` only for a cold machine |
+| A script compiled into the skill | `node <this skill's folder>/scripts/<file>.mjs <args>` |
+| A CLI, the plugin's own or another package's | A forwarder: `node <this skill's folder>/scripts/<bin>.mjs <args>` |
+| A released CLI from a skill that has no plugin build | Pinned `npx -y <pkg>@<exact-version>` |
 | A tool assumed present (`git`, `gh`, `node`) | Bare name; probe once, fail loudly when missing |
 
-Resolve the runner once at the start of the workflow and reuse it for every later call.
+Every call a plugin skill makes to a CLI goes through a script in its own `scripts/`. The choice of what to run belongs in that script, not in the model's judgment: a smaller model runs exactly the line the skill gives it.
 
-## A script the skill ships
+## A script compiled into the skill
 
-The script is part of the skill folder, built into it, and run with plain `node`.
+The script is part of the skill folder and runs with plain `node`.
 
-- Invoke it as `node <skill-dir>/scripts/<file>`. Never through `npx`, `tsx`, a package manager exec, or a global install.
+- Invoke it as `node <this skill's folder>/scripts/<file>.mjs`. Never through `npx`, `tsx`, a package manager exec, or a global install.
 - Use Node built-ins only, or bundle every dependency into the script. The script must run from an unpacked skill folder with no `node_modules`.
 - Never reference a path outside the skill folder — a sibling skill, a plugin `bin/`, or the package root. Standalone and symlinked installs break such paths silently.
-- A git-sourced install has no built `scripts/`. Document the skill's own pinned fallback for that case: `npx -y <package>@^<version> <command>` with the same arguments.
+- Commit the built script. A git-sourced install has no build step, so the committed file is what it runs.
 
 Script placement and bundling are specified in **skill-design**; this document covers only how the script is invoked.
 
-## A released CLI the skill does not ship
+## A CLI the skill runs through a forwarder
 
-### Preferred — installed copies only
+A forwarder is a small script named after the CLI. It holds none of the CLI's code and passes every argument, stdio, and the exit code through. Each time it runs, it picks the CLI:
 
-```bash
-upx --local-only <pkg>@^<major> <subcommand>
+1. Walking up from its own real path, a `package.json` that is the package and declares the bin: run that checkout's bin. This is the development case, and a symlinked skill resolves to it too.
+2. Otherwise: `npx -y <package>@<version>`, with the version written in at build time.
+
+### Declare it
+
+Declare one forwarder per skill that runs the CLI, under `extensions["org.cyberuni.universal-plugin"].scripts` in `plugin.json`:
+
+```json
+"scripts": {
+  "skills/<skill>/scripts/<bin>.mjs": { "forward": "<bin>" },
+  "skills/<other-skill>/scripts/<other-bin>.mjs": { "forward": "<other-bin>", "package": "<other-pkg>", "version": "<exact-version>" }
+}
 ```
 
-- `upx` matches a semver **range** against copies already installed — `node_modules` from the current directory upward, nearest first, then the global root — and spawns that binary directly.
-- Pin a **major** range, never an exact version and never a dist tag. One installed copy then serves every caller on that major.
-- `--local-only` never falls back to `npx`. It exits **127** when nothing installed satisfies the range. Read 127 as "not installed", not as "the command failed".
-- `upx` is `@repobuddy/upx`. It is not ambient: it exists only after a global install, so probe `command -v upx` before using it.
+- With `forward` alone, the bin belongs to the plugin's own package. `plugin version` stamps its version with the plugin's.
+- For another package's CLI, name the `package` and pin an exact `version`. Read it with `npm view <pkg> version` when authoring. No stamp moves this pin; raise it by editing the entry.
+- Never a range and never a dist tag (`@latest`, `@next`).
 
-### Cold machine — pinned npx
+### Build and check it
+
+- Run `universal-plugin plugin build` and commit the forwarder it writes. Never edit the forwarder by hand.
+- Run `universal-plugin plugin build --check` in CI. It fails when a forwarder is missing, stale, or on another version.
+
+### Call it
+
+```bash
+node <this skill's folder>/scripts/<bin>.mjs <subcommand> <args>
+```
+
+- Write the same subcommand and arguments the CLI takes.
+- Write no `@<version>`, no run-time version lookup, and no runner fallback beside the line. The forwarder carries the pin and the fallback.
+
+## A skill with no forwarder
+
+A skill outside a plugin build, such as a standalone skill installed by `npx skills add`, has no forwarder. It calls the released CLI with a pinned `npx`:
 
 ```bash
 npx -y <pkg>@<exact-version> <subcommand>
 ```
 
-- Exact version only. Never a range, never a dist tag (`@latest`, `@next`).
+- Exact version only. Never a range, never a dist tag.
 - Read the exact version with `npm view <pkg> version` when authoring, then write it into the skill. Do not resolve it at run time.
-- This is a bootstrap path: it costs a registry lookup on every call and requires network. Use it when `upx` is absent or exited 127 and the call must still succeed.
+- In your own checkout this runs the published CLI, not your change. Move the skill under a plugin build and use a forwarder when that matters.
 
-### Pattern
+## An optional lookup never fails the skill
 
-```bash
-# Resolve <pkg> once
-if command -v upx >/dev/null 2>&1 && upx --local-only <pkg>@^<major> --version >/dev/null 2>&1; then
-  CLI="upx --local-only <pkg>@^<major>"
-else
-  CLI="npx -y <pkg>@<exact-version>"
-fi
-$CLI <subcommand>
-```
-
-Replace `<pkg>` with the npm package name, `<major>` with the major the skill was tested against, and `<exact-version>` with a released version of that major.
-
-### An optional lookup never falls back
-
-When the call is a lookup that may legitimately find nothing — an optional override, an optional config — stop at the local tier:
+When the call is a lookup that may legitimately find nothing — an optional override, an optional config — read any non-zero exit as "no result":
 
 ```bash
-upx --local-only <pkg>@^<major> <subcommand> || true
+node <this skill's folder>/scripts/<bin>.mjs <subcommand> || true
 ```
 
-Exit 127, or any other non-zero exit, means "no result". The skill continues with its own default and never reaches for `npx`.
+The skill continues with its own default.
 
 ## Error handling
 
-Surface a missing tool; never proceed silently.
-
-```
-Error: <pkg> not available. Install one of:
-  npm install -g <pkg>            # global
-  pnpm add -D <pkg>               # repo-local devDependency
-```
-
-Distinguish the two failures when reporting: exit 127 from `upx --local-only` means nothing installed satisfies the range; a non-zero exit from the CLI itself means the command ran and failed.
+Surface a failed call; never proceed silently. A non-zero exit from a forwarder is the CLI's own exit code: the command ran and failed. A forwarder that cannot reach the CLI at all (no checkout and no network for `npx`) reports the cause on stderr and exits 1.
 
 ## Rules
 
 - Never hardcode `node_modules/.bin/<bin>`. The path is implementation-specific and breaks across workspaces and package managers.
 - Never rely on repo-specific package scripts (`pnpm <bin>`, `npm run <bin>`) — local conventions, not portable.
-- Never pass a range or a dist tag to `npx`; never pass an exact version to `upx --local-only`.
-- Never use `npx` for a call the skill makes repeatedly in one run.
-- A skill's own script never depends on a package runner. The pinned `npx` fallback belongs to the skill, not to the script.
+- Never write `npx`, `upx`, or `pnpm exec` for a CLI that has a forwarder in the skill.
+- Never pass a range or a dist tag to `npx`.
+- A skill's own compiled script never depends on a package runner.
 
 ## References
 
 Related references (load on demand): Load `skill-design` and `agent-tool-output` with the `reference` skill of `cyber-agentkit`.
 
-- <https://github.com/repobuddy/upx> — `upx` resolution order and the `--local-only` flag
+- <https://github.com/cyberuni/universal-plugin/blob/main/apps/web/src/content/docs/concepts/running-your-cli-from-skills.md> — the forwarder model and its setup
+- <https://github.com/cyberuni/universal-plugin/blob/main/packages/universal-plugin/.agents/spec/design/decisions/0022-skills-run-the-own-cli-through-a-forwarding-script.md> — ADR 0022, why a forwarder and not a bare `npx`

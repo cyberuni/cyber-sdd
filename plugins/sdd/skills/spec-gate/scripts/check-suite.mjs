@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { readFileSync, readdirSync, realpathSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/vendor/gherkin-cli.mjs
+// src/vendor/gherkin-cli.mjs
 var AstNode = class {
 	ruleType;
 	subItems = /* @__PURE__ */ new Map();
@@ -6185,8 +6185,7 @@ function validate(paths, _opts = {}, deps = nodeReadsFile) {
 		files
 	};
 }
-//#endregion
-//#region src/spec-gate/check-suite.mts
+// src/spec-gate/check-suite.mts
 const ADVERB_PATTERNS = [
 	"sometimes",
 	"usually",
@@ -6496,5 +6495,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { checkFilePaths, checkScenarioMap, checkSuite, discoverSuiteDirs, findDeadRubric, main, parseFilesArg, parseScenarioMap, parseSuite, runGherkinValidate };

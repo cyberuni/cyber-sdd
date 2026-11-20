@@ -47,6 +47,16 @@
 				"skills/spec-gate/scripts/check-spec-state.mjs": "src/spec-gate/check-spec-state.mts",
 				"skills/spec-gate/scripts/check-suite.mjs": "src/spec-gate/check-suite.mts",
 				"skills/spec-gate/scripts/classify-edit-class.mjs": "src/spec-gate/classify-edit-class.mts",
+				"skills/spec-gate/scripts/gherkin-cli.mjs": {
+					"forward": "gherkin-cli",
+					"package": "gherkin-cli",
+					"version": "0.2.1"
+				},
+				"skills/start-mission/scripts/cyberlegion.mjs": {
+					"forward": "cyberlegion",
+					"package": "cyberlegion",
+					"version": "2.1.0"
+				},
 				"skills/touch-set-correction/scripts/touch-set-correction.mjs": "src/touch-set-correction/touch-set-correction.mts",
 				"skills/verify-scenarios/scripts/verify-scenarios.mjs": "src/verify-scenarios/verify-scenarios.mts"
 			}

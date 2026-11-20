@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/check-plan-safety/check-plan-safety.mts
+// src/check-plan-safety/check-plan-safety.mts
 const LEAK_PATTERNS = [
 	{
 		kind: "home-abs-path",
@@ -105,5 +105,4 @@ function main(argv) {
 	return check && leaks.length > 0 ? 1 : 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { LEAK_PATTERNS, collectLeaks, main, scanText, toToon };

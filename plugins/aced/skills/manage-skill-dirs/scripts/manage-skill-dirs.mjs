@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.5.3","entr
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/manage-skill-dirs/manage-skill-dirs.mts
+// src/manage-skill-dirs/manage-skill-dirs.mts
 const SKILL_DIRS_CONFIG = ".agents/aced/skill-dirs.toml";
 const SKIP_DIRS = /* @__PURE__ */ new Set([
 	"node_modules",
@@ -298,5 +298,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { FIXED_SKILL_DIRS, addSkillDir, editSkillDir, inducePatterns, isFixedConvention, isValidPattern, listSkillDirs, main, parseSkillDirsToml, previewPattern, readCustomSkillDirs, removeSkillDir, serializeSkillDirs };

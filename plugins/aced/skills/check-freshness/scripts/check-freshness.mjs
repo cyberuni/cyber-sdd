@@ -5,7 +5,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/check-freshness/check-freshness.mts
+// src/check-freshness/check-freshness.mts
 /** A file entry hashes the bytes read. */
 function hashFile(abs) {
 	return createHash("sha256").update(readFileSync(abs)).digest("hex");
@@ -386,5 +386,4 @@ function main(argv) {
 	return decision.verdict === "current" ? 0 : 1;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { MEASURED_RESULTS_DIR, RESULTS_DIR, canonicalListing, collectResultFiles, decideVerdict, findFrozenFeature, findRepoRoot, hashDirListing, hashFile, incoherence, main, measuredIncoherence, readSubject, scanMeasured, scanResults, selectNewest, selectNewestMeasured };

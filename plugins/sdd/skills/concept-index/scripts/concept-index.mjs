@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, readFileSync, readdirSync, realpathSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/concept-index/concept-index.mts
+// src/concept-index/concept-index.mts
 const BEGIN_MARKER = "<!-- BEGIN generated: by-concept (project-spec/concept-index) -->";
 const END_MARKER = "<!-- END generated: by-concept -->";
 const ANCHOR_HEADING = "## Invariants";
@@ -179,5 +179,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { BEGIN_MARKER, END_MARKER, applySection, extractSection, facetKind, groupByConcept, main, parseFrontmatter, parseScalarOrFlow, renderSection, renderTable, scanProjectSpec };

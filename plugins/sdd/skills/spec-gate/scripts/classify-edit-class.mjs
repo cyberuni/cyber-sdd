@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync, realpathSync } from "node:fs";
 import path, { dirname, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/vendor/gherkin-cli.mjs
+// src/vendor/gherkin-cli.mjs
 var AstNode = class {
 	ruleType;
 	subItems = /* @__PURE__ */ new Map();
@@ -6318,8 +6318,7 @@ function diff(paths, opts, deps = gitReadsDiff) {
 		files
 	};
 }
-//#endregion
-//#region src/spec-gate/classify-edit-class.mts
+// src/spec-gate/classify-edit-class.mts
 function hasFeatureFrozenTag(text) {
 	const lines = text.split("\n");
 	const featureIdx = lines.findIndex((l) => /^\s*Feature:/i.test(l));
@@ -6575,5 +6574,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { classifyFile, classifyFiles, classifyFromDiff, classifyFromFileResult, formatText, hasFeatureFrozenTag, main, parseRenameStatus, runGherkinDiff };

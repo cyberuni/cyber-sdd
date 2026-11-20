@@ -4,7 +4,7 @@ globalThis.__SKILL_SCRIPT__ = {"package":null,"bin":null,"version":"0.7.3","entr
 import { existsSync, readFileSync, readdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-//#region src/discover-specs/discover-specs.mts
+// src/discover-specs/discover-specs.mts
 const LIFECYCLE_STATUSES = /* @__PURE__ */ new Set([
 	"draft",
 	"approved",
@@ -317,5 +317,4 @@ function main(argv) {
 	return 0;
 }
 if (process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href) process.exit(main(process.argv.slice(2)));
-//#endregion
 export { LIFECYCLE_STATUSES, classifyLocation, collectSpecs, deriveName, discoverSpecFiles, expandAnchor, main, parseAnchorsToml, parseFrontmatter, readAnchors, resolveByName, toToon };

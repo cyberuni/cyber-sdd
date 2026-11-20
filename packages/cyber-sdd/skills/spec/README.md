@@ -5,6 +5,17 @@ outsider can check without reading the code. A design spec pairs **intent** (the
 capability does about it) with **criteria** (boolean statements about the outcome, each bound to a use case).
 User-invocable.
 
+## Research
+
+- Record: the research topic
+  [design-spec-criteria](https://github.com/cyberuni/cyber-sdd/tree/main/.research/design-spec-criteria), whose
+  `conclusion.md` holds the verdict and the owner decisions (D8 onward) the rules come from.
+- Prior art: the `sdd` plugin's spec bars (`oracle-spec-governance`, `spec-format-governance`,
+  `builder-spec-governance`, `architect-spec-governance`). They judge a first-generation project-spec node and its
+  `.feature` suite; this skill writes and judges a design spec, which carries no `.feature` suite.
+- Change to the Intent: it kept the spec outcome-only, with rationale and alternatives linked out instead of written
+  in (D8).
+
 ## When to use
 
 - Spec a new capability, or backfill a spec for code that already exists.
@@ -51,8 +62,7 @@ plugin's `start-mission`, not here.
 
 The spec is standing: it is compared against on every change. Rationale lives in a linked home, not in the spec. The
 decision graph format is in [`references/decision-graph.md`](references/decision-graph.md). The reasons for each rule
-are in the research topic
-[`.research/design-spec-criteria`](../../../../.research/design-spec-criteria/conclusion.md).
+are in the research record under [Research](#research).
 
 ## Install
 

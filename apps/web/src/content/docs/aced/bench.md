@@ -7,11 +7,11 @@ Part of the [ACED plugin](/aced/overview/) — see that page for install instruc
 
 **Invoked:** by name only — `/bench`, or a tool handing off with its own suite
 
-Measures whether a change makes real work turn out better or worse — pass rate, turns, tokens, wall time — by running the agent headless in throwaway checkouts, grading each run with a shell `check`, and comparing two arms with permutation tests. Where [`compare`](/aced/compare/) diffs simulated scores, `bench` measures for real, at a price you approve first.
+Measures whether a change makes real work turn out better or worse — pass rate, turns, tokens, wall time — by running the agent headless in throwaway checkouts, grading each run with a shell `check`, and comparing two arms with permutation tests. Where [`compare-aced`](/aced/compare-aced/) diffs simulated scores, `bench` measures for real, at a price you approve first.
 
 ## What it does
 
-1. Re-asks whether real runs can answer the question: a wording-only change, or an outcome no shell check can decide, goes to [`compare`](/aced/compare/) and nothing is planned.
+1. Re-asks whether real runs can answer the question: a wording-only change, or an outcome no shell check can decide, goes to [`compare-aced`](/aced/compare-aced/) and nothing is planned.
 2. Asks which suite to use when none is named, and offers the engine's `init` when the suite has no task set — it never guesses a suite or writes tasks.
 3. Turns the request into arms — two git refs, two package versions, or with and without one file. With no arms named, it measures HEAD against the suite's committed baseline, after checking the baseline is a version the engine can read.
 4. Plans without spending and shows the counts, model, ceiling, estimate, permission mode (which applies only inside the throwaway checkout), and every warning.

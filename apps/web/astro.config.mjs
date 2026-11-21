@@ -33,10 +33,10 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', link: '/aced/overview/' },
 						{ label: 'run', link: '/aced/run/' },
-						{ label: 'report', link: '/aced/report/' },
-						{ label: 'compare', link: '/aced/compare/' },
+						{ label: 'report-aced', link: '/aced/report-aced/' },
+						{ label: 'compare-aced', link: '/aced/compare-aced/' },
 						{ label: 'bench', link: '/aced/bench/' },
-						{ label: 'improve', link: '/aced/improve/' },
+						{ label: 'enhance-aced', link: '/aced/enhance-aced/' },
 						{ label: 'add-scenario', link: '/aced/add-scenario/' },
 						{ label: 'define-skill', link: '/aced/define-skill/' },
 						{ label: 'define-agent', link: '/aced/define-agent/' },

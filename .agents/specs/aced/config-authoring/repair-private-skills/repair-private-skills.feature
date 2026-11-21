@@ -5,7 +5,7 @@ Feature: repair-private-skills — validate and repair repo-private skill hygien
   symlink or a missing metadata.internal: true flag. validate-private is read-only and reports
   issues; repair-private writes fixes, deleting the stray symlink and inserting the missing
   metadata, and never writes outside .agents/skills. Discovering skills across all sources is
-  list-skills; maintaining the runner-def family is manage-model-runners.
+  list-skills; maintaining the runner-def family is config-model-runners.
   Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Reach ----

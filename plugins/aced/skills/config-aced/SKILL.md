@@ -1,0 +1,70 @@
+---
+name: config-aced
+description: Handles manage-level (non-mission) ACED work — inspecting or maintaining the agent-config tooling ACED evaluates, such as "set up the per-model runner agents", "list the model runners", "list the installed skills", or "validate/repair the repo-private skills". Routes to the matching engine; it does not author a config (define-agent / define-skill) or change what ACED specifies (start-mission).
+---
+
+# config-aced
+
+The **manage-level** front door to ACED — the user-facing handler for **non-mission** work on the
+agent-config tooling corpus. Where `define-agent` / `define-skill` **author** a config and `run` /
+`add-scenario` **score** one, `config-aced` does the work that is neither: **inspect and maintain** the
+tooling ACED evaluates.
+
+`config-aced` is a **thin dispatcher**: it classifies a manage request and **loads the matching engine in
+the current session**, holding **no production logic**, loading **no governance**, and writing **no
+contract state**. It **opens no CR**, **invokes no gate**, and **performs no behavior change** itself.
+
+> **Manage picks no model.** The model + effort a piece of work needs is set by the **engine you
+> load**. The loaded engine advises; the user switches manually. (`config-aced` cannot switch the session
+> model itself.)
+
+## Intake
+
+- **Fast path — skip the menu.** When the invocation already **names the operation** — "set up the
+  model runners", "list the runners", "remove the haiku runner" — load the matching engine directly,
+  no menu.
+- **Menu — bare invocation.** When `config-aced` is invoked with **no operation named**, do not guess. Ask
+  via `AskUserQuestion`, presenting **at most four options** (the tool rejects more than four) and
+  never truncating silently. The route groups today (**Config runners**, **Skill corpus**) fit the
+  four-option rule; as more manage-level engines land, group the menu so a bare invocation still
+  resolves within it.
+
+## The routing table — request → engine
+
+Classification routes a manage request to the **engine** that handles it. The table grows as more
+manage-level ACED engines land:
+
+| Group | Request | Engine (handler) |
+|---|---|---|
+| **Config runners** | set up / list / remove per-model runner agents used to benchmark skills | **`config-model-runners`** — internal, non-invokable; loaded here |
+| **Skill corpus** | list / inventory the installed skills across the repo, the user-global install, and the shipped package | **`list-skills`** — internal, non-invokable; loaded here |
+| **Skill corpus** | validate / repair repo-private skill metadata under `.agents/skills` | **`repair-private-skills`** — internal, non-invokable; loaded here |
+| **Skill corpus** | list / add / remove / preview the extra skill-scan locations the validate engine uses | **`config-skill-dirs`** — internal, non-invokable; loaded here |
+
+## Load the engine in-session
+
+When the route resolves, **load the matched engine in the current session** and run it directly —
+**spawn nothing**. Write-capable operations stay **owned by their engine**: `config-model-runners`
+writes its runner agent-def files and their symlinks; `repair-private-skills` writes only under
+`.agents/skills`; `config-skill-dirs` writes only `.agents/aced/skill-dirs.toml`; `list-skills` is
+read-only. `config-aced` only routes.
+
+## Non-mission — the boundary
+
+`config-aced` maintains and inspects the ACED tooling corpus; it **never changes what ACED specifies**.
+
+- **Opens no CR, invokes no gate, writes no `status` / `approval`.** Those belong to `start-mission`
+  and the internal gates.
+- **Authoring is not manage.** A request to **create or improve** an agent definition or a workflow
+  skill is redirected to **`define-agent`** / **`define-skill`**, not handled here.
+- **Scoring is not manage.** A request to **run or score** a config's eval suite defers to the
+  **eval-run** skills (`run` / `compare-aced` / `report-aced`).
+- **A change to what ACED specifies** — adding or revising ACED's own behavior — is redirected to
+  **`start-mission`**, which opens a CR and runs the mission loop.
+- **Thin classifier.** Classifying loads **no governance** and holds **no production logic** — it
+  only loads the matched engine.
+
+## Done when
+
+- **C1.** The request was routed to the engine the routing table names for it, and that engine's skill was loaded in-session.
+- **C2.** No `spec.md`, `status`, `approval`, or freeze file was written.

@@ -38,7 +38,7 @@ sibling that carries the same config vocabulary:
 | a workflow that should **auto-trigger** from the model's own judgment | `define-skill` |
 | a **reference-only rule set / governance** other skills load but never execute as steps | the `reference` skill of `cyber-agentkit` |
 | **scoring** an existing config, or **adding** an eval case | `run` / `add-scenario` |
-| **diagnosing** why an existing command's evals fail | `improve` |
+| **diagnosing** why an existing command's evals fail | `enhance-aced` |
 
 A request that turns out to want an agent loaded into context (not a self-contained workflow) is
 handed to `define-agent` — do not scaffold a companion-command shape here.

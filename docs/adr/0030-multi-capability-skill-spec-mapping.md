@@ -8,7 +8,7 @@ Accepted
 
 A single skill (or CLI entry point) often implements more than one capability. Examples in this
 repo: `init-aced` registers the ACED role-map **and** ensures the run-output directory is
-git-ignored; the `manage` dispatchers classify a request and fan out to several engines; the
+git-ignored; the `config-aced` and `manage` dispatchers classify a request and fan out to several engines; the
 `cyberfleet` / `cyber-mux` CLIs are facade entry points that dispatch to many component
 capabilities.
 

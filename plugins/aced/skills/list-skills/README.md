@@ -1,6 +1,6 @@
 # list-skills
 
-Internal, non-invokable ACED engine — loaded in-session by the `manage` gateway, not triggered
+Internal, non-invokable ACED engine — loaded in-session by the `config-aced` gateway, not triggered
 directly. It reports what skills are installed.
 
 ## What it does

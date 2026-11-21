@@ -55,7 +55,7 @@ When `node` is absent, an agent performs the same derivation by hand: grep the p
 
 Read-only — it writes nothing and acts on no finding. It does not fix a leak (the author scrubs it),
 does not check gate legality (`spec-gate`), and does not audit node-shape (`check-spec-structure`).
-It is loaded by the `corpus` gateway (Audit & align) for an on-demand scan and by `pause-mission`
+It is loaded by the `manage` gateway (Audit & align) for an on-demand scan and by `pause-mission`
 before a checkpoint commit.
 
 ## Done when

@@ -55,7 +55,7 @@ The last three are the **transient planning briefs**. They are **optional** (mos
 
 The briefs are subject to the same **safe-to-publish floor** as the rest of the tracked plan tree (repo-relative paths only, no machine-local locations) — the reason `start-mission` brings machine-local design content **into** the repo as a `<cr-ref>.design.md` rather than linking it.
 Concurrent missions never collide on it because each plan is keyed by `<cr-ref>` (source-qualified) and a CR is claimed by exactly one worktree at a time (the source-claim lock, `../intake/README.md`) — **not** because of gitignore.
-`.agents/plans` is the real, tool-agnostic home; for Cursor interop the SDD `init-sdd` skill symlinks `.cursor/plans → .agents/plans` so a plan written by either tool is seen by both (setup + migration: `../plugin/README.md`).
+`.agents/plans` is the real, tool-agnostic home; for Cursor interop the SDD `init` skill symlinks `.cursor/plans → .agents/plans` so a plan written by either tool is seen by both (setup + migration: `../plugin/README.md`).
 The two faces below describe the **durable** record; the chatty mid-flight lines live in the plan.
 
 ### Plan frontmatter (Cursor-compatible)

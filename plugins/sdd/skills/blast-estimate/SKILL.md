@@ -26,7 +26,7 @@ of the SDD project spec (repo-only) carries the full contract and vocabulary.
   See *The reference matcher* below: a bare id alone is **not** how real prose references an area.
 - **sensitivity** — whether a resolved area is **marked** in the opt-in
   `.agents/sdd/sensitive-paths.toml` — a `sensitive = [ "id", ... ]` string array, parsed
-  line-anchored and lenient exactly as `config-spec-anchors` parses `anchors = [ … ]`, so a leading
+  line-anchored and lenient exactly as `manage-spec-anchors` parses `anchors = [ … ]`, so a leading
   comment, a trailing comment, or a neighbouring key are all ordinary TOML and parse. A file with no
   `sensitive` array at all is malformed and fails loud. **Only an absent file (`ENOENT`) is benign** —
   no area is sensitive, not an error. **Every other read failure fails loud** — unparseable,

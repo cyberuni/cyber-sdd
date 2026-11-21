@@ -35,7 +35,7 @@ The gateway resolves intent to a skill via a two-level menu when the request is 
 | User intent | Handler |
 |---|---|
 | Make any change to the project (add, revise, implement, land) | `start-mission` |
-| Manage the corpus — bootstrap, inspect, audit, housekeeping | `corpus` |
+| Manage the corpus — bootstrap, inspect, audit, housekeeping | `manage` |
 | No suite-relevant behavior, or an ignored artifact | escape — no CR, no record |
 | Product / structure / process retrospective, field corrections | the campaign / formation / doctrine / forge loop → a new CR (`start-mission`) |
 

@@ -23,7 +23,7 @@ conductor runs at intake, before a task becomes a CR.
 **Subject** — deciding one artifact's tracking signal at intake, and reporting which step decided
 it. **Non-goals** — it does not decide artifact-type (`resolve-governances`' job), does not
 scaffold or gate anything, and does not write `.sddignore` — that file is curated by
-`config-ignore`, edited like a `.gitignore`.
+`manage-ignore`, edited like a `.gitignore`.
 
 | Trigger | Inputs | Outcome |
 |---|---|---|

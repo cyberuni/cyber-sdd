@@ -48,10 +48,10 @@ case, and contain the drift risk it reopens.
 - **Cons**: not persistent — every consumer (gateway, start-mission, CI) must pass the flag, so a
   project's own layout is not self-describing; poor UX for the exact "my specs live here always" need.
 
-### Option 3 (chosen): Opt-in persistent config, curated through a config skill
+### Option 3 (chosen): Opt-in persistent config, curated through a manage skill
 
 - **Pros**: persistent and self-describing per repo; additive (never replaces the fixed conventions);
-  drift contained by (a) opt-in — absent config ⇒ today's behavior, (b) a **config skill** that
+  drift contained by (a) opt-in — absent config ⇒ today's behavior, (b) a **manage skill** that
   lists / validates / previews before writing, and (c) fail-safe discovery that ignores a bad config.
 - **Cons**: it *is* the stored registry ADR-0017 forbade — a genuine reversal of that invariant for
   the extra-anchor case; a second source of truth now exists.
@@ -76,7 +76,7 @@ anchors = [
 - **Absent config ⇒ exactly today's behavior** (the fixed conventions alone).
 - **Discovery is fail-safe:** an unreadable or malformed `spec-anchors.toml` is ignored with a
   warning; discovery falls back to the fixed conventions and never crashes the gateway scan.
-- The config is **curated through the `config-spec-anchors` skill** (routed via the `corpus`
+- The config is **curated through the `manage-spec-anchors` skill** (routed via the `manage`
   gateway): list fixed (explained) + custom, CRUD the custom entries, induce a pattern from a sample
   path, and preview which project(s) a pattern matches before it is saved.
 
@@ -119,10 +119,10 @@ hot path is untouched, so the router test ADR-0017 optimized for still holds for
 - `discover-specs.mts` reads the config (no-deps TOML subset), merges declared anchors into the scan,
   and derives names for anchored specs (`<project>` capture → derived, else basename → guessed,
   frontmatter `name` → declared). Back-compat covered by a "no config ⇒ identical output" test.
-- New `config-spec-anchors` skill + `.mts` engine (`--list` / `--add` / `--remove` / `--edit` /
-  `--induce` / `--preview`), routed under `corpus`'s Housekeeping group.
+- New `manage-spec-anchors` skill + `.mts` engine (`--list` / `--add` / `--remove` / `--edit` /
+  `--induce` / `--preview`), routed under `manage`'s Housekeeping group.
 - Reconciled sites: `corpus/discovery` (spec + suite), the new `corpus/spec-anchors` node,
-  `gateway/corpus` (spec + skill), `corpus/README`, `lifecycle-governance`, and the skill docs that
+  `gateway/manage` (spec + skill), `corpus/README`, `lifecycle-governance`, and the skill docs that
   restate the three-location set.
 
 ## Related Decisions

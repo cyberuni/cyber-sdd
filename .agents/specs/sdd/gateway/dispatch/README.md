@@ -104,7 +104,7 @@ Realized by the **`sdd`** gateway skill — `plugins/sdd/skills/sdd/` — as its
 fan-out path: it runs `discover-plans --status approved` to build the queue and spawns the
 `sdd-automaton` once per approved brief, collecting each verdict packet before the next. No new
 user-facing skill is introduced; dispatch is the gateway's fan-out behavior, specced as its own node
-because it is a distinct, self-contained loop (as `../corpus/` is a distinct route).
+because it is a distinct, self-contained loop (as `../manage/` is a distinct route).
 
 ## Scenarios (colocated)
 

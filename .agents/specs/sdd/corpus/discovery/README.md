@@ -14,7 +14,7 @@ carries a frontmatter `status` in the lifecycle enum. The three conventions are 
 need no registry; **extra anchors are an opt-in override** for projects whose specs live
 off-convention, read from a persistent config (`.agents/sdd/spec-anchors.toml`). That config is a
 declared second source that can drift, so it is opt-in and **curated** through the `spec-anchors`
-config skill rather than derived. The concrete engine is the
+manage skill rather than derived. The concrete engine is the
 [`discover-specs`](../../../../../plugins/sdd/skills/discover-specs/) skill, which parses each spec's
 frontmatter only and emits the list as TOON.
 
@@ -115,4 +115,4 @@ the agent-config impl-judge. The node and its engine carry different names (capa
 - extended (GitHub #39, ADR-0019) — recognition widened from the three fixed conventions alone to
   those **plus** the opt-in extra anchors declared in `spec-anchors` config; the earlier
   "consults no path registry / pure derivation" invariant is superseded for the extra-anchor case
-  (the config *is* a declared registry), curated through the `spec-anchors` config skill.
+  (the config *is* a declared registry), curated through the `spec-anchors` manage skill.

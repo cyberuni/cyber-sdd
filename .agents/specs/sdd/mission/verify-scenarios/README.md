@@ -74,7 +74,7 @@ behaviors:
   sources), discovered under the **project's own root** (`--root`) — never a single repo-root path —
   so a monorepo member's config sits beside the code and reports it covers. A `.feature` is **not**
   assumed to map to one runner — vitest + playwright + others can each contribute a source, and
-  `tap` / `aced` slot into the same adapter seam later. [`../../gateway/corpus/README.md`](../../gateway/corpus/README.md)'s
-  `config-scenario-bridge` engine owns scaffolding this **one-time per-project wiring** — no producer
+  `tap` / `aced` slot into the same adapter seam later. [`../../gateway/manage/README.md`](../../gateway/manage/README.md)'s
+  `manage-scenario-bridge` engine owns scaffolding this **one-time per-project wiring** — no producer
   role authors it (the impl-producer authors the *binding tests* the config's sources report on, not
   the config itself).

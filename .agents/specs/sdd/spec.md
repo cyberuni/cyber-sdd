@@ -170,17 +170,17 @@ folder whose capability it serves; rules go to `design/`, cross-capability workf
 |---|---|
 | `artifact-type` | `design/artifact-type.md` (rule) |
 | `autonomy` | `design/autonomy-rubric.md` (rule) · `workflows/` (workflow) |
-| `delivery` | `mission/config-scenario-bridge/` (behavior) · `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) · `mission/verify-scenarios/` (behavior) · `workflows/` (workflow) |
+| `delivery` | `mission/delivery.md` (index) · `mission/handoff/` (behavior) · `mission/impl-judge/` (behavior) · `mission/impl-producer/` (behavior) · `mission/manage-scenario-bridge/` (behavior) · `mission/verify-scenarios/` (behavior) · `workflows/` (workflow) |
 | `doctrine` | `doctrine/plan-retirement/` (behavior) · `doctrine/scanner/` (behavior) |
 | `governance` | `common-governances/architect/` (reference) · `common-governances/builder/` (reference) · `common-governances/oracle/` (reference) · `common-governances/ownership/` (reference) · `design/actors-governance.md` (rule) · `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) |
-| `intake` | `intake/config-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
+| `intake` | `intake/manage-ignore/` (behavior) · `intake/plan-discovery/` (behavior) · `intake/resolve-tracking/` (behavior) |
 | `lifecycle` | `authoring/spec-gate/` (behavior) · `common-governances/gate-validation/` (reference) · `common-governances/lifecycle/` (reference) · `design/lifecycle-model.md` (rule) · `workflows/` (workflow) |
 | `orchestration` | `blast-estimate/` (behavior) · `collision-ladder/` (behavior) · `design/cr-concurrency.md` (rule) · `design/gherkin-cli-dependency.md` (rule) · `design/harness-spawning.md` (rule) · `design/loops.md` (rule) · `mission-graph/` (behavior) · `mission/conductor/` (behavior) · `ssa-lowering/` (behavior) · `touch-set-correction/` (behavior) |
 | `plugin` | `plugin/` (behavior) · `plugin/check-field-mandates/` (behavior) · `plugin/check-plugin-manifests/` (behavior) · `plugin/plugin-contract/` (reference) |
 | `provenance` | `common-governances/combat-log/` (reference) · `design/provenance-model.md` (rule) · `doctrine/plan-retirement/` (behavior) · `mission/checkpoint/` (behavior) · `workflows/` (workflow) |
 | `resolution` | `design/governance-resolution.md` (rule) · `design/specialists-and-squads.md` (rule) · `mission/resolution/` (behavior) · `workflows/` (workflow) |
-| `routing` | `gateway/` (behavior) · `gateway/corpus/` (behavior) · `gateway/dispatch/` (behavior) |
-| `setup` | `gateway/init-sdd/` (behavior) |
+| `routing` | `gateway/` (behavior) · `gateway/dispatch/` (behavior) · `gateway/manage/` (behavior) |
+| `setup` | `gateway/init/` (behavior) |
 | `spec-authoring` | `authoring/spec-format/` (reference) · `authoring/spec-gate/` (behavior) · `authoring/spec-producer/` (behavior) · `authoring/suite-format/` (reference) · `mission/solution-producer/` (behavior) |
 | `spec-structure` | `authoring/scaffold-project-spec/` (behavior) · `common-governances/spec-structure/` (reference) · `corpus/discovery/` (behavior) · `corpus/retired-terms/` (behavior) · `corpus/spec-anchors/` (behavior) · `corpus/spec-floor/` (behavior) · `design/project-unit.md` (rule) · `design/spec-layout.md` (rule) · `design/spec-structure.md` (rule) · `formation/` (behavior) · `project-spec/align-spec/` (behavior) · `project-spec/check-spec-references/` (behavior) · `project-spec/check-spec-structure/` (behavior) · `project-spec/concept-index/` (behavior) · `project-spec/digest/` (behavior) · `project-spec/partition-quality/` (behavior) · `project-spec/place-node/` (behavior) · `project-spec/scenario-overlap/` (behavior) |
 

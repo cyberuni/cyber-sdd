@@ -255,7 +255,7 @@ test('scenario: a malformed sensitive-paths file fails loud rather than reading 
 
 // The marking file is ordinary TOML, not one exact byte-shape. These pin the shapes a real project
 // writes — a whole-file-anchored regex rejected every one of them, so a valid file that marked an
-// area computed no level. The parser is line-anchored and lenient, matching config-spec-anchors'
+// area computed no level. The parser is line-anchored and lenient, matching manage-spec-anchors'
 // `anchors = [ … ]` parser (the sibling SKILL.md claims parity with — the claim must stay true).
 test('the marking file parses with a leading comment, a trailing comment, or a neighbouring key', () => {
 	for (const [shape, text] of [

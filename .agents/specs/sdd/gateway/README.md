@@ -49,7 +49,7 @@ Every scenario in [`gateway.feature`](./gateway.feature) maps to one of these be
 | **surface pending strategy** | on Council re-entry, surface the count of unratified `strategy` lines globbed from the root `ledger/` shards as an entry point — never draft or ratify |
 | **surface in-progress missions** | on re-entry, surface the resumable mission plan briefs (via the `discover-plans` engine) as a resume entry point — never resume or retire |
 | **status scan (help me choose)** | on a "help me choose" request, scan the project's spec statuses via the `discover-specs` engine to surface the most-actionable spec — reads frontmatter only, never a spec body |
-| **no spec found offers spec anchors** | when `discover-specs` finds no spec for a target project, offer `config-spec-anchors` alongside `scaffold-project-spec` — a missing spec may mean never scaffolded, or scaffolded off-convention and needing an anchor |
+| **no spec found offers spec anchors** | when `discover-specs` finds no spec for a target project, offer `manage-spec-anchors` alongside `scaffold-project-spec` — a missing spec may mean never scaffolded, or scaffolded off-convention and needing an anchor |
 | **headless → automaton** | with no user channel, the gateway spawns the **automaton** (the headless driver) instead of working in-session |
 | **dispatch the approved queue** | a "run the approved missions" request (or an unattended trigger) enters the **dispatch** loop (`./dispatch/README.md`) — run each `approved` brief headless in a fresh automaton, sequentially |
 | **ambiguity routes into a mission** | a request that may touch behavior but names no skill loads `start-mission` so the grill decides |
@@ -98,8 +98,8 @@ not an up-front classifier, so ambiguity is routed in and decided during explore
   chosen target onward (a change loads `start-mission`), it does not itself work the spec.
 - **No spec found offers spec anchors.** When `discover-specs` finds **no** spec for a target
   project, do not assume the project was simply never scaffolded — its spec may sit off the three
-  fixed conventions and need a declared **extra anchor**. Offer **`config-spec-anchors`**
-  (`./corpus/README.md`, curate `.agents/sdd/spec-anchors.toml`) alongside `scaffold-project-spec`
+  fixed conventions and need a declared **extra anchor**. Offer **`manage-spec-anchors`**
+  (`./manage/README.md`, curate `.agents/sdd/spec-anchors.toml`) alongside `scaffold-project-spec`
   as entry points, rather than routing straight to backfill.
 - **Never ask more than four options (hard rule).** A single `AskUserQuestion` carries at most four
   options — the intake tool rejects more than four (`too_big, maximum 4`). When a derived list would
@@ -135,7 +135,7 @@ is re-opened through a mission, never edited in place.
 | User intent | Skill (handler) |
 |---|---|
 | Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
-| Manage the corpus — setup & discovery, inspect, audit, or housekeeping (non-mission) | **`corpus`** (`./corpus/README.md`) — the corpus dispatcher; loads the matching corpus engine in-session |
+| Manage the corpus — setup & discovery, inspect, audit, or housekeeping (non-mission) | **`manage`** (`./manage/README.md`) — the manage dispatcher; loads the matching corpus engine in-session |
 | A task with no suite-relevant behavior, or confined to an ignored surface (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 | Manage domain plugins (install / list / remove), author a governance, or register to the marketplace | the **plugin** capability (`../plugin/README.md`) — *planned, deferred CR* |

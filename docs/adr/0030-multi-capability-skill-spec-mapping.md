@@ -8,7 +8,7 @@ Accepted
 
 A single skill (or CLI entry point) often implements more than one capability. Examples in this
 repo: `init-aced` registers the ACED role-map **and** ensures the run-output directory is
-git-ignored; the `config-aced` and `corpus` dispatchers classify a request and fan out to several engines; the
+git-ignored; the `config-aced` and `manage` dispatchers classify a request and fan out to several engines; the
 `cyberfleet` / `cyber-mux` CLIs are facade entry points that dispatch to many component
 capabilities.
 
@@ -74,7 +74,7 @@ subject of the new `setup/ignore-run-output/` node, while `registry/` keeps the 
 is **one** capability node whose `subject:` is the dispatcher (1:1). Its README carries the
 route→capability map (`## Use Cases` + `## Scenario map`, each route **linked to its target
 capability node**), and each route is a **frozen scenario**; every fan-out target is its own 1:1
-node. Example: `corpus`, and the `cyberfleet` / `cyber-mux` CLIs (where the code dispatch table is
+node. Example: `manage`, and the `cyberfleet` / `cyber-mux` CLIs (where the code dispatch table is
 the same map on a code substrate).
 
 In both patterns the internal map lives in the node README + `.feature` — the source of truth is the
@@ -92,7 +92,7 @@ frozen `.feature`; the README map reconciles to it.
   capability decomposition is an authoring/backfill concern, so it belongs to the spec, and putting
   it in the config would be a separation-of-concerns violation.
 - **Most machinery already exists.** `## Scenario map` is already defined as a one-to-one,
-  both-directions branch↔scenario table; `corpus` already realizes Pattern B by convention.
+  both-directions branch↔scenario table; `manage` already realizes Pattern B by convention.
 
 ### Bidirectional discoverability
 

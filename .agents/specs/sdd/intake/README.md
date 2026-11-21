@@ -55,7 +55,7 @@ per unit**, colocated with the unit's spec in its own folder.
 |---|---|---|---|
 | **plan-discovery** | behavioral | [`plan-discovery/`](./plan-discovery/README.md) | find the resumable missions by their plan briefs under `.agents/plans` — a present `*.plan.md` is an unretired mission; read frontmatter + the `## NEXT` lead only, tally its todos, emit a TOON list; the **gateway** runs it on entry to offer resume |
 | **resolve-tracking** | behavioral | [`resolve-tracking/`](./resolve-tracking/README.md) | resolve one artifact's tracking signal (tracked/ignored) — explicit override, then the optional `.agents/sdd/.sddignore` gitignore-syntax file, then the fixed agent-config kind default, then fail-closed to tracked; the **conductor** runs it at intake, before a task becomes a CR |
-| **manage-ignore** | behavioral | [`manage-ignore/`](./manage-ignore/README.md) | curate `.agents/sdd/.sddignore` — list rules, CRUD one rule, induce a pattern from a sample path, preview which paths it ignores/tracks before saving; loaded in-session by the **manage** gateway, writes only the ignore file |
+| **config-ignore** | behavioral | [`config-ignore/`](./config-ignore/README.md) | curate `.agents/sdd/.sddignore` — list rules, CRUD one rule, induce a pattern from a sample path, preview which paths it ignores/tracks before saving; loaded in-session by the **manage** gateway, writes only the ignore file |
 
 The CR **sources** adapter and the local CR **store** are deferred net-new units (see the open
 marker below); they are not yet behavioral specs.

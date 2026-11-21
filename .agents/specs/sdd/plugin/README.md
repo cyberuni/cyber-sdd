@@ -28,7 +28,7 @@ authored when that work lands).
 | Trigger | Inputs | Outcome |
 |---|---|---|
 | **ships-as-plugin manifest** — the SDD plugin is packaged | the SDD plugin directory | a `plugin.json` declaring `name` + the `skills` / `agents` pointers (the host-runtime contract) |
-| **workspace init** — SDD's own `init` skill prepares a repo | a repo | `.agents/plans/` ensured + `.cursor/plans` symlinked to it; idempotent and non-clobbering |
+| **workspace init** — SDD's own `init-sdd` skill prepares a repo | a repo | `.agents/plans/` ensured + `.cursor/plans` symlinked to it; idempotent and non-clobbering |
 | **contract-registry init-WRITE** — a domain plugin's `init-<plugin>` runs | a plugin + `.agents/universal-plugin.json` | the plugin's `sdd-plugins[]` entry written idempotently and self-reconciled to the current shape |
 
 Every scenario in [`plugin.feature`](./plugin.feature) maps to one of these three entry points.
@@ -60,7 +60,7 @@ external (`governance show universal-plugin`); this folder is the SDD layer on t
 
 ### Workspace init — the plan directory + Cursor interop
 
-SDD's own **`init`** skill (distinct from a domain plugin's `init-<plugin>`) prepares the
+SDD's own **`init-sdd`** skill (distinct from a domain plugin's `init-<plugin>`) prepares the
 workspace for mission plans (`../design/provenance-model.md`):
 
 - **Ensure the plan directory.** Create `.agents/plans/` (the tool-agnostic, **tracked** home
@@ -125,7 +125,7 @@ The write is idempotent and self-reconciling:
    (legacy `domains[]` + a shared `roles`/`governances`) to the `squads[]` shape.
 5. Write back without reordering or reformatting other entries.
 
-Version reconciliation is the init skill's job at install/upgrade/re-run, so the runtime
+Version reconciliation is the init-sdd skill's job at install/upgrade/re-run, so the runtime
 resolver in `../mission/` only ever reads a current-shape entry and never compares versions.
 
 ## Plugin & governance management — planned (deferred CR)

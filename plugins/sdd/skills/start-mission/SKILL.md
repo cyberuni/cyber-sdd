@@ -68,7 +68,7 @@ Get the CR into the system and create its plan brief — the plan is a step-1 ar
 
 Run authoring **in-session** as the conductor. Explore **builds the implementation to learn** (build-to-learn) — implementation is not deferred to deliver; the freeze is the boundary. The phase ends at the **spec gate**.
 
-**Mission statusline (opt-in).** On entering explore, overwrite `.agents/sdd/statusline` with `explore` — a single-line, best-effort write; a missing file / no `init`-wired reader is not an error, just skip it. This is the runtime status **value**, distinct from the lifecycle `status` frontmatter field, and is written **only while a mission is in flight** (never at rest, no heartbeat). Skip this write during the **Plan-mode preview** branch below — it writes no repo files at all.
+**Mission statusline (opt-in).** On entering explore, overwrite `.agents/sdd/statusline` with `explore` — a single-line, best-effort write; a missing file / no `init-sdd`-wired reader is not an error, just skip it. This is the runtime status **value**, distinct from the lifecycle `status` frontmatter field, and is written **only while a mission is in flight** (never at rest, no heartbeat). Skip this write during the **Plan-mode preview** branch below — it writes no repo files at all.
 
 **If plan mode is active, run the `### Plan-mode preview` (end of this step) instead of the live grill loop** — same reasoning, no repo writes, no build-to-learn spikes; the phase ends at **ExitPlanMode**, not the spec gate.
 
@@ -139,7 +139,7 @@ Also run the **plan-brief finalize backstop** (autonomy bar, below): reconcile t
 
 Before closing out, **reset the mission's warm units**: context-clear each (`unit clear`, see *Dispatch transport*; the pane stays warm) or tear down every warm unit this mission dispatched — none carries this mission's context into the next.
 
-Once landed, **do not spawn** the formation Warden. Surface a **one-line nudge** that a corpus-wide formation pass is due, pointing to `sdd:manage` ("audit the corpus structure" → `formation-loop`). The pass is **on-demand** — run deliberately, not auto-spawned on every landing; `sdd:manage` owns the trigger. Gate nothing on it.
+Once landed, **do not spawn** the formation Warden. Surface a **one-line nudge** that a corpus-wide formation pass is due, pointing to `sdd:corpus` ("audit the corpus structure" → `formation-loop`). The pass is **on-demand** — run deliberately, not auto-spawned on every landing; `sdd:corpus` owns the trigger. Gate nothing on it.
 
 ## Autonomy, provenance, and the hard floor (baked in)
 

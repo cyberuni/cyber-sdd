@@ -25,7 +25,7 @@
 				"skills/extract-situation/scripts/extract-situation.mjs": "src/extract-situation/extract-situation.mts",
 				"skills/init-aced/scripts/ensure-results-ignored.mjs": "src/init-aced/ensure-results-ignored.mts",
 				"skills/list-skills/scripts/list-skills.mjs": "src/list-skills/list-skills.mts",
-				"skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs": "src/manage-skill-dirs/manage-skill-dirs.mts",
+				"skills/config-skill-dirs/scripts/config-skill-dirs.mjs": "src/config-skill-dirs/config-skill-dirs.mts",
 				"skills/repair-private-skills/scripts/repair-private-skills.mjs": "src/repair-private-skills/repair-private-skills.mts",
 				"skills/contribute-skill/scripts/source.mjs": "src/contribute-skill/source.mts",
 				"skills/define-command/scripts/cyberplace.mjs": {

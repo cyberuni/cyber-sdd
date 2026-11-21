@@ -26,7 +26,7 @@ A `spec.md` is a spec only when **both** hold (ADR-0017, narrowed; extra anchors
   4. **extra anchors** — each config entry, a repo-relative pattern (`*` globs one segment, `**`
      globs zero or more segments at any depth, `<project>` globs and captures a name); **opt-in and
      additive** (absent config ⇒ only 1–3, so today's behavior is unchanged). Curated via the
-     `manage-spec-anchors` skill.
+     `config-spec-anchors` skill.
 - **Shape** — its frontmatter `status` is in the lifecycle enum (`draft | approved | implemented |
   deprecated`). A `spec.md` at any recognized location with **no** lifecycle `status` is skipped (so
   the scan never grabs a stray file by accident); a status-bearing `spec.md` at neither a fixed

@@ -75,7 +75,7 @@ Every scenario in [`handoff.feature`](./handoff.feature) maps to one of these be
 | **the agent-filed marker** | a filed follow-up carries a marker identifying it as agent-filed and names the mission it was discovered from, so intake can tell agent- from human-filed and the branching factor is measurable |
 | **no new floor** | handoff raises no new mandatory escalation; earlier hard floors already fired |
 | **the plan is kept, not landed, not retired** | the `.plan.md` stays in the PR as scratch, is not landed as a delivery artifact, and is not retired early |
-| **nudge the formation loop** | surface a reminder after landing that a corpus-wide formation pass is due (via `sdd:manage`) — spawn nothing, gate nothing |
+| **nudge the formation loop** | surface a reminder after landing that a corpus-wide formation pass is due (via `sdd:corpus`) — spawn nothing, gate nothing |
 
 ### Entry point
 
@@ -301,9 +301,9 @@ node already in the right place — no follow-up formation CR.
   pick is usually already the blessed home, so most missions relocate nothing.
 
 **Nudging the corpus-wide pass.** After landing (below), handoff **does not spawn** the Warden. It
-**surfaces a one-line reminder** that a corpus-wide formation pass is due, pointing to `sdd:manage`
+**surfaces a one-line reminder** that a corpus-wide formation pass is due, pointing to `sdd:corpus`
 ("audit the corpus structure" → `formation-loop`). The pass is **on-demand**, run deliberately when
-someone chooses — a full corpus scan on every mission landing is costly and noisy, and `sdd:manage`
+someone chooses — a full corpus scan on every mission landing is costly and noisy, and `sdd:corpus`
 already owns the on-demand trigger. Handoff gates nothing on it and reads back nothing; the loop's
 own behavior (what the pass does once running) is owned entirely by `../../formation/`. The
 formation loop's documented "post-mission" cadence is unchanged — only its trigger moves from an

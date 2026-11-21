@@ -71,7 +71,7 @@ project declared (ADR-0019) — **and** whose frontmatter `status` is one of the
 3. `<project-path>/.agents/spec/spec.md` — a nested project (the `**` is the project-path, any depth)
 4. any extra anchor declared in `.agents/sdd/spec-anchors.toml` — **opt-in and additive**; absent
    config ⇒ only 1–3 (today's behavior). The three fixed conventions need no registry; the extra
-   anchors are a declared, curated registry (`manage-spec-anchors`), not a derived hot path.
+   anchors are a declared, curated registry (`config-spec-anchors`), not a derived hot path.
 
 To locate specs, scan the fixed conventions (plus any declared extra anchors) and keep git-tracked
 files whose `status` is in the enum. A `spec.md` at a recognized location with no lifecycle `status`

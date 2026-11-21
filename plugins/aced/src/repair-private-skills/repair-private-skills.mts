@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // repair-private-skills — the concrete validate/repair engine for repo-private skill hygiene under
-// `.agents/skills`. Loaded in-session by the ACED `manage` gateway; not user-invocable.
+// `.agents/skills`. Loaded in-session by the ACED `config-aced` gateway; not user-invocable.
 //
 // Checks each repo-private skill directory for two problems:
 //   - a stray symlink resolving into the public `skills/` tree (should be a real repo-private dir)

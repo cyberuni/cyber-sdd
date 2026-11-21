@@ -7,7 +7,7 @@ boolean: one scenario→rubric eval per frozen scenario, an explicit N-run polic
 behavior/quality), and a per-dimension `total ≥ threshold` collapse, with the runner (`aced-case-judge`) kept separate
 from the author.
 
-One merged bar loaded by **both** faces — the ACED impl-producer (`define-agent` / `improve`, forward,
+One merged bar loaded by **both** faces — the ACED impl-producer (`define-agent` / `enhance-aced`, forward,
 which authors the eval suite) and the cold impl-judge (`aced-impl-judge`, backward, which runs it);
 `producer ≠ judge` holds at the agent level. Bound in `.agents/universal-plugin.json` as the ACED
 squad's `builder-impl` governance; the contract-quality side is the spec gate's `aced-builder-spec`.

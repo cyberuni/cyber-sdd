@@ -55,7 +55,7 @@ deciding step, so the caller can log or surface why.
 - This is a **pure derivation** over fixed conventions plus the optional `.sddignore` — it
   consults no per-project registry of paths and writes nothing. `.sddignore` is the only
   per-project state: optional, mutable, edited in place like a `.gitignore` (curated by
-  `manage-ignore`), never an append-only log.
+  `config-ignore`), never an append-only log.
 - One deliberate simplification vs git: matching is **pattern-level and last-match-wins**; the
   resolver does **not** replicate git's directory-pruning quirk (a `!` under an excluded parent
   still re-tracks).

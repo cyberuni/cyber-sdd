@@ -27,7 +27,7 @@ coincidental — the shared abstraction would couple a charter to a changelog.
 
 **Non-goals.** It does not *decide* that something is retired (a CR does, and then registers it); it
 does not rewrite or fix a survivor (it reports; a person or a follow-up CR edits); it does not curate
-its own registry through a manage skill (the file is hand-edited — contrast
+its own registry through a config skill (the file is hand-edited — contrast
 [`../spec-anchors/`](../spec-anchors/README.md), which is curated because discovery *depends* on it
 being well-formed); it reads no spec frontmatter and writes nothing at all.
 

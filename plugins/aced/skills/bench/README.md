@@ -3,7 +3,7 @@
 Measure whether a change makes real agent work turn out better or worse — pass rate, turns, tokens,
 wall time — with real headless harness runs, at a price the person approved first.
 
-`bench` is ACED's **measured layer**. The simulated layers (`run`, `compare`) say what an agent
+`bench` is ACED's **measured layer**. The simulated layers (`run`, `compare-aced`) say what an agent
 *would* do; `bench` runs the agent for real in throwaway checkouts, grades each run with a shell
 `check`, and compares two arms with permutation tests.
 
@@ -13,13 +13,13 @@ By name only — its `description` is `"By name only"`, so it is never matched t
 
 - `/bench` from a person in the session;
 - a consumer tool handing off by name with its own suite, and optionally its own comparison tags;
-- `compare`'s measured mode (a later change).
+- `compare-aced`'s measured mode (a later change).
 
 ## What it does
 
 1. **Fit.** Loads `aced-fit` and re-asks its measured criteria 1–2 for the change in hand: does the
    change move how real work turns out, and can a shell check decide the outcome? A wording-only or
-   rubric-only question goes to `compare` and nothing is planned. A subject's `bench:` declaration
+   rubric-only question goes to `compare-aced` and nothing is planned. A subject's `bench:` declaration
    neither skips nor forbids this check.
 2. **Suite and task set.** Asks for a suite when none is named (never guesses, even with one suite
    in the repo); offers the engine's `init` when the suite has no `tasks.json`, writing no tasks

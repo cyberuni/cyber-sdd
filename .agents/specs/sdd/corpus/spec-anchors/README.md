@@ -10,7 +10,7 @@ The **spec-anchors** config is the opt-in, declared override that widens
 specs live off-convention lists extra location patterns in `.agents/sdd/spec-anchors.toml`, and
 discovery scans them **in addition to** (never instead of) the fixed conventions. Because the config
 is a **declared second source that can drift** — the very registry ADR-0017 kept out of the derived
-hot path — it is **opt-in** and **curated through a manage skill** rather than hand-edited: the skill
+hot path — it is **opt-in** and **curated through a config skill** rather than hand-edited: the skill
 lists the anchors, performs CRUD on the custom ones, **induces** a pattern from a sample path, and
 **previews** which project(s) a pattern would match before it is saved. See ADR-0019.
 
@@ -20,7 +20,7 @@ lists the anchors, performs CRUD on the custom ones, **induces** a pattern from 
 induce, preview).
 **Non-goals** — it does **not** scan or list specs itself (that is `../discovery/`, which *reads*
 this config); it writes **only** the config file, never a `spec.md`, `status`, `approval`, or a
-freeze; it opens no CR and invokes no gate (it is a manage-level engine, `../../gateway/manage/`).
+freeze; it opens no CR and invokes no gate (it is a manage-level engine, `../../gateway/corpus/`).
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
@@ -73,9 +73,9 @@ disk is unchanged). The complementary **read-side** guarantee — that an alread
 
 ## Delivery
 
-Implemented by the **`manage-spec-anchors`** skill —
-`plugins/sdd/skills/manage-spec-anchors/` — a non-user-invocable skill (loaded in-session by
-`manage`, `../../gateway/manage/`) carrying a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11). The script realizes `--list`, `--add` / `--remove` / `--edit`, `--induce <path>`,
+Implemented by the **`config-spec-anchors`** skill —
+`plugins/sdd/skills/config-spec-anchors/` — a non-user-invocable skill (loaded in-session by
+`corpus`, `../../gateway/corpus/`) carrying a self-contained `.mjs` script (compiled from `src/`; no runtime deps, Node ≥22.11). The script realizes `--list`, `--add` / `--remove` / `--edit`, `--induce <path>`,
 and `--preview <pattern>`; the config it reads/writes is the same `.agents/sdd/spec-anchors.toml` the
 `discover-specs` engine consumes. The **preview** reuses the discovery scan restricted to the
 candidate pattern.

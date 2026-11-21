@@ -24,13 +24,13 @@ people with this problem are consumers of installed skills who fixed one and wan
 learning the source repo's layout by hand.
 
 **Non-goals.** Scaffolding a **new** skill from scratch is `define-skill`; generalizing the **current
-session** into a skill is `skillify`; diagnosing why a skill's evals fail is `improve`. Editing a
+session** into a skill is `skillify`; diagnosing why a skill's evals fail is `enhance-aced`. Editing a
 **repo-native** skill whose source IS this repo, or a local copy with no intent to send it upstream,
 is ordinary editing — none of these fire this capability. The Git Data API blob→tree→commit→ref
 plumbing is deterministic mechanics, not a graded behavior.
 
 **Fit:** strong — the capability carries a genuine activation decision inside a confusable family
-(contribute-upstream vs. `define-skill` scaffolding, `skillify` session-extraction, `improve`
+(contribute-upstream vs. `define-skill` scaffolding, `skillify` session-extraction, `enhance-aced`
 eval-diagnosis) plus a hard **repo-native carve-out** (if this repo IS the source, it must not fire),
 and its invoked behavior is non-deterministic judgment (path-mapping across layouts, file
 inclusion/exclusion, diff-and-confirm, the no-op stop, the fork fallback), so all four eval layers

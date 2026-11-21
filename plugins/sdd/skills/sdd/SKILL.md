@@ -36,7 +36,7 @@ When `$sdd` is invoked with no work item, artifact, or action, do not guess. Con
 | # | Top-level option | Covers |
 |---|---|---|
 | 1 | **Make a change to the project** | open a CR against the project spec (add a capability, revise behavior, implement, land) → `start-mission` |
-| 2 | **Manage the corpus** | setup & discovery, inspect, audit, or housekeeping (non-mission) → `manage` |
+| 2 | **Manage the corpus** | setup & discovery, inspect, audit, or housekeeping (non-mission) → `corpus` |
 | 3 | **Review pending strategy** | the doctrine loop's unratified `strategy` lines, when any are pending |
 | 4 | **Help me choose** | scan the spec + statuses, suggest the most-actionable few (≤ 4), let the user pick |
 
@@ -46,7 +46,7 @@ When a derived list would exceed four, present only the most-actionable few (≤
 
 For **Help me choose** — and whenever it needs to locate the project spec or rank the most-actionable few — the gateway runs the **`discover-specs`** skill, the frontmatter-only engine for `corpus/discovery`. It returns the TOON list of every project spec at the SDD spec locations — the three fixed conventions plus any opt-in extra anchors a project declared (ADR-0019) — with its `status`, `project-path`, and gate `approvals`; the gateway ranks from that and never opens a spec body. This is a read, not production logic — the same category as counting `ledger/` shard lines for pending strategy — so the thin-classifier rule still holds.
 
-**No spec found offers spec anchors.** When `discover-specs` finds no spec for a target project, do not assume it was simply never scaffolded — its spec may sit off the three fixed conventions and need a declared extra anchor. Offer `manage-spec-anchors` (via `manage`) alongside `scaffold-project-spec` as entry points, rather than routing straight to backfill.
+**No spec found offers spec anchors.** When `discover-specs` finds no spec for a target project, do not assume it was simply never scaffolded — its spec may sit off the three fixed conventions and need a declared extra anchor. Offer `config-spec-anchors` (via `corpus`) alongside `scaffold-project-spec` as entry points, rather than routing straight to backfill.
 
 ## The routing table is the user-skill→capability index
 
@@ -55,7 +55,7 @@ Classification routes a request to the **skill** that handles it; the routing ta
 | User intent | Skill (handler) |
 |---|---|
 | Make any change to the project / spec (add, revise, implement, land) | **`start-mission`** — opens a CR against the project spec and runs the mission loop |
-| Manage the corpus — setup & discovery, inspect, audit, or housekeeping (non-mission) | **`manage`** — the manage dispatcher; loads the matching corpus engine in-session |
+| Manage the corpus — setup & discovery, inspect, audit, or housekeeping (non-mission) | **`corpus`** — the corpus dispatcher; loads the matching corpus engine in-session |
 | A task with no suite-relevant behavior, or confined to an ignored surface (not a CR) | **escape** — proceeds outside the lifecycle, leaves no SDD record |
 | Product / structure / process retrospective, or field corrections | the **campaign / formation / doctrine / forge** loop — emits a new CR (→ `start-mission`) |
 
@@ -93,7 +93,7 @@ The **fresh spawn per mission is deliberate** — each automaton's context dies 
 
 ## Done when
 
-- **C1.** The session loaded exactly one handling skill for the routed intent (`start-mission` for a change, `manage` for corpus work), or reported the task as escaped with no SDD record created.
+- **C1.** The session loaded exactly one handling skill for the routed intent (`start-mission` for a change, `corpus` for corpus work), or reported the task as escaped with no SDD record created.
 - **C2.** No project file, `status`, `approval`, or ledger line was written by the gateway.
 - **C3.** On re-entry, the report states the count of pending strategy lines and lists each in-progress mission with its CR ref when any exist, and omits both when the count is zero.
 - **C4.** A bare invocation presented a menu of no more than four options, and a dispatch run spawned one fresh automaton per brief with no two missions in parallel.

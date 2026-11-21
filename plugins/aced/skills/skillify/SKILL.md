@@ -22,7 +22,7 @@ Extracts a repeatable workflow from what was done in the current session and cre
 | scaffolding a skill **from scratch** — not from this session's work | `define-skill` |
 | extracting the session into a named reusable **agent** / delegated worker / an in-context **persona** | `define-agent` |
 | capturing the session as a **reference-only rule set** other skills load but never execute as steps | the `reference` skill of `cyber-agentkit` |
-| **diagnosing** why an existing skill's golden-set evals fail | `improve` |
+| **diagnosing** why an existing skill's golden-set evals fail | `enhance-aced` |
 
 The tell is the *target artifact*, not the "reuse this" framing: an agent/persona, a reference rule set, or an eval diagnosis is a sibling's job even when the request points at what the session just did.
 

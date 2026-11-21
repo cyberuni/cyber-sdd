@@ -104,7 +104,7 @@ test('every engine runs when its skill is linked from node_modules', () => {
 })
 
 test('an engine that imports other skills runs from a copy of its own skill alone', () => {
-	for (const skill of ['align-spec', 'blast-estimate', 'collision-ladder', 'manage-scenario-bridge']) {
+	for (const skill of ['align-spec', 'blast-estimate', 'collision-ladder', 'config-scenario-bridge']) {
 		const alone = join(root, `alone-${skill}`)
 		mkdirSync(alone, { recursive: true })
 		cpSync(join(installed, 'skills', skill), join(alone, skill), { recursive: true })

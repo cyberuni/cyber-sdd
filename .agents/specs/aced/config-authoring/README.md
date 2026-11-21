@@ -3,10 +3,10 @@
 Creating the agent-config artifacts ACED evaluates: workflow skills (`define-skill`), agent
 definitions (`define-agent`), and skills generalized from the
 current session (`skillify`). 
-The **maintenance** engines — internal, non-invokable, reached via the [`manage/`](../manage/README.md)
+The **maintenance** engines — internal, non-invokable, reached via the [`config-aced/`](../config-aced/README.md)
 gateway — also live here beside the config they touch:
 
-- [`manage-model-runners/`](./manage-model-runners/README.md) — maintains a per-model runner agent-def
+- [`config-model-runners/`](./config-model-runners/README.md) — maintains a per-model runner agent-def
   family used to run skills-under-test under a real model for cost/quality benchmarking.
 - [`list-skills/`](./list-skills/README.md) — inventories the skills discovered across the repo, the
   user-global install, and the shipped package.

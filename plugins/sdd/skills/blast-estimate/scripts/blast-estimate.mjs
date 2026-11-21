@@ -320,7 +320,7 @@ function computeFanInMap(byNode, root, layouts, targets) {
 /**
 * Parses the opt-in `.agents/sdd/sensitive-paths.toml`: a `sensitive = [ "id", ... ]` string array.
 *
-* LINE-anchored and lenient, matching manage-spec-anchors' `anchors = [ … ]` parser byte for byte in
+* LINE-anchored and lenient, matching config-spec-anchors' `anchors = [ … ]` parser byte for byte in
 * shape — a leading comment, a trailing comment, or a neighbouring key are ordinary TOML and must
 * parse. An earlier whole-file-anchored regex rejected all three, so a perfectly valid file that
 * marked an area computed no level at all.

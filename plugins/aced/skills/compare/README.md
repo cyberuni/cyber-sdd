@@ -10,9 +10,9 @@ Good triggers include:
 
 - "Did this change actually improve things?"
 - "Check for regressions before I commit"
-- Verifying an `improve`-proposed edit worked as intended
+- Verifying an `enhance-aced`-proposed edit worked as intended
 
-Defer to a sibling when you just want a single version's score (`run`), or you're diagnosing why a version fails rather than diffing two of them (`improve`).
+Defer to a sibling when you just want a single version's score (`run`), or you're diagnosing why a version fails rather than diffing two of them (`enhance-aced`).
 
 ## What it does
 

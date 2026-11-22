@@ -36,7 +36,7 @@ export default defineConfig({
 						{ label: 'report', link: '/aced/report/' },
 						{ label: 'compare', link: '/aced/compare/' },
 						{ label: 'bench', link: '/aced/bench/' },
-						{ label: 'improve', link: '/aced/improve/' },
+						{ label: 'enhance-aced', link: '/aced/enhance-aced/' },
 						{ label: 'add-scenario', link: '/aced/add-scenario/' },
 						{ label: 'define-skill', link: '/aced/define-skill/' },
 						{ label: 'define-agent', link: '/aced/define-agent/' },

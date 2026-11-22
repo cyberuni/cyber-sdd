@@ -17,7 +17,7 @@ a private skill can drift into:
   repo-private skill from leaking as a public one)
 
 A directory holding only `SKILL.local.md` / `SKILL.project.md` (no `SKILL.md`) is an
-**augmentation-only** entry and is never flagged. Loaded **in-session** by the `manage` gateway
+**augmentation-only** entry and is never flagged. Loaded **in-session** by the `config-aced` gateway
 (Config runners / hygiene group); it carries a self-contained `.mjs` script, compiled from the package source.
 
 ## Run an operation

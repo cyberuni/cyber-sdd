@@ -3,30 +3,30 @@ spec-type: behavioral
 concept: routing
 ---
 
-# manage — the ACED manage-level dispatcher
+# config-aced — the ACED manage-level dispatcher
 
 ## What
 
-The manage-level front door to ACED: `manage` is the user-facing handler for **non-mission** work on
+The manage-level front door to ACED: `config-aced` is the user-facing handler for **non-mission** work on
 the agent-config corpus — inspecting and maintaining the tooling ACED evaluates — as opposed to
 **authoring** a config (`define-agent` / `define-skill`), **scoring** one (`run` / `add-scenario`), or
-**changing what ACED specifies** (`start-mission`). Modeled on the SDD `manage` dispatcher, it is a
+**changing what ACED specifies** (`start-mission`). Modeled on the SDD `config-aced` dispatcher, it is a
 **thin dispatcher**: it classifies a manage request and **loads the matching engine in the current
 session** so the session runs it directly.
 
 The problem it solves is that the same tooling vocabulary — "runners", "skills", "validate" — is
 carried by capabilities that *author*, *score*, or *re-specify* the corpus, so a bare "manage my
-runners" is easy to mis-route into a define-* scaffold or a start-mission CR. `manage` makes the
+runners" is easy to mis-route into a define-* scaffold or a start-mission CR. `config-aced` makes the
 manage-vs-not activation decision, resolves which of its engines handles the request, and loads that
 engine — holding **no production logic**, loading **no governance**, and writing **no contract state**.
 
-**Non-goals.** `manage` performs no operation itself beyond loading the matched engine; it **opens no
+**Non-goals.** `config-aced` performs no operation itself beyond loading the matched engine; it **opens no
 CR** and **invokes no gate**; it **picks no model** and **spawns no agent**. A request to **author** a
 config (an agent, a skill), to **score** one, or to **add or revise** ACED's specified behavior is
 **not** a manage operation — it is redirected to `define-agent` / `define-skill`, the eval-run skills,
 or `start-mission`, which own that work.
 
-**Fit:** strong — `manage` makes a genuine activation decision (a manage-level operation vs. the same
+**Fit:** strong — `config-aced` makes a genuine activation decision (a manage-level operation vs. the same
 tooling vocabulary carried by `define-agent` / `define-skill` when the intent is to *author*, or by
 `start-mission` when the intent is to *change what ACED specifies*) and its classification is
 non-deterministic judgment, so the agent-behavior eval layers carry signal.
@@ -36,15 +36,15 @@ non-deterministic judgment, so the agent-behavior eval layers carry signal.
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
 | Route a named operation | an invocation that already names a manage operation | the matching engine loads directly, in-session, with no menu |
-| Gather intent on a bare invocation | `manage` invoked with no operation named | a menu asks the user to pick, presenting at most four options and never truncating silently |
+| Gather intent on a bare invocation | `config-aced` invoked with no operation named | a menu asks the user to pick, presenting at most four options and never truncating silently |
 | Route to a manage engine | a request to set up runners, inventory skills, repair private-skill metadata, or curate skill-scan locations | the matching engine (`manage-model-runners` / `list-skills` / `repair-private-skills` / `manage-skill-dirs`) loads in the current session |
-| Load the engine in-session | a resolved route in a live session | the matched engine loads and runs directly; `manage` spawns nothing and picks no model, deferring the model choice to the engine |
-| Hold the manage boundary | any request `manage` classifies | it opens no CR, invokes no gate, writes no `status` / `approval`, loads no governance, and holds no production logic |
+| Load the engine in-session | a resolved route in a live session | the matched engine loads and runs directly; `config-aced` spawns nothing and picks no model, deferring the model choice to the engine |
+| Hold the manage boundary | any request `config-aced` classifies | it opens no CR, invokes no gate, writes no `status` / `approval`, loads no governance, and holds no production logic |
 | Defer what is not manage | a request to author a config, to score one, or to change what ACED specifies | it redirects to `define-agent` / `define-skill`, the eval-run skills, or `start-mission` rather than handling it |
 
 ## Control Flow
 
-Three guards frame the whole flow, holding on **every** request `manage` classifies: it **opens no CR
+Three guards frame the whole flow, holding on **every** request `config-aced` classifies: it **opens no CR
 and invokes no gate**, it **writes no `status` / `approval`**, and it **loads no governance and holds
 no production logic**. Everything below runs inside those.
 

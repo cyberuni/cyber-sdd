@@ -1,21 +1,21 @@
 ---
-name: manage
+name: config-aced
 description: Handles manage-level (non-mission) ACED work — inspecting or maintaining the agent-config tooling ACED evaluates, such as "set up the per-model runner agents", "list the model runners", "list the installed skills", or "validate/repair the repo-private skills". Routes to the matching engine; it does not author a config (define-agent / define-skill) or change what ACED specifies (start-mission).
 ---
 
-# manage
+# config-aced
 
 The **manage-level** front door to ACED — the user-facing handler for **non-mission** work on the
 agent-config tooling corpus. Where `define-agent` / `define-skill` **author** a config and `run` /
-`add-scenario` **score** one, `manage` does the work that is neither: **inspect and maintain** the
+`add-scenario` **score** one, `config-aced` does the work that is neither: **inspect and maintain** the
 tooling ACED evaluates.
 
-`manage` is a **thin dispatcher**: it classifies a manage request and **loads the matching engine in
+`config-aced` is a **thin dispatcher**: it classifies a manage request and **loads the matching engine in
 the current session**, holding **no production logic**, loading **no governance**, and writing **no
 contract state**. It **opens no CR**, **invokes no gate**, and **performs no behavior change** itself.
 
 > **Manage picks no model.** The model + effort a piece of work needs is set by the **engine you
-> load**. The loaded engine advises; the user switches manually. (`manage` cannot switch the session
+> load**. The loaded engine advises; the user switches manually. (`config-aced` cannot switch the session
 > model itself.)
 
 ## Intake
@@ -23,7 +23,7 @@ contract state**. It **opens no CR**, **invokes no gate**, and **performs no beh
 - **Fast path — skip the menu.** When the invocation already **names the operation** — "set up the
   model runners", "list the runners", "remove the haiku runner" — load the matching engine directly,
   no menu.
-- **Menu — bare invocation.** When `manage` is invoked with **no operation named**, do not guess. Ask
+- **Menu — bare invocation.** When `config-aced` is invoked with **no operation named**, do not guess. Ask
   via `AskUserQuestion`, presenting **at most four options** (the tool rejects more than four) and
   never truncating silently. The route groups today (**Config runners**, **Skill corpus**) fit the
   four-option rule; as more manage-level engines land, group the menu so a bare invocation still
@@ -47,11 +47,11 @@ When the route resolves, **load the matched engine in the current session** and 
 **spawn nothing**. Write-capable operations stay **owned by their engine**: `manage-model-runners`
 writes its runner agent-def files and their symlinks; `repair-private-skills` writes only under
 `.agents/skills`; `manage-skill-dirs` writes only `.agents/aced/skill-dirs.toml`; `list-skills` is
-read-only. `manage` only routes.
+read-only. `config-aced` only routes.
 
 ## Non-mission — the boundary
 
-`manage` maintains and inspects the ACED tooling corpus; it **never changes what ACED specifies**.
+`config-aced` maintains and inspects the ACED tooling corpus; it **never changes what ACED specifies**.
 
 - **Opens no CR, invokes no gate, writes no `status` / `approval`.** Those belong to `start-mission`
   and the internal gates.

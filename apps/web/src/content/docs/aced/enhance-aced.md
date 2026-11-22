@@ -1,5 +1,5 @@
 ---
-title: improve
+title: enhance-aced
 description: Diagnose failing ACED eval cases and propose targeted edits to the target agent configuration.
 ---
 

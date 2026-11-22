@@ -23,7 +23,7 @@ ACED applies [spec-driven development](/sdd/overview/) to the agent configuratio
 2. Build a **golden set** — the scenarios in the artifact's frozen `.feature` — via `sdd:start-mission`. The SDD conductor resolves ACED's spec-producer (`aced-scenario-writer`) to author the `.feature` (boolean scenarios, inline `@rubric` scenarios, and a `@trigger` `Scenario Outline`) and the impl-producer to author the node's `eval.md` run policy.
 3. **Score** the current artifact against each scenario using an LLM judge — a `@rubric` scenario scores per named dimension against that dimension's own `max`, passing when the total meets the threshold — via [`run`](/aced/run/).
 4. **Compare** scores before and after an edit with [`compare`](/aced/compare/) — block commits on regression.
-5. **Improve** the artifact by diagnosing failing cases and applying targeted edits with [`improve`](/aced/improve/).
+5. **Improve** the artifact by diagnosing failing cases and applying targeted edits with [`enhance-aced`](/aced/enhance-aced/).
 
 ### Evaluation layers
 
@@ -48,7 +48,7 @@ Each eval suite opts in to the layers relevant to its artifact type. A simple `A
 | [`run`](/aced/run/) | Score the golden set against the current artifact |
 | [`add-scenario`](/aced/add-scenario/) | Add a test case from a real failure or edge case |
 | [`compare`](/aced/compare/) | Diff scores before/after an edit — regression gate |
-| [`improve`](/aced/improve/) | Diagnose failing cases; propose and apply targeted edits |
+| [`enhance-aced`](/aced/enhance-aced/) | Diagnose failing cases; propose and apply targeted edits |
 | [`report`](/aced/report/) | Project-wide health dashboard across all eval suites |
 
 ## Typical workflow
@@ -63,7 +63,7 @@ define-skill / define-agent → sdd:start-mission (spec + eval suite)
                                                     add (new cases)   report (project view)
 ```
 
-Run `init-aced` once per project to register the plugin. Author or improve the artifact with `define-skill`, `define-agent`, or the `reference` skill, then use `sdd:start-mission` to author its `.feature` and eval suite. Run `run` to get a baseline. Edit the artifact, then use `compare` before committing. When cases fail, `improve` diagnoses the pattern and proposes edits.
+Run `init-aced` once per project to register the plugin. Author or improve the artifact with `define-skill`, `define-agent`, or the `reference` skill, then use `sdd:start-mission` to author its `.feature` and eval suite. Run `run` to get a baseline. Edit the artifact, then use `compare` before committing. When cases fail, `enhance-aced` diagnoses the pattern and proposes edits.
 
 ## Eval suite structure
 

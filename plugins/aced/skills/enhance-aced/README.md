@@ -1,4 +1,4 @@
-# improve
+# enhance-aced
 
 Improve an existing agent configuration of any kind — a skill, subagent, command, or AGENTS.md section — whether by diagnosing failing ACED evals or by general review against fit and quality bars.
 
@@ -21,5 +21,5 @@ If the target is ACED-tracked (has an `eval.md`), it loads the internal impl-pro
 ## Install
 
 ```bash
-npx skills add cyberuni/cyberplace --skill aced/improve
+npx skills add cyberuni/cyberplace --skill aced/enhance-aced
 ```

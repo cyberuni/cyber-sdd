@@ -10,7 +10,7 @@ concept: [config-authoring]
 An **internal, non-invokable discovery engine** that inventories the agent skills installed across a
 repo, the user's global install, and the cyberplace package's shipped skills — and reports a
 name-sortable summary of each: its name, where it was found, its description, and whether it is
-package-managed. It is reached only through the ACED `manage` gateway (`../../manage/`); it never
+package-managed. It is reached only through the ACED `config-aced` gateway (`../../config-aced/`); it never
 self-triggers from a bare user request.
 
 The problem it solves is that skills live in **four fixed but scattered sources** — repo-private
@@ -24,10 +24,10 @@ optional `skill.json` manifest and writes nothing.
 **Non-goals.** Validating or repairing skill content (`repair-private-skills` — read-only checks and
 writes live there; this engine never mutates a file). Maintaining the per-model runner agent-def
 family (`manage-model-runners`). Installing or scaffolding a skill (`create-skill`,
-`contribute-skill`). It is **not user-invocable** — it is reached via `manage`.
+`contribute-skill`). It is **not user-invocable** — it is reached via `config-aced`.
 
 **Fit:** partial — the operation is mechanical (scan fixed directories, parse frontmatter, dedupe,
-filter, report) and is reached through the `manage` gateway rather than by an activation decision, so
+filter, report) and is reached through the `config-aced` gateway rather than by an activation decision, so
 trigger near-miss balance is N/A. The behavior layer still carries signal: source precedence, absent-
 source tolerance, dedupe, glob-filter matching, the reported field set, and sort order.
 
@@ -39,7 +39,7 @@ source tolerance, dedupe, glob-filter matching, the reported field set, and sort
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Reach the engine through the gateway | a user request to see what skills are installed | the `manage` gateway loads list-skills; the engine does not self-trigger from a bare user invocation |
+| Reach the engine through the gateway | a user request to see what skills are installed | the `config-aced` gateway loads list-skills; the engine does not self-trigger from a bare user invocation |
 | Scan the four fixed sources | a skill directory living under repo-private, repo-public, user-global, or the package's shipped skills dir | the skill is reported with the `foundIn` matching its source (`repo` / `global` / `package`) |
 | Ignore non-skill and absent inputs | a directory with no `SKILL.md`, or a fixed source whose directory is absent on disk | the non-skill directory is not reported; the missing source contributes nothing and raises no error |
 | Dedupe across sources | the same skill name present in more than one source | only the first-scanned (repo-precedence) copy is reported; later copies are dropped |
@@ -57,7 +57,7 @@ first, so the dedupe decision is what encodes repo precedence.
 ```mermaid
 flowchart TD
   REACH{how is list-skills reached?}
-  REACH -->|the manage gateway loads it| SCAN
+  REACH -->|the config-aced gateway loads it| SCAN
   REACH -->|a bare user invocation| NOSELF([does not self-trigger])
 
   SCAN[for each of the four fixed sources, in scan order:<br/>repo-private, repo-public, user-global, package]

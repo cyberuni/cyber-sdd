@@ -3,7 +3,7 @@ spec-type: behavioral
 concept: [suite-authoring]
 ---
 
-# improve — diagnose failures and propose fixes
+# enhance-aced — diagnose failures and propose fixes
 
 The general entry point for improving an existing agent configuration. Route away narrower intents,
 locate the target and its artifact type, then take the ACED-tracked path (diagnose failing evals →
@@ -26,7 +26,7 @@ verify path are judged, not asserted.
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Trigger on a fix request | a request to diagnose / fix a config whose evals are failing, vs. a sibling intent (scaffold new, capture a case, score, diff, audit structure) carrying the same config vocabulary | `improve` fires for a fix-the-config request and defers when the intent belongs to `define-*` / `add-scenario` / `run` / `compare` / `/cyber-agentkit:skill check` |
+| Trigger on a fix request | a request to diagnose / fix a config whose evals are failing, vs. a sibling intent (scaffold new, capture a case, score, diff, audit structure) carrying the same config vocabulary | `enhance-aced` fires for a fix-the-config request and defers when the intent belongs to `define-*` / `add-scenario` / `run` / `compare` / `/cyber-agentkit:skill check` |
 | Locate the target | a config that may be a skill, subagent, command, or AGENTS.md section | the artifact type is identified and the config is read in full |
 | Route the diagnostic path | whether the target has an eval suite in the project spec | ACED-tracked → diagnose failing evals; untracked → a general review against the fit classifier and the matching builder bar |
 | Load the context (tracked) | the eval config, the target, and the latest results record | the target is read in full alongside the most recent results, or the user is pointed at `run` when no results exist |

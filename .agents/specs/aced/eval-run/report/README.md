@@ -17,7 +17,7 @@ own** and never share a trend line or a health class with simulated suites.
 **Subject** — rolling every eval suite in the project into one health dashboard: per-suite pass
 rate, trend versus the previous run, a health classification, and what needs attention.
 **Non-goals** — scoring a single suite (`run`); diffing two versions (`compare`); authoring or
-fixing cases (`add-scenario` / `improve`); deciding a single case's pass/fail (that is `aced-case-judge`).
+fixing cases (`add-scenario` / `enhance-aced`); deciding a single case's pass/fail (that is `aced-case-judge`).
 For measured suites: every statistic and every verdict (the engine, `../bench/engine/`); diffing two
 measured arms (`compare`'s measured mode); running or planning real runs (`bench`).
 

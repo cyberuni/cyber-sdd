@@ -50,12 +50,12 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 |---|---|---|
 | [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report`, `check-freshness`, and the measured layer `bench/` (`engine`, `skill`) |
 | [`config-authoring/`](./config-authoring/README.md) | descriptive index | author + maintain agent config — `define-skill`, `define-agent`, `skillify`, `manage-model-runners`, `list-skills`, `repair-private-skills` |
-| [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `improve` |
+| [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `enhance-aced` |
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` — plus `actor-bars`, the governances they are graded against |
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
 | [`setup/`](./setup/README.md) | descriptive index | prepare the local ACED environment — `init-aced` (ignore run output) |
-| [`manage/`](./manage/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`manage`) |
+| [`config-aced/`](./config-aced/README.md) | behavioral | manage-level dispatcher — routes non-mission ACED work to its engine (`config-aced`) |
 | [`design/`](./design/README.md) | descriptive | the eval model + the `decisions/` ADR log |
 | [`workflows/`](./workflows/README.md) | descriptive | the workflows suite (cross-capability usage flows: author → run → improve → compare) |
 | [`glossary.md`](./glossary.md) | reference | the agent-config eval vocabulary |
@@ -110,9 +110,9 @@ never as a top-level folder.
 | `eval-run` | `eval-run/bench/engine/` (behavior) · `eval-run/bench/skill/` (behavior) · `eval-run/check-freshness/` (behavior) · `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
 | `production-chain` | `sdd-roles/actor-bars/` (reference) |
 | `registry` | `registry/` (behavior) |
-| `routing` | `manage/` (behavior) |
+| `routing` | `config-aced/` (behavior) |
 | `sdd-roles` | `sdd-roles/extract-situation/` (behavior) · `sdd-roles/impl-judge/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/scenario-writer/` (behavior) · `sdd-roles/spec-validator/` (behavior) |
 | `setup` | `setup/ignore-run-output/` (behavior) |
-| `suite-authoring` | `suite-authoring/add-scenario/` (behavior) · `suite-authoring/improve/` (behavior) |
+| `suite-authoring` | `suite-authoring/add-scenario/` (behavior) · `suite-authoring/enhance-aced/` (behavior) |
 
 <!-- END generated: by-concept -->

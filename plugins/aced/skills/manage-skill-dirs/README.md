@@ -2,7 +2,7 @@
 
 The concrete engine for the ACED **skill-dirs** config — the opt-in registry of extra skill-scan
 locations `/cyber-agentkit:skill check` scans on top of its two built-in default roots. A
-non-user-invocable skill, loaded in-session by the `manage` gateway, carrying a self-contained `.mjs`
+non-user-invocable skill, loaded in-session by the `config-aced` gateway, carrying a self-contained `.mjs`
 script that lists / CRUDs / induces / previews the patterns so users never hand-edit the config file.
 
 - **Skill contract:** [`SKILL.md`](./SKILL.md)

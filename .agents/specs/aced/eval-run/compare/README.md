@@ -18,7 +18,7 @@ engine (`../bench/engine/`), and words the engine's verdict as the same commit g
 **Subject** — scoring two versions of a target agent configuration against the same golden set and
 diffing the results to catch regressions before a change is committed.
 **Non-goals** — scoring a single version (`run`); the project-wide roll-up (`report`); authoring or
-fixing cases (`add-scenario` / `improve`); deciding a single case's pass/fail (that is `aced-case-judge`).
+fixing cases (`add-scenario` / `enhance-aced`); deciding a single case's pass/fail (that is `aced-case-judge`).
 In measured mode: every statistic, the record schema, and the verdict (the engine's `compare` verb,
 `../bench/engine/README.md` UC4); launching or planning real runs (the `bench` skill, `../bench/skill/`).
 

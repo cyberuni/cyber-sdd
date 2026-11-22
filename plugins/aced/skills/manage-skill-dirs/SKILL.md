@@ -11,7 +11,7 @@ metadata:
 The concrete engine for the ACED **skill-dirs** config — the opt-in registry of **extra** skill-scan
 locations the validate engine scans on top of its two built-in default roots. It exists so a user
 curates those locations through a clean interface instead of hand-editing the config directly.
-Loaded **in-session** by the `manage` gateway; it carries a self-contained `.mjs` script, compiled from the package source.
+Loaded **in-session** by the `config-aced` gateway; it carries a self-contained `.mjs` script, compiled from the package source.
 
 ## The config it curates
 
@@ -44,7 +44,7 @@ write a pattern the user has not seen the effect of.
 ## Boundaries
 
 Writes **only** the skill-dirs config — never a skill, `spec.md`, `status`, `approval`, or a freeze;
-it is operational config, not skill content (so `manage`'s write-ownership guard holds). It does
+it is operational config, not skill content (so `config-aced`'s write-ownership guard holds). It does
 **not** scan or validate skills — that is `/cyber-agentkit:skill check`, which *reads* this
 config. This engine validates on the **write** side so a bad pattern is never persisted.
 

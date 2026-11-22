@@ -32,4 +32,4 @@ four eval layers carry real signal**.
 - The false-fail is fixed: a `partial` suite with no near-miss passes; a `strong` one still fails.
 - ACED no longer forces the agent-behavior lens onto deterministic engines; they route out cleanly.
 - Non-goal (deferred): surfacing the tier in the user-facing skills (`run`/`report`/`init-aced`/
-  `improve`).
+  `enhance-aced`).

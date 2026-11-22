@@ -68,8 +68,8 @@ If the user asks for details on a specific suite, print all failing cases from t
 
 ## Suggest next actions
 
-- For `critical` or `trending-down`: suggest `improve`
-- For `degraded`: suggest `run` for details, then `improve`
+- For `critical` or `trending-down`: suggest `enhance-aced`
+- For `degraded`: suggest `run` for details, then `enhance-aced`
 - For `no-data`: suggest `run`
 - For all `healthy` with no trend data: suggest `add-scenario` to expand coverage
 

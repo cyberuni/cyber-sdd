@@ -1,9 +1,9 @@
 ---
-name: improve
-description: Improves an existing agent configuration — a skill, subagent, command, or AGENTS.md section — by diagnosing failing ACED evals or by general review against fit and quality bars. Trigger on "improve this skill", "make this agent better", "why does this config keep failing", or "review this AGENTS.md section", even when no eval suite exists yet.
+name: enhance-aced
+description: Enhances an existing agent configuration — a skill, subagent, command, or AGENTS.md section — by diagnosing failing ACED evals or by general review against fit and quality bars. Trigger on "improve this skill", "make this agent better", "why does this config keep failing", or "review this AGENTS.md section", even when no eval suite exists yet.
 ---
 
-# ACED Improve
+# ACED Enhance
 
 Improve an existing agent configuration of any kind. This is the general entry point — it routes
 to the right diagnostic path depending on whether the target is ACED-tracked.

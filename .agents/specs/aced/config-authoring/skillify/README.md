@@ -16,11 +16,11 @@ next session re-derives every decision from scratch. `skillify` captures what wa
 agent can repeat it. The hard part is the boundary — the same "reuse this / make a skill" vocabulary is
 carried by capabilities that scaffold a skill *from scratch* (`define-skill`), extract the session into
 an *agent/persona* (`define-agent`), capture it as a *reference-only rule set* (the `reference` skill of `cyber-agentkit`),
-or *diagnose* failing evals (`improve`). The tell is the **target artifact**, not the "reuse this"
+or *diagnose* failing evals (`enhance-aced`). The tell is the **target artifact**, not the "reuse this"
 framing. `skillify` owns exactly one thing: generalizing *this session's* work into a skill.
 
 **Non-goals.** Scaffolding a skill **from scratch** (from a topic the session did not perform) is
-`define-skill`; diagnosing why an existing skill's golden-set evals fail is `improve`; authoring an
+`define-skill`; diagnosing why an existing skill's golden-set evals fail is `enhance-aced`; authoring an
 agent definition or persona is `define-agent`; authoring a reference-only rule set is
 the `reference` skill of `cyber-agentkit`; scoring a config or adding eval cases is `run` / `add-scenario`; contributing an
 already-authored installed skill back to its source repo is `contribute-skill`. skillify is the
@@ -28,7 +28,7 @@ session-extraction side of the boundary `define-skill` names from the other side
 routing decision, their Non-goals mirrors.
 
 **Fit:** strong — `skillify` makes a genuine activation decision (generalize *this session's* work vs.
-the same config vocabulary carried by `define-skill`, `improve`, `define-agent`, or the `reference` skill of `cyber-agentkit`)
+the same config vocabulary carried by `define-skill`, `enhance-aced`, `define-agent`, or the `reference` skill of `cyber-agentkit`)
 and has non-deterministic judgment (what to extract from the session, decisions vs. documentation,
 placement, pattern, name, description), so all four eval layers carry signal.
 

@@ -31,7 +31,7 @@ points at the ACED eval loop to spec and score the definition.
 
 **Non-goals.** Authoring a workflow skill (`define-skill`). A reference-only rule set
 (the `reference` skill of `cyber-agentkit`). Scoring a config against its suite (`run`), adding an eval case
-(`add-scenario`), or diagnosing why its evals fail (`improve`). The agent-definition quality rubric
+(`add-scenario`), or diagnosing why its evals fail (`enhance-aced`). The agent-definition quality rubric
 itself — that is the quality-check governance the skill loads, not this capability.
 
 **Fit:** strong — the capability carries a genuine activation decision (an agent-definition request

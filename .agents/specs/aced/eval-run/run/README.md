@@ -22,7 +22,7 @@ failing scenarios worst-first, and persist the run.
 | **the results record** | The timestamped file one completed run persists: the scores, the target it scored, the evaluated set it recorded, and the scoring model it ran under. `check-freshness` reads it; `run` never interprets one. |
 | **the scoring model** | **The model this run dispatched `aced-case-judge` under, as the run can name it; `unknown` exactly when it cannot.** One condition, not a combination: the `eval.md` `judge.model` is the usual *source* of that name and a caller's explicit pick is another, but neither is a second input to the rule — a declaration the run did not honor loses to the model it actually dispatched under, and a declaration's absence is not by itself an answer. Recorded per record, beside the scores rather than inside the evaluated set: it names who produced the transcripts, not an input whose bytes could be re-hashed. |
 
-**Non-goals** — authoring or fixing scenarios (`add-scenario` / `improve`); diffing two versions (`compare`);
+**Non-goals** — authoring or fixing scenarios (`add-scenario` / `enhance-aced`); diffing two versions (`compare`);
 the project-wide health roll-up (`report`); how a single case is scored (that is `aced-case-judge`);
 deciding whether an already-written result is still current (that is `check-freshness` — `run` records
 the provenance it needs, and does not interpret it); **proving** that the recorded inputs are the ones
@@ -45,7 +45,7 @@ trigger of its own stays visible instead of being absorbed into the surface that
 | Actor | Goal | Reaches it through |
 |---|---|---|
 | The configuration author — whoever just edited a skill, subagent, command, or AGENTS.md section | know whether the configuration as it stands now passes its frozen suite, and which cases fail worst | UC1 |
-| `improve` (sibling capability, the diagnose-and-refine loop) | have a current score to diagnose failing scenarios against before proposing edits | UC2 |
+| `enhance-aced` (sibling capability, the diagnose-and-refine loop) | have a current score to diagnose failing scenarios against before proposing edits | UC2 |
 | *Affected without invoking:* `check-freshness`, and any later reader of a persisted record — `compare`, `report`, a reviewer handed a cited pass rate | be able to tell **what the run recorded consuming** and **which model scored it**, and so whether that account still holds | UC3 — **no trigger of its own**; served by UC1's persisted outcome |
 
 The third row is the one this revision exists for. No actor invokes `run` in order to get provenance;
@@ -79,17 +79,17 @@ needs is that UC1's outcome carry an extra field.
   reports, and the CFG carries no abort edge — `a failing scenario does not stop the run` pins that
   the divergence does not exist.
 
-### UC2 — supply `improve` with a score to diagnose against
+### UC2 — supply `enhance-aced` with a score to diagnose against
 
-- **Actor** — `improve`, running the diagnose-and-refine loop over an ACED-tracked target.
+- **Actor** — `enhance-aced`, running the diagnose-and-refine loop over an ACED-tracked target.
 - **Goal** — have a result that reflects the configuration it is about to propose edits to, so the
   failing scenarios it classifies are real.
 - **Entry point** — the same trigger and the same outcome as UC1; the caller is a capability rather
   than a person.
-- **Extensions** — UC1's, unchanged. One more is **owed by the caller, not by this node**: `improve`
+- **Extensions** — UC1's, unchanged. One more is **owed by the caller, not by this node**: `enhance-aced`
   reuses the latest recorded result rather than scoring, *"if the latest `results/` file is stale or
   missing"* — a condition it has no way to evaluate. UC3 makes that condition answerable and
-  `check-freshness` answers it; wiring `improve` to consult it is a follow-up against `improve`.
+  `check-freshness` answers it; wiring `enhance-aced` to consult it is a follow-up against `enhance-aced`.
 
 ### UC3 — persist the run alongside what it recorded consuming
 
@@ -266,7 +266,7 @@ the scoring edges, not to this one.
 ### UC1 — score the current configuration against its frozen suite
 
 UC2 shares this entry point and adds no scenario of its own: the caller differs, the behavior does
-not. What UC2 needs beyond this is owed by `improve`, not here.
+not. What UC2 needs beyond this is owed by `enhance-aced`, not here.
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|

@@ -10,7 +10,7 @@ concept: [config-authoring, benchmarking]
 Maintain a family of **runner agent definitions — one per model** at user-global
 `~/.agents/agents/model-runner-<model>.md`, each a **neutral executor** pinned to a single model so a
 skill-under-test can be run as a real subagent under that model for cost/quality benchmarking. An
-**internal, non-invokable** engine reached only through the ACED `manage` gateway (`../../manage/`);
+**internal, non-invokable** engine reached only through the ACED `config-aced` gateway (`../../config-aced/`);
 it authors agent-definition artifacts, so it lives beside `define-agent` in `config-authoring/`.
 
 The problem it solves is that ACED's eval loop only *simulates* behavior via a judge — it never runs a
@@ -26,10 +26,10 @@ skill is `define-skill`; **auto-removing** runners a target list omits (never �
 did not just create is not culled); running the skills-under-test or capturing token/cost (a future
 `eval-run` capability); varying **effort** as a def axis (one def per model — effort is stamped only
 on request, never a model×effort def explosion). It is **not user-invocable** — it is reached via
-`manage`.
+`config-aced`.
 
 **Fit:** partial — the operations are mechanical (add / list / remove runner def files), reached via
-the `manage` gateway rather than by an activation decision, so trigger near-miss balance is N/A; the
+the `config-aced` gateway rather than by an activation decision, so trigger near-miss balance is N/A; the
 behavior and structural layers still carry signal (the additive-only invariants — idempotent add,
 never auto-remove, confirm before removal — and the one-def-per-model runner-def shape).
 
@@ -37,7 +37,7 @@ never auto-remove, confirm before removal — and the one-def-per-model runner-d
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Reach the engine | a user request to set up per-model runners, routed by the `manage` gateway | the gateway loads the engine in-session; it never self-triggers from a bare user invocation |
+| Reach the engine | a user request to set up per-model runners, routed by the `config-aced` gateway | the gateway loads the engine in-session; it never self-triggers from a bare user invocation |
 | Resolve the target models (add) | an add request, with or without an explicit model list, and a curated `models.toml` maybe present | it resolves the list by precedence — explicit args → curated config → proposed default aliases — and confirms before writing, never guessing |
 | Add the missing runners | a confirmed target list against the current family | it creates one neutral, model-pinned runner def per model that lacks one, at the user-global canonical path plus one symlink per runtime, and is idempotent for models already covered |
 | List the family | a list request | it reports each model, its runner-def path, and any effort stamp — nothing else |
@@ -52,7 +52,7 @@ model list before writing, and confirms before removing a def. Everything below 
 
 ```mermaid
 flowchart TD
-  GATEWAY([reached via the manage gateway;<br/>never self-triggered by a bare user invocation]) --> OP
+  GATEWAY([reached via the config-aced gateway;<br/>never self-triggered by a bare user invocation]) --> OP
 
   OP{which operation?}
   OP -->|add| RESOLVE

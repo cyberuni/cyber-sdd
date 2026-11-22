@@ -13,7 +13,7 @@ match; `absent` has nothing to compare and names why instead.
 ## What
 
 `run` writes an eval result to `.agents/aced/results/<target>/<timestamp>.json`. Anyone who later
-reads that result — a person, or `run` and `improve` deciding whether to cite it instead of scoring
+reads that result — a person, or `run` and `enhance-aced` deciding whether to cite it instead of scoring
 again — needs to know whether it still describes the configuration on disk. Without an answer they
 guess, and a guess that says "still good" turns a passing result into a false claim about code that
 has since changed.
@@ -119,10 +119,10 @@ Enumerated actor-first; entry points are mapped afterward, so a goal with no way
 | A person reviewing a recorded eval result | decide whether the pass they are reading still describes the configuration on disk, and if not, see which inputs moved | UC1 |
 | A gating automation — a CI job or a scheduled run citing a recorded result | stop the moment a cited result stops holding, without parsing a report | UC2 |
 | A person or automation citing a measured result for one arm of a bench suite | know whether the stored measurements still describe the suite's current tasks, checks, and the arm's source | UC3 |
-| `run` and `improve` (sibling capabilities) | skip re-scoring when the recorded result still holds | **nothing — the caller side is unbuilt** (below) |
+| `run` and `enhance-aced` (sibling capabilities) | skip re-scoring when the recorded result still holds | **nothing — the caller side is unbuilt** (below) |
 | *Affected without invoking:* whoever is handed a report, a diagnosis, or a PR comment that cites a recorded result | not be shown a passing result that stopped being true | reached only through the actors above |
 
-**The unserved goal, recorded rather than hidden.** `improve` already carries this goal in prose —
+**The unserved goal, recorded rather than hidden.** `enhance-aced` already carries this goal in prose —
 *"ensure a recent result exists — run `run` first if the latest `results/` file is stale or missing"* —
 with no definition of `stale` to consult, and `run` has the same goal when it considers citing a
 recorded result instead of scoring again. Neither has a way in. The missing way in belongs to **those

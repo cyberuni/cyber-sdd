@@ -12,7 +12,7 @@ Good triggers include:
 - Before a release, to confirm nothing has regressed unnoticed
 - Deciding what to work on next across many tracked skills/agents
 
-Defer to a sibling when the request is about one specific target: `run` to score it, `improve` to fix failures, `compare` to diff two versions.
+Defer to a sibling when the request is about one specific target: `run` to score it, `enhance-aced` to fix failures, `compare` to diff two versions.
 
 ## What it does
 

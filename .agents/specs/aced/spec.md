@@ -48,9 +48,9 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 
 | Folder | Type | What |
 |---|---|---|
-| [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare-aced`, `report-aced`, `check-freshness`, and the measured layer `bench/` (`engine`, `skill`) |
+| [`eval-run/`](./eval-run/README.md) | descriptive index | score a config against its golden set — `run`, `compare`, `report`, `check-freshness`, and the measured layer `bench/` (`engine`, `skill`) |
 | [`config-authoring/`](./config-authoring/README.md) | descriptive index | author + maintain agent config — `define-skill`, `define-agent`, `skillify`, `config-model-runners`, `list-skills`, `repair-private-skills` |
-| [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `enhance-aced` |
+| [`suite-authoring/`](./suite-authoring/README.md) | descriptive index | grow + improve the golden set — `add-scenario`, `enhance` |
 | [`contribute/`](./contribute/README.md) | descriptive index | propagate an authored config upstream — `contribute-skill` |
 | [`sdd-roles/`](./sdd-roles/README.md) | descriptive index | the SDD production-chain delegates — `scenario-writer`, `spec-validator`, `impl-judge`, `judge` — plus `actor-bars`, the governances they are graded against |
 | [`registry/`](./registry/README.md) | behavioral | register ACED as the agent-config SDD plugin — `init-aced` |
@@ -64,7 +64,7 @@ fixed source folders — the accepted spec↔source divergence (`../sdd/design/s
 
 Where a new concept lives — slot here, do not invent placement (`../sdd/design/spec-layout.md`):
 
-- **a new way to *run or report* on evals** → `eval-run/` (a new behavioral unit beside `run`/`compare-aced`/`report-aced`).
+- **a new way to *run or report* on evals** → `eval-run/` (a new behavioral unit beside `run`/`compare`/`report`).
 - **a new agent-config artifact to *author*** → `config-authoring/`.
 - **a new way to *propagate* an authored config back to its source** (contribute upstream, not author or score) → `contribute/`.
 - **a new way to *grow or fix* the golden set** → `suite-authoring/`.
@@ -107,12 +107,12 @@ never as a top-level folder.
 | `config-authoring` | `config-authoring/config-model-runners/` (behavior) · `config-authoring/config-skill-dirs/` (behavior) · `config-authoring/define-agent/` (behavior) · `config-authoring/define-skill/` (behavior) · `config-authoring/list-skills/` (behavior) · `config-authoring/repair-private-skills/` (behavior) · `config-authoring/skillify/` (behavior) |
 | `contribution` | `contribute/contribute-skill/` (behavior) |
 | `discovery` | `config-authoring/config-skill-dirs/` (behavior) |
-| `eval-run` | `eval-run/bench/engine/` (behavior) · `eval-run/bench/skill/` (behavior) · `eval-run/check-freshness/` (behavior) · `eval-run/compare-aced/` (behavior) · `eval-run/report-aced/` (behavior) · `eval-run/run/` (behavior) |
+| `eval-run` | `eval-run/bench/engine/` (behavior) · `eval-run/bench/skill/` (behavior) · `eval-run/check-freshness/` (behavior) · `eval-run/compare/` (behavior) · `eval-run/report/` (behavior) · `eval-run/run/` (behavior) |
 | `production-chain` | `sdd-roles/actor-bars/` (reference) |
 | `registry` | `registry/` (behavior) |
 | `routing` | `config-aced/` (behavior) |
 | `sdd-roles` | `sdd-roles/extract-situation/` (behavior) · `sdd-roles/impl-judge/` (behavior) · `sdd-roles/judge/` (behavior) · `sdd-roles/scenario-writer/` (behavior) · `sdd-roles/spec-validator/` (behavior) |
 | `setup` | `setup/ignore-run-output/` (behavior) |
-| `suite-authoring` | `suite-authoring/add-scenario/` (behavior) · `suite-authoring/enhance-aced/` (behavior) |
+| `suite-authoring` | `suite-authoring/add-scenario/` (behavior) · `suite-authoring/enhance/` (behavior) |
 
 <!-- END generated: by-concept -->

@@ -17,25 +17,25 @@ engine (`../bench/engine/`), and words the engine's verdict as the same commit g
 
 **Subject** — scoring two versions of a target agent configuration against the same golden set and
 diffing the results to catch regressions before a change is committed.
-**Non-goals** — scoring a single version (`run`); the project-wide roll-up (`report-aced`); authoring or
-fixing cases (`add-scenario` / `enhance-aced`); deciding a single case's pass/fail (that is `aced-case-judge`).
+**Non-goals** — scoring a single version (`run`); the project-wide roll-up (`report`); authoring or
+fixing cases (`add-scenario` / `enhance`); deciding a single case's pass/fail (that is `aced-case-judge`).
 In measured mode: every statistic, the record schema, and the verdict (the engine's `compare` verb,
 `../bench/engine/README.md` UC4); launching or planning real runs (the `bench` skill, `../bench/skill/`).
 
 **The scoring model on a persisted comparison.** A diff scores both sides in **one** invocation, so
 one model scores both — the field is a property of the comparison, not of a side, and no cross-model
-diff is constructible here. It carries the same two states `run`'s does (the model `compare-aced` can name
+diff is constructible here. It carries the same two states `run`'s does (the model `compare` can name
 it dispatched under, `unknown` exactly when it cannot), which is what keeps a persisted comparison
 readable on the same terms as a run's record by anything that later scans the results directory.
 
 **Fit:** strong — the capability carries a genuine activation decision (a two-version diff request
-versus sibling eval intents — `run` / `report-aced` / `add-scenario` — that share the same eval
+versus sibling eval intents — `run` / `report` / `add-scenario` — that share the same eval
 vocabulary), and its version resolution, per-dimension diff classification, and regression-gate
 behavior are judged, not asserted.
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Trigger on a comparison request | a request to compare / diff two versions or check for regressions, vs. a sibling intent (score one version, project roll-up, author a case) carrying the same eval vocabulary | `compare-aced` fires for a two-version diff and defers when the intent belongs to `run` / `report-aced` / `add-scenario` |
+| Trigger on a comparison request | a request to compare / diff two versions or check for regressions, vs. a sibling intent (score one version, project roll-up, author a case) carrying the same eval vocabulary | `compare` fires for a two-version diff and defers when the intent belongs to `run` / `report` / `add-scenario` |
 | Resolve the two versions | no explicit versions (default: working tree vs. previous revision), two explicit paths, or a git ref for the "before" | a before-version and an after-version are identified and both read in full |
 | Score both versions | the resolved versions and the shared golden set | every case is scored against both versions and labeled before / after |
 | Diff and classify | the before / after per-case results | each case is classified improved / regressed / unchanged / now-passing / now-failing, with a net pass-rate delta and per-dimension deltas; raw totals are never averaged across cases; the simulated diff persists nothing unless the user asks (measured mode: see below) |
@@ -44,7 +44,7 @@ behavior are judged, not asserted.
 
 ### Measured mode — diff two real-run records of a bench suite
 
-The simulated diff above stays exactly as it is. Measured mode is a second entry into `compare-aced` for
+The simulated diff above stays exactly as it is. Measured mode is a second entry into `compare` for
 the **measured layer** (`../../design/fit.md`, the measured axis): real headless runs of a bench
 suite, graded by a shell check and recorded by the engine under `.agents/aced/results/bench/<suite>/`
 (run records `<createdAt>.<arm>.json`, comparison records `compare-<createdAt>.json`). Simulated results
@@ -53,7 +53,7 @@ live under `.agents/aced/results/<target-slug>/`; the two share the directory, n
 
 **Key terms** — **suite**, **arm**, **run record**, **comparison record**, **baseline**, **too few**
 (`tooFew`), **gated metric**, the **test count**, and the verdicts (`regressed`, `inconclusive`,
-`improved`, `unchanged`, `incomparable`) are the engine's (`../bench/engine/README.md`). `compare-aced`
+`improved`, `unchanged`, `incomparable`) are the engine's (`../bench/engine/README.md`). `compare`
 computes none of them; it picks the two records, calls the engine, and words what comes back.
 
 #### Actors and their goals
@@ -76,7 +76,7 @@ Extensions:
 - **One side is a simulated result** → refused as incomparable by layer: nothing is scored and the
   engine is not called.
 - **A request to plan or run a new measurement** (fresh real runs, not a diff of existing records) →
-  `compare-aced` declines it and starts no plan or run. It does not route the request anywhere: the `bench`
+  `compare` declines it and starts no plan or run. It does not route the request anywhere: the `bench`
   skill is reached by name only (`/bench`, or a by-name hand-off), never matched to a request.
 - **No suite named** → it asks the person which suite and compares nothing; it never guesses, even when
   only one suite exists. **With no person present** the same question goes back up as needs-input, and
@@ -86,7 +86,7 @@ Extensions:
   through to the engine, which reads the suite's committed `baseline.json`. **`--after baseline`** → refused
   before any engine call, with nothing compared: the engine takes the baseline as the before side only.
 - **An arm has no run record** → it says so and names `/bench` (the `bench` skill) as the next step;
-  it loads, plans, and runs nothing. `compare-aced` never plans, runs, or spends.
+  it loads, plans, and runs nothing. `compare` never plans, runs, or spends.
 - **Tags** → passed to the engine's `compare` unchanged; never added, dropped, or interpreted.
 - **The engine refuses** (a record of another schema version, a missing baseline) → the engine's reason
   is reported and no verdict is given.
@@ -107,16 +107,16 @@ Extensions:
   compare. Measured mode asks nothing about recording and writes no record of its own; the simulated
   diff's "persist only on request" rule does not apply to it.
 
-**Commit-gate wording is `compare-aced`'s alone, and deliberate.** The `bench` skill reports a callable
+**Commit-gate wording is `compare`'s alone, and deliberate.** The `bench` skill reports a callable
 `unchanged` as "no significant change" and never speaks of committing (`../bench/skill/README.md`, UC3).
-`compare-aced` is the commit gate, so it — and only it — turns the engine's verdict into commit advice:
+`compare` is the commit gate, so it — and only it — turns the engine's verdict into commit advice:
 `regressed` → do not commit; `improved`, or `unchanged` at a callable run count → safe to commit;
 `inconclusive`, or `unchanged` with every gated row `tooFew` → never safe, never a regression. The
-verdict itself is the engine's in every case; only the advice is `compare-aced`'s.
+verdict itself is the engine's in every case; only the advice is `compare`'s.
 
 #### Validate section — the binding rules
 
-Measured mode states rules the agent loading `compare-aced` must never break, so `SKILL.md` carries a
+Measured mode states rules the agent loading `compare` must never break, so `SKILL.md` carries a
 `## Validate` section with one artifact-state assertion per rule (`aced:aced-builder-spec`,
 Validate-section coverage):
 
@@ -211,14 +211,14 @@ flowchart TD
   costNote --> norec
   mwarn --> norec
   mfew --> norec
-  repIncomp --> norec[ask nothing about recording; write no record of compare-aced's own; the engine wrote the comparison record]
+  repIncomp --> norec[ask nothing about recording; write no record of compare's own; the engine wrote the comparison record]
 ```
 
 ### The skill artifact — binding rules
 
 ```mermaid
 flowchart TD
-  skill[compare-aced's SKILL.md] --> val{## Validate section with one assertion per binding rule?}
+  skill[compare's SKILL.md] --> val{## Validate section with one assertion per binding rule?}
   val -- yes --> holds{every mechanical assertion holds against the file?}
 ```
 
@@ -281,7 +281,7 @@ One row per edge in the graph above, one scenario per row. Rows follow the suite
 
 | Edge | Path (Given) | Scenario |
 |---|---|---|
-| `val` → yes | compare-aced's SKILL.md | `the compare skill carries a Validate section with one assertion per binding rule` |
-| `holds` → yes | compare-aced's SKILL.md and its Validate section | `every mechanical Validate assertion passes against the compare skill` |
+| `val` → yes | compare's SKILL.md | `the compare skill carries a Validate section with one assertion per binding rule` |
+| `holds` → yes | compare's SKILL.md and its Validate section | `every mechanical Validate assertion passes against the compare skill` |
 
 Cross-capability e2e scenarios live in `../../workflows/`.

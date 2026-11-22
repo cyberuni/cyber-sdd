@@ -3,36 +3,36 @@ spec-type: behavioral
 concept: [suite-authoring]
 ---
 
-# enhance-aced — diagnose failures and propose fixes
+# enhance — diagnose failures and propose fixes
 
 The general entry point for improving an existing agent configuration. Route away narrower intents,
 locate the target and its artifact type, then take the ACED-tracked path (diagnose failing evals →
-group by pattern → propose before/after diffs → verify with `compare-aced`) or, when the target has no eval
+group by pattern → propose before/after diffs → verify with `compare`) or, when the target has no eval
 suite, a general review against the fit classifier and the matching builder bar.
 
 ## Use Cases
 
 **Subject** — improving an existing agent configuration: for an ACED-tracked target, diagnosing its
 failing evals, grouping them by failure pattern, proposing concrete before/after edits, and verifying
-with `compare-aced`; for an untracked target, a general review against the fit and builder bars.
+with `compare`; for an untracked target, a general review against the fit and builder bars.
 **Non-goals** — scaffolding a brand-new config (`define-skill` / `define-agent` / the `reference` skill of `cyber-agentkit`);
-authoring a case (`add-scenario`); scoring the suite (`run`); on-demand diffing (`compare-aced`); auditing a
+authoring a case (`add-scenario`); scoring the suite (`run`); on-demand diffing (`compare`); auditing a
 SKILL file's structure (`/cyber-agentkit:skill check`); how a single case is scored (that is `aced-case-judge`).
 
 **Fit:** strong — the capability carries a genuine activation decision (a fix-the-config request versus
-sibling intents — `define-*` / `add-scenario` / `run` / `compare-aced` / `/cyber-agentkit:skill check` — that share the
+sibling intents — `define-*` / `add-scenario` / `run` / `compare` / `/cyber-agentkit:skill check` — that share the
 same config vocabulary), and its tracked-vs-untracked routing, failure grouping, diff proposal, and
 verify path are judged, not asserted.
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Trigger on a fix request | a request to diagnose / fix a config whose evals are failing, vs. a sibling intent (scaffold new, capture a case, score, diff, audit structure) carrying the same config vocabulary | `enhance-aced` fires for a fix-the-config request and defers when the intent belongs to `define-*` / `add-scenario` / `run` / `compare-aced` / `/cyber-agentkit:skill check` |
+| Trigger on a fix request | a request to diagnose / fix a config whose evals are failing, vs. a sibling intent (scaffold new, capture a case, score, diff, audit structure) carrying the same config vocabulary | `enhance` fires for a fix-the-config request and defers when the intent belongs to `define-*` / `add-scenario` / `run` / `compare` / `/cyber-agentkit:skill check` |
 | Locate the target | a config that may be a skill, subagent, command, or AGENTS.md section | the artifact type is identified and the config is read in full |
 | Route the diagnostic path | whether the target has an eval suite in the project spec | ACED-tracked → diagnose failing evals; untracked → a general review against the fit classifier and the matching builder bar |
 | Load the context (tracked) | the eval config, the target, and the latest results record | the target is read in full alongside the most recent results, or the user is pointed at `run` when no results exist |
 | Identify and group | the latest results | only the failing cases are collected (nothing-to-propose when none fail), each classified into a failure pattern reported before any fix |
 | Propose edits | a pattern grouping | each pattern yields a concrete before/after diff rather than prose, no fix ever removes a test case, and a recommendation is given when no clean fix exists |
-| Apply and verify | user-approved edits | edits are applied only after approval; a tracked target auto-runs `compare-aced`, an untracked target is offered a suite rather than a fabricated verdict |
+| Apply and verify | user-approved edits | edits are applied only after approval; a tracked target auto-runs `compare`, an untracked target is offered a suite rather than a fabricated verdict |
 
 ## Control Flow
 

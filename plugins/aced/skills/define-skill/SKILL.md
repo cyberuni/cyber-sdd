@@ -38,7 +38,7 @@ same config vocabulary:
 | a **reference-only rule set / governance** other skills load but never execute as steps | the `reference` skill of `cyber-agentkit` |
 | generalizing **the current session's** work into a skill | `skillify` |
 | **scoring** an existing config, or **adding** an eval case | `run` / `add-scenario` |
-| **diagnosing** why an existing skill's evals fail | `enhance-aced` |
+| **diagnosing** why an existing skill's evals fail | `enhance` |
 
 A persona request that surfaces mid-authoring is handed to `define-agent` — do not scaffold a persona
 skill here.
@@ -154,7 +154,7 @@ Tool-based, rules + pass conditions for Standard>
 
 If the target SKILL.md already exists, **read it first** and change **only** the gaps or issues found
 — leave every sound part intact. This fills gaps in a skill's *definition*; diagnosing failing evals
-is `enhance-aced`.
+is `enhance`.
 
 ## Name gate/case scorers by role
 

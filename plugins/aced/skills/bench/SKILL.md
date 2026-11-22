@@ -7,7 +7,7 @@ description: "By name only"
 
 Measure a change with real headless runs through ACED's measured-layer engine, spending only on the
 person's explicit yes to the plan on screen. Reached by name: `/bench`, a consumer tool handing off
-with its own suite (and optional tags), or `compare-aced`'s measured mode. The procedure is the same
+with its own suite (and optional tags), or `compare`'s measured mode. The procedure is the same
 whichever caller loaded it.
 
 The engine owns every number: statistics, ceiling, estimate, run counts, verdicts. Quote what the
@@ -59,10 +59,10 @@ non-zero means the engine refused or failed; its stderr carries the reason.
    measured, not to the subject's `bench:` declaration: a declared `measured: worth` does not skip
    this step, and an absent or `not-worth` declaration does not by itself stop it.
    - Criterion 1 fails (the change only rewords a description, a trigger, or other wording) → say
-     the simulated layer answers a wording change and name `compare-aced` (ACED's simulated diff).
+     the simulated layer answers a wording change and name `compare` (ACED's simulated diff).
    - Criterion 2 fails (no shell `check` can decide the outcome, for example "do replies read
      warmer") → say no shell check can decide this outcome, point to the simulated layer, and name
-     `compare-aced`.
+     `compare`.
    - Either failure: plan nothing, return no plan. Same answer with no person present.
 
 3. **Suite.** Use the suite the request or the calling tool names. None named → ask which suite to

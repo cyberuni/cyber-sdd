@@ -22,8 +22,8 @@ ACED applies [spec-driven development](/sdd/overview/) to the agent configuratio
 1. Register ACED with [`init-aced`](/aced/init-aced/), then author or improve the artifact itself with [`define-skill`](/aced/define-skill/), [`define-agent`](/aced/define-agent/), or, for a reference-only rule set, the `reference` skill of `cyber-agentkit`.
 2. Build a **golden set** — the scenarios in the artifact's frozen `.feature` — via `sdd:start-mission`. The SDD conductor resolves ACED's spec-producer (`aced-scenario-writer`) to author the `.feature` (boolean scenarios, inline `@rubric` scenarios, and a `@trigger` `Scenario Outline`) and the impl-producer to author the node's `eval.md` run policy.
 3. **Score** the current artifact against each scenario using an LLM judge — a `@rubric` scenario scores per named dimension against that dimension's own `max`, passing when the total meets the threshold — via [`run`](/aced/run/).
-4. **Compare** scores before and after an edit with [`compare-aced`](/aced/compare-aced/) — block commits on regression.
-5. **Improve** the artifact by diagnosing failing cases and applying targeted edits with [`enhance-aced`](/aced/enhance-aced/).
+4. **Compare** scores before and after an edit with [`compare`](/aced/compare/) — block commits on regression.
+5. **Improve** the artifact by diagnosing failing cases and applying targeted edits with [`enhance`](/aced/enhance/).
 
 ### Evaluation layers
 
@@ -47,9 +47,9 @@ Each eval suite opts in to the layers relevant to its artifact type. A simple `A
 | [`define-agent`](/aced/define-agent/) | Create or improve an agent definition (subagent, persona, or dual-mode) |
 | [`run`](/aced/run/) | Score the golden set against the current artifact |
 | [`add-scenario`](/aced/add-scenario/) | Add a test case from a real failure or edge case |
-| [`compare-aced`](/aced/compare-aced/) | Diff scores before/after an edit — regression gate |
-| [`enhance-aced`](/aced/enhance-aced/) | Diagnose failing cases; propose and apply targeted edits |
-| [`report-aced`](/aced/report-aced/) | Project-wide health dashboard across all eval suites |
+| [`compare`](/aced/compare/) | Diff scores before/after an edit — regression gate |
+| [`enhance`](/aced/enhance/) | Diagnose failing cases; propose and apply targeted edits |
+| [`report`](/aced/report/) | Project-wide health dashboard across all eval suites |
 
 ## Typical workflow
 
@@ -63,7 +63,7 @@ define-skill / define-agent → sdd:start-mission (spec + eval suite)
                                                     add (new cases)   report (project view)
 ```
 
-Run `init-aced` once per project to register the plugin. Author or improve the artifact with `define-skill`, `define-agent`, or the `reference` skill, then use `sdd:start-mission` to author its `.feature` and eval suite. Run `run` to get a baseline. Edit the artifact, then use `compare-aced` before committing. When cases fail, `enhance-aced` diagnoses the pattern and proposes edits.
+Run `init-aced` once per project to register the plugin. Author or improve the artifact with `define-skill`, `define-agent`, or the `reference` skill, then use `sdd:start-mission` to author its `.feature` and eval suite. Run `run` to get a baseline. Edit the artifact, then use `compare` before committing. When cases fail, `enhance` diagnoses the pattern and proposes edits.
 
 ## Eval suite structure
 
@@ -87,7 +87,7 @@ The node lives in the SDD spec tree. Each suite has its own pass threshold — d
 
 ## Health classification
 
-`report-aced` classifies each suite:
+`report` classifies each suite:
 
 | Status | Condition |
 |---|---|

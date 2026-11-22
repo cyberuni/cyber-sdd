@@ -1,5 +1,5 @@
 ---
-name: enhance-aced
+name: enhance
 description: Enhances an existing agent configuration — a skill, subagent, command, or AGENTS.md section — by diagnosing failing ACED evals or by general review against fit and quality bars. Trigger on "improve this skill", "make this agent better", "why does this config keep failing", or "review this AGENTS.md section", even when no eval suite exists yet.
 ---
 
@@ -17,7 +17,7 @@ Defer when the intent is narrower than "improve this config":
 | scaffolding a **new** skill, agent, command, or governance from scratch | `define-skill` / `define-agent` / `define-command` / the `reference` skill of `cyber-agentkit` |
 | **scoring** a config against its frozen `.feature` suite | `run` |
 | **adding** a new scenario | `add-scenario` |
-| **diffing** two versions before committing a change | `compare-aced` |
+| **diffing** two versions before committing a change | `compare` |
 | auditing a `SKILL.md`'s structure/compliance specifically | `/cyber-agentkit:skill check` |
 
 ## Locate the target and its artifact type
@@ -50,7 +50,7 @@ writing any changes.
 
 ## Verify after applying
 
-- **ACED-tracked:** run `compare-aced` (before = previous git revision, after = current working tree) to
+- **ACED-tracked:** run `compare` (before = previous git revision, after = current working tree) to
   confirm the edits improved scores without regressions.
 - **Not yet tracked:** offer to hand off to `sdd:start-mission` (the conductor resolves the ACED
   roles for this artifact-type) to author a `.feature` (with inline `@rubric`), or `add-scenario` to
@@ -102,5 +102,5 @@ Do not propose removing test cases to fix failing evals — that defeats the pur
 ## Done when
 
 - **C1.** Every edit was shown as an exact before and after diff and written only after approval.
-- **C2.** For an ACED-tracked target, a `compare-aced` result exists for the edit and the report states whether any scenario regressed.
+- **C2.** For an ACED-tracked target, a `compare` result exists for the edit and the report states whether any scenario regressed.
 - **C3.** For a target with no suite, the report offers `sdd:start-mission` or `add-scenario` and states no pass or fail verdict.

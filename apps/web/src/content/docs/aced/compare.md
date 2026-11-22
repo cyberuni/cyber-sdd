@@ -1,5 +1,5 @@
 ---
-title: compare-aced
+title: compare
 description: Diff ACED eval scores between two versions of an agent configuration to catch regressions.
 ---
 
@@ -19,4 +19,4 @@ Runs the golden set against two versions of a target agent configuration and dif
 
 ## Regression gate
 
-If any scenario regressed (a dimension dropped, the total dropped, or it flipped pass→fail), it flags `⚠ REGRESSION DETECTED` explicitly and recommends not committing until resolved — run [`enhance-aced`](/aced/enhance-aced/) or revert. With no regressions and a net improvement, it confirms the change is safe to commit.
+If any scenario regressed (a dimension dropped, the total dropped, or it flipped pass→fail), it flags `⚠ REGRESSION DETECTED` explicitly and recommends not committing until resolved — run [`enhance`](/aced/enhance/) or revert. With no regressions and a net improvement, it confirms the change is safe to commit.

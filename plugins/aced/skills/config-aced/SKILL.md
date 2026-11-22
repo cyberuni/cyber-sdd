@@ -58,7 +58,7 @@ read-only. `config-aced` only routes.
 - **Authoring is not manage.** A request to **create or improve** an agent definition or a workflow
   skill is redirected to **`define-agent`** / **`define-skill`**, not handled here.
 - **Scoring is not manage.** A request to **run or score** a config's eval suite defers to the
-  **eval-run** skills (`run` / `compare-aced` / `report-aced`).
+  **eval-run** skills (`run` / `compare` / `report`).
 - **A change to what ACED specifies** — adding or revising ACED's own behavior — is redirected to
   **`start-mission`**, which opens a CR and runs the mission loop.
 - **Thin classifier.** Classifying loads **no governance** and holds **no production logic** — it

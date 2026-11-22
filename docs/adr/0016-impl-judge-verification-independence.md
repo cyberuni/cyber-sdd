@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 ## Context
 
 At the SDD impl gate the **impl-producer** builds the implementation **and authors its verification**

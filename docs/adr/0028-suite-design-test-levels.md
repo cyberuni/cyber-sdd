@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 Refined by [ADR-0034](0034-colocate-the-node-spec-keep-the-frozen-suite.md): the inner unit-test layer
 sits permanently **beneath** the frozen `.feature` and never replaces it. Implementation-native suites
 (Vitest, Storybook, `evals.json`) are that inner layer, not a substitute acceptance suite.

@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 ## Context
 
 [ADR-0017](0017-frontmatter-is-the-router-index.md) and its discover-specs amendment narrowed spec

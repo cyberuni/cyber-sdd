@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`).
+
 ## Context
 
 SDD needed a way to take one or more **change-requests** (CRs) and *compile* them into a set of

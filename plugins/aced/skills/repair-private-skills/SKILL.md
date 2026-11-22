@@ -48,7 +48,7 @@ Issue kinds `validate` reports: `public_skill_symlink`, `missing_skill_file`, `m
 symlink pointing into it.
 
 `repair-private-skills` does not discover skills across all sources — that is `list-skills`. It does
-not maintain the per-model runner-def family — that is `manage-model-runners`.
+not maintain the per-model runner-def family — that is `config-model-runners`.
 
 When `node` is absent, an agent performs the same checks by hand: for each entry under
 `.agents/skills`, `lstat` it — if it is a symlink whose realpath resolves inside the public `skills/`

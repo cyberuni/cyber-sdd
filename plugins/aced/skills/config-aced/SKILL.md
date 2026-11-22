@@ -36,17 +36,17 @@ manage-level ACED engines land:
 
 | Group | Request | Engine (handler) |
 |---|---|---|
-| **Config runners** | set up / list / remove per-model runner agents used to benchmark skills | **`manage-model-runners`** — internal, non-invokable; loaded here |
+| **Config runners** | set up / list / remove per-model runner agents used to benchmark skills | **`config-model-runners`** — internal, non-invokable; loaded here |
 | **Skill corpus** | list / inventory the installed skills across the repo, the user-global install, and the shipped package | **`list-skills`** — internal, non-invokable; loaded here |
 | **Skill corpus** | validate / repair repo-private skill metadata under `.agents/skills` | **`repair-private-skills`** — internal, non-invokable; loaded here |
-| **Skill corpus** | list / add / remove / preview the extra skill-scan locations the validate engine uses | **`manage-skill-dirs`** — internal, non-invokable; loaded here |
+| **Skill corpus** | list / add / remove / preview the extra skill-scan locations the validate engine uses | **`config-skill-dirs`** — internal, non-invokable; loaded here |
 
 ## Load the engine in-session
 
 When the route resolves, **load the matched engine in the current session** and run it directly —
-**spawn nothing**. Write-capable operations stay **owned by their engine**: `manage-model-runners`
+**spawn nothing**. Write-capable operations stay **owned by their engine**: `config-model-runners`
 writes its runner agent-def files and their symlinks; `repair-private-skills` writes only under
-`.agents/skills`; `manage-skill-dirs` writes only `.agents/aced/skill-dirs.toml`; `list-skills` is
+`.agents/skills`; `config-skill-dirs` writes only `.agents/aced/skill-dirs.toml`; `list-skills` is
 read-only. `config-aced` only routes.
 
 ## Non-mission — the boundary
@@ -58,7 +58,7 @@ read-only. `config-aced` only routes.
 - **Authoring is not manage.** A request to **create or improve** an agent definition or a workflow
   skill is redirected to **`define-agent`** / **`define-skill`**, not handled here.
 - **Scoring is not manage.** A request to **run or score** a config's eval suite defers to the
-  **eval-run** skills (`run` / `compare` / `report`).
+  **eval-run** skills (`run` / `compare-aced` / `report-aced`).
 - **A change to what ACED specifies** — adding or revising ACED's own behavior — is redirected to
   **`start-mission`**, which opens a CR and runs the mission loop.
 - **Thin classifier.** Classifying loads **no governance** and holds **no production logic** — it

@@ -29,7 +29,7 @@ creates, modifies, or deletes anything under it.
 
 **Non-goals.** Discovering or summarizing skills across all sources (`list-skills` — this engine only
 ever looks at `.agents/skills`). Maintaining the per-model runner agent-def family
-(`manage-model-runners`). Any hygiene check other than the public-symlink and `metadata.internal`
+(`config-model-runners`). Any hygiene check other than the public-symlink and `metadata.internal`
 checks — content quality is `/cyber-agentkit:skill check`. It is **not user-invocable** — it is
 reached via `config-aced`.
 

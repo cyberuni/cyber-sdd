@@ -25,7 +25,7 @@ Today it routes one group:
 
 | Group | Engine |
 |---|---|
-| **Config runners** — set up / list / remove per-model runner agents | `manage-model-runners` (internal) |
+| **Config runners** — set up / list / remove per-model runner agents | `config-model-runners` (internal) |
 
 The table grows as more manage-level ACED engines land.
 

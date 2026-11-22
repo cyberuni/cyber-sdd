@@ -31,7 +31,7 @@ const PROBE: Record<string, string[]> = {
 	'skills/extract-situation/scripts/extract-situation.mjs': [],
 	'skills/init-aced/scripts/ensure-results-ignored.mjs': [],
 	'skills/list-skills/scripts/list-skills.mjs': ['--grep', 'no-such-skill-anywhere'],
-	'skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs': ['--help'],
+	'skills/config-skill-dirs/scripts/config-skill-dirs.mjs': ['--help'],
 	'skills/repair-private-skills/scripts/repair-private-skills.mjs': [],
 }
 

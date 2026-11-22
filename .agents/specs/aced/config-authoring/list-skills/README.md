@@ -23,7 +23,7 @@ optional `skill.json` manifest and writes nothing.
 
 **Non-goals.** Validating or repairing skill content (`repair-private-skills` — read-only checks and
 writes live there; this engine never mutates a file). Maintaining the per-model runner agent-def
-family (`manage-model-runners`). Installing or scaffolding a skill (`create-skill`,
+family (`config-model-runners`). Installing or scaffolding a skill (`create-skill`,
 `contribute-skill`). It is **not user-invocable** — it is reached via `config-aced`.
 
 **Fit:** partial — the operation is mechanical (scan fixed directories, parse frontmatter, dedupe,

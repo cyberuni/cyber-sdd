@@ -12,7 +12,7 @@ The concrete **discovery engine** for the ACED skill inventory — scans the fou
 sources, dedupes, filters, and reports what is installed. It is **read-only**: it never writes a
 `SKILL.md`, a manifest, or any other file. Validating or repairing skill content is a different
 engine (`repair-private-skills`); maintaining the per-model runner family is
-`manage-model-runners`. Loaded **in-session** by the `config-aced` gateway; **not user-invocable**.
+`config-model-runners`. Loaded **in-session** by the `config-aced` gateway; **not user-invocable**.
 
 ## The four sources (scan order, dedupe precedence)
 

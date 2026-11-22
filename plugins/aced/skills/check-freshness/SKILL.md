@@ -80,7 +80,7 @@ it should have" is not, and this engine never claims the second.
 
 ## Boundaries
 
-Scores nothing (`run`), compares no two versions (`compare`), rolls nothing up (`report`), and does
+Scores nothing (`run`), compares no two versions (`compare-aced`), rolls nothing up (`report-aced`), and does
 not judge whether a recorded *pass* was well-founded (a judge-protocol question). It decides
 a verdict and reports it; **what a caller does with that verdict is the caller's**.
 

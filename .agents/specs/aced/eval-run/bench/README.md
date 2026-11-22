@@ -20,6 +20,6 @@ the versioned records, and any migration of its older data is that tool's job.
 Whether a subject is worth measuring at all is the `measured` axis of fit
 ([`../../design/fit.md`](../../design/fit.md)), declared in the subject node's `eval.md` under `bench:`.
 
-**Not here** — `compare`'s measured mode and `report`'s measured section belong to those nodes
-([`../compare/`](../compare/README.md), [`../report/`](../report/README.md)) and arrive as their own
+**Not here** — `compare-aced`'s measured mode and `report-aced`'s measured section belong to those nodes
+([`../compare-aced/`](../compare-aced/README.md), [`../report-aced/`](../report-aced/README.md)) and arrive as their own
 additive changes. Fanning a measured run out over several models is a separate change.

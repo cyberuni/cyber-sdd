@@ -18,13 +18,13 @@ exact plan on screen. Afterwards it says plainly whether the change regressed, i
 be called — and never presents an unclear result as safe, or a price change as a regression.
 
 It is reached **by name**: from `/bench`, from a consumer tool handing off by name with its own
-suite, and later from `compare`'s measured mode. It is never matched to a user's
+suite, and later from `compare-aced`'s measured mode. It is never matched to a user's
 situation from its description. So it makes no activation decision of its own.
 
 **Non-goals** — the statistics, the record schema, the run sequence, and every number in the plan
 (`../engine/`); defining the fit criteria it re-asks (it loads `aced:aced-fit` and applies that
 governance's measured criteria 1–2 to the change in hand, restating none of them); declaring a
-subject's `measured` fit in its `eval.md` (the spec-producer, under `aced:aced-fit`); the simulated diff (`../../compare/`); the project-wide roll-up (`../../report/`);
+subject's `measured` fit in its `eval.md` (the spec-producer, under `aced:aced-fit`); the simulated diff (`../../compare-aced/`); the project-wide roll-up (`../../report-aced/`);
 choosing tasks for a suite (the suite maintainer writes `tasks.json`); a model matrix (a separate
 change). The skill is driven by the change in hand, not by the subject's `bench:` declaration: a
 declared `measured: worth` does not skip the fit re-ask, and an absent or `not-worth` declaration does
@@ -64,7 +64,7 @@ agreed to.
 Extensions:
 
 - **The question is not one real runs answer** — `aced:aced-fit`'s measured criterion 1 or 2 fails
-  for this change → the skill says the simulated layer answers it, names `compare`, and plans
+  for this change → the skill says the simulated layer answers it, names `compare-aced`, and plans
   nothing.
 - **No suite named** → it asks which suite to use and plans nothing; it never guesses one, even when
   only one suite exists.

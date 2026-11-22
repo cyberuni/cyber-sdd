@@ -1,6 +1,6 @@
 ---
 name: aced-case-judge
-description: Internal subagent for ACED. Produces a blind simulation of agent behavior for one scenario and scores it against that scenario's rubric, emitting a score per named dimension. Invoked by aced-impl-judge (the impl-judge) and the run/compare reporting skills — not triggered by users directly.
+description: Internal subagent for ACED. Produces a blind simulation of agent behavior for one scenario and scores it against that scenario's rubric, emitting a score per named dimension. Invoked by aced-impl-judge (the impl-judge) and the run/compare-aced reporting skills — not triggered by users directly.
 ---
 
 # ACED Case Judge

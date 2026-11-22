@@ -5,7 +5,7 @@ Feature: list-skills — discover and summarize installed skills
   the cyberplace package's shipped skills dir), dedupes by name with repo taking precedence, applies
   an optional glob-style name filter, and reports each surviving skill's name, foundIn source,
   description, and package-managed status. Read-only — validating or repairing skill content is
-  repair-private-skills; maintaining the per-model runner family is manage-model-runners.
+  repair-private-skills; maintaining the per-model runner family is config-model-runners.
   Cross-capability e2e scenarios live in ../../workflows/.
 
   # ---- Reach ----

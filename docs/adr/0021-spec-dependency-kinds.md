@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** v1 (`plugins/sdd`). No evidence shows that comprehension cycles confuse agents; see the [circular-spec-references research](https://github.com/cyber-uni/cyber-agentkit/blob/main/.research/circular-spec-references/conclusion.md).
+
 ## Context
 
 Specs routinely reference other units — a routing skill names what it fires *away from* (`init`'s

@@ -1,6 +1,6 @@
 @frozen
 Feature: judge — the internal scorer
-  Unit suite for the ACED scorer invoked by implementer and the run/compare reporting skills: score one
+  Unit suite for the ACED scorer invoked by implementer and the run/compare-aced reporting skills: score one
   simulated agent behavior against a rubric for a single scenario and layer, and emit a score per named
   rubric dimension collapsed to one verdict. The simulation it scores is produced blind, in a context
   that never saw the rubric or the expected outcome. Rolling up the gate verdict and aggregating across

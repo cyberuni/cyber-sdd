@@ -63,7 +63,7 @@ Examples of edit types:
 
 Show all proposed edits to the user. Ask for approval before writing any changes.
 
-After user approval, apply edits to the agent configuration. Then automatically run `compare` (before = previous git revision, after = current working tree) to verify the changes improved scores without introducing regressions.
+After user approval, apply edits to the agent configuration. Then automatically run `compare-aced` (before = previous git revision, after = current working tree) to verify the changes improved scores without introducing regressions.
 
 ## If no clear fix exists
 

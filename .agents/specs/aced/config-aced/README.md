@@ -37,7 +37,7 @@ non-deterministic judgment, so the agent-behavior eval layers carry signal.
 |---|---|---|
 | Route a named operation | an invocation that already names a manage operation | the matching engine loads directly, in-session, with no menu |
 | Gather intent on a bare invocation | `config-aced` invoked with no operation named | a menu asks the user to pick, presenting at most four options and never truncating silently |
-| Route to a manage engine | a request to set up runners, inventory skills, repair private-skill metadata, or curate skill-scan locations | the matching engine (`manage-model-runners` / `list-skills` / `repair-private-skills` / `manage-skill-dirs`) loads in the current session |
+| Route to a manage engine | a request to set up runners, inventory skills, repair private-skill metadata, or curate skill-scan locations | the matching engine (`config-model-runners` / `list-skills` / `repair-private-skills` / `config-skill-dirs`) loads in the current session |
 | Load the engine in-session | a resolved route in a live session | the matched engine loads and runs directly; `config-aced` spawns nothing and picks no model, deferring the model choice to the engine |
 | Hold the manage boundary | any request `config-aced` classifies | it opens no CR, invokes no gate, writes no `status` / `approval`, loads no governance, and holds no production logic |
 | Defer what is not manage | a request to author a config, to score one, or to change what ACED specifies | it redirects to `define-agent` / `define-skill`, the eval-run skills, or `start-mission` rather than handling it |
@@ -56,10 +56,10 @@ flowchart TD
   MENU[ask via AskUserQuestion;<br/>at most four options; never truncate silently] --> CLASSIFY
 
   CLASSIFY{what is being asked for?}
-  CLASSIFY -->|set up / list / remove per-model runner agents| MMR([load manage-model-runners in-session])
+  CLASSIFY -->|set up / list / remove per-model runner agents| MMR([load config-model-runners in-session])
   CLASSIFY -->|list / inventory the installed skills| LS([load list-skills in-session])
   CLASSIFY -->|validate / repair repo-private skill metadata| RPS([load repair-private-skills in-session])
-  CLASSIFY -->|list / add / remove / preview extra skill-scan locations| MSD([load manage-skill-dirs in-session])
+  CLASSIFY -->|list / add / remove / preview extra skill-scan locations| MSD([load config-skill-dirs in-session])
   CLASSIFY -->|author an agent def or workflow skill| AUTH([redirect to define-agent / define-skill])
   CLASSIFY -->|run or score a config's eval suite| SCORE([defer to the eval-run skills])
   CLASSIFY -->|add or revise what ACED specifies| SM([redirect to start-mission])

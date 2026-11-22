@@ -89,8 +89,8 @@ skipped reference file. Both read `current`, and no verdict here can find either
 the class that is checkable; the classes left open are the ones that matter most. Reading `current` as "the run's account still holds" is sound; reading it
 as "the run read everything it should have" is not, and this node never claims the second.
 
-**Non-goals** — scoring anything (`run`); comparing two versions (`compare`); the project-wide
-roll-up (`report`); deciding **what a caller does** with a verdict — no node consumes this verdict
+**Non-goals** — scoring anything (`run`); comparing two versions (`compare-aced`); the project-wide
+roll-up (`report-aced`); deciding **what a caller does** with a verdict — no node consumes this verdict
 yet, and wiring the callers is a separate change against each of those nodes; judging whether a
 recorded *pass* was well-founded (a judge-protocol
 question, out of scope here); **re-resolving the subject's current dependent set** (the closed world

@@ -4,6 +4,8 @@
 
 Accepted; dual-marker requirement superseded by [ADR-0031](0031-selection-is-not-visibility.md)
 
+**SDD version:** v1 (`plugins/sdd`).
+
 > **Superseded in part (2026-07-24):** The core decision — reference content lives in a skill loaded
 > by other agents, not via `governance show` — stands. The **dual marker** below does not.
 > `user-invocable: false` is a *visibility* flag only and never signals how a skill is selected, and

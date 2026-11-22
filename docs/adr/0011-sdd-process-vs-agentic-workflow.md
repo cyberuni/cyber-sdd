@@ -4,6 +4,8 @@
 
 Accepted
 
+**SDD version:** both, v1 (`plugins/sdd`) and v2 (`packages/cyber-sdd`).
+
 ## Context
 
 The root SDD spec (`.agents/specs/sdd/spec.md`) opened with "SDD is a workflow." Separately, the

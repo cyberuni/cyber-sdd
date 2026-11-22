@@ -1,5 +1,5 @@
 ---
-title: compare-aced
+title: compare
 description: Diff ACED eval scores between two versions of an agent configuration to catch regressions.
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: report-aced
+name: report
 description: Summarizes the health of all ACED eval suites project-wide — pass rates, trends, and which agent configurations need attention.
 ---
 

@@ -16,7 +16,7 @@ Diagnoses failing eval cases and proposes targeted edits to the target agent con
 3. Groups failures by pattern: trigger false-positive/negative, missing step, ambiguous rule, conflicting instruction, scope creep, or description mismatch.
 4. Proposes a concrete before/after diff per pattern (e.g. rewrite `description:` for trigger issues, make a step more prominent for missing steps, add precedence rules for conflicts).
 5. Shows all proposed edits and asks for approval before writing anything.
-6. After approval, applies the edits, then automatically runs [`compare-aced`](/aced/compare-aced/) (previous git revision vs. current working tree) to confirm improvement without regression.
+6. After approval, applies the edits, then automatically runs [`compare`](/aced/compare/) (previous git revision vs. current working tree) to confirm improvement without regression.
 
 ## Role as ACED impl-producer
 

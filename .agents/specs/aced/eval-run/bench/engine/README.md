@@ -26,8 +26,8 @@ and replays a scripted transcript.
 
 **Non-goals** — deciding whether a subject is worth measuring (the `measured` fit axis,
 `../../../design/fit.md`); asking a person for consent and explaining results (`../skill/`); grading a
-run with an LLM judge (a judged real run is #64's territory); `compare-aced`'s and `report-aced`'s measured
-views (`../../compare-aced/`, `../../report-aced/`); deciding whether a measured record is still current —
+run with an LLM judge (a judged real run is #64's territory); `compare`'s and `report`'s measured
+views (`../../compare/`, `../../report/`); deciding whether a measured record is still current —
 the `evaluated` set is written in `check-freshness`'s entry shape, and `../../check-freshness/` reads
 it by suite and arm; an interactive runner (dropped from v1); fanning out over a model matrix (a separate
 change); interpreting comparison tags (the consumer owns their meaning).
@@ -173,12 +173,12 @@ metric's median, `totalCostUsd`, `costPerSuccessUsd`).
 `…/<createdAt>/<task>-<run>.jsonl.gz`. Both sit inside ACED's results directory, which `init-aced`
 git-ignores (they carry machine paths); only `baseline.json` is committed. Measured records share
 that ignored root with simulated results but not their keys: simulated readers (`check-freshness`,
-`report-aced`) find records by `target`, and a measured record carries none, so neither layer ever reads
+`report`) find records by `target`, and a measured record carries none, so neither layer ever reads
 the other's records.
 
 ### UC4 — `compare`: tell a real change from noise
 
-**Actor** the `bench` skill, `compare-aced`'s measured mode, or a CI consumer. **Goal** a verdict it can act
+**Actor** the `bench` skill, `compare`'s measured mode, or a CI consumer. **Goal** a verdict it can act
 on, with the reasons it cannot be trusted stated rather than hidden.
 
 | Trigger | Inputs | Outcome |

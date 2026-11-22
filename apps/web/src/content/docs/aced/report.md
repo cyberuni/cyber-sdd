@@ -1,5 +1,5 @@
 ---
-title: report-aced
+title: report
 description: Project-wide health dashboard across all ACED eval suites — pass rates, trends, and what needs attention.
 ---
 

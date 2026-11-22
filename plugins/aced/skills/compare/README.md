@@ -1,4 +1,4 @@
-# compare-aced
+# compare
 
 Run the frozen `.feature` suite against two versions of a target agent configuration and diff the results — the regression check before committing a change.
 
@@ -21,5 +21,5 @@ Scores the frozen `.feature` suite against a "before" version (default: previous
 ## Install
 
 ```bash
-npx skills add cyberuni/cyberplace --skill aced/compare-aced
+npx skills add cyberuni/cyberplace --skill aced/compare
 ```

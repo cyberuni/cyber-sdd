@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// list-skills — the concrete discovery engine for the ACED `manage` gateway's skill inventory. It
+// list-skills — the concrete discovery engine for the ACED `config-aced` gateway's skill inventory. It
 // scans the four fixed skill sources — repo-private (.agents/skills), repo-public (skills/),
 // user-global (~/.agents/skills), and the cyberplace package's shipped skills dir — dedupes by
 // name (repo takes precedence over global/package), applies an optional --grep glob filter, and

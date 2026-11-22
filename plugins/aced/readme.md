@@ -44,12 +44,12 @@ spec's `design/fit.md`).
 | `init-aced` | Register ACED as the SDD plugin for agent-configuration domain types |
 | `add-scenario` | Add a new test case from a real failure or edge case |
 | `run` | Score the frozen `.feature` suite against the current agent configuration |
-| `compare` | Diff scores before/after an edit — regression gate |
+| `compare-aced` | Diff scores before/after an edit — regression gate |
 | `bench` | Measure a change with real headless runs (the measured layer) — plan, price, and run only on an explicit yes |
-| `improve` | Diagnose failing cases and propose targeted edits |
-| `report` | Project-wide health dashboard across all eval suites |
+| `enhance-aced` | Diagnose failing cases and propose targeted edits |
+| `report-aced` | Project-wide health dashboard across all eval suites |
 
-Spec creation is owned by the `sdd` plugin's `start-mission` / `spec-gate`: once ACED is registered, the conductor resolves the ACED production-chain roles automatically. The `run`/`compare`/`add-scenario`/`report` skills are thin reporting over the frozen `.feature` suite.
+Spec creation is owned by the `sdd` plugin's `start-mission` / `spec-gate`: once ACED is registered, the conductor resolves the ACED production-chain roles automatically. The `run`/`compare-aced`/`add-scenario`/`report-aced` skills are thin reporting over the frozen `.feature` suite.
 
 ## Agents (production-chain roles)
 
@@ -60,7 +60,7 @@ Spec creation is owned by the `sdd` plugin's `start-mission` / `spec-gate`: once
 | `aced-impl-judge` | impl-judge — **runs** the frozen `.feature` suite (reading each scenario's inline rubric) over N runs, collapses to a boolean per scenario |
 | `aced-case-judge` | internal scorer for `aced-impl-judge` — scores one scenario on its inline rubric |
 
-The impl-producer (building the agent config to pass the frozen suite — the verification is the frozen `.feature` itself, not a separate eval suite) is the `define-agent` / `improve` skills or the SDD-default impl-producer (the conductor running `impl-producer-governance` via a spawned builder); ACED does not bind a solution-producer (SDD default).
+The impl-producer (building the agent config to pass the frozen suite — the verification is the frozen `.feature` itself, not a separate eval suite) is the `define-agent` / `enhance-aced` skills or the SDD-default impl-producer (the conductor running `impl-producer-governance` via a spawned builder); ACED does not bind a solution-producer (SDD default).
 
 ## Workflow
 
@@ -73,11 +73,11 @@ sdd:start-mission → sdd:spec-gate (spec gate) → implement → run/compare �
 ```
 
 1. **`sdd:start-mission`** — the conductor resolves `aced-scenario-writer` to write the `.feature`; `aced-spec-validator` judges it at the spec gate.
-2. **implement** — the impl-producer (`define-agent` / `improve`) builds the agent config to pass the frozen `.feature`; `aced-impl-judge` (impl-judge) **runs** the suite, scoring each scenario via `aced-case-judge` against its inline rubric and writing results to the shared `.agents/aced/results/` directory, keyed by target.
-3. **`compare`** — before committing an edit, diff the before/after scores. Warns on regressions.
-4. **`improve`** — reads failing scenarios, groups by failure pattern, proposes before/after diffs to the agent configuration. Automatically runs `compare` after edits.
+2. **implement** — the impl-producer (`define-agent` / `enhance-aced`) builds the agent config to pass the frozen `.feature`; `aced-impl-judge` (impl-judge) **runs** the suite, scoring each scenario via `aced-case-judge` against its inline rubric and writing results to the shared `.agents/aced/results/` directory, keyed by target.
+3. **`compare-aced`** — before committing an edit, diff the before/after scores. Warns on regressions.
+4. **`enhance-aced`** — reads failing scenarios, groups by failure pattern, proposes before/after diffs to the agent configuration. Automatically runs `compare-aced` after edits.
 5. **`add-scenario`** — adds scenarios from production failures, edge cases, or gaps. Appends to the frozen `.feature` (additive — self-clears).
-6. **`report`** — scans all eval suites and prints a health dashboard (healthy / degraded / critical / trending-down).
+6. **`report-aced`** — scans all eval suites and prints a health dashboard (healthy / degraded / critical / trending-down).
 
 ## Eval suite structure
 

@@ -1,5 +1,5 @@
 ---
-name: compare
+name: compare-aced
 description: Compares two versions of an agent configuration to detect regressions or confirm improvements before committing a change.
 ---
 

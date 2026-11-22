@@ -9,8 +9,8 @@ concept: [config-authoring, discovery]
 
 An **internal, non-invokable** curation engine that declares and maintains the **extra skill-dir
 patterns** `/cyber-agentkit:skill check` scans on top of its two built-in default
-roots (`skills/`, `.agents/skills/`). It is reached only through the ACED `manage` gateway
-(`../../manage/`); it curates config `skill check` *reads*.
+roots (`skills/`, `.agents/skills/`). It is reached only through the ACED `config-aced` gateway
+(`../../config-aced/`); it curates config `skill check` *reads*.
 
 The problem it solves is that the validate engine must not bake a monorepo layout in (the repo's
 "no baked-in opinions — detect the setup at runtime" rule): a single-package repo scanning `skills/`
@@ -26,11 +26,11 @@ grammar (ADR-0019), dropping only the `<project>` capture that spec discovery ne
 
 **Non-goals.** Scanning or validating skills (`/cyber-agentkit:skill check`, which *reads* this
 config). Writing any skill content, `spec.md`, `status`, approval, or freeze — it writes **only**
-`.agents/aced/skill-dirs.toml`, so `manage`'s write-ownership guard holds. A `<project>` capture
-token. It is **not user-invocable** — it is reached via `manage`.
+`.agents/aced/skill-dirs.toml`, so `config-aced`'s write-ownership guard holds. A `<project>` capture
+token. It is **not user-invocable** — it is reached via `config-aced`.
 
 **Fit:** partial — the operations are mechanical (CRUD + induce + preview over a TOML array), reached
-via the `manage` gateway rather than by an activation decision, so trigger near-miss balance is N/A.
+via the `config-aced` gateway rather than by an activation decision, so trigger near-miss balance is N/A.
 The behavior and structural layers carry the signal: the config format, the additive-only defaults
 invariant, the pattern validator, and the preview-before-persist flow. The one agentic behavior — the
 manage skill previewing a pattern's matched skills and confirming before it writes — is the single
@@ -63,7 +63,7 @@ of the curate-with-preview flow.
 
 ```mermaid
 flowchart TD
-  REACH{how is manage-skill-dirs reached?} -->|the manage gateway loads it| OP
+  REACH{how is manage-skill-dirs reached?} -->|the config-aced gateway loads it| OP
   REACH -->|a bare user invocation| NOSELF([not user-invocable])
 
   OP{which operation?}

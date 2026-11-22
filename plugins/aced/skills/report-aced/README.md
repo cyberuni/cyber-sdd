@@ -1,4 +1,4 @@
-# report
+# report-aced
 
 Generate a project-wide health dashboard across every ACED eval suite — pass rate, mean %max, trend vs. the previous run, and which agent configurations need attention.
 
@@ -12,7 +12,7 @@ Good triggers include:
 - Before a release, to confirm nothing has regressed unnoticed
 - Deciding what to work on next across many tracked skills/agents
 
-Defer to a sibling when the request is about one specific target: `run` to score it, `improve` to fix failures, `compare` to diff two versions.
+Defer to a sibling when the request is about one specific target: `run` to score it, `enhance-aced` to fix failures, `compare-aced` to diff two versions.
 
 ## What it does
 
@@ -21,5 +21,5 @@ Scans the project spec (`.agents/specs/`) for behavioral-leaf nodes' `eval.md`, 
 ## Install
 
 ```bash
-npx skills add cyberuni/cyberplace --skill aced/report
+npx skills add cyberuni/cyberplace --skill aced/report-aced
 ```

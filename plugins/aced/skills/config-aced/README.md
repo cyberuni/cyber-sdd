@@ -1,4 +1,4 @@
-# manage
+# config-aced
 
 The manage-level front door to ACED — a thin dispatcher for **non-mission** work on the agent-config
 tooling ACED evaluates.
@@ -17,7 +17,7 @@ use `run`; to *change what ACED specifies*, use `start-mission`.
 
 ## What it does
 
-`manage` classifies the request and **loads the matching engine in the current session** — it spawns
+`config-aced` classifies the request and **loads the matching engine in the current session** — it spawns
 nothing, opens no change request, invokes no gate, and writes no contract state. When the operation
 is named it takes the fast path; on a bare invocation it asks a menu of at most four options.
 
@@ -31,5 +31,5 @@ The table grows as more manage-level ACED engines land.
 
 ## Boundaries
 
-`manage` never changes what ACED specifies. Authoring redirects to `define-agent` / `define-skill`,
+`config-aced` never changes what ACED specifies. Authoring redirects to `define-agent` / `define-skill`,
 scoring to the eval-run skills, and a change to ACED's own behavior to `start-mission`.

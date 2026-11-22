@@ -53,10 +53,10 @@ function snapshot(dir: string): string[] {
 	return out.sort()
 }
 
-// ── reach (documented here; the routing behavior itself lives in the manage gateway skill) ──
+// ── reach (documented here; the routing behavior itself lives in the config-aced gateway skill) ──
 
 test('reach: this module exports only the validate/repair engine, no user-invocation trigger', () => {
-	// The engine is a plain module with pure functions + main(argv); the manage gateway is what
+	// The engine is a plain module with pure functions + main(argv); the config-aced gateway is what
 	// decides to load it. This test documents that the file itself carries no self-trigger.
 	assert.equal(typeof validatePrivateSkills, 'function')
 	assert.equal(typeof repairPrivateSkills, 'function')

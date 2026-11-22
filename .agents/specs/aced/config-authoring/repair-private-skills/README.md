@@ -8,7 +8,7 @@ concept: [config-authoring]
 ## What
 
 An **internal, non-invokable** engine that checks and fixes the hygiene of **repo-private skills
-under `.agents/skills`**. It is reached only through the ACED `manage` gateway (`../../manage/`); it
+under `.agents/skills`**. It is reached only through the ACED `config-aced` gateway (`../../config-aced/`); it
 inspects and fixes skill config artifacts, never self-triggers from a bare user request.
 
 The problem it solves is that a repo-private skill can drift into two states that leak or break it: a
@@ -31,10 +31,10 @@ creates, modifies, or deletes anything under it.
 ever looks at `.agents/skills`). Maintaining the per-model runner agent-def family
 (`manage-model-runners`). Any hygiene check other than the public-symlink and `metadata.internal`
 checks — content quality is `/cyber-agentkit:skill check`. It is **not user-invocable** — it is
-reached via `manage`.
+reached via `config-aced`.
 
 **Fit:** partial — the operations are mechanical (scan `.agents/skills`, classify each entry,
-optionally write a fix), reached via the `manage` gateway rather than by an activation decision, so
+optionally write a fix), reached via the `config-aced` gateway rather than by an activation decision, so
 trigger near-miss balance is N/A. The behavior layer carries the signal: the issue taxonomy, the
 augmentation-only exemption, the read-only/write split, which issues repair can and cannot fix, and
 the `.agents/skills`-only write boundary.
@@ -47,7 +47,7 @@ the `.agents/skills`-only write boundary.
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Reach the engine through the gateway | a user request to check or fix repo-private skill hygiene | the `manage` gateway loads it; it does not self-trigger from a bare user invocation |
+| Reach the engine through the gateway | a user request to check or fix repo-private skill hygiene | the `config-aced` gateway loads it; it does not self-trigger from a bare user invocation |
 | Tolerate an absent private tree | a repo with no `.agents/skills` directory | validate reports ok / repair no-ops — the absent tree is clean, not an error |
 | Classify each private entry | a symlink into the public tree, a missing `SKILL.md`, an augmentation-only dir, a `SKILL.md` missing frontmatter, or one missing `metadata.internal: true` | each entry is classified into exactly one issue kind, or passes clean |
 | Validate read-only | the `validate` operation over the classification | every issue is reported, an ok result is returned when clean, and **no file** is created, modified, or deleted |
@@ -65,7 +65,7 @@ result.
 
 ```mermaid
 flowchart TD
-  REACH{how is repair-private-skills reached?} -->|the manage gateway loads it| OP
+  REACH{how is repair-private-skills reached?} -->|the config-aced gateway loads it| OP
   REACH -->|a bare user invocation| NOSELF([not user-invocable])
 
   OP{operation} -->|validate: read-only| DIR

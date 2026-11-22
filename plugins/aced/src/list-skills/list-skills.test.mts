@@ -22,9 +22,9 @@ function mkSkill(
 	if (opts.manifest) writeFileSync(join(dir, 'skill.json'), JSON.stringify(opts.manifest))
 }
 
-// ── reach (loaded via the manage gateway, never self-triggered) ──
+// ── reach (loaded via the config-aced gateway, never self-triggered) ──
 
-test('reach: the skill is declared non-user-invocable so only the manage gateway loads it', () => {
+test('reach: the skill is declared non-user-invocable so only the config-aced gateway loads it', () => {
 	// Regression guard for the frozen "reached via manage gateway, not a bare user invocation"
 	// scenario: a future flip of user-invocable to true (self-triggering) must fail here.
 	const skill = readFileSync(new URL('../../skills/list-skills/SKILL.md', import.meta.url), 'utf8')

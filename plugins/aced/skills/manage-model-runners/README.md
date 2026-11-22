@@ -1,6 +1,6 @@
 # manage-model-runners
 
-Internal, non-invokable ACED engine — loaded in-session by the `manage` gateway, not triggered
+Internal, non-invokable ACED engine — loaded in-session by the `config-aced` gateway, not triggered
 directly. It maintains a family of **runner agent definitions, one per model**, at user-global
 `~/.agents/agents/model-runner-<model>.md`.
 

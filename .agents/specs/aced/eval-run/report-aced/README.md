@@ -3,7 +3,7 @@ spec-type: behavioral
 concept: [eval-run]
 ---
 
-# report — project-wide eval health
+# report-aced — project-wide eval health
 
 ## What
 
@@ -16,19 +16,19 @@ own** and never share a trend line or a health class with simulated suites.
 
 **Subject** — rolling every eval suite in the project into one health dashboard: per-suite pass
 rate, trend versus the previous run, a health classification, and what needs attention.
-**Non-goals** — scoring a single suite (`run`); diffing two versions (`compare`); authoring or
-fixing cases (`add-scenario` / `improve`); deciding a single case's pass/fail (that is `aced-case-judge`).
+**Non-goals** — scoring a single suite (`run`); diffing two versions (`compare-aced`); authoring or
+fixing cases (`add-scenario` / `enhance-aced`); deciding a single case's pass/fail (that is `aced-case-judge`).
 For measured suites: every statistic and every verdict (the engine, `../bench/engine/`); diffing two
-measured arms (`compare`'s measured mode); running or planning real runs (`bench`).
+measured arms (`compare-aced`'s measured mode); running or planning real runs (`bench`).
 
 **Fit:** strong — the capability carries a genuine activation decision (a project-wide roll-up request
-versus sibling eval intents — `run` / `compare` / `add-scenario` — that share the same eval
+versus sibling eval intents — `run` / `compare-aced` / `add-scenario` — that share the same eval
 vocabulary), and its discovery, five-way health classification, `%max` normalization, and next-action
 routing are judged, not asserted.
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Trigger on a health-summary request | a request for the project-wide eval health / which configs need attention, vs. a sibling intent (score one suite, diff two versions, author a case) carrying the same eval vocabulary | `report` fires for a project-wide roll-up and defers when the intent belongs to `run` / `compare` / `add-scenario` |
+| Trigger on a health-summary request | a request for the project-wide eval health / which configs need attention, vs. a sibling intent (score one suite, diff two versions, author a case) carrying the same eval vocabulary | `report-aced` fires for a project-wide roll-up and defers when the intent belongs to `run` / `compare-aced` / `add-scenario` |
 | Discover the suites | the project spec (`.agents/specs/`), or none | every behavioral-leaf node with an `eval.md` is discovered, reading its latest and previous results; a no-suite message when none exist |
 | Classify each suite's health | the latest and previous results per suite | each suite is classified healthy / degraded / critical / no-data / trending-down |
 | Render the dashboard | the per-suite metrics | a dashboard of pass rate, mean `%max`, and trend per suite (mean normalized per scenario, never a raw-total average; `—` when a suite has no rubric scenario), plus a needs-attention list and an optional per-suite detail mode |
@@ -51,7 +51,7 @@ directory, never a key, a table, a trend line, or a health class.
 | **A project that only measures** *(stakeholder, e.g. a consumer tool's own suites)* | Still see its measured suites, even with no simulated suite. |
 | **The person reading the dashboard** *(stakeholder)* | Never see a measured pass rate judged against simulated health bars, or a verdict the report made up. |
 
-#### UC-R2 — the measured section of `report`
+#### UC-R2 — the measured section of `report-aced`
 
 | Trigger | Inputs | Outcome |
 |---|---|---|
@@ -84,7 +84,7 @@ record's `createdAt` to now, in whole days, floored; its verdict is shown exactl
 
 #### Validate section — the binding rules
 
-The measured section states rules the agent loading `report` must never break, so `SKILL.md` carries a
+The measured section states rules the agent loading `report-aced` must never break, so `SKILL.md` carries a
 `## Validate` section with one artifact-state assertion per rule (`aced:aced-builder-spec`,
 Validate-section coverage):
 

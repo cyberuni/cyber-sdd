@@ -1,5 +1,5 @@
 ---
-title: report
+title: report-aced
 description: Project-wide health dashboard across all ACED eval suites — pass rates, trends, and what needs attention.
 ---
 
@@ -28,7 +28,7 @@ Generates a project-wide health dashboard across all eval suites.
 
 ## Next actions suggested
 
-- `critical` / `trending-down` → run [`improve`](/aced/improve/)
-- `degraded` → run [`run`](/aced/run/) for details, then [`improve`](/aced/improve/)
+- `critical` / `trending-down` → run [`enhance-aced`](/aced/enhance-aced/)
+- `degraded` → run [`run`](/aced/run/) for details, then [`enhance-aced`](/aced/enhance-aced/)
 - `no-data` → run [`run`](/aced/run/)
 - `healthy` with no trend data → run [`add-scenario`](/aced/add-scenario/) to expand coverage

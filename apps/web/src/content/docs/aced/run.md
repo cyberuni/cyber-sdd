@@ -20,4 +20,4 @@ Runs the frozen `.feature` suite for a target agent configuration and reports pa
 
 ## Next step
 
-If cases fail, run [`enhance-aced`](/aced/enhance-aced/) to diagnose the pattern. If pass rate is 100%, run [`add-scenario`](/aced/add-scenario/) to expand edge-case coverage.
+If cases fail, run [`enhance`](/aced/enhance/) to diagnose the pattern. If pass rate is 100%, run [`add-scenario`](/aced/add-scenario/) to expand edge-case coverage.

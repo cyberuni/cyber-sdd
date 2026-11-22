@@ -15,7 +15,7 @@ The **Builder** bar at the **impl gate**, specialized for agent-configuration ar
 derived from the frozen `.feature`, no green-by-tampering); this adds how an *agent-config* subject,
 which has no deterministic test runner, reaches a per-scenario boolean through a scored eval read
 **directly from the frozen `.feature`**. One merged bar loaded by **both** faces — the ACED
-impl-producer (`define-agent` / `enhance-aced`, forward, which **builds the subject config**) and the cold
+impl-producer (`define-agent` / `enhance`, forward, which **builds the subject config**) and the cold
 impl-judge (`aced-impl-judge`, backward, which **runs** the suite). `producer ≠ judge` holds at the
 agent level.
 

@@ -10,9 +10,9 @@ Good triggers include:
 
 - "Run the evals for this skill"
 - "Score this agent config"
-- Checking whether a config still passes after an edit, before deciding whether to `enhance-aced` or `compare-aced`
+- Checking whether a config still passes after an edit, before deciding whether to `enhance` or `compare`
 
-Defer to a sibling when the request is about diagnosing failures (`enhance-aced`), diffing two versions (`compare-aced`), adding a new case (`add-scenario`), or a project-wide summary (`report-aced`).
+Defer to a sibling when the request is about diagnosing failures (`enhance`), diffing two versions (`compare`), adding a new case (`add-scenario`), or a project-wide summary (`report`).
 
 ## What it does
 

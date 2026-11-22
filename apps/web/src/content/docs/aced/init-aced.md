@@ -15,7 +15,7 @@ Registers ACED in the project's SDD plugin registry so the [SDD](/sdd/overview/)
 2. Reads ACED's own version from its plugin manifest.
 3. Writes (or rewrites, on upgrade or legacy shape) the `aced` entry under `sdd-plugins` with a single squad serving artifact-types `skill`, `subagent`, `command`, `agents-section`:
    - `spec-producer: aced-scenario-writer`, `spec-judge: aced-spec-validator`, `impl-judge: aced-impl-judge`
-   - `impl-producer: null` — writing the agent config itself is done by [`define-agent`](/aced/define-agent/) / [`enhance-aced`](/aced/enhance-aced/) or the SDD-default impl-producer, not a bound agent
+   - `impl-producer: null` — writing the agent config itself is done by [`define-agent`](/aced/define-agent/) / [`enhance`](/aced/enhance/) or the SDD-default impl-producer, not a bound agent
    - `solution-producer: null` — uses the SDD default
    - Binds its own `builder-spec` / `builder-impl` bars; other governance slots stay `null` (SDD default)
 

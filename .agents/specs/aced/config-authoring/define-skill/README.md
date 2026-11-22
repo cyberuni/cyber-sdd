@@ -30,7 +30,7 @@ non-durable escape hatch before any change request opens — it scaffolds, audit
 **Non-goals.** Authoring an agent or persona the user delegates to (`define-agent`). A reference-only
 rule set (the `reference` skill of `cyber-agentkit`). Extracting the current session into a skill (`skillify`). Scoring a
 skill against its suite (`run`), adding a case (`add-scenario`), or diagnosing why its evals fail
-(`enhance-aced`) — this capability's own improve mode fills gaps in a skill's *definition* at author time,
+(`enhance`) — this capability's own improve mode fills gaps in a skill's *definition* at author time,
 which is a different thing from diagnosing eval failures. Authoring the frozen `.feature` or its eval
 cases — that is the ACED eval loop the handoff points at, not this capability.
 

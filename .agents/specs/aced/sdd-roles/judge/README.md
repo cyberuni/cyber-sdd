@@ -13,10 +13,10 @@ lives there.
 
 ## Use Cases
 
-**Fit:** partial — `judge` is invoked by name by `implementer` / `run` / `compare-aced` and makes no
+**Fit:** partial — `judge` is invoked by name by `implementer` / `run` / `compare` and makes no
 activation decision, so the trigger layer carries no signal for it (trigger-balance / near-miss is
 N/A); its behavior and output remain LLM-graded.
-**Subject** — when `implementer` (or the `run` / `compare-aced` reporting skills) invokes it, producing one
+**Subject** — when `implementer` (or the `run` / `compare` reporting skills) invokes it, producing one
 simulated agent behavior **blind** (in a context shown the situation but not the rubric or the
 expected outcome), scoring that simulation against the rubric for a single scenario and layer, and
 emitting a score per named dimension plus PASS / WHAT WORKED / WHAT FAILED. The asymmetry is the

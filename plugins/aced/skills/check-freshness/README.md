@@ -51,7 +51,7 @@ under-reporting run records a shorter set whose entries all match, and no verdic
 because the only witness to what was read is the same self-report under test. See the trust boundary
 in `SKILL.md`.
 
-Nothing consults this engine yet: wiring `run` and `enhance-aced` to it is `#476`. Until that lands it is
+Nothing consults this engine yet: wiring `run` and `enhance` to it is `#476`. Until that lands it is
 specified, tested, and reachable only by a human running it directly — a recorded gap, not an
 oversight.
 

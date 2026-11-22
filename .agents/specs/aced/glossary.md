@@ -6,8 +6,8 @@ The agent-config eval vocabulary: artifact-type, golden set, scenario, rubric, l
 
 The ubiquitous language of agent-config evaluation — the terms every ACED capability and its specs
 use with one fixed meaning. The contract surface is the set of definitions below; conformance is
-verified **through the consuming capabilities** (a term is "correct" when `run` / `compare-aced` /
-`report-aced` / the `sdd-roles` delegates use it as defined), not by a `.feature` of its own.
+verified **through the consuming capabilities** (a term is "correct" when `run` / `compare` /
+`report` / the `sdd-roles` delegates use it as defined), not by a `.feature` of its own.
 
 | Term | Meaning |
 |---|---|

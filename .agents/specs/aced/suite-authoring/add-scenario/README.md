@@ -14,17 +14,17 @@ the frozen `.feature`, which stays `@frozen` because adding a scenario self-clea
 
 **Subject** — adding one new test case to a target configuration's frozen `.feature` suite, drawn from a
 real failure, a production edge case, or a noticed coverage gap.
-**Non-goals** — fixing the configuration when cases fail (`enhance-aced`); scoring the suite (`run`);
-diffing two versions (`compare-aced`); how a single case is scored (that is `aced-case-judge`).
+**Non-goals** — fixing the configuration when cases fail (`enhance`); scoring the suite (`run`);
+diffing two versions (`compare`); how a single case is scored (that is `aced-case-judge`).
 
 **Fit:** strong — the capability carries a genuine activation decision (a capture request versus
-sibling eval intents — `enhance-aced` / `run` / `compare-aced` — that share the same eval vocabulary), and its
+sibling eval intents — `enhance` / `run` / `compare` — that share the same eval vocabulary), and its
 suite location, input decomposition, layer inference, per-layer scaffold shape, and confirm-before-write
 discipline are judged, not asserted.
 
 | Use case | Trigger / inputs | Outcome |
 |---|---|---|
-| Trigger on a capture request | a request to capture a new case from a failure / edge / gap, vs. a sibling intent (fix the failing config, score, diff) carrying the same eval vocabulary | `add-scenario` fires for a capture request and defers when the intent belongs to `enhance-aced` / `run` / `compare-aced` |
+| Trigger on a capture request | a request to capture a new case from a failure / edge / gap, vs. a sibling intent (fix the failing config, score, diff) carrying the same eval vocabulary | `add-scenario` fires for a capture request and defers when the intent belongs to `enhance` / `run` / `compare` |
 | Locate the eval suite | the user names or implies a feature; its eval config may or may not exist | the suite's target and scoring bar are read, or the user is asked when no suite is found |
 | Capture the input | a pasted transcript, an edge-case description, a gap, or a must-not-do behavior | the input is decomposed into said / state / did / should, and a must-not-do becomes a guard |
 | Determine the layer | the captured input | the trigger / behavior / quality layer is inferred, the user is asked when ambiguous, and a layer absent from the suite config is flagged |

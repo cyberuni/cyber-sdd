@@ -66,7 +66,8 @@ implementation.
 
 ### Positive
 
-- The v2 glossary, the `spec` skill, and the research stay as written.
+- The `spec` skill and the research stay as written. The v2 glossary marks **functional spec**
+  *(SDD 2)*, since truss commits to no such name.
 - A reader of v2 knows which rung a document is from its name.
 
 ### Negative

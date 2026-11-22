@@ -162,9 +162,9 @@ implements the rung above ([Specifications exist at every level](https://cyberun
 In engineering the rungs are usually a design spec, a functional spec, and code and test. How a
 rung is identified across artifact types is open in truss.
 
-**functional spec**: the rung below the design spec, kept beside the component it specifies. One
-component may serve several capabilities, so a functional spec is not one design spec's child or
-copy. The `spec` skill writes the design spec only.
+**functional spec** *(SDD 2)*: the rung below the design spec, kept beside the component it
+specifies. One component may serve several capabilities, so a functional spec is not one design
+spec's child or copy. The `spec` skill writes the design spec only.
 
 **split** *(SDD 2)*: dividing one design spec into a **parent** and **child** design specs, each
 child a narrower capability. A split stays on one rung, so a child is never the functional spec.

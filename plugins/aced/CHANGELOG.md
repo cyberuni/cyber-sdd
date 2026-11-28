@@ -1,5 +1,26 @@
 # cyber-aced
 
+## 0.6.0
+
+### Minor Changes
+
+- 8365430: ACED retires `improve-skill`. Check a skill with `/cyber-agentkit:skill check`; `pnpm verify` gates skills through it. ACED ships a `skill-design.aspects.verification` reference that verifies a skill through the frozen `.feature` suite that names it. Every skill now ends with a `## Done when` section.
+- 5b20308: **Breaking:** two more ACED skills are renamed to follow the cyber-agentkit verb rules. The old names no longer resolve; invoke the new ones.
+  
+  - `aced:manage-model-runners` → `aced:config-model-runners`
+  - `aced:manage-skill-dirs` → `aced:config-skill-dirs`
+  
+  The skill-dirs engine script is renamed with its skill: `skills/manage-skill-dirs/scripts/manage-skill-dirs.mjs` is now `skills/config-skill-dirs/scripts/config-skill-dirs.mjs`.
+- 21366ad: **Breaking:** ACED skills named with `improve` or `manage` are renamed to follow the cyber-agentkit verb rules. The old names no longer resolve; invoke the new ones.
+  
+  - `aced:improve` → `aced:enhance`
+  - `aced:manage` → `aced:config-aced`
+
+### Patch Changes
+
+- d4d5dae: `skillify` and `define-command` run `cyberplace` through a forwarding script, `scripts/cyberplace.mjs`, pinned to `cyberplace` 0.3.0, instead of `npx cyberplace@<version>` with a run-time `npm view` lookup. The `cli-resolution` and `skill-design` references teach the forwarder model in place of the `upx` and pinned-`npx` fallbacks.
+- 625ae7a: Rebuild the bundled skill scripts with `universal-plugin` 0.22.0.
+
 ## 0.5.3
 
 ### Patch Changes

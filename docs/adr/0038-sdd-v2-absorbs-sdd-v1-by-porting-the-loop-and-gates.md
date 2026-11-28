@@ -57,13 +57,13 @@ Option 1. SDD v2 absorbs SDD v1 as follows.
 | Spec validation, discovery, anchors, concept index, plan retirement | v2 CLI. Deterministic scripts, with `.feature` and spec parsing built on gherkin-cli. |
 | Mission graph, scheduling, dispatch | cyberfleet. The process layer does not import them. |
 | Doctrine loop, formation loop | Two scheduled skills, one each (see below). |
-| Ledger | A reduced ledger (see below). |
+| Ledger | None. Unratified strategy becomes an issue (see below). |
 
 **The loop.** v2's conductor keeps v1's steps and their names, including *explore*. How explore runs
 is a method, kept in a reference loaded through `cyber-agentkit:reference`, so a repository can
 override it. The default method is **build-along**: the agent builds while it writes the spec, not as
 a throwaway spike. The implementation is kept unless the spec changes direction. A finding lives in
-the implementation and the spec, so the reduced ledger needs no place for it.
+the implementation and the spec, so it needs no place in a ledger.
 
 **The leash.** The name stays. The leash is how far an agent may act without asking, and it decides
 who ratifies a gate. It never exempts a run from a gate, so it is not a waiver. v2 derives it from
@@ -78,19 +78,27 @@ the pull request, and what it froze is the diff of the test suite.
 **Outer loops.** The doctrine loop and the formation loop become two scheduled skills, in the manner
 of self-improvement. A cadence replaces v1's lifecycle triggers.
 
-- The doctrine loop only appends unratified `strategy` entries to the ledger and surfaces them to the
-  Council. Nothing enters the corpus without the Council's keep-or-cut. It never redrafts a mission
-  already distilled.
-- The formation loop reads corpus structure only, never the ledger's mission history, and keeps a
-  cursor over the public trail.
+- The doctrine loop scans local session history and the public trail (pull requests and issues) for
+  improvements. It files each unratified strategy as an issue, after searching existing issues so two
+  machines do not file the same one. Closing or keeping the issue is the Council's keep-or-cut, and
+  nothing enters the corpus without it. It never redrafts a mission already distilled. A scheduled
+  run that cannot see local sessions reads only the public trail.
+- The formation loop reads corpus structure only, and keeps its cursor as local state.
 
-**Placement and discovery.** A project's design specs live in `<project>/.agents/spec/`. A functional
-spec sits beside the implementation. Discovery is by filename convention (`spec.md` beside the code),
-with no index to drift. v1's placement strategies and the oversized-node split do not carry over.
+**Placement and discovery.** A project is a package or the repository root. Its design specs live in
+`<project>/.agents/spec/`, in the v2 layout, and split by capability. A functional spec sits beside
+the implementation as `<name>.spec.md`, and its frontmatter references the design spec or specs it
+implements. The functional spec is never split, because an agent working on that code must know all
+of it. The nearest ancestor wins: from a touched file, the first `<name>.spec.md` on the way up is its
+functional spec. Discovery is a plain lookup with no index to drift. v1's placement strategies, its
+placement map, and the oversized-node split do not carry over. Making the functional spec's filename
+configurable is deferred to [cyberuni/cyber-sdd#232](https://github.com/cyberuni/cyber-sdd/issues/232).
 
-**Ledger.** The ledger shrinks to what a scheduled loop needs: `strategy` entries, a cursor, and a
-`cause` recurrence count. It lives at `.agents/cyber-sdd/ledger.jsonl` in the repository, as JSONL.
-v1's per-gate entries are not carried over.
+**No ledger.** v1's ledger kinds go to the places that already hold them. A `followup` is an issue in
+the tracker. The leash value and its blast reason, the gate verdicts, and any clearance, halt or
+correction go in the pull request. A `strategy` is an issue. The recurrence count and the cursor are
+local state that a scan derives, and are not committed. The v1 ledger stays readable in the tree
+until v1 is deleted.
 
 **Verification.** A test suite is a concept; its form depends on the subject. For agent
 instructions the suite is evals, run with `cyber-agentkit:skill`; for code it is tests under the
@@ -114,7 +122,7 @@ its script whole. `check:skills` extends to `packages/*/skills`.
 
 - The process layer keeps no dispatch, in line with cyberfleet ADR-0029.
 - v1's check script is deleted whole at the end, with no edits to it in the meantime.
-- The outer loops need no trigger plumbing, only a schedule and a small ledger.
+- The outer loops need no trigger plumbing, only a schedule.
 
 ### Negative
 
@@ -122,7 +130,8 @@ its script whole. `check:skills` extends to `packages/*/skills`.
   ([cyberuni/cyber-sdd#220](https://github.com/cyberuni/cyber-sdd/issues/220)).
 - Converting the suites to evals loses the `@trigger` and `@rubric` form, and the conversion must
   keep their coverage.
-- The v1 ledger's per-mission provenance is not carried over, so the doctrine loop sees less history.
+- The v1 ledger's per-mission provenance is not carried over, so the doctrine loop sees less history,
+  and a cloud-only run sees only the public trail.
 
 ## Related Decisions
 

@@ -87,9 +87,10 @@ of self-improvement. A cadence replaces v1's lifecycle triggers.
 
 **Placement and discovery.** A project is a package or the repository root. Its design specs live in
 `<project>/.agents/spec/`, in the v2 layout, and split by capability. A functional spec sits beside
-the implementation as `<name>.spec.md`, and its frontmatter references the design spec or specs it
+the implementation as `<subject>.spec.md`, named for the thing it describes (a `Button` component in
+`button.tsx` has `button.spec.md`), and its frontmatter references the design spec or specs it
 implements. The functional spec is never split, because an agent working on that code must know all
-of it. The nearest ancestor wins: from a touched file, the first `<name>.spec.md` on the way up is its
+of it. The nearest ancestor wins: from a touched file, the first `<subject>.spec.md` on the way up is its
 functional spec. Discovery is a plain lookup with no index to drift. v1's placement strategies, its
 placement map, and the oversized-node split do not carry over. Making the functional spec's filename
 configurable is deferred to [cyberuni/cyber-sdd#232](https://github.com/cyberuni/cyber-sdd/issues/232).

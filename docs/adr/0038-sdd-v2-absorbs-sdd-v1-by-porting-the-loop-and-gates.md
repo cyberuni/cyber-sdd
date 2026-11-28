@@ -59,6 +59,21 @@ Option 1. SDD v2 absorbs SDD v1 as follows.
 | Doctrine loop, formation loop | Two scheduled skills, one each (see below). |
 | Ledger | A reduced ledger (see below). |
 
+**The loop.** v2's conductor keeps v1's steps, with one rename: *explore* becomes **build-along**.
+The agent builds while it writes the spec, not as a throwaway spike. The implementation is kept by
+default and discarded only when the spec changes direction. A finding lives in the implementation and
+the spec, so the reduced ledger needs no place for it.
+
+**The leash.** The name stays. The leash is how far an agent may act without asking, and it decides
+who ratifies a gate. It never exempts a run from a gate, so it is not a waiver. v2 derives it from
+reach (blast-estimate) at the start of a run, as v1 does, and it may skip build-along for a change
+that is prose only.
+
+**The gates.** The spec gate and the impl gate are v2 skills, each judged by a cold subagent. The
+judge grades with the three lenses (oracle, builder, architect), loaded through the
+`cyber-agentkit:reference` skill so a repository can customize them. A gate's verdict is recorded in
+the pull request, and what it froze is the diff of the test suite.
+
 **Outer loops.** The doctrine loop and the formation loop become two scheduled skills, in the manner
 of self-improvement. A cadence replaces v1's lifecycle triggers.
 
@@ -76,10 +91,17 @@ with no index to drift. v1's placement strategies and the oversized-node split d
 `cause` recurrence count. It lives at `.agents/cyber-sdd/ledger.jsonl` in the repository, as JSONL.
 v1's per-gate entries are not carried over.
 
-**Verification.** v2 tests its skills with `cyber-agentkit:skill`. The existing `.feature` suites
-convert to evals. The decision does not wait on
+**Verification.** A test suite is a concept; its form depends on the subject. For agent
+instructions the suite is evals, run with `cyber-agentkit:skill`; for code it is tests under the
+project's runner. The existing `.feature` suites convert to evals. The decision does not wait on
 [cyber-agentkit#404](https://github.com/cyber-uni/cyber-agentkit/issues/404) or on an analysis of
 BDD in ACED.
+
+**Planned before the build.** The Council is considering two kinds of statement in a spec: *intent*,
+which the Council directed or agreed, and *induced*, which is summarized from the implementation so
+the Council can review its behavior. Intent would carry the weight, and induced statements would be
+regenerated from the code. That may shrink the functional spec a great deal. This decision does not
+settle it, but it shapes how the gates grade, so it is planned as a feature before the build starts.
 
 **Checks during the transition.** `check:specs` stays the v1 script and keeps guarding the v1 specs.
 v2 gets its own script, `check:specs-v2`, and `pnpm verify` runs both. v1 is then retired by deleting

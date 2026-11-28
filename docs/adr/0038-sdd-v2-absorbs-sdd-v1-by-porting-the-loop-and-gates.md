@@ -59,14 +59,15 @@ Option 1. SDD v2 absorbs SDD v1 as follows.
 | Doctrine loop, formation loop | Two scheduled skills, one each (see below). |
 | Ledger | A reduced ledger (see below). |
 
-**The loop.** v2's conductor keeps v1's steps, with one rename: *explore* becomes **build-along**.
-The agent builds while it writes the spec, not as a throwaway spike. The implementation is kept by
-default and discarded only when the spec changes direction. A finding lives in the implementation and
-the spec, so the reduced ledger needs no place for it.
+**The loop.** v2's conductor keeps v1's steps and their names, including *explore*. How explore runs
+is a method, kept in a reference loaded through `cyber-agentkit:reference`, so a repository can
+override it. The default method is **build-along**: the agent builds while it writes the spec, not as
+a throwaway spike. The implementation is kept unless the spec changes direction. A finding lives in
+the implementation and the spec, so the reduced ledger needs no place for it.
 
 **The leash.** The name stays. The leash is how far an agent may act without asking, and it decides
 who ratifies a gate. It never exempts a run from a gate, so it is not a waiver. v2 derives it from
-reach (blast-estimate) at the start of a run, as v1 does, and it may skip build-along for a change
+reach (blast-estimate) at the start of a run, as v1 does, and it may skip the build in explore for a change
 that is prose only.
 
 **The gates.** The spec gate and the impl gate are v2 skills, each judged by a cold subagent. The
